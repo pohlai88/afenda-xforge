@@ -21,6 +21,17 @@ type ModuleStatusGridProps = {
   modules: readonly DashboardModuleHealth[];
 };
 
+const MODULE_STATUS_SKELETON_KEYS = [
+  "module-status-skeleton-1",
+  "module-status-skeleton-2",
+  "module-status-skeleton-3",
+  "module-status-skeleton-4",
+] as const;
+
+const relativeTimeFormatter = new Intl.RelativeTimeFormat("en", {
+  numeric: "auto",
+});
+
 const gridColumnClassNames: Record<
   NonNullable<ModuleStatusGridProps["columns"]>,
   string
@@ -47,14 +58,14 @@ const statusTone = (
 
 const progressBarClassName = (status: DashboardModuleHealthStatus): string => {
   if (status === "online") {
-    return "bg-emerald-500";
+    return "bg-success";
   }
 
   if (status === "offline") {
-    return "bg-red-500";
+    return "bg-destructive";
   }
 
-  return "bg-amber-500";
+  return "bg-warning";
 };
 
 const StatusIcon = ({
@@ -63,44 +74,39 @@ const StatusIcon = ({
   status: DashboardModuleHealthStatus;
 }): ReactElement => {
   if (status === "online") {
-    return (
-      <CheckCircle className="size-5 text-emerald-600 dark:text-emerald-300" />
-    );
+    return <CheckCircle className="size-5 text-success-muted-foreground" />;
   }
 
   if (status === "offline") {
-    return <AlertCircle className="size-5 text-red-600 dark:text-red-300" />;
+    return <AlertCircle className="size-5 text-destructive-muted-foreground" />;
   }
 
-  return <Clock className="size-5 text-amber-600 dark:text-amber-300" />;
+  return <Clock className="size-5 text-warning-muted-foreground" />;
 };
 
 const formatRelativeTime = (value: Date): string => {
   const diffMs = value.getTime() - Date.now();
   const diffSeconds = Math.round(diffMs / 1000);
   const absSeconds = Math.abs(diffSeconds);
-  const formatter = new Intl.RelativeTimeFormat("en", {
-    numeric: "auto",
-  });
 
   if (absSeconds < 60) {
-    return formatter.format(diffSeconds, "second");
+    return relativeTimeFormatter.format(diffSeconds, "second");
   }
 
   const diffMinutes = Math.round(diffSeconds / 60);
 
   if (Math.abs(diffMinutes) < 60) {
-    return formatter.format(diffMinutes, "minute");
+    return relativeTimeFormatter.format(diffMinutes, "minute");
   }
 
   const diffHours = Math.round(diffMinutes / 60);
 
   if (Math.abs(diffHours) < 24) {
-    return formatter.format(diffHours, "hour");
+    return relativeTimeFormatter.format(diffHours, "hour");
   }
 
   const diffDays = Math.round(diffHours / 24);
-  return formatter.format(diffDays, "day");
+  return relativeTimeFormatter.format(diffDays, "day");
 };
 
 export const ModuleStatusGrid = ({
@@ -112,19 +118,11 @@ export const ModuleStatusGrid = ({
   onRetry,
   modules,
 }: ModuleStatusGridProps): ReactElement => {
-  const moduleStatusSkeletonKeys = [
-    "module-status-skeleton-1",
-    "module-status-skeleton-2",
-    "module-status-skeleton-3",
-    "module-status-skeleton-4",
-  ] as const;
-
   if (loading) {
     return (
       <div className={cn("grid gap-4", gridColumnClassNames[columns])}>
-        {moduleStatusSkeletonKeys
-          .slice(0, Math.max(columns, 1))
-          .map((skeletonKey) => (
+        {MODULE_STATUS_SKELETON_KEYS.slice(0, Math.max(columns, 1)).map(
+          (skeletonKey) => (
             <div className="rounded-md border bg-card p-4" key={skeletonKey}>
               <div className="mb-3 flex items-start justify-between gap-3">
                 <div className="space-y-2">
@@ -140,7 +138,8 @@ export const ModuleStatusGrid = ({
                 <Skeleton className="h-3 w-2/3" />
               </div>
             </div>
-          ))}
+          )
+        )}
       </div>
     );
   }

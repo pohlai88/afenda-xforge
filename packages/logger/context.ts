@@ -12,6 +12,8 @@ export type RequestContext = {
   requestId: string;
   operationId?: string;
   organizationId?: string;
+  quietReqLogger?: boolean;
+  quietResLogger?: boolean;
   spanId: string;
   startedAt: number;
   tenantId?: string;
@@ -81,6 +83,8 @@ const createRequestContext = (input: RequestContextInput): RequestContext => {
     requestId: resolvedRequestId,
     operationId: resolvedOperationId,
     organizationId: resolvedOrganizationId,
+    quietReqLogger: input.quietReqLogger ?? existingContext?.quietReqLogger,
+    quietResLogger: input.quietResLogger ?? existingContext?.quietResLogger,
     spanId: input.spanId ?? generateSpanId(),
     startedAt: input.startedAt ?? existingContext?.startedAt ?? Date.now(),
     tenantId: resolvedTenantId,

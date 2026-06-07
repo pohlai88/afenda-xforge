@@ -12,6 +12,8 @@ const handleGet = createSwaggerUiRoute({
 export const GET = withRequestLogging(
   async (): Promise<Response> => handleGet(),
   {
+    quietReqLogger: true,
+    quietResLogger: true,
     logger: openApiLogger,
   }
 );

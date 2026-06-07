@@ -12,6 +12,7 @@
     "./package.json": "./package.json"
   },
   "files": [
+    "7w1h.md",
     "contract.ts",
     "differ.ts",
     "index.ts",
@@ -29,6 +30,7 @@
   "dependencies": {
     "@repo/database": "workspace:*",
     "drizzle-orm": "catalog:",
+    "zod": "catalog:",
     "server-only": "catalog:"
   },
   "devDependencies": {

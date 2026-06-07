@@ -18,16 +18,22 @@ It does not own:
 - observability logs
 - policy decisions
 
+## Canonical North Star
+
+The audit contract is defined in [7w1h.md](./7w1h.md). Use that file as the source of truth when changing governed mutation evidence.
+The exported TypeScript surface intentionally uses the `Audit7W1H*` types and `audit7w1h*` schemas so the north star stays visible in code as well as docs.
+
 ## What was adopted from the legacy kernel
 
-The legacy Afenda kernel had a stronger execution-audit contract. Xforge now keeps the useful parts:
+The legacy Afenda kernel had a stronger execution-audit contract. Xforge keeps the useful parts:
 
-- 7W1H-shaped audit records
 - explicit actor type, route, surface, module, and subject context
 - summary and reason normalization
 - change-level diffing with `added`, `removed`, and `changed`
+- every diff entry keeps its `change` classification through normalization and persistence
 - bounded redaction for sensitive fields and nested payloads
 - query helpers for actor, target, request, and export use cases
+- runtime reference logs that can point back to the persisted `auditEventId` after a successful write
 
 ## Standard usage
 
@@ -50,6 +56,7 @@ If a mutation updates an existing record, do not return `before: {}` unless the 
 - tenant and company filters are applied on every read path
 - CSV/JSON exports are covered for empty and non-empty result sets
 - request IDs can be used to reconstruct a single execution pipeline run
+- runtime logs may reference the persisted audit event ID, but audit remains the source of truth
 
 ## Deferred on purpose
 

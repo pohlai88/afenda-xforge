@@ -8,14 +8,18 @@
     ".": "./index.tsx",
     "./components/button": "./components/button.tsx",
     "./components/activity-table": "./components/activity-table.tsx",
+    "./components/badge": "./components/badge.tsx",
+    "./components/card": "./components/card.tsx",
     "./components/dashboard-grid": "./components/dashboard-grid.tsx",
     "./components/input": "./components/input.tsx",
     "./components/kpi-card": "./components/kpi-card.tsx",
     "./components/mode-toggle": "./components/mode-toggle.tsx",
     "./components/module-status-grid": "./components/module-status-grid.tsx",
+    "./components/separator": "./components/separator.tsx",
     "./components/skeleton": "./components/skeleton.tsx",
     "./components/state-panel": "./components/state-panel.tsx",
     "./components/status-badge": "./components/status-badge.tsx",
+    "./components/table": "./components/table.tsx",
     "./package.json": "./package.json"
   },
   "files": [
@@ -39,7 +43,6 @@
     "@repo/typescript-config": "workspace:*",
     "@types/node": "catalog:",
     "@types/react": "catalog:",
-    "@types/react-dom": "catalog:",
     "typescript": "catalog:"
   }
 }

@@ -20,6 +20,8 @@ The route contract should be the source of truth for:
 3. Create the route handler with `createContractRoute(...)`.
 4. Register the same contract in the app OpenAPI document with `addRouteContractToOpenApi(...)`.
 
+`createContractRoute(...)` forwards the full request logging options surface, including safe `customProps` hooks and quiet request/response logger flags for high-volume routes.
+
 ## Success response shape
 
 Client-facing JSON routes should return:

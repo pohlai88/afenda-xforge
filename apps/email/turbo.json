@@ -1,0 +1,9 @@
+{
+  "$schema": "https://turborepo.com/schema.json",
+  "extends": ["//"],
+  "tasks": {
+    "build": {
+      "outputs": [".react-email/.next/**", "!.react-email/.next/cache/**"]
+    }
+  }
+}

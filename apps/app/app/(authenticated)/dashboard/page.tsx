@@ -3,7 +3,7 @@ import { ForbiddenError } from "@repo/errors";
 import { companyMetadata } from "@repo/features-master-data-companies/metadata";
 import { customerMetadata } from "@repo/features-master-data-customers/metadata";
 import type { EntityMetadata } from "@repo/metadata";
-import { EntityMetadataTable, getEntityLabels } from "@repo/metadata-ui";
+import { EntityMetadataPanel, getEntityLabels } from "@repo/metadata-ui";
 import { DashboardGrid, KpiCard } from "@repo/ui";
 import Link from "next/link";
 import type { ReactElement } from "react";
@@ -36,44 +36,42 @@ const renderSection = (
 ): ReactElement => {
   if (state.status === "forbidden") {
     return (
-      <section className="rounded-[var(--radius-xl)] border border-border bg-card/95 p-6 shadow-sm">
-        <div className="space-y-2">
-          <h2 className="font-semibold text-xl tracking-tight">{title}</h2>
-          <p className="text-muted-foreground">
-            You do not have permission to view this section.
-          </p>
-        </div>
-      </section>
+      <EntityMetadataPanel
+        defaultSortColumn={metadata.table?.defaultSort}
+        forbidden
+        metadata={metadata}
+        rows={[]}
+        searchPlaceholder={searchPlaceholder}
+        title={title}
+        totalRecords={0}
+      />
     );
   }
 
   if (state.status === "error") {
     return (
-      <section className="rounded-[var(--radius-xl)] border border-border bg-card/95 p-6 shadow-sm">
-        <div className="space-y-2">
-          <h2 className="font-semibold text-xl tracking-tight">{title}</h2>
-          <p className="text-muted-foreground">{state.message}</p>
-        </div>
-      </section>
+      <EntityMetadataPanel
+        defaultSortColumn={metadata.table?.defaultSort}
+        error={state.message}
+        metadata={metadata}
+        rows={[]}
+        searchPlaceholder={searchPlaceholder}
+        title={title}
+        totalRecords={0}
+      />
     );
   }
 
   return (
-    <section className="space-y-4 rounded-[var(--radius-xl)] border border-border bg-card/95 p-6 shadow-sm">
-      <div className="space-y-1">
-        <h2 className="font-semibold text-xl tracking-tight">{title}</h2>
-        <p className="text-muted-foreground text-sm">
-          {state.data.total} total record{state.data.total === 1 ? "" : "s"}
-        </p>
-      </div>
-      <EntityMetadataTable
-        defaultSortColumn={metadata.table?.defaultSort}
-        metadata={metadata}
-        pageSize={5}
-        rows={state.data.items}
-        searchPlaceholder={searchPlaceholder}
-      />
-    </section>
+    <EntityMetadataPanel
+      defaultSortColumn={metadata.table?.defaultSort}
+      metadata={metadata}
+      pageSize={5}
+      rows={state.data.items}
+      searchPlaceholder={searchPlaceholder}
+      title={title}
+      totalRecords={state.data.total}
+    />
   );
 };
 

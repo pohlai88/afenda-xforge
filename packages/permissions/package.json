@@ -26,8 +26,7 @@
     "typecheck": "tsc --noEmit --emitDeclarationOnly false"
   },
   "dependencies": {
-    "@repo/errors": "workspace:*",
-    "server-only": "catalog:"
+    "@repo/errors": "workspace:*"
   },
   "devDependencies": {
     "@repo/typescript-config": "workspace:*",

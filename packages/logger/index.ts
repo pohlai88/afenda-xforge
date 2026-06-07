@@ -3,8 +3,8 @@ import "server-only";
 export type { RequestContext, RequestContextInput } from "./context.ts";
 export {
   appendRequestContextMetadata,
-  generateRequestId,
   generateOperationId,
+  generateRequestId,
   generateSpanId,
   generateTraceId,
   getRequestContext,
@@ -30,6 +30,8 @@ export {
   timeOperation,
 } from "./logger.ts";
 export type {
+  RequestLoggingCustomProps,
+  RequestLoggingCustomPropsContext,
   RequestLoggingHandler,
   RequestLoggingOptions,
 } from "./request.ts";

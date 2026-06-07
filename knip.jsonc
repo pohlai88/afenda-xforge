@@ -1,11 +1,12 @@
 {
   "$schema": "https://unpkg.com/knip@6/schema-jsonc.json",
-  "ignore": [
-    "**/.next/**",
-    "**/coverage/**",
-    "**/dist/**",
-    "**/storybook-static/**"
+  "ignoreDependencies": [
+    "@repo/typescript-config",
+    "@turbo/gen",
+    "next",
+    "tailwindcss"
   ],
+  "ignoreFiles": ["supabase/functions/**/index.ts"],
   "workspaces": {
     "apps/api": {
       "ignoreDependencies": ["@repo/next-config!"]

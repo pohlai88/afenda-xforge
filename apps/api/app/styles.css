@@ -1,2 +1,4 @@
 @import "@repo/design-system/styles/globals.css";
+
 @source "./**/*.{ts,tsx}";
+@source "../../../packages/design-system/components/**/*.{ts,tsx}";

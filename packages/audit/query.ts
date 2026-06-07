@@ -4,11 +4,12 @@ import { auditEvents, database, timeDatabaseQuery } from "@repo/database";
 import type { SQL } from "drizzle-orm";
 import { and, desc, eq, gte, isNull, lte, sql } from "drizzle-orm";
 import type {
-  AuditEvent,
-  AuditExportFormat,
-  AuditQueryOptions,
-  AuditQueryResult,
+  Audit7W1HEvent,
+  Audit7W1HExportFormat,
+  Audit7W1HQueryOptions,
+  Audit7W1HQueryResult,
 } from "./contract.ts";
+import { audit7w1hQueryOptionsSchema } from "./contract.ts";
 
 const DEFAULT_LIMIT = 50;
 const DEFAULT_OFFSET = 0;
@@ -24,11 +25,11 @@ const trimToNull = (value: string | null | undefined): string | null => {
   return trimmed.length > 0 ? trimmed : null;
 };
 
-const buildAuditTargetLabel = (event: AuditEvent): string =>
+const buildAuditTargetLabel = (event: Audit7W1HEvent): string =>
   trimToNull(event.targetDisplayName) ??
   `${event.targetType}:${event.targetId}`;
 
-const buildAuditSummary = (event: AuditEvent): string =>
+const buildAuditSummary = (event: Audit7W1HEvent): string =>
   trimToNull(event.summary) ??
   `${event.action} executed against ${buildAuditTargetLabel(event)}.`;
 
@@ -67,7 +68,7 @@ const appendDateFilter = (
   filters.push(direction === "from" ? gte(column, value) : lte(column, value));
 };
 
-const hydrateAuditEvent = (event: AuditEvent): AuditEvent => ({
+const hydrateAuditEvent = (event: Audit7W1HEvent): Audit7W1HEvent => ({
   ...event,
   actorRole: trimToNull(event.actorRole),
   actorType: event.actorType ?? "user",
@@ -77,7 +78,7 @@ const hydrateAuditEvent = (event: AuditEvent): AuditEvent => ({
   diff: Array.isArray(event.diff) ? event.diff : [],
   grantId: event.grantId ?? null,
   metadata: event.metadata ?? {},
-  module: trimToNull(event.module) ?? event.action.split(".")[0] ?? null,
+  module: trimToNull(event.module) ?? event.action.split(".")[0],
   outcome: event.outcome ?? "success",
   operationId: trimToNull(event.operationId) ?? event.requestId,
   occurredAt: event.occurredAt ?? event.createdAt,
@@ -94,7 +95,7 @@ const hydrateAuditEvent = (event: AuditEvent): AuditEvent => ({
 });
 
 const buildAuditWhereClause = (
-  options: AuditQueryOptions
+  options: Audit7W1HQueryOptions
 ): ReturnType<typeof and> => {
   const filters = [eq(auditEvents.tenantId, options.tenantId)];
   appendNullableStringFilter(filters, auditEvents.companyId, options.companyId);
@@ -126,11 +127,12 @@ const buildAuditWhereClause = (
 };
 
 export const listAuditEvents = async (
-  options: AuditQueryOptions
-): Promise<AuditQueryResult> => {
-  const whereClause = buildAuditWhereClause(options);
-  const limit = options.limit ?? DEFAULT_LIMIT;
-  const offset = options.offset ?? DEFAULT_OFFSET;
+  options: Audit7W1HQueryOptions
+): Promise<Audit7W1HQueryResult> => {
+  const resolvedOptions = audit7w1hQueryOptionsSchema.parse(options);
+  const whereClause = buildAuditWhereClause(resolvedOptions);
+  const limit = resolvedOptions.limit ?? DEFAULT_LIMIT;
+  const offset = resolvedOptions.offset ?? DEFAULT_OFFSET;
 
   const [events, totals] = await Promise.all([
     timeDatabaseQuery(
@@ -150,7 +152,7 @@ export const listAuditEvents = async (
         operation: "select",
         resource: "audit_events",
         metadata: {
-          tenantId: options.tenantId,
+          tenantId: resolvedOptions.tenantId,
         },
       }
     ),
@@ -166,47 +168,51 @@ export const listAuditEvents = async (
         operation: "select",
         resource: "audit_events",
         metadata: {
-          tenantId: options.tenantId,
+          tenantId: resolvedOptions.tenantId,
         },
       }
     ),
   ]);
 
   return {
-    events: (events as AuditEvent[]).map(hydrateAuditEvent),
+    events: (events as Audit7W1HEvent[]).map(hydrateAuditEvent),
     total: totals[0]?.total ?? 0,
   };
 };
 
 export const getAuditEventsForTarget = (
-  options: Omit<AuditQueryOptions, "action" | "actorId" | "requestId"> & {
+  options: Omit<Audit7W1HQueryOptions, "action" | "actorId" | "requestId"> & {
     targetType: string;
     targetId: string;
   }
-): Promise<AuditQueryResult> => listAuditEvents(options);
+): Promise<Audit7W1HQueryResult> => listAuditEvents(options);
 
 export const getAuditEventsForRequest = (
   options: Omit<
-    AuditQueryOptions,
+    Audit7W1HQueryOptions,
     "action" | "actorId" | "targetType" | "targetId"
   > & {
     requestId: string;
   }
-): Promise<AuditQueryResult> => listAuditEvents(options);
+): Promise<Audit7W1HQueryResult> => listAuditEvents(options);
 
 export const getAuditEventsForActor = (
-  options: Omit<AuditQueryOptions, "targetType" | "targetId" | "requestId"> & {
+  options: Omit<
+    Audit7W1HQueryOptions,
+    "targetType" | "targetId" | "requestId"
+  > & {
     actorId: string;
   }
-): Promise<AuditQueryResult> => listAuditEvents(options);
+): Promise<Audit7W1HQueryResult> => listAuditEvents(options);
 
 export const countAuditEventsByAction = async (
   options: Omit<
-    AuditQueryOptions,
+    Audit7W1HQueryOptions,
     "action" | "targetType" | "targetId" | "requestId" | "limit" | "offset"
   >
 ): Promise<Record<string, number>> => {
-  const whereClause = buildAuditWhereClause(options);
+  const resolvedOptions = audit7w1hQueryOptionsSchema.parse(options);
+  const whereClause = buildAuditWhereClause(resolvedOptions);
 
   const rows = await timeDatabaseQuery(
     () =>
@@ -222,7 +228,7 @@ export const countAuditEventsByAction = async (
       operation: "select",
       resource: "audit_events",
       metadata: {
-        tenantId: options.tenantId,
+        tenantId: resolvedOptions.tenantId,
       },
     }
   );
@@ -285,7 +291,9 @@ const AUDIT_EXPORT_HEADERS = [
   "tenantId",
 ] as const;
 
-const formatAuditEventRows = (events: AuditEvent[]): Record<string, string>[] =>
+const formatAuditEventRows = (
+  events: Audit7W1HEvent[]
+): Record<string, string>[] =>
   events.map((event) => ({
     action: event.action,
     actorId: event.actorId,
@@ -320,18 +328,19 @@ const formatAuditEventRows = (events: AuditEvent[]): Record<string, string>[] =>
   }));
 
 export const exportAuditEvents = async (
-  options: AuditQueryOptions & {
-    format: AuditExportFormat;
+  options: Audit7W1HQueryOptions & {
+    format: Audit7W1HExportFormat;
   }
 ): Promise<string> => {
-  const result = await listAuditEvents(options);
+  const resolvedOptions = audit7w1hQueryOptionsSchema.parse(options);
+  const result = await listAuditEvents(resolvedOptions);
 
   if (options.format === "json") {
     return JSON.stringify(
       {
         items: result.events,
-        limit: options.limit ?? DEFAULT_LIMIT,
-        offset: options.offset ?? DEFAULT_OFFSET,
+        limit: resolvedOptions.limit ?? DEFAULT_LIMIT,
+        offset: resolvedOptions.offset ?? DEFAULT_OFFSET,
         total: result.total,
       },
       null,

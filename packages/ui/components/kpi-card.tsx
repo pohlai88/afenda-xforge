@@ -8,6 +8,7 @@ import type {
 } from "@repo/metadata";
 import { ArrowDown, ArrowRight, ArrowUp, Minus } from "lucide-react";
 import type { KeyboardEvent, ReactElement, ReactNode } from "react";
+import { useMemo } from "react";
 
 type KpiCardProps = DashboardKpiDefinition & {
   icon?: ReactNode;
@@ -19,35 +20,41 @@ type KpiCardProps = DashboardKpiDefinition & {
 const toneClassNames: Record<
   DashboardKpiTone,
   {
+    bar: string;
     border: string;
     text: string;
     tint: string;
   }
 > = {
   danger: {
-    border: "border-red-500/20",
-    text: "text-red-700 dark:text-red-300",
-    tint: "bg-red-500/10",
+    bar: "bg-destructive",
+    border: "border-destructive-border",
+    text: "text-destructive-muted-foreground",
+    tint: "bg-destructive-muted/70",
   },
   info: {
-    border: "border-cyan-500/20",
-    text: "text-cyan-700 dark:text-cyan-300",
-    tint: "bg-cyan-500/10",
+    bar: "bg-info",
+    border: "border-info-border",
+    text: "text-info-muted-foreground",
+    tint: "bg-info-muted/70",
   },
   primary: {
-    border: "border-blue-500/20",
-    text: "text-blue-700 dark:text-blue-300",
-    tint: "bg-blue-500/10",
+    bar: "bg-primary",
+    border: "border-primary/20",
+    text: "text-primary",
+    tint: "bg-primary/10",
   },
   success: {
-    border: "border-emerald-500/20",
-    text: "text-emerald-700 dark:text-emerald-300",
-    tint: "bg-emerald-500/10",
+    bar: "bg-success",
+    border: "border-success-border",
+    text: "text-success-muted-foreground",
+    tint: "bg-success-muted/70",
   },
   warning: {
-    border: "border-amber-500/20",
-    text: "text-amber-700 dark:text-amber-300",
-    tint: "bg-amber-500/10",
+    bar: "bg-warning",
+    border: "border-warning-border",
+    text: "text-warning-muted-foreground",
+    tint: "bg-warning-muted/70",
   },
 };
 
@@ -60,7 +67,7 @@ const trendDecoration: Record<
   }
 > = {
   down: {
-    badge: "bg-red-500/10 text-red-700 dark:text-red-300",
+    badge: "bg-destructive-muted text-destructive-muted-foreground",
     icon: ArrowDown,
     text: "",
   },
@@ -70,7 +77,7 @@ const trendDecoration: Record<
     text: "",
   },
   up: {
-    badge: "bg-emerald-500/10 text-emerald-700 dark:text-emerald-300",
+    badge: "bg-success-muted text-success-muted-foreground",
     icon: ArrowUp,
     text: "+",
   },
@@ -93,33 +100,45 @@ export const KpiCard = ({
   const trendConfig = trendDecoration[trend];
   const TrendIcon = trendConfig.icon;
   const isInteractive = Boolean(link || onClick);
-  const maxSparklineValue =
-    sparklineData && sparklineData.length > 0 ? Math.max(...sparklineData) : 0;
-  const minSparklineValue =
-    sparklineData && sparklineData.length > 0 ? Math.min(...sparklineData) : 0;
-  const sparklineRange = maxSparklineValue - minSparklineValue || 1;
-  const sparklineBars =
-    sparklineData?.reduce<{
-      counts: Map<number, number>;
-      items: Array<{
-        dataPoint: number;
-        key: string;
-      }>;
-    }>(
-      (accumulator, dataPoint) => {
-        const occurrence = (accumulator.counts.get(dataPoint) ?? 0) + 1;
-        accumulator.counts.set(dataPoint, occurrence);
-        accumulator.items.push({
-          dataPoint,
-          key: `${title}-${dataPoint}-${occurrence}`,
-        });
-        return accumulator;
-      },
-      {
-        counts: new Map<number, number>(),
-        items: [],
+  const sparklineBars = useMemo(() => {
+    if (!sparklineData || sparklineData.length === 0) {
+      return [];
+    }
+
+    let minSparklineValue = sparklineData[0];
+    let maxSparklineValue = sparklineData[0];
+
+    for (const dataPoint of sparklineData) {
+      if (dataPoint < minSparklineValue) {
+        minSparklineValue = dataPoint;
       }
-    ).items ?? [];
+
+      if (dataPoint > maxSparklineValue) {
+        maxSparklineValue = dataPoint;
+      }
+    }
+
+    const sparklineRange = maxSparklineValue - minSparklineValue || 1;
+    const counts = new Map<number, number>();
+    const items: Array<{
+      key: string;
+      height: number;
+    }> = [];
+
+    for (const dataPoint of sparklineData) {
+      const occurrence = (counts.get(dataPoint) ?? 0) + 1;
+      counts.set(dataPoint, occurrence);
+      const barHeight =
+        ((dataPoint - minSparklineValue) / sparklineRange) * 100;
+
+      items.push({
+        key: `${title}-${dataPoint}-${occurrence}`,
+        height: Math.max(4, barHeight * 0.6),
+      });
+    }
+
+    return items;
+  }, [sparklineData, title]);
 
   const handleKeyDown = (event: KeyboardEvent<HTMLButtonElement>): void => {
     if (event.key === "Enter" || event.key === " ") {
@@ -172,21 +191,16 @@ export const KpiCard = ({
 
       {sparklineBars.length > 0 ? (
         <div className="mt-4 flex items-end gap-1">
-          {sparklineBars.map((bar) => {
-            const barHeight =
-              ((bar.dataPoint - minSparklineValue) / sparklineRange) * 100;
-
-            return (
-              <div
-                className={cn("min-w-0 flex-1 rounded-sm", toneClassName.text)}
-                key={bar.key}
-                style={{
-                  height: `${Math.max(4, barHeight * 0.6)}px`,
-                  opacity: 0.35,
-                }}
-              />
-            );
-          })}
+          {sparklineBars.map((bar) => (
+            <div
+              className={cn("min-w-0 flex-1 rounded-sm", toneClassName.bar)}
+              key={bar.key}
+              style={{
+                height: `${bar.height}px`,
+                opacity: 0.35,
+              }}
+            />
+          ))}
         </div>
       ) : null}
 

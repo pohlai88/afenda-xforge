@@ -14,6 +14,7 @@ export type RequestLogInput = {
   method: string;
   path: string;
   statusCode: number;
+  quiet?: boolean;
 } & LoggerBindings;
 
 export type QueryLogInput = {
@@ -83,6 +84,39 @@ const defaultRedactedPaths = [
   "token",
 ];
 
+const requestContextReservedFields = new Set([
+  "actorId",
+  "correlationId",
+  "method",
+  "operationId",
+  "organizationId",
+  "path",
+  "quietReqLogger",
+  "quietResLogger",
+  "requestId",
+  "spanId",
+  "startedAt",
+  "tenantId",
+  "traceId",
+  "userId",
+]);
+
+const filterRequestContextMetadata = (
+  metadata: Record<string, unknown>
+): Record<string, unknown> => {
+  const filtered: Record<string, unknown> = {};
+
+  for (const [key, value] of Object.entries(metadata)) {
+    if (requestContextReservedFields.has(key)) {
+      continue;
+    }
+
+    filtered[key] = value;
+  }
+
+  return filtered;
+};
+
 const transport = isDevelopment
   ? pino.transport({
       target: "pino-pretty",
@@ -117,18 +151,22 @@ const options: LoggerOptions = {
     }
 
     return {
+      ...filterRequestContextMetadata(context.metadata),
       actorId: context.actorId ?? context.userId,
       correlationId: context.correlationId ?? context.traceId,
-      method: context.method,
+      ...(context.quietReqLogger
+        ? {}
+        : {
+            method: context.method,
+            path: context.path,
+          }),
       operationId: context.operationId,
       organizationId: context.organizationId ?? context.tenantId,
-      path: context.path,
       requestId: context.requestId,
       spanId: context.spanId,
       tenantId: context.tenantId,
       traceId: context.traceId,
       userId: context.userId,
-      ...context.metadata,
     };
   },
 };
@@ -158,6 +196,7 @@ export const logRequest = ({
   logger = log,
   method,
   path,
+  quiet = false,
   statusCode,
   ...metadata
 }: RequestLogInput): void => {
@@ -170,13 +209,19 @@ export const logRequest = ({
   }
 
   logger[level](
-    {
-      durationMs,
-      method,
-      path,
-      statusCode,
-      ...metadata,
-    },
+    quiet
+      ? {
+          durationMs,
+          statusCode,
+          ...metadata,
+        }
+      : {
+          durationMs,
+          method,
+          path,
+          statusCode,
+          ...metadata,
+        },
     "request completed"
   );
 };

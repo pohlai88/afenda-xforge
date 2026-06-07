@@ -9,7 +9,7 @@ import type { OperationalModuleId } from "./ai-operations.schema.ts";
 // Context input DTOs
 // ---------------------------------------------------------------------------
 
-export type AiContextRecordInput = {
+type AiContextRecordInput = {
   id: string;
   reference: string;
   title: string;
@@ -19,19 +19,19 @@ export type AiContextRecordInput = {
   metadataSummary: string;
 };
 
-export type AiContextWorkItemInput = {
+type AiContextWorkItemInput = {
   id: string;
   subject: string;
   priority?: string;
   status?: string;
 };
 
-export type AiContextDocumentInput = {
+type AiContextDocumentInput = {
   id: string;
   title: string;
 };
 
-export type AiContextKpiInput = {
+type AiContextKpiInput = {
   id: string;
   label: string;
   value: string;

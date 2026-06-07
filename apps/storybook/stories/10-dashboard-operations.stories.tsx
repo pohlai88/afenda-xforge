@@ -8,6 +8,8 @@ import { StatePanel } from "@repo/ui/components/state-panel";
 import type { Meta, StoryObj } from "@storybook/react";
 import { enterpriseKpis, moduleHealth } from "./enterprise-fixtures";
 
+const enterpriseSparklineData = [12, 18, 16, 22, 27, 31, 29] as const;
+
 const meta: Meta<typeof DashboardGrid> = {
   title: "Operations/Control Tower",
   component: DashboardGrid,
@@ -28,7 +30,7 @@ export const ExecutiveControlTower: Story = {
           <KpiCard
             {...kpi}
             key={kpi.title}
-            sparklineData={[12, 18, 16, 22, 27, 31, 29]}
+            sparklineData={enterpriseSparklineData}
           />
         ))}
       </section>

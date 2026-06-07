@@ -1,9 +1,9 @@
 import "server-only";
 
+export * from "./ai-assistant.agent.server.ts";
 export * from "./ai-chat.schema.ts";
 export * from "./ai-confidence.policy.ts";
 export * from "./ai-context.repository.server.ts";
-export * from "./ai-assistant.agent.server.ts";
 export * from "./ai-extraction.schema.ts";
 export * from "./ai-gateway.error.ts";
 export * from "./ai-gateway.repository.server.ts";
@@ -12,8 +12,8 @@ export * from "./ai-governance.tool.server.ts";
 export * from "./ai-governed-tool.event.ts";
 export * from "./ai-guardrails.policy.ts";
 export {
-  aiHttpRoutes,
   type AiHttpRoute,
+  aiHttpRoutes,
 } from "./ai-http.contract.ts";
 export * from "./ai-operations.schema.ts";
 export * from "./ai-output.component.ts";

@@ -13,6 +13,8 @@ export type ServerLogLevel =
 
 export type ServerLogContext = {
   actorId?: string;
+  auditEventId?: string;
+  companyId?: string;
   module: string;
   operation: string;
   operationId?: string;

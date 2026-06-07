@@ -32,7 +32,7 @@ export const Controls: Story = {
           <Button variant="ghost">Ghost</Button>
           <Button variant="destructive">Destructive</Button>
           <Button asChild variant="link">
-            <a href="#">Link action</a>
+            <a href="https://example.com">Link action</a>
           </Button>
         </div>
       </section>

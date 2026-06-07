@@ -1,7 +1,7 @@
 import "server-only";
 
 import { InternalError, ValidationError } from "@repo/errors";
-import type { AppLogger } from "@repo/logger";
+import type { RequestLoggingOptions } from "@repo/logger";
 import { withRequestLogging } from "@repo/logger";
 import type { z } from "zod";
 import { ZodError } from "zod";
@@ -18,10 +18,7 @@ type RouteHandler<TContract extends AnyApiRouteContract> = (
   input: ApiRouteRequest<TContract>
 ) => Promise<ApiRouteResult<unknown>> | ApiRouteResult<unknown>;
 
-export type ContractRouteOptions = {
-  logger?: AppLogger;
-  metricsApp?: string;
-};
+export type ContractRouteOptions = RequestLoggingOptions;
 
 const searchParamsToObject = (
   searchParams: URLSearchParams
@@ -152,9 +149,7 @@ export const createContractRoute =
             : error;
         }
       },
-      {
-        logger: options.logger,
-      }
+      options
     );
 
     return await routeHandler(request);

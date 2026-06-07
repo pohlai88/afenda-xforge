@@ -8,6 +8,8 @@ const routes = createHealthRouteHandlers(healthManager);
 export const GET = withRequestLogging(
   async (): Promise<Response> => routes.startup(),
   {
+    quietReqLogger: true,
+    quietResLogger: true,
     logger: healthLogger,
   }
 );

@@ -157,7 +157,7 @@ packages/search
 Rules:
 
 - `packages/analytics` owns telemetry providers, client/server analytics helpers, and lightweight UI wiring, not ERP business decisions.
-- `packages/logger` owns structured runtime logging, request context propagation, request wrappers, and server log helpers. It propagates request, correlation, and operation context. It is server-only and must not own audit evidence or business decisions.
+- `packages/logger` owns structured runtime logging, request context propagation, request wrappers, and server log helpers. It propagates request, correlation, and operation context. Route wrappers may attach safe custom props and quiet logging flags for high-volume endpoints. It is server-only and must not own audit evidence or business decisions.
 - `packages/ai` owns model registry helpers, AI SDK adapters, and AI UI primitives, not ERP business decisions.
 - `packages/machine` owns product-specific AI orchestration, assistant selection, context assembly, and prompt wiring. It may compose approved feature server entrypoints, but it must not own business decisions or import feature internals.
 - `packages/events` owns event contracts and publishers, not business decisions.
@@ -251,7 +251,7 @@ xforge/
 - `packages/execution` owns the only canonical mutation entrypoint.
 - `packages/features/master-data/<feature-name>` owns the feature-specific master-data capability, its server entrypoint, its metadata, its vertical scaffold, and any horizontal business areas inside the package.
 - `packages/permissions` owns permission contracts and server-side guards.
-- `packages/audit` owns audit event shape and persistence.
+- `packages/audit` owns the 7W1H audit event shape and persistence.
 - `packages/metadata` owns metadata contracts only.
 - `packages/metadata-ui` owns metadata-driven rendering helpers.
 - `packages/shared` owns cross-feature primitives, value objects, constants, and narrow contracts that are not business execution logic.

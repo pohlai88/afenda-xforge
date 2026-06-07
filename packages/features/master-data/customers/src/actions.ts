@@ -100,16 +100,15 @@ const insertCustomerRecord = async (
   return mapCustomer(customer);
 };
 
-const persistCustomerAuditEvent = async (
+const persistCustomerAuditEvent = (
   event: Parameters<typeof persistAuditEvent>[0],
   db?: ExecutionDatabaseTransaction
-): Promise<void> => {
+): ReturnType<typeof persistAuditEvent> => {
   if (db) {
-    await writeAuditEventInTransaction(db, event);
-    return;
+    return writeAuditEventInTransaction(db, event);
   }
 
-  await persistAuditEvent(event);
+  return persistAuditEvent(event);
 };
 
 export const createCustomer = (

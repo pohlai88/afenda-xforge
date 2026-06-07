@@ -7,9 +7,7 @@ export const auditExportQuerySchema = auditListQuerySchema.extend({
   format: z.enum(["json", "csv"]).default("csv"),
 });
 
-export type AuditExportQuery = z.infer<typeof auditExportQuerySchema>;
-
-export const auditExportRouteContract = defineRouteContract({
+const auditExportRouteContract = defineRouteContract({
   audience: "client",
   description: "Exports tenant-scoped audit events for operators.",
   method: "GET",

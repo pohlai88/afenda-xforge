@@ -5,8 +5,3 @@ export const machineAiFeatureFlags = [
 ] as const;
 
 export type MachineAiFeatureFlag = (typeof machineAiFeatureFlags)[number];
-
-export const lynxAiFeatureFlags: typeof machineAiFeatureFlags =
-  machineAiFeatureFlags;
-
-export type LynxAiFeatureFlag = MachineAiFeatureFlag;

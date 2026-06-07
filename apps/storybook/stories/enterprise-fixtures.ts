@@ -5,11 +5,13 @@ import type {
   EntityMetadata,
 } from "@repo/metadata";
 
+const REFERENCE_TIME = new Date("2026-06-07T12:00:00Z").getTime();
+
 const hoursAgo = (hours: number): Date =>
-  new Date(Date.now() - hours * 60 * 60 * 1000);
+  new Date(REFERENCE_TIME - hours * 60 * 60 * 1000);
 
 const daysAgo = (days: number): Date =>
-  new Date(Date.now() - days * 24 * 60 * 60 * 1000);
+  new Date(REFERENCE_TIME - days * 24 * 60 * 60 * 1000);
 
 export const customerMetadata: EntityMetadata = {
   entity: "customer",

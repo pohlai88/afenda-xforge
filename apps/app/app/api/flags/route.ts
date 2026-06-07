@@ -6,6 +6,11 @@ const flagsLogger = createLogger("app.api.flags");
 const flagsRoute = withRequestLogging(
   async (request: Request): Promise<Response> => getFlags(request),
   {
+    customProps: () => ({
+      routeGroup: "feature-flags",
+    }),
+    quietReqLogger: true,
+    quietResLogger: true,
     logger: flagsLogger,
     metricsApp: "app",
   }

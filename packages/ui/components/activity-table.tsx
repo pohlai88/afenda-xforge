@@ -9,8 +9,25 @@ import { ChevronDown, ChevronUp } from "lucide-react";
 import type { ChangeEvent, ReactElement, ReactNode } from "react";
 import { useDeferredValue, useEffect, useMemo, useState } from "react";
 import { StatePanel } from "./state-panel";
+import {
+  Table,
+  TableBody,
+  TableCaption,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "./table";
 
 type SortOrder = "asc" | "desc" | null;
+
+const ACTIVITY_TABLE_SKELETON_KEYS = [
+  "activity-table-skeleton-1",
+  "activity-table-skeleton-2",
+  "activity-table-skeleton-3",
+  "activity-table-skeleton-4",
+  "activity-table-skeleton-5",
+] as const;
 
 type ActivityTableProps = {
   columns?: readonly TableColumnMetadata[];
@@ -27,6 +44,7 @@ type ActivityTableProps = {
   searchAriaLabel?: string;
   searchPlaceholder?: string;
   showSearch?: boolean;
+  surface?: "contained" | "embedded";
   renderCell?: (
     column: TableColumnMetadata,
     value: DashboardTableRow[string],
@@ -119,6 +137,7 @@ export const ActivityTable = ({
   searchAriaLabel = "Search table",
   searchPlaceholder = "Search...",
   showSearch = true,
+  surface = "contained",
   renderCell,
   defaultSortColumn,
 }: ActivityTableProps): ReactElement => {
@@ -212,14 +231,6 @@ export const ActivityTable = ({
     setFilter(event.target.value);
   };
 
-  const activityTableSkeletonKeys = [
-    "activity-table-skeleton-1",
-    "activity-table-skeleton-2",
-    "activity-table-skeleton-3",
-    "activity-table-skeleton-4",
-    "activity-table-skeleton-5",
-  ] as const;
-
   if (error) {
     return (
       <StatePanel
@@ -250,20 +261,30 @@ export const ActivityTable = ({
 
   if (loading) {
     return (
-      <div className="rounded-md border bg-card p-4">
-        <div className="space-y-3">
-          {activityTableSkeletonKeys
-            .slice(0, Math.max(1, Math.min(pageSize, 5)))
-            .map((skeletonKey) => (
-              <Skeleton className="h-10" key={skeletonKey} />
-            ))}
-        </div>
+      <div
+        className={cn(
+          "space-y-3",
+          surface === "contained" &&
+            "rounded-xl border bg-card/95 p-4 shadow-sm"
+        )}
+      >
+        {ACTIVITY_TABLE_SKELETON_KEYS.slice(
+          0,
+          Math.max(1, Math.min(pageSize, 5))
+        ).map((skeletonKey) => (
+          <Skeleton className="h-10" key={skeletonKey} />
+        ))}
       </div>
     );
   }
 
   return (
-    <div className="flex flex-col rounded-md border bg-card">
+    <div
+      className={cn(
+        "flex flex-col",
+        surface === "contained" && "rounded-xl border bg-card/95 shadow-sm"
+      )}
+    >
       {showSearch ? (
         <div className="border-b p-4">
           <Input
@@ -278,16 +299,15 @@ export const ActivityTable = ({
       ) : null}
 
       <div className="overflow-x-auto">
-        <table className="w-full text-sm">
-          <caption className="sr-only">
+        <Table>
+          <TableCaption className="sr-only">
             {showSearch ? "Filterable results table" : "Results table"}
-          </caption>
-          <thead>
-            <tr className="border-b bg-muted/30">
+          </TableCaption>
+          <TableHeader>
+            <TableRow className="bg-muted/30 hover:bg-muted/30">
               {inferredColumns.map((column) => (
-                <th
+                <TableHead
                   aria-sort={getAriaSort(sortColumn, sortOrder, column.key)}
-                  className="px-4 py-3 text-left font-medium text-muted-foreground"
                   key={column.key}
                   scope="col"
                 >
@@ -307,32 +327,31 @@ export const ActivityTable = ({
                       <ChevronDown />
                     ) : null}
                   </Button>
-                </th>
+                </TableHead>
               ))}
-            </tr>
-          </thead>
-          <tbody>
+            </TableRow>
+          </TableHeader>
+          <TableBody>
             {pageRows.length > 0 ? (
               pageRows.map((row) => (
-                <tr
+                <TableRow
                   className={cn(
-                    "border-b transition-colors",
                     onRowClick && "cursor-pointer hover:bg-accent/30"
                   )}
                   key={row.id}
                   onClick={(): void => onRowClick?.(row)}
                 >
                   {inferredColumns.map((column) => (
-                    <td className="px-4 py-3" key={`${row.id}-${column.key}`}>
+                    <TableCell key={`${row.id}-${column.key}`}>
                       {renderCell?.(column, row[column.key], row) ??
                         formatCellValue(row[column.key])}
-                    </td>
+                    </TableCell>
                   ))}
-                </tr>
+                </TableRow>
               ))
             ) : (
-              <tr>
-                <td
+              <TableRow className="hover:bg-transparent">
+                <TableCell
                   className="px-4 py-8 text-center"
                   colSpan={Math.max(inferredColumns.length, 1)}
                 >
@@ -355,11 +374,11 @@ export const ActivityTable = ({
                       tone="neutral"
                     />
                   </div>
-                </td>
-              </tr>
+                </TableCell>
+              </TableRow>
             )}
-          </tbody>
-        </table>
+          </TableBody>
+        </Table>
       </div>
 
       {totalPages > 1 ? (

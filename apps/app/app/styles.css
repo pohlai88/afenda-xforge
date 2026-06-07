@@ -1,2 +1,8 @@
 @import "@repo/design-system/styles/globals.css";
+
 @source "./**/*.{ts,tsx}";
+@source "../../../packages/design-system/components/**/*.{ts,tsx}";
+@source "../../../packages/ui/components/**/*.{ts,tsx}";
+@source "../../../packages/metadata-ui/**/*.{ts,tsx}";
+@source "../../../packages/features/master-data/companies/src/**/*.{ts,tsx}";
+@source "../../../packages/features/master-data/customers/src/**/*.{ts,tsx}";

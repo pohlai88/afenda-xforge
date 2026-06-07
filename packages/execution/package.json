@@ -23,6 +23,7 @@
     "@repo/audit": "workspace:*",
     "@repo/database": "workspace:*",
     "@repo/errors": "workspace:*",
+    "@repo/logger": "workspace:*",
     "@repo/permissions": "workspace:*",
     "server-only": "catalog:"
   },

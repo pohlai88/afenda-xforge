@@ -1,14 +1,28 @@
 "use client";
 
-import { MoonIcon, SunIcon } from "@radix-ui/react-icons";
+import { DesktopIcon, MoonIcon, SunIcon } from "@radix-ui/react-icons";
 import { useTheme } from "next-themes";
-import type { ChangeEvent, ReactElement } from "react";
+import type { ReactElement } from "react";
 import { useEffect, useState } from "react";
 
+import { Button } from "./ui/button.tsx";
+
 const themes = [
-  { label: "Light", value: "light" },
-  { label: "Dark", value: "dark" },
-  { label: "System", value: "system" },
+  {
+    label: "Light",
+    value: "light",
+    icon: SunIcon,
+  },
+  {
+    label: "Dark",
+    value: "dark",
+    icon: MoonIcon,
+  },
+  {
+    label: "System",
+    value: "system",
+    icon: DesktopIcon,
+  },
 ] as const;
 
 export const ModeToggle = (): ReactElement => {
@@ -22,23 +36,27 @@ export const ModeToggle = (): ReactElement => {
   const selectedTheme = mounted ? (theme ?? "system") : "system";
 
   return (
-    <div className="inline-flex items-center gap-1 rounded-md border border-border bg-background p-1 shadow-sm">
-      <SunIcon className="size-4 text-muted-foreground" />
-      <select
-        aria-label="Toggle theme"
-        className="bg-transparent text-sm outline-none"
-        onChange={(event: ChangeEvent<HTMLSelectElement>) =>
-          setTheme(event.target.value)
-        }
-        value={selectedTheme}
-      >
-        {themes.map(({ label, value }) => (
-          <option key={value} value={value}>
-            {label}
-          </option>
-        ))}
-      </select>
-      <MoonIcon className="size-4 text-muted-foreground" />
-    </div>
+    <fieldset
+      aria-label="Theme mode"
+      className="inline-flex items-center gap-1 rounded-md border border-border bg-background p-1 shadow-sm"
+    >
+      {themes.map(({ icon: Icon, label, value }) => {
+        const selected = selectedTheme === value;
+
+        return (
+          <Button
+            aria-label={label}
+            aria-pressed={selected}
+            key={value}
+            onClick={(): void => setTheme(value)}
+            size="icon-sm"
+            type="button"
+            variant={selected ? "secondary" : "ghost"}
+          >
+            <Icon />
+          </Button>
+        );
+      })}
+    </fieldset>
   );
 };

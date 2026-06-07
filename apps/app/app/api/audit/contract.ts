@@ -17,7 +17,7 @@ const auditJsonValueSchema: z.ZodType<unknown> = z.lazy(() =>
   ])
 );
 
-export const auditActorTypeSchema = z.enum([
+const auditActorTypeSchema = z.enum([
   "user",
   "system",
   "service",
@@ -25,9 +25,9 @@ export const auditActorTypeSchema = z.enum([
   "agent",
 ]);
 
-export const auditOutcomeSchema = z.enum(["success", "failure", "denied"]);
+const auditOutcomeSchema = z.enum(["success", "failure", "denied"]);
 
-export const auditChannelSchema = z.enum([
+const auditChannelSchema = z.enum([
   "web",
   "api",
   "server_action",
@@ -36,14 +36,14 @@ export const auditChannelSchema = z.enum([
   "migration",
 ]);
 
-export const auditChangeSchema = z.object({
+const auditChangeSchema = z.object({
   change: z.enum(["added", "removed", "changed"]).optional(),
   field: z.string().min(1),
   newValue: z.unknown().optional(),
   oldValue: z.unknown().optional(),
 });
 
-export const auditEventSchema = z.object({
+const auditEventSchema = z.object({
   id: z.string().uuid(),
   tenantId: z.string().uuid(),
   companyId: z.string().uuid().nullable().optional(),
@@ -101,7 +101,7 @@ export const auditListQuerySchema = z.object({
   offset: z.coerce.number().int().min(0).default(0),
 });
 
-export const auditEventListSchema = z.object({
+const auditEventListSchema = z.object({
   items: z.array(auditEventSchema),
   limit: z.number().int().min(1).max(100),
   offset: z.number().int().min(0),
@@ -192,7 +192,7 @@ export const listAuditEventsRouteContract = defineRouteContract({
   tags: ["audit"],
 });
 
-export const auditOpenApiSchemas = {
+const auditOpenApiSchemas = {
   AuditEvent: {
     type: "object",
     additionalProperties: false,

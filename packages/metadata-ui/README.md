@@ -19,8 +19,10 @@ It does not own:
 
 Recommended usage:
 
+- import `EntityMetadataPanel` for a full metadata-driven section shell
 - import `EntityMetadataTable` for metadata-driven list surfaces
 - import `renderMetadataStatus` for status chip rendering
 - import `resolveStatusTone` when mapping metadata values to UI tones
+- import `getMetadataSummary` when a page needs metadata counts or default sort labels
 
 The package should stay declarative at the contract level and use `@repo/ui` for presentational surfaces.

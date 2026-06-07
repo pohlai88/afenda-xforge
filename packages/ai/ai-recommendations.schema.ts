@@ -3,7 +3,7 @@ import { operationalModuleIds } from "./ai-operations.schema.ts";
 
 const moduleIds: typeof operationalModuleIds = operationalModuleIds;
 
-export const workspaceSummarySchema = z.object({
+const workspaceSummarySchema = z.object({
   moduleId: z.enum(moduleIds),
   summary: z.string().min(20).max(1200),
   signals: z
@@ -20,7 +20,7 @@ export const workspaceSummarySchema = z.object({
   confidence: z.number().int().min(0).max(100),
 });
 
-export const approvalRecommendationSchema = z.object({
+const approvalRecommendationSchema = z.object({
   moduleId: z.enum(moduleIds),
   proposedAction: z.enum(["approve", "reject", "escalate", "request-info"]),
   rationale: z.string().min(10).max(1000),
@@ -28,7 +28,7 @@ export const approvalRecommendationSchema = z.object({
   requiredHumanChecks: z.array(z.string().min(1).max(160)).min(1).max(8),
 });
 
-export const anomalyExplanationSchema = z.object({
+const anomalyExplanationSchema = z.object({
   moduleId: z.enum(moduleIds),
   metric: z.string().min(1).max(120),
   explanation: z.string().min(20).max(1200),
@@ -37,7 +37,7 @@ export const anomalyExplanationSchema = z.object({
   confidence: z.number().int().min(0).max(100),
 });
 
-export const reportNarrativeSchema = z.object({
+const reportNarrativeSchema = z.object({
   moduleId: z.enum(moduleIds),
   title: z.string().min(1).max(160),
   executiveSummary: z.string().min(20).max(1200),

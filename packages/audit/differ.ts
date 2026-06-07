@@ -1,4 +1,8 @@
-import type { AuditChange, AuditDiffKind, AuditRecordMap } from "./contract.ts";
+import type {
+  Audit7W1HChange,
+  Audit7W1HDiffKind,
+  Audit7W1HRecordMap,
+} from "./contract.ts";
 
 const REDACTED = "[redacted]";
 const TRUNCATED = "[truncated]";
@@ -120,7 +124,7 @@ const joinPath = (base: string, segment: string): string => {
   return `${base}.${segment}`;
 };
 
-const resolveDiffKind = (left: unknown, right: unknown): AuditDiffKind => {
+const resolveDiffKind = (left: unknown, right: unknown): Audit7W1HDiffKind => {
   if (left === undefined && right !== undefined) {
     return "added";
   }
@@ -191,11 +195,11 @@ const redactValue = (
 };
 
 const pushChange = (
-  changes: AuditChange[],
+  changes: Audit7W1HChange[],
   field: string,
   oldValue: unknown,
   newValue: unknown,
-  change: AuditDiffKind = resolveDiffKind(oldValue, newValue)
+  change: Audit7W1HDiffKind = resolveDiffKind(oldValue, newValue)
 ): void => {
   changes.push({
     change,
@@ -206,7 +210,7 @@ const pushChange = (
 };
 
 const diffArrays = (
-  changes: AuditChange[],
+  changes: Audit7W1HChange[],
   left: unknown[],
   right: unknown[],
   path: string,
@@ -232,7 +236,7 @@ const diffArrays = (
 };
 
 const diffObjects = (
-  changes: AuditChange[],
+  changes: Audit7W1HChange[],
   left: Record<string, unknown>,
   right: Record<string, unknown>,
   path: string,
@@ -278,7 +282,7 @@ const diffObjects = (
 };
 
 const diffLeaf = (
-  changes: AuditChange[],
+  changes: Audit7W1HChange[],
   left: unknown,
   right: unknown,
   path: string,
@@ -297,7 +301,7 @@ const diffLeaf = (
 };
 
 export const maskSensitiveAuditData = <
-  T extends AuditRecordMap | null | undefined,
+  T extends Audit7W1HRecordMap | null | undefined,
 >(
   value: T,
   options: DiffOptions = {}
@@ -317,8 +321,8 @@ export const computeAuditChanges = (
   before: unknown,
   after: unknown,
   options: DiffOptions = {}
-): AuditChange[] => {
-  const changes: AuditChange[] = [];
+): Audit7W1HChange[] => {
+  const changes: Audit7W1HChange[] = [];
   const ignoredFields = normalizeIgnoredFields(options.ignoredFields);
   const sensitiveFieldFragments = normalizeFragments(
     options.sensitiveFieldFragments
@@ -356,10 +360,10 @@ export const computeAuditChanges = (
 };
 
 export const getAuditEventChanges = (
-  event: Pick<AuditEventInputLike, "before" | "after">
-): AuditChange[] => computeAuditChanges(event.before, event.after);
+  event: Pick<Audit7W1HEventInputLike, "before" | "after">
+): Audit7W1HChange[] => computeAuditChanges(event.before, event.after);
 
-type AuditEventInputLike = {
+type Audit7W1HEventInputLike = {
   before: unknown;
   after: unknown;
 };

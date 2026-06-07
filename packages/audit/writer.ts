@@ -3,17 +3,18 @@ import "server-only";
 import { randomUUID } from "node:crypto";
 import { auditEvents, database, timeDatabaseQuery } from "@repo/database";
 import type {
-  AuditChange,
-  AuditEvent,
-  AuditEventInput,
-  AuditRecordMap,
-  AuditWriter,
+  Audit7W1HChange,
+  Audit7W1HEvent,
+  Audit7W1HEventInput,
+  Audit7W1HRecordMap,
+  Audit7W1HWriter,
 } from "./contract.ts";
+import { audit7w1hEventInputSchema, audit7w1hEventSchema } from "./contract.ts";
 import { computeAuditChanges, maskSensitiveAuditData } from "./differ.ts";
 
 type AuditDatabase = Pick<typeof database, "insert">;
 type AuditEventInsert = typeof auditEvents.$inferInsert;
-type NormalizedAuditEvent = Omit<AuditEvent, "createdAt" | "id">;
+type NormalizedAudit7W1HEvent = Omit<Audit7W1HEvent, "createdAt" | "id">;
 
 const trimToNull = (value: string | undefined | null): string | null => {
   if (value === undefined || value === null) {
@@ -32,16 +33,17 @@ const trimToUndefined = (
 };
 
 const redactRecord = (
-  value: AuditRecordMap | null | undefined
-): AuditRecordMap =>
-  (maskSensitiveAuditData(value ?? {}) ?? {}) as AuditRecordMap;
+  value: Audit7W1HRecordMap | null | undefined
+): Audit7W1HRecordMap =>
+  (maskSensitiveAuditData(value ?? {}) ?? {}) as Audit7W1HRecordMap;
 
 const redactDiffValue = (field: string, value: unknown): unknown => {
   const redacted = maskSensitiveAuditData({ [field]: value });
   return redacted ? redacted[field] : value;
 };
 
-const redactDiffEntry = (entry: AuditChange): AuditChange => ({
+const redactDiffEntry = (entry: Audit7W1HChange): Audit7W1HChange => ({
+  change: entry.change,
   field: entry.field,
   oldValue: redactDiffValue(entry.field, entry.oldValue),
   newValue: redactDiffValue(entry.field, entry.newValue),
@@ -50,11 +52,11 @@ const redactDiffEntry = (entry: AuditChange): AuditChange => ({
 const deriveModule = (action: string, module: string | undefined): string =>
   trimToUndefined(module) ?? action.split(".")[0];
 
-const buildAuditTargetLabel = (input: AuditEventInput): string =>
+const buildAuditTargetLabel = (input: Audit7W1HEventInput): string =>
   trimToUndefined(input.targetDisplayName) ??
   `${input.targetType}:${input.targetId}`;
 
-export function resolveAuditEventSummary(input: AuditEventInput): string {
+export function resolveAuditEventSummary(input: Audit7W1HEventInput): string {
   const summary = trimToUndefined(input.summary);
   if (summary) {
     return summary;
@@ -64,39 +66,40 @@ export function resolveAuditEventSummary(input: AuditEventInput): string {
 }
 
 export function normalizeAuditEvent(
-  input: AuditEventInput
-): NormalizedAuditEvent {
-  const summary = resolveAuditEventSummary(input);
-  const reason = trimToUndefined(input.reason) ?? summary;
-  const action = input.action.trim();
-  const targetType = input.targetType.trim();
-  const targetId = input.targetId.trim();
-  const actorId = input.actorId.trim();
-  const tenantId = input.tenantId.trim();
-  const requestId = trimToUndefined(input.requestId) ?? randomUUID();
-  const occurredAt = input.occurredAt ?? new Date();
-  const actorType = input.actorType ?? "user";
-  const outcome = input.outcome ?? "success";
-  const companyId = trimToNull(input.companyId ?? null);
-  const grantId = trimToNull(input.grantId ?? null);
-  const actorRole = trimToNull(input.actorRole);
-  const module = deriveModule(action, input.module);
-  const surface = trimToNull(input.surface);
-  const route = trimToNull(input.route);
-  const subjectType = trimToNull(input.subjectType);
-  const subjectId = trimToNull(input.subjectId);
-  const targetDisplayName = trimToNull(input.targetDisplayName);
-  const policyReference = trimToNull(input.policyReference);
-  const approvalId = trimToNull(input.approvalId);
-  const channel = input.channel ?? null;
-  const operationId = trimToUndefined(input.operationId) ?? requestId;
-  const metadata = redactRecord(input.metadata);
-  const before = redactRecord(input.before);
-  const after = redactRecord(input.after);
-  let diff: AuditChange[];
+  input: Audit7W1HEventInput
+): NormalizedAudit7W1HEvent {
+  const normalizedInput = audit7w1hEventInputSchema.parse(input);
+  const summary = resolveAuditEventSummary(normalizedInput);
+  const reason = trimToUndefined(normalizedInput.reason) ?? summary;
+  const action = normalizedInput.action.trim();
+  const targetType = normalizedInput.targetType.trim();
+  const targetId = normalizedInput.targetId.trim();
+  const actorId = normalizedInput.actorId.trim();
+  const tenantId = normalizedInput.tenantId.trim();
+  const requestId = trimToUndefined(normalizedInput.requestId) ?? randomUUID();
+  const occurredAt = normalizedInput.occurredAt ?? new Date();
+  const actorType = normalizedInput.actorType ?? "user";
+  const outcome = normalizedInput.outcome ?? "success";
+  const companyId = trimToNull(normalizedInput.companyId ?? null);
+  const grantId = trimToNull(normalizedInput.grantId ?? null);
+  const actorRole = trimToNull(normalizedInput.actorRole);
+  const module = deriveModule(action, normalizedInput.module);
+  const surface = trimToNull(normalizedInput.surface);
+  const route = trimToNull(normalizedInput.route);
+  const subjectType = trimToNull(normalizedInput.subjectType);
+  const subjectId = trimToNull(normalizedInput.subjectId);
+  const targetDisplayName = trimToNull(normalizedInput.targetDisplayName);
+  const policyReference = trimToNull(normalizedInput.policyReference);
+  const approvalId = trimToNull(normalizedInput.approvalId);
+  const channel = normalizedInput.channel ?? null;
+  const operationId = trimToUndefined(normalizedInput.operationId) ?? requestId;
+  const metadata = redactRecord(normalizedInput.metadata);
+  const before = redactRecord(normalizedInput.before);
+  const after = redactRecord(normalizedInput.after);
+  let diff: Audit7W1HChange[];
 
-  if (Array.isArray(input.diff)) {
-    diff = input.diff.map(redactDiffEntry);
+  if (Array.isArray(normalizedInput.diff)) {
+    diff = normalizedInput.diff.map(redactDiffEntry);
   } else if (before || after) {
     diff = computeAuditChanges(before, after).map(redactDiffEntry);
   } else {
@@ -104,7 +107,6 @@ export function normalizeAuditEvent(
   }
 
   return {
-    ...input,
     action,
     actorId,
     actorRole,
@@ -136,17 +138,17 @@ export function normalizeAuditEvent(
   };
 }
 
-export function createAuditEvent(input: AuditEventInput): AuditEvent {
+export function createAuditEvent(input: Audit7W1HEventInput): Audit7W1HEvent {
   const normalizedEvent = normalizeAuditEvent(input);
 
-  return {
+  return audit7w1hEventSchema.parse({
     ...normalizedEvent,
-    id: randomUUID(),
     createdAt: new Date(),
-  };
+    id: randomUUID(),
+  });
 }
 
-const toDatabaseEvent = (event: AuditEvent): AuditEventInsert => ({
+const toDatabaseEvent = (event: Audit7W1HEvent): AuditEventInsert => ({
   id: event.id,
   tenantId: event.tenantId,
   companyId: event.companyId,
@@ -181,8 +183,8 @@ const toDatabaseEvent = (event: AuditEvent): AuditEventInsert => ({
 
 export const createDatabaseAuditWriter = (
   db: AuditDatabase = database
-): AuditWriter => ({
-  write: async (event: AuditEvent): Promise<void> => {
+): Audit7W1HWriter => ({
+  write: async (event: Audit7W1HEvent): Promise<void> => {
     await timeDatabaseQuery(
       () => db.insert(auditEvents).values(toDatabaseEvent(event)),
       {
@@ -198,14 +200,14 @@ export const createDatabaseAuditWriter = (
   },
 });
 
-export const createNoopAuditWriter = (): AuditWriter => ({
+export const createNoopAuditWriter = (): Audit7W1HWriter => ({
   write: async (): Promise<void> => undefined,
 });
 
 export const writeAuditEvent = async (
-  input: AuditEventInput,
-  writer: AuditWriter = createDatabaseAuditWriter()
-): Promise<AuditEvent> => {
+  input: Audit7W1HEventInput,
+  writer: Audit7W1HWriter = createDatabaseAuditWriter()
+): Promise<Audit7W1HEvent> => {
   const event = createAuditEvent(input);
 
   await writer.write(event);
@@ -215,8 +217,8 @@ export const writeAuditEvent = async (
 
 export const writeAuditEventInTransaction = async (
   db: AuditDatabase,
-  input: AuditEventInput
-): Promise<AuditEvent> => {
+  input: Audit7W1HEventInput
+): Promise<Audit7W1HEvent> => {
   const event = createAuditEvent(input);
 
   await createDatabaseAuditWriter(db).write(event);

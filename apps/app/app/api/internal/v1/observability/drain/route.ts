@@ -16,6 +16,8 @@ export const POST = withRequestLogging(
       signatureSecret: drainSignatureSecret,
     }),
   {
+    quietReqLogger: true,
+    quietResLogger: true,
     logger: observabilityDrainLogger,
     metricsApp: "app",
   }

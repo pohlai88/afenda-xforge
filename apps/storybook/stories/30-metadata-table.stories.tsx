@@ -1,10 +1,10 @@
-import { EntityMetadataTable } from "@repo/metadata-ui";
+import { EntityMetadataPanel, EntityMetadataTable } from "@repo/metadata-ui";
 import type { Meta, StoryObj } from "@storybook/react";
 import { customerMetadata, customerRows } from "./enterprise-fixtures";
 
-const meta: Meta<typeof EntityMetadataTable> = {
-  title: "Metadata/Entity Table",
-  component: EntityMetadataTable,
+const meta: Meta<typeof EntityMetadataPanel> = {
+  title: "Metadata/Entity Panel",
+  component: EntityMetadataPanel,
   parameters: {
     layout: "fullscreen",
   },
@@ -12,15 +12,16 @@ const meta: Meta<typeof EntityMetadataTable> = {
 
 export default meta;
 
-type Story = StoryObj<typeof EntityMetadataTable>;
+type Story = StoryObj<typeof EntityMetadataPanel>;
 
 export const Customers: Story = {
   render: () => (
-    <EntityMetadataTable
+    <EntityMetadataPanel
       metadata={customerMetadata}
       pageSize={5}
       rows={customerRows}
       searchPlaceholder="Search customer, segment, owner, or email"
+      totalRecords={customerRows.length}
     />
   ),
 };
@@ -34,7 +35,7 @@ export const CustomersDark: Story = {
 
 export const CustomersEmpty: Story = {
   render: () => (
-    <EntityMetadataTable
+    <EntityMetadataPanel
       emptyDescription="No customers have been onboarded into this tenant yet."
       emptyTitle="Tenant is empty"
       metadata={customerMetadata}
@@ -45,17 +46,28 @@ export const CustomersEmpty: Story = {
 
 export const CustomersForbidden: Story = {
   render: () => (
-    <EntityMetadataTable forbidden metadata={customerMetadata} rows={[]} />
+    <EntityMetadataPanel forbidden metadata={customerMetadata} rows={[]} />
   ),
 };
 
 export const CustomersError: Story = {
   render: () => (
-    <EntityMetadataTable
+    <EntityMetadataPanel
       error="The customer list could not be loaded from the tenant database."
       metadata={customerMetadata}
       onRetry={() => undefined}
       rows={[]}
+    />
+  ),
+};
+
+export const CustomersTableOnly: StoryObj<typeof EntityMetadataTable> = {
+  render: () => (
+    <EntityMetadataTable
+      metadata={customerMetadata}
+      pageSize={5}
+      rows={customerRows}
+      searchPlaceholder="Search customer, segment, owner, or email"
     />
   ),
 };

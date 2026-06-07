@@ -1,153 +1,176 @@
-export type AuditRecordMap = Record<string, unknown>;
+import { z } from "zod";
 
-export type AuditDiffKind = "added" | "removed" | "changed";
+const audit7w1hRequiredString = z.string().trim().min(1);
+const audit7w1hOptionalString = audit7w1hRequiredString.optional();
+const audit7w1hOptionalNullableString = audit7w1hRequiredString
+  .nullable()
+  .optional();
 
-export type AuditActorType =
-  | "user"
-  | "system"
-  | "service"
-  | "integration"
-  | "agent";
+export const audit7w1hRecordMapSchema = z.record(z.string(), z.unknown());
 
-export type AuditOutcome = "success" | "failure" | "denied";
+export type Audit7W1HRecordMap = z.infer<typeof audit7w1hRecordMapSchema>;
 
-export type AuditChannel =
-  | "web"
-  | "api"
-  | "server_action"
-  | "cron"
-  | "webhook"
-  | "migration";
+export const audit7w1hDiffKindSchema = z.enum(["added", "removed", "changed"]);
 
-export type AuditChange = {
-  field: string;
-  change?: AuditDiffKind;
-  oldValue: unknown;
-  newValue: unknown;
-};
+export type Audit7W1HDiffKind = z.infer<typeof audit7w1hDiffKindSchema>;
 
-export type AuditEventInput = {
-  tenantId: string;
-  companyId?: string | null;
-  grantId?: string | null;
+export const audit7w1hActorTypeSchema = z.enum([
+  "user",
+  "system",
+  "service",
+  "integration",
+  "agent",
+]);
 
-  actorId: string;
-  actorType?: AuditActorType;
-  actorRole?: string;
+export type Audit7W1HActorType = z.infer<typeof audit7w1hActorTypeSchema>;
 
-  module?: string;
-  surface?: string;
-  route?: string;
+export const audit7w1hOutcomeSchema = z.enum(["success", "failure", "denied"]);
 
-  subjectType?: string;
-  subjectId?: string;
+export type Audit7W1HOutcome = z.infer<typeof audit7w1hOutcomeSchema>;
 
-  action: string;
-  summary?: string;
-  outcome?: AuditOutcome;
+export const audit7w1hChannelSchema = z.enum([
+  "web",
+  "api",
+  "server_action",
+  "cron",
+  "webhook",
+  "migration",
+]);
 
-  targetType: string;
-  targetId: string;
-  targetDisplayName?: string;
+export type Audit7W1HChannel = z.infer<typeof audit7w1hChannelSchema>;
 
-  reason?: string;
-  policyReference?: string;
-  approvalId?: string;
+export const audit7w1hChangeSchema = z
+  .object({
+    field: audit7w1hRequiredString,
+    change: audit7w1hDiffKindSchema,
+    oldValue: z.unknown(),
+    newValue: z.unknown(),
+  })
+  .strict();
 
-  channel?: AuditChannel;
-  requestId?: string;
-  operationId?: string;
+export type Audit7W1HChange = z.infer<typeof audit7w1hChangeSchema>;
 
-  before?: AuditRecordMap;
-  after?: AuditRecordMap;
-  diff?: readonly AuditChange[];
-  metadata?: AuditRecordMap | null;
+export const audit7w1hEventInputSchema = z
+  .object({
+    tenantId: audit7w1hRequiredString,
+    companyId: audit7w1hOptionalNullableString,
+    grantId: audit7w1hOptionalNullableString,
 
-  occurredAt?: Date;
-};
+    actorId: audit7w1hRequiredString,
+    actorType: audit7w1hActorTypeSchema.optional(),
+    actorRole: audit7w1hOptionalString,
 
-export type AuditEvent = {
-  id: string;
-  tenantId: string;
-  companyId: string | null;
-  grantId: string | null;
+    module: audit7w1hOptionalString,
+    surface: audit7w1hOptionalString,
+    route: audit7w1hOptionalString,
 
-  actorId: string;
-  actorType: AuditActorType;
-  actorRole: string | null;
+    subjectType: audit7w1hOptionalString,
+    subjectId: audit7w1hOptionalString,
 
-  module: string | null;
-  surface: string | null;
-  route: string | null;
+    action: audit7w1hRequiredString,
+    summary: audit7w1hOptionalString,
+    outcome: audit7w1hOutcomeSchema.optional(),
 
-  subjectType: string | null;
-  subjectId: string | null;
+    targetType: audit7w1hRequiredString,
+    targetId: audit7w1hRequiredString,
+    targetDisplayName: audit7w1hOptionalString,
 
-  action: string;
-  summary: string;
-  outcome: AuditOutcome;
+    reason: audit7w1hOptionalString,
+    policyReference: audit7w1hOptionalString,
+    approvalId: audit7w1hOptionalString,
 
-  targetType: string;
-  targetId: string;
-  targetDisplayName: string | null;
+    channel: audit7w1hChannelSchema.optional(),
+    requestId: audit7w1hOptionalString,
+    operationId: audit7w1hOptionalString,
 
-  reason: string;
-  policyReference: string | null;
-  approvalId: string | null;
+    before: audit7w1hRecordMapSchema.optional(),
+    after: audit7w1hRecordMapSchema.optional(),
+    diff: z.array(audit7w1hChangeSchema).readonly().optional(),
+    metadata: audit7w1hRecordMapSchema.nullable().optional(),
 
-  channel: AuditChannel | null;
-  requestId: string;
-  operationId: string | null;
+    occurredAt: z.date().optional(),
+  })
+  .strict();
 
-  before: AuditRecordMap;
-  after: AuditRecordMap;
-  diff: AuditChange[];
-  metadata: AuditRecordMap;
+export type Audit7W1HEventInput = z.infer<typeof audit7w1hEventInputSchema>;
 
-  occurredAt: Date;
-  createdAt: Date;
-};
+export const audit7w1hEventSchema = audit7w1hEventInputSchema
+  .extend({
+    id: audit7w1hRequiredString,
 
-export type AuditQueryOptions = {
-  tenantId: string;
-  companyId?: string | null;
+    actorType: audit7w1hActorTypeSchema,
+    actorRole: audit7w1hRequiredString.nullable(),
+    before: audit7w1hRecordMapSchema,
+    after: audit7w1hRecordMapSchema,
+    channel: audit7w1hChannelSchema.nullable(),
+    companyId: audit7w1hRequiredString.nullable(),
+    createdAt: z.date(),
+    diff: z.array(audit7w1hChangeSchema),
+    grantId: audit7w1hRequiredString.nullable(),
+    metadata: audit7w1hRecordMapSchema,
+    module: audit7w1hRequiredString,
+    occurredAt: z.date(),
+    operationId: audit7w1hRequiredString,
+    outcome: audit7w1hOutcomeSchema,
+    approvalId: audit7w1hRequiredString.nullable(),
+    policyReference: audit7w1hRequiredString.nullable(),
+    reason: audit7w1hRequiredString,
+    requestId: audit7w1hRequiredString,
+    route: audit7w1hRequiredString.nullable(),
+    subjectId: audit7w1hRequiredString.nullable(),
+    subjectType: audit7w1hRequiredString.nullable(),
+    summary: audit7w1hRequiredString,
+    surface: audit7w1hRequiredString.nullable(),
+    targetDisplayName: audit7w1hRequiredString.nullable(),
+  })
+  .strict();
 
-  actorId?: string;
-  actorType?: AuditActorType;
-  actorRole?: string;
+export type Audit7W1HEvent = z.infer<typeof audit7w1hEventSchema>;
 
-  module?: string;
-  surface?: string;
-  route?: string;
+export const audit7w1hQueryOptionsSchema = z
+  .object({
+    tenantId: audit7w1hRequiredString,
+    companyId: audit7w1hOptionalNullableString,
 
-  subjectType?: string;
-  subjectId?: string;
+    actorId: audit7w1hOptionalString,
+    actorType: audit7w1hActorTypeSchema.optional(),
+    actorRole: audit7w1hOptionalString,
 
-  action?: string;
-  summary?: string;
-  outcome?: AuditOutcome;
+    module: audit7w1hOptionalString,
+    surface: audit7w1hOptionalString,
+    route: audit7w1hOptionalString,
 
-  targetType?: string;
-  targetId?: string;
-  targetDisplayName?: string;
+    subjectType: audit7w1hOptionalString,
+    subjectId: audit7w1hOptionalString,
 
-  channel?: AuditChannel;
-  requestId?: string;
-  operationId?: string;
+    action: audit7w1hOptionalString,
+    summary: audit7w1hOptionalString,
+    outcome: audit7w1hOutcomeSchema.optional(),
 
-  from?: Date;
-  to?: Date;
-  limit?: number;
-  offset?: number;
-};
+    targetType: audit7w1hOptionalString,
+    targetId: audit7w1hOptionalString,
+    targetDisplayName: audit7w1hOptionalString,
 
-export type AuditQueryResult = {
-  events: AuditEvent[];
+    channel: audit7w1hChannelSchema.optional(),
+    requestId: audit7w1hOptionalString,
+    operationId: audit7w1hOptionalString,
+
+    from: z.date().optional(),
+    to: z.date().optional(),
+    limit: z.number().int().positive().optional(),
+    offset: z.number().int().nonnegative().optional(),
+  })
+  .strict();
+
+export type Audit7W1HQueryOptions = z.infer<typeof audit7w1hQueryOptionsSchema>;
+
+export type Audit7W1HQueryResult = {
+  events: Audit7W1HEvent[];
   total: number;
 };
 
-export type AuditWriter = {
-  write: (event: AuditEvent) => Promise<void> | void;
+export type Audit7W1HWriter = {
+  write: (event: Audit7W1HEvent) => Promise<void> | void;
 };
 
-export type AuditExportFormat = "json" | "csv";
+export type Audit7W1HExportFormat = "json" | "csv";

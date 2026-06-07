@@ -25,7 +25,6 @@
     "@react-email/components": "catalog:",
     "@t3-oss/env-nextjs": "catalog:",
     "react": "catalog:",
-    "react-dom": "catalog:",
     "resend": "catalog:",
     "zod": "catalog:"
   },
@@ -33,7 +32,6 @@
     "@repo/typescript-config": "workspace:*",
     "@types/node": "catalog:",
     "@types/react": "catalog:",
-    "@types/react-dom": "catalog:",
     "typescript": "catalog:"
   }
 }

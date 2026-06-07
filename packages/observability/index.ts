@@ -1,6 +1,12 @@
 import "server-only";
 
 export type {
+  RequestLoggingCustomProps,
+  RequestLoggingCustomPropsContext,
+  RequestLoggingHandler,
+  RequestLoggingOptions,
+} from "@repo/logger";
+export type {
   DrainPayloadSummary,
   LoggingHealth,
   ObservabilityDrainOptions,
@@ -27,8 +33,8 @@ export type {
 export {
   createDomainLogger,
   createPackageLogger,
-  generateRequestId,
   generateOperationId,
+  generateRequestId,
   generateSpanId,
   generateTraceId,
   getRequestId,

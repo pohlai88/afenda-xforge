@@ -24,9 +24,7 @@
     "clean": "git clean -xdf .cache .turbo dist node_modules",
     "typecheck": "tsc --noEmit --emitDeclarationOnly false"
   },
-  "dependencies": {
-    "server-only": "catalog:"
-  },
+  "dependencies": {},
   "devDependencies": {
     "@repo/typescript-config": "workspace:*",
     "@types/node": "catalog:",

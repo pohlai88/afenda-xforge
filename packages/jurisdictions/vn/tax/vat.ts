@@ -46,7 +46,7 @@ export const getVNVATRateForCategory = (category: string): VNVATRate =>
 export const isVNVATExempt = (category: string): boolean =>
   getVNVATRateForCategory(category) === VNVATRate.ZERO;
 
-export type VNVATLineItem = {
+type VNVATLineItem = {
   amount: number;
   rate: VNVATRate;
   vatAmount: number;

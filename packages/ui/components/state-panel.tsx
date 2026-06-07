@@ -42,16 +42,16 @@ const toneStyles: Record<
   }
 > = {
   danger: {
-    background: "bg-red-500/5",
-    border: "border-red-500/20",
-    icon: "text-red-600 dark:text-red-300",
-    title: "text-red-950 dark:text-red-50",
+    background: "bg-destructive-muted",
+    border: "border-destructive-border",
+    icon: "text-destructive-muted-foreground",
+    title: "text-destructive-muted-foreground",
   },
   info: {
-    background: "bg-cyan-500/5",
-    border: "border-cyan-500/20",
-    icon: "text-cyan-600 dark:text-cyan-300",
-    title: "text-cyan-950 dark:text-cyan-50",
+    background: "bg-info-muted",
+    border: "border-info-border",
+    icon: "text-info-muted-foreground",
+    title: "text-info-muted-foreground",
   },
   neutral: {
     background: "bg-card",
@@ -60,10 +60,10 @@ const toneStyles: Record<
     title: "text-foreground",
   },
   warning: {
-    background: "bg-amber-500/5",
-    border: "border-amber-500/20",
-    icon: "text-amber-600 dark:text-amber-300",
-    title: "text-amber-950 dark:text-amber-50",
+    background: "bg-warning-muted",
+    border: "border-warning-border",
+    icon: "text-warning-muted-foreground",
+    title: "text-warning-muted-foreground",
   },
 };
 

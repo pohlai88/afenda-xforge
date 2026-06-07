@@ -7,8 +7,8 @@ export * from "./ai-confidence.policy.ts";
 export * from "./ai-gateway.error.ts";
 export * from "./ai-guardrails.policy.ts";
 export {
-  aiHttpRoutes,
   type AiHttpRoute,
+  aiHttpRoutes,
 } from "./ai-http.contract.ts";
 export * from "./ai-operations.schema.ts";
 export * from "./ai-output.component.ts";
