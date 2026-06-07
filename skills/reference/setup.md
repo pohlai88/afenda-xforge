@@ -37,6 +37,7 @@ These can be selected when bootstrapping a workspace:
 - auth provider: Supabase Auth, Neon Auth, or Auth0
 - optional supporting packages: cache, events, notifications, search, observability, security, storage, cms, email, analytics, seo
 - optional supporting packages: cache, events, notifications, search, observability, security, storage, jurisdictions, cms, email, analytics, seo
+- optional supporting packages: cache, events, notifications, search, logger, observability, security, storage, jurisdictions, cms, email, analytics, seo
 - optional apps: `apps/web`, `apps/api`, `apps/email`, `apps/docs`, `apps/storybook`
 
 If a setup choice weakens tenant isolation, company grants, audit, or dependency direction, it is not a valid choice.
@@ -208,6 +209,7 @@ Add optional packages only when the product actually needs them.
 - `packages/events`
 - `packages/health`
 - `packages/jurisdictions/*`
+- `packages/logger`
 - `packages/search`
 - `packages/observability`
 - `packages/security`

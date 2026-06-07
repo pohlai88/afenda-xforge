@@ -1,3 +1,5 @@
+import "server-only";
+
 export {
   companiesAssistant,
   customersAssistant,
@@ -16,9 +18,13 @@ export type {
   XforgeLynx,
   XforgeLynxChatResult,
   XforgeLynxStreamResult,
+  XforgeMachine,
+  XforgeMachineChatResult,
+  XforgeMachineStreamResult,
 } from "./engine.server.ts";
 export {
   createXforgeAssistantRegistry,
   createXforgeCopilot,
   createXforgeLynx,
+  createXforgeMachine,
 } from "./engine.server.ts";

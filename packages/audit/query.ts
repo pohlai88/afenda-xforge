@@ -1,6 +1,7 @@
 import "server-only";
 
 import { auditEvents, database, timeDatabaseQuery } from "@repo/database";
+import type { SQL } from "drizzle-orm";
 import { and, desc, eq, gte, isNull, lte, sql } from "drizzle-orm";
 import type {
   AuditEvent,
@@ -12,46 +13,114 @@ import type {
 const DEFAULT_LIMIT = 50;
 const DEFAULT_OFFSET = 0;
 
+type AuditColumn = Parameters<typeof eq>[0];
+
+const trimToNull = (value: string | null | undefined): string | null => {
+  if (value === null || value === undefined) {
+    return null;
+  }
+
+  const trimmed = value.trim();
+  return trimmed.length > 0 ? trimmed : null;
+};
+
+const buildAuditTargetLabel = (event: AuditEvent): string =>
+  trimToNull(event.targetDisplayName) ??
+  `${event.targetType}:${event.targetId}`;
+
+const buildAuditSummary = (event: AuditEvent): string =>
+  trimToNull(event.summary) ??
+  `${event.action} executed against ${buildAuditTargetLabel(event)}.`;
+
+const appendStringFilter = (
+  filters: SQL[],
+  column: AuditColumn,
+  value: string | undefined
+): void => {
+  if (value) {
+    filters.push(eq(column, value));
+  }
+};
+
+const appendNullableStringFilter = (
+  filters: SQL[],
+  column: AuditColumn,
+  value: string | null | undefined
+): void => {
+  if (value === undefined) {
+    return;
+  }
+
+  filters.push(value === null ? isNull(column) : eq(column, value));
+};
+
+const appendDateFilter = (
+  filters: SQL[],
+  column: AuditColumn,
+  value: Date | undefined,
+  direction: "from" | "to"
+): void => {
+  if (!value) {
+    return;
+  }
+
+  filters.push(direction === "from" ? gte(column, value) : lte(column, value));
+};
+
+const hydrateAuditEvent = (event: AuditEvent): AuditEvent => ({
+  ...event,
+  actorRole: trimToNull(event.actorRole),
+  actorType: event.actorType ?? "user",
+  approvalId: trimToNull(event.approvalId),
+  channel: event.channel ?? null,
+  companyId: event.companyId ?? null,
+  diff: Array.isArray(event.diff) ? event.diff : [],
+  grantId: event.grantId ?? null,
+  metadata: event.metadata ?? {},
+  module: trimToNull(event.module) ?? event.action.split(".")[0] ?? null,
+  outcome: event.outcome ?? "success",
+  operationId: trimToNull(event.operationId) ?? event.requestId,
+  occurredAt: event.occurredAt ?? event.createdAt,
+  policyReference: trimToNull(event.policyReference),
+  reason: trimToNull(event.reason) ?? buildAuditSummary(event),
+  route: trimToNull(event.route),
+  subjectId: trimToNull(event.subjectId),
+  subjectType: trimToNull(event.subjectType),
+  summary: buildAuditSummary(event),
+  surface: trimToNull(event.surface),
+  targetDisplayName: trimToNull(event.targetDisplayName),
+  before: event.before ?? {},
+  after: event.after ?? {},
+});
+
 const buildAuditWhereClause = (
   options: AuditQueryOptions
 ): ReturnType<typeof and> => {
   const filters = [eq(auditEvents.tenantId, options.tenantId)];
-
-  if (options.companyId !== undefined) {
-    filters.push(
-      options.companyId === null
-        ? isNull(auditEvents.companyId)
-        : eq(auditEvents.companyId, options.companyId)
-    );
-  }
-
-  if (options.actorId) {
-    filters.push(eq(auditEvents.actorId, options.actorId));
-  }
-
-  if (options.action) {
-    filters.push(eq(auditEvents.action, options.action));
-  }
-
-  if (options.targetType) {
-    filters.push(eq(auditEvents.targetType, options.targetType));
-  }
-
-  if (options.targetId) {
-    filters.push(eq(auditEvents.targetId, options.targetId));
-  }
-
-  if (options.requestId) {
-    filters.push(eq(auditEvents.requestId, options.requestId));
-  }
-
-  if (options.from) {
-    filters.push(gte(auditEvents.createdAt, options.from));
-  }
-
-  if (options.to) {
-    filters.push(lte(auditEvents.createdAt, options.to));
-  }
+  appendNullableStringFilter(filters, auditEvents.companyId, options.companyId);
+  appendStringFilter(filters, auditEvents.actorId, options.actorId);
+  appendStringFilter(filters, auditEvents.actorType, options.actorType);
+  appendStringFilter(filters, auditEvents.actorRole, options.actorRole);
+  appendStringFilter(filters, auditEvents.module, options.module);
+  appendStringFilter(filters, auditEvents.surface, options.surface);
+  appendStringFilter(filters, auditEvents.route, options.route);
+  appendStringFilter(filters, auditEvents.subjectType, options.subjectType);
+  appendStringFilter(filters, auditEvents.subjectId, options.subjectId);
+  appendStringFilter(filters, auditEvents.action, options.action);
+  appendStringFilter(filters, auditEvents.summary, options.summary);
+  appendStringFilter(filters, auditEvents.outcome, options.outcome);
+  appendStringFilter(filters, auditEvents.targetType, options.targetType);
+  appendStringFilter(filters, auditEvents.targetId, options.targetId);
+  appendStringFilter(
+    filters,
+    auditEvents.targetDisplayName,
+    options.targetDisplayName
+  );
+  appendStringFilter(filters, auditEvents.channel, options.channel);
+  appendStringFilter(filters, auditEvents.requestId, options.requestId);
+  appendStringFilter(filters, auditEvents.operationId, options.operationId);
+  appendDateFilter(filters, auditEvents.occurredAt, options.from, "from");
+  appendDateFilter(filters, auditEvents.occurredAt, options.to, "to");
 
   return and(...filters);
 };
@@ -70,7 +139,11 @@ export const listAuditEvents = async (
           .select()
           .from(auditEvents)
           .where(whereClause)
-          .orderBy(desc(auditEvents.createdAt))
+          .orderBy(
+            desc(auditEvents.occurredAt),
+            desc(auditEvents.createdAt),
+            desc(auditEvents.id)
+          )
           .limit(limit)
           .offset(offset),
       {
@@ -100,7 +173,7 @@ export const listAuditEvents = async (
   ]);
 
   return {
-    events: events as AuditEvent[],
+    events: (events as AuditEvent[]).map(hydrateAuditEvent),
     total: totals[0]?.total ?? 0,
   };
 };
@@ -179,19 +252,68 @@ const escapeCsvValue = (value: unknown): string => {
   return text;
 };
 
+const AUDIT_EXPORT_HEADERS = [
+  "action",
+  "actorId",
+  "actorRole",
+  "actorType",
+  "after",
+  "approvalId",
+  "before",
+  "channel",
+  "companyId",
+  "createdAt",
+  "diff",
+  "grantId",
+  "id",
+  "metadata",
+  "module",
+  "outcome",
+  "operationId",
+  "occurredAt",
+  "policyReference",
+  "reason",
+  "requestId",
+  "route",
+  "subjectId",
+  "subjectType",
+  "summary",
+  "surface",
+  "targetDisplayName",
+  "targetId",
+  "targetType",
+  "tenantId",
+] as const;
+
 const formatAuditEventRows = (events: AuditEvent[]): Record<string, string>[] =>
   events.map((event) => ({
     action: event.action,
     actorId: event.actorId,
+    actorRole: event.actorRole ?? "",
+    actorType: event.actorType,
     after: JSON.stringify(event.after),
+    approvalId: event.approvalId ?? "",
     before: JSON.stringify(event.before),
+    channel: event.channel ?? "",
     companyId: event.companyId ?? "",
     createdAt: event.createdAt.toISOString(),
+    diff: JSON.stringify(event.diff),
     grantId: event.grantId ?? "",
     id: event.id,
     metadata: event.metadata ? JSON.stringify(event.metadata) : "",
+    module: event.module ?? "",
+    outcome: event.outcome,
+    operationId: event.operationId ?? "",
+    occurredAt: event.occurredAt.toISOString(),
+    policyReference: event.policyReference ?? "",
     reason: event.reason,
     requestId: event.requestId,
+    route: event.route ?? "",
+    subjectId: event.subjectId ?? "",
+    subjectType: event.subjectType ?? "",
+    summary: event.summary,
+    surface: event.surface ?? "",
+    targetDisplayName: event.targetDisplayName ?? "",
     targetId: event.targetId,
     targetType: event.targetType,
     tenantId: event.tenantId,
@@ -218,7 +340,7 @@ export const exportAuditEvents = async (
   }
 
   const rows = formatAuditEventRows(result.events);
-  const headers = Object.keys(rows[0] ?? {});
+  const headers = AUDIT_EXPORT_HEADERS;
 
   return [
     headers.join(","),

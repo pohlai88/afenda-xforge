@@ -1,3 +1,5 @@
+"use client";
+
 import { cn } from "@repo/design-system/lib/utils";
 import type {
   DashboardKpiDefinition,
@@ -9,6 +11,7 @@ import type { KeyboardEvent, ReactElement, ReactNode } from "react";
 
 type KpiCardProps = DashboardKpiDefinition & {
   icon?: ReactNode;
+  description?: string;
   onClick?: () => void;
   sparklineData?: readonly number[];
 };
@@ -78,6 +81,7 @@ export const KpiCard = ({
   icon,
   link,
   module,
+  description,
   onClick,
   sparklineData,
   title,
@@ -136,6 +140,11 @@ export const KpiCard = ({
               </span>
             ) : null}
           </p>
+          {description ? (
+            <p className="max-w-md text-muted-foreground text-xs leading-5">
+              {description}
+            </p>
+          ) : null}
           <p className={cn("font-semibold text-3xl", toneClassName.text)}>
             {value}
           </p>

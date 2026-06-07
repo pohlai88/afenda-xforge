@@ -64,7 +64,9 @@ packages/events
 packages/health
 packages/jurisdictions/*
 packages/metrics
+packages/logger
 packages/notifications
+packages/machine
 packages/search
 packages/observability
 packages/security
@@ -83,6 +85,8 @@ Rules:
 - They must not make business decisions.
 - They must not become source-of-truth stores.
 - They must not bypass auth, permissions, tenant scope, company grants, or audit.
+- `packages/machine` owns product-specific AI orchestration, assistant selection, context assembly, and prompt wiring. It may compose approved feature server entrypoints, but it must not own business decisions or import feature internals.
+- `packages/logger` owns structured runtime logging, request context propagation, request wrappers, and server log helpers. It propagates request, correlation, and operation context. Its root export is server-only and client components must not import it.
 - `packages/health` owns dependency checks, liveness/readiness/startup contracts, and health report composition.
 - `packages/integrations/*` is the vendor-adapter family for systems such as Linear or Workday.
 - `packages/jurisdictions/*` is the country-policy family for legal/compliance rules, reference catalogs, and pure calculators such as Vietnam tax or insurance formulas.
@@ -161,6 +165,9 @@ File roles:
 - `queries.ts` contains server-side reads and must enforce tenant scope.
 - `actions.ts` contains server-side mutations and must call the canonical execution pipeline.
 - `server.ts` is the only approved public server entrypoint for the feature.
+- `index.ts`, `server.ts`, `actions.ts`, `queries.ts`, and `execution/index.ts` are server-only files.
+- Client components import feature-owned data from pure subpaths such as `contract`, `manifest`, `metadata`, or intentionally pure `shared`.
+- Server code imports feature behavior from the `server` subpath when only runtime behavior is needed.
 
 If the feature grows large, it may contain horizontal business areas that repeat the same vertical scaffold.
 
@@ -198,6 +205,7 @@ apps/* -> packages/ui
 apps/* -> packages/auth
 apps/* -> packages/execution
 apps/* -> packages/shared
+packages/machine -> feature server entrypoints
 feature package -> execution
 feature package -> auth
 feature package -> permissions
@@ -221,6 +229,7 @@ Forbidden:
 packages/features/* -> packages/features/*
 packages/features/* -> sibling feature internals
 packages/features/* -> direct imports from another feature package
+packages/machine -> feature internals
 packages/shared -> business rule ownership
 packages/shared -> database mutation logic
 packages/cache -> source-of-truth state
@@ -229,6 +238,8 @@ packages/search -> source-of-truth records
 packages/ui -> database
 packages/ui -> auth
 client components -> direct database access
+client components -> server-only package roots
+client components -> feature server/actions/queries/execution subpaths
 pages -> direct mutation without execution
 ```
 
@@ -324,6 +335,7 @@ Safe customization points include:
 - swapping search providers behind `packages/search`
 - swapping country policy implementations behind `packages/jurisdictions/*`
 - swapping cache providers behind `packages/cache`
+- swapping structured logging transports or formats behind `packages/logger`
 - swapping notification delivery behind `packages/notifications`
 - swapping observability backends behind `packages/observability`
 - swapping storage, CMS, email, analytics, or SEO integrations at their package boundary

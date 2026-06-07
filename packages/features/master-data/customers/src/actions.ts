@@ -1,9 +1,13 @@
 import "server-only";
 
 import { randomUUID } from "node:crypto";
-import { writeAuditEvent as persistAuditEvent } from "@repo/audit";
+import {
+  writeAuditEvent as persistAuditEvent,
+  writeAuditEventInTransaction,
+} from "@repo/audit";
 import { customers, database, timeDatabaseQuery } from "@repo/database";
 import type {
+  ExecutionDatabaseTransaction,
   ExecutionDomainResult,
   ExecutionMutationContext,
   ExecutionPipelineHooks,
@@ -21,8 +25,10 @@ type CustomerPostCommitHook = (
 ) => Promise<void> | void;
 
 type CustomerCommandContext = TenantActorScope & {
+  db?: ExecutionDatabaseTransaction;
   grantedPermissions: string[];
   postCommitHooks?: CustomerPostCommitHook[];
+  operationId?: string;
   requestId?: string;
 };
 
@@ -55,6 +61,8 @@ const insertCustomerRecord = async (
   input: CreateCustomerBody,
   context: CustomerCommandContext
 ): Promise<Customer> => {
+  const db = context.db ?? database;
+
   appendRequestContextMetadata({
     customerCode: input.code,
     feature: "customers",
@@ -64,7 +72,7 @@ const insertCustomerRecord = async (
 
   const [customer] = await timeDatabaseQuery(
     () =>
-      database
+      db
         .insert(customers)
         .values({
           code: input.code.trim(),
@@ -92,18 +100,32 @@ const insertCustomerRecord = async (
   return mapCustomer(customer);
 };
 
+const persistCustomerAuditEvent = async (
+  event: Parameters<typeof persistAuditEvent>[0],
+  db?: ExecutionDatabaseTransaction
+): Promise<void> => {
+  if (db) {
+    await writeAuditEventInTransaction(db, event);
+    return;
+  }
+
+  await persistAuditEvent(event);
+};
+
 export const createCustomer = (
   input: CreateCustomerBody,
   context: CustomerCommandContext
 ): Promise<Customer> => {
   const pipeline = createExecutionPipeline<CreateCustomerBody, Customer>({
     executeDomainOperation: async ({
+      db,
       input: executionInput,
       actor,
       tenant,
     }: ExecutionMutationContext<CreateCustomerBody>) => {
       const customer = await insertCustomerRecord(executionInput, {
         ...context,
+        db,
         tenantId: tenant.tenantId,
         userId: actor.actorId,
       });
@@ -125,17 +147,21 @@ export const createCustomer = (
     permissionRequirement: {
       allOf: [permissionCatalog.customers.write],
     },
+    runInTransaction: <T>(
+      run: (db: ExecutionDatabaseTransaction) => Promise<T>
+    ): Promise<T> => database.transaction(run),
     postCommitHooks: context.postCommitHooks as ExecutionPipelineHooks<
       CreateCustomerBody,
       Customer
     >["postCommitHooks"],
+    operationId: context.operationId ?? context.requestId ?? randomUUID(),
     requireAuth: async () => ({ actorId: context.userId }),
     requirePermission,
     requireTenantMembership: async () => undefined,
     resolveActiveTenant: async () => ({ tenantId: context.tenantId }),
     requestId: context.requestId ?? randomUUID(),
     validateInput: async () => undefined,
-    writeAuditEvent: persistAuditEvent,
+    writeAuditEvent: persistCustomerAuditEvent,
   });
 
   return pipeline(input);

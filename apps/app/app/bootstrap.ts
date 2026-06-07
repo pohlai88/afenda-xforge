@@ -12,10 +12,11 @@ export const ensureAppBootstrap = (): Promise<void> => {
   appBootstrapPromise ??= (async (): Promise<void> => {
     try {
       await initializeEventsInfrastructure();
-    } catch (error: unknown) {
-      logger.error({ error }, "app infrastructure bootstrap failed");
-    } finally {
       healthManager.markReady();
+    } catch (error: unknown) {
+      appBootstrapPromise = null;
+      healthManager.markNotReady();
+      logger.error({ error }, "app infrastructure bootstrap failed");
     }
   })();
 

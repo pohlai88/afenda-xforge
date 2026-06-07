@@ -1,3 +1,10 @@
+export type { SearchLanguagePreset } from "./language.ts";
+export {
+  applySearchLanguagePreset,
+  ENGLISH_SEARCH_STOP_WORDS,
+  SEARCH_LANGUAGE_PRESETS,
+  VIETNAMESE_SEARCH_STOP_WORDS,
+} from "./language.ts";
 export * from "./meilisearch/index.ts";
 export {
   buildSearchIndexName,

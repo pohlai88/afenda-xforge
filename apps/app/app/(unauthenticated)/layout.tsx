@@ -1,4 +1,4 @@
-import { ModeToggle } from "@repo/ui/components/mode-toggle";
+import { ModeToggle } from "@repo/ui";
 import type { ReactElement, ReactNode } from "react";
 
 type UnauthenticatedLayoutProps = {

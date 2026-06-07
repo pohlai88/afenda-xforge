@@ -6,8 +6,10 @@
   "exports": {
     ".": "./src/index.ts",
     "./contract": "./src/contract.ts",
+    "./execution": "./src/execution/index.ts",
     "./manifest": "./src/manifest.ts",
     "./metadata": "./src/metadata.ts",
+    "./shared": "./src/shared/index.ts",
     "./server": "./src/server.ts",
     "./package.json": "./package.json"
   },

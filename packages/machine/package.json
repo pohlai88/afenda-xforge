@@ -1,0 +1,42 @@
+{
+  "name": "@repo/machine",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "exports": {
+    ".": "./src/index.ts",
+    "./client": "./src/client.ts",
+    "./contract": "./src/contract.ts",
+    "./metadata": "./src/metadata.ts",
+    "./server": "./src/server.ts",
+    "./package.json": "./package.json"
+  },
+  "files": [
+    "src",
+    "README.md",
+    "package.json"
+  ],
+  "scripts": {
+    "lint": "biome check .",
+    "format": "biome format --write .",
+    "clean": "git clean -xdf .cache .turbo dist node_modules",
+    "typecheck": "tsc --noEmit --emitDeclarationOnly false"
+  },
+  "dependencies": {
+    "@ai-sdk/openai": "catalog:",
+    "@repo/api": "workspace:*",
+    "@repo/ai": "workspace:*",
+    "@repo/features-master-data-companies": "workspace:*",
+    "@repo/features-master-data-customers": "workspace:*",
+    "@repo/shared": "workspace:*",
+    "ai": "catalog:",
+    "server-only": "catalog:",
+    "zod": "catalog:"
+  },
+  "devDependencies": {
+    "@repo/typescript-config": "workspace:*",
+    "@types/node": "catalog:",
+    "typescript": "catalog:"
+  },
+  "sideEffects": false
+}

@@ -5,17 +5,7 @@
     "allowImportingTsExtensions": true,
     "module": "NodeNext",
     "moduleResolution": "NodeNext",
-    "jsx": "react-jsx",
-    "baseUrl": ".",
-    "paths": {
-      "@repo/features-master-data-companies": [
-        "../features/master-data/companies/src/index.ts"
-      ],
-      "@repo/features-master-data-customers": [
-        "../features/master-data/customers/src/index.ts"
-      ],
-      "@repo/shared": ["../shared/index.ts"]
-    }
+    "jsx": "react-jsx"
   },
   "include": ["**/*.ts", "**/*.tsx"],
   "exclude": ["node_modules"]

@@ -1,8 +1,8 @@
 import "server-only";
 
 import { createOpenAI } from "@ai-sdk/openai";
+import { loadAiKeys } from "@repo/ai/server";
 import { generateText, streamText, tool } from "ai";
-import { loadAiKeys } from "../keys.ts";
 import {
   defaultXforgeAssistants,
   generalAssistant,
@@ -19,6 +19,8 @@ import { classifyXforgeIntent } from "./utils.ts";
 
 export type XforgeLynxChatResult = Awaited<ReturnType<typeof generateText>>;
 export type XforgeLynxStreamResult = ReturnType<typeof streamText>;
+export type XforgeMachineChatResult = XforgeLynxChatResult;
+export type XforgeMachineStreamResult = XforgeLynxStreamResult;
 
 export type XforgeAssistantRegistry = Readonly<{
   list: () => readonly XforgeAssistantDefinition[];
@@ -32,6 +34,8 @@ export type XforgeLynx = Readonly<{
   stream: (request: XforgeLynxRequest) => Promise<XforgeLynxStreamResult>;
 }>;
 
+export type XforgeMachine = XforgeLynx;
+
 export type XforgeCopilotChatResult = XforgeLynxChatResult;
 export type XforgeCopilotStreamResult = XforgeLynxStreamResult;
 export type XforgeCopilot = XforgeLynx;
@@ -43,7 +47,7 @@ const resolveChatModel = (
   const apiKey = config.apiKey ?? envKeys.OPENAI_API_KEY;
 
   if (!apiKey) {
-    throw new Error("OPENAI_API_KEY is required to use @repo/ai lynx helpers");
+    throw new Error("OPENAI_API_KEY is required to use @repo/machine helpers");
   }
 
   const openai = createOpenAI({ apiKey });
@@ -171,4 +175,5 @@ export const createXforgeLynx = (config: XforgeLynxConfig = {}): XforgeLynx => {
 export {
   buildAssistantRegistry as createXforgeAssistantRegistry,
   createXforgeLynx as createXforgeCopilot,
+  createXforgeLynx as createXforgeMachine,
 };

@@ -1,60 +1,34 @@
-import { requireActiveTenantAccess } from "@repo/auth/server";
 import type {
   CreateCustomerBody,
   Customer,
   CustomerList,
   ListCustomersQuery,
-} from "@repo/features-master-data-customers";
+} from "@repo/features-master-data-customers/contract";
 import {
   createCustomer,
   listCustomers,
-} from "@repo/features-master-data-customers";
-import type { PermissionContext } from "@repo/permissions";
+} from "@repo/features-master-data-customers/server";
+import { permissionCatalog, requirePermission } from "@repo/permissions";
 import {
-  permissionCatalog,
-  requirePermission,
-  resolvePermissionsForTenantRole,
-} from "@repo/permissions";
+  createRuntimePermissionContext,
+  resolveRuntimeTenantAccess,
+} from "../../_runtime-access.ts";
 import {
   customerNotificationPostCommitHook,
   linearCustomerSyncPostCommitHook,
 } from "../_post-commit.ts";
 
-type CustomerAccess = {
-  actorId: string;
-  grantedPermissions: string[];
-  tenantId: string;
-};
-
-const resolveCustomerAccess = async (): Promise<CustomerAccess> => {
-  const access = await requireActiveTenantAccess();
-
-  return {
-    actorId: access.user.id,
-    grantedPermissions: resolvePermissionsForTenantRole(access.membership.role),
-    tenantId: access.membership.tenantId,
-  };
-};
-
-const createCustomerPermissionContext = (
-  access: CustomerAccess,
-  action: string
-): PermissionContext => ({
-  action,
-  actorId: access.actorId,
-  grantedPermissions: access.grantedPermissions,
-  resource: "customers",
-  tenantId: access.tenantId,
-});
-
 export const listCustomersForTenant = async (
   query: ListCustomersQuery
 ): Promise<CustomerList> => {
-  const access = await resolveCustomerAccess();
+  const access = await resolveRuntimeTenantAccess();
 
-  requirePermission(createCustomerPermissionContext(access, "customers.list"), {
-    allOf: [permissionCatalog.customers.read],
-  });
+  requirePermission(
+    createRuntimePermissionContext(access, "customers.list", "customers"),
+    {
+      allOf: [permissionCatalog.customers.read],
+    }
+  );
 
   return listCustomers(query, {
     tenantId: access.tenantId,
@@ -65,7 +39,7 @@ export const listCustomersForTenant = async (
 export const createCustomerForTenant = async (
   body: CreateCustomerBody
 ): Promise<Customer> => {
-  const access = await resolveCustomerAccess();
+  const access = await resolveRuntimeTenantAccess();
 
   return createCustomer(body, {
     grantedPermissions: access.grantedPermissions,
@@ -73,6 +47,8 @@ export const createCustomerForTenant = async (
       customerNotificationPostCommitHook,
       linearCustomerSyncPostCommitHook,
     ],
+    operationId: access.operationId,
+    requestId: access.requestId,
     tenantId: access.tenantId,
     userId: access.actorId,
   });

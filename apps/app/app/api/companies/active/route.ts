@@ -1,9 +1,9 @@
-import { createContractRoute } from "@repo/api";
+import { createContractRoute } from "@repo/api/route";
 import { InternalError } from "@repo/errors";
 import {
   getActiveCompanyRouteContract,
   updateActiveCompanyRouteContract,
-} from "@repo/features-master-data-companies";
+} from "@repo/features-master-data-companies/contract";
 import { createLogger } from "@repo/logger";
 import {
   getActiveCompanyForTenant,

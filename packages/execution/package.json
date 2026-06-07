@@ -21,6 +21,7 @@
   },
   "dependencies": {
     "@repo/audit": "workspace:*",
+    "@repo/database": "workspace:*",
     "@repo/errors": "workspace:*",
     "@repo/permissions": "workspace:*",
     "server-only": "catalog:"

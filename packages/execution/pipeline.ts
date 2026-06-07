@@ -1,6 +1,13 @@
 import "server-only";
 
-import type { AuditEventInput } from "@repo/audit";
+import type {
+  AuditActorType,
+  AuditChange,
+  AuditChannel,
+  AuditEventInput,
+  AuditOutcome,
+} from "@repo/audit";
+import type { database as databaseClient } from "@repo/database";
 import { ConfigurationError } from "@repo/errors";
 import type {
   PermissionContext,
@@ -9,6 +16,7 @@ import type {
 
 export type ExecutionActor = {
   actorId: string;
+  actorType?: AuditActorType;
 };
 
 export type ExecutionTenant = {
@@ -20,22 +28,42 @@ export type ExecutionCompany = {
   grantId?: string | null;
 };
 
+export type ExecutionDatabaseTransaction = Parameters<
+  Parameters<typeof databaseClient.transaction>[0]
+>[0];
+
 export type ExecutionMutationContext<TInput> = {
   input: TInput;
   actor: ExecutionActor;
+  operationId?: string;
   tenant: ExecutionTenant;
   company?: ExecutionCompany;
   requestId: string;
+  db?: ExecutionDatabaseTransaction;
 };
 
 export type ExecutionDomainResult<TResult> = {
   result: TResult;
   before?: Record<string, unknown>;
   after?: Record<string, unknown>;
+  diff?: readonly AuditChange[];
+  module?: string;
+  surface?: string;
+  route?: string;
+  subjectType?: string;
+  subjectId?: string;
+  summary?: string;
+  outcome?: AuditOutcome;
   targetType: string;
   targetId: string;
+  targetDisplayName?: string;
   action: string;
   reason?: string;
+  policyReference?: string;
+  approvalId?: string;
+  channel?: AuditChannel;
+  operationId?: string;
+  occurredAt?: Date;
   metadata?: Record<string, unknown>;
 };
 
@@ -75,14 +103,36 @@ export type ExecutionPipelineHooks<TInput, TResult> = {
       context: ExecutionMutationContext<TInput>
     ) => Promise<void> | void
   >;
-  writeAuditEvent: (event: AuditEventInput) => Promise<unknown> | unknown;
+  runInTransaction?: <T>(
+    run: (db: ExecutionDatabaseTransaction) => Promise<T>
+  ) => Promise<T>;
+  writeAuditEvent: (
+    event: AuditEventInput,
+    db?: ExecutionDatabaseTransaction
+  ) => Promise<unknown> | unknown;
   requestId: string;
+  operationId?: string;
 };
 
 export type ExecutionPostCommitHook<TInput, TResult> = (
   operation: ExecutionDomainResult<TResult>,
   context: ExecutionMutationContext<TInput>
 ) => Promise<void> | void;
+
+const resolveAuditModule = (
+  action: string,
+  module: string | undefined
+): string | undefined => module?.trim() || action.split(".")[0] || undefined;
+
+const resolveActorRole = (
+  metadata: Record<string, unknown> | undefined
+): string | undefined => {
+  const role = metadata?.actorRole;
+
+  return typeof role === "string" && role.trim().length > 0
+    ? role.trim()
+    : undefined;
+};
 
 export const createExecutionPipeline =
   <TInput, TResult>(hooks: ExecutionPipelineHooks<TInput, TResult>) =>
@@ -108,32 +158,75 @@ export const createExecutionPipeline =
       hooks.permissionRequirement
     );
 
-    const operation = await hooks.executeDomainOperation({
-      input,
-      actor,
-      tenant,
-      company: company ?? undefined,
-      requestId: hooks.requestId,
-    });
+    const writeAuditEvent = async (
+      operation: ExecutionDomainResult<TResult>,
+      db?: ExecutionDatabaseTransaction
+    ): Promise<void> => {
+      await hooks.writeAuditEvent(
+        {
+          tenantId: tenant.tenantId,
+          companyId: company?.companyId ?? null,
+          grantId: company?.grantId ?? null,
+          actorId: actor.actorId,
+          actorType: actor.actorType ?? "user",
+          actorRole: resolveActorRole(permissionContext.metadata),
+          action: operation.action,
+          summary: operation.summary,
+          outcome: operation.outcome,
+          module: resolveAuditModule(operation.action, operation.module),
+          surface: operation.surface,
+          route: operation.route,
+          subjectType: operation.subjectType,
+          subjectId: operation.subjectId,
+          targetType: operation.targetType,
+          targetId: operation.targetId,
+          targetDisplayName: operation.targetDisplayName,
+          reason: operation.reason,
+          policyReference: operation.policyReference,
+          approvalId: operation.approvalId,
+          channel: operation.channel,
+          requestId: hooks.requestId,
+          operationId:
+            operation.operationId ?? hooks.operationId ?? hooks.requestId,
+          before: operation.before ?? {},
+          after: operation.after ?? {},
+          diff: operation.diff,
+          metadata: operation.metadata ?? null,
+          occurredAt: operation.occurredAt,
+        },
+        db
+      );
+    };
+
+    const executeOperation = async (
+      db?: ExecutionDatabaseTransaction
+    ): Promise<ExecutionDomainResult<TResult>> => {
+      const operation = await hooks.executeDomainOperation({
+        db,
+        input,
+        actor,
+        operationId: hooks.operationId ?? hooks.requestId,
+        tenant,
+        company: company ?? undefined,
+        requestId: hooks.requestId,
+      });
+
+      if (!operation.action) {
+        throw new ConfigurationError("Audit action is required");
+      }
+
+      await writeAuditEvent(operation, db);
+
+      return operation;
+    };
+
+    const operation = hooks.runInTransaction
+      ? await hooks.runInTransaction(async (db) => executeOperation(db))
+      : await executeOperation();
 
     if (!operation.action) {
       throw new ConfigurationError("Audit action is required");
     }
-
-    await hooks.writeAuditEvent({
-      tenantId: tenant.tenantId,
-      companyId: company?.companyId ?? null,
-      grantId: company?.grantId ?? null,
-      actorId: actor.actorId,
-      action: operation.action,
-      targetType: operation.targetType,
-      targetId: operation.targetId,
-      before: operation.before ?? {},
-      after: operation.after ?? {},
-      reason: operation.reason ?? "mutation",
-      requestId: hooks.requestId,
-      metadata: operation.metadata ?? null,
-    });
 
     if (hooks.postCommitHooks && hooks.postCommitHooks.length > 0) {
       await Promise.allSettled(
@@ -141,6 +234,7 @@ export const createExecutionPipeline =
           hook(operation, {
             input,
             actor,
+            operationId: hooks.operationId ?? hooks.requestId,
             tenant,
             company: company ?? undefined,
             requestId: hooks.requestId,

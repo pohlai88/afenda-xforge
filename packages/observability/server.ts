@@ -15,7 +15,7 @@ export const initializeSentry = (): ReturnType<typeof init> =>
     enableLogs: true,
     tracesSampleRate: 1,
     debug: false,
-    includeLocalVariables: true,
+    includeLocalVariables: process.env.NODE_ENV !== "production",
     integrations: [
       consoleLoggingIntegration({ levels: ["log", "error", "warn"] }),
     ],

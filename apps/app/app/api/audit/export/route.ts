@@ -1,5 +1,6 @@
 import { exportAuditEvents } from "@repo/audit";
 import { requireActiveTenantAccess } from "@repo/auth/server";
+import { createLogger, withRequestLogging } from "@repo/logger";
 import type { PermissionContext } from "@repo/permissions";
 import {
   permissionCatalog,
@@ -35,42 +36,46 @@ const createAuditPermissionContext = (
   tenantId: access.tenantId,
 });
 
-export const GET = async (request: Request): Promise<Response> => {
-  const url = new URL(request.url);
-  const query = auditExportQuerySchema.parse(
-    Object.fromEntries(url.searchParams.entries())
-  );
-  const access = await resolveAuditAccess();
+const auditExportLogger = createLogger("app.api.audit.export");
 
-  requirePermission(createAuditPermissionContext(access, "audit.export"), {
-    allOf: [permissionCatalog.audit.read],
-  });
+const auditExportRoute = withRequestLogging(
+  async (request: Request): Promise<Response> => {
+    const url = new URL(request.url);
+    const query = auditExportQuerySchema.parse(
+      Object.fromEntries(url.searchParams.entries())
+    );
+    const access = await resolveAuditAccess();
 
-  const payload = await exportAuditEvents({
-    actorId: query.actorId,
-    action: query.action,
-    companyId: query.companyId,
-    format: query.format,
-    from: query.from,
-    offset: 0,
-    requestId: query.requestId,
-    targetId: query.targetId,
-    targetType: query.targetType,
-    tenantId: access.tenantId,
-    to: query.to,
-    limit: 1000,
-  });
+    requirePermission(createAuditPermissionContext(access, "audit.export"), {
+      allOf: [permissionCatalog.audit.read],
+    });
 
-  return new Response(payload, {
-    headers: {
-      "content-disposition":
-        query.format === "csv"
-          ? 'attachment; filename="audit-events.csv"'
-          : 'attachment; filename="audit-events.json"',
-      "content-type":
-        query.format === "csv"
-          ? "text/csv; charset=utf-8"
-          : "application/json; charset=utf-8",
-    },
-  });
-};
+    const { format, ...filters } = query;
+    const payload = await exportAuditEvents({
+      tenantId: access.tenantId,
+      ...filters,
+      format,
+      limit: 1000,
+      offset: 0,
+    });
+
+    return new Response(payload, {
+      headers: {
+        "content-disposition":
+          format === "csv"
+            ? 'attachment; filename="audit-events.csv"'
+            : 'attachment; filename="audit-events.json"',
+        "content-type":
+          format === "csv"
+            ? "text/csv; charset=utf-8"
+            : "application/json; charset=utf-8",
+      },
+    });
+  },
+  {
+    logger: auditExportLogger,
+    metricsApp: "app",
+  }
+);
+
+export const GET: typeof auditExportRoute = auditExportRoute;

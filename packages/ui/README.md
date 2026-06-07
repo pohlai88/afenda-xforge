@@ -4,6 +4,7 @@
 
 Allowed ownership:
 - presentational wrappers and composed UI controls
+- enterprise state surfaces for loading, empty, error, and forbidden views
 - app-facing component exports
 
 Forbidden ownership:
@@ -17,3 +18,8 @@ Forbidden ownership:
 - `@repo/design-system/lib/utils`
 
 It must not re-export the `@repo/design-system` root surface.
+
+Recommended surface examples:
+- `StatePanel` for standard empty / error / forbidden / recovery states
+- `ActivityTable` for dense data grids with search, sorting, and pagination
+- `DashboardGrid`, `KpiCard`, and `ModuleStatusGrid` for dashboard composition

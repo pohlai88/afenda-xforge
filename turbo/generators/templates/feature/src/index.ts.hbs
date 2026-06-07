@@ -1,3 +1,11 @@
+/**
+ * Server-only public door for the feature package.
+ *
+ * Client code must import pure subpaths such as `/contract`, `/manifest`, or
+ * `/metadata` instead of the package root.
+ */
+import "server-only";
+
 export type {
   Create{{ recordPascal }}Input,
   {{ recordPascal }}ActionName,

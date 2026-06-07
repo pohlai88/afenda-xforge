@@ -5,6 +5,7 @@
   "type": "module",
   "exports": {
     ".": "./index.ts",
+    "./language": "./language.ts",
     "./registry": "./registry.ts",
     "./types": "./types.ts",
     "./meilisearch": "./meilisearch/index.ts",
@@ -17,6 +18,7 @@
   "files": [
     ".env.example",
     "index.ts",
+    "language.ts",
     "registry.ts",
     "types.ts",
     "meilisearch",

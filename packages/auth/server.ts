@@ -14,6 +14,7 @@ import type { EmailOtpType, Session, User } from "@supabase/supabase-js";
 import { createClient } from "@supabase/supabase-js";
 import { and, asc, eq } from "drizzle-orm";
 import { cookies } from "next/headers";
+import { cache } from "react";
 import { loadAuthKeys } from "./keys.ts";
 
 type SupabaseConfig = {
@@ -133,7 +134,7 @@ export const createServiceRoleSupabaseClient =
     });
   };
 
-export const getSession = async (): Promise<Session | null> => {
+export const getSession = cache(async (): Promise<Session | null> => {
   const supabase = await createServerSupabaseClient();
 
   if (!supabase) {
@@ -147,9 +148,9 @@ export const getSession = async (): Promise<Session | null> => {
   }
 
   return data.session;
-};
+});
 
-export const getUser = async (): Promise<User | null> => {
+export const getUser = cache(async (): Promise<User | null> => {
   const supabase = await createServerSupabaseClient();
 
   if (!supabase) {
@@ -163,7 +164,7 @@ export const getUser = async (): Promise<User | null> => {
   }
 
   return data.user;
-};
+});
 
 export const getCurrentAuthenticatedUserId = async (): Promise<
   string | null

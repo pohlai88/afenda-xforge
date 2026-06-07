@@ -12,3 +12,6 @@ storybook-static
 .idea
 .cursorrules
 .github/copilot-instructions.md
+.biome-ai.json
+apps/email/.react-email/
+docs/runtime/

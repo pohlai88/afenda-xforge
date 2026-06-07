@@ -8,12 +8,13 @@ import type {
 } from "./types.ts";
 
 export class MasterDataError extends Error {
-  constructor(
-    message: string,
-    public code: string = "MASTER_DATA_ERROR",
-    public status: number = 500
-  ) {
+  readonly code: string;
+  readonly status: number;
+
+  constructor(message: string, code = "MASTER_DATA_ERROR", status = 500) {
     super(message);
+    this.code = code;
+    this.status = status;
     this.name = "MasterDataError";
   }
 }
@@ -52,15 +53,23 @@ export abstract class BaseMasterDataService<
     tenantId: string
   ): Promise<TRecord>;
 
-  async get(id: string, tenantId: string): Promise<TRecord | null> {
+  get(id: string, tenantId: string): Promise<TRecord | null> {
     return this.findById(id, tenantId);
   }
 
-  async getByCode(code: string, tenantId: string): Promise<TRecord | null> {
+  getByCode(code: string, tenantId: string): Promise<TRecord | null> {
     return this.findByCode(code, tenantId);
   }
 
-  async list(query: MasterDataQuery): Promise<{ data: TRecord[]; meta: { page: number; pageSize: number; total: number; totalPages: number } }> {
+  async list(query: MasterDataQuery): Promise<{
+    data: TRecord[];
+    meta: {
+      page: number;
+      pageSize: number;
+      total: number;
+      totalPages: number;
+    };
+  }> {
     const page = query.page || 1;
     const pageSize = Math.min(query.pageSize || 20, 100);
     const { data, total } = await this.findMany({
@@ -195,6 +204,12 @@ export abstract class BaseMasterDataService<
           case "delete":
             await this.softDeleteRecord(record.id, operation.tenantId);
             break;
+          default:
+            throw new MasterDataError(
+              `Unsupported bulk action: ${operation.action}`,
+              "INVALID_OPERATION",
+              400
+            );
         }
 
         result.succeeded++;

@@ -3,7 +3,6 @@ import "server-only";
 import { InternalError, ValidationError } from "@repo/errors";
 import type { AppLogger } from "@repo/logger";
 import { withRequestLogging } from "@repo/logger";
-import { withMetrics } from "@repo/metrics";
 import type { z } from "zod";
 import { ZodError } from "zod";
 import type {
@@ -158,9 +157,5 @@ export const createContractRoute =
       }
     );
 
-    const measuredHandler = options.metricsApp
-      ? withMetrics(routeHandler, options.metricsApp)
-      : routeHandler;
-
-    return await measuredHandler(request);
+    return await routeHandler(request);
   };

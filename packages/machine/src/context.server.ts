@@ -1,7 +1,7 @@
 import "server-only";
 
-import { listCompanies } from "@repo/features-master-data-companies";
-import { listCustomers } from "@repo/features-master-data-customers";
+import { listCompanies } from "@repo/features-master-data-companies/server";
+import { listCustomers } from "@repo/features-master-data-customers/server";
 import type { TenantActorScope } from "@repo/shared";
 import type {
   XforgeAssistantDefinition,

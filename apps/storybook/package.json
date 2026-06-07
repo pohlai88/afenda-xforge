@@ -9,9 +9,11 @@
   },
   "dependencies": {
     "@repo/design-system": "workspace:*",
-    "@storybook/nextjs": "catalog:",
+    "@repo/metadata": "workspace:*",
+    "@repo/metadata-ui": "workspace:*",
+    "@repo/ui": "workspace:*",
     "@storybook/react": "catalog:",
-    "next": "catalog:",
+    "@storybook/react-vite": "catalog:",
     "react": "catalog:",
     "react-dom": "catalog:",
     "storybook": "catalog:"

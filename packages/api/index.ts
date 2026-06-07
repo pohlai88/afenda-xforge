@@ -25,5 +25,3 @@ export type {
   CreateApiSuccessResponseOptions,
 } from "./response.ts";
 export { createApiSuccessResponse } from "./response.ts";
-export type { ContractRouteOptions } from "./route.ts";
-export { createContractRoute } from "./route.ts";

@@ -1,0 +1,41 @@
+{
+  "$schema": "https://unpkg.com/knip@6/schema-jsonc.json",
+  "ignore": [
+    "**/.next/**",
+    "**/coverage/**",
+    "**/dist/**",
+    "**/storybook-static/**"
+  ],
+  "workspaces": {
+    "apps/api": {
+      "ignoreDependencies": ["@repo/next-config!"]
+    },
+    "apps/app": {
+      "ignoreDependencies": ["@repo/next-config!"]
+    },
+    "apps/email": {
+      "ignoreDependencies": ["@react-email/preview-server!", "react-email!"]
+    },
+    "apps/storybook": {
+      "ignoreDependencies": [
+        "@repo/design-system!",
+        "@repo/metadata!",
+        "@repo/metadata-ui!",
+        "@repo/ui!",
+        "@storybook/react!"
+      ]
+    },
+    "apps/web": {
+      "ignoreDependencies": ["@repo/next-config!"]
+    },
+    "packages/email": {
+      "ignoreDependencies": ["react-dom!"]
+    },
+    "packages/openapi": {
+      "ignoreDependencies": ["server-only!"]
+    },
+    "packages/permissions": {
+      "ignoreDependencies": ["server-only!"]
+    }
+  }
+}

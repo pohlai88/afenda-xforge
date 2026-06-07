@@ -1,4 +1,4 @@
-import { createContractRoute } from "@repo/api";
+import { createContractRoute } from "@repo/api/route";
 import { createLogger } from "@repo/logger";
 import { listAuditEventsForTenant } from "./_execution.ts";
 import { listAuditEventsRouteContract } from "./contract.ts";

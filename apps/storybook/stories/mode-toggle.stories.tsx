@@ -1,9 +1,12 @@
+import { ModeToggle } from "@repo/ui/components/mode-toggle";
 import type { Meta, StoryObj } from "@storybook/react";
-import { ModeToggle } from "@repo/design-system/components/mode-toggle";
 
 const meta: Meta<typeof ModeToggle> = {
-  title: "Design System/Mode Toggle",
+  title: "Foundations/Mode Toggle",
   component: ModeToggle,
+  parameters: {
+    layout: "centered",
+  },
 };
 
 export default meta;
@@ -11,3 +14,21 @@ export default meta;
 type Story = StoryObj<typeof ModeToggle>;
 
 export const Default: Story = {};
+
+export const Light: Story = {
+  parameters: {
+    theme: "light",
+  },
+};
+
+export const Dark: Story = {
+  parameters: {
+    theme: "dark",
+  },
+};
+
+export const System: Story = {
+  parameters: {
+    theme: "system",
+  },
+};

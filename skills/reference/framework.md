@@ -50,6 +50,7 @@ The following next-forge assumptions should not be copied as-is:
 - vendor-owned notification feeds as foundation packages
 - direct reliance on SaaS integration packages that do not serve the ERP baseline
 - architecture that treats company access as optional or implicit
+- product-specific AI orchestration should live in `packages/machine`, not in the generic `packages/ai` substrate
 
 ## XForge Framework Baseline
 
@@ -91,6 +92,8 @@ packages/events
 packages/health
 packages/integrations/*
 packages/jurisdictions/*
+packages/logger
+packages/machine
 packages/search
 packages/observability
 packages/security

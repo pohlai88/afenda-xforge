@@ -10,10 +10,7 @@
     "typecheck": "tsc --noEmit --emitDeclarationOnly false"
   },
   "dependencies": {
-    "@react-email/components": "catalog:",
     "@react-email/preview-server": "catalog:",
-    "@repo/email": "workspace:*",
-    "react": "catalog:",
     "react-email": "catalog:"
   },
   "devDependencies": {

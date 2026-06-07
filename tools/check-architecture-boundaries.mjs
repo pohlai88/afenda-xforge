@@ -13,6 +13,7 @@ const ignoredDirectories = new Set([
   "coverage",
   "dist",
   "node_modules",
+  "storybook-static",
 ]);
 const checkedExtensions = new Set([
   ".js",
@@ -202,7 +203,8 @@ function isAppOrOrchestration(filePath) {
   const relative = relativeToRoot(filePath);
   return (
     relative.startsWith("apps/") ||
-    relative.startsWith("packages/orchestration/")
+    relative.startsWith("packages/orchestration/") ||
+    relative.startsWith("packages/machine/")
   );
 }
 
@@ -235,7 +237,7 @@ function checkImport(filePath, source, specifier, packageName) {
 
   checkFeatureIsolation(filePath, specifier, packageName);
   checkAppFeatureEntrypoints(filePath, specifier, resolvedPath);
-  checkClientDatabaseImports(filePath, source, specifier, resolvedPath);
+  checkClientServerImports(filePath, source, specifier, resolvedPath);
   checkUiPackageImports(filePath, specifier, resolvedPath);
   checkMetadataImports(filePath, specifier, resolvedPath);
 }
@@ -280,20 +282,81 @@ function checkAppFeatureEntrypoints(filePath, specifier, resolvedPath) {
   }
 }
 
-function checkClientDatabaseImports(filePath, source, specifier, resolvedPath) {
-  if (isClientComponent(source)) {
-    const importsDatabase =
-      specifier === "@repo/database" ||
-      specifier.startsWith("@repo/database/") ||
-      (resolvedPath &&
-        relativeToRoot(resolvedPath).startsWith("packages/database/"));
+function isServerOnlyFile(resolvedPath) {
+  if (!(resolvedPath && existsSync(resolvedPath))) {
+    return false;
+  }
 
-    if (importsDatabase) {
-      addViolation(
-        filePath,
-        `client components must not import database code: ${specifier}`
-      );
-    }
+  const stat = statSync(resolvedPath);
+
+  if (!stat.isFile()) {
+    return false;
+  }
+
+  return /\bimport\s+["']server-only["']/.test(
+    readFileSync(resolvedPath, "utf8")
+  );
+}
+
+function isForbiddenClientFeatureImport(specifier) {
+  const match = specifier.match(/^@repo\/features-[^/]+(?:\/([^/]+))?$/);
+
+  if (!match) {
+    return false;
+  }
+
+  const subpath = match[1] ?? null;
+
+  return (
+    subpath === null ||
+    subpath === "actions" ||
+    subpath === "execution" ||
+    subpath === "queries" ||
+    subpath === "server"
+  );
+}
+
+function isForbiddenClientAuthImport(specifier) {
+  if (specifier === "@repo/auth") {
+    return true;
+  }
+
+  return (
+    specifier === "@repo/auth/server" ||
+    specifier === "@repo/auth/proxy" ||
+    specifier.startsWith("@repo/auth/server/") ||
+    specifier.startsWith("@repo/auth/proxy/")
+  );
+}
+
+function checkClientServerImports(filePath, source, specifier, resolvedPath) {
+  if (!isClientComponent(source)) {
+    return;
+  }
+
+  const resolvedRelativePath = resolvedPath ? relativeToRoot(resolvedPath) : "";
+  const importsForbiddenServerCode =
+    specifier === "@repo/database" ||
+    specifier.startsWith("@repo/database/") ||
+    specifier === "@repo/audit" ||
+    specifier.startsWith("@repo/audit/") ||
+    specifier === "@repo/logger" ||
+    specifier.startsWith("@repo/logger/") ||
+    specifier === "@repo/execution" ||
+    specifier.startsWith("@repo/execution/") ||
+    isForbiddenClientAuthImport(specifier) ||
+    isForbiddenClientFeatureImport(specifier) ||
+    isServerOnlyFile(resolvedPath) ||
+    resolvedRelativePath.startsWith("packages/database/") ||
+    resolvedRelativePath.startsWith("packages/audit/") ||
+    resolvedRelativePath.startsWith("packages/logger/") ||
+    resolvedRelativePath.startsWith("packages/execution/");
+
+  if (importsForbiddenServerCode) {
+    addViolation(
+      filePath,
+      `client components must not import server-only runtime code: ${specifier}`
+    );
   }
 }
 
@@ -363,6 +426,22 @@ function checkFeatureActionFile(filePath, source) {
       filePath,
       "feature actions must call the canonical execution pipeline through ./execution or @repo/execution"
     );
+  }
+
+  if (source.includes("createExecutionPipeline")) {
+    if (!/writeAuditEvent\s*:/.test(source)) {
+      addViolation(
+        filePath,
+        "feature actions that use the execution pipeline must wire a writeAuditEvent hook"
+      );
+    }
+
+    if (!/runInTransaction\s*:/.test(source)) {
+      addViolation(
+        filePath,
+        "feature actions that use the execution pipeline must wire runInTransaction so audit writes stay atomic"
+      );
+    }
   }
 }
 

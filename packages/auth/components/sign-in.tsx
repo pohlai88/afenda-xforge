@@ -86,7 +86,6 @@ export const SignIn = ({
       }
 
       router.replace(redirectTo);
-      router.refresh();
     } catch (cause) {
       setError(getErrorMessage(cause instanceof Error ? cause : null));
     } finally {

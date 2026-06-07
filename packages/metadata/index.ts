@@ -33,6 +33,7 @@ export type DashboardKpiTrend = "down" | "flat" | "up";
 
 export type DashboardKpiDefinition = {
   change?: number;
+  description?: string;
   link?: string;
   module?: string;
   title: string;

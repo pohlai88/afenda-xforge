@@ -1,7 +1,7 @@
 import "server-only";
 
-import { listCompanies } from "@repo/features-master-data-companies";
-import { listCustomers } from "@repo/features-master-data-customers";
+import { listCompanies } from "@repo/features-master-data-companies/server";
+import { listCustomers } from "@repo/features-master-data-customers/server";
 import type { TenantActorScope } from "@repo/shared";
 import { z } from "zod";
 import { buildXforgeBusinessContext } from "./context.server.ts";
@@ -120,7 +120,7 @@ export const generalAssistant: XforgeAssistantDefinition = {
   description:
     "Workspace assistant for general Xforge guidance, context, and routing.",
   module: "general",
-  name: "Xforge General Lynx",
+  name: "Xforge General",
   systemPrompt:
     "General workspace guidance. Use the workspace context and any available tools to answer clearly, strictly within tenant scope.",
   tools: [buildOverviewTool],
@@ -130,7 +130,7 @@ export const customersAssistant: XforgeAssistantDefinition = {
   contextBuilder: buildXforgeBusinessContext,
   description: "Customer master-data assistant for search and summaries.",
   module: "customers",
-  name: "Xforge Customers Lynx",
+  name: "Xforge Customers",
   systemPrompt:
     "Customer master-data guidance. Help users find customer records, summarize customer lists, and explain record scope without inventing data.",
   tools: [buildCustomerSearchTool, buildOverviewTool],
@@ -140,7 +140,7 @@ export const companiesAssistant: XforgeAssistantDefinition = {
   contextBuilder: buildXforgeBusinessContext,
   description: "Company master-data assistant for search and summaries.",
   module: "companies",
-  name: "Xforge Companies Lynx",
+  name: "Xforge Companies",
   systemPrompt:
     "Company master-data guidance. Help users find company records, summarize company lists, and explain record scope without inventing data.",
   tools: [buildCompanySearchTool, buildOverviewTool],

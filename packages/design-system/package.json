@@ -3,6 +3,7 @@
   "version": "0.0.0",
   "private": true,
   "type": "module",
+  "sideEffects": false,
   "exports": {
     ".": "./index.tsx",
     "./components/mode-toggle": "./components/mode-toggle.tsx",
@@ -12,22 +13,19 @@
     "./components.json": "./components.json",
     "./lib/utils": "./lib/utils.ts",
     "./lib/*": "./lib/*.ts",
-    "./hooks/*": "./hooks/*.ts",
     "./providers/theme": "./providers/theme.tsx",
     "./styles/globals.css": "./styles/globals.css",
     "./package.json": "./package.json"
   },
   "imports": {
     "#components/*": "./components/*.tsx",
-    "#lib/*": "./lib/*.ts",
-    "#hooks/*": "./hooks/*.ts"
+    "#lib/*": "./lib/*.ts"
   },
   "files": [
     "components.json",
     "components",
     "index.tsx",
     "lib",
-    "hooks",
     "providers/theme.tsx",
     "styles/globals.css",
     "package.json"
@@ -42,8 +40,10 @@
     "@radix-ui/react-icons": "catalog:",
     "class-variance-authority": "catalog:",
     "clsx": "catalog:",
-    "lucide-react": "catalog:",
     "next-themes": "catalog:",
+    "radix-ui": "catalog:",
+    "react": "catalog:",
+    "react-dom": "catalog:",
     "sonner": "catalog:",
     "tailwind-merge": "catalog:",
     "tw-animate-css": "catalog:"
@@ -55,6 +55,7 @@
     "@types/node": "catalog:",
     "@types/react": "catalog:",
     "@types/react-dom": "catalog:",
+    "postcss-load-config": "catalog:",
     "postcss": "catalog:",
     "tailwindcss": "catalog:",
     "typescript": "catalog:"

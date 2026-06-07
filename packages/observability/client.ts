@@ -4,12 +4,8 @@
  * https://docs.sentry.io/platforms/javascript/guides/nextjs/
  */
 
-import {
-  captureRouterTransitionStart,
-  consoleLoggingIntegration,
-  init,
-  replayIntegration,
-} from "@sentry/nextjs";
+import { consoleLoggingIntegration, replayIntegration } from "@sentry/browser";
+import { captureRouterTransitionStart, init } from "@sentry/nextjs";
 import { loadObservabilityKeys } from "./keys.ts";
 
 export const initializeSentry = (): ReturnType<typeof init> =>

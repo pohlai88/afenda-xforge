@@ -22,3 +22,12 @@ export {
   createTenantNotificationsTopic,
   getSupabaseNotificationsChannelPrefix,
 } from "./supabase/topics.ts";
+export type {
+  NotificationPriority,
+  NotificationTemplate,
+  NotificationTemplatePayload,
+} from "./templates.ts";
+export {
+  createNotificationDispatchRequest,
+  defineNotificationTemplate,
+} from "./templates.ts";

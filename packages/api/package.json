@@ -29,7 +29,6 @@
   "dependencies": {
     "@repo/errors": "workspace:*",
     "@repo/logger": "workspace:*",
-    "@repo/metrics": "workspace:*",
     "@repo/openapi": "workspace:*",
     "server-only": "catalog:",
     "zod": "catalog:"

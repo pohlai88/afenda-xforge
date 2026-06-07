@@ -1,10 +1,14 @@
 import "server-only";
 
 import { randomUUID } from "node:crypto";
-import { writeAuditEvent as persistAuditEvent } from "@repo/audit";
+import {
+  writeAuditEvent as persistAuditEvent,
+  writeAuditEventInTransaction,
+} from "@repo/audit";
 import { companies, database, timeDatabaseQuery } from "@repo/database";
 import { NotFoundError } from "@repo/errors";
 import type {
+  ExecutionDatabaseTransaction,
   ExecutionDomainResult,
   ExecutionMutationContext,
   ExecutionPipelineHooks,
@@ -27,21 +31,31 @@ type CompanyPostCommitHook<TInput> = (
 ) => Promise<void> | void;
 
 const persistCompanyAuditEvent = async (
-  event: Parameters<typeof persistAuditEvent>[0]
+  event: Parameters<typeof persistAuditEvent>[0],
+  db?: ExecutionDatabaseTransaction
 ): Promise<void> => {
+  if (db) {
+    await writeAuditEventInTransaction(db, event);
+    return;
+  }
+
   await persistAuditEvent(event);
 };
 
 type CompanyCreateContext = TenantActorScope & {
+  db?: ExecutionDatabaseTransaction;
   grantedPermissions: string[];
   postCommitHooks?: CompanyPostCommitHook<CreateCompanyBody>[];
+  operationId?: string;
   requestId?: string;
 };
 
 type CompanyUpdateContext = CompanyActorScope & {
+  db?: ExecutionDatabaseTransaction;
   grantId: string;
   grantedPermissions: string[];
   postCommitHooks?: CompanyPostCommitHook<UpdateActiveCompanyBody>[];
+  operationId?: string;
   requestId?: string;
 };
 
@@ -71,6 +85,8 @@ const insertCompanyRecord = async (
   input: CreateCompanyBody,
   context: CompanyCreateContext
 ): Promise<Company> => {
+  const db = context.db ?? database;
+
   appendRequestContextMetadata({
     companyCode: input.code,
     feature: "companies",
@@ -80,7 +96,7 @@ const insertCompanyRecord = async (
 
   const [company] = await timeDatabaseQuery(
     () =>
-      database
+      db
         .insert(companies)
         .values({
           code: input.code.trim(),
@@ -112,6 +128,8 @@ const updateCompanyRecord = async (
   after: Company;
   before: Company;
 }> => {
+  const db = context.db ?? database;
+
   appendRequestContextMetadata({
     companyCode: input.code,
     companyId: context.companyId,
@@ -122,7 +140,7 @@ const updateCompanyRecord = async (
 
   const [existingCompany] = await timeDatabaseQuery(
     () =>
-      database
+      db
         .select({
           code: companies.code,
           id: companies.id,
@@ -153,7 +171,7 @@ const updateCompanyRecord = async (
 
   const [company] = await timeDatabaseQuery(
     () =>
-      database
+      db
         .update(companies)
         .set({
           code: input.code.trim(),
@@ -198,12 +216,14 @@ export const createCompany = (
 ): Promise<Company> => {
   const pipeline = createExecutionPipeline<CreateCompanyBody, Company>({
     executeDomainOperation: async ({
+      db,
       input: executionInput,
       actor,
       tenant,
     }: ExecutionMutationContext<CreateCompanyBody>) => {
       const company = await insertCompanyRecord(executionInput, {
         ...context,
+        db,
         tenantId: tenant.tenantId,
         userId: actor.actorId,
       });
@@ -225,10 +245,14 @@ export const createCompany = (
     permissionRequirement: {
       allOf: [permissionCatalog.companies.write],
     },
+    runInTransaction: <T>(
+      run: (db: ExecutionDatabaseTransaction) => Promise<T>
+    ): Promise<T> => database.transaction(run),
     postCommitHooks: context.postCommitHooks as ExecutionPipelineHooks<
       CreateCompanyBody,
       Company
     >["postCommitHooks"],
+    operationId: context.operationId ?? context.requestId ?? randomUUID(),
     requireAuth: async () => ({ actorId: context.userId }),
     requirePermission,
     requireTenantMembership: async () => undefined,
@@ -247,6 +271,7 @@ export const updateCompany = (
 ): Promise<Company> => {
   const pipeline = createExecutionPipeline<UpdateActiveCompanyBody, Company>({
     executeDomainOperation: async ({
+      db,
       input: executionInput,
       actor,
       company,
@@ -259,6 +284,7 @@ export const updateCompany = (
       const updatedCompany = await updateCompanyRecord(executionInput, {
         ...context,
         companyId: company.companyId,
+        db,
         tenantId: tenant.tenantId,
         userId: actor.actorId,
       });
@@ -303,10 +329,14 @@ export const updateCompany = (
     permissionRequirement: {
       allOf: [permissionCatalog.companies.write],
     },
+    runInTransaction: <T>(
+      run: (db: ExecutionDatabaseTransaction) => Promise<T>
+    ): Promise<T> => database.transaction(run),
     postCommitHooks: context.postCommitHooks as ExecutionPipelineHooks<
       UpdateActiveCompanyBody,
       Company
     >["postCommitHooks"],
+    operationId: context.operationId ?? context.requestId ?? randomUUID(),
     requireAuth: async () => ({ actorId: context.userId }),
     requireCompanyGrant: async () => undefined,
     requirePermission,

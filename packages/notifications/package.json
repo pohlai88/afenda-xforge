@@ -6,6 +6,7 @@
   "exports": {
     ".": "./index.ts",
     "./shared/types": "./shared/types.ts",
+    "./templates": "./templates.ts",
     "./supabase": "./supabase/index.ts",
     "./supabase/client": "./supabase/client.ts",
     "./supabase/inbox": "./supabase/inbox.ts",
@@ -17,6 +18,7 @@
   "files": [
     "index.ts",
     "shared",
+    "templates.ts",
     "supabase",
     "package.json"
   ],

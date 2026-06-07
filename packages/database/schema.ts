@@ -238,14 +238,38 @@ export const auditEvents = xforge.table(
       onDelete: "set null",
     }),
     actorId: text("actor_id").notNull(),
+    actorType: varchar("actor_type", { length: 32 }).notNull().default("user"),
+    actorRole: varchar("actor_role", { length: 64 }),
+    module: varchar("module", { length: 64 }).notNull().default(""),
+    surface: varchar("surface", { length: 64 }),
+    route: text("route"),
+    subjectType: varchar("subject_type", { length: 128 }),
+    subjectId: text("subject_id"),
     action: varchar("action", { length: 128 }).notNull(),
+    summary: text("summary").notNull().default(""),
+    outcome: varchar("outcome", { length: 16 }).notNull().default("success"),
     targetType: varchar("target_type", { length: 128 }).notNull(),
     targetId: text("target_id").notNull(),
+    targetDisplayName: text("target_display_name"),
+    reason: text("reason").notNull(),
+    policyReference: text("policy_reference"),
+    approvalId: text("approval_id"),
+    channel: varchar("channel", { length: 32 }),
+    requestId: varchar("request_id", { length: 128 }).notNull(),
+    operationId: varchar("operation_id", { length: 128 }),
     before: jsonb("before").$type<Record<string, unknown>>().notNull(),
     after: jsonb("after").$type<Record<string, unknown>>().notNull(),
-    reason: text("reason").notNull(),
-    requestId: varchar("request_id", { length: 128 }).notNull(),
+    diff: jsonb("diff")
+      .$type<Record<string, unknown>[]>()
+      .notNull()
+      .default([]),
     metadata: jsonb("metadata").$type<Record<string, unknown> | null>(),
+    occurredAt: timestamp("occurred_at", {
+      mode: "date",
+      withTimezone: true,
+    })
+      .defaultNow()
+      .notNull(),
     createdAt: timestamp("created_at", {
       mode: "date",
       withTimezone: true,
@@ -254,16 +278,48 @@ export const auditEvents = xforge.table(
       .notNull(),
   },
   (table) => [
-    index("audit_events_tenant_created_idx").on(
+    index("audit_events_tenant_occurred_idx").on(
       table.tenantId,
-      table.createdAt
+      table.occurredAt
     ),
-    index("audit_events_company_created_idx").on(
+    index("audit_events_tenant_actor_occurred_idx").on(
+      table.tenantId,
+      table.actorId,
+      table.occurredAt
+    ),
+    index("audit_events_tenant_action_occurred_idx").on(
+      table.tenantId,
+      table.action,
+      table.occurredAt
+    ),
+    index("audit_events_tenant_module_occurred_idx").on(
+      table.tenantId,
+      table.module,
+      table.occurredAt
+    ),
+    index("audit_events_tenant_subject_occurred_idx").on(
+      table.tenantId,
+      table.subjectType,
+      table.subjectId,
+      table.occurredAt
+    ),
+    index("audit_events_tenant_target_idx").on(
+      table.tenantId,
+      table.targetType,
+      table.targetId
+    ),
+    index("audit_events_tenant_request_id_idx").on(
+      table.tenantId,
+      table.requestId
+    ),
+    index("audit_events_tenant_operation_id_idx").on(
+      table.tenantId,
+      table.operationId
+    ),
+    index("audit_events_company_occurred_idx").on(
       table.companyId,
-      table.createdAt
+      table.occurredAt
     ),
-    index("audit_events_target_idx").on(table.targetType, table.targetId),
-    index("audit_events_request_id_idx").on(table.requestId),
   ]
 );
 

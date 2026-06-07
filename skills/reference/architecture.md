@@ -64,6 +64,7 @@ apps/docs
 apps/storybook
 apps/studio
 packages/analytics
+packages/logger
 packages/email
 packages/machine
 packages/next-config
@@ -145,6 +146,7 @@ packages/events
 packages/health
 packages/integrations/*
 packages/jurisdictions/*
+packages/logger
 packages/machine
 packages/metrics
 packages/notifications
@@ -155,6 +157,7 @@ packages/search
 Rules:
 
 - `packages/analytics` owns telemetry providers, client/server analytics helpers, and lightweight UI wiring, not ERP business decisions.
+- `packages/logger` owns structured runtime logging, request context propagation, request wrappers, and server log helpers. It propagates request, correlation, and operation context. It is server-only and must not own audit evidence or business decisions.
 - `packages/ai` owns model registry helpers, AI SDK adapters, and AI UI primitives, not ERP business decisions.
 - `packages/machine` owns product-specific AI orchestration, assistant selection, context assembly, and prompt wiring. It may compose approved feature server entrypoints, but it must not own business decisions or import feature internals.
 - `packages/events` owns event contracts and publishers, not business decisions.
@@ -197,6 +200,7 @@ xforge/
 ├── packages/
 │   ├── analytics/        # Optional product and usage analytics
 │   ├── ai/               # Optional AI SDK helpers and UI primitives
+│   ├── logger/           # Structured runtime logging and request context helpers
 │   ├── machine/          # Product AI orchestration and assistant shell
 │   ├── audit/            # Audit event contract and writer
 │   ├── auth/             # Authentication, session, tenant resolution
@@ -252,7 +256,7 @@ xforge/
 - `packages/metadata-ui` owns metadata-driven rendering helpers.
 - `packages/shared` owns cross-feature primitives, value objects, constants, and narrow contracts that are not business execution logic.
 - `packages/integrations/*` owns external system clients, webhook verification helpers, retry policy helpers, and provider-specific request/response mapping.
-- `packages/cache`, `packages/events`, `packages/health`, `packages/jurisdictions/*`, `packages/notifications`, `packages/search`, `packages/rate-limit`, `packages/security`, `packages/storage`, `packages/observability`, `packages/email`, `packages/analytics`, `packages/ai`, and `packages/seo` are supporting infrastructure packages, not ERP business modules.
+- `packages/cache`, `packages/events`, `packages/health`, `packages/jurisdictions/*`, `packages/logger`, `packages/notifications`, `packages/search`, `packages/rate-limit`, `packages/security`, `packages/storage`, `packages/observability`, `packages/email`, `packages/analytics`, `packages/ai`, and `packages/seo` are supporting infrastructure packages, not ERP business modules.
 - `packages/domain-*` is legacy naming and should not be used for new work.
 
 ## 7. Dependency Direction
@@ -709,6 +713,7 @@ before
 after
 reason
 requestId
+operationId
 createdAt
 ```
 

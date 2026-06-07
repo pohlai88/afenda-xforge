@@ -6,6 +6,11 @@
   "engines": {
     "node": ">=20"
   },
+  "pnpm": {
+    "overrides": {
+      "zod": "4.3.6"
+    }
+  },
   "scripts": {
     "setup": "node scripts/setup.mjs",
     "dev": "turbo dev",
@@ -17,6 +22,9 @@
     "gen": "turbo gen package",
     "gen:app": "turbo gen app",
     "gen:feature": "turbo gen feature",
+    "knip": "knip",
+    "knip:fix": "knip --fix",
+    "knip:deps": "knip --production --dependencies",
     "lint": "pnpm lint:doctor && pnpm lint:biome && pnpm lint:architecture && pnpm lint:ui-boundaries",
     "lint:architecture": "node tools/check-architecture-boundaries.mjs",
     "lint:ui-boundaries": "node tools/check-ui-package-boundaries.mjs",
@@ -33,6 +41,7 @@
     "@biomejs/biome": "catalog:",
     "@turbo/gen": "catalog:",
     "@types/node": "catalog:",
+    "knip": "catalog:",
     "turbo": "catalog:",
     "typescript": "catalog:",
     "ultracite": "catalog:"

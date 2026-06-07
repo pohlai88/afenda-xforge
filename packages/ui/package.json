@@ -3,13 +3,18 @@
   "version": "0.0.0",
   "private": true,
   "type": "module",
+  "sideEffects": false,
   "exports": {
     ".": "./index.tsx",
+    "./components/button": "./components/button.tsx",
     "./components/activity-table": "./components/activity-table.tsx",
     "./components/dashboard-grid": "./components/dashboard-grid.tsx",
+    "./components/input": "./components/input.tsx",
     "./components/kpi-card": "./components/kpi-card.tsx",
     "./components/mode-toggle": "./components/mode-toggle.tsx",
     "./components/module-status-grid": "./components/module-status-grid.tsx",
+    "./components/skeleton": "./components/skeleton.tsx",
+    "./components/state-panel": "./components/state-panel.tsx",
     "./components/status-badge": "./components/status-badge.tsx",
     "./package.json": "./package.json"
   },

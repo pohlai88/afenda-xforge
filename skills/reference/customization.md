@@ -306,6 +306,7 @@ XForge may add packages when they are supporting infrastructure or a real featur
 - `packages/cache`
 - `packages/events`
 - `packages/search`
+- `packages/logger`
 - `packages/machine`
 - `packages/observability`
 - `packages/security`

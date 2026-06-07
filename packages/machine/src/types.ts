@@ -1,6 +1,8 @@
 import type { ZodTypeAny, output as zodOutput } from "zod";
 
-export type XforgeAiModule = "general" | "customers" | "companies";
+export const xforgeAiModules = ["general", "customers", "companies"] as const;
+
+export type XforgeAiModule = (typeof xforgeAiModules)[number];
 
 export type XforgeLanguage = "en" | "vi";
 
@@ -79,6 +81,9 @@ export type XforgeLynxRequest = Readonly<{
   context: XforgeConversationContext;
   message: string;
 }>;
+
+export type XforgeMachineConfig = XforgeLynxConfig;
+export type XforgeMachineRequest = XforgeLynxRequest;
 
 export type XforgeCopilotConfig = XforgeLynxConfig;
 export type XforgeCopilotRequest = XforgeLynxRequest;

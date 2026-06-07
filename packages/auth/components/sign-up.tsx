@@ -108,7 +108,6 @@ export const SignUp = ({
 
       if (result.sessionCreated) {
         router.replace(redirectTo);
-        router.refresh();
         return;
       }
 

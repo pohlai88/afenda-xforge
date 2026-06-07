@@ -1,9 +1,9 @@
-import { createContractRoute } from "@repo/api";
+import { createContractRoute } from "@repo/api/route";
 import { InternalError } from "@repo/errors";
 import {
   createCustomerRouteContract,
   listCustomersRouteContract,
-} from "@repo/features-master-data-customers";
+} from "@repo/features-master-data-customers/contract";
 import { createLogger } from "@repo/logger";
 import {
   createCustomerForTenant,

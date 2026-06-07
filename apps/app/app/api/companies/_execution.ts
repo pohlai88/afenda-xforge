@@ -1,7 +1,3 @@
-import {
-  requireActiveCompanyAccess,
-  requireActiveTenantAccess,
-} from "@repo/auth/server";
 import { NotFoundError } from "@repo/errors";
 import type {
   Company,
@@ -9,79 +5,32 @@ import type {
   CreateCompanyBody,
   ListCompaniesQuery,
   UpdateActiveCompanyBody,
-} from "@repo/features-master-data-companies";
+} from "@repo/features-master-data-companies/contract";
 import {
   createCompany,
   getCompany,
   listCompanies,
   updateCompany,
-} from "@repo/features-master-data-companies";
-import type { PermissionContext } from "@repo/permissions";
+} from "@repo/features-master-data-companies/server";
+import { permissionCatalog, requirePermission } from "@repo/permissions";
 import {
-  permissionCatalog,
-  requirePermission,
-  resolvePermissionsForTenantRole,
-} from "@repo/permissions";
+  createRuntimePermissionContext,
+  resolveRuntimeCompanyAccess,
+  resolveRuntimeTenantAccess,
+} from "../../_runtime-access.ts";
 import { workdayCompanySyncPostCommitHook } from "../_post-commit.ts";
-
-type CompanyAccess = {
-  actorId: string;
-  companyId?: string;
-  grantId?: string;
-  grantedPermissions: string[];
-  tenantId: string;
-};
-
-type ActiveCompanyExecutionAccess = CompanyAccess & {
-  companyId: string;
-  grantId: string;
-};
-
-const createCompanyPermissionContext = (
-  access: CompanyAccess,
-  action: string
-): PermissionContext => ({
-  action,
-  actorId: access.actorId,
-  companyId: access.companyId,
-  grantedPermissions: access.grantedPermissions,
-  resource: "companies",
-  tenantId: access.tenantId,
-});
-
-const resolveTenantCompanyAccess = async (): Promise<CompanyAccess> => {
-  const access = await requireActiveTenantAccess();
-
-  return {
-    actorId: access.user.id,
-    grantedPermissions: resolvePermissionsForTenantRole(access.membership.role),
-    tenantId: access.membership.tenantId,
-  };
-};
-
-const resolveActiveCompanyExecutionAccess =
-  async (): Promise<ActiveCompanyExecutionAccess> => {
-    const access = await requireActiveCompanyAccess();
-
-    return {
-      actorId: access.user.id,
-      companyId: access.company.companyId,
-      grantId: access.company.grantId,
-      grantedPermissions: resolvePermissionsForTenantRole(
-        access.membership.role
-      ),
-      tenantId: access.membership.tenantId,
-    };
-  };
 
 export const listCompaniesForTenant = async (
   query: ListCompaniesQuery
 ): Promise<CompanyList> => {
-  const access = await resolveTenantCompanyAccess();
+  const access = await resolveRuntimeTenantAccess();
 
-  requirePermission(createCompanyPermissionContext(access, "companies.list"), {
-    allOf: [permissionCatalog.companies.read],
-  });
+  requirePermission(
+    createRuntimePermissionContext(access, "companies.list", "companies"),
+    {
+      allOf: [permissionCatalog.companies.read],
+    }
+  );
 
   return listCompanies(query, {
     tenantId: access.tenantId,
@@ -92,21 +41,23 @@ export const listCompaniesForTenant = async (
 export const createCompanyForTenant = async (
   body: CreateCompanyBody
 ): Promise<Company> => {
-  const access = await resolveTenantCompanyAccess();
+  const access = await resolveRuntimeTenantAccess();
 
   return createCompany(body, {
     grantedPermissions: access.grantedPermissions,
+    operationId: access.operationId,
     postCommitHooks: [workdayCompanySyncPostCommitHook],
+    requestId: access.requestId,
     tenantId: access.tenantId,
     userId: access.actorId,
   });
 };
 
 export const getActiveCompanyForTenant = async (): Promise<Company> => {
-  const access = await resolveActiveCompanyExecutionAccess();
+  const access = await resolveRuntimeCompanyAccess();
 
   requirePermission(
-    createCompanyPermissionContext(access, "companies.getActive"),
+    createRuntimePermissionContext(access, "companies.getActive", "companies"),
     {
       allOf: [permissionCatalog.companies.read],
     }
@@ -127,13 +78,15 @@ export const getActiveCompanyForTenant = async (): Promise<Company> => {
 export const updateActiveCompanyForTenant = async (
   body: UpdateActiveCompanyBody
 ): Promise<Company> => {
-  const access = await resolveActiveCompanyExecutionAccess();
+  const access = await resolveRuntimeCompanyAccess();
 
   return updateCompany(body, {
     companyId: access.companyId,
     grantedPermissions: access.grantedPermissions,
     grantId: access.grantId,
+    operationId: access.operationId,
     postCommitHooks: [workdayCompanySyncPostCommitHook],
+    requestId: access.requestId,
     tenantId: access.tenantId,
     userId: access.actorId,
   });

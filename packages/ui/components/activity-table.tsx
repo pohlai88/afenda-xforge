@@ -1,20 +1,38 @@
 "use client";
 
+import { Button } from "@repo/design-system/components/ui/button";
+import { Input } from "@repo/design-system/components/ui/input";
+import { Skeleton } from "@repo/design-system/components/ui/skeleton";
 import { cn } from "@repo/design-system/lib/utils";
-import type { DashboardTableColumn, DashboardTableRow } from "@repo/metadata";
+import type { DashboardTableRow, TableColumnMetadata } from "@repo/metadata";
 import { ChevronDown, ChevronUp } from "lucide-react";
-import type { ChangeEvent, ReactElement } from "react";
-import { useMemo, useState } from "react";
+import type { ChangeEvent, ReactElement, ReactNode } from "react";
+import { useDeferredValue, useEffect, useMemo, useState } from "react";
+import { StatePanel } from "./state-panel";
 
 type SortOrder = "asc" | "desc" | null;
 
 type ActivityTableProps = {
-  columns?: readonly DashboardTableColumn[];
+  columns?: readonly TableColumnMetadata[];
+  defaultSortOrder?: Exclude<SortOrder, null>;
+  emptyDescription?: string;
+  emptyTitle?: string;
+  error?: string | null;
+  forbidden?: boolean;
   loading?: boolean;
+  onRetry?: () => void;
   onRowClick?: (row: DashboardTableRow) => void;
   pageSize?: number;
   rows: readonly DashboardTableRow[];
+  searchAriaLabel?: string;
   searchPlaceholder?: string;
+  showSearch?: boolean;
+  renderCell?: (
+    column: TableColumnMetadata,
+    value: DashboardTableRow[string],
+    row: DashboardTableRow
+  ) => ReactNode;
+  defaultSortColumn?: string;
 };
 
 const formatCellValue = (value: DashboardTableRow[string]): string => {
@@ -27,6 +45,18 @@ const formatCellValue = (value: DashboardTableRow[string]): string => {
   }
 
   return String(value ?? "-");
+};
+
+const inferColumnKind = (key: string): TableColumnMetadata["kind"] => {
+  if (key === "email") {
+    return "email";
+  }
+
+  if (key === "status") {
+    return "status";
+  }
+
+  return "text";
 };
 
 const compareDashboardValues = (
@@ -54,15 +84,45 @@ const compareDashboardValues = (
   return 0;
 };
 
+const getAriaSort = (
+  sortColumn: string | null,
+  sortOrder: SortOrder,
+  columnKey: string
+): "ascending" | "descending" | "none" => {
+  if (sortColumn !== columnKey) {
+    return "none";
+  }
+
+  if (sortOrder === "asc") {
+    return "ascending";
+  }
+
+  if (sortOrder === "desc") {
+    return "descending";
+  }
+
+  return "none";
+};
+
 export const ActivityTable = ({
   columns,
+  emptyDescription = "There are no records to display yet.",
+  emptyTitle = "No data available",
+  error,
+  forbidden = false,
+  defaultSortOrder = "asc",
   loading = false,
+  onRetry,
   onRowClick,
   pageSize = 10,
   rows,
+  searchAriaLabel = "Search table",
   searchPlaceholder = "Search...",
+  showSearch = true,
+  renderCell,
+  defaultSortColumn,
 }: ActivityTableProps): ReactElement => {
-  const inferredColumns = useMemo<readonly DashboardTableColumn[]>(() => {
+  const inferredColumns = useMemo<readonly TableColumnMetadata[]>(() => {
     if (columns && columns.length > 0) {
       return columns;
     }
@@ -78,29 +138,31 @@ export const ActivityTable = ({
       .map((key) => ({
         key,
         label: key,
+        kind: inferColumnKind(key),
       }));
   }, [columns, rows]);
 
   const [sortColumn, setSortColumn] = useState<string | null>(
-    inferredColumns[0]?.key ?? null
+    defaultSortColumn ?? inferredColumns[0]?.key ?? null
   );
-  const [sortOrder, setSortOrder] = useState<SortOrder>("asc");
+  const [sortOrder, setSortOrder] = useState<SortOrder>(defaultSortOrder);
   const [currentPage, setCurrentPage] = useState(1);
   const [filter, setFilter] = useState("");
+  const deferredFilter = useDeferredValue(filter);
 
   const filteredRows = useMemo(() => {
-    if (!filter) {
+    if (!deferredFilter) {
       return rows;
     }
 
-    const normalizedFilter = filter.toLowerCase();
+    const normalizedFilter = deferredFilter.toLowerCase();
 
     return rows.filter((row) =>
       Object.values(row).some((value) =>
         formatCellValue(value).toLowerCase().includes(normalizedFilter)
       )
     );
-  }, [filter, rows]);
+  }, [deferredFilter, rows]);
 
   const sortedRows = useMemo(() => {
     if (!(sortColumn && sortOrder)) {
@@ -113,6 +175,10 @@ export const ActivityTable = ({
   }, [filteredRows, sortColumn, sortOrder]);
 
   const totalPages = Math.max(1, Math.ceil(sortedRows.length / pageSize));
+  useEffect(() => {
+    setCurrentPage((page) => Math.min(page, totalPages));
+  }, [totalPages]);
+
   const pageRows = useMemo(() => {
     const startIndex = (currentPage - 1) * pageSize;
     return sortedRows.slice(startIndex, startIndex + pageSize);
@@ -154,16 +220,43 @@ export const ActivityTable = ({
     "activity-table-skeleton-5",
   ] as const;
 
+  if (error) {
+    return (
+      <StatePanel
+        action={
+          onRetry
+            ? {
+                label: "Retry",
+                onClick: onRetry,
+              }
+            : undefined
+        }
+        description={error}
+        title="Unable to load records"
+        tone="danger"
+      />
+    );
+  }
+
+  if (forbidden) {
+    return (
+      <StatePanel
+        description="You do not have permission to view this dataset. Ask an administrator to grant access."
+        title="Access restricted"
+        tone="warning"
+      />
+    );
+  }
+
   if (loading) {
     return (
       <div className="rounded-md border bg-card p-4">
         <div className="space-y-3">
-          {activityTableSkeletonKeys.map((skeletonKey) => (
-            <div
-              className="h-10 animate-pulse rounded bg-muted/40"
-              key={skeletonKey}
-            />
-          ))}
+          {activityTableSkeletonKeys
+            .slice(0, Math.max(1, Math.min(pageSize, 5)))
+            .map((skeletonKey) => (
+              <Skeleton className="h-10" key={skeletonKey} />
+            ))}
         </div>
       </div>
     );
@@ -171,38 +264,49 @@ export const ActivityTable = ({
 
   return (
     <div className="flex flex-col rounded-md border bg-card">
-      <div className="border-b p-4">
-        <input
-          className="w-full rounded-md border bg-background px-3 py-2 text-sm outline-none ring-0"
-          onChange={handleSearchChange}
-          placeholder={searchPlaceholder}
-          type="text"
-          value={filter}
-        />
-      </div>
+      {showSearch ? (
+        <div className="border-b p-4">
+          <Input
+            aria-label={searchAriaLabel}
+            autoComplete="off"
+            onChange={handleSearchChange}
+            placeholder={searchPlaceholder}
+            type="search"
+            value={filter}
+          />
+        </div>
+      ) : null}
 
       <div className="overflow-x-auto">
         <table className="w-full text-sm">
+          <caption className="sr-only">
+            {showSearch ? "Filterable results table" : "Results table"}
+          </caption>
           <thead>
             <tr className="border-b bg-muted/30">
               {inferredColumns.map((column) => (
                 <th
+                  aria-sort={getAriaSort(sortColumn, sortOrder, column.key)}
                   className="px-4 py-3 text-left font-medium text-muted-foreground"
                   key={column.key}
+                  scope="col"
                 >
-                  <button
-                    className="inline-flex items-center gap-2"
+                  <Button
+                    aria-label={`Sort by ${column.label}`}
+                    className="justify-start"
                     onClick={(): void => toggleSort(column.key)}
+                    size="sm"
                     type="button"
+                    variant="ghost"
                   >
                     <span>{column.label}</span>
                     {sortColumn === column.key && sortOrder === "asc" ? (
-                      <ChevronUp className="size-4" />
+                      <ChevronUp />
                     ) : null}
                     {sortColumn === column.key && sortOrder === "desc" ? (
-                      <ChevronDown className="size-4" />
+                      <ChevronDown />
                     ) : null}
-                  </button>
+                  </Button>
                 </th>
               ))}
             </tr>
@@ -220,7 +324,8 @@ export const ActivityTable = ({
                 >
                   {inferredColumns.map((column) => (
                     <td className="px-4 py-3" key={`${row.id}-${column.key}`}>
-                      {formatCellValue(row[column.key])}
+                      {renderCell?.(column, row[column.key], row) ??
+                        formatCellValue(row[column.key])}
                     </td>
                   ))}
                 </tr>
@@ -228,10 +333,28 @@ export const ActivityTable = ({
             ) : (
               <tr>
                 <td
-                  className="px-4 py-8 text-center text-muted-foreground"
+                  className="px-4 py-8 text-center"
                   colSpan={Math.max(inferredColumns.length, 1)}
                 >
-                  No data
+                  <div className="flex justify-center py-2">
+                    <StatePanel
+                      action={
+                        filter
+                          ? {
+                              label: "Clear search",
+                              onClick: (): void => setFilter(""),
+                            }
+                          : undefined
+                      }
+                      description={
+                        filter
+                          ? "Try adjusting the search query or clearing the filter."
+                          : emptyDescription
+                      }
+                      title={filter ? "No matching records" : emptyTitle}
+                      tone="neutral"
+                    />
+                  </div>
                 </td>
               </tr>
             )}
@@ -245,29 +368,31 @@ export const ActivityTable = ({
             {sortedRows.length} result{sortedRows.length === 1 ? "" : "s"}
           </span>
           <div className="flex items-center gap-2">
-            <button
-              className="rounded-md border px-3 py-1 disabled:opacity-50"
+            <Button
               disabled={currentPage === 1}
               onClick={(): void =>
                 setCurrentPage((page) => Math.max(1, page - 1))
               }
+              size="sm"
               type="button"
+              variant="outline"
             >
               Previous
-            </button>
+            </Button>
             <span>
               {currentPage} / {totalPages}
             </span>
-            <button
-              className="rounded-md border px-3 py-1 disabled:opacity-50"
+            <Button
               disabled={currentPage === totalPages}
               onClick={(): void =>
                 setCurrentPage((page) => Math.min(totalPages, page + 1))
               }
+              size="sm"
               type="button"
+              variant="outline"
             >
               Next
-            </button>
+            </Button>
           </div>
         </div>
       ) : null}

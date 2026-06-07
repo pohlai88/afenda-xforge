@@ -1,4 +1,10 @@
-import type { AuditChange, AuditEvent, AuditRecordMap } from "./contract.ts";
+import type { AuditChange, AuditDiffKind, AuditRecordMap } from "./contract.ts";
+
+const REDACTED = "[redacted]";
+const TRUNCATED = "[truncated]";
+const MAX_DEPTH = 6;
+const MAX_ARRAY_LENGTH = 20;
+const MAX_OBJECT_KEYS = 50;
 
 const DEFAULT_IGNORED_FIELDS = new Set([
   "createdAt",
@@ -9,14 +15,26 @@ const DEFAULT_IGNORED_FIELDS = new Set([
 
 const DEFAULT_SENSITIVE_FIELD_FRAGMENTS = [
   "password",
-  "token",
   "secret",
-  "apiKey",
+  "token",
+  "cookie",
+  "authorization",
+  "privatekey",
+  "api_key",
   "apikey",
-  "refreshToken",
-  "accessToken",
-  "privateKey",
-  "sessionToken",
+  "clientsecret",
+  "sessiontoken",
+  "accesstoken",
+  "refreshtoken",
+  "requestbody",
+  "responsebody",
+  "filecontent",
+  "documentcontent",
+  "payment",
+  "card",
+  "nationalid",
+  "taxid",
+  "ssn",
 ];
 
 type DiffOptions = {
@@ -24,13 +42,13 @@ type DiffOptions = {
   sensitiveFieldFragments?: Iterable<string>;
 };
 
-type NormalizedDiffOptions = {
-  ignoredFields: Set<string>;
-  sensitiveFieldFragments: string[];
-};
-
 const isPlainObject = (value: unknown): value is Record<string, unknown> =>
-  typeof value === "object" && value !== null && !Array.isArray(value);
+  typeof value === "object" &&
+  value !== null &&
+  !Array.isArray(value) &&
+  Object.prototype.toString.call(value) === "[object Object]";
+
+const isDate = (value: unknown): value is Date => value instanceof Date;
 
 const normalizeFragments = (fragments?: Iterable<string>): string[] =>
   Array.from(fragments ?? DEFAULT_SENSITIVE_FIELD_FRAGMENTS, (fragment) =>
@@ -56,19 +74,15 @@ const maskSensitiveValue = (value: unknown): unknown => {
     return value;
   }
 
-  if (typeof value === "string" && value.length > 0) {
-    return "***";
-  }
-
-  return "***";
+  return REDACTED;
 };
 
 const deepEqual = (left: unknown, right: unknown): boolean => {
-  if (left === right) {
+  if (Object.is(left, right)) {
     return true;
   }
 
-  if (left instanceof Date && right instanceof Date) {
+  if (isDate(left) && isDate(right)) {
     return left.getTime() === right.getTime();
   }
 
@@ -94,101 +108,209 @@ const deepEqual = (left: unknown, right: unknown): boolean => {
   return false;
 };
 
-export const maskSensitiveAuditData = (
-  value: unknown,
-  options: DiffOptions = {}
-): unknown => {
-  const sensitiveFieldFragments = normalizeFragments(
-    options.sensitiveFieldFragments
-  );
-
-  if (Array.isArray(value)) {
-    return value.map((entry) => maskSensitiveAuditData(entry, options));
+const joinPath = (base: string, segment: string): string => {
+  if (!base) {
+    return segment;
   }
 
-  if (!isPlainObject(value)) {
+  if (segment.startsWith("[")) {
+    return `${base}${segment}`;
+  }
+
+  return `${base}.${segment}`;
+};
+
+const resolveDiffKind = (left: unknown, right: unknown): AuditDiffKind => {
+  if (left === undefined && right !== undefined) {
+    return "added";
+  }
+
+  if (left !== undefined && right === undefined) {
+    return "removed";
+  }
+
+  return "changed";
+};
+
+const redactValue = (
+  value: unknown,
+  key: string | undefined,
+  depth: number,
+  sensitiveFieldFragments: string[]
+): unknown => {
+  if (key && isSensitiveField(key, sensitiveFieldFragments)) {
+    return maskSensitiveValue(value);
+  }
+
+  if (depth >= MAX_DEPTH) {
+    return TRUNCATED;
+  }
+
+  if (Array.isArray(value)) {
+    if (value.length > MAX_ARRAY_LENGTH) {
+      return [
+        ...value
+          .slice(0, MAX_ARRAY_LENGTH)
+          .map((entry) =>
+            redactValue(entry, undefined, depth + 1, sensitiveFieldFragments)
+          ),
+        TRUNCATED,
+      ];
+    }
+
+    return value.map((entry) =>
+      redactValue(entry, undefined, depth + 1, sensitiveFieldFragments)
+    );
+  }
+
+  if (isDate(value)) {
     return value;
   }
 
-  const masked: AuditRecordMap = {};
+  if (isPlainObject(value)) {
+    const output: Record<string, unknown> = {};
+    const entries = Object.entries(value);
 
-  for (const [key, entry] of Object.entries(value)) {
-    if (isSensitiveField(key, sensitiveFieldFragments)) {
-      masked[key] = maskSensitiveValue(entry);
-      continue;
+    for (const [entryKey, entryValue] of entries.slice(0, MAX_OBJECT_KEYS)) {
+      output[entryKey] = redactValue(
+        entryValue,
+        entryKey,
+        depth + 1,
+        sensitiveFieldFragments
+      );
     }
 
-    masked[key] =
-      isPlainObject(entry) || Array.isArray(entry)
-        ? maskSensitiveAuditData(entry, options)
-        : entry;
+    if (entries.length > MAX_OBJECT_KEYS) {
+      output.__truncated = true;
+    }
+
+    return output;
   }
 
-  return masked;
+  return value;
 };
 
-const collectObjectDiffs = (
-  before: Record<string, unknown>,
-  after: Record<string, unknown>,
-  path: string,
+const pushChange = (
   changes: AuditChange[],
-  options: NormalizedDiffOptions
+  field: string,
+  oldValue: unknown,
+  newValue: unknown,
+  change: AuditDiffKind = resolveDiffKind(oldValue, newValue)
 ): void => {
-  const keys = new Set([...Object.keys(before), ...Object.keys(after)]);
+  changes.push({
+    change,
+    field,
+    oldValue,
+    newValue,
+  });
+};
 
-  for (const key of keys) {
-    if (options.ignoredFields.has(key)) {
+const diffArrays = (
+  changes: AuditChange[],
+  left: unknown[],
+  right: unknown[],
+  path: string,
+  collectDiffs: (left: unknown, right: unknown, path: string) => void
+): void => {
+  const length = Math.max(left.length, right.length);
+
+  for (let index = 0; index < length; index += 1) {
+    const nextPath = joinPath(path, `[${index}]`);
+
+    if (index >= left.length) {
+      pushChange(changes, nextPath, undefined, right[index], "added");
       continue;
     }
 
-    const nextPath = path ? `${path}.${key}` : key;
+    if (index >= right.length) {
+      pushChange(changes, nextPath, left[index], undefined, "removed");
+      continue;
+    }
 
-    if (isSensitiveField(key, options.sensitiveFieldFragments)) {
-      if (!deepEqual(before[key], after[key])) {
-        changes.push({
-          field: nextPath,
-          oldValue: maskSensitiveValue(before[key]),
-          newValue: maskSensitiveValue(after[key]),
-        });
+    collectDiffs(left[index], right[index], nextPath);
+  }
+};
+
+const diffObjects = (
+  changes: AuditChange[],
+  left: Record<string, unknown>,
+  right: Record<string, unknown>,
+  path: string,
+  ignoredFields: Set<string>,
+  sensitiveFieldFragments: string[],
+  collectDiffs: (left: unknown, right: unknown, path: string) => void
+): void => {
+  const keys = new Set([...Object.keys(left), ...Object.keys(right)]);
+
+  for (const key of keys) {
+    if (ignoredFields.has(key)) {
+      continue;
+    }
+
+    const nextPath = joinPath(path, key);
+
+    if (isSensitiveField(key, sensitiveFieldFragments)) {
+      if (!deepEqual(left[key], right[key])) {
+        pushChange(
+          changes,
+          nextPath,
+          maskSensitiveValue(left[key]),
+          maskSensitiveValue(right[key]),
+          resolveDiffKind(left[key], right[key])
+        );
       }
 
       continue;
     }
 
-    collectDiffs(before[key], after[key], nextPath, changes, options);
+    if (!(key in left)) {
+      pushChange(changes, nextPath, undefined, right[key], "added");
+      continue;
+    }
+
+    if (!(key in right)) {
+      pushChange(changes, nextPath, left[key], undefined, "removed");
+      continue;
+    }
+
+    collectDiffs(left[key], right[key], nextPath);
   }
 };
 
-const collectDiffs = (
-  before: unknown,
-  after: unknown,
-  path: string,
+const diffLeaf = (
   changes: AuditChange[],
-  options: NormalizedDiffOptions
+  left: unknown,
+  right: unknown,
+  path: string,
+  sensitiveFieldFragments: string[]
 ): void => {
-  if (deepEqual(before, after)) {
-    return;
+  const field = path || "*";
+  const isSensitive = isSensitiveField(path, sensitiveFieldFragments);
+
+  pushChange(
+    changes,
+    field,
+    isSensitive ? maskSensitiveValue(left) : left,
+    isSensitive ? maskSensitiveValue(right) : right,
+    resolveDiffKind(left, right)
+  );
+};
+
+export const maskSensitiveAuditData = <
+  T extends AuditRecordMap | null | undefined,
+>(
+  value: T,
+  options: DiffOptions = {}
+): T => {
+  if (value === null || value === undefined) {
+    return value;
   }
 
-  if (Array.isArray(before) || Array.isArray(after)) {
-    changes.push({
-      field: path || "*",
-      oldValue: before,
-      newValue: after,
-    });
-    return;
-  }
+  const sensitiveFieldFragments = normalizeFragments(
+    options.sensitiveFieldFragments
+  );
 
-  if (isPlainObject(before) && isPlainObject(after)) {
-    collectObjectDiffs(before, after, path, changes, options);
-    return;
-  }
-
-  changes.push({
-    field: path || "*",
-    oldValue: before,
-    newValue: after,
-  });
+  return redactValue(value, undefined, 0, sensitiveFieldFragments) as T;
 };
 
 export const computeAuditChanges = (
@@ -197,17 +319,47 @@ export const computeAuditChanges = (
   options: DiffOptions = {}
 ): AuditChange[] => {
   const changes: AuditChange[] = [];
+  const ignoredFields = normalizeIgnoredFields(options.ignoredFields);
+  const sensitiveFieldFragments = normalizeFragments(
+    options.sensitiveFieldFragments
+  );
 
-  collectDiffs(before, after, "", changes, {
-    ignoredFields: normalizeIgnoredFields(options.ignoredFields),
-    sensitiveFieldFragments: normalizeFragments(
-      options.sensitiveFieldFragments
-    ),
-  });
+  const collectDiffs = (left: unknown, right: unknown, path: string): void => {
+    if (deepEqual(left, right)) {
+      return;
+    }
+
+    if (Array.isArray(left) && Array.isArray(right)) {
+      diffArrays(changes, left, right, path, collectDiffs);
+      return;
+    }
+
+    if (isPlainObject(left) && isPlainObject(right)) {
+      diffObjects(
+        changes,
+        left,
+        right,
+        path,
+        ignoredFields,
+        sensitiveFieldFragments,
+        collectDiffs
+      );
+      return;
+    }
+
+    diffLeaf(changes, left, right, path, sensitiveFieldFragments);
+  };
+
+  collectDiffs(before, after, "");
 
   return changes;
 };
 
 export const getAuditEventChanges = (
-  event: Pick<AuditEvent, "before" | "after">
+  event: Pick<AuditEventInputLike, "before" | "after">
 ): AuditChange[] => computeAuditChanges(event.before, event.after);
+
+type AuditEventInputLike = {
+  before: unknown;
+  after: unknown;
+};

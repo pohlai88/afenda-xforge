@@ -28,7 +28,6 @@ export const SignOut = ({
     try {
       await client.auth.signOut();
       router.replace(redirectTo);
-      router.refresh();
     } finally {
       setLoading(false);
     }

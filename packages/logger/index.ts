@@ -1,7 +1,10 @@
+import "server-only";
+
 export type { RequestContext, RequestContextInput } from "./context.ts";
 export {
   appendRequestContextMetadata,
   generateRequestId,
+  generateOperationId,
   generateSpanId,
   generateTraceId,
   getRequestContext,
@@ -31,3 +34,14 @@ export type {
   RequestLoggingOptions,
 } from "./request.ts";
 export { withRequestLogging } from "./request.ts";
+export type {
+  ServerLogContext,
+  ServerLogLevel,
+  ServerLogMetadata,
+} from "./server.ts";
+export {
+  createDomainLogger,
+  createPackageLogger,
+  getRequestId,
+  logServerEvent,
+} from "./server.ts";

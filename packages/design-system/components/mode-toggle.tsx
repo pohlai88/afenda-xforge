@@ -3,6 +3,7 @@
 import { MoonIcon, SunIcon } from "@radix-ui/react-icons";
 import { useTheme } from "next-themes";
 import type { ChangeEvent, ReactElement } from "react";
+import { useEffect, useState } from "react";
 
 const themes = [
   { label: "Light", value: "light" },
@@ -11,7 +12,14 @@ const themes = [
 ] as const;
 
 export const ModeToggle = (): ReactElement => {
-  const { setTheme } = useTheme();
+  const { setTheme, theme } = useTheme();
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  const selectedTheme = mounted ? (theme ?? "system") : "system";
 
   return (
     <div className="inline-flex items-center gap-1 rounded-md border border-border bg-background p-1 shadow-sm">
@@ -19,10 +27,10 @@ export const ModeToggle = (): ReactElement => {
       <select
         aria-label="Toggle theme"
         className="bg-transparent text-sm outline-none"
-        defaultValue="system"
         onChange={(event: ChangeEvent<HTMLSelectElement>) =>
           setTheme(event.target.value)
         }
+        value={selectedTheme}
       >
         {themes.map(({ label, value }) => (
           <option key={value} value={value}>

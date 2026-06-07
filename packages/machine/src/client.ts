@@ -13,7 +13,10 @@ export type {
   XforgeLanguage,
   XforgeLynxConfig,
   XforgeLynxRequest,
+  XforgeMachineConfig,
+  XforgeMachineRequest,
 } from "./types.ts";
+export { xforgeAiModules } from "./types.ts";
 export {
   classifyXforgeIntent,
   estimateTokens,

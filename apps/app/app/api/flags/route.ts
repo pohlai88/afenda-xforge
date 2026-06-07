@@ -1,4 +1,14 @@
 import { getFlags } from "@repo/feature-flags/access";
+import { createLogger, withRequestLogging } from "@repo/logger";
 
-export const GET = async (request: Request): Promise<Response> =>
-  getFlags(request);
+const flagsLogger = createLogger("app.api.flags");
+
+const flagsRoute = withRequestLogging(
+  async (request: Request): Promise<Response> => getFlags(request),
+  {
+    logger: flagsLogger,
+    metricsApp: "app",
+  }
+);
+
+export const GET: typeof flagsRoute = flagsRoute;

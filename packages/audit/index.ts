@@ -1,7 +1,17 @@
+/**
+ * Server-only public door for audit reads and writes.
+ */
+import "server-only";
+
 export type {
+  AuditActorType,
   AuditChange,
+  AuditChannel,
+  AuditDiffKind,
   AuditEvent,
   AuditEventInput,
+  AuditExportFormat,
+  AuditOutcome,
   AuditQueryOptions,
   AuditQueryResult,
   AuditRecordMap,
@@ -24,5 +34,8 @@ export {
   createAuditEvent,
   createDatabaseAuditWriter,
   createNoopAuditWriter,
+  normalizeAuditEvent,
+  resolveAuditEventSummary,
   writeAuditEvent,
+  writeAuditEventInTransaction,
 } from "./writer.ts";

@@ -1,9 +1,10 @@
-import { type ApiData, verifyAccess } from "flags";
+import type { ApiData } from "flags";
+import { verifyAccess } from "flags";
 import { NextResponse } from "next/server";
 // biome-ignore lint/performance/noNamespaceImport: flags SDK convention
 import * as flags from "./index.ts";
 
-export const getFlags = async (request: Request) => {
+export const getFlags = async (request: Request): Promise<NextResponse> => {
   const access = await verifyAccess(request.headers.get("Authorization"));
 
   if (!access) {

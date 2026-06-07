@@ -1,9 +1,9 @@
+import { fonts } from "@repo/design-system";
+import { Toolbar } from "@repo/feature-flags/components/toolbar";
 import {
   getTextDirection,
   resolveXforgeLocaleFromHeaders,
 } from "@repo/internationalization";
-import { fonts } from "@repo/design-system";
-import { Toolbar } from "@repo/feature-flags/components/toolbar";
 import { createMetadata } from "@repo/seo/metadata";
 import type { Metadata } from "next";
 import { headers } from "next/headers";
@@ -27,7 +27,7 @@ type RootLayoutProps = {
 export default async function RootLayout({
   children,
 }: RootLayoutProps): Promise<ReactElement> {
-  await ensureAppBootstrap();
+  ensureAppBootstrap();
   const requestHeaders = await headers();
   const locale = resolveXforgeLocaleFromHeaders(requestHeaders);
 

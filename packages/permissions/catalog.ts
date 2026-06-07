@@ -1,4 +1,7 @@
 export const permissionCatalog = {
+  ai: {
+    read: "ai.read",
+  },
   audit: {
     read: "audit.read",
   },
@@ -18,6 +21,7 @@ export type TenantRole = "member" | "manager" | "admin" | "owner";
 
 const tenantRolePermissions: Record<string, string[]> = {
   admin: [
+    permissionCatalog.ai.read,
     permissionCatalog.audit.read,
     permissionCatalog.companies.read,
     permissionCatalog.companies.write,
@@ -33,6 +37,7 @@ const tenantRolePermissions: Record<string, string[]> = {
   ],
   member: [permissionCatalog.companies.read, permissionCatalog.customers.read],
   owner: [
+    permissionCatalog.ai.read,
     permissionCatalog.audit.read,
     permissionCatalog.companies.read,
     permissionCatalog.companies.write,

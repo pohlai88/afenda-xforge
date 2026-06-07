@@ -1,3 +1,6 @@
+"use client";
+
+import { Skeleton } from "@repo/design-system/components/ui/skeleton";
 import { cn } from "@repo/design-system/lib/utils";
 import type {
   DashboardModuleHealth,
@@ -5,11 +8,16 @@ import type {
 } from "@repo/metadata";
 import { AlertCircle, CheckCircle, Clock } from "lucide-react";
 import type { ReactElement } from "react";
+import { StatePanel } from "./state-panel";
 import { StatusBadge } from "./status-badge";
 
 type ModuleStatusGridProps = {
   columns?: 1 | 2 | 3 | 4;
+  emptyDescription?: string;
+  emptyTitle?: string;
+  error?: string | null;
   loading?: boolean;
+  onRetry?: () => void;
   modules: readonly DashboardModuleHealth[];
 };
 
@@ -97,7 +105,11 @@ const formatRelativeTime = (value: Date): string => {
 
 export const ModuleStatusGrid = ({
   columns = 3,
+  emptyDescription = "No module health data has been loaded.",
+  emptyTitle = "No modules found",
+  error,
   loading = false,
+  onRetry,
   modules,
 }: ModuleStatusGridProps): ReactElement => {
   const moduleStatusSkeletonKeys = [
@@ -111,14 +123,53 @@ export const ModuleStatusGrid = ({
     return (
       <div className={cn("grid gap-4", gridColumnClassNames[columns])}>
         {moduleStatusSkeletonKeys
-          .slice(0, Math.max(columns, 3))
+          .slice(0, Math.max(columns, 1))
           .map((skeletonKey) => (
-            <div
-              className="h-32 animate-pulse rounded-md border bg-muted/40"
-              key={skeletonKey}
-            />
+            <div className="rounded-md border bg-card p-4" key={skeletonKey}>
+              <div className="mb-3 flex items-start justify-between gap-3">
+                <div className="space-y-2">
+                  <Skeleton className="h-4 w-32" />
+                  <Skeleton className="h-5 w-20" />
+                </div>
+                <Skeleton className="size-5 rounded-full" />
+              </div>
+
+              <div className="space-y-3 border-t pt-3">
+                <Skeleton className="h-3 w-full" />
+                <Skeleton className="h-1.5 w-full" />
+                <Skeleton className="h-3 w-2/3" />
+              </div>
+            </div>
           ))}
       </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <StatePanel
+        action={
+          onRetry
+            ? {
+                label: "Retry",
+                onClick: onRetry,
+              }
+            : undefined
+        }
+        description={error}
+        title="Unable to load module health"
+        tone="danger"
+      />
+    );
+  }
+
+  if (modules.length === 0) {
+    return (
+      <StatePanel
+        description={emptyDescription}
+        title={emptyTitle}
+        tone="neutral"
+      />
     );
   }
 
@@ -183,12 +234,6 @@ export const ModuleStatusGrid = ({
           </div>
         </div>
       ))}
-
-      {modules.length === 0 ? (
-        <div className="col-span-full rounded-md border border-dashed p-8 text-center text-muted-foreground text-sm">
-          No modules found
-        </div>
-      ) : null}
     </div>
   );
 };

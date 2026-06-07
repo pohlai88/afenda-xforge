@@ -116,6 +116,7 @@ export const createNextConfig = (
       "@repo/api",
       "@repo/analytics",
       "@repo/ai",
+      "@repo/machine",
       "@repo/design-system",
       "@repo/email",
       "@repo/errors",

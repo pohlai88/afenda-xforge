@@ -39,18 +39,56 @@ type AuditEventRecord = Awaited<
   ReturnType<typeof listAuditEvents>
 >["events"][number];
 
+const trimToNull = (value: string | null | undefined): string | null => {
+  if (value === null || value === undefined) {
+    return null;
+  }
+
+  const trimmed = value.trim();
+  return trimmed.length > 0 ? trimmed : null;
+};
+
+const buildAuditSummary = (event: AuditEventRecord): string => {
+  const summary = trimToNull(event.summary);
+  if (summary) {
+    return summary;
+  }
+
+  const targetLabel =
+    trimToNull(event.targetDisplayName) ??
+    `${event.targetType}:${event.targetId}`;
+
+  return `${event.action} executed against ${targetLabel}.`;
+};
+
 const serializeAuditEvent = (event: AuditEventRecord): AuditEvent => ({
   action: event.action,
   actorId: event.actorId,
-  after: event.after,
-  before: event.before,
-  companyId: event.companyId ?? null,
+  actorRole: trimToNull(event.actorRole),
+  actorType: event.actorType ?? "user",
+  after: event.after ?? {},
+  approvalId: trimToNull(event.approvalId),
+  before: event.before ?? {},
+  channel: event.channel ?? null,
+  companyId: trimToNull(event.companyId),
   createdAt: event.createdAt.toISOString(),
-  grantId: event.grantId ?? null,
+  diff: Array.isArray(event.diff) ? event.diff : [],
+  grantId: trimToNull(event.grantId),
   id: event.id,
-  metadata: event.metadata ?? null,
-  reason: event.reason,
+  metadata: event.metadata ?? {},
+  module: trimToNull(event.module) ?? event.action.split(".")[0] ?? null,
+  outcome: event.outcome ?? "success",
+  operationId: trimToNull(event.operationId) ?? event.requestId,
+  occurredAt: (event.occurredAt ?? event.createdAt).toISOString(),
+  policyReference: trimToNull(event.policyReference),
+  reason: trimToNull(event.reason) ?? buildAuditSummary(event),
   requestId: event.requestId,
+  route: trimToNull(event.route),
+  subjectId: trimToNull(event.subjectId),
+  subjectType: trimToNull(event.subjectType),
+  summary: buildAuditSummary(event),
+  surface: trimToNull(event.surface),
+  targetDisplayName: trimToNull(event.targetDisplayName),
   targetId: event.targetId,
   targetType: event.targetType,
   tenantId: event.tenantId,
@@ -66,17 +104,8 @@ export const listAuditEventsForTenant = async (
   });
 
   const result = await listAuditEvents({
-    actorId: query.actorId,
-    action: query.action,
-    companyId: query.companyId,
-    from: query.from,
-    limit: query.limit,
-    offset: query.offset,
-    requestId: query.requestId,
-    targetId: query.targetId,
-    targetType: query.targetType,
     tenantId: access.tenantId,
-    to: query.to,
+    ...query,
   });
 
   return {

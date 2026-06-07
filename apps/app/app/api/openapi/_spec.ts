@@ -1,5 +1,6 @@
-import { registerCompanyOpenApi } from "@repo/features-master-data-companies";
-import { registerCustomerOpenApi } from "@repo/features-master-data-customers";
+import { registerCompanyOpenApi } from "@repo/features-master-data-companies/server";
+import { registerCustomerOpenApi } from "@repo/features-master-data-customers/server";
+import { registerMachineOpenApi } from "@repo/machine/contract";
 import type { OpenApiDocument, OpenApiSchemaObject } from "@repo/openapi";
 import {
   addOperation,
@@ -240,6 +241,10 @@ export const getAppOpenApiDocument = (): OpenApiDocument => {
     description: "Tenant-scoped audit event query endpoint",
   });
   addTag(document, {
+    name: "ai",
+    description: "Tenant-scoped assistant and AI usage endpoints",
+  });
+  addTag(document, {
     name: "companies",
     description: "Client-facing company master-data endpoints",
   });
@@ -454,6 +459,7 @@ export const getAppOpenApiDocument = (): OpenApiDocument => {
 
   registerCompanyOpenApi(document);
   registerCustomerOpenApi(document);
+  registerMachineOpenApi(document);
   registerAuditOpenApi(document);
   registerAuditExportOpenApi(document);
 

@@ -2,11 +2,11 @@ import { analytics } from "@repo/analytics/server";
 import { getCurrentAuthenticatedUserId } from "@repo/auth/server";
 import { flag } from "flags/next";
 
-export const createFlag = (key: string) =>
+export const createFlag = (key: string): ReturnType<typeof flag> =>
   flag({
     key,
     defaultValue: false,
-    async decide() {
+    async decide(): Promise<boolean> {
       const userId = await getCurrentAuthenticatedUserId();
 
       if (!userId) {

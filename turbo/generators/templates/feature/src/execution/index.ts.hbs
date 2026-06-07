@@ -1,3 +1,5 @@
+import "server-only";
+
 import type {
   {{ recordPascal }}ActionName,
   {{ recordPascal }}ExecutionContext,
@@ -33,6 +35,6 @@ export async function execute{{ recordPascal }}Mutation<TInput, TResult>(
   void operation;
 
   throw new Error(
-    "Wire {{ name }} mutations through @repo/execution before executing the domain operation.",
+    "Wire {{ name }} mutations through @repo/execution with transaction-aware audit persistence before executing the domain operation.",
   );
 }
