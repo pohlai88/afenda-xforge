@@ -1,4 +1,4 @@
-import { initializeAnalytics } from "./client.js";
+import { initializeAnalytics } from "./client.ts";
 
 export const setupAnalyticsInstrumentation = (): void => {
   initializeAnalytics();

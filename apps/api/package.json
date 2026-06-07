@@ -1,0 +1,28 @@
+{
+  "name": "api",
+  "private": true,
+  "scripts": {
+    "dev": "bun --bun next dev -p 3002",
+    "build": "bun --bun next build",
+    "start": "bun --bun next start",
+    "analyze": "ANALYZE=true npm run build",
+    "clean": "git clean -xdf .cache .turbo dist node_modules",
+    "typecheck": "tsc --noEmit --emitDeclarationOnly false"
+  },
+  "dependencies": {
+    "@repo/design-system": "workspace:*",
+    "@repo/next-config": "workspace:*",
+    "next": "catalog:",
+    "react": "catalog:",
+    "react-dom": "catalog:"
+  },
+  "devDependencies": {
+    "@repo/typescript-config": "workspace:*",
+    "@tailwindcss/postcss": "catalog:",
+    "@types/node": "catalog:",
+    "@types/react": "catalog:",
+    "@types/react-dom": "catalog:",
+    "tailwindcss": "catalog:",
+    "typescript": "catalog:"
+  }
+}

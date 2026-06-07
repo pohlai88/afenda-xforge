@@ -1,6 +1,6 @@
 import { posthog } from "posthog-js";
-import { loadAnalyticsKeys } from "./keys.js";
-import type { AnalyticsClient, AnalyticsEvent } from "./types.js";
+import { loadAnalyticsKeys } from "./keys.ts";
+import type { AnalyticsClient, AnalyticsEvent } from "./types.ts";
 
 let initialized = false;
 

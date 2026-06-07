@@ -1,7 +1,7 @@
 import "server-only";
 
-import { loadLinearKeys } from "./keys.js";
-import type { LinearGraphQLResponse, LinearRequestOptions } from "./types.js";
+import { loadLinearKeys } from "./keys.ts";
+import type { LinearGraphQLResponse, LinearRequestOptions } from "./types.ts";
 
 const resolveAuthorizationHeader = (accessToken?: string): string => {
   const { LINEAR_API_KEY } = loadLinearKeys();

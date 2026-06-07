@@ -1,8 +1,8 @@
 import { GoogleAnalytics } from "@next/third-parties/google";
 import { Analytics as VercelAnalytics } from "@vercel/analytics/react";
 import type { ReactNode } from "react";
-import { loadAnalyticsKeys } from "./keys.js";
-import type { AnalyticsProviderOptions } from "./types.js";
+import { loadAnalyticsKeys } from "./keys.ts";
+import type { AnalyticsProviderOptions } from "./types.ts";
 
 export type AnalyticsProviderProps = AnalyticsProviderOptions & {
   children: ReactNode;

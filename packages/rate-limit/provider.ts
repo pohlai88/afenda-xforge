@@ -6,7 +6,7 @@ import {
   loadRedisKeys,
   sendRedisCommand,
 } from "@repo/redis";
-import { loadRateLimitKeys } from "./keys.js";
+import { loadRateLimitKeys } from "./keys.ts";
 
 export type RateLimitProviderInput = {
   key: string;

@@ -1,7 +1,7 @@
-import type { SecurityHeadersOptions } from "./headers.js";
-import { keys } from "./keys.js";
-import type { SecurityProvider } from "./provider.js";
-import { createNoopSecurityProvider } from "./provider.js";
+import type { SecurityHeadersOptions } from "./headers.ts";
+import { keys } from "./keys.ts";
+import type { SecurityProvider } from "./provider.ts";
+import { createNoopSecurityProvider } from "./provider.ts";
 
 export type SecurityPolicy = {
   name: string;

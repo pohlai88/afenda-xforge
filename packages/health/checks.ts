@@ -2,7 +2,7 @@ import "server-only";
 
 import { getConnection, hasEventsConfig } from "@repo/events";
 import { hasRedisConfig, pingRedis } from "@repo/redis";
-import type { HealthCheck, HealthCheckResult } from "./manager.js";
+import type { HealthCheck, HealthCheckResult } from "./manager.ts";
 
 export type MemoryCheckOptions = {
   critical?: boolean;

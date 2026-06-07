@@ -1,7 +1,7 @@
 import "server-only";
 import { PostHog } from "posthog-node";
-import { loadAnalyticsKeys } from "./keys.js";
-import type { AnalyticsEvent, AnalyticsServerClient } from "./types.js";
+import { loadAnalyticsKeys } from "./keys.ts";
+import type { AnalyticsEvent, AnalyticsServerClient } from "./types.ts";
 
 let serverAnalytics: PostHog | undefined;
 
@@ -78,6 +78,17 @@ export const createServerAnalytics = (): AnalyticsServerClient | undefined => {
       });
       await analytics.flush();
     },
+    isFeatureEnabled: async (
+      key: string,
+      distinctId: string,
+      options?: {
+        groups?: Record<string, string>;
+        personProperties?: Record<string, string>;
+        sendFeatureFlagEvents?: boolean;
+        disableGeoip?: boolean;
+      }
+    ): Promise<boolean | undefined> =>
+      analytics.isFeatureEnabled(key, distinctId, options),
     flush: async (): Promise<void> => {
       await analytics.flush();
     },

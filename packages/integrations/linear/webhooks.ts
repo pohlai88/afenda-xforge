@@ -1,8 +1,8 @@
 import "server-only";
 
 import { createHmac, timingSafeEqual } from "node:crypto";
-import { loadLinearKeys } from "./keys.js";
-import type { LinearWebhookVerificationInput } from "./types.js";
+import { loadLinearKeys } from "./keys.ts";
+import type { LinearWebhookVerificationInput } from "./types.ts";
 
 const DEFAULT_MAX_SKEW_MS = 60_000;
 

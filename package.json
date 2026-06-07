@@ -32,6 +32,7 @@
   "devDependencies": {
     "@biomejs/biome": "catalog:",
     "@turbo/gen": "catalog:",
+    "@types/node": "catalog:",
     "turbo": "catalog:",
     "typescript": "catalog:",
     "ultracite": "catalog:"

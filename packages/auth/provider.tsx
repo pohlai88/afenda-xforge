@@ -16,7 +16,7 @@ import {
   useRef,
   useState,
 } from "react";
-import { createBrowserSupabaseClient } from "./client.js";
+import { createBrowserSupabaseClient } from "./client.ts";
 
 type AuthClientContextValue = {
   client: SupabaseClient;

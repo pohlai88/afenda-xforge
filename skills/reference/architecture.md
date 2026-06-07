@@ -62,6 +62,7 @@ apps/api
 apps/email
 apps/docs
 apps/storybook
+apps/studio
 packages/analytics
 packages/email
 packages/next-config
@@ -81,6 +82,20 @@ collaboration
 ai
 feature-flags
 ```
+
+### Current App Scaffold Stance
+
+XForge should not treat all next-forge apps as equal priority.
+
+Scaffold now:
+
+- `apps/app` - the ERP shell and primary governance surface
+- `apps/web` - public or marketing-facing shell, if the project needs one
+- `apps/api` - separate runtime for health, webhooks, and external integrations
+- `apps/email` - preview surface for transactional templates
+- `apps/docs` - dedicated Mintlify-style docs surface when the repo needs product or platform documentation
+- `apps/storybook` - component workshop and visual regression staging
+- `apps/studio` - database inspection and migration support surface
 
 ## 4. Technology Baseline
 
@@ -173,8 +188,9 @@ xforge/
 │   ├── web/              # Optional marketing or public site
 │   ├── api/              # Optional separate API runtime, added later if needed
 │   ├── email/            # Optional email preview app
-│   ├── docs/             # Optional docs site
-│   └── storybook/        # Optional component workshop
+│   ├── docs/             # Docs site
+│   ├── storybook/        # Component workshop
+│   └── studio/           # Database studio
 ├── packages/
 │   ├── analytics/        # Optional product and usage analytics
 │   ├── ai/               # Optional AI SDK helpers and UI primitives

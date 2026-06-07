@@ -1,9 +1,9 @@
-import "./config.js";
+import "./config.ts";
 
-export type { AuthenticateOptions } from "./auth.js";
-export { authenticate } from "./auth.js";
-export * from "./hooks.js";
-export type { CollaborationKeys } from "./keys.js";
-export { keys, loadCollaborationKeys } from "./keys.js";
-export type { RoomProps } from "./room.js";
-export { Room } from "./room.js";
+export type { AuthenticateOptions } from "./auth.ts";
+export { authenticate } from "./auth.ts";
+export * from "./hooks.ts";
+export type { CollaborationKeys } from "./keys.ts";
+export { keys, loadCollaborationKeys } from "./keys.ts";
+export type { RoomProps } from "./room.tsx";
+export { Room } from "./room.tsx";

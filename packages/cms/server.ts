@@ -1,6 +1,6 @@
 import "server-only";
 
-import { loadCmsKeys } from "./keys.js";
+import { loadCmsKeys } from "./keys.ts";
 import type {
   CmsImage,
   CmsQueryDefinition,
@@ -9,7 +9,7 @@ import type {
   LegalPostMeta,
   Post,
   PostMeta,
-} from "./types.js";
+} from "./types.ts";
 
 type PayloadImage = {
   alt?: string | null;

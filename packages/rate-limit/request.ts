@@ -1,4 +1,4 @@
-import type { RateLimitContext } from "./policy.js";
+import type { RateLimitContext } from "./policy.ts";
 
 export const getClientIp = (request: Request): string | null => {
   const forwarded = request.headers.get("x-forwarded-for");

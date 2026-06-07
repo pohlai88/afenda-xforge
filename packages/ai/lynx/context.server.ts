@@ -9,8 +9,8 @@ import type {
   XforgeContextCard,
   XforgeConversationContext,
   XforgeLanguage,
-} from "./types.js";
-import { estimateTokens, truncateContext } from "./utils.js";
+} from "./types.ts";
+import { estimateTokens, truncateContext } from "./utils.ts";
 
 const DEFAULT_CONTEXT_PAGE_SIZE = 5;
 

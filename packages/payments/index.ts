@@ -1,6 +1,6 @@
 import "server-only";
 import Stripe from "stripe";
-import { keys } from "./keys.js";
+import { keys } from "./keys.ts";
 
 const { STRIPE_SECRET_KEY } = keys();
 

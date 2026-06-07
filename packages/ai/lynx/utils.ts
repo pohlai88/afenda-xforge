@@ -1,4 +1,4 @@
-import type { XforgeAiModule, XforgeIntent } from "./types.js";
+import type { XforgeAiModule, XforgeIntent } from "./types.ts";
 
 const vietnameseCharacterPattern = /[\u00C0-\u1EF9]/;
 

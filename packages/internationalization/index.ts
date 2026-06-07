@@ -2,14 +2,14 @@ export type {
   MessageDictionary,
   MessageParameters,
   MessageValue,
-} from "./dictionary.js";
+} from "./dictionary.ts";
 export {
   createTranslator,
   getDictionary,
   getMessageValue,
   interpolateMessage,
   translateDictionary,
-} from "./dictionary.js";
+} from "./dictionary.ts";
 export {
   formatCurrency,
   formatDate,
@@ -18,8 +18,8 @@ export {
   formatVietnamesePhoneNumber,
   formatVnd,
   parseVnd,
-} from "./formats.js";
-export type { LocaleResolutionOptions, XforgeLocale } from "./locales.js";
+} from "./formats.ts";
+export type { LocaleResolutionOptions, XforgeLocale } from "./locales.ts";
 export {
   acceptLanguageHeaderName,
   defaultLocale,
@@ -29,12 +29,12 @@ export {
   localeHeaderName,
   resolveLocale,
   supportedLocales,
-} from "./locales.js";
-export type { HeaderReader, RequestLocaleOptions } from "./request.js";
+} from "./locales.ts";
+export type { HeaderReader, RequestLocaleOptions } from "./request.ts";
 export {
   parseAcceptLanguage,
   resolveLocaleFromHeader,
   resolveLocaleFromHeaders,
   resolveXforgeLocaleFromHeaders,
-} from "./request.js";
-export { includesDiacriticInsensitive, removeDiacritics } from "./search.js";
+} from "./request.ts";
+export { includesDiacriticInsensitive, removeDiacritics } from "./search.ts";

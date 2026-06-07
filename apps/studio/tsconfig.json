@@ -1,0 +1,9 @@
+{
+  "extends": "../../packages/typescript-config/node-library.json",
+  "compilerOptions": {
+    "baseUrl": ".",
+    "allowImportingTsExtensions": true
+  },
+  "include": ["index.ts"],
+  "exclude": ["node_modules"]
+}

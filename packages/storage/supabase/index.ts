@@ -2,8 +2,8 @@ import "server-only";
 
 import type { SupabaseClient } from "@supabase/supabase-js";
 import { createClient } from "@supabase/supabase-js";
-import type { StorageBucketSummary, StorageObjectSummary } from "../types.js";
-import { loadSupabaseStorageKeys } from "./keys.js";
+import type { StorageBucketSummary, StorageObjectSummary } from "../types.ts";
+import { loadSupabaseStorageKeys } from "./keys.ts";
 
 type SupabaseStorageConfig = {
   readonly bucket: string;

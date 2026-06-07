@@ -1,7 +1,7 @@
-export type { MessageProps } from "./components/message.js";
-export { Message } from "./components/message.js";
-export type { ThreadProps } from "./components/thread.js";
-export { Thread } from "./components/thread.js";
+export type { MessageProps } from "./components/message.tsx";
+export { Message } from "./components/message.tsx";
+export type { ThreadProps } from "./components/thread.tsx";
+export { Thread } from "./components/thread.tsx";
 export type {
   XforgeAiModule,
   XforgeAssistantDefinition,
@@ -17,10 +17,10 @@ export type {
   XforgeLanguage,
   XforgeLynxConfig,
   XforgeLynxRequest,
-} from "./lynx/index.js";
+} from "./lynx/index.ts";
 export {
   classifyXforgeIntent,
   estimateTokens,
   truncateContext,
-} from "./lynx/index.js";
-export * from "./react.js";
+} from "./lynx/index.ts";
+export * from "./react.tsx";

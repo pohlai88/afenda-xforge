@@ -7,6 +7,8 @@ export type {
 } from "./contract.ts";
 export { companyFeatureManifest } from "./manifest.ts";
 export { companyMetadata } from "./metadata.ts";
+export { companyExecutionSurface } from "./execution/index.ts";
+export { companyFeatureScope } from "./shared/index.ts";
 export {
   companyOpenApiSchemas,
   companyRouteContracts,

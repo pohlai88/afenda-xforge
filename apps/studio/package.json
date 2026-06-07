@@ -1,0 +1,14 @@
+{
+  "name": "studio",
+  "private": true,
+  "scripts": {
+    "dev": "pnpm --filter @repo/database db:studio",
+    "clean": "git clean -xdf .cache .turbo dist node_modules",
+    "typecheck": "tsc --noEmit --emitDeclarationOnly false"
+  },
+  "devDependencies": {
+    "@repo/typescript-config": "workspace:*",
+    "@types/node": "catalog:",
+    "typescript": "catalog:"
+  }
+}

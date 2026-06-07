@@ -1,7 +1,7 @@
 import "server-only";
 
-export type { AiKeys } from "./keys.js";
-export { keys, loadAiKeys } from "./keys.js";
+export type { AiKeys } from "./keys.ts";
+export { keys, loadAiKeys } from "./keys.ts";
 export type {
   XforgeAssistantRegistry,
   XforgeCopilot,
@@ -10,7 +10,7 @@ export type {
   XforgeLynx,
   XforgeLynxChatResult,
   XforgeLynxStreamResult,
-} from "./lynx/server.js";
+} from "./lynx/server.ts";
 export {
   buildXforgeBusinessContext,
   buildXforgeSystemPrompt,
@@ -21,6 +21,6 @@ export {
   customersAssistant,
   defaultXforgeAssistants,
   generalAssistant,
-} from "./lynx/server.js";
-export type { AiModels } from "./models.js";
-export { createAiModels, getRequiredAiModels } from "./models.js";
+} from "./lynx/server.ts";
+export type { AiModels } from "./models.ts";
+export { createAiModels, getRequiredAiModels } from "./models.ts";

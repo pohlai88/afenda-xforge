@@ -1,4 +1,4 @@
-import type { RequestSecurityDecision } from "./request.js";
+import type { RequestSecurityDecision } from "./request.ts";
 
 export type SecurityProviderContext = {
   request: Request;

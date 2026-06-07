@@ -1,6 +1,6 @@
 import { getErrorMessage } from "@repo/errors";
 import { captureException } from "@sentry/nextjs";
-import { log } from "./log.js";
+import { log } from "./log.ts";
 
 export const parseError = (error: unknown): string => {
   const message = getErrorMessage(error);

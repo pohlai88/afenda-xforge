@@ -11,7 +11,7 @@ import type {
   ReactNode,
 } from "react";
 import { useMemo, useState } from "react";
-import { useAuthClient } from "../provider.js";
+import { useAuthClient } from "../provider.tsx";
 
 type FieldProps = Omit<
   InputHTMLAttributes<HTMLInputElement>,

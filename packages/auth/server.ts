@@ -14,7 +14,7 @@ import type { EmailOtpType, Session, User } from "@supabase/supabase-js";
 import { createClient } from "@supabase/supabase-js";
 import { and, asc, eq } from "drizzle-orm";
 import { cookies } from "next/headers";
-import { loadAuthKeys } from "./keys.js";
+import { loadAuthKeys } from "./keys.ts";
 
 type SupabaseConfig = {
   publishableKey: string;

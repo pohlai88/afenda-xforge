@@ -13,9 +13,9 @@ export type {
   XforgeLanguage,
   XforgeLynxConfig,
   XforgeLynxRequest,
-} from "./types.js";
+} from "./types.ts";
 export {
   classifyXforgeIntent,
   estimateTokens,
   truncateContext,
-} from "./utils.js";
+} from "./utils.ts";

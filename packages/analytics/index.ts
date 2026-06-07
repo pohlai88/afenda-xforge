@@ -2,14 +2,14 @@ export {
   analytics,
   createAnalyticsClient,
   initializeAnalytics,
-} from "./client.js";
-export { setupAnalyticsInstrumentation } from "./instrumentation-client.js";
-export type { AnalyticsKeys } from "./keys.js";
-export { AnalyticsProvider } from "./provider.js";
+} from "./client.ts";
+export { setupAnalyticsInstrumentation } from "./instrumentation-client.ts";
+export type { AnalyticsKeys } from "./keys.ts";
+export { AnalyticsProvider } from "./provider.tsx";
 export type {
   AnalyticsClient,
   AnalyticsEvent,
   AnalyticsProviderName,
   AnalyticsProviderOptions,
   AnalyticsServerClient,
-} from "./types.js";
+} from "./types.ts";

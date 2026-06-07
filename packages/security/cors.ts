@@ -1,4 +1,4 @@
-import { loadSecurityKeys } from "./keys.js";
+import { loadSecurityKeys } from "./keys.ts";
 
 export type SecurityCorsOptions = {
   origin?: string | string[] | RegExp | ((origin: string) => boolean);

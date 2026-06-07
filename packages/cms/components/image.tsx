@@ -1,6 +1,6 @@
 import NextImage from "next/image";
 import type { ReactElement } from "react";
-import type { CmsImage } from "../types.js";
+import type { CmsImage } from "../types.ts";
 
 export type ImageProps = CmsImage & {
   className?: string;

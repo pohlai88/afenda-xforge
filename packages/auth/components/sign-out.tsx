@@ -3,7 +3,7 @@
 import { useRouter } from "next/navigation";
 import type { ButtonHTMLAttributes, ReactElement, ReactNode } from "react";
 import { useState } from "react";
-import { useAuthClient } from "../provider.js";
+import { useAuthClient } from "../provider.tsx";
 
 export type SignOutProps = {
   readonly children?: ReactNode;

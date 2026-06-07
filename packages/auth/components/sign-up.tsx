@@ -11,8 +11,8 @@ import type {
   ReactNode,
 } from "react";
 import { useState } from "react";
-import { useAuthClient } from "../provider.js";
-import { buildAuthCallbackPath } from "../routes.js";
+import { useAuthClient } from "../provider.tsx";
+import { buildAuthCallbackPath } from "../routes.ts";
 
 type FieldProps = Omit<
   InputHTMLAttributes<HTMLInputElement>,

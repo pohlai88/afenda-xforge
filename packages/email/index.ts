@@ -1,5 +1,5 @@
 import { Resend } from "resend";
-import { keys } from "./keys.js";
+import { keys } from "./keys.ts";
 
 const { RESEND_TOKEN } = keys();
 

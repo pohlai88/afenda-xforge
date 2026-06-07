@@ -1,6 +1,6 @@
 import { createBrowserClient } from "@supabase/ssr";
 import type { SupabaseClient } from "@supabase/supabase-js";
-import { loadAuthKeys } from "./keys.js";
+import { loadAuthKeys } from "./keys.ts";
 
 let cachedBrowserClient: SupabaseClient | null = null;
 

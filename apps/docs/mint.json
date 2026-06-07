@@ -1,0 +1,10 @@
+{
+  "$schema": "https://mintlify.com/docs.json",
+  "name": "XForge Docs",
+  "navigation": [
+    {
+      "group": "Overview",
+      "pages": ["introduction", "quickstart", "development"]
+    }
+  ]
+}

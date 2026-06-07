@@ -1,6 +1,6 @@
 import { withLogtail } from "@logtail/next";
 import { withSentryConfig } from "@sentry/nextjs";
-import { loadObservabilityKeys } from "./keys.js";
+import { loadObservabilityKeys } from "./keys.ts";
 
 export const sentryConfig: Parameters<typeof withSentryConfig>[1] = {
   org: loadObservabilityKeys().SENTRY_ORG,

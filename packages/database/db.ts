@@ -24,7 +24,7 @@ import {
 } from "./schema.ts";
 
 const connectionString: string = loadDatabaseKeys().DATABASE_URL;
-const schema: typeof import("./schema.js") = {
+const schema: typeof import("./schema.ts") = {
   auditEvents,
   auditEventsRelations,
   xforge,

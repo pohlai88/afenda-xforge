@@ -1,7 +1,7 @@
 import "server-only";
 
 import { Liveblocks as LiveblocksNode } from "@liveblocks/node";
-import { loadCollaborationKeys } from "./keys.js";
+import { loadCollaborationKeys } from "./keys.ts";
 
 export type AuthenticateOptions = {
   orgId: string;

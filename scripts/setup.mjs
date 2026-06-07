@@ -101,12 +101,20 @@ function collectEnvExamples(dir, matches = []) {
   return matches;
 }
 
+function getEnvTargetPath(envExamplePath) {
+  const relativeDir = path.relative(root, path.dirname(envExamplePath));
+  const [workspaceType] = relativeDir.split(path.sep);
+  const targetFile = workspaceType === "apps" ? ".env.local" : ".env";
+
+  return path.join(path.dirname(envExamplePath), targetFile);
+}
+
 function ensureEnvFiles() {
   const envExamples = collectEnvExamples(root);
   let created = 0;
 
   for (const envExamplePath of envExamples) {
-    const envPath = path.join(path.dirname(envExamplePath), ".env");
+    const envPath = getEnvTargetPath(envExamplePath);
     const relativeEnvPath = path.relative(root, envPath) || ".env";
 
     if (fs.existsSync(envPath)) {

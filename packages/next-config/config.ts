@@ -1,6 +1,6 @@
 import withBundleAnalyzer from "@next/bundle-analyzer";
 import type { NextConfig } from "next";
-import { loadNextConfigKeys } from "./keys.js";
+import { loadNextConfigKeys } from "./keys.ts";
 
 export type NextConfigImageSource = {
   url: string;

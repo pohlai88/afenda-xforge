@@ -1,40 +1,40 @@
-export { createRateLimitHeaders } from "./headers.js";
-export type { RateLimitKeys } from "./keys.js";
-export { keys, loadRateLimitKeys } from "./keys.js";
+export { createRateLimitHeaders } from "./headers.ts";
+export type { RateLimitKeys } from "./keys.ts";
+export { keys, loadRateLimitKeys } from "./keys.ts";
 export type {
   RateLimitAssessment,
   RateLimitMiddlewareOptions,
-} from "./middleware.js";
+} from "./middleware.ts";
 export {
   assessRateLimitRequest,
   createRateLimitMiddleware,
   inspectRateLimitRequest,
   resetRateLimitRequest,
-} from "./middleware.js";
+} from "./middleware.ts";
 export type {
   RateLimitContext,
   RateLimitDecision,
   RateLimitPolicy,
   RateLimitPolicyOverrides,
   RateLimitScope,
-} from "./policy.js";
+} from "./policy.ts";
 export {
   createRateLimitPolicy,
   resolveRateLimitKey,
-} from "./policy.js";
+} from "./policy.ts";
 export type {
   RateLimitProvider,
   RateLimitProviderInput,
   RateLimitProviderResult,
-} from "./provider.js";
+} from "./provider.ts";
 export {
   createConfiguredRateLimitProvider,
   createMemoryRateLimitProvider,
   createNoopRateLimitProvider,
   createRedisRateLimitProvider,
-} from "./provider.js";
+} from "./provider.ts";
 export {
   createRateLimitContextFromRequest,
   getClientIp,
   getRequestPath,
-} from "./request.js";
+} from "./request.ts";

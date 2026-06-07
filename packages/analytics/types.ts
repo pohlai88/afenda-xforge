@@ -35,5 +35,15 @@ export type AnalyticsServerClient = {
     groupKey: string,
     properties?: Record<string, unknown>
   ) => Promise<void>;
+  isFeatureEnabled: (
+    key: string,
+    distinctId: string,
+    options?: {
+      groups?: Record<string, string>;
+      personProperties?: Record<string, string>;
+      sendFeatureFlagEvents?: boolean;
+      disableGeoip?: boolean;
+    }
+  ) => Promise<boolean | undefined>;
   flush: () => Promise<void>;
 };

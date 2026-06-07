@@ -8,8 +8,8 @@ import {
   PutObjectCommand,
   S3Client,
 } from "@aws-sdk/client-s3";
-import type { StorageBucketSummary, StorageObjectSummary } from "../types.js";
-import { loadR2StorageKeys } from "./keys.js";
+import type { StorageBucketSummary, StorageObjectSummary } from "../types.ts";
+import { loadR2StorageKeys } from "./keys.ts";
 
 type R2StorageConfig = {
   readonly accessKeyId: string;

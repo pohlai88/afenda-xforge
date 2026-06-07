@@ -1,43 +1,43 @@
-export type { SecurityCorsOptions } from "./cors.js";
+export type { SecurityCorsOptions } from "./cors.ts";
 export {
   applySecurityCorsHeaders,
   createSecurityCorsConfig,
   developmentSecurityCors,
   productionSecurityCors,
-} from "./cors.js";
+} from "./cors.ts";
 export type {
   SecurityCSRFDecision,
   SecurityCSRFRequestInput,
   SecurityCSRFTokenOptions,
-} from "./csrf.js";
+} from "./csrf.ts";
 export {
   createCSRFDecision,
   generateCSRFToken,
   getCSRFToken,
   rotateCSRFToken,
   validateCSRFToken,
-} from "./csrf.js";
-export type { SecurityHeadersOptions } from "./headers.js";
-export { createSecurityHeaders } from "./headers.js";
-export { keys, loadSecurityKeys } from "./keys.js";
-export type { SecurityAssessment } from "./middleware.js";
+} from "./csrf.ts";
+export type { SecurityHeadersOptions } from "./headers.ts";
+export { createSecurityHeaders } from "./headers.ts";
+export { keys, loadSecurityKeys } from "./keys.ts";
+export type { SecurityAssessment } from "./middleware.ts";
 export {
   assessSecurityRequest,
   createSecurityMiddleware,
-} from "./middleware.js";
+} from "./middleware.ts";
 export type {
   SecurityPolicy,
   SecurityPolicyOverrides,
-} from "./policy.js";
-export { createSecurityPolicy } from "./policy.js";
-export type { SecurityProvider, SecurityProviderContext } from "./provider.js";
-export { createNoopSecurityProvider } from "./provider.js";
-export type { RequestSecurityDecision } from "./request.js";
+} from "./policy.ts";
+export { createSecurityPolicy } from "./policy.ts";
+export type { SecurityProvider, SecurityProviderContext } from "./provider.ts";
+export { createNoopSecurityProvider } from "./provider.ts";
+export type { RequestSecurityDecision } from "./request.ts";
 export {
   createRequestSecurityDecision,
   isPublicAssetPath,
   isSafeMethod,
-} from "./request.js";
+} from "./request.ts";
 export {
   sanitizeEmail,
   sanitizeHTML,
@@ -49,4 +49,4 @@ export {
   validateIdentifier,
   validateQueryParam,
   validateVietnamesePhone,
-} from "./sanitize.js";
+} from "./sanitize.ts";

@@ -1,16 +1,16 @@
 import { createErrorResponse, RateLimitError } from "@repo/errors";
-import { createRateLimitHeaders } from "./headers.js";
-import { loadRateLimitKeys } from "./keys.js";
+import { createRateLimitHeaders } from "./headers.ts";
+import { loadRateLimitKeys } from "./keys.ts";
 import type {
   RateLimitContext,
   RateLimitDecision,
   RateLimitPolicy,
   RateLimitPolicyOverrides,
-} from "./policy.js";
-import { createRateLimitPolicy, resolveRateLimitKey } from "./policy.js";
-import type { RateLimitProvider } from "./provider.js";
-import { createConfiguredRateLimitProvider } from "./provider.js";
-import { createRateLimitContextFromRequest } from "./request.js";
+} from "./policy.ts";
+import { createRateLimitPolicy, resolveRateLimitKey } from "./policy.ts";
+import type { RateLimitProvider } from "./provider.ts";
+import { createConfiguredRateLimitProvider } from "./provider.ts";
+import { createRateLimitContextFromRequest } from "./request.ts";
 
 export type RateLimitAssessment = {
   allowed: boolean;

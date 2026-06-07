@@ -1,5 +1,5 @@
-import type { XforgeLocale } from "./locales.js";
-import { defaultLocale, resolveLocale, supportedLocales } from "./locales.js";
+import type { XforgeLocale } from "./locales.ts";
+import { defaultLocale, resolveLocale, supportedLocales } from "./locales.ts";
 
 const localeByLanguage: Record<XforgeLocale, string> = {
   en: "en-US",

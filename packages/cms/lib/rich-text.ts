@@ -1,6 +1,6 @@
 import type { SerializedEditorState } from "@payloadcms/richtext-lexical/lexical";
 import { slugify } from "@repo/shared";
-import type { CmsRichText, TocItem } from "../types.js";
+import type { CmsRichText, TocItem } from "../types.ts";
 
 type RichTextNode = {
   children?: RichTextNode[];

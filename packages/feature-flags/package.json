@@ -1,0 +1,47 @@
+{
+  "name": "@repo/feature-flags",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "exports": {
+    ".": "./index.ts",
+    "./access": "./access.ts",
+    "./components/toolbar": "./components/toolbar.tsx",
+    "./keys": "./keys.ts",
+    "./lib/create-flag": "./lib/create-flag.ts",
+    "./lib/toolbar": "./lib/toolbar.ts",
+    "./package.json": "./package.json"
+  },
+  "files": [
+    "access.ts",
+    "components/toolbar.tsx",
+    "index.ts",
+    "keys.ts",
+    "lib/create-flag.ts",
+    "lib/toolbar.ts",
+    "package.json"
+  ],
+  "scripts": {
+    "clean": "git clean -xdf .cache .turbo dist node_modules",
+    "typecheck": "tsc --noEmit --emitDeclarationOnly false"
+  },
+  "dependencies": {
+    "@repo/analytics": "workspace:*",
+    "@repo/auth": "workspace:*",
+    "@t3-oss/env-nextjs": "catalog:",
+    "@vercel/toolbar": "catalog:",
+    "flags": "catalog:",
+    "react": "catalog:",
+    "zod": "catalog:"
+  },
+  "peerDependencies": {
+    "next": "16.1.6"
+  },
+  "devDependencies": {
+    "@repo/typescript-config": "workspace:*",
+    "@types/node": "catalog:",
+    "@types/react": "catalog:",
+    "@types/react-dom": "catalog:",
+    "typescript": "catalog:"
+  }
+}

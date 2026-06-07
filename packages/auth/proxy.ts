@@ -2,7 +2,7 @@ import type { CookieOptions } from "@supabase/ssr";
 import { createServerClient } from "@supabase/ssr";
 import type { NextRequest } from "next/server";
 import { NextResponse } from "next/server";
-import { loadAuthKeys } from "./keys.js";
+import { loadAuthKeys } from "./keys.ts";
 
 type SupabaseCookieToSet = {
   name: string;

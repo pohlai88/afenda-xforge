@@ -6,6 +6,7 @@ export type {
 } from "./contract.ts";
 export { customerFeatureManifest } from "./manifest.ts";
 export { customerMetadata } from "./metadata.ts";
+export { customerExecutionSurface } from "./execution/index.ts";
 export {
   createCustomer,
   createCustomerRouteContract,

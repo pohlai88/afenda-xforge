@@ -1,6 +1,6 @@
-export * from "./blob/index.js";
+export * from "./blob/index.ts";
 export type {
   StorageBucketSummary,
   StorageObjectSummary,
   StorageProviderKind,
-} from "./types.js";
+} from "./types.ts";

@@ -1,3 +1,4 @@
-export { DesignSystemProvider } from "./components/provider.js";
-export { Toaster } from "./components/sonner.js";
-export { ThemeProvider } from "./providers/theme.js";
+export { DesignSystemProvider } from "./components/provider.tsx";
+export { Toaster } from "./components/sonner.tsx";
+export { fonts } from "./lib/fonts.ts";
+export { ThemeProvider } from "./providers/theme.tsx";

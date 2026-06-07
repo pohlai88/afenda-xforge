@@ -1,7 +1,7 @@
-import { createSecurityHeaders } from "./headers.js";
-import type { SecurityPolicy, SecurityPolicyOverrides } from "./policy.js";
-import { createSecurityPolicy } from "./policy.js";
-import { createRequestSecurityDecision } from "./request.js";
+import { createSecurityHeaders } from "./headers.ts";
+import type { SecurityPolicy, SecurityPolicyOverrides } from "./policy.ts";
+import { createSecurityPolicy } from "./policy.ts";
+import { createRequestSecurityDecision } from "./request.ts";
 
 export type SecurityAssessment = {
   decision: {

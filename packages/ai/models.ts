@@ -1,6 +1,6 @@
 import "server-only";
 import { createOpenAI } from "@ai-sdk/openai";
-import { loadAiKeys } from "./keys.js";
+import { loadAiKeys } from "./keys.ts";
 
 export type AiModels = {
   chat: ReturnType<ReturnType<typeof createOpenAI>>;

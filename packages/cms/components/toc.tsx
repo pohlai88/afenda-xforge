@@ -1,6 +1,6 @@
 import type { ReactElement } from "react";
-import { getTableOfContents } from "../lib/rich-text.js";
-import type { CmsRichText } from "../types.js";
+import { getTableOfContents } from "../lib/rich-text.ts";
+import type { CmsRichText } from "../types.ts";
 
 export type TableOfContentsProps = {
   className?: string;

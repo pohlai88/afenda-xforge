@@ -5,7 +5,7 @@
  */
 
 import { consoleLoggingIntegration, init } from "@sentry/nextjs";
-import { loadObservabilityKeys } from "./keys.js";
+import { loadObservabilityKeys } from "./keys.ts";
 
 export const initializeSentry = (): ReturnType<typeof init> =>
   init({

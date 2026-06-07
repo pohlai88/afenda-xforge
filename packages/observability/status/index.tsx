@@ -1,8 +1,8 @@
 import "server-only";
 
 import type { ReactElement } from "react";
-import { loadObservabilityKeys } from "../keys.js";
-import type { BetterStackResponse } from "./types.js";
+import { loadObservabilityKeys } from "../keys.ts";
+import type { BetterStackResponse } from "./types.ts";
 
 const { BETTERSTACK_API_KEY: apiKey, BETTERSTACK_URL: url } =
   loadObservabilityKeys();

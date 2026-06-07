@@ -18,6 +18,7 @@
     "@repo/events": "workspace:*",
     "@repo/features-master-data-companies": "workspace:*",
     "@repo/features-master-data-customers": "workspace:*",
+    "@repo/feature-flags": "workspace:*",
     "@repo/health": "workspace:*",
     "@repo/internationalization": "workspace:*",
     "@repo/logger": "workspace:*",

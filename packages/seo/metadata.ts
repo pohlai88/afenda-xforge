@@ -1,6 +1,6 @@
 import merge from "lodash.merge";
-import type { SiteAuthor, SiteConfig } from "./site.js";
-import { defaultSiteConfig } from "./site.js";
+import type { SiteAuthor, SiteConfig } from "./site.ts";
+import { defaultSiteConfig } from "./site.ts";
 
 type MetadataAuthor = SiteAuthor;
 

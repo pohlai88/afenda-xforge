@@ -1,7 +1,7 @@
 import { RichText } from "@payloadcms/richtext-lexical/react";
 import type { ReactElement } from "react";
-import { resolveRichTextData } from "../lib/rich-text.js";
-import type { CmsRichText } from "../types.js";
+import { resolveRichTextData } from "../lib/rich-text.ts";
+import type { CmsRichText } from "../types.ts";
 
 export type BodyProps = {
   className?: string;

@@ -3,11 +3,11 @@ export {
   customersAssistant,
   defaultXforgeAssistants,
   generalAssistant,
-} from "./assistants.server.js";
+} from "./assistants.server.ts";
 export {
   buildXforgeBusinessContext,
   buildXforgeSystemPrompt,
-} from "./context.server.js";
+} from "./context.server.ts";
 export type {
   XforgeAssistantRegistry,
   XforgeCopilot,
@@ -16,9 +16,9 @@ export type {
   XforgeLynx,
   XforgeLynxChatResult,
   XforgeLynxStreamResult,
-} from "./engine.server.js";
+} from "./engine.server.ts";
 export {
   createXforgeAssistantRegistry,
   createXforgeCopilot,
   createXforgeLynx,
-} from "./engine.server.js";
+} from "./engine.server.ts";

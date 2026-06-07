@@ -1,4 +1,4 @@
-import type { LocaleResolutionOptions, XforgeLocale } from "./locales.js";
+import type { LocaleResolutionOptions, XforgeLocale } from "./locales.ts";
 import {
   acceptLanguageHeaderName,
   defaultLocale,
@@ -6,7 +6,7 @@ import {
   localeHeaderName,
   resolveLocale,
   supportedLocales,
-} from "./locales.js";
+} from "./locales.ts";
 
 export type HeaderReader = {
   get(name: string): string | null | undefined;

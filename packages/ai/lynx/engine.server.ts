@@ -2,20 +2,20 @@ import "server-only";
 
 import { createOpenAI } from "@ai-sdk/openai";
 import { generateText, streamText, tool } from "ai";
-import { loadAiKeys } from "../keys.js";
+import { loadAiKeys } from "../keys.ts";
 import {
   defaultXforgeAssistants,
   generalAssistant,
-} from "./assistants.server.js";
-import { buildXforgeSystemPrompt } from "./context.server.js";
+} from "./assistants.server.ts";
+import { buildXforgeSystemPrompt } from "./context.server.ts";
 import type {
   XforgeAssistantDefinition,
   XforgeAssistantTool,
   XforgeConversationContext,
   XforgeLynxConfig,
   XforgeLynxRequest,
-} from "./types.js";
-import { classifyXforgeIntent } from "./utils.js";
+} from "./types.ts";
+import { classifyXforgeIntent } from "./utils.ts";
 
 export type XforgeLynxChatResult = Awaited<ReturnType<typeof generateText>>;
 export type XforgeLynxStreamResult = ReturnType<typeof streamText>;

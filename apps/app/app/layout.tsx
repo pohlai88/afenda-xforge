@@ -2,6 +2,8 @@ import {
   getTextDirection,
   resolveXforgeLocaleFromHeaders,
 } from "@repo/internationalization";
+import { fonts } from "@repo/design-system";
+import { Toolbar } from "@repo/feature-flags/components/toolbar";
 import { createMetadata } from "@repo/seo/metadata";
 import type { Metadata } from "next";
 import { headers } from "next/headers";
@@ -13,6 +15,9 @@ import "./styles.css";
 export const metadata: Metadata = createMetadata({
   title: "App",
   description: "XForge ERP application shell.",
+  site: {
+    url: process.env.NEXT_PUBLIC_APP_URL ?? "http://localhost:3000",
+  },
 });
 
 type RootLayoutProps = {
@@ -27,9 +32,15 @@ export default async function RootLayout({
   const locale = resolveXforgeLocaleFromHeaders(requestHeaders);
 
   return (
-    <html dir={getTextDirection(locale)} lang={locale} suppressHydrationWarning>
+    <html
+      className={fonts}
+      dir={getTextDirection(locale)}
+      lang={locale}
+      suppressHydrationWarning
+    >
       <body>
         <Providers>{children}</Providers>
+        <Toolbar />
       </body>
     </html>
   );

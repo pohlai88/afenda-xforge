@@ -1,14 +1,14 @@
-export { linearGraphqlRequest } from "./client.js";
-export type { LinearKeys } from "./keys.js";
-export { loadLinearKeys } from "./keys.js";
+export { linearGraphqlRequest } from "./client.ts";
+export type { LinearKeys } from "./keys.ts";
+export { loadLinearKeys } from "./keys.ts";
 export type {
   LinearGraphQLError,
   LinearGraphQLRequest,
   LinearGraphQLResponse,
   LinearRequestOptions,
   LinearWebhookVerificationInput,
-} from "./types.js";
+} from "./types.ts";
 export {
   assertLinearWebhookSignature,
   verifyLinearWebhookSignature,
-} from "./webhooks.js";
+} from "./webhooks.ts";

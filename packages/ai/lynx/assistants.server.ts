@@ -4,12 +4,12 @@ import { listCompanies } from "@repo/features-master-data-companies";
 import { listCustomers } from "@repo/features-master-data-customers";
 import type { TenantActorScope } from "@repo/shared";
 import { z } from "zod";
-import { buildXforgeBusinessContext } from "./context.server.js";
+import { buildXforgeBusinessContext } from "./context.server.ts";
 import type {
   XforgeAssistantDefinition,
   XforgeAssistantTool,
   XforgeConversationContext,
-} from "./types.js";
+} from "./types.ts";
 
 const createSearchTool = <TInputSchema extends z.ZodTypeAny>(tool: {
   description: string;

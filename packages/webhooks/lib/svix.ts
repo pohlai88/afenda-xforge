@@ -1,7 +1,7 @@
 import "server-only";
 
 import { Svix } from "svix";
-import { loadWebhooksKeys } from "../keys.js";
+import { loadWebhooksKeys } from "../keys.ts";
 
 type WebhookPayload = Record<string, unknown>;
 

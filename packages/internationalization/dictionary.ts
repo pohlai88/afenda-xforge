@@ -1,6 +1,6 @@
 import "server-only";
-import type { XforgeLocale } from "./locales.js";
-import { defaultLocale, resolveLocale, supportedLocales } from "./locales.js";
+import type { XforgeLocale } from "./locales.ts";
+import { defaultLocale, resolveLocale, supportedLocales } from "./locales.ts";
 
 export type MessageValue = MessageDictionary | string;
 

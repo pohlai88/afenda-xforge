@@ -1,0 +1,29 @@
+{
+  "name": "@repo/master-data",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "exports": {
+    ".": "./index.ts",
+    "./base-service": "./base-service.ts",
+    "./types": "./types.ts",
+    "./package.json": "./package.json"
+  },
+  "files": [
+    "base-service.ts",
+    "index.ts",
+    "types.ts",
+    "package.json"
+  ],
+  "scripts": {
+    "clean": "git clean -xdf .cache .turbo dist node_modules",
+    "typecheck": "tsc --noEmit --emitDeclarationOnly false"
+  },
+  "dependencies": {
+    "@repo/shared": "workspace:*"
+  },
+  "devDependencies": {
+    "@repo/typescript-config": "workspace:*",
+    "typescript": "catalog:"
+  }
+}

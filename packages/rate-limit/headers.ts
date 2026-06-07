@@ -1,4 +1,4 @@
-import type { RateLimitDecision } from "./policy.js";
+import type { RateLimitDecision } from "./policy.ts";
 
 export const createRateLimitHeaders = (
   decision: RateLimitDecision
