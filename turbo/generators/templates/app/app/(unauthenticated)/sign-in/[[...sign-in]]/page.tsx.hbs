@@ -1,0 +1,19 @@
+import { SignIn } from "@repo/auth/components/sign-in";
+import { createMetadata } from "@repo/seo/metadata";
+import type { Metadata } from "next";
+import type { ReactElement } from "react";
+
+export const metadata: Metadata = createMetadata({
+  title: "Sign in",
+  description: "Sign in to {{ name }}.",
+});
+
+export default function SignInPage(): ReactElement {
+  return (
+    <SignIn
+      className="space-y-6 rounded-[var(--radius-xl)] border border-border bg-card/95 p-6 shadow-sm"
+      redirectTo="/dashboard"
+      signUpHref="/sign-up"
+    />
+  );
+}

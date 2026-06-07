@@ -1,0 +1,7 @@
+{
+  "plugins": [["npm", { "setRcToken": false }], "first-time-contributor", "released"],
+  "owner": "afenda-bolt",
+  "repo": "afenda-Xforge",
+  "name": "XForge",
+  "email": "dev@afenda.local"
+}

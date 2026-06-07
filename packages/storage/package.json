@@ -1,0 +1,32 @@
+{
+  "name": "@repo/storage",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "exports": {
+    ".": "./index.ts",
+    "./client": "./client.ts",
+    "./keys": "./keys.ts",
+    "./package.json": "./package.json"
+  },
+  "files": [
+    "client.ts",
+    "index.ts",
+    "keys.ts",
+    "package.json"
+  ],
+  "scripts": {
+    "clean": "git clean -xdf .cache .turbo dist node_modules",
+    "typecheck": "tsc --noEmit --emitDeclarationOnly false",
+    "lint": "biome check .",
+    "format": "biome format --write ."
+  },
+  "dependencies": {
+    "@t3-oss/env-nextjs": "catalog:",
+    "@vercel/blob": "catalog:",
+    "zod": "catalog:"
+  },
+  "devDependencies": {
+    "@repo/typescript-config": "workspace:*"
+  }
+}

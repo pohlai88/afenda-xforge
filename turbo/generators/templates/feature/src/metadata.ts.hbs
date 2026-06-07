@@ -1,0 +1,19 @@
+export type {{ recordPascal }}Metadata = {
+  label: string;
+  description: string;
+  family: "master-data";
+  scope: "tenant" | "company";
+  ownership: "explicit-grant";
+  columns: readonly string[];
+  filters: readonly string[];
+};
+
+export const {{ recordCamel }}Metadata: {{ recordPascal }}Metadata = {
+  label: "{{ name }}",
+  description: "Master-data feature scaffold.",
+  family: "master-data",
+  scope: "{{#if companyScoped}}company{{else}}tenant{{/if}}",
+  ownership: "explicit-grant",
+  columns: [],
+  filters: [],
+};

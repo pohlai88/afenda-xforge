@@ -1,0 +1,54 @@
+{
+  "$schema": "https://turborepo.com/schema.json",
+  "globalDependencies": [
+    "**/.env",
+    "**/.env.*",
+    "**/.env.*local",
+    "biome.jsonc",
+    "package.json",
+    "pnpm-workspace.yaml",
+    "tsconfig.base.json",
+    "packages/typescript-config/**/*.json",
+    "turbo/generators/**/*"
+  ],
+  "envMode": "strict",
+  "tasks": {
+    "build": {
+      "dependsOn": ["^build", "test"],
+      "outputs": [
+        ".next/**",
+        "!.next/cache/**",
+        "dist/**",
+        "storybook-static/**",
+        "coverage/**"
+      ]
+    },
+    "dev": {
+      "cache": false,
+      "persistent": true
+    },
+    "test": {
+      "dependsOn": ["^test"],
+      "outputs": ["coverage/**"]
+    },
+    "typecheck": {
+      "dependsOn": ["^typecheck"],
+      "outputs": []
+    },
+    "lint": {
+      "outputs": []
+    },
+    "format": {
+      "cache": false,
+      "outputs": []
+    },
+    "check": {
+      "dependsOn": ["^check"],
+      "outputs": []
+    },
+    "clean": {
+      "cache": false,
+      "outputs": []
+    }
+  }
+}

@@ -1,0 +1,39 @@
+{
+  "name": "@repo/seo",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "exports": {
+    ".": "./index.ts",
+    "./index": "./index.ts",
+    "./json-ld": "./json-ld.tsx",
+    "./metadata": "./metadata.ts",
+    "./site": "./site.ts",
+    "./package.json": "./package.json"
+  },
+  "files": [
+    "index.ts",
+    "json-ld.tsx",
+    "metadata.ts",
+    "site.ts",
+    "package.json"
+  ],
+  "scripts": {
+    "lint": "biome check .",
+    "format": "biome format --write .",
+    "clean": "git clean -xdf .cache .turbo dist node_modules",
+    "typecheck": "tsc --noEmit --emitDeclarationOnly false"
+  },
+  "dependencies": {
+    "lodash.merge": "catalog:",
+    "react": "catalog:",
+    "schema-dts": "catalog:"
+  },
+  "devDependencies": {
+    "@repo/typescript-config": "workspace:*",
+    "@types/lodash.merge": "catalog:",
+    "@types/node": "catalog:",
+    "@types/react": "catalog:",
+    "@types/react-dom": "catalog:"
+  }
+}

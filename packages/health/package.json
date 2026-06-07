@@ -1,0 +1,34 @@
+{
+  "name": "@repo/health",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "exports": {
+    ".": "./index.ts",
+    "./checks": "./checks.ts",
+    "./manager": "./manager.ts",
+    "./package.json": "./package.json"
+  },
+  "files": [
+    "checks.ts",
+    "index.ts",
+    "manager.ts",
+    "package.json"
+  ],
+  "scripts": {
+    "lint": "biome check .",
+    "format": "biome format --write .",
+    "clean": "git clean -xdf .cache .turbo dist node_modules",
+    "typecheck": "tsc --noEmit --emitDeclarationOnly false"
+  },
+  "dependencies": {
+    "@repo/database": "workspace:*",
+    "@repo/redis": "workspace:*",
+    "server-only": "catalog:"
+  },
+  "devDependencies": {
+    "@repo/typescript-config": "workspace:*",
+    "@types/node": "catalog:",
+    "typescript": "catalog:"
+  }
+}

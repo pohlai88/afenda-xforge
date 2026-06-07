@@ -1,0 +1,15 @@
+export type {{ recordPascal }}Shared = {
+  featureName: string;
+  packageName: string;
+  scope: "tenant" | "company";
+  tenantScoped: boolean;
+  companyScoped: boolean;
+};
+
+export const {{ recordCamel }}Shared: {{ recordPascal }}Shared = {
+  featureName: "{{ name }}",
+  packageName: "{{ packageName }}",
+  scope: "{{#if companyScoped}}company{{else}}tenant{{/if}}",
+  tenantScoped: {{#if companyScoped}}false{{else}}true{{/if}},
+  companyScoped: {{#if companyScoped}}true{{else}}false{{/if}},
+};

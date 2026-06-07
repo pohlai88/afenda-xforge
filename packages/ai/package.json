@@ -1,0 +1,50 @@
+{
+  "name": "@repo/ai",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "exports": {
+    ".": "./index.ts",
+    "./components/message": "./components/message.tsx",
+    "./components/thread": "./components/thread.tsx",
+    "./keys": "./keys.ts",
+    "./models": "./models.ts",
+    "./server": "./server.ts",
+    "./react": "./react.tsx",
+    "./package.json": "./package.json"
+  },
+  "files": [
+    "components/message.tsx",
+    "components/thread.tsx",
+    "index.ts",
+    "keys.ts",
+    "models.ts",
+    "server.ts",
+    "react.tsx",
+    "package.json"
+  ],
+  "scripts": {
+    "lint": "biome check .",
+    "format": "biome format --write .",
+    "clean": "git clean -xdf .cache .turbo dist node_modules",
+    "typecheck": "tsc --noEmit --emitDeclarationOnly false"
+  },
+  "dependencies": {
+    "@ai-sdk/openai": "catalog:",
+    "@ai-sdk/react": "catalog:",
+    "@t3-oss/env-nextjs": "catalog:",
+    "ai": "catalog:",
+    "react": "catalog:",
+    "server-only": "catalog:",
+    "streamdown": "catalog:",
+    "tailwind-merge": "catalog:",
+    "zod": "catalog:"
+  },
+  "devDependencies": {
+    "@repo/typescript-config": "workspace:*",
+    "@types/node": "catalog:",
+    "@types/react": "catalog:",
+    "@types/react-dom": "catalog:",
+    "typescript": "catalog:"
+  }
+}

@@ -1,0 +1,72 @@
+import { create{{ recordPascal }}Record, update{{ recordPascal }}Record } from "./actions.js";
+import {
+  type Create{{ recordPascal }}Input,
+  type {{ recordPascal }}ExecutionContext,
+  type {{ recordPascal }}Record,
+  {{ recordCamel }}Contract,
+  type List{{ featurePascal }}Input,
+  type Update{{ recordPascal }}Input,
+} from "./contract.js";
+import { {{ recordCamel }}Manifest } from "./manifest.js";
+import { {{ recordCamel }}Metadata } from "./metadata.js";
+import { get{{ recordPascal }}Record, list{{ featurePascal }}Records } from "./queries.js";
+
+export type {{ recordPascal }}Server = {
+  contract: typeof {{ recordCamel }}Contract;
+  manifest: typeof {{ recordCamel }}Manifest;
+  metadata: typeof {{ recordCamel }}Metadata;
+  list: (
+    context: {{ recordPascal }}ExecutionContext,
+    input?: List{{ featurePascal }}Input,
+  ) => Promise<readonly {{ recordPascal }}Record[]>;
+  getById: (
+    context: {{ recordPascal }}ExecutionContext,
+    id: string,
+  ) => Promise<{{ recordPascal }}Record | null>;
+  create: (
+    context: {{ recordPascal }}ExecutionContext,
+    input: Create{{ recordPascal }}Input,
+  ) => Promise<{{ recordPascal }}Record>;
+  update: (
+    context: {{ recordPascal }}ExecutionContext,
+    input: Update{{ recordPascal }}Input,
+  ) => Promise<{{ recordPascal }}Record>;
+};
+
+export async function list{{ featurePascal }}(
+  context: {{ recordPascal }}ExecutionContext,
+  input?: List{{ featurePascal }}Input,
+): Promise<readonly {{ recordPascal }}Record[]> {
+  return list{{ featurePascal }}Records(context, input);
+}
+
+export async function get{{ recordPascal }}(
+  context: {{ recordPascal }}ExecutionContext,
+  id: string,
+): Promise<{{ recordPascal }}Record | null> {
+  return get{{ recordPascal }}Record(context, id);
+}
+
+export async function create{{ recordPascal }}(
+  context: {{ recordPascal }}ExecutionContext,
+  input: Create{{ recordPascal }}Input,
+): Promise<{{ recordPascal }}Record> {
+  return create{{ recordPascal }}Record(context, input);
+}
+
+export async function update{{ recordPascal }}(
+  context: {{ recordPascal }}ExecutionContext,
+  input: Update{{ recordPascal }}Input,
+): Promise<{{ recordPascal }}Record> {
+  return update{{ recordPascal }}Record(context, input);
+}
+
+export const {{ recordCamel }}Server: {{ recordPascal }}Server = {
+  contract: {{ recordCamel }}Contract,
+  manifest: {{ recordCamel }}Manifest,
+  metadata: {{ recordCamel }}Metadata,
+  list: list{{ featurePascal }},
+  getById: get{{ recordPascal }},
+  create: create{{ recordPascal }},
+  update: update{{ recordPascal }},
+};

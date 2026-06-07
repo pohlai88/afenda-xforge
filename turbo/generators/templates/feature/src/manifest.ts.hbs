@@ -1,0 +1,40 @@
+export type {{ recordPascal }}Manifest = {
+  name: string;
+  family: "master-data";
+  packageName: string;
+  scope: "tenant" | "company";
+  entryPoints: readonly string[];
+  layers: readonly (
+    | "contract"
+    | "metadata"
+    | "shared"
+    | "execution"
+    | "queries"
+    | "actions"
+    | "server"
+  )[];
+};
+
+export const {{ recordCamel }}Manifest: {{ recordPascal }}Manifest = {
+  name: "{{ name }}",
+  family: "master-data",
+  packageName: "{{ packageName }}",
+  scope: "{{#if companyScoped}}company{{else}}tenant{{/if}}",
+  entryPoints: [
+    "manifest",
+    "contract",
+    "metadata",
+    "shared",
+    "execution",
+    "server",
+  ],
+  layers: [
+    "contract",
+    "metadata",
+    "shared",
+    "execution",
+    "queries",
+    "actions",
+    "server",
+  ],
+};

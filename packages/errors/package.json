@@ -1,0 +1,38 @@
+{
+  "name": "@repo/errors",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "exports": {
+    ".": "./index.ts",
+    "./codes": "./codes.ts",
+    "./core": "./core.ts",
+    "./http": "./http.ts",
+    "./normalize": "./normalize.ts",
+    "./response": "./response.ts",
+    "./package.json": "./package.json"
+  },
+  "files": [
+    "codes.ts",
+    "core.ts",
+    "http.ts",
+    "index.ts",
+    "normalize.ts",
+    "response.ts",
+    "package.json"
+  ],
+  "scripts": {
+    "lint": "biome check .",
+    "format": "biome format --write .",
+    "clean": "git clean -xdf .cache .turbo dist node_modules",
+    "typecheck": "tsc --noEmit --emitDeclarationOnly false"
+  },
+  "dependencies": {
+    "zod": "catalog:"
+  },
+  "devDependencies": {
+    "@repo/typescript-config": "workspace:*",
+    "@types/node": "catalog:",
+    "typescript": "catalog:"
+  }
+}

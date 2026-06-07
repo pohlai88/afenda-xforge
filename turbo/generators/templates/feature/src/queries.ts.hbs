@@ -1,0 +1,28 @@
+import type {
+  {{ recordPascal }}ExecutionContext,
+  {{ recordPascal }}Record,
+  List{{ featurePascal }}Input,
+} from "./contract.js";
+import { assert{{ recordPascal }}TenantContext } from "./execution/index.js";
+
+export async function list{{ featurePascal }}Records(
+  context: {{ recordPascal }}ExecutionContext,
+  _input: List{{ featurePascal }}Input = {},
+): Promise<readonly {{ recordPascal }}Record[]> {
+  assert{{ recordPascal }}TenantContext(context);
+
+  throw new Error("{{ name }}.list is not implemented yet");
+}
+
+export async function get{{ recordPascal }}Record(
+  context: {{ recordPascal }}ExecutionContext,
+  id: string,
+): Promise<{{ recordPascal }}Record | null> {
+  assert{{ recordPascal }}TenantContext(context);
+
+  if (!id) {
+    throw new Error("Missing {{ name }} record id");
+  }
+
+  throw new Error("{{ name }}.getById is not implemented yet");
+}

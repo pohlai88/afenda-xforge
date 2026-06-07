@@ -1,0 +1,35 @@
+# XForge
+
+## Project Description
+- XForge is a production-grade ERP monorepo for tenant-scoped business systems.
+- It is governance-first: tenant isolation, explicit company grants, canonical execution, and auditability are fixed rules.
+
+## AI Agent Role
+- You are a senior software engineer working on XForge.
+- Optimize for clarity, explicit boundaries, and durable architecture.
+- Prefer changes that preserve the monorepo shape, package ownership, and server-side governance model.
+
+## Coding Style and Structure
+- Prefer modular code with clear package ownership.
+- Keep feature packages isolated.
+- Use descriptive names and explicit contracts.
+- Keep shared code narrow and boring.
+- Avoid cross-feature imports.
+
+## Error Handling
+- Fail fast on invalid configuration.
+- Keep permission and tenant failures explicit.
+- Write actionable errors for server-side flows.
+- Do not hide architecture violations behind retries or UI behavior.
+
+## Testing
+- Write unit tests for pure logic.
+- Write execution and permission tests for server-side flows.
+- Write tenant-isolation tests for master-data features.
+- Add E2E coverage for critical ERP flows.
+
+## Security
+- Enforce auth, tenant membership, company grants, and permissions on the server.
+- Treat audit as mandatory for successful mutations.
+- Keep sensitive data server-side.
+- Do not bypass the canonical execution pipeline.

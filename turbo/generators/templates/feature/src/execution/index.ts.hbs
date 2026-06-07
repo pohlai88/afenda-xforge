@@ -1,0 +1,38 @@
+import type {
+  {{ recordPascal }}ActionName,
+  {{ recordPascal }}ExecutionContext,
+} from "../contract.js";
+
+export type {{ recordPascal }}MutationInput<TInput> = {
+  action: {{ recordPascal }}ActionName;
+  input: TInput;
+};
+
+export type {{ recordPascal }}DomainOperation<TResult> = () => Promise<TResult>;
+
+export function assert{{ recordPascal }}TenantContext(
+  context: {{ recordPascal }}ExecutionContext,
+): void {
+  if (!context.tenantId) {
+    throw new Error("Missing tenant context for {{ name }}");
+  }
+
+  if (!context.actorId) {
+    throw new Error("Missing actor context for {{ name }}");
+  }
+}
+
+export async function execute{{ recordPascal }}Mutation<TInput, TResult>(
+  context: {{ recordPascal }}ExecutionContext,
+  mutation: {{ recordPascal }}MutationInput<TInput>,
+  operation: {{ recordPascal }}DomainOperation<TResult>,
+): Promise<TResult> {
+  assert{{ recordPascal }}TenantContext(context);
+
+  void mutation;
+  void operation;
+
+  throw new Error(
+    "Wire {{ name }} mutations through @repo/execution before executing the domain operation.",
+  );
+}

@@ -1,0 +1,55 @@
+{
+  "name": "@repo/cms",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "exports": {
+    ".": "./index.ts",
+    "./collections": "./collections.ts",
+    "./keys": "./keys.ts",
+    "./server": "./server.ts",
+    "./types": "./types.ts",
+    "./components/body": "./components/body.tsx",
+    "./components/feed": "./components/feed.tsx",
+    "./components/image": "./components/image.tsx",
+    "./components/toc": "./components/toc.tsx",
+    "./components/toolbar": "./components/toolbar.tsx",
+    "./package.json": "./package.json"
+  },
+  "files": [
+    "collections.ts",
+    "components/body.tsx",
+    "components/feed.tsx",
+    "components/image.tsx",
+    "components/toc.tsx",
+    "components/toolbar.tsx",
+    "index.ts",
+    "keys.ts",
+    "lib/rich-text.ts",
+    "server.ts",
+    "types.ts",
+    "package.json"
+  ],
+  "scripts": {
+    "clean": "git clean -xdf .cache .turbo dist node_modules",
+    "typecheck": "tsc --noEmit --emitDeclarationOnly false",
+    "lint": "biome check .",
+    "format": "biome format --write ."
+  },
+  "dependencies": {
+    "@payloadcms/richtext-lexical": "catalog:",
+    "@t3-oss/env-nextjs": "catalog:",
+    "next": "catalog:",
+    "payload": "catalog:",
+    "react": "catalog:",
+    "server-only": "catalog:",
+    "zod": "catalog:"
+  },
+  "devDependencies": {
+    "@repo/typescript-config": "workspace:*",
+    "@types/node": "catalog:",
+    "@types/react": "catalog:",
+    "@types/react-dom": "catalog:",
+    "typescript": "catalog:"
+  }
+}

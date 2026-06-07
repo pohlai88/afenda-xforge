@@ -1,0 +1,44 @@
+{
+  "name": "@repo/database",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "exports": {
+    ".": "./index.ts",
+    "./db": "./db.ts",
+    "./drizzle.config": "./drizzle.config.ts",
+    "./keys": "./keys.ts",
+    "./schema": "./schema.ts",
+    "./package.json": "./package.json"
+  },
+  "files": [
+    "db.ts",
+    "drizzle.config.ts",
+    "index.ts",
+    "keys.ts",
+    "schema.ts",
+    "package.json"
+  ],
+  "scripts": {
+    "lint": "biome check .",
+    "format": "biome format --write .",
+    "clean": "git clean -xdf .cache .turbo dist node_modules",
+    "db:generate": "drizzle-kit generate",
+    "db:migrate": "drizzle-kit migrate",
+    "db:studio": "drizzle-kit studio",
+    "typecheck": "tsc --noEmit --emitDeclarationOnly false"
+  },
+  "dependencies": {
+    "@t3-oss/env-nextjs": "catalog:",
+    "drizzle-orm": "catalog:",
+    "postgres": "catalog:",
+    "server-only": "catalog:",
+    "zod": "catalog:"
+  },
+  "devDependencies": {
+    "@repo/typescript-config": "workspace:*",
+    "@types/node": "catalog:",
+    "drizzle-kit": "catalog:",
+    "typescript": "catalog:"
+  }
+}

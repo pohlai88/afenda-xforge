@@ -1,0 +1,40 @@
+import {
+  type Create{{ recordPascal }}Input,
+  type {{ recordPascal }}ExecutionContext,
+  type {{ recordPascal }}Record,
+  {{ recordCamel }}ActionNames,
+  type Update{{ recordPascal }}Input,
+} from "./contract.js";
+import { execute{{ recordPascal }}Mutation } from "./execution/index.js";
+
+export async function create{{ recordPascal }}Record(
+  context: {{ recordPascal }}ExecutionContext,
+  input: Create{{ recordPascal }}Input,
+): Promise<{{ recordPascal }}Record> {
+  return execute{{ recordPascal }}Mutation(
+    context,
+    {
+      action: {{ recordCamel }}ActionNames.create,
+      input,
+    },
+    async () => {
+      throw new Error("{{ name }}.create is not implemented yet");
+    },
+  );
+}
+
+export async function update{{ recordPascal }}Record(
+  context: {{ recordPascal }}ExecutionContext,
+  input: Update{{ recordPascal }}Input,
+): Promise<{{ recordPascal }}Record> {
+  return execute{{ recordPascal }}Mutation(
+    context,
+    {
+      action: {{ recordCamel }}ActionNames.update,
+      input,
+    },
+    async () => {
+      throw new Error("{{ name }}.update is not implemented yet");
+    },
+  );
+}

@@ -1,0 +1,39 @@
+{
+  "name": "@repo/email",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "exports": {
+    ".": "./index.ts",
+    "./keys": "./keys.ts",
+    "./templates/contact": "./templates/contact.tsx",
+    "./package.json": "./package.json"
+  },
+  "files": [
+    "index.ts",
+    "keys.ts",
+    "templates/contact.tsx",
+    "package.json"
+  ],
+  "scripts": {
+    "clean": "git clean -xdf .cache .turbo dist node_modules",
+    "typecheck": "tsc --noEmit --emitDeclarationOnly false",
+    "lint": "biome check .",
+    "format": "biome format --write ."
+  },
+  "dependencies": {
+    "@react-email/components": "catalog:",
+    "@t3-oss/env-nextjs": "catalog:",
+    "react": "catalog:",
+    "react-dom": "catalog:",
+    "resend": "catalog:",
+    "zod": "catalog:"
+  },
+  "devDependencies": {
+    "@repo/typescript-config": "workspace:*",
+    "@types/node": "catalog:",
+    "@types/react": "catalog:",
+    "@types/react-dom": "catalog:",
+    "typescript": "catalog:"
+  }
+}

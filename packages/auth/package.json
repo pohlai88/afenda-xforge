@@ -1,0 +1,52 @@
+{
+  "name": "@repo/auth",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "exports": {
+    ".": "./index.ts",
+    "./client": "./client.ts",
+    "./components/sign-in": "./components/sign-in.tsx",
+    "./components/sign-up": "./components/sign-up.tsx",
+    "./components/sign-out": "./components/sign-out.tsx",
+    "./keys": "./keys.ts",
+    "./provider": "./provider.tsx",
+    "./proxy": "./proxy.ts",
+    "./server": "./server.ts",
+    "./package.json": "./package.json"
+  },
+  "files": [
+    "client.ts",
+    "components/sign-in.tsx",
+    "components/sign-up.tsx",
+    "index.ts",
+    "keys.ts",
+    "provider.tsx",
+    "proxy.ts",
+    "server.ts",
+    "package.json"
+  ],
+  "scripts": {
+    "clean": "git clean -xdf .cache .turbo dist node_modules",
+    "typecheck": "tsc --noEmit --emitDeclarationOnly false",
+    "lint": "biome check .",
+    "format": "biome format --write ."
+  },
+  "dependencies": {
+    "@repo/errors": "workspace:*",
+    "@supabase/ssr": "catalog:",
+    "@supabase/supabase-js": "catalog:",
+    "@t3-oss/env-nextjs": "catalog:",
+    "react": "catalog:",
+    "server-only": "catalog:",
+    "zod": "catalog:"
+  },
+  "devDependencies": {
+    "@repo/typescript-config": "workspace:*",
+    "@types/node": "catalog:",
+    "@types/react": "catalog:",
+    "@types/react-dom": "catalog:",
+    "next": "catalog:",
+    "typescript": "catalog:"
+  }
+}

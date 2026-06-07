@@ -1,0 +1,55 @@
+{
+  "name": "@repo/design-system",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "exports": {
+    ".": "./index.tsx",
+    "./components/mode-toggle": "./components/mode-toggle.tsx",
+    "./components/provider": "./components/provider.tsx",
+    "./components/sonner": "./components/sonner.tsx",
+    "./components.json": "./components.json",
+    "./lib/utils": "./lib/utils.ts",
+    "./providers/theme": "./providers/theme.tsx",
+    "./styles/globals.css": "./styles/globals.css",
+    "./package.json": "./package.json"
+  },
+  "files": [
+    "components.json",
+    "components/mode-toggle.tsx",
+    "components/provider.tsx",
+    "components/sonner.tsx",
+    "index.tsx",
+    "lib/utils.ts",
+    "providers/theme.tsx",
+    "styles/globals.css",
+    "package.json"
+  ],
+  "scripts": {
+    "lint": "biome check .",
+    "format": "biome format --write .",
+    "clean": "git clean -xdf .cache .turbo dist node_modules",
+    "typecheck": "tsc --noEmit --emitDeclarationOnly false"
+  },
+  "dependencies": {
+    "@radix-ui/react-icons": "catalog:",
+    "class-variance-authority": "catalog:",
+    "clsx": "catalog:",
+    "lucide-react": "catalog:",
+    "next-themes": "catalog:",
+    "sonner": "catalog:",
+    "tailwind-merge": "catalog:",
+    "tw-animate-css": "catalog:"
+  },
+  "devDependencies": {
+    "@repo/typescript-config": "workspace:*",
+    "@tailwindcss/postcss": "catalog:",
+    "@tailwindcss/typography": "catalog:",
+    "@types/node": "catalog:",
+    "@types/react": "catalog:",
+    "@types/react-dom": "catalog:",
+    "postcss": "catalog:",
+    "tailwindcss": "catalog:",
+    "typescript": "catalog:"
+  }
+}

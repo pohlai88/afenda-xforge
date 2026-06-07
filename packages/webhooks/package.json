@@ -1,0 +1,35 @@
+{
+  "name": "@repo/webhooks",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "exports": {
+    ".": "./index.ts",
+    "./keys": "./keys.ts",
+    "./lib/svix": "./lib/svix.ts",
+    "./package.json": "./package.json"
+  },
+  "files": [
+    "index.ts",
+    "keys.ts",
+    "lib/svix.ts",
+    "package.json"
+  ],
+  "scripts": {
+    "lint": "biome check .",
+    "format": "biome format --write .",
+    "clean": "git clean -xdf .cache .turbo dist node_modules",
+    "typecheck": "tsc --noEmit --emitDeclarationOnly false"
+  },
+  "dependencies": {
+    "@t3-oss/env-nextjs": "catalog:",
+    "server-only": "catalog:",
+    "svix": "catalog:",
+    "zod": "catalog:"
+  },
+  "devDependencies": {
+    "@repo/typescript-config": "workspace:*",
+    "@types/node": "catalog:",
+    "typescript": "catalog:"
+  }
+}

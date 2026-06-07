@@ -1,0 +1,43 @@
+{
+  "name": "@repo/rate-limit",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "exports": {
+    ".": "./index.ts",
+    "./headers": "./headers.ts",
+    "./keys": "./keys.ts",
+    "./middleware": "./middleware.ts",
+    "./policy": "./policy.ts",
+    "./provider": "./provider.ts",
+    "./request": "./request.ts",
+    "./package.json": "./package.json"
+  },
+  "files": [
+    "headers.ts",
+    "index.ts",
+    "keys.ts",
+    "middleware.ts",
+    "policy.ts",
+    "provider.ts",
+    "request.ts",
+    "package.json"
+  ],
+  "scripts": {
+    "lint": "biome check .",
+    "format": "biome format --write .",
+    "clean": "git clean -xdf .cache .turbo dist node_modules",
+    "typecheck": "tsc --noEmit --emitDeclarationOnly false"
+  },
+  "dependencies": {
+    "@repo/errors": "workspace:*",
+    "@repo/redis": "workspace:*",
+    "@t3-oss/env-nextjs": "catalog:",
+    "zod": "catalog:"
+  },
+  "devDependencies": {
+    "@repo/typescript-config": "workspace:*",
+    "@types/node": "catalog:",
+    "typescript": "catalog:"
+  }
+}

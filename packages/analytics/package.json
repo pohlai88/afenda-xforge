@@ -1,0 +1,50 @@
+{
+  "name": "@repo/analytics",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "exports": {
+    ".": "./index.ts",
+    "./client": "./client.ts",
+    "./instrumentation-client": "./instrumentation-client.ts",
+    "./keys": "./keys.ts",
+    "./provider": "./provider.tsx",
+    "./server": "./server.ts",
+    "./types": "./types.ts",
+    "./package.json": "./package.json"
+  },
+  "files": [
+    "client.ts",
+    "index.ts",
+    "instrumentation-client.ts",
+    "keys.ts",
+    "provider.tsx",
+    "server.ts",
+    "types.ts",
+    "package.json"
+  ],
+  "scripts": {
+    "lint": "biome check .",
+    "format": "biome format --write .",
+    "clean": "git clean -xdf .cache .turbo dist node_modules",
+    "typecheck": "tsc --noEmit --emitDeclarationOnly false"
+  },
+  "dependencies": {
+    "@next/third-parties": "catalog:",
+    "@t3-oss/env-nextjs": "catalog:",
+    "@vercel/analytics": "catalog:",
+    "posthog-js": "catalog:",
+    "posthog-node": "catalog:",
+    "react": "catalog:",
+    "server-only": "catalog:",
+    "zod": "catalog:"
+  },
+  "devDependencies": {
+    "@repo/typescript-config": "workspace:*",
+    "@types/node": "catalog:",
+    "@types/react": "catalog:",
+    "@types/react-dom": "catalog:",
+    "next": "catalog:",
+    "typescript": "catalog:"
+  }
+}

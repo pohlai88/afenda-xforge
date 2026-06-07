@@ -1,0 +1,26 @@
+import { createMetadata } from "@repo/seo";
+import type { Metadata } from "next";
+import type { ReactElement, ReactNode } from "react";
+import { Providers } from "./providers";
+import "./styles.css";
+
+export const metadata: Metadata = createMetadata({
+  title: "{{ name }}",
+  description: "Enterprise ERP application shell.",
+});
+
+type LayoutProps = Readonly<{
+  children: ReactNode;
+}>;
+
+export default function RootLayout({
+  children,
+}: LayoutProps): ReactElement {
+  return (
+    <html lang="en" suppressHydrationWarning>
+      <body>
+        <Providers>{children}</Providers>
+      </body>
+    </html>
+  );
+}

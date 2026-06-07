@@ -1,0 +1,22 @@
+{
+  "name": "@repo/typescript-config",
+  "version": "0.0.0",
+  "private": true,
+  "exports": {
+    "./base.json": "./base.json",
+    "./nextjs.json": "./nextjs.json",
+    "./node-library.json": "./node-library.json",
+    "./react-library.json": "./react-library.json"
+  },
+  "files": [
+    "base.json",
+    "nextjs.json",
+    "node-library.json",
+    "react-library.json"
+  ],
+  "scripts": {
+    "lint": "biome check .",
+    "format": "biome format --write .",
+    "clean": "git clean -xdf .cache .turbo dist node_modules"
+  }
+}
