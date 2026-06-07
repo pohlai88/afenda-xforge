@@ -1,12 +1,12 @@
 import { ZodError } from "zod";
-import type { AppError } from "./core.js";
-import { isAppError } from "./core.js";
+import type { AppError } from "./core.ts";
+import { isAppError } from "./core.ts";
 import {
   ConflictError,
   InternalError,
   NotFoundError,
   ValidationError,
-} from "./http.js";
+} from "./http.ts";
 
 type DatabaseErrorLike = Error & {
   code?: string;

@@ -1,7 +1,15 @@
 import { createEnv } from "@t3-oss/env-nextjs";
 import { z } from "zod";
 
-export const keys = () =>
+export type ObservabilityKeys = Readonly<{
+  BETTERSTACK_API_KEY?: string;
+  BETTERSTACK_URL?: string;
+  NEXT_PUBLIC_SENTRY_DSN?: string;
+  SENTRY_ORG?: string;
+  SENTRY_PROJECT?: string;
+}>;
+
+export const keys = (): ObservabilityKeys =>
   createEnv({
     skipValidation: process.env.SKIP_ENV_VALIDATION === "true",
     server: {
@@ -21,8 +29,6 @@ export const keys = () =>
       NEXT_PUBLIC_SENTRY_DSN: process.env.NEXT_PUBLIC_SENTRY_DSN,
     },
   });
-
-export type ObservabilityKeys = ReturnType<typeof keys>;
 
 let cachedObservabilityKeys: ObservabilityKeys | null = null;
 

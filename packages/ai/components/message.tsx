@@ -1,5 +1,5 @@
 import type { UIMessage } from "ai";
-import type { ComponentProps } from "react";
+import type { ComponentProps, ReactElement } from "react";
 import { Streamdown } from "streamdown";
 import { twMerge } from "tailwind-merge";
 
@@ -9,7 +9,11 @@ export type MessageProps = {
   className?: string;
 };
 
-export const Message = ({ data, markdown, className }: MessageProps) => {
+export const Message = ({
+  data,
+  markdown,
+  className,
+}: MessageProps): ReactElement => {
   const content = data.parts
     .map((part) => (part.type === "text" ? part.text : ""))
     .join("");

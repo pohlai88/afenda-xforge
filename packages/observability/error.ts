@@ -7,7 +7,12 @@ export const parseError = (error: unknown): string => {
 
   try {
     captureException(error);
-    log.error(`Parsing error: ${message}`);
+    log.error(
+      {
+        error,
+      },
+      `Parsing error: ${message}`
+    );
   } catch (newError) {
     console.error("Error parsing error:", newError);
   }

@@ -5,20 +5,19 @@
   "type": "module",
   "exports": {
     ".": "./index.ts",
-    "./keys": "./keys.ts",
-    "./server": "./server.ts",
-    "./components/provider": "./components/provider.tsx",
-    "./components/trigger": "./components/trigger.tsx",
-    "./styles.css": "./styles.css",
+    "./shared/types": "./shared/types.ts",
+    "./supabase": "./supabase/index.ts",
+    "./supabase/client": "./supabase/client.ts",
+    "./supabase/inbox": "./supabase/inbox.ts",
+    "./supabase/keys": "./supabase/keys.ts",
+    "./supabase/server": "./supabase/server.ts",
+    "./supabase/topics": "./supabase/topics.ts",
     "./package.json": "./package.json"
   },
   "files": [
-    "components/provider.tsx",
-    "components/trigger.tsx",
     "index.ts",
-    "keys.ts",
-    "server.ts",
-    "styles.css",
+    "shared",
+    "supabase",
     "package.json"
   ],
   "scripts": {
@@ -28,18 +27,17 @@
     "format": "biome format --write ."
   },
   "dependencies": {
-    "@knocklabs/node": "catalog:",
-    "@knocklabs/react": "catalog:",
+    "@repo/database": "workspace:*",
+    "@supabase/ssr": "catalog:",
+    "@supabase/supabase-js": "catalog:",
     "@t3-oss/env-nextjs": "catalog:",
-    "react": "catalog:",
+    "drizzle-orm": "catalog:",
     "server-only": "catalog:",
     "zod": "catalog:"
   },
   "devDependencies": {
     "@repo/typescript-config": "workspace:*",
     "@types/node": "catalog:",
-    "@types/react": "catalog:",
-    "@types/react-dom": "catalog:",
     "typescript": "catalog:"
   }
 }

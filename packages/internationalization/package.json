@@ -1,0 +1,39 @@
+{
+  "name": "@repo/internationalization",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "exports": {
+    ".": "./index.ts",
+    "./dictionary": "./dictionary.ts",
+    "./formats": "./formats.ts",
+    "./locales": "./locales.ts",
+    "./request": "./request.ts",
+    "./search": "./search.ts",
+    "./package.json": "./package.json"
+  },
+  "files": [
+    "dictionaries",
+    "dictionary.ts",
+    "formats.ts",
+    "index.ts",
+    "locales.ts",
+    "package.json",
+    "request.ts",
+    "search.ts"
+  ],
+  "scripts": {
+    "lint": "biome check .",
+    "format": "biome format --write .",
+    "clean": "git clean -xdf .cache .turbo dist node_modules",
+    "typecheck": "tsc --noEmit --emitDeclarationOnly false"
+  },
+  "dependencies": {
+    "server-only": "catalog:"
+  },
+  "devDependencies": {
+    "@repo/typescript-config": "workspace:*",
+    "@types/node": "catalog:",
+    "typescript": "catalog:"
+  }
+}

@@ -10,7 +10,7 @@ import {
   init,
   replayIntegration,
 } from "@sentry/nextjs";
-import { loadObservabilityKeys } from "./keys.js";
+import { loadObservabilityKeys } from "./keys.ts";
 
 export const initializeSentry = (): ReturnType<typeof init> =>
   init({
@@ -29,4 +29,5 @@ export const initializeSentry = (): ReturnType<typeof init> =>
     ],
   });
 
-export const onRouterTransitionStart = captureRouterTransitionStart;
+export const onRouterTransitionStart: typeof captureRouterTransitionStart =
+  captureRouterTransitionStart;

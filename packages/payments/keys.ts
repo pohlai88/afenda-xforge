@@ -1,7 +1,12 @@
 import { createEnv } from "@t3-oss/env-nextjs";
 import { z } from "zod";
 
-export const keys = () =>
+export type PaymentKeys = Readonly<{
+  STRIPE_SECRET_KEY?: string;
+  STRIPE_WEBHOOK_SECRET?: string;
+}>;
+
+export const keys = (): PaymentKeys =>
   createEnv({
     skipValidation: process.env.SKIP_ENV_VALIDATION === "true",
     server: {

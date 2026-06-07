@@ -1,0 +1,38 @@
+{
+  "name": "@repo/jurisdictions-vn",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "exports": {
+    ".": "./index.ts",
+    "./types": "./types.ts",
+    "./utils": "./utils/index.ts",
+    "./tax": "./tax/index.ts",
+    "./insurance": "./insurance/index.ts",
+    "./banking": "./banking/index.ts",
+    "./einvoice": "./einvoice/index.ts",
+    "./package.json": "./package.json"
+  },
+  "files": [
+    "banking",
+    "einvoice",
+    "index.ts",
+    "insurance",
+    "tax",
+    "types.ts",
+    "utils",
+    "package.json"
+  ],
+  "scripts": {
+    "clean": "git clean -xdf .cache .turbo dist node_modules",
+    "typecheck": "tsc --noEmit --emitDeclarationOnly false",
+    "lint": "biome check .",
+    "format": "biome format --write ."
+  },
+  "dependencies": {},
+  "devDependencies": {
+    "@repo/typescript-config": "workspace:*",
+    "@types/node": "catalog:",
+    "typescript": "catalog:"
+  }
+}

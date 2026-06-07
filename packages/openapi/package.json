@@ -1,0 +1,35 @@
+{
+  "name": "@repo/openapi",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "exports": {
+    ".": "./index.ts",
+    "./nextjs": "./nextjs.ts",
+    "./spec": "./spec.ts",
+    "./ui": "./ui.ts",
+    "./package.json": "./package.json"
+  },
+  "files": [
+    "index.ts",
+    "nextjs.ts",
+    "spec.ts",
+    "ui.ts",
+    "package.json",
+    "README.md"
+  ],
+  "scripts": {
+    "lint": "biome check .",
+    "format": "biome format --write .",
+    "clean": "git clean -xdf .cache .turbo dist node_modules",
+    "typecheck": "tsc --noEmit --emitDeclarationOnly false"
+  },
+  "dependencies": {
+    "server-only": "catalog:"
+  },
+  "devDependencies": {
+    "@repo/typescript-config": "workspace:*",
+    "@types/node": "catalog:",
+    "typescript": "catalog:"
+  }
+}

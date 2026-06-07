@@ -1,0 +1,56 @@
+{
+  "name": "@repo/events",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "exports": {
+    ".": "./index.ts",
+    "./bootstrap": "./bootstrap.ts",
+    "./connection": "./connection.ts",
+    "./dlq": "./dlq.ts",
+    "./event-bus": "./event-bus.ts",
+    "./keys": "./keys.ts",
+    "./publisher": "./publisher.ts",
+    "./schemas": "./schemas.ts",
+    "./subscriber": "./subscriber.ts",
+    "./streams": "./streams.ts",
+    "./types": "./types.ts",
+    "./versioning": "./versioning.ts",
+    "./package.json": "./package.json"
+  },
+  "files": [
+    "bootstrap.ts",
+    "connection.ts",
+    "dlq.ts",
+    "event-bus.ts",
+    "index.ts",
+    "keys.ts",
+    "publisher.ts",
+    "schemas.ts",
+    "subscriber.ts",
+    "streams.ts",
+    "types.ts",
+    "versioning.ts",
+    "package.json"
+  ],
+  "scripts": {
+    "clean": "git clean -xdf .cache .turbo dist node_modules",
+    "typecheck": "tsc --noEmit --emitDeclarationOnly false",
+    "lint": "biome check .",
+    "format": "biome format --write ."
+  },
+  "dependencies": {
+    "@repo/shared": "workspace:*",
+    "@repo/errors": "workspace:*",
+    "@repo/logger": "workspace:*",
+    "@t3-oss/env-nextjs": "catalog:",
+    "nats": "catalog:",
+    "server-only": "catalog:",
+    "zod": "catalog:"
+  },
+  "devDependencies": {
+    "@repo/typescript-config": "workspace:*",
+    "@types/node": "catalog:",
+    "typescript": "catalog:"
+  }
+}

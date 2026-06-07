@@ -1,7 +1,7 @@
 import "server-only";
 
-import { client as databaseClient } from "@repo/database";
-import { getRedisClient, hasRedisConfig } from "@repo/redis";
+import { getConnection, hasEventsConfig } from "@repo/events";
+import { hasRedisConfig, pingRedis } from "@repo/redis";
 import type { HealthCheck, HealthCheckResult } from "./manager.js";
 
 export type MemoryCheckOptions = {
@@ -15,6 +15,11 @@ export type RedisCheckOptions = {
   timeoutMs?: number;
 };
 
+export type NatsCheckOptions = {
+  critical?: boolean;
+  timeoutMs?: number;
+};
+
 export const createDatabaseCheck = (
   options: { critical?: boolean; timeoutMs?: number } = {}
 ): HealthCheck => ({
@@ -22,7 +27,9 @@ export const createDatabaseCheck = (
   critical: options.critical ?? true,
   timeoutMs: options.timeoutMs ?? 3000,
   check: async (): Promise<HealthCheckResult> => {
-    await databaseClient`SELECT 1`;
+    const { pingDatabase } = await import("@repo/database");
+
+    await pingDatabase();
     return { healthy: true };
   },
 });
@@ -44,8 +51,12 @@ export const createRedisCheck = (
       };
     }
 
-    const redisClient = await getRedisClient();
-    const response = await redisClient.ping();
+    const response = await pingRedis({
+      metadata: {
+        check: "health",
+      },
+      resource: "health",
+    });
 
     return {
       healthy: response === "PONG",
@@ -55,6 +66,36 @@ export const createRedisCheck = (
       },
       message:
         response === "PONG" ? undefined : "Unexpected Redis ping response",
+    };
+  },
+});
+
+export const createNatsCheck = (
+  options: NatsCheckOptions = {}
+): HealthCheck => ({
+  name: "nats",
+  critical: options.critical ?? false,
+  timeoutMs: options.timeoutMs ?? 3000,
+  check: async (): Promise<HealthCheckResult> => {
+    if (!hasEventsConfig()) {
+      return {
+        healthy: true,
+        details: {
+          configured: false,
+        },
+        message: "NATS is not configured",
+      };
+    }
+
+    const connection = await getConnection();
+
+    return {
+      healthy: !connection.isClosed(),
+      details: {
+        configured: true,
+        server: connection.getServer(),
+      },
+      message: connection.isClosed() ? "NATS connection is closed" : undefined,
     };
   },
 });

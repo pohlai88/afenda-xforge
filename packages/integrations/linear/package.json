@@ -1,0 +1,36 @@
+{
+  "name": "@repo/integrations-linear",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "exports": {
+    ".": "./index.ts",
+    "./client": "./client.ts",
+    "./keys": "./keys.ts",
+    "./types": "./types.ts",
+    "./webhooks": "./webhooks.ts",
+    "./package.json": "./package.json"
+  },
+  "files": [
+    "client.ts",
+    "index.ts",
+    "keys.ts",
+    "types.ts",
+    "webhooks.ts",
+    "package.json"
+  ],
+  "scripts": {
+    "clean": "git clean -xdf .cache .turbo dist node_modules",
+    "typecheck": "tsc --noEmit --emitDeclarationOnly false",
+    "lint": "biome check .",
+    "format": "biome format --write ."
+  },
+  "dependencies": {
+    "server-only": "catalog:"
+  },
+  "devDependencies": {
+    "@repo/typescript-config": "workspace:*",
+    "@types/node": "catalog:",
+    "typescript": "catalog:"
+  }
+}

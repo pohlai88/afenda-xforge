@@ -1,3 +1,9 @@
-export { client, database } from "./db.js";
-export { keys, loadDatabaseKeys } from "./keys.js";
-export * from "./schema.js";
+export type { TimedDatabaseQueryOptions } from "./db.ts";
+export { client, database, pingDatabase, timeDatabaseQuery } from "./db.ts";
+export { keys, loadDatabaseKeys } from "./keys.ts";
+export * from "./schema.ts";
+export {
+  seedDatabase,
+  seedDomainFixtures,
+  seedFoundationDatabase,
+} from "./seed.ts";

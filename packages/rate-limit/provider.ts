@@ -1,6 +1,11 @@
 import { ConfigurationError } from "@repo/errors";
 import type { XForgeRedisClient } from "@repo/redis";
-import { getRedisClient, hasRedisConfig, loadRedisKeys } from "@repo/redis";
+import {
+  getRedisClient,
+  hasRedisConfig,
+  loadRedisKeys,
+  sendRedisCommand,
+} from "@repo/redis";
 import { loadRateLimitKeys } from "./keys.js";
 
 export type RateLimitProviderInput = {
@@ -20,12 +25,14 @@ export type RateLimitProviderResult = {
 
 export type RateLimitProvider = {
   consume: (input: RateLimitProviderInput) => Promise<RateLimitProviderResult>;
+  get: (input: RateLimitProviderInput) => Promise<RateLimitProviderResult>;
+  reset: (input: RateLimitProviderInput) => Promise<void>;
 };
 
 const createMemoryStorageKey = (input: RateLimitProviderInput): string =>
   [input.namespace, input.limit, input.windowSeconds, input.key].join(":");
 
-const RATE_LIMIT_SCRIPT = `
+const RATE_LIMIT_CONSUME_SCRIPT = `
 local key = KEYS[1]
 local limit = tonumber(ARGV[1])
 local window_ms = tonumber(ARGV[2])
@@ -51,6 +58,45 @@ end
 return { current, remaining, ttl }
 `;
 
+const RATE_LIMIT_GET_SCRIPT = `
+local key = KEYS[1]
+local current = redis.call("GET", key)
+local ttl = redis.call("PTTL", key)
+
+if not current then
+  current = 0
+else
+  current = tonumber(current)
+end
+
+return { current, ttl }
+`;
+
+const toRateLimitResult = (
+  input: RateLimitProviderInput,
+  current: number,
+  ttlMs: number,
+  consumed: boolean
+): RateLimitProviderResult => {
+  const boundedCurrent = Number.isFinite(current) ? Math.max(0, current) : 0;
+  const remaining = Math.max(0, input.limit - boundedCurrent);
+  const resolvedTtlMs = ttlMs >= 0 ? ttlMs : input.windowSeconds * 1000;
+  const success = consumed
+    ? boundedCurrent <= input.limit
+    : boundedCurrent < input.limit;
+
+  return {
+    success,
+    limit: input.limit,
+    remaining,
+    resetAt: new Date(Date.now() + resolvedTtlMs),
+    retryAfterSeconds:
+      success || remaining > 0
+        ? 0
+        : Math.max(0, Math.ceil(resolvedTtlMs / 1000)),
+  };
+};
+
 export const createNoopRateLimitProvider = (): RateLimitProvider => ({
   consume: async (
     input: RateLimitProviderInput
@@ -61,10 +107,41 @@ export const createNoopRateLimitProvider = (): RateLimitProvider => ({
     resetAt: new Date(Date.now() + input.windowSeconds * 1000),
     retryAfterSeconds: 0,
   }),
+  get: async (
+    input: RateLimitProviderInput
+  ): Promise<RateLimitProviderResult> => ({
+    success: true,
+    limit: input.limit,
+    remaining: input.limit,
+    resetAt: new Date(Date.now() + input.windowSeconds * 1000),
+    retryAfterSeconds: 0,
+  }),
+  reset: (): Promise<void> => Promise.resolve(),
 });
 
 export const createMemoryRateLimitProvider = (): RateLimitProvider => {
   const windows = new Map<string, { count: number; resetAt: number }>();
+
+  const read = (
+    input: RateLimitProviderInput,
+    consumed: boolean
+  ): RateLimitProviderResult => {
+    const storageKey = createMemoryStorageKey(input);
+    const now = Date.now();
+    const current = windows.get(storageKey);
+
+    if (!current || current.resetAt <= now) {
+      windows.delete(storageKey);
+      return toRateLimitResult(input, 0, input.windowSeconds * 1000, consumed);
+    }
+
+    return toRateLimitResult(
+      input,
+      current.count,
+      current.resetAt - now,
+      consumed
+    );
+  };
 
   return {
     consume: (
@@ -109,6 +186,12 @@ export const createMemoryRateLimitProvider = (): RateLimitProvider => {
         resetAt: new Date(current.resetAt),
         retryAfterSeconds: 0,
       });
+    },
+    get: (input: RateLimitProviderInput): Promise<RateLimitProviderResult> =>
+      Promise.resolve(read(input, false)),
+    reset: (input: RateLimitProviderInput): Promise<void> => {
+      windows.delete(createMemoryStorageKey(input));
+      return Promise.resolve();
     },
   };
 };
@@ -159,14 +242,27 @@ export const createRedisRateLimitProvider = (
       input: RateLimitProviderInput
     ): Promise<RateLimitProviderResult> => {
       const client = options.client ?? (await getRedisClient());
-      const result = await client.sendCommand([
-        "EVAL",
-        RATE_LIMIT_SCRIPT,
-        "1",
-        createRedisRateLimitStorageKey(input, prefix),
-        String(input.limit),
-        String(input.windowSeconds * 1000),
-      ]);
+      const result = await sendRedisCommand(
+        [
+          "EVAL",
+          RATE_LIMIT_CONSUME_SCRIPT,
+          "1",
+          createRedisRateLimitStorageKey(input, prefix),
+          String(input.limit),
+          String(input.windowSeconds * 1000),
+        ],
+        {
+          client,
+          logLevel: "debug",
+          metadata: {
+            limit: input.limit,
+            namespace: input.namespace,
+            windowSeconds: input.windowSeconds,
+          },
+          operation: "rate-limit consume",
+          resource: "rate-limit",
+        }
+      );
 
       if (!Array.isArray(result) || result.length < 3) {
         throw new ConfigurationError(
@@ -177,15 +273,67 @@ export const createRedisRateLimitProvider = (
       const current = parseScriptNumber(result[0], "current");
       const remaining = parseScriptNumber(result[1], "remaining");
       const ttlMs = parseScriptNumber(result[2], "ttl");
-      const resetAt = new Date(Date.now() + ttlMs);
 
       return {
         success: current <= input.limit,
         limit: input.limit,
         remaining,
-        resetAt,
+        resetAt: new Date(Date.now() + ttlMs),
         retryAfterSeconds: Math.max(0, Math.ceil(ttlMs / 1000)),
       };
+    },
+    get: async (
+      input: RateLimitProviderInput
+    ): Promise<RateLimitProviderResult> => {
+      const client = options.client ?? (await getRedisClient());
+      const result = await sendRedisCommand(
+        [
+          "EVAL",
+          RATE_LIMIT_GET_SCRIPT,
+          "1",
+          createRedisRateLimitStorageKey(input, prefix),
+        ],
+        {
+          client,
+          logLevel: "debug",
+          metadata: {
+            limit: input.limit,
+            namespace: input.namespace,
+            windowSeconds: input.windowSeconds,
+          },
+          operation: "rate-limit get",
+          resource: "rate-limit",
+        }
+      );
+
+      if (!Array.isArray(result) || result.length < 2) {
+        throw new ConfigurationError(
+          "Redis rate-limit script returned an unexpected response shape"
+        );
+      }
+
+      const current = parseScriptNumber(result[0], "current");
+      const ttlMs = parseScriptNumber(result[1], "ttl");
+
+      return toRateLimitResult(input, current, ttlMs, false);
+    },
+    reset: async (input: RateLimitProviderInput): Promise<void> => {
+      const client = options.client ?? (await getRedisClient());
+
+      await sendRedisCommand(
+        ["DEL", createRedisRateLimitStorageKey(input, prefix)],
+        {
+          client,
+          logLevel: "debug",
+          metadata: {
+            limit: input.limit,
+            namespace: input.namespace,
+            windowSeconds: input.windowSeconds,
+          },
+          operation: "rate-limit reset",
+          resource: "rate-limit",
+        }
+      );
     },
   };
 };

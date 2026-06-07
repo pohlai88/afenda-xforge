@@ -2,6 +2,7 @@ import type { InferInsertModel, InferSelectModel } from "drizzle-orm";
 import { relations } from "drizzle-orm";
 import {
   index,
+  jsonb,
   pgSchema,
   text,
   timestamp,
@@ -59,6 +60,37 @@ export const companies = xforge.table(
   (table) => [
     index("companies_tenant_id_idx").on(table.tenantId),
     uniqueIndex("companies_tenant_code_unique").on(table.tenantId, table.code),
+  ]
+);
+
+export const customers = xforge.table(
+  "customers",
+  {
+    id: uuid("id").defaultRandom().primaryKey(),
+    tenantId: uuid("tenant_id")
+      .notNull()
+      .references(() => tenants.id, { onDelete: "cascade" }),
+    code: varchar("code", { length: 32 }).notNull(),
+    email: text("email"),
+    name: text("name").notNull(),
+    status: varchar("status", { length: 16 }).notNull().default("active"),
+    createdAt: timestamp("created_at", {
+      mode: "date",
+      withTimezone: true,
+    })
+      .defaultNow()
+      .notNull(),
+    updatedAt: timestamp("updated_at", {
+      mode: "date",
+      withTimezone: true,
+    })
+      .defaultNow()
+      .notNull(),
+  },
+  (table) => [
+    index("customers_tenant_id_idx").on(table.tenantId),
+    index("customers_tenant_status_idx").on(table.tenantId, table.status),
+    uniqueIndex("customers_tenant_code_unique").on(table.tenantId, table.code),
   ]
 );
 
@@ -130,8 +162,114 @@ export const companyGrants = xforge.table(
   ]
 );
 
+export const notificationInbox = xforge.table(
+  "notification_inbox",
+  {
+    id: uuid("id").defaultRandom().primaryKey(),
+    notificationId: uuid("notification_id").notNull(),
+    tenantId: uuid("tenant_id")
+      .notNull()
+      .references(() => tenants.id, { onDelete: "cascade" }),
+    companyId: uuid("company_id").references(() => companies.id, {
+      onDelete: "set null",
+    }),
+    userId: text("user_id").notNull(),
+    event: varchar("event", { length: 128 }).notNull(),
+    topic: text("topic").notNull(),
+    payload: jsonb("payload").$type<Record<string, unknown>>().notNull(),
+    dispatchedAt: timestamp("dispatched_at", {
+      mode: "date",
+      withTimezone: true,
+    })
+      .defaultNow()
+      .notNull(),
+    seenAt: timestamp("seen_at", {
+      mode: "date",
+      withTimezone: true,
+    }),
+    readAt: timestamp("read_at", {
+      mode: "date",
+      withTimezone: true,
+    }),
+    archivedAt: timestamp("archived_at", {
+      mode: "date",
+      withTimezone: true,
+    }),
+    createdAt: timestamp("created_at", {
+      mode: "date",
+      withTimezone: true,
+    })
+      .defaultNow()
+      .notNull(),
+    updatedAt: timestamp("updated_at", {
+      mode: "date",
+      withTimezone: true,
+    })
+      .defaultNow()
+      .notNull(),
+  },
+  (table) => [
+    index("notification_inbox_notification_id_idx").on(table.notificationId),
+    index("notification_inbox_tenant_user_dispatched_idx").on(
+      table.tenantId,
+      table.userId,
+      table.dispatchedAt
+    ),
+    index("notification_inbox_tenant_company_user_dispatched_idx").on(
+      table.tenantId,
+      table.companyId,
+      table.userId,
+      table.dispatchedAt
+    ),
+  ]
+);
+
+export const auditEvents = xforge.table(
+  "audit_events",
+  {
+    id: uuid("id").defaultRandom().primaryKey(),
+    tenantId: uuid("tenant_id")
+      .notNull()
+      .references(() => tenants.id, { onDelete: "cascade" }),
+    companyId: uuid("company_id").references(() => companies.id, {
+      onDelete: "set null",
+    }),
+    grantId: uuid("grant_id").references(() => companyGrants.id, {
+      onDelete: "set null",
+    }),
+    actorId: text("actor_id").notNull(),
+    action: varchar("action", { length: 128 }).notNull(),
+    targetType: varchar("target_type", { length: 128 }).notNull(),
+    targetId: text("target_id").notNull(),
+    before: jsonb("before").$type<Record<string, unknown>>().notNull(),
+    after: jsonb("after").$type<Record<string, unknown>>().notNull(),
+    reason: text("reason").notNull(),
+    requestId: varchar("request_id", { length: 128 }).notNull(),
+    metadata: jsonb("metadata").$type<Record<string, unknown> | null>(),
+    createdAt: timestamp("created_at", {
+      mode: "date",
+      withTimezone: true,
+    })
+      .defaultNow()
+      .notNull(),
+  },
+  (table) => [
+    index("audit_events_tenant_created_idx").on(
+      table.tenantId,
+      table.createdAt
+    ),
+    index("audit_events_company_created_idx").on(
+      table.companyId,
+      table.createdAt
+    ),
+    index("audit_events_target_idx").on(table.targetType, table.targetId),
+    index("audit_events_request_id_idx").on(table.requestId),
+  ]
+);
+
 export const tenantsRelations = relations(tenants, ({ many }) => ({
   companies: many(companies),
+  customers: many(customers),
   memberships: many(tenantMemberships),
 }));
 
@@ -141,6 +279,13 @@ export const companiesRelations = relations(companies, ({ one, many }) => ({
     references: [tenants.id],
   }),
   grants: many(companyGrants),
+}));
+
+export const customersRelations = relations(customers, ({ one }) => ({
+  tenant: one(tenants, {
+    fields: [customers.tenantId],
+    references: [tenants.id],
+  }),
 }));
 
 export const tenantMembershipsRelations = relations(
@@ -164,11 +309,48 @@ export const companyGrantsRelations = relations(companyGrants, ({ one }) => ({
   }),
 }));
 
+export const notificationInboxRelations = relations(
+  notificationInbox,
+  ({ one }) => ({
+    tenant: one(tenants, {
+      fields: [notificationInbox.tenantId],
+      references: [tenants.id],
+    }),
+    company: one(companies, {
+      fields: [notificationInbox.companyId],
+      references: [companies.id],
+    }),
+  })
+);
+
+export const auditEventsRelations = relations(auditEvents, ({ one }) => ({
+  tenant: one(tenants, {
+    fields: [auditEvents.tenantId],
+    references: [tenants.id],
+  }),
+  company: one(companies, {
+    fields: [auditEvents.companyId],
+    references: [companies.id],
+  }),
+  grant: one(companyGrants, {
+    fields: [auditEvents.grantId],
+    references: [companyGrants.id],
+  }),
+}));
+
 export type Tenant = InferSelectModel<typeof tenants>;
 export type NewTenant = InferInsertModel<typeof tenants>;
 export type Company = InferSelectModel<typeof companies>;
 export type NewCompany = InferInsertModel<typeof companies>;
+export type Customer = InferSelectModel<typeof customers>;
+export type NewCustomer = InferInsertModel<typeof customers>;
 export type TenantMembership = InferSelectModel<typeof tenantMemberships>;
 export type NewTenantMembership = InferInsertModel<typeof tenantMemberships>;
 export type CompanyGrant = InferSelectModel<typeof companyGrants>;
 export type NewCompanyGrant = InferInsertModel<typeof companyGrants>;
+export type NotificationInboxEntry = InferSelectModel<typeof notificationInbox>;
+export type NewNotificationInboxEntry = InferInsertModel<
+  typeof notificationInbox
+>;
+export type AuditEvent = InferSelectModel<typeof auditEvents>;
+export type NewAuditEvent = InferInsertModel<typeof auditEvents>;

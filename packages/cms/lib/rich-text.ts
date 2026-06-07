@@ -1,4 +1,5 @@
 import type { SerializedEditorState } from "@payloadcms/richtext-lexical/lexical";
+import { slugify } from "@repo/shared";
 import type { CmsRichText, TocItem } from "../types.js";
 
 type RichTextNode = {
@@ -44,13 +45,6 @@ export const resolveRichTextData = (
 
   return null;
 };
-
-const slugify = (value: string): string =>
-  value
-    .toLowerCase()
-    .trim()
-    .replace(/[^a-z0-9]+/g, "-")
-    .replace(/^-+|-+$/g, "");
 
 const collectText = (nodes: RichTextNode[] | undefined): string => {
   if (!nodes) {

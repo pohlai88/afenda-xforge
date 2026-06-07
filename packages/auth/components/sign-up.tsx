@@ -10,8 +10,9 @@ import type {
   ReactElement,
   ReactNode,
 } from "react";
-import { useMemo, useState } from "react";
+import { useState } from "react";
 import { useAuthClient } from "../provider.js";
+import { buildAuthCallbackPath } from "../routes.js";
 
 type FieldProps = Omit<
   InputHTMLAttributes<HTMLInputElement>,
@@ -38,7 +39,10 @@ const buildRedirectUrl = (redirectTo: string): string => {
     return redirectTo;
   }
 
-  return new URL(redirectTo, window.location.origin).toString();
+  return new URL(
+    buildAuthCallbackPath(redirectTo),
+    window.location.origin
+  ).toString();
 };
 
 const signUp = async (
@@ -84,11 +88,7 @@ export const SignUp = ({
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const [confirmation, setConfirmation] = useState<string | null>(null);
-
-  const submitLabel = useMemo(
-    () => submitProps?.children ?? "Sign up",
-    [submitProps?.children]
-  );
+  const submitLabel = submitProps?.children ?? "Sign up";
 
   const handleSubmit = async (
     event: FormEvent<HTMLFormElement>

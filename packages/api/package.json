@@ -1,0 +1,42 @@
+{
+  "name": "@repo/api",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "exports": {
+    ".": "./index.ts",
+    "./contract": "./contract.ts",
+    "./openapi": "./openapi.ts",
+    "./response": "./response.ts",
+    "./route": "./route.ts",
+    "./package.json": "./package.json"
+  },
+  "files": [
+    "contract.ts",
+    "index.ts",
+    "openapi.ts",
+    "response.ts",
+    "route.ts",
+    "package.json",
+    "README.md"
+  ],
+  "scripts": {
+    "lint": "biome check .",
+    "format": "biome format --write .",
+    "clean": "git clean -xdf .cache .turbo dist node_modules",
+    "typecheck": "tsc --noEmit --emitDeclarationOnly false"
+  },
+  "dependencies": {
+    "@repo/errors": "workspace:*",
+    "@repo/logger": "workspace:*",
+    "@repo/metrics": "workspace:*",
+    "@repo/openapi": "workspace:*",
+    "server-only": "catalog:",
+    "zod": "catalog:"
+  },
+  "devDependencies": {
+    "@repo/typescript-config": "workspace:*",
+    "@types/node": "catalog:",
+    "typescript": "catalog:"
+  }
+}

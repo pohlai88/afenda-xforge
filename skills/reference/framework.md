@@ -46,7 +46,8 @@ The following next-forge assumptions should not be copied as-is:
 - Auth0 as the default auth provider
 - Prisma as the default ORM
 - Bun as the default workspace manager
-- Stripe, CMS, collaboration, notifications, AI, and feature flags as foundation packages
+- Stripe, CMS, collaboration, AI, and feature flags as foundation packages
+- vendor-owned notification feeds as foundation packages
 - direct reliance on SaaS integration packages that do not serve the ERP baseline
 - architecture that treats company access as optional or implicit
 
@@ -87,6 +88,9 @@ Keep the packages that support the ERP but do not own business rules:
 ```txt
 packages/cache
 packages/events
+packages/health
+packages/integrations/*
+packages/jurisdictions/*
 packages/search
 packages/observability
 packages/security

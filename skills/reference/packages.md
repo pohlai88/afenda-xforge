@@ -45,7 +45,7 @@ packages/ui
 Responsibilities:
 
 - `packages/database` owns the database client, schema, migrations, and table ownership.
-- `packages/auth` owns identity, sessions, tenant resolution, and active company resolution.
+- `packages/auth` owns identity, sessions, hostname and subdomain tenant resolution, and active company resolution.
 - `packages/execution` owns the canonical mutation lifecycle.
 - `packages/permissions` owns server-side permission contracts and checks.
 - `packages/audit` owns audit event shape and persistence.
@@ -61,10 +61,15 @@ These packages support the ERP, but they are not business modules:
 ```txt
 packages/cache
 packages/events
+packages/health
+packages/jurisdictions/*
+packages/metrics
+packages/notifications
 packages/search
 packages/observability
 packages/security
 packages/storage
+packages/integrations/*
 packages/cms
 packages/collaboration
 packages/email
@@ -78,6 +83,13 @@ Rules:
 - They must not make business decisions.
 - They must not become source-of-truth stores.
 - They must not bypass auth, permissions, tenant scope, company grants, or audit.
+- `packages/health` owns dependency checks, liveness/readiness/startup contracts, and health report composition.
+- `packages/integrations/*` is the vendor-adapter family for systems such as Linear or Workday.
+- `packages/jurisdictions/*` is the country-policy family for legal/compliance rules, reference catalogs, and pure calculators such as Vietnam tax or insurance formulas.
+- Integration packages may own provider clients, auth flows, webhook verification, retries, and mapping helpers.
+- Jurisdiction packages may own validation schemas, constants, and formatting helpers, but they must not own workflow, persistence, or direct provider transport.
+- Integration packages must not own XForge business workflow decisions or direct database mutation authority.
+- Tenant and company context used by integration entrypoints must still come from trusted server-side resolution, not from vendor payload assumptions.
 
 ### 3. Feature packages
 
@@ -192,6 +204,7 @@ feature package -> permissions
 feature package -> database
 feature package -> metadata
 feature package -> metadata-ui
+feature package -> jurisdictions/*
 feature package -> shared
 feature package -> ui
 execution -> auth
@@ -224,6 +237,7 @@ Feature packages must not cross-import other feature packages directly.
 If HR, inventory, finance, or another feature needs shared master-data, it must use one of these paths:
 
 - a narrow value object or contract moved into `packages/shared`
+- a country-specific rule or reference package under `packages/jurisdictions/*`
 - a read model exposed by `packages/search` after the owning feature indexes it
 - an approved server entrypoint called from `apps/app` or orchestration code
 
@@ -308,7 +322,9 @@ Safe customization points include:
 - swapping database providers behind `packages/database`
 - swapping auth providers behind `packages/auth`
 - swapping search providers behind `packages/search`
+- swapping country policy implementations behind `packages/jurisdictions/*`
 - swapping cache providers behind `packages/cache`
+- swapping notification delivery behind `packages/notifications`
 - swapping observability backends behind `packages/observability`
 - swapping storage, CMS, email, analytics, or SEO integrations at their package boundary
 

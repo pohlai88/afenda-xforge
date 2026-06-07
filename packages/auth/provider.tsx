@@ -1,8 +1,21 @@
 "use client";
 
-import type { SupabaseClient } from "@supabase/supabase-js";
+import type {
+  AuthChangeEvent,
+  Session,
+  SupabaseClient,
+} from "@supabase/supabase-js";
+import { useRouter } from "next/navigation";
 import type { ReactNode } from "react";
-import { createContext, useContext, useMemo } from "react";
+import {
+  createContext,
+  startTransition,
+  useContext,
+  useEffect,
+  useEffectEvent,
+  useRef,
+  useState,
+} from "react";
 import { createBrowserSupabaseClient } from "./client.js";
 
 type AuthClientContextValue = {
@@ -16,7 +29,7 @@ export type AuthProviderProps = {
 };
 
 export const AuthProvider = ({ children }: AuthProviderProps): ReactNode => {
-  const client = useMemo(() => createBrowserSupabaseClient(), []);
+  const [client] = useState(() => createBrowserSupabaseClient());
 
   if (!client) {
     return children;
@@ -24,9 +37,51 @@ export const AuthProvider = ({ children }: AuthProviderProps): ReactNode => {
 
   return (
     <AuthClientContext.Provider value={{ client }}>
+      <AuthStateSync client={client} />
       {children}
     </AuthClientContext.Provider>
   );
+};
+
+const AuthStateSync = ({ client }: AuthClientContextValue): ReactNode => {
+  const router = useRouter();
+  const lastAccessTokenRef = useRef<string | null>(null);
+  const handleAuthStateChange = useEffectEvent(
+    (event: AuthChangeEvent, session: Session | null): void => {
+      const nextAccessToken = session?.access_token ?? null;
+
+      if (event === "INITIAL_SESSION") {
+        lastAccessTokenRef.current = nextAccessToken;
+        return;
+      }
+
+      if (
+        event !== "SIGNED_OUT" &&
+        lastAccessTokenRef.current === nextAccessToken
+      ) {
+        return;
+      }
+
+      lastAccessTokenRef.current = nextAccessToken;
+      startTransition(() => {
+        router.refresh();
+      });
+    }
+  );
+
+  useEffect(() => {
+    const {
+      data: { subscription },
+    } = client.auth.onAuthStateChange((event, session) => {
+      handleAuthStateChange(event, session);
+    });
+
+    return () => {
+      subscription.unsubscribe();
+    };
+  }, [client]);
+
+  return null;
 };
 
 export const useAuthClient = (): SupabaseClient => {

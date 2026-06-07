@@ -1,0 +1,40 @@
+{
+  "name": "@repo/ui",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "exports": {
+    ".": "./index.tsx",
+    "./components/activity-table": "./components/activity-table.tsx",
+    "./components/dashboard-grid": "./components/dashboard-grid.tsx",
+    "./components/kpi-card": "./components/kpi-card.tsx",
+    "./components/mode-toggle": "./components/mode-toggle.tsx",
+    "./components/module-status-grid": "./components/module-status-grid.tsx",
+    "./components/status-badge": "./components/status-badge.tsx",
+    "./package.json": "./package.json"
+  },
+  "files": [
+    "components",
+    "index.tsx",
+    "package.json"
+  ],
+  "scripts": {
+    "lint": "biome check .",
+    "format": "biome format --write .",
+    "clean": "git clean -xdf .cache .turbo dist node_modules",
+    "typecheck": "tsc --noEmit --emitDeclarationOnly false"
+  },
+  "dependencies": {
+    "@repo/design-system": "workspace:*",
+    "@repo/metadata": "workspace:*",
+    "lucide-react": "catalog:",
+    "react": "catalog:"
+  },
+  "devDependencies": {
+    "@repo/typescript-config": "workspace:*",
+    "@types/node": "catalog:",
+    "@types/react": "catalog:",
+    "@types/react-dom": "catalog:",
+    "typescript": "catalog:"
+  }
+}

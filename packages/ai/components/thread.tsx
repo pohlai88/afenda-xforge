@@ -1,4 +1,4 @@
-import type { HTMLAttributes } from "react";
+import type { HTMLAttributes, ReactElement } from "react";
 import { twMerge } from "tailwind-merge";
 
 export type ThreadProps = HTMLAttributes<HTMLDivElement> & {
@@ -10,7 +10,7 @@ export const Thread = ({
   className,
   ariaLabel = "Conversation thread",
   ...props
-}: ThreadProps) => (
+}: ThreadProps): ReactElement => (
   <div
     aria-label={ariaLabel}
     aria-live="polite"

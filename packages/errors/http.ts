@@ -1,6 +1,6 @@
 import type { ZodError } from "zod";
-import type { AppErrorOptions } from "./core.js";
-import { AppError } from "./core.js";
+import type { AppErrorOptions } from "./core.ts";
+import { AppError } from "./core.ts";
 
 export class NotFoundError extends AppError {
   readonly code = "NOT_FOUND";

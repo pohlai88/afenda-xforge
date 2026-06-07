@@ -5,14 +5,22 @@
   "type": "module",
   "exports": {
     ".": "./index.ts",
-    "./client": "./client.ts",
-    "./keys": "./keys.ts",
+    "./blob": "./blob/index.ts",
+    "./blob/client": "./blob/client.ts",
+    "./r2": "./r2/index.ts",
+    "./r2/keys": "./r2/keys.ts",
+    "./types": "./types.ts",
+    "./supabase": "./supabase/index.ts",
+    "./supabase/keys": "./supabase/keys.ts",
     "./package.json": "./package.json"
   },
   "files": [
-    "client.ts",
+    ".env.example",
+    "blob",
     "index.ts",
-    "keys.ts",
+    "r2",
+    "supabase",
+    "types.ts",
     "package.json"
   ],
   "scripts": {
@@ -22,8 +30,10 @@
     "format": "biome format --write ."
   },
   "dependencies": {
+    "@aws-sdk/client-s3": "catalog:",
     "@t3-oss/env-nextjs": "catalog:",
     "@vercel/blob": "catalog:",
+    "@supabase/supabase-js": "catalog:",
     "zod": "catalog:"
   },
   "devDependencies": {

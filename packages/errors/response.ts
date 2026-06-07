@@ -1,6 +1,6 @@
-import type { AppError } from "./core.js";
-import { RateLimitError } from "./http.js";
-import { normalizeError } from "./normalize.js";
+import type { AppError } from "./core.ts";
+import { RateLimitError } from "./http.ts";
+import { normalizeError } from "./normalize.ts";
 
 type ResponseHeaders = Headers | [string, string][] | Record<string, string>;
 

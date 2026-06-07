@@ -1,12 +1,13 @@
 import "server-only";
 
+import type { ReactElement } from "react";
 import { loadObservabilityKeys } from "../keys.js";
 import type { BetterStackResponse } from "./types.js";
 
 const { BETTERSTACK_API_KEY: apiKey, BETTERSTACK_URL: url } =
   loadObservabilityKeys();
 
-export const Status = async () => {
+export const Status = async (): Promise<ReactElement | null> => {
   if (!(apiKey && url)) {
     return null;
   }

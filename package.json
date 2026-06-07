@@ -7,22 +7,27 @@
     "node": ">=20"
   },
   "scripts": {
+    "setup": "node scripts/setup.mjs",
     "dev": "turbo dev",
     "build": "turbo build",
     "test": "turbo test",
     "typecheck": "turbo typecheck",
+    "ci": "turbo build lint typecheck --affected && pnpm --filter @repo/generators build",
+    "ci:full": "pnpm lint && pnpm typecheck && pnpm test && pnpm build && pnpm --filter @repo/generators build",
     "gen": "turbo gen package",
     "gen:app": "turbo gen app",
     "gen:feature": "turbo gen feature",
-    "lint": "pnpm lint:doctor && pnpm lint:biome && pnpm lint:architecture",
+    "lint": "pnpm lint:doctor && pnpm lint:biome && pnpm lint:architecture && pnpm lint:ui-boundaries",
     "lint:architecture": "node tools/check-architecture-boundaries.mjs",
+    "lint:ui-boundaries": "node tools/check-ui-package-boundaries.mjs",
     "lint:biome": "biome check .",
     "lint:biome:ci": "biome ci .",
     "lint:doctor": "ultracite doctor",
     "lint:fix": "biome check --write .",
     "format": "biome format --write .",
     "check": "pnpm lint && pnpm typecheck && pnpm test",
-    "clean": "turbo clean"
+    "clean": "turbo clean",
+    "clean:hard": "node scripts/clean.mjs"
   },
   "devDependencies": {
     "@biomejs/biome": "catalog:",

@@ -38,20 +38,25 @@ const createDefaultPolicy = (
   });
 };
 
-export const assessRateLimitRequest = async (
+const resolveAssessment = async (
   request: Request,
-  options: RateLimitMiddlewareOptions = {}
+  options: RateLimitMiddlewareOptions,
+  mode: "consume" | "inspect"
 ): Promise<RateLimitAssessment> => {
   const provider = options.provider ?? createConfiguredRateLimitProvider();
   const policy = createDefaultPolicy(options.policy);
   const context = createRateLimitContextFromRequest(request, options.context);
   const key = resolveRateLimitKey(policy, context);
-  const result = await provider.consume({
+  const input = {
     key,
     namespace: policy.namespace,
     limit: policy.limit,
     windowSeconds: policy.windowSeconds,
-  });
+  };
+  const result =
+    mode === "inspect"
+      ? await provider.get(input)
+      : await provider.consume(input);
 
   const decision: RateLimitDecision = {
     key,
@@ -79,6 +84,35 @@ export const assessRateLimitRequest = async (
   }
 
   return assessment;
+};
+
+export const assessRateLimitRequest = async (
+  request: Request,
+  options: RateLimitMiddlewareOptions = {}
+): Promise<RateLimitAssessment> =>
+  resolveAssessment(request, options, "consume");
+
+export const inspectRateLimitRequest = async (
+  request: Request,
+  options: RateLimitMiddlewareOptions = {}
+): Promise<RateLimitAssessment> =>
+  resolveAssessment(request, options, "inspect");
+
+export const resetRateLimitRequest = async (
+  request: Request,
+  options: RateLimitMiddlewareOptions = {}
+): Promise<void> => {
+  const provider = options.provider ?? createConfiguredRateLimitProvider();
+  const policy = createDefaultPolicy(options.policy);
+  const context = createRateLimitContextFromRequest(request, options.context);
+  const key = resolveRateLimitKey(policy, context);
+
+  await provider.reset({
+    key,
+    namespace: policy.namespace,
+    limit: policy.limit,
+    windowSeconds: policy.windowSeconds,
+  });
 };
 
 export const createRateLimitMiddleware =

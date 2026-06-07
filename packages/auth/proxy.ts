@@ -10,14 +10,22 @@ type SupabaseCookieToSet = {
   value: string;
 };
 
+export type AuthProxyResult = {
+  isAuthenticated: boolean;
+  response: NextResponse;
+};
+
 export const updateSession = async (
   request: NextRequest
-): Promise<NextResponse> => {
+): Promise<AuthProxyResult> => {
   const { NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY, NEXT_PUBLIC_SUPABASE_URL } =
     loadAuthKeys();
 
   if (!(NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY && NEXT_PUBLIC_SUPABASE_URL)) {
-    return NextResponse.next({ request });
+    return {
+      isAuthenticated: false,
+      response: NextResponse.next({ request }),
+    };
   }
 
   let supabaseResponse = NextResponse.next({
@@ -56,9 +64,13 @@ export const updateSession = async (
     }
   );
 
-  await supabase.auth.getUser();
+  // Keep the auth refresh path contiguous so SSR cookies stay in sync.
+  const { data } = await supabase.auth.getClaims();
 
-  return supabaseResponse;
+  return {
+    isAuthenticated: Boolean(data?.claims?.sub),
+    response: supabaseResponse,
+  };
 };
 
 export const authMiddleware: typeof updateSession = updateSession;

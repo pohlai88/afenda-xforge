@@ -5,6 +5,7 @@ export type SecurityKeys = {
   readonly SECURITY_ENABLE_STRICT_HEADERS?: boolean;
   readonly SECURITY_ENABLE_BOT_PROTECTION?: boolean;
   readonly SECURITY_ALLOW_UNSAFE_METHODS?: boolean;
+  readonly SECURITY_ALLOWED_ORIGINS?: string;
   readonly SECURITY_CONTENT_SECURITY_POLICY?: string;
   readonly SECURITY_CONTENT_SECURITY_POLICY_REPORT_ONLY?: string;
   readonly SECURITY_BLOCKED_PATH_PREFIXES?: string;
@@ -25,6 +26,7 @@ export const keys = (): SecurityKeys =>
       SECURITY_ENABLE_STRICT_HEADERS: z.coerce.boolean().optional(),
       SECURITY_ENABLE_BOT_PROTECTION: z.coerce.boolean().optional(),
       SECURITY_ALLOW_UNSAFE_METHODS: z.coerce.boolean().optional(),
+      SECURITY_ALLOWED_ORIGINS: z.string().optional(),
       SECURITY_CONTENT_SECURITY_POLICY: z.string().optional(),
       SECURITY_CONTENT_SECURITY_POLICY_REPORT_ONLY: z.string().optional(),
       SECURITY_BLOCKED_PATH_PREFIXES: z.string().optional(),
@@ -46,6 +48,7 @@ export const keys = (): SecurityKeys =>
       SECURITY_ENABLE_BOT_PROTECTION:
         process.env.SECURITY_ENABLE_BOT_PROTECTION,
       SECURITY_ALLOW_UNSAFE_METHODS: process.env.SECURITY_ALLOW_UNSAFE_METHODS,
+      SECURITY_ALLOWED_ORIGINS: process.env.SECURITY_ALLOWED_ORIGINS,
       SECURITY_CONTENT_SECURITY_POLICY:
         process.env.SECURITY_CONTENT_SECURITY_POLICY,
       SECURITY_CONTENT_SECURITY_POLICY_REPORT_ONLY:
@@ -57,3 +60,8 @@ export const keys = (): SecurityKeys =>
       SECURITY_FRAME_OPTIONS: process.env.SECURITY_FRAME_OPTIONS,
     },
   });
+
+let cachedSecurityKeys: SecurityKeys | null = null;
+
+export const loadSecurityKeys = (): SecurityKeys =>
+  (cachedSecurityKeys ??= keys());

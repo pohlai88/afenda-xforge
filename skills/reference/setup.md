@@ -35,7 +35,8 @@ These can be selected when bootstrapping a workspace:
 
 - managed database provider: Supabase Postgres or Neon Postgres
 - auth provider: Supabase Auth, Neon Auth, or Auth0
-- optional supporting packages: cache, events, search, observability, security, storage, cms, email, analytics, seo
+- optional supporting packages: cache, events, notifications, search, observability, security, storage, cms, email, analytics, seo
+- optional supporting packages: cache, events, notifications, search, observability, security, storage, jurisdictions, cms, email, analytics, seo
 - optional apps: `apps/web`, `apps/api`, `apps/email`, `apps/docs`, `apps/storybook`
 
 If a setup choice weakens tenant isolation, company grants, audit, or dependency direction, it is not a valid choice.
@@ -63,7 +64,7 @@ The exact CLI may vary by implementation, but the bootstrap sequence should alwa
 1. Create or clone the XForge workspace.
 2. Enable the pinned `pnpm` version.
 3. Install dependencies with `pnpm install`.
-4. Copy environment templates into the package-local env files used by the repo.
+4. Optionally run `pnpm setup` to copy missing `.env.example` files into local `.env` files and verify Node.js / `pnpm`.
 5. Configure the database connection for `packages/database`.
 6. Configure the selected auth provider in `packages/auth`.
 7. Add any optional supporting packages only if the project needs them now.
@@ -91,13 +92,32 @@ Add these only when the corresponding package is enabled:
 
 - cache provider variables for `packages/cache`
 - event bus variables for `packages/events`
-- search provider variables for `packages/search`
+- notification provider variables for `packages/notifications`
+- search provider variables for `packages/search` such as `MEILISEARCH_URL`, `MEILISEARCH_API_KEY`, and `MEILISEARCH_INDEX_PREFIX`
+- jurisdiction-specific provider variables only when a jurisdiction package integrates with external compliance providers
 - observability variables for `packages/observability`
 - storage variables for `packages/storage`
 - CMS variables for `packages/cms`
 - email provider variables for `packages/email`
 - analytics variables for `packages/analytics`
 - SEO or docs variables if the repo enables those packages
+
+### Supabase MCP
+
+If the workspace uses Supabase heavily, keep a project-level `.mcp.json` pointing to the official Supabase MCP server:
+
+```json
+{
+  "mcpServers": {
+    "supabase": {
+      "type": "http",
+      "url": "https://mcp.supabase.com/mcp"
+    }
+  }
+}
+```
+
+Configuration alone is not enough. The MCP client still needs an interactive authentication flow against Supabase before project tools become callable.
 
 Rules:
 
@@ -123,6 +143,17 @@ Local development should be simple and repeatable.
 Use `pnpm` for all workspace operations.
 
 Do not default to `npm` for the workspace. If a one-off command requires another package manager during debugging, treat it as temporary and do not let it redefine the workspace contract.
+
+### Bootstrap helper
+
+The workspace may expose a `pnpm setup` helper for local convenience. If present, it must stay narrow:
+
+- verify the runtime prerequisites
+- install workspace dependencies
+- copy missing `.env.example` files to local `.env` files
+- print the next manual setup steps
+
+It must not silently choose providers, apply business migrations, or encode deployment assumptions.
 
 ## Database Setup
 
@@ -175,10 +206,13 @@ Add optional packages only when the product actually needs them.
 
 - `packages/cache`
 - `packages/events`
+- `packages/health`
+- `packages/jurisdictions/*`
 - `packages/search`
 - `packages/observability`
 - `packages/security`
 - `packages/storage`
+- `packages/notifications`
 - `packages/cms`
 - `packages/email`
 - `packages/analytics`
@@ -206,6 +240,7 @@ packages/features/master-data/customers
 
 The setup for the first feature should verify:
 
+- server-side hostname and subdomain tenant resolution
 - server-side tenant resolution
 - company grant handling if the feature is company-scoped
 - permission checks before execution
@@ -235,6 +270,8 @@ After setup, verify:
 5. The first feature slice can read and write through the canonical pipeline.
 6. Cross-feature imports are blocked.
 7. Tenant isolation and company grant checks are enforced on the server.
+8. Host-based tenant routing resolves the same tenant context used by reads, writes, and company grant checks.
+9. Health endpoints return the expected liveness, readiness, startup, and version responses for the enabled infrastructure.
 
 ## Relationship To The Other Docs
 

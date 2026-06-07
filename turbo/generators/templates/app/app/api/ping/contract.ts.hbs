@@ -1,0 +1,34 @@
+import { defineRouteContract } from "@repo/api";
+import { z } from "zod";
+
+export const pingResponseSchema = z.object({
+  service: z.string(),
+  status: z.literal("ok"),
+  timestamp: z.string(),
+});
+
+export type PingResponse = z.infer<typeof pingResponseSchema>;
+
+export const pingRouteContract = defineRouteContract({
+  audience: "operational",
+  method: "GET",
+  operationId: "getPing",
+  path: "/api/ping",
+  success: {
+    description: "Basic application ping response",
+    openApiSchema: {
+      type: "object",
+      additionalProperties: false,
+      properties: {
+        service: { type: "string" },
+        status: { type: "string", enum: ["ok"] },
+        timestamp: { type: "string" },
+      },
+      required: ["service", "status", "timestamp"],
+    },
+    schema: pingResponseSchema,
+    status: 200,
+  },
+  summary: "Ping the application",
+  tags: ["system"],
+});

@@ -1,9 +1,13 @@
+import { createHealthRouteHandlers } from "@repo/health";
+import { withRequestLogging } from "@repo/logger";
+import { healthLogger } from "../_logger";
 import { healthManager } from "../_manager";
 
-export async function GET(): Promise<Response> {
-  const result = await healthManager.getStartup();
+const routes = createHealthRouteHandlers(healthManager);
 
-  return Response.json(result, {
-    status: result.status === "ok" ? 200 : 503,
-  });
-}
+export const GET = withRequestLogging(
+  async (): Promise<Response> => routes.startup(),
+  {
+    logger: healthLogger,
+  }
+);

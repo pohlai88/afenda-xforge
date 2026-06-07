@@ -7,12 +7,14 @@
     ".": "./index.ts",
     "./checks": "./checks.ts",
     "./manager": "./manager.ts",
+    "./routes": "./routes.ts",
     "./package.json": "./package.json"
   },
   "files": [
     "checks.ts",
     "index.ts",
     "manager.ts",
+    "routes.ts",
     "package.json"
   ],
   "scripts": {
@@ -23,6 +25,7 @@
   },
   "dependencies": {
     "@repo/database": "workspace:*",
+    "@repo/events": "workspace:*",
     "@repo/redis": "workspace:*",
     "server-only": "catalog:"
   },

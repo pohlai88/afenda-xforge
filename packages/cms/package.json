@@ -39,6 +39,7 @@
   "dependencies": {
     "@payloadcms/richtext-lexical": "catalog:",
     "@t3-oss/env-nextjs": "catalog:",
+    "@repo/shared": "workspace:*",
     "next": "catalog:",
     "payload": "catalog:",
     "react": "catalog:",

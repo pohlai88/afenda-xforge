@@ -211,6 +211,14 @@ export default function generator(plop: PlopTypes.NodePlopAPI): void {
           templateFile: "templates/app/proxy.ts.hbs",
         },
         {
+          path: "apps/{{ name }}/app/api/ping/contract.ts",
+          templateFile: "templates/app/app/api/ping/contract.ts.hbs",
+        },
+        {
+          path: "apps/{{ name }}/app/api/ping/route.ts",
+          templateFile: "templates/app/app/api/ping/route.ts.hbs",
+        },
+        {
           path: "apps/{{ name }}/postcss.config.mjs",
           templateFile: "templates/app/postcss.config.mjs.hbs",
         },

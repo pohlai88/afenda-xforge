@@ -2,23 +2,23 @@ export type {
   ErrorCatalogEntry,
   ErrorLocale,
   RegisteredErrorCode,
-} from "./codes.js";
+} from "./codes.ts";
 export {
   ERROR_CODES,
   getErrorCatalogEntry,
   getErrorCatalogMessage,
-} from "./codes.js";
+} from "./codes.ts";
 export type {
   AppErrorOptions,
   ErrorDetails,
   SerializedAppError,
-} from "./core.js";
+} from "./core.ts";
 export {
   AppError,
   getErrorMessage,
   isAppError,
   isOperationalError,
-} from "./core.js";
+} from "./core.ts";
 export {
   BusinessRuleError,
   ConfigurationError,
@@ -33,19 +33,19 @@ export {
   ServiceUnavailableError,
   UnauthorizedError,
   ValidationError,
-} from "./http.js";
-export { normalizeError } from "./normalize.js";
+} from "./http.ts";
+export { normalizeError } from "./normalize.ts";
 export type {
   CreateErrorResponseOptions,
   ErrorHandlerOptions,
   ErrorResponse,
   ResolvedErrorResponse,
   ResolveErrorResponseOptions,
-} from "./response.js";
+} from "./response.ts";
 export {
   createErrorResponse,
   extractRequestId,
   resolveErrorResponse,
   toErrorResponse,
   withErrorHandler,
-} from "./response.js";
+} from "./response.ts";

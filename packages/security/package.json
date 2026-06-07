@@ -6,15 +6,20 @@
   "exports": {
     ".": "./index.ts",
     "./index": "./index.ts",
+    "./cors": "./cors.ts",
+    "./csrf": "./csrf.ts",
     "./headers": "./headers.ts",
     "./keys": "./keys.ts",
     "./middleware": "./middleware.ts",
     "./policy": "./policy.ts",
     "./provider": "./provider.ts",
     "./request": "./request.ts",
+    "./sanitize": "./sanitize.ts",
     "./package.json": "./package.json"
   },
   "files": [
+    "cors.ts",
+    "csrf.ts",
     "headers.ts",
     "index.ts",
     "keys.ts",
@@ -22,6 +27,7 @@
     "policy.ts",
     "provider.ts",
     "request.ts",
+    "sanitize.ts",
     "package.json"
   ],
   "scripts": {

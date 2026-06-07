@@ -148,6 +148,31 @@ If a customization would weaken one of those rules, it is not a valid customizat
 2. Keep event publishing as a post-commit hook.
 3. Do not move domain decisions into event handlers.
 
+### Notifications
+
+**Baseline**: Supabase Realtime Broadcast and Edge Functions behind `packages/notifications`
+
+**What can change**:
+
+- realtime topic strategy
+- Edge Function implementation details
+- durable notification table design
+- provider-specific fan-out for email, SMS, or push
+
+**What must not change**:
+
+- notifications remain post-commit side effects
+- notification infrastructure must not own business decisions
+- notification feeds must not become canonical ERP state
+- user and tenant access must remain server-enforced and RLS-compatible
+
+**How to swap**:
+
+1. Update `packages/notifications`.
+2. Keep dispatch behind execution-owned post-commit hooks.
+3. Keep in-app delivery on authenticated private channels.
+4. Keep durable notification history in Postgres if the product requires inbox state.
+
 ### Observability
 
 **Baseline**: Prometheus, Grafana, Loki
@@ -284,6 +309,7 @@ XForge may add packages when they are supporting infrastructure or a real featur
 - `packages/observability`
 - `packages/security`
 - `packages/storage`
+- `packages/notifications`
 - `packages/cms`
 - `packages/email`
 - `packages/analytics`

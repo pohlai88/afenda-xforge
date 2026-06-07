@@ -9,6 +9,7 @@ export type NextConfigImageSource = {
 
 export type XForgeNextConfigOptions = {
   transpilePackages?: string[];
+  serverExternalPackages?: string[];
   allowImageSources?: readonly NextConfigImageSource[];
   skipTrailingSlashRedirect?: boolean;
   reactStrictMode?: boolean;
@@ -59,19 +60,28 @@ export const createNextConfig = (
     },
     transpilePackages: [
       "@repo/auth",
+      "@repo/api",
       "@repo/analytics",
       "@repo/ai",
       "@repo/design-system",
       "@repo/email",
       "@repo/errors",
       "@repo/health",
+      "@repo/logger",
+      "@repo/openapi",
       "@repo/redis",
       "@repo/storage",
       "@repo/observability",
       "@repo/seo",
       "@repo/security",
       "@repo/rate-limit",
+      "@repo/ui",
       ...(options.transpilePackages ?? []),
+    ],
+    serverExternalPackages: [
+      "pino",
+      "pino-pretty",
+      ...(options.serverExternalPackages ?? []),
     ],
   };
 };

@@ -49,6 +49,9 @@ export type Metadata = {
   openGraph?: MetadataOpenGraph;
   publisher?: string;
   twitter?: MetadataTwitter;
+  icons?: {
+    icon?: string;
+  };
 };
 
 export type MetadataInput = Omit<Metadata, "description" | "title"> & {
@@ -97,7 +100,7 @@ export const createMetadata = ({
   const defaultMetadata: Metadata = {
     title: parsedTitle,
     description: description ?? resolvedSite.description,
-    applicationName: resolvedSite.name,
+    applicationName: resolvedSite.shortName ?? resolvedSite.name,
     metadataBase: buildMetadataBase(resolvedSite.url),
     authors: normalizeAuthors(resolvedSite.author),
     creator: getCreator(resolvedSite.author),
@@ -125,6 +128,11 @@ export const createMetadata = ({
       card: "summary_large_image",
       creator: resolvedSite.twitterHandle,
     },
+    icons: resolvedSite.faviconPath
+      ? {
+          icon: resolvedSite.faviconPath,
+        }
+      : undefined,
   };
 
   const metadata = merge(defaultMetadata, properties);

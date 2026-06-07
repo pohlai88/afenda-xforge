@@ -1,0 +1,45 @@
+{
+  "name": "@repo/features-master-data-customers",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "exports": {
+    ".": "./src/index.ts",
+    "./contract": "./src/contract.ts",
+    "./manifest": "./src/manifest.ts",
+    "./metadata": "./src/metadata.ts",
+    "./shared": "./src/shared/index.ts",
+    "./server": "./src/server.ts",
+    "./package.json": "./package.json"
+  },
+  "files": [
+    "src",
+    "package.json",
+    "README.md"
+  ],
+  "scripts": {
+    "lint": "biome check .",
+    "format": "biome format --write .",
+    "clean": "git clean -xdf .cache .turbo dist node_modules",
+    "typecheck": "tsc --noEmit --emitDeclarationOnly false"
+  },
+  "dependencies": {
+    "@repo/api": "workspace:*",
+    "@repo/audit": "workspace:*",
+    "@repo/database": "workspace:*",
+    "@repo/errors": "workspace:*",
+    "@repo/execution": "workspace:*",
+    "@repo/logger": "workspace:*",
+    "@repo/metadata": "workspace:*",
+    "@repo/permissions": "workspace:*",
+    "@repo/shared": "workspace:*",
+    "drizzle-orm": "catalog:",
+    "server-only": "catalog:",
+    "zod": "catalog:"
+  },
+  "devDependencies": {
+    "@repo/typescript-config": "workspace:*",
+    "@types/node": "catalog:",
+    "typescript": "catalog:"
+  }
+}

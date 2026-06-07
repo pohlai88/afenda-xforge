@@ -1,0 +1,38 @@
+{
+  "name": "@repo/logger",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "exports": {
+    ".": "./index.ts",
+    "./context": "./context.ts",
+    "./logger": "./logger.ts",
+    "./request": "./request.ts",
+    "./package.json": "./package.json"
+  },
+  "files": [
+    "context.ts",
+    "index.ts",
+    "logger.ts",
+    "request.ts",
+    "package.json"
+  ],
+  "scripts": {
+    "clean": "git clean -xdf .cache .turbo dist node_modules",
+    "typecheck": "tsc --noEmit --emitDeclarationOnly false",
+    "lint": "biome check .",
+    "format": "biome format --write ."
+  },
+  "dependencies": {
+    "@repo/errors": "workspace:*",
+    "@repo/metrics": "workspace:*",
+    "pino": "catalog:",
+    "pino-pretty": "catalog:",
+    "server-only": "catalog:"
+  },
+  "devDependencies": {
+    "@repo/typescript-config": "workspace:*",
+    "@types/node": "catalog:",
+    "typescript": "catalog:"
+  }
+}

@@ -9,7 +9,9 @@ export type AiModels = {
 
 let cachedModels: AiModels | undefined;
 
-const getOpenAIModelFactory = () => {
+const getOpenAIModelFactory = ():
+  | ReturnType<typeof createOpenAI>
+  | undefined => {
   const { OPENAI_API_KEY } = loadAiKeys();
 
   if (!OPENAI_API_KEY) {

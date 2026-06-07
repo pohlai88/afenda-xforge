@@ -1,8 +1,9 @@
 export {
   createDatabaseCheck,
   createMemoryCheck,
+  createNatsCheck,
   createRedisCheck,
-} from "./checks.js";
+} from "./checks.ts";
 export type {
   DependencyHealth,
   HealthCheck,
@@ -11,5 +12,8 @@ export type {
   HealthReport,
   HealthStatus,
   ProbeResult,
-} from "./manager.js";
-export { createHealthManager, HealthManager } from "./manager.js";
+  VersionInfo,
+} from "./manager.ts";
+export { createHealthManager, HealthManager } from "./manager.ts";
+export type { HealthRouteHandlers } from "./routes.ts";
+export { createHealthRouteHandlers } from "./routes.ts";

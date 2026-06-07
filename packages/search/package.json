@@ -1,0 +1,42 @@
+{
+  "name": "@repo/search",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "exports": {
+    ".": "./index.ts",
+    "./registry": "./registry.ts",
+    "./types": "./types.ts",
+    "./meilisearch": "./meilisearch/index.ts",
+    "./meilisearch/client": "./meilisearch/client.ts",
+    "./meilisearch/indexer": "./meilisearch/indexer.ts",
+    "./meilisearch/keys": "./meilisearch/keys.ts",
+    "./meilisearch/search": "./meilisearch/search.ts",
+    "./package.json": "./package.json"
+  },
+  "files": [
+    ".env.example",
+    "index.ts",
+    "registry.ts",
+    "types.ts",
+    "meilisearch",
+    "package.json"
+  ],
+  "scripts": {
+    "clean": "git clean -xdf .cache .turbo dist node_modules",
+    "typecheck": "tsc --noEmit --emitDeclarationOnly false",
+    "lint": "biome check .",
+    "format": "biome format --write ."
+  },
+  "dependencies": {
+    "@t3-oss/env-nextjs": "catalog:",
+    "meilisearch": "catalog:",
+    "server-only": "catalog:",
+    "zod": "catalog:"
+  },
+  "devDependencies": {
+    "@repo/typescript-config": "workspace:*",
+    "@types/node": "catalog:",
+    "typescript": "catalog:"
+  }
+}

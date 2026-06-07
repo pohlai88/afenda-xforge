@@ -1,0 +1,10 @@
+import { createContractRoute } from "@repo/api";
+import { pingRouteContract } from "./contract";
+
+export const GET = createContractRoute(pingRouteContract, async () => ({
+  data: {
+    service: "{{ name }}",
+    status: "ok",
+    timestamp: new Date().toISOString(),
+  },
+}));

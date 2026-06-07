@@ -2,6 +2,7 @@ import {
   createDatabaseCheck,
   createHealthManager,
   createMemoryCheck,
+  createNatsCheck,
   createRedisCheck,
 } from "@repo/health";
 
@@ -13,7 +14,10 @@ const version: string =
 export const healthManager = createHealthManager({
   service: "app",
   version,
-  checks: [createDatabaseCheck(), createRedisCheck(), createMemoryCheck()],
+  checks: [
+    createDatabaseCheck(),
+    createRedisCheck(),
+    createNatsCheck(),
+    createMemoryCheck(),
+  ],
 });
-
-healthManager.markReady();

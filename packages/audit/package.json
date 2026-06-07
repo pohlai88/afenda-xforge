@@ -1,0 +1,39 @@
+{
+  "name": "@repo/audit",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "exports": {
+    ".": "./index.ts",
+    "./contract": "./contract.ts",
+    "./differ": "./differ.ts",
+    "./query": "./query.ts",
+    "./writer": "./writer.ts",
+    "./package.json": "./package.json"
+  },
+  "files": [
+    "contract.ts",
+    "differ.ts",
+    "index.ts",
+    "query.ts",
+    "README.md",
+    "writer.ts",
+    "package.json"
+  ],
+  "scripts": {
+    "lint": "biome check .",
+    "format": "biome format --write .",
+    "clean": "git clean -xdf .cache .turbo dist node_modules",
+    "typecheck": "tsc --noEmit --emitDeclarationOnly false"
+  },
+  "dependencies": {
+    "@repo/database": "workspace:*",
+    "drizzle-orm": "catalog:",
+    "server-only": "catalog:"
+  },
+  "devDependencies": {
+    "@repo/typescript-config": "workspace:*",
+    "@types/node": "catalog:",
+    "typescript": "catalog:"
+  }
+}

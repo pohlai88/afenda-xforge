@@ -39,6 +39,7 @@
   },
   "dependencies": {
     "@repo/errors": "workspace:*",
+    "@repo/logger": "workspace:*",
     "@logtail/next": "catalog:",
     "@sentry/nextjs": "catalog:",
     "@t3-oss/env-nextjs": "catalog:",

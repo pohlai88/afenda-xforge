@@ -12,6 +12,7 @@
     "./keys": "./keys.ts",
     "./provider": "./provider.tsx",
     "./proxy": "./proxy.ts",
+    "./routes": "./routes.ts",
     "./server": "./server.ts",
     "./package.json": "./package.json"
   },
@@ -23,6 +24,7 @@
     "keys.ts",
     "provider.tsx",
     "proxy.ts",
+    "routes.ts",
     "server.ts",
     "package.json"
   ],
@@ -33,10 +35,13 @@
     "format": "biome format --write ."
   },
   "dependencies": {
+    "@repo/database": "workspace:*",
     "@repo/errors": "workspace:*",
     "@supabase/ssr": "catalog:",
     "@supabase/supabase-js": "catalog:",
     "@t3-oss/env-nextjs": "catalog:",
+    "drizzle-orm": "catalog:",
+    "next": "catalog:",
     "react": "catalog:",
     "server-only": "catalog:",
     "zod": "catalog:"
@@ -46,7 +51,6 @@
     "@types/node": "catalog:",
     "@types/react": "catalog:",
     "@types/react-dom": "catalog:",
-    "next": "catalog:",
     "typescript": "catalog:"
   }
 }

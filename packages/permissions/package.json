@@ -1,0 +1,37 @@
+{
+  "name": "@repo/permissions",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "exports": {
+    ".": "./index.ts",
+    "./catalog": "./catalog.ts",
+    "./contract": "./contract.ts",
+    "./policy": "./policy.ts",
+    "./provider": "./provider.ts",
+    "./package.json": "./package.json"
+  },
+  "files": [
+    "catalog.ts",
+    "contract.ts",
+    "index.ts",
+    "policy.ts",
+    "provider.ts",
+    "package.json"
+  ],
+  "scripts": {
+    "lint": "biome check .",
+    "format": "biome format --write .",
+    "clean": "git clean -xdf .cache .turbo dist node_modules",
+    "typecheck": "tsc --noEmit --emitDeclarationOnly false"
+  },
+  "dependencies": {
+    "@repo/errors": "workspace:*",
+    "server-only": "catalog:"
+  },
+  "devDependencies": {
+    "@repo/typescript-config": "workspace:*",
+    "@types/node": "catalog:",
+    "typescript": "catalog:"
+  }
+}

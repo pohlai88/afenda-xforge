@@ -1,0 +1,32 @@
+{
+  "auth": {
+    "forbidden": "You do not have permission to perform this action",
+    "login": "Login",
+    "logout": "Logout",
+    "sessionExpired": "Session expired. Please login again.",
+    "unauthorized": "Please login to continue"
+  },
+  "common": {
+    "actions": "Actions",
+    "cancel": "Cancel",
+    "close": "Close",
+    "confirm": "Confirm",
+    "create": "Create",
+    "delete": "Delete",
+    "edit": "Edit",
+    "error": "Error",
+    "loading": "Loading...",
+    "noData": "No data",
+    "save": "Save",
+    "search": "Search",
+    "success": "Success"
+  },
+  "validation": {
+    "email": "Invalid email",
+    "maxLength": "Maximum {{max}} characters",
+    "minLength": "Minimum {{min}} characters",
+    "numberInvalid": "Invalid number",
+    "phone": "Invalid phone number",
+    "required": "This field is required"
+  }
+}

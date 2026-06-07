@@ -8,6 +8,8 @@ export type {
 export {
   assessRateLimitRequest,
   createRateLimitMiddleware,
+  inspectRateLimitRequest,
+  resetRateLimitRequest,
 } from "./middleware.js";
 export type {
   RateLimitContext,

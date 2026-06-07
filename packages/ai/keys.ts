@@ -1,7 +1,13 @@
 import { createEnv } from "@t3-oss/env-nextjs";
 import { z } from "zod";
 
-export const keys = () =>
+export type AiKeys = Readonly<{
+  AI_MODEL_CHAT: string;
+  AI_MODEL_EMBEDDINGS: string;
+  OPENAI_API_KEY?: string;
+}>;
+
+export const keys = (): AiKeys =>
   createEnv({
     skipValidation: process.env.SKIP_ENV_VALIDATION === "true",
     server: {
@@ -15,8 +21,6 @@ export const keys = () =>
       AI_MODEL_EMBEDDINGS: process.env.AI_MODEL_EMBEDDINGS,
     },
   });
-
-export type AiKeys = ReturnType<typeof keys>;
 
 let cachedAiKeys: AiKeys | null = null;
 

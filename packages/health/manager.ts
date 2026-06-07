@@ -21,10 +21,16 @@ export type HealthReport = {
   status: HealthStatus;
   service: string;
   version: string;
+  ready: boolean;
   uptimeSeconds: number;
   timestamp: string;
   dependencies: DependencyHealth[];
   system: {
+    arch: NodeJS.Architecture;
+    cpuUsageMicros: {
+      system: number;
+      user: number;
+    };
     nodeVersion: string;
     memoryUsageMb: {
       external: number;
@@ -32,6 +38,8 @@ export type HealthReport = {
       heapUsed: number;
       rss: number;
     };
+    pid: number;
+    platform: NodeJS.Platform;
   };
 };
 
@@ -55,6 +63,17 @@ export type ProbeResult = {
   checks?: DependencyHealth[];
 };
 
+export type VersionInfo = {
+  service: string;
+  version: string;
+  nodeVersion: string;
+  environment: string;
+  startedAt: string;
+  ready: boolean;
+  commitSha?: string;
+  deploymentId?: string;
+};
+
 const createTimeoutError = (name: string, timeoutMs: number): Error =>
   new Error(`Health check "${name}" timed out after ${timeoutMs}ms`);
 
@@ -73,6 +92,14 @@ export class HealthManager {
     this.ready = true;
   }
 
+  markNotReady(): void {
+    this.ready = false;
+  }
+
+  isReady(): boolean {
+    return this.ready;
+  }
+
   async getHealthReport(): Promise<HealthReport> {
     const dependencies = await this.runChecks(this.config.checks);
     const hasCriticalFailure = dependencies.some(
@@ -82,6 +109,7 @@ export class HealthManager {
       (dependency) => dependency.status !== "healthy"
     );
     const memoryUsage = process.memoryUsage();
+    const cpuUsage = process.cpuUsage();
     let status: HealthStatus = "healthy";
 
     if (hasCriticalFailure) {
@@ -94,10 +122,16 @@ export class HealthManager {
       status,
       service: this.config.service,
       version: this.config.version,
+      ready: this.ready,
       uptimeSeconds: Math.round((Date.now() - this.startedAt.getTime()) / 1000),
       timestamp: new Date().toISOString(),
       dependencies,
       system: {
+        arch: process.arch,
+        cpuUsageMicros: {
+          system: cpuUsage.system,
+          user: cpuUsage.user,
+        },
         nodeVersion: process.version,
         memoryUsageMb: {
           external: Math.round(memoryUsage.external / 1024 / 1024),
@@ -105,6 +139,8 @@ export class HealthManager {
           heapUsed: Math.round(memoryUsage.heapUsed / 1024 / 1024),
           rss: Math.round(memoryUsage.rss / 1024 / 1024),
         },
+        pid: process.pid,
+        platform: process.platform,
       },
     };
   }
@@ -144,9 +180,16 @@ export class HealthManager {
     });
   }
 
-  getVersion(): { service: string; version: string; nodeVersion: string } {
+  getVersion(): VersionInfo {
     return {
+      commitSha: process.env.VERCEL_GIT_COMMIT_SHA?.slice(0, 7),
+      deploymentId:
+        process.env.VERCEL_DEPLOYMENT_ID ??
+        process.env.VERCEL_PROJECT_PRODUCTION_URL,
+      environment: process.env.NODE_ENV ?? "development",
+      ready: this.ready,
       service: this.config.service,
+      startedAt: this.startedAt.toISOString(),
       version: this.config.version,
       nodeVersion: process.version,
     };

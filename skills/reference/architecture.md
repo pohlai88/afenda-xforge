@@ -78,7 +78,6 @@ Defer until a real ERP need exists:
 payments
 cms
 collaboration
-notifications
 ai
 feature-flags
 ```
@@ -96,6 +95,7 @@ XForge should learn from enterprise ERP stacks, but it must not adopt every tech
 | Backend runtime | Node.js through Next.js runtime | Foundation |
 | Database | PostgreSQL 16 with Drizzle ORM on Supabase or Neon | Foundation |
 | Messaging | NATS JetStream | Later, when event-driven workflows are proven |
+| Notifications | Supabase Realtime Broadcast and Edge Functions behind `packages/notifications` | Optional later infrastructure |
 | Auth | Supabase Auth, Neon Auth, or Auth0 behind `packages/auth` | Foundation requirement |
 | Gateway | Kong API Gateway | Deployment concern for external APIs |
 | Cache | Redis | Later, only for measured cache, queue, or rate-limit needs |
@@ -126,6 +126,11 @@ packages/analytics
 packages/ai
 packages/cache
 packages/events
+packages/health
+packages/integrations/*
+packages/jurisdictions/*
+packages/metrics
+packages/notifications
 packages/rate-limit
 packages/search
 ```
@@ -135,6 +140,9 @@ Rules:
 - `packages/analytics` owns telemetry providers, client/server analytics helpers, and lightweight UI wiring, not ERP business decisions.
 - `packages/ai` owns model registry helpers, AI SDK adapters, and AI UI primitives, not ERP business decisions.
 - `packages/events` owns event contracts and publishers, not business decisions.
+- `packages/integrations/*` owns external vendor adapters, webhook verifiers, transport clients, and provider-specific mapping helpers, not ERP business decisions.
+- `packages/jurisdictions/*` owns country-specific legal/compliance constants, pure calculators, validation schemas, reference catalogs, and formatting helpers, not persistence or workflow authority.
+- `packages/notifications` owns notification transport helpers, Supabase topic conventions, and Edge Function dispatch clients, not business decisions.
 - `packages/cache` owns cache clients and helpers, not source-of-truth state.
 - `packages/rate-limit` owns request throttling policies, limiter adapters, and response headers, not business decisions.
 - `packages/search` owns indexing and search clients, not canonical records.
@@ -176,6 +184,8 @@ xforge/
 │   ├── database/         # Database client, schema, migrations
 │   ├── email/            # Optional transactional email package
 │   ├── events/           # Optional NATS/event contracts and publishers
+│   ├── health/           # Operational health checks and probe contracts
+│   ├── jurisdictions/    # Country-specific policy and reference packages
 │   ├── execution/        # Canonical mutation pipeline
 │   ├── features/
 │   │   ├── master-data/
@@ -183,9 +193,13 @@ xforge/
 │   │   ├── hr/            # Later feature family
 │   │   ├── inventory/     # Later feature family
 │   │   └── finance/       # Later feature family
+│   ├── integrations/
+│   │   ├── linear/        # External vendor adapter
+│   │   └── workday/       # External vendor adapter
 │   ├── metadata/         # Metadata contracts only
 │   ├── metadata-ui/      # Metadata-driven rendering helpers
 │   ├── next-config/      # Shared Next.js config
+│   ├── notifications/    # Optional Supabase Realtime + Edge notifications
 │   ├── observability/    # Logging, errors, instrumentation
 │   ├── rate-limit/       # Request throttling, quotas, abuse controls
 │   ├── permissions/      # Server-side permission checks
@@ -209,7 +223,7 @@ xforge/
 - `apps/*` owns routing, shell composition, and page-level wiring.
 - `packages/ui` owns reusable presentational components only.
 - `packages/database` owns schema, migrations, client setup, and table definitions.
-- `packages/auth` owns authentication, session access, tenant membership, and active tenant resolution.
+- `packages/auth` owns authentication, session access, tenant membership, hostname and subdomain tenant resolution, and active tenant resolution.
 - `packages/execution` owns the only canonical mutation entrypoint.
 - `packages/features/master-data/<feature-name>` owns the feature-specific master-data capability, its server entrypoint, its metadata, its vertical scaffold, and any horizontal business areas inside the package.
 - `packages/permissions` owns permission contracts and server-side guards.
@@ -217,7 +231,8 @@ xforge/
 - `packages/metadata` owns metadata contracts only.
 - `packages/metadata-ui` owns metadata-driven rendering helpers.
 - `packages/shared` owns cross-feature primitives, value objects, constants, and narrow contracts that are not business execution logic.
-- `packages/cache`, `packages/events`, `packages/search`, `packages/rate-limit`, `packages/security`, `packages/storage`, `packages/observability`, `packages/email`, `packages/analytics`, `packages/ai`, and `packages/seo` are supporting infrastructure packages, not ERP business modules.
+- `packages/integrations/*` owns external system clients, webhook verification helpers, retry policy helpers, and provider-specific request/response mapping.
+- `packages/cache`, `packages/events`, `packages/health`, `packages/jurisdictions/*`, `packages/notifications`, `packages/search`, `packages/rate-limit`, `packages/security`, `packages/storage`, `packages/observability`, `packages/email`, `packages/analytics`, `packages/ai`, and `packages/seo` are supporting infrastructure packages, not ERP business modules.
 - `packages/domain-*` is legacy naming and should not be used for new work.
 
 ## 7. Dependency Direction
@@ -238,6 +253,7 @@ feature package -> permissions
 feature package -> database
 feature package -> metadata
 feature package -> metadata-ui
+feature package -> jurisdictions/*
 feature package -> shared
 feature package -> ui
 execution -> auth
@@ -262,6 +278,8 @@ business modules -> bypass permission checks
 packages/features/* -> packages/features/*
 packages/features/* -> sibling feature internals
 packages/features/* -> master-data feature imports
+packages/integrations/* -> database mutation logic
+packages/integrations/* -> permission finality
 packages/shared -> business rule ownership
 packages/shared -> database mutation logic
 packages/cache -> source-of-truth state
@@ -313,6 +331,29 @@ payroll rules
 inventory valuation
 approval authority
 tenant-specific business behavior
+```
+
+`packages/jurisdictions/*` may centralize country variance, but they must stay pure:
+
+Allowed:
+
+```txt
+tax and insurance constants
+pure calculators
+invoice validation schemas
+bank and address reference catalogs
+country-specific formatting helpers
+provider-neutral compliance contracts
+```
+
+Forbidden:
+
+```txt
+database mutations
+tenant or company authorization
+feature workflow orchestration
+execution pipeline ownership
+provider transport side effects
 ```
 
 ## 8. Package Naming
@@ -517,7 +558,7 @@ After a successful audited mutation, execution may invoke registered post-commit
 
 `packages/execution` owns the canonical mutation lifecycle. It must not contain feature-specific event, cache, or search logic.
 
-`packages/events`, `packages/cache`, and `packages/search` must not contain business decisions. They may only react to successful audited execution results.
+`packages/events`, `packages/notifications`, `packages/cache`, and `packages/search` must not contain business decisions. They may only react to successful audited execution results.
 
 ### Query model
 
@@ -573,6 +614,19 @@ Tenant isolation is mandatory.
 - Every query must be tenant-scoped.
 - Every mutation must verify active tenant membership before execution.
 - Tenant context must be explicit in server-side execution.
+
+### Hostname and subdomain rules
+
+- XForge should treat subdomain-based tenancy as the default application model.
+- The canonical tenant URL shape is `{tenantSlug}.{appBaseDomain}`.
+- Tenant resolution must happen on the server from the normalized request host before sensitive reads, mutation entry, or company resolution.
+- The client must not be allowed to override tenant context with query params, local storage, or ad hoc headers.
+- Trusted proxy headers such as `x-forwarded-host` may be used only when the deployment boundary is trusted and normalized in one place.
+- The apex domain and reserved hosts such as `www`, `app`, `admin`, `docs`, and `api` are platform routes, not tenant routes.
+- Local development should support explicit host-based tenant resolution, for example `tenant.localhost` or an equivalent dev domain.
+- Background jobs, webhooks, cron handlers, and queue consumers that do not originate from a tenant host must receive explicit tenant context from trusted server-side inputs.
+- Custom domains may be added later as aliases to the same tenant resolution contract, but they must not replace the canonical server-side tenant membership checks.
+- Tenant-specific site identity, logos, and theme overrides should be resolved from the server-side tenant context, not from a global mutable branding singleton.
 
 ### Company rules
 
@@ -645,6 +699,7 @@ Permission finality belongs on the server.
 - Supabase Auth, Neon Auth, or Auth0 may provide identity, sessions, SSO, and external provider login.
 - Auth provider roles or claims must be mapped into XForge permission contracts before use.
 - The auth provider must not replace tenant membership, company grants, execution checks, or audit writing.
+- Auth establishes user identity. The request host establishes tenant context. Both must be validated before company-aware access is granted.
 - The UI may hide or disable actions based on permission state.
 - The server must always re-check permissions before execution.
 - A client-side disabled state is never sufficient authorization.
@@ -688,6 +743,15 @@ XForge must not expose two competing mutation systems.
 - XForge should stay on the Node.js runtime through Next.js unless a future architecture decision introduces a separate service boundary.
 - Any future standalone Node service must call the same feature `server.ts` entrypoints and execution contracts as the Next.js app.
 - Kong may sit in front of REST APIs, but application authorization remains inside XForge.
+
+### Integration governance
+
+- Outbound and inbound third-party adapters belong under `packages/integrations/<vendor>`.
+- These packages may own provider auth, client transport, webhook verification, retries, and mapping helpers.
+- They must not own ERP business workflow decisions, permission finality, audit bypasses, or direct database mutation authority.
+- Business decisions about when XForge synchronizes with Linear, Workday, or any other external system remain in feature packages, execution flows, or application orchestration.
+- Do not introduce `packages/sdk` as a foundation package for this use case.
+- Add a future XForge SDK only when external consumers need a stable XForge API client, and generate it from the canonical `@repo/api` and `@repo/openapi` contracts rather than hand-maintaining a parallel surface.
 
 ## 16. UI Governance
 
@@ -874,7 +938,7 @@ This architecture adopts the useful parts of next-forge:
 
 It keeps XForge as the ERP governance source of truth for tenant isolation, company grants, permission finality, audit, execution, metadata limits, and feature ownership.
 
-It intentionally defers SaaS-specific surface area such as payments, CMS, collaboration, notifications, AI, and feature flags until a real ERP requirement justifies them.
+It intentionally defers SaaS-specific surface area such as payments, CMS, collaboration, AI, and feature flags until a real ERP requirement justifies them. Notifications, when needed, should remain an implicit infrastructure concern behind `packages/notifications` with Supabase Realtime and Edge Functions rather than a first-class SaaS UI dependency.
 
 Provider swapping and extension guidance live in [`customization.md`](./customization.md).
 Package-level ownership and entry-point rules live in [`packages.md`](./packages.md).

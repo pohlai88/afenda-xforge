@@ -5,6 +5,7 @@
     "module": "NodeNext",
     "moduleResolution": "NodeNext",
     "jsx": "react-jsx",
+    "allowImportingTsExtensions": true,
     "baseUrl": ".",
     "paths": {
       "@repo/*": ["../*"]

@@ -8,6 +8,7 @@
     "./db": "./db.ts",
     "./drizzle.config": "./drizzle.config.ts",
     "./keys": "./keys.ts",
+    "./seed": "./seed.ts",
     "./schema": "./schema.ts",
     "./package.json": "./package.json"
   },
@@ -16,19 +17,22 @@
     "drizzle.config.ts",
     "index.ts",
     "keys.ts",
+    "seed.ts",
     "schema.ts",
     "package.json"
   ],
   "scripts": {
-    "lint": "biome check .",
-    "format": "biome format --write .",
+    "lint": "biome check db.ts drizzle.config.ts index.ts keys.ts seed.ts schema.ts",
+    "format": "biome format --write db.ts drizzle.config.ts index.ts keys.ts seed.ts schema.ts",
     "clean": "git clean -xdf .cache .turbo dist node_modules",
     "db:generate": "drizzle-kit generate",
     "db:migrate": "drizzle-kit migrate",
+    "db:seed": "tsx seed.ts",
     "db:studio": "drizzle-kit studio",
     "typecheck": "tsc --noEmit --emitDeclarationOnly false"
   },
   "dependencies": {
+    "@repo/logger": "workspace:*",
     "@t3-oss/env-nextjs": "catalog:",
     "drizzle-orm": "catalog:",
     "postgres": "catalog:",
@@ -39,6 +43,7 @@
     "@repo/typescript-config": "workspace:*",
     "@types/node": "catalog:",
     "drizzle-kit": "catalog:",
+    "tsx": "catalog:",
     "typescript": "catalog:"
   }
 }
