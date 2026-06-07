@@ -285,7 +285,7 @@ XForge may add apps when they have clear ownership.
 - `apps/web` for a public or marketing site if needed
 - `apps/api` only if the project needs a separate Node runtime for external APIs
 - `apps/email` for email preview if the project sends transactional mail
-- `apps/docs` for internal or product documentation if needed
+- `apps/docs` for public product or platform documentation if needed
 - `apps/storybook` for isolated UI development if the design system justifies it
 
 ### Later supporting apps
@@ -306,6 +306,7 @@ XForge may add packages when they are supporting infrastructure or a real featur
 - `packages/cache`
 - `packages/events`
 - `packages/search`
+- `packages/machine`
 - `packages/observability`
 - `packages/security`
 - `packages/storage`

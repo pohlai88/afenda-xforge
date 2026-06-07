@@ -65,6 +65,7 @@ apps/storybook
 apps/studio
 packages/analytics
 packages/email
+packages/machine
 packages/next-config
 packages/observability
 packages/security
@@ -93,7 +94,7 @@ Scaffold now:
 - `apps/web` - public or marketing-facing shell, if the project needs one
 - `apps/api` - separate runtime for health, webhooks, and external integrations
 - `apps/email` - preview surface for transactional templates
-- `apps/docs` - dedicated Mintlify-style docs surface when the repo needs product or platform documentation
+- `apps/docs` - dedicated Mintlify-style public docs surface when the repo needs product or platform documentation
 - `apps/storybook` - component workshop and visual regression staging
 - `apps/studio` - database inspection and migration support surface
 
@@ -144,6 +145,7 @@ packages/events
 packages/health
 packages/integrations/*
 packages/jurisdictions/*
+packages/machine
 packages/metrics
 packages/notifications
 packages/rate-limit
@@ -154,6 +156,7 @@ Rules:
 
 - `packages/analytics` owns telemetry providers, client/server analytics helpers, and lightweight UI wiring, not ERP business decisions.
 - `packages/ai` owns model registry helpers, AI SDK adapters, and AI UI primitives, not ERP business decisions.
+- `packages/machine` owns product-specific AI orchestration, assistant selection, context assembly, and prompt wiring. It may compose approved feature server entrypoints, but it must not own business decisions or import feature internals.
 - `packages/events` owns event contracts and publishers, not business decisions.
 - `packages/integrations/*` owns external vendor adapters, webhook verifiers, transport clients, and provider-specific mapping helpers, not ERP business decisions.
 - `packages/jurisdictions/*` owns country-specific legal/compliance constants, pure calculators, validation schemas, reference catalogs, and formatting helpers, not persistence or workflow authority.
@@ -194,6 +197,7 @@ xforge/
 ├── packages/
 │   ├── analytics/        # Optional product and usage analytics
 │   ├── ai/               # Optional AI SDK helpers and UI primitives
+│   ├── machine/          # Product AI orchestration and assistant shell
 │   ├── audit/            # Audit event contract and writer
 │   ├── auth/             # Authentication, session, tenant resolution
 │   ├── cache/            # Optional Redis cache helpers
@@ -263,6 +267,7 @@ apps/app -> packages/ui
 apps/app -> packages/auth
 apps/app -> packages/execution
 apps/app -> packages/shared
+packages/machine -> feature server entrypoints
 feature package -> execution
 feature package -> auth
 feature package -> permissions
@@ -286,8 +291,11 @@ Forbidden:
 packages/ui -> database
 packages/ui -> auth
 packages/ui -> feature packages
+packages/machine -> feature internals
 packages/metadata -> mutation logic
 client components -> direct database access
+client components -> server-only package roots
+client components -> feature server/actions/queries/execution subpaths
 pages -> direct mutation without execution
 business modules -> bypass audit
 business modules -> bypass permission checks
@@ -318,7 +326,7 @@ Cross-feature writes must always go through the canonical execution pipeline.
 
 Cross-feature orchestration must not live inside a feature package.
 
-For the first production target, keep orchestration inside `apps/app`. If orchestration becomes reusable or complex, introduce `packages/orchestration` later.
+For the first production target, keep general orchestration inside `apps/app`. If orchestration becomes reusable or complex, introduce `packages/orchestration` later. Product-specific AI orchestration may live in `packages/machine` as a narrow supporting package.
 
 The orchestration layer may call approved feature `server.ts` entrypoints only. It must not import feature internals, and it must not bypass tenant, company, permission, execution, or audit rules.
 
@@ -499,11 +507,12 @@ Rules for the feature contract:
 - `shared/` must stay within the feature boundary and must not import sibling feature packages.
 - `execution/` must express the feature-local orchestration layer and must not bypass the canonical app-level execution pipeline.
 - `metadata.ts` must remain declarative and must not contain business rules.
-- `index.ts` should stay thin and should only re-export approved public surface area.
+- `index.ts` should stay thin, start with `import "server-only"`, and only re-export approved public surface area for server composition.
 - Apps and approved orchestration layers should import feature behavior through the published entry points, not by reaching into arbitrary internal files.
 - Published subpaths should mirror the feature entry points: the package root for `index.ts`, plus `manifest`, `server`, `contract`, and `metadata` subpaths.
 - Feature packages may also publish `shared`, `execution`, `queries`, and `actions` subpaths, but application code should still prefer `server.ts` and `index.ts` as the normal entry points.
 - Apps and orchestration layers must not import directly from `queries.ts`, `actions.ts`, `components/`, `forms/`, `tables/`, or `tests/`.
+- Client components must not import feature package roots, `server`, `actions`, `queries`, or `execution` subpaths. They may import pure `contract`, `manifest`, `metadata`, and intentionally pure `shared` subpaths.
 - A feature may use shared packages, but it must not import another feature package directly.
 - Cross-feature coordination belongs in execution flows, application orchestration, or narrow shared contracts.
 - If a capability grows large enough to need sub-features, model them as horizontal business areas inside the feature package until a shared abstraction is genuinely justified.

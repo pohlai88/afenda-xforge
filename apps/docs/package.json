@@ -2,9 +2,9 @@
   "name": "docs",
   "private": true,
   "scripts": {
-    "dev": "npx mintlify@latest dev --port 3004",
-    "build": "npx mintlify@latest build",
-    "lint": "npx mintlify@latest broken-links"
+    "dev": "npx mint@latest dev --port 3004",
+    "build": "npx mint@latest validate",
+    "lint": "npx mint@latest broken-links"
   },
   "devDependencies": {
     "typescript": "catalog:"

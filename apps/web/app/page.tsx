@@ -2,6 +2,11 @@ import { createMetadata } from "@repo/seo/metadata";
 import type { Metadata } from "next";
 import type { ReactElement } from "react";
 
+const appShellHref = new URL(
+  "/",
+  process.env.NEXT_PUBLIC_APP_URL ?? "http://localhost:3000"
+).toString();
+
 export const metadata: Metadata = createMetadata({
   title: "XForge",
   description: "Governance-first ERP foundation for controlled operations.",
@@ -18,7 +23,7 @@ export default function HomePage(): ReactElement {
               X
             </div>
             <div>
-              <p className="text-xs uppercase tracking-[0.32em] text-muted-foreground">
+              <p className="text-muted-foreground text-xs uppercase tracking-[0.32em]">
                 XForge
               </p>
               <p className="font-medium text-sm">ERP control plane</p>
@@ -26,7 +31,7 @@ export default function HomePage(): ReactElement {
           </div>
           <a
             className="rounded-full border border-border bg-background px-4 py-2 text-sm transition hover:bg-accent hover:text-accent-foreground"
-            href="/"
+            href={appShellHref}
           >
             Open app shell
           </a>
@@ -35,14 +40,14 @@ export default function HomePage(): ReactElement {
         <div className="grid gap-10 lg:grid-cols-[1.2fr_0.8fr] lg:items-end">
           <div className="space-y-8">
             <div className="space-y-5">
-              <div className="inline-flex rounded-full border border-border bg-background px-3 py-1 text-xs uppercase tracking-[0.28em] text-muted-foreground">
+              <div className="inline-flex rounded-full border border-border bg-background px-3 py-1 text-muted-foreground text-xs uppercase tracking-[0.28em]">
                 App scaffold
               </div>
               <h1 className="max-w-4xl font-semibold text-5xl tracking-tight sm:text-6xl">
                 Tenant-scoped operations without losing audit or permission
                 finality.
               </h1>
-              <p className="max-w-2xl text-lg leading-8 text-muted-foreground">
+              <p className="max-w-2xl text-lg text-muted-foreground leading-8">
                 This shell exists to prove the monorepo foundation, not to
                 dilute it. It shares the design system, analytics hooks, and
                 metadata conventions with the main app.
@@ -72,7 +77,7 @@ export default function HomePage(): ReactElement {
               <p className="text-muted-foreground text-sm uppercase tracking-[0.24em]">
                 Shared stack
               </p>
-              <p className="mt-2 text-sm leading-6 text-muted-foreground">
+              <p className="mt-2 text-muted-foreground text-sm leading-6">
                 `@repo/analytics`, `@repo/design-system`, `@repo/next-config`,
                 and `@repo/seo`.
               </p>

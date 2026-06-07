@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-label="XForge">
+  <rect width="64" height="64" rx="16" fill="#0f172a" />
+  <path
+    fill="#e2e8f0"
+    d="M17 15h10l5.8 10.1L38.6 15H49L36.3 32l12.9 17H39l-6.2-10.8L26.6 49H16l13-17L17 15Z"
+  />
+</svg>
