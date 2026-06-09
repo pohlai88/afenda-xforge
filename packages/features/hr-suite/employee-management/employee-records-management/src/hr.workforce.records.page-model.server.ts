@@ -24,8 +24,6 @@ export function buildHrRecordsPageModel(
   input: HrRecordsPageModelInput
 ): HrRecordsPageModel {
   const search = parseHrRecordsSearchParams({
-    page: input.page,
-    pageSize: input.pageSize,
     incompleteSearch: input.incompleteSearch,
     directorySearch: input.directorySearch,
     assignmentsSearch: input.assignmentsSearch,
@@ -35,6 +33,13 @@ export function buildHrRecordsPageModel(
     separatedSearch: input.separatedSearch,
     employmentStatusFilter: input.employmentStatusFilter,
   });
+  const page = input.page ?? search.page;
+  const pageSize = input.pageSize ?? search.pageSize;
+  const resolvedSearch = {
+    ...search,
+    page,
+    pageSize,
+  };
   const recordsPage = listHrEmployeeRecordSummariesPage(search, {
     canRead: true,
     organizationId: input.organizationId,
@@ -45,7 +50,7 @@ export function buildHrRecordsPageModel(
     canWrite: input.canWrite,
     canViewSensitive: input.canViewSensitive,
     routePaths: hrRecordsRoutePaths,
-    search,
+    search: resolvedSearch,
     overviewStats: buildHrRecordsOverviewStatGroups(input.organizationId),
     records: recordsPage.records,
     page: recordsPage.page,

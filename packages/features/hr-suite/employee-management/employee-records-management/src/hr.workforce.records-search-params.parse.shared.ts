@@ -88,8 +88,11 @@ export function parseHrRecordsSearchParams(
       continue;
     }
 
-    parsed[modelField] =
-      readSearchParam(searchParams, paramKey) ?? legacySearch;
+    const recordField = modelField as Exclude<
+      keyof HrRecordsSearchParams,
+      "page" | "pageSize"
+    >;
+    parsed[recordField] = readSearchParam(searchParams, paramKey) ?? legacySearch;
   }
 
   const employmentStatusRaw =

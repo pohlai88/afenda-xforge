@@ -186,5 +186,9 @@ export function listHrEmployeeRecordSummaries(
   query: HrRecordsSearchParams = {},
   context?: QueryContext
 ): readonly HrEmployeeRecordSummary[] {
-  return listHrEmployeeRecordSummariesPage(query, context).records;
+  if (!canReadHrEmployeeRecord(context ?? {})) {
+    return [];
+  }
+
+  return buildScopedDirectoryRecords(query, context);
 }
