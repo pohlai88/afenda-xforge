@@ -6,26 +6,31 @@ import type {
   GovernmentClassificationPayGradesRecord,
   UpdateGovernmentClassificationPayGradesInput,
 } from "./contract.ts";
+import { runHrSuiteFeatureAction } from "./execution/action.ts";
 import type { HrSuiteFeatureContext } from "./shared/index.ts";
 
-export async function createGovernmentClassificationPayGradesRecord(
+export function createGovernmentClassificationPayGradesRecord(
   input: CreateGovernmentClassificationPayGradesInput,
   _context?: HrSuiteFeatureContext
 ): Promise<GovernmentClassificationPayGradesRecord> {
-  return {
+  return runHrSuiteFeatureAction<
+    Promise<GovernmentClassificationPayGradesRecord>
+  >(async () => ({
     id: randomUUID(),
     name: input.name.trim(),
     status: "draft",
-  };
+  }));
 }
 
-export async function updateGovernmentClassificationPayGradesRecord(
+export function updateGovernmentClassificationPayGradesRecord(
   input: UpdateGovernmentClassificationPayGradesInput,
   _context?: HrSuiteFeatureContext
 ): Promise<GovernmentClassificationPayGradesRecord> {
-  return {
+  return runHrSuiteFeatureAction<
+    Promise<GovernmentClassificationPayGradesRecord>
+  >(async () => ({
     id: input.id,
     name: input.name?.trim() || "Unnamed",
     status: input.status ?? "draft",
-  };
+  }));
 }

@@ -9,8 +9,6 @@ export {
   AvatarStack,
   AvatarStage,
   avatarPeople,
-  DemoAvatar,
-  renderAvatarPattern,
 } from "./avatar.shared";
 export { AvatarBadgeIcon } from "./avatar-badge-icon";
 export { AvatarBasic } from "./avatar-basic";
@@ -24,7 +22,6 @@ export { AvatarDifferentBadgePositions2 } from "./avatar-different-badge-positio
 export { AvatarDifferentBorderRadiuses } from "./avatar-different-border-radiuses";
 export { AvatarDifferentSizes } from "./avatar-different-sizes";
 export { AvatarDistinctBorderRing } from "./avatar-distinct-border-ring";
-export { AvatarEmptyStateExample } from "./avatar-empty-state-example";
 export { AvatarWithFallback } from "./avatar-fallback";
 export { AvatarGradientAnimatedRing } from "./avatar-gradient-animated-ring";
 export { AvatarGrayscaleImageFilter } from "./avatar-grayscale-image-filter";

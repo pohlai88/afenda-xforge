@@ -6,6 +6,7 @@ import type {
   FlexibleWorkArrangementTrackingRecord,
   UpdateFlexibleWorkArrangementTrackingInput,
 } from "./contract.ts";
+import { runHrSuiteFeatureAction } from "./execution/action.ts";
 import { flexibleWorkArrangementTrackingStore } from "./queries.ts";
 import type { HrSuiteFeatureContext } from "./shared/index.ts";
 
@@ -18,27 +19,31 @@ export function createFlexibleWorkArrangementTrackingRecord(
   input: CreateFlexibleWorkArrangementTrackingInput,
   _context?: HrSuiteFeatureContext
 ): FlexibleWorkArrangementTrackingRecord {
-  const record: FlexibleWorkArrangementTrackingRecord = {
-    id: randomUUID(),
-    name: normalizeName(input.name),
-    status: "draft",
-  };
+  return runHrSuiteFeatureAction(() => {
+    const record: FlexibleWorkArrangementTrackingRecord = {
+      id: randomUUID(),
+      name: normalizeName(input.name),
+      status: "draft",
+    };
 
-  flexibleWorkArrangementTrackingStore.set(record.id, record);
-  return record;
+    flexibleWorkArrangementTrackingStore.set(record.id, record);
+    return record;
+  });
 }
 
 export function updateFlexibleWorkArrangementTrackingRecord(
   input: UpdateFlexibleWorkArrangementTrackingInput,
   _context?: HrSuiteFeatureContext
 ): FlexibleWorkArrangementTrackingRecord {
-  const currentRecord = flexibleWorkArrangementTrackingStore.get(input.id);
-  const nextRecord: FlexibleWorkArrangementTrackingRecord = {
-    id: input.id,
-    name: normalizeName(input.name ?? currentRecord?.name ?? "Unnamed"),
-    status: input.status ?? currentRecord?.status ?? "draft",
-  };
+  return runHrSuiteFeatureAction(() => {
+    const currentRecord = flexibleWorkArrangementTrackingStore.get(input.id);
+    const nextRecord: FlexibleWorkArrangementTrackingRecord = {
+      id: input.id,
+      name: normalizeName(input.name ?? currentRecord?.name ?? "Unnamed"),
+      status: input.status ?? currentRecord?.status ?? "draft",
+    };
 
-  flexibleWorkArrangementTrackingStore.set(nextRecord.id, nextRecord);
-  return nextRecord;
+    flexibleWorkArrangementTrackingStore.set(nextRecord.id, nextRecord);
+    return nextRecord;
+  });
 }

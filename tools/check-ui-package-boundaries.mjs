@@ -286,9 +286,175 @@ function checkImports() {
   }
 }
 
+function getComposeDirectory() {
+  return path.join(packageRoots.ui, "src", "components", "compose");
+}
+
+function getComposeRegistryNames() {
+  const registryPath = path.join(getComposeDirectory(), "compose.registry.ts");
+  const registrySource = readFileSync(registryPath, "utf8");
+
+  return new Set(
+    [...registrySource.matchAll(/^\s*name:\s*"([^"]+)",/gm)].map(
+      (match) => match[1]
+    )
+  );
+}
+
+function getComposeRegistryReadinessByName() {
+  const registryPath = path.join(getComposeDirectory(), "compose.registry.ts");
+  const registrySource = readFileSync(registryPath, "utf8");
+  const readinessByName = new Map();
+
+  for (const match of registrySource.matchAll(
+    /name:\s*"([^"]+)",[\s\S]*?readiness:\s*"(metadata-ready|preview-only)"/g
+  )) {
+    readinessByName.set(match[1], match[2]);
+  }
+
+  return readinessByName;
+}
+
+function checkComposeRegistryCompleteness() {
+  const composeDirectory = getComposeDirectory();
+  const registryNames = getComposeRegistryNames();
+  const readinessByName = getComposeRegistryReadinessByName();
+  const catalogNames = new Set(
+    walk(composeDirectory)
+      .filter((filePath) => filePath.endsWith(".catalog.ts"))
+      .map((filePath) => path.basename(path.dirname(filePath)))
+  );
+  const familyNames = readdirSync(composeDirectory, { withFileTypes: true })
+    .filter((entry) => entry.isDirectory() && entry.name !== "_previews")
+    .map((entry) => entry.name)
+    .sort();
+
+  for (const familyName of familyNames) {
+    if (!registryNames.has(familyName)) {
+      addViolation(
+        `packages/ui compose family '${familyName}' must be represented in compose.registry.ts`
+      );
+    }
+  }
+
+  for (const registryName of registryNames) {
+    if (!familyNames.includes(registryName)) {
+      addViolation(
+        `packages/ui compose.registry.ts references missing compose family '${registryName}'`
+      );
+    }
+  }
+
+  for (const familyName of familyNames) {
+    const readiness = readinessByName.get(familyName);
+
+    if (readiness !== "preview-only" && !catalogNames.has(familyName)) {
+      addViolation(
+        `packages/ui compose family '${familyName}' is ${readiness ?? "unknown"} and must provide a *.catalog.ts file unless it is preview-only`
+      );
+    }
+  }
+}
+
+function checkComposeRegistryIsSerializable() {
+  const registryPath = path.join(getComposeDirectory(), "compose.registry.ts");
+  const registrySource = readFileSync(registryPath, "utf8");
+  const imports = extractImports(registrySource);
+
+  for (const specifier of imports) {
+    if (specifier !== "./compose.contract") {
+      addViolation(
+        `${relativeToRoot(registryPath)}: compose registry must stay metadata-only and must not import ${specifier}`
+      );
+    }
+  }
+
+  if (/\bcomponent\s*:/.test(registrySource)) {
+    addViolation(
+      `${relativeToRoot(registryPath)}: compose registry must not include React component references`
+    );
+  }
+}
+
+function checkComposePublicSurface() {
+  const composeDirectory = getComposeDirectory();
+  const forbiddenPublicExportPattern =
+    /\b(MediaPreviewDialog|AvatarEmptyStateExample|DemoAvatar|DemoFile|GalleryUpload|galleryFiles|demoBoard|PreviewKanban)\b/;
+  const publicEntryFiles = [
+    path.join(composeDirectory, "index.ts"),
+    ...readdirSync(composeDirectory, { withFileTypes: true })
+      .filter((entry) => entry.isDirectory() && entry.name !== "_previews")
+      .map((entry) => path.join(composeDirectory, entry.name, "index.ts"))
+      .filter((filePath) => existsSync(filePath)),
+  ];
+
+  for (const filePath of publicEntryFiles) {
+    const source = readFileSync(filePath, "utf8");
+
+    if (forbiddenPublicExportPattern.test(source)) {
+      addViolation(
+        `${relativeToRoot(filePath)}: compose public barrels must not expose demo, preview, or gallery-only symbols`
+      );
+    }
+  }
+}
+
+function checkComposeRenderRegistry() {
+  const renderersPath = path.join(getComposeDirectory(), "compose.renderers.ts");
+
+  if (!existsSync(renderersPath)) {
+    addViolation(
+      `packages/ui compose render registry must exist at ${relativeToRoot(renderersPath)}`
+    );
+    return;
+  }
+
+  const renderersSource = readFileSync(renderersPath, "utf8");
+  const renderableGroupNames = new Set(
+    [...renderersSource.matchAll(/createRenderableCatalog\(\s*"([^"]+)"/g)].map(
+      (match) => match[1]
+    )
+  );
+  const readinessByName = getComposeRegistryReadinessByName();
+
+  for (const specifier of extractImports(renderersSource)) {
+    if (specifier.startsWith("./_previews/")) {
+      addViolation(
+        `${relativeToRoot(renderersPath)}: compose render registry must not import preview-only compose assets: ${specifier}`
+      );
+    }
+  }
+
+  for (const [familyName, readiness] of readinessByName) {
+    if (readiness === "metadata-ready" && !renderableGroupNames.has(familyName)) {
+      addViolation(
+        `${relativeToRoot(renderersPath)}: metadata-ready compose family '${familyName}' must be represented in compose.renderers.ts`
+      );
+    }
+
+    if (readiness === "preview-only" && renderableGroupNames.has(familyName)) {
+      addViolation(
+        `${relativeToRoot(renderersPath)}: preview-only compose family '${familyName}' must not be represented in compose.renderers.ts`
+      );
+    }
+  }
+
+  for (const familyName of renderableGroupNames) {
+    if (!readinessByName.has(familyName)) {
+      addViolation(
+        `${relativeToRoot(renderersPath)}: compose render registry references unknown compose family '${familyName}'`
+      );
+    }
+  }
+}
+
 checkRequiredDesignSystemScaffold();
 checkWorkspaceDependencies();
 checkImports();
+checkComposeRegistryCompleteness();
+checkComposeRegistryIsSerializable();
+checkComposeRenderRegistry();
+checkComposePublicSurface();
 
 if (violations.length > 0) {
   console.error("UI/design-system/metadata boundary violations found:\n");

@@ -1,3 +1,9 @@
+export {
+  type TimelinePatternName,
+  timelinePatternCatalog,
+  timelinePatternCount,
+  timelinePatternNames,
+} from "./timeline.catalog";
 export { TimelineActivityFeed } from "./timeline-activity-feed";
 export { TimelineAlternatingLayout } from "./timeline-alternating-layout";
 export { TimelineBasic } from "./timeline-basic";

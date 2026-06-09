@@ -65,7 +65,6 @@ export {
   DestructiveConfirmationDialog,
   FormEntryDialog,
   InlineHelpDialog,
-  MediaPreviewDialog,
   OnboardingDialog,
   PaymentConfirmationDialog,
   ScrollableContentDialog,
@@ -131,7 +130,6 @@ export { AvatarDifferentBadgePositions2 } from "./avatar/avatar-different-badge-
 export { AvatarDifferentBorderRadiuses } from "./avatar/avatar-different-border-radiuses";
 export { AvatarDifferentSizes } from "./avatar/avatar-different-sizes";
 export { AvatarDistinctBorderRing } from "./avatar/avatar-distinct-border-ring";
-export { AvatarEmptyStateExample } from "./avatar/avatar-empty-state-example";
 export { AvatarWithFallback } from "./avatar/avatar-fallback";
 export { AvatarGradientAnimatedRing } from "./avatar/avatar-gradient-animated-ring";
 export { AvatarGrayscaleImageFilter } from "./avatar/avatar-grayscale-image-filter";
@@ -298,6 +296,7 @@ export type {
   ComposePatternSpec,
   ComposeReadiness,
   ComposeRegistryGroup,
+  ComposeRenderablePatternSpec,
 } from "./compose.contract";
 export {
   type ComposeRegistryGroupName,
@@ -307,6 +306,13 @@ export {
   getComposeRegistryGroup,
   getComposeRegistryPattern,
 } from "./compose.registry";
+export {
+  type ComposeRenderableGroupName,
+  composeRenderableCatalogs,
+  composeRenderableGroupNames,
+  getComposeRenderablePattern,
+  getComposeRenderablePatterns,
+} from "./compose.renderers";
 export * from "./data-grid";
 export * from "./date-selector";
 export * from "./file-upload";

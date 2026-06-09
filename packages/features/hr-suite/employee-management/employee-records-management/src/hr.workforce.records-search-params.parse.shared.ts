@@ -66,6 +66,16 @@ export function parseHrRecordsSearchParams(
       readSearchParam(searchParams, paramKey) ?? legacySearch;
   }
 
+  const employmentStatusRaw =
+    readSearchParam(searchParams, "employmentStatusFilter") ?? legacySearch;
+  if (employmentStatusRaw) {
+    const status =
+      hrRecordsEmploymentStatusSchema.safeParse(employmentStatusRaw);
+    if (status.success) {
+      parsed.employmentStatusFilter = status.data;
+    }
+  }
+
   return parsed;
 }
 

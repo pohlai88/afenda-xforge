@@ -6,6 +6,7 @@ import type {
   LeaveAttendanceManagementRecord,
   UpdateLeaveAttendanceManagementInput,
 } from "./contract.ts";
+import { runHrSuiteFeatureAction } from "./execution/action.ts";
 import { leaveAttendanceManagementStore } from "./queries.ts";
 import type { HrSuiteFeatureContext } from "./shared/index.ts";
 
@@ -18,27 +19,31 @@ export function createLeaveAttendanceManagementRecord(
   input: CreateLeaveAttendanceManagementInput,
   _context?: HrSuiteFeatureContext
 ): LeaveAttendanceManagementRecord {
-  const record: LeaveAttendanceManagementRecord = {
-    id: randomUUID(),
-    name: normalizeName(input.name),
-    status: "draft",
-  };
+  return runHrSuiteFeatureAction(() => {
+    const record: LeaveAttendanceManagementRecord = {
+      id: randomUUID(),
+      name: normalizeName(input.name),
+      status: "draft",
+    };
 
-  leaveAttendanceManagementStore.set(record.id, record);
-  return record;
+    leaveAttendanceManagementStore.set(record.id, record);
+    return record;
+  });
 }
 
 export function updateLeaveAttendanceManagementRecord(
   input: UpdateLeaveAttendanceManagementInput,
   _context?: HrSuiteFeatureContext
 ): LeaveAttendanceManagementRecord {
-  const currentRecord = leaveAttendanceManagementStore.get(input.id);
-  const nextRecord: LeaveAttendanceManagementRecord = {
-    id: input.id,
-    name: normalizeName(input.name ?? currentRecord?.name ?? "Unnamed"),
-    status: input.status ?? currentRecord?.status ?? "draft",
-  };
+  return runHrSuiteFeatureAction(() => {
+    const currentRecord = leaveAttendanceManagementStore.get(input.id);
+    const nextRecord: LeaveAttendanceManagementRecord = {
+      id: input.id,
+      name: normalizeName(input.name ?? currentRecord?.name ?? "Unnamed"),
+      status: input.status ?? currentRecord?.status ?? "draft",
+    };
 
-  leaveAttendanceManagementStore.set(nextRecord.id, nextRecord);
-  return nextRecord;
+    leaveAttendanceManagementStore.set(nextRecord.id, nextRecord);
+    return nextRecord;
+  });
 }

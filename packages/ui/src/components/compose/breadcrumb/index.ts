@@ -1,6 +1,12 @@
 "use client";
 
 export {
+  type BreadcrumbPatternName,
+  breadcrumbPatternCatalog,
+  breadcrumbPatternCount,
+  breadcrumbPatternNames,
+} from "./breadcrumb.catalog";
+export {
   Breadcrumb,
   BreadcrumbEllipsis,
   BreadcrumbItem,

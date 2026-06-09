@@ -19,16 +19,20 @@
     "keys.ts",
     "seed.ts",
     "schema.ts",
+    "scripts",
     "package.json"
   ],
   "scripts": {
-    "lint": "biome check db.ts drizzle.config.ts index.ts keys.ts seed.ts schema.ts",
-    "format": "biome format --write db.ts drizzle.config.ts index.ts keys.ts seed.ts schema.ts",
+    "lint": "biome check db.ts drizzle.config.ts index.ts keys.ts seed.ts schema.ts scripts/block-db-push.mjs scripts/migrate-local.mjs scripts/validate-env.mjs",
+    "format": "biome format --write db.ts drizzle.config.ts index.ts keys.ts seed.ts schema.ts scripts/block-db-push.mjs scripts/migrate-local.mjs scripts/validate-env.mjs",
     "clean": "git clean -xdf .cache .turbo dist node_modules",
     "db:generate": "drizzle-kit generate",
-    "db:migrate": "drizzle-kit migrate",
+    "db:migrate": "node scripts/migrate-local.mjs",
+    "db:migrate:kit": "drizzle-kit migrate",
+    "db:push": "node scripts/block-db-push.mjs",
     "db:seed": "tsx seed.ts",
     "db:studio": "drizzle-kit studio",
+    "db:validate-env": "node scripts/validate-env.mjs",
     "typecheck": "tsc --noEmit --emitDeclarationOnly false"
   },
   "dependencies": {

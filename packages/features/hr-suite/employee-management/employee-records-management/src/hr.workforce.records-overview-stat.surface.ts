@@ -3,7 +3,9 @@ import { loadHrRecordsOverviewSnapshot } from "./hr.workforce.records-overview.s
 export const hrRecordsOverviewStatSurfaceKey =
   "hr.records.overview.stats" as const;
 
-export function buildHrRecordsOverviewStatGroups(): readonly {
+export function buildHrRecordsOverviewStatGroups(
+  organizationId?: string
+): readonly {
   key: typeof hrRecordsOverviewStatSurfaceKey;
   stats: readonly {
     id: string;
@@ -11,7 +13,7 @@ export function buildHrRecordsOverviewStatGroups(): readonly {
     value: number;
   }[];
 }[] {
-  const snapshot = loadHrRecordsOverviewSnapshot();
+  const snapshot = loadHrRecordsOverviewSnapshot(organizationId);
 
   return [
     {

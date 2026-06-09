@@ -43,10 +43,13 @@ export type ComposeCapability =
 export type ComposeReadiness = "metadata-ready" | "preview-only";
 
 export type ComposePatternSpec = {
-  component?: React.ComponentType;
   description: string;
   name: string;
   title: string;
+};
+
+export type ComposeRenderablePatternSpec = ComposePatternSpec & {
+  component: React.ComponentType;
 };
 
 export type ComposeRegistryGroup = {

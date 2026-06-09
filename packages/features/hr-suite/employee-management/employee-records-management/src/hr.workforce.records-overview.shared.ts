@@ -6,8 +6,10 @@ export type HrEmployeeRecordsOverviewSnapshot = {
   archivedCount: number;
 };
 
-export function loadHrRecordsOverviewSnapshot(): HrEmployeeRecordsOverviewSnapshot {
-  const records = hrRecordsStore.list();
+export function loadHrRecordsOverviewSnapshot(
+  organizationId?: string
+): HrEmployeeRecordsOverviewSnapshot {
+  const records = hrRecordsStore.list({ organizationId });
   const archivedCount = records.filter(
     (record) => record.employmentStatus === "archived"
   ).length;

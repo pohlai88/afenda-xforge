@@ -15,6 +15,8 @@ export type {
   HrRecordsSearchParams,
   HrRecordsUpdateEmployeeInput,
 } from "./hr.workforce.records.contract.ts";
+export { hrRecordsSearchParamsSchema } from "./hr.workforce.records.contract.ts";
+export { hrRecordsCreateEmployeeSchema } from "./hr.workforce.records-form.shared.ts";
 export {
   hrEmployeeDetailRoutePath,
   hrRecordsRoutePaths,

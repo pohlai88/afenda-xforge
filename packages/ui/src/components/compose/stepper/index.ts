@@ -1,5 +1,11 @@
 "use client";
 
+export {
+  type StepperPatternName,
+  stepperPatternCatalog,
+  stepperPatternCount,
+  stepperPatternNames,
+} from "./stepper.catalog";
 export type { StepIndicators } from "./stepper.shared";
 export {
   Stepper,

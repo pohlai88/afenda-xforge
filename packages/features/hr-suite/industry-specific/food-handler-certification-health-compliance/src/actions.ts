@@ -6,26 +6,31 @@ import type {
   FoodHandlerCertificationHealthComplianceRecord,
   UpdateFoodHandlerCertificationHealthComplianceInput,
 } from "./contract.ts";
+import { runHrSuiteFeatureAction } from "./execution/action.ts";
 import type { HrSuiteFeatureContext } from "./shared/index.ts";
 
-export async function createFoodHandlerCertificationHealthComplianceRecord(
+export function createFoodHandlerCertificationHealthComplianceRecord(
   input: CreateFoodHandlerCertificationHealthComplianceInput,
   _context?: HrSuiteFeatureContext
 ): Promise<FoodHandlerCertificationHealthComplianceRecord> {
-  return {
+  return runHrSuiteFeatureAction<
+    Promise<FoodHandlerCertificationHealthComplianceRecord>
+  >(async () => ({
     id: randomUUID(),
     name: input.name.trim(),
     status: "draft",
-  };
+  }));
 }
 
-export async function updateFoodHandlerCertificationHealthComplianceRecord(
+export function updateFoodHandlerCertificationHealthComplianceRecord(
   input: UpdateFoodHandlerCertificationHealthComplianceInput,
   _context?: HrSuiteFeatureContext
 ): Promise<FoodHandlerCertificationHealthComplianceRecord> {
-  return {
+  return runHrSuiteFeatureAction<
+    Promise<FoodHandlerCertificationHealthComplianceRecord>
+  >(async () => ({
     id: input.id,
     name: input.name?.trim() || "Unnamed",
     status: input.status ?? "draft",
-  };
+  }));
 }

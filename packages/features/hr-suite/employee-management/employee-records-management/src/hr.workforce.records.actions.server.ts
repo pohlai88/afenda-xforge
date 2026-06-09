@@ -40,7 +40,7 @@ export function createHrEmployeeRecordAction(
 
   try {
     const parsed = hrRecordsCreateEmployeeSchema.parse(input);
-    const record = hrRecordsStore.create(parsed);
+    const record = hrRecordsStore.create(parsed, context);
     return { ok: true, targetId: record.id };
   } catch (error) {
     return toRecordsActionFailure(error);
@@ -57,7 +57,7 @@ export function updateHrEmployeeRecordAction(
 
   try {
     const parsed = hrRecordsUpdateEmployeeSchema.parse(input);
-    const record = hrRecordsStore.update(parsed);
+    const record = hrRecordsStore.update(parsed, context);
     return record
       ? { ok: true, targetId: record.id }
       : { ok: false, error: "Record not found" };
@@ -76,7 +76,7 @@ export function archiveHrEmployeeRecordAction(
 
   try {
     const parsed = hrRecordsArchiveEmployeeSchema.parse(input);
-    const record = hrRecordsStore.archive(parsed);
+    const record = hrRecordsStore.archive(parsed, context);
     return record
       ? { ok: true, targetId: record.id }
       : { ok: false, error: "Record not found" };
@@ -95,7 +95,7 @@ export function recordHrEmployeeAssignmentAction(
 
   try {
     const parsed = hrRecordsAssignmentSchema.parse(input);
-    const record = hrRecordsStore.assign(parsed);
+    const record = hrRecordsStore.assign(parsed, context);
     return record
       ? { ok: true, targetId: record.id }
       : { ok: false, error: "Record not found" };
@@ -114,7 +114,7 @@ export function rehireHrEmployeeAction(
 
   try {
     const parsed = hrRecordsRehireEmployeeSchema.parse(input);
-    const record = hrRecordsStore.rehire(parsed);
+    const record = hrRecordsStore.rehire(parsed, context);
     return { ok: true, targetId: record.id };
   } catch (error) {
     return toRecordsActionFailure(error);

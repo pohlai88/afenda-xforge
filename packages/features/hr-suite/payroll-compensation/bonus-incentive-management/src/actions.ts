@@ -2,30 +2,35 @@ import "server-only";
 
 import { randomUUID } from "node:crypto";
 import type {
-  CreateBonusIncentiveManagementInput,
   BonusIncentiveManagementRecord,
+  CreateBonusIncentiveManagementInput,
   UpdateBonusIncentiveManagementInput,
 } from "./contract.ts";
+import { runHrSuiteFeatureAction } from "./execution/action.ts";
 import type { HrSuiteFeatureContext } from "./shared/index.ts";
 
-export async function createBonusIncentiveManagementRecord(
+export function createBonusIncentiveManagementRecord(
   input: CreateBonusIncentiveManagementInput,
   _context?: HrSuiteFeatureContext
 ): Promise<BonusIncentiveManagementRecord> {
-  return {
-    id: randomUUID(),
-    name: input.name.trim(),
-    status: "draft",
-  };
+  return runHrSuiteFeatureAction<Promise<BonusIncentiveManagementRecord>>(
+    async () => ({
+      id: randomUUID(),
+      name: input.name.trim(),
+      status: "draft",
+    })
+  );
 }
 
-export async function updateBonusIncentiveManagementRecord(
+export function updateBonusIncentiveManagementRecord(
   input: UpdateBonusIncentiveManagementInput,
   _context?: HrSuiteFeatureContext
 ): Promise<BonusIncentiveManagementRecord> {
-  return {
-    id: input.id,
-    name: input.name?.trim() || "Unnamed",
-    status: input.status ?? "draft",
-  };
+  return runHrSuiteFeatureAction<Promise<BonusIncentiveManagementRecord>>(
+    async () => ({
+      id: input.id,
+      name: input.name?.trim() || "Unnamed",
+      status: input.status ?? "draft",
+    })
+  );
 }

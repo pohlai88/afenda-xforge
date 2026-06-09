@@ -1,4 +1,10 @@
 export {
+  type ComboboxPatternName,
+  comboboxPatternCatalog,
+  comboboxPatternCount,
+  comboboxPatternNames,
+} from "./combobox.catalog";
+export {
   Combobox,
   ComboboxChip,
   ComboboxChips,

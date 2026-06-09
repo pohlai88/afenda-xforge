@@ -1,3 +1,9 @@
+export {
+  type ButtonPatternName,
+  buttonPatternCatalog,
+  buttonPatternCount,
+  buttonPatternNames,
+} from "./button.catalog";
 export { Button, ButtonPatternCard } from "./button.shared";
 export { ButtonAsInput } from "./button-as-input";
 export { ButtonBadge } from "./button-badge";

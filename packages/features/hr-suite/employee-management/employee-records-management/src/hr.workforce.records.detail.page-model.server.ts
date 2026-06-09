@@ -41,7 +41,9 @@ type HrEmployeeRecordDetailPageModel = {
 export function buildHrEmployeeRecordDetailPageModel(
   input: HrEmployeeRecordDetailPageModelInput
 ): HrEmployeeRecordDetailPageModel | null {
-  const detail = hrRecordsStore.get(input.employeeId);
+  const detail = hrRecordsStore.get(input.employeeId, {
+    organizationId: input.organizationId,
+  });
 
   if (!detail) {
     return null;

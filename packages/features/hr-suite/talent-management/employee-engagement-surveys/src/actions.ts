@@ -6,26 +6,31 @@ import type {
   EmployeeEngagementSurveysRecord,
   UpdateEmployeeEngagementSurveysInput,
 } from "./contract.ts";
+import { runHrSuiteFeatureAction } from "./execution/action.ts";
 import type { HrSuiteFeatureContext } from "./shared/index.ts";
 
-export async function createEmployeeEngagementSurveysRecord(
+export function createEmployeeEngagementSurveysRecord(
   input: CreateEmployeeEngagementSurveysInput,
   _context?: HrSuiteFeatureContext
 ): Promise<EmployeeEngagementSurveysRecord> {
-  return {
-    id: randomUUID(),
-    name: input.name.trim(),
-    status: "draft",
-  };
+  return runHrSuiteFeatureAction<Promise<EmployeeEngagementSurveysRecord>>(
+    async () => ({
+      id: randomUUID(),
+      name: input.name.trim(),
+      status: "draft",
+    })
+  );
 }
 
-export async function updateEmployeeEngagementSurveysRecord(
+export function updateEmployeeEngagementSurveysRecord(
   input: UpdateEmployeeEngagementSurveysInput,
   _context?: HrSuiteFeatureContext
 ): Promise<EmployeeEngagementSurveysRecord> {
-  return {
-    id: input.id,
-    name: input.name?.trim() || "Unnamed",
-    status: input.status ?? "draft",
-  };
+  return runHrSuiteFeatureAction<Promise<EmployeeEngagementSurveysRecord>>(
+    async () => ({
+      id: input.id,
+      name: input.name?.trim() || "Unnamed",
+      status: input.status ?? "draft",
+    })
+  );
 }

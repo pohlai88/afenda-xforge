@@ -330,6 +330,23 @@ The current package already includes employee-record-specific structures and ser
 
 The package already models the employee-records domain with meaningful server-side types and operations. The architecture doc should therefore be read as a governed target design with partial implementation already present, not as a purely aspirational scaffold.
 
+### Slice 1 implementation evidence
+
+Slice 1 is implemented as a durable record baseline with scoped repository persistence and API wiring.
+
+- `src/repository.ts` now owns file-backed load/save/mutate behavior, organization scoping, and test hooks.
+- `src/hr.workforce.records.store.ts` delegates reads and writes to the repository while preserving compatibility call sites.
+- `src/hr.workforce.records.queries.ts` now respects read denial and organization scope.
+- `src/index.ts` exports `hrRecordsCreateEmployeeSchema` so the API can validate create payloads against the package contract.
+- `apps/api/app/api/hr/records/_lib/context.ts`, `apps/api/app/api/hr/records/route.ts`, and `apps/api/app/api/hr/records/[employeeId]/route.ts` provide request-scoped read/write access to the feature surface.
+- `test/public-api.test.ts` and `test/records-baseline.test.ts` cover export compatibility, parsing, scoped persistence, read denial, and write denial.
+
+Validation completed on 2026-06-09:
+
+- `pnpm --filter @repo/features-employee-management-employee-records-management lint`
+- `pnpm --filter @repo/features-employee-management-employee-records-management test`
+- `pnpm --filter api typecheck`
+
 ## Upgrade plan
 
 ### Phase 1: Harden persistence and lifecycle invariants

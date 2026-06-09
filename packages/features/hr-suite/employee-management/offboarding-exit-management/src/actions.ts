@@ -6,6 +6,7 @@ import type {
   OffboardingExitManagementRecord,
   UpdateOffboardingExitManagementInput,
 } from "./contract.ts";
+import { runHrSuiteFeatureAction } from "./execution/action.ts";
 import { offboardingExitManagementStore } from "./queries.ts";
 import type { HrSuiteFeatureContext } from "./shared/index.ts";
 
@@ -18,27 +19,31 @@ export function createOffboardingExitManagementRecord(
   input: CreateOffboardingExitManagementInput,
   _context?: HrSuiteFeatureContext
 ): OffboardingExitManagementRecord {
-  const record: OffboardingExitManagementRecord = {
-    id: randomUUID(),
-    name: normalizeName(input.name),
-    status: "draft",
-  };
+  return runHrSuiteFeatureAction(() => {
+    const record: OffboardingExitManagementRecord = {
+      id: randomUUID(),
+      name: normalizeName(input.name),
+      status: "draft",
+    };
 
-  offboardingExitManagementStore.set(record.id, record);
-  return record;
+    offboardingExitManagementStore.set(record.id, record);
+    return record;
+  });
 }
 
 export function updateOffboardingExitManagementRecord(
   input: UpdateOffboardingExitManagementInput,
   _context?: HrSuiteFeatureContext
 ): OffboardingExitManagementRecord {
-  const currentRecord = offboardingExitManagementStore.get(input.id);
-  const nextRecord: OffboardingExitManagementRecord = {
-    id: input.id,
-    name: normalizeName(input.name ?? currentRecord?.name ?? "Unnamed"),
-    status: input.status ?? currentRecord?.status ?? "draft",
-  };
+  return runHrSuiteFeatureAction(() => {
+    const currentRecord = offboardingExitManagementStore.get(input.id);
+    const nextRecord: OffboardingExitManagementRecord = {
+      id: input.id,
+      name: normalizeName(input.name ?? currentRecord?.name ?? "Unnamed"),
+      status: input.status ?? currentRecord?.status ?? "draft",
+    };
 
-  offboardingExitManagementStore.set(nextRecord.id, nextRecord);
-  return nextRecord;
+    offboardingExitManagementStore.set(nextRecord.id, nextRecord);
+    return nextRecord;
+  });
 }

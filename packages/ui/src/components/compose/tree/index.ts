@@ -4,6 +4,12 @@ export { TreeFileExplorerWithTypeIcons } from "./file-explorer-tree-with-type-ic
 export { TreeOrganizationChartWithAvatars } from "./organization-chart-tree-with-avatars";
 export { TreePermissionsWithCheckboxes } from "./permissions-tree-with-checkboxes";
 export {
+  type TreePatternName,
+  treePatternCatalog,
+  treePatternCount,
+  treePatternNames,
+} from "./tree.catalog";
+export {
   Tree,
   TreeDragLine,
   TreeItem,

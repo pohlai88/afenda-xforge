@@ -96,6 +96,12 @@ audit is written by the canonical execution pipeline
 
 `@repo/webhooks` may verify and transport webhook messages. It must not decide what an ERP record means or mutate ERP state directly.
 
+Operational ownership rule:
+
+- webhook endpoint lifecycle is a system administration concern
+- the governed feature owner for tenant-facing endpoint management is `@repo/features-system-admin-control-plane`
+- `apps/api` may host temporary operational routes, but the business-facing control surface belongs under the system admin feature family
+
 ## Target Directory Shape
 
 Promote the package from flat helper files into this production-ready shape:

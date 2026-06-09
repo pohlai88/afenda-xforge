@@ -1,4 +1,10 @@
 export {
+  type CheckboxPatternName,
+  checkboxPatternCatalog,
+  checkboxPatternCount,
+  checkboxPatternNames,
+} from "./checkbox.catalog";
+export {
   Checkbox,
   CheckboxFrame,
   CheckboxList,

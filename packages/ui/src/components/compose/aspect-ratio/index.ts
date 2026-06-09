@@ -1,3 +1,9 @@
+export {
+  type AspectRatioPatternName,
+  aspectRatioPatternCatalog,
+  aspectRatioPatternCount,
+  aspectRatioPatternNames,
+} from "./aspect-ratio.catalog";
 export { AspectRatio } from "./aspect-ratio.shared";
 export { AspectRatioClassicPhotography } from "./aspect-ratio-classic-photography";
 export { AspectRatioMonitor } from "./aspect-ratio-monitor";

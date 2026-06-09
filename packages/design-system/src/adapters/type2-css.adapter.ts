@@ -18,22 +18,22 @@ function renderDeclarations(declarations: readonly CssDeclaration[]): string {
 function renderBlock(
   selector: string,
   declarations: readonly CssDeclaration[]
-) {
+): string {
   return `${selector} {\n${renderDeclarations(declarations)}\n}`;
 }
 
-function renderUtility(name: string, body: string) {
+function renderUtility(name: string, body: string): string {
   return `@utility ${name} {\n${body}\n}`;
 }
 
-function renderKeyframes(name: keyof typeof TYPE2_CSS_KEYFRAMES) {
+function renderKeyframes(name: keyof typeof TYPE2_CSS_KEYFRAMES): string {
   const lines = TYPE2_CSS_KEYFRAMES[name];
   return `@keyframes ${name} {\n${lines
     .map((line) => (line ? `    ${line}` : ""))
     .join("\n")}\n  }`;
 }
 
-function assertAdapterCoverage() {
+function assertAdapterCoverage(): void {
   validateType2CssTokens();
 }
 
@@ -123,28 +123,42 @@ function extractBalancedBlock(css: string, marker: string): string {
 }
 
 function extractCustomProperties(block: string): Record<string, string> {
-  const entries: Array<[string, string]> = [];
+  const entries: [string, string][] = [];
   const declarationRegex = /(--[a-z0-9-]+):\s*([^;]+);/g;
 
   for (const match of block.matchAll(declarationRegex)) {
-    entries.push([match[1]!, normalizeValue(match[2] ?? "")]);
+    const name = match[1];
+
+    if (!name) {
+      continue;
+    }
+
+    entries.push([name, normalizeValue(match[2] ?? "")]);
   }
 
   return Object.fromEntries(entries);
+}
+
+function requireCapture(match: RegExpMatchArray): string {
+  const value = match[1];
+
+  if (!value) {
+    throw new Error(`Could not read regex capture from ${match[0]}`);
+  }
+
+  return value;
 }
 
 function parseCss(css: string): ParsedCssSnapshot {
   const themeBlock = extractBalancedBlock(css, "@theme inline");
 
   return {
-    sources: [...css.matchAll(/^@source\s+"([^"]+)";$/gm)].map(
-      (match) => match[1]!
-    ),
+    sources: [...css.matchAll(/^@source\s+"([^"]+)";$/gm)].map(requireCapture),
     utilities: [...css.matchAll(/^@utility\s+([a-z0-9-]+)\s*\{/gm)].map(
-      (match) => match[1]!
+      requireCapture
     ),
     keyframes: [...themeBlock.matchAll(/@keyframes\s+([a-z0-9-]+)\s*\{/g)].map(
-      (match) => match[1]!
+      requireCapture
     ),
     variables: {
       root: extractCustomProperties(extractBalancedBlock(css, ":root")),

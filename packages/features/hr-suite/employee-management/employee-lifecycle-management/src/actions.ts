@@ -6,6 +6,7 @@ import type {
   EmployeeLifecycleManagementRecord,
   UpdateEmployeeLifecycleManagementInput,
 } from "./contract.ts";
+import { runHrSuiteFeatureAction } from "./execution/action.ts";
 import { employeeLifecycleManagementStore } from "./queries.ts";
 import type { HrSuiteFeatureContext } from "./shared/index.ts";
 
@@ -18,27 +19,31 @@ export function createEmployeeLifecycleManagementRecord(
   input: CreateEmployeeLifecycleManagementInput,
   _context?: HrSuiteFeatureContext
 ): EmployeeLifecycleManagementRecord {
-  const record: EmployeeLifecycleManagementRecord = {
-    id: randomUUID(),
-    name: normalizeName(input.name),
-    status: "draft",
-  };
+  return runHrSuiteFeatureAction(() => {
+    const record: EmployeeLifecycleManagementRecord = {
+      id: randomUUID(),
+      name: normalizeName(input.name),
+      status: "draft",
+    };
 
-  employeeLifecycleManagementStore.set(record.id, record);
-  return record;
+    employeeLifecycleManagementStore.set(record.id, record);
+    return record;
+  });
 }
 
 export function updateEmployeeLifecycleManagementRecord(
   input: UpdateEmployeeLifecycleManagementInput,
   _context?: HrSuiteFeatureContext
 ): EmployeeLifecycleManagementRecord {
-  const currentRecord = employeeLifecycleManagementStore.get(input.id);
-  const nextRecord: EmployeeLifecycleManagementRecord = {
-    id: input.id,
-    name: normalizeName(input.name ?? currentRecord?.name ?? "Unnamed"),
-    status: input.status ?? currentRecord?.status ?? "draft",
-  };
+  return runHrSuiteFeatureAction(() => {
+    const currentRecord = employeeLifecycleManagementStore.get(input.id);
+    const nextRecord: EmployeeLifecycleManagementRecord = {
+      id: input.id,
+      name: normalizeName(input.name ?? currentRecord?.name ?? "Unnamed"),
+      status: input.status ?? currentRecord?.status ?? "draft",
+    };
 
-  employeeLifecycleManagementStore.set(nextRecord.id, nextRecord);
-  return nextRecord;
+    employeeLifecycleManagementStore.set(nextRecord.id, nextRecord);
+    return nextRecord;
+  });
 }

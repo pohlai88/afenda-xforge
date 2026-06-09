@@ -1,4 +1,10 @@
 export {
+  type AccordionPatternName,
+  accordionPatternCatalog,
+  accordionPatternCount,
+  accordionPatternNames,
+} from "./accordion.catalog";
+export {
   Accordion,
   AccordionContent,
   AccordionHeader,

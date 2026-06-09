@@ -815,6 +815,9 @@ function GalleryUpload() {
   );
 }
 
+const ImageGridUpload = GalleryUpload;
+const imageGridFiles = galleryFiles;
+
 function ProgressUpload() {
   const [{ files }, actions] = useFileUpload({
     accept: "*",
@@ -1264,10 +1267,10 @@ export {
   FileUploadPatternCard,
   FileUploadToolbar,
   formatBytes,
-  GalleryUpload,
-  galleryFiles,
+  ImageGridUpload,
   ImageUpload,
   imageFiles,
+  imageGridFiles,
   type PatternCardProps,
   ProgressUpload,
   progressFiles,

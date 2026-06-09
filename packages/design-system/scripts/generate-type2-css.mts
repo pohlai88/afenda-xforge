@@ -16,7 +16,7 @@ const uiGlobalsCssPath = path.resolve(
   "globals.css"
 );
 
-async function main() {
+async function main(): Promise<void> {
   const writeOnly = !(
     process.argv.includes("--check") || process.argv.includes("--compare")
   );

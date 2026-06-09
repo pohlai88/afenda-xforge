@@ -6,7 +6,7 @@ import {
   CompactUpload,
   CoverUpload,
   DefaultUpload,
-  GalleryUpload,
+  ImageGridUpload,
   ImageUpload,
   ProgressUpload,
   SortableUpload,
@@ -40,10 +40,10 @@ export const fileUploadPatternCatalog = [
     component: CompactUpload,
   },
   {
-    name: "gallery",
-    title: "Gallery Upload",
+    name: "image-grid",
+    title: "Image Grid Upload",
     description: "A gallery grid for multiple image attachments.",
-    component: GalleryUpload,
+    component: ImageGridUpload,
   },
   {
     name: "progress",

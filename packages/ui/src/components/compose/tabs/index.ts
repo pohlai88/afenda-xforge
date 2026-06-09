@@ -1,4 +1,10 @@
 export {
+  type TabsPatternName,
+  tabsPatternCatalog,
+  tabsPatternCount,
+  tabsPatternNames,
+} from "./tabs.catalog";
+export {
   Tabs,
   TabsContent,
   TabsList,

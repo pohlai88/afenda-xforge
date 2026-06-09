@@ -10,17 +10,18 @@
     "typecheck": "tsc --noEmit --emitDeclarationOnly false"
   },
   "dependencies": {
-    "@repo/auth": "workspace:*",
     "@repo/audit": "workspace:*",
+    "@repo/auth": "workspace:*",
     "@repo/database": "workspace:*",
+    "@repo/features-employee-management-compliance-regulatory-tracking": "workspace:*",
+    "@repo/features-employee-management-employee-records-management": "workspace:*",
     "@repo/features-master-data-companies": "workspace:*",
     "@repo/features-master-data-customers": "workspace:*",
-    "@repo/features-employee-management-compliance-regulatory-tracking": "workspace:*",
     "@repo/integrations-linear": "workspace:*",
     "@repo/integrations-workday": "workspace:*",
+    "@repo/next-config": "workspace:*",
     "@repo/permissions": "workspace:*",
     "@repo/redis": "workspace:*",
-    "@repo/next-config": "workspace:*",
     "@repo/ui": "workspace:*",
     "@repo/webhooks": "workspace:*",
     "drizzle-orm": "catalog:",
@@ -34,6 +35,7 @@
     "@types/node": "catalog:",
     "@types/react": "catalog:",
     "@types/react-dom": "catalog:",
+    "playwright": "1.60.0",
     "tailwindcss": "catalog:",
     "typescript": "catalog:"
   }

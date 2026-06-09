@@ -6,6 +6,7 @@ import type {
   GeolocationRemoteCheckinRecord,
   UpdateGeolocationRemoteCheckinInput,
 } from "./contract.ts";
+import { runHrSuiteFeatureAction } from "./execution/action.ts";
 import { geolocationRemoteCheckinStore } from "./queries.ts";
 import type { HrSuiteFeatureContext } from "./shared/index.ts";
 
@@ -18,27 +19,31 @@ export function createGeolocationRemoteCheckinRecord(
   input: CreateGeolocationRemoteCheckinInput,
   _context?: HrSuiteFeatureContext
 ): GeolocationRemoteCheckinRecord {
-  const record: GeolocationRemoteCheckinRecord = {
-    id: randomUUID(),
-    name: normalizeName(input.name),
-    status: "draft",
-  };
+  return runHrSuiteFeatureAction(() => {
+    const record: GeolocationRemoteCheckinRecord = {
+      id: randomUUID(),
+      name: normalizeName(input.name),
+      status: "draft",
+    };
 
-  geolocationRemoteCheckinStore.set(record.id, record);
-  return record;
+    geolocationRemoteCheckinStore.set(record.id, record);
+    return record;
+  });
 }
 
 export function updateGeolocationRemoteCheckinRecord(
   input: UpdateGeolocationRemoteCheckinInput,
   _context?: HrSuiteFeatureContext
 ): GeolocationRemoteCheckinRecord {
-  const currentRecord = geolocationRemoteCheckinStore.get(input.id);
-  const record: GeolocationRemoteCheckinRecord = {
-    id: input.id,
-    name: normalizeName(input.name ?? currentRecord?.name),
-    status: input.status ?? currentRecord?.status ?? "draft",
-  };
+  return runHrSuiteFeatureAction(() => {
+    const currentRecord = geolocationRemoteCheckinStore.get(input.id);
+    const record: GeolocationRemoteCheckinRecord = {
+      id: input.id,
+      name: normalizeName(input.name ?? currentRecord?.name),
+      status: input.status ?? currentRecord?.status ?? "draft",
+    };
 
-  geolocationRemoteCheckinStore.set(record.id, record);
-  return record;
+    geolocationRemoteCheckinStore.set(record.id, record);
+    return record;
+  });
 }

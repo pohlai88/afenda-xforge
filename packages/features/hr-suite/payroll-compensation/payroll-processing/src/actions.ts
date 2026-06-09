@@ -6,26 +6,31 @@ import type {
   PayrollProcessingRecord,
   UpdatePayrollProcessingInput,
 } from "./contract.ts";
+import { runHrSuiteFeatureAction } from "./execution/action.ts";
 import type { HrSuiteFeatureContext } from "./shared/index.ts";
 
-export async function createPayrollProcessingRecord(
+export function createPayrollProcessingRecord(
   input: CreatePayrollProcessingInput,
   _context?: HrSuiteFeatureContext
 ): Promise<PayrollProcessingRecord> {
-  return {
-    id: randomUUID(),
-    name: input.name.trim(),
-    status: "draft",
-  };
+  return runHrSuiteFeatureAction<Promise<PayrollProcessingRecord>>(
+    async () => ({
+      id: randomUUID(),
+      name: input.name.trim(),
+      status: "draft",
+    })
+  );
 }
 
-export async function updatePayrollProcessingRecord(
+export function updatePayrollProcessingRecord(
   input: UpdatePayrollProcessingInput,
   _context?: HrSuiteFeatureContext
 ): Promise<PayrollProcessingRecord> {
-  return {
-    id: input.id,
-    name: input.name?.trim() || "Unnamed",
-    status: input.status ?? "draft",
-  };
+  return runHrSuiteFeatureAction<Promise<PayrollProcessingRecord>>(
+    async () => ({
+      id: input.id,
+      name: input.name?.trim() || "Unnamed",
+      status: input.status ?? "draft",
+    })
+  );
 }

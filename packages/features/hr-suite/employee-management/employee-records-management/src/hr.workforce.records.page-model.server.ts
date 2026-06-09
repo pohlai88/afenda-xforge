@@ -40,7 +40,7 @@ export function buildHrRecordsPageModel(
     canViewSensitive: input.canViewSensitive,
     routePaths: hrRecordsRoutePaths,
     search,
-    overviewStats: buildHrRecordsOverviewStatGroups(),
-    records: hrRecordsStore.list(),
+    overviewStats: buildHrRecordsOverviewStatGroups(input.organizationId),
+    records: hrRecordsStore.list({ organizationId: input.organizationId }),
   } satisfies HrRecordsPageModel;
 }

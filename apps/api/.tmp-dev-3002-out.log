@@ -68,3 +68,13 @@ Creating turbopack project {
       ]
     }
  GET /api/internal/webhooks/dispatch 200 in 216ms (next.js: 7ms, application-code: 209ms)
+ GET /api/internal/webhooks/dispatch/health 200 in 9ms (next.js: 3ms, application-code: 5ms)
+ GET /api/internal/webhooks/dispatch 200 in 202ms (next.js: 3ms, application-code: 199ms)
+ GET /api/internal/webhooks/dispatch/health 403 in 5ms (next.js: 2ms, application-code: 3ms)
+ GET /api/internal/webhooks/dispatch/health 403 in 7ms (next.js: 3ms, application-code: 4ms)
+ GET /api/internal/webhooks/dispatch/health 200 in 13ms (next.js: 5ms, application-code: 8ms)
+ POST /webhooks/inbound/linear 400 in 2.7s (next.js: 2.3s, application-code: 430ms)
+ GET /api/internal/webhooks/dispatch 403 in 216ms (next.js: 7ms, application-code: 209ms)
+ GET /api/internal/webhooks/dispatch/health 200 in 24ms (next.js: 9ms, application-code: 15ms)
+[?25h
+ ELIFECYCLE  Command failed with exit code 4294967295.

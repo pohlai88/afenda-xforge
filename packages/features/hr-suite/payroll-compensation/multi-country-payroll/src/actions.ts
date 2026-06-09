@@ -6,26 +6,31 @@ import type {
   MultiCountryPayrollRecord,
   UpdateMultiCountryPayrollInput,
 } from "./contract.ts";
+import { runHrSuiteFeatureAction } from "./execution/action.ts";
 import type { HrSuiteFeatureContext } from "./shared/index.ts";
 
-export async function createMultiCountryPayrollRecord(
+export function createMultiCountryPayrollRecord(
   input: CreateMultiCountryPayrollInput,
   _context?: HrSuiteFeatureContext
 ): Promise<MultiCountryPayrollRecord> {
-  return {
-    id: randomUUID(),
-    name: input.name.trim(),
-    status: "draft",
-  };
+  return runHrSuiteFeatureAction<Promise<MultiCountryPayrollRecord>>(
+    async () => ({
+      id: randomUUID(),
+      name: input.name.trim(),
+      status: "draft",
+    })
+  );
 }
 
-export async function updateMultiCountryPayrollRecord(
+export function updateMultiCountryPayrollRecord(
   input: UpdateMultiCountryPayrollInput,
   _context?: HrSuiteFeatureContext
 ): Promise<MultiCountryPayrollRecord> {
-  return {
-    id: input.id,
-    name: input.name?.trim() || "Unnamed",
-    status: input.status ?? "draft",
-  };
+  return runHrSuiteFeatureAction<Promise<MultiCountryPayrollRecord>>(
+    async () => ({
+      id: input.id,
+      name: input.name?.trim() || "Unnamed",
+      status: input.status ?? "draft",
+    })
+  );
 }

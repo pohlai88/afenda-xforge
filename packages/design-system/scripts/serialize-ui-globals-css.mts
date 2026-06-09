@@ -4,6 +4,21 @@ import { fileURLToPath } from "node:url";
 
 type CssVariableMap = Record<string, string>;
 
+type UiGlobalsCssSnapshot = {
+  keyframes: string[];
+  sources: string[];
+  utilities: string[];
+  variables: {
+    dark: CssVariableMap;
+    density: {
+      compact: CssVariableMap;
+      comfortable: CssVariableMap;
+    };
+    root: CssVariableMap;
+    theme: CssVariableMap;
+  };
+};
+
 const scriptDir = path.dirname(fileURLToPath(import.meta.url));
 const packageRoot = path.resolve(scriptDir, "..");
 const uiGlobalsCssPath = path.resolve(
@@ -54,33 +69,49 @@ function extractBalancedBlock(css: string, marker: string): string {
 }
 
 function extractCustomProperties(block: string): CssVariableMap {
-  const entries: Array<[string, string]> = [];
+  const entries: [string, string][] = [];
   const declarationRegex = /(--[a-z0-9-]+):\s*([^;]+);/g;
 
   for (const match of block.matchAll(declarationRegex)) {
-    entries.push([match[1], normalizeValue(match[2] ?? "")]);
+    const name = match[1];
+
+    if (!name) {
+      continue;
+    }
+
+    entries.push([name, normalizeValue(match[2] ?? "")]);
   }
 
   return Object.fromEntries(entries);
 }
 
+function requireCapture(match: RegExpMatchArray): string {
+  const value = match[1];
+
+  if (!value) {
+    throw new Error(`Could not read regex capture from ${match[0]}`);
+  }
+
+  return value;
+}
+
 function extractSources(css: string): string[] {
-  return [...css.matchAll(/^@source\s+"([^"]+)";$/gm)].map((match) => match[1]);
+  return [...css.matchAll(/^@source\s+"([^"]+)";$/gm)].map(requireCapture);
 }
 
 function extractUtilities(css: string): string[] {
   return [...css.matchAll(/^@utility\s+([a-z0-9-]+)\s*\{/gm)].map(
-    (match) => match[1]
+    requireCapture
   );
 }
 
 function extractKeyframes(block: string): string[] {
   return [...block.matchAll(/@keyframes\s+([a-z0-9-]+)\s*\{/g)].map(
-    (match) => match[1]
+    requireCapture
   );
 }
 
-function buildSnapshot(css: string) {
+function buildSnapshot(css: string): UiGlobalsCssSnapshot {
   const themeBlock = extractBalancedBlock(css, "@theme inline");
 
   return {
@@ -103,7 +134,7 @@ function buildSnapshot(css: string) {
   } as const;
 }
 
-async function main() {
+async function main(): Promise<void> {
   const checkOnly = process.argv.includes("--check");
   const css = await readFile(uiGlobalsCssPath, "utf8");
   const snapshot = buildSnapshot(css);

@@ -6,26 +6,31 @@ import type {
   RecruitmentOnboardingRecord,
   UpdateRecruitmentOnboardingInput,
 } from "./contract.ts";
+import { runHrSuiteFeatureAction } from "./execution/action.ts";
 import type { HrSuiteFeatureContext } from "./shared/index.ts";
 
-export async function createRecruitmentOnboardingRecord(
+export function createRecruitmentOnboardingRecord(
   input: CreateRecruitmentOnboardingInput,
   _context?: HrSuiteFeatureContext
 ): Promise<RecruitmentOnboardingRecord> {
-  return {
-    id: randomUUID(),
-    name: input.name.trim(),
-    status: "draft",
-  };
+  return runHrSuiteFeatureAction<Promise<RecruitmentOnboardingRecord>>(
+    async () => ({
+      id: randomUUID(),
+      name: input.name.trim(),
+      status: "draft",
+    })
+  );
 }
 
-export async function updateRecruitmentOnboardingRecord(
+export function updateRecruitmentOnboardingRecord(
   input: UpdateRecruitmentOnboardingInput,
   _context?: HrSuiteFeatureContext
 ): Promise<RecruitmentOnboardingRecord> {
-  return {
-    id: input.id,
-    name: input.name?.trim() || "Unnamed",
-    status: input.status ?? "draft",
-  };
+  return runHrSuiteFeatureAction<Promise<RecruitmentOnboardingRecord>>(
+    async () => ({
+      id: input.id,
+      name: input.name?.trim() || "Unnamed",
+      status: input.status ?? "draft",
+    })
+  );
 }

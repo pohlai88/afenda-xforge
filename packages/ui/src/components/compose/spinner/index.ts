@@ -1,5 +1,11 @@
 "use client";
 
+export {
+  type SpinnerPatternName,
+  spinnerPatternCatalog,
+  spinnerPatternCount,
+  spinnerPatternNames,
+} from "./spinner.catalog";
 export { SpinnerAnimatedLoadingDots } from "./spinner-animated-loading-dots";
 export { SpinnerBasic } from "./spinner-basic";
 export { SpinnerButtonLoadingStates } from "./spinner-button-loading-states";

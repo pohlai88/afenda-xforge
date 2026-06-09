@@ -2,6 +2,27 @@
 
 Shared Drizzle/Postgres access for Xforge.
 
+## Migration Governance
+
+Use `pnpm --filter @repo/database db:migrate` as the canonical migration command.
+
+Rules:
+
+- do not use `db:push`
+- capture schema changes as reviewed SQL migrations under `packages/database/drizzle`
+- use `db:migrate:kit` only when you explicitly need the raw Drizzle CLI behavior during maintenance or debugging
+
+## Environment Validation
+
+Use `pnpm --filter @repo/database db:validate-env` to validate the configured `DATABASE_URL`.
+
+The command:
+
+- loads the repo root env file
+- connects to the configured database
+- prints host, port, database, schema, and server version metadata
+- reports whether the connection looks like a Neon endpoint and whether it uses a pooler-friendly host
+
 ## Query timing
 
 When feature packages add repository or service methods on top of Drizzle, wrap the actual database call with `timeDatabaseQuery(...)`.

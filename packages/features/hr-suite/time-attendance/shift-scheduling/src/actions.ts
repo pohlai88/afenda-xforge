@@ -6,6 +6,7 @@ import type {
   ShiftSchedulingRecord,
   UpdateShiftSchedulingInput,
 } from "./contract.ts";
+import { runHrSuiteFeatureAction } from "./execution/action.ts";
 import { shiftSchedulingStore } from "./queries.ts";
 import type { HrSuiteFeatureContext } from "./shared/index.ts";
 
@@ -18,27 +19,31 @@ export function createShiftSchedulingRecord(
   input: CreateShiftSchedulingInput,
   _context?: HrSuiteFeatureContext
 ): ShiftSchedulingRecord {
-  const record: ShiftSchedulingRecord = {
-    id: randomUUID(),
-    name: normalizeName(input.name),
-    status: "draft",
-  };
+  return runHrSuiteFeatureAction(() => {
+    const record: ShiftSchedulingRecord = {
+      id: randomUUID(),
+      name: normalizeName(input.name),
+      status: "draft",
+    };
 
-  shiftSchedulingStore.set(record.id, record);
-  return record;
+    shiftSchedulingStore.set(record.id, record);
+    return record;
+  });
 }
 
 export function updateShiftSchedulingRecord(
   input: UpdateShiftSchedulingInput,
   _context?: HrSuiteFeatureContext
 ): ShiftSchedulingRecord {
-  const currentRecord = shiftSchedulingStore.get(input.id);
-  const nextRecord: ShiftSchedulingRecord = {
-    id: input.id,
-    name: normalizeName(input.name ?? currentRecord?.name ?? "Unnamed"),
-    status: input.status ?? currentRecord?.status ?? "draft",
-  };
+  return runHrSuiteFeatureAction(() => {
+    const currentRecord = shiftSchedulingStore.get(input.id);
+    const nextRecord: ShiftSchedulingRecord = {
+      id: input.id,
+      name: normalizeName(input.name ?? currentRecord?.name ?? "Unnamed"),
+      status: input.status ?? currentRecord?.status ?? "draft",
+    };
 
-  shiftSchedulingStore.set(nextRecord.id, nextRecord);
-  return nextRecord;
+    shiftSchedulingStore.set(nextRecord.id, nextRecord);
+    return nextRecord;
+  });
 }

@@ -2,30 +2,35 @@ import "server-only";
 
 import { randomUUID } from "node:crypto";
 import type {
-  CreateCompensationPlanningModelingInput,
   CompensationPlanningModelingRecord,
+  CreateCompensationPlanningModelingInput,
   UpdateCompensationPlanningModelingInput,
 } from "./contract.ts";
+import { runHrSuiteFeatureAction } from "./execution/action.ts";
 import type { HrSuiteFeatureContext } from "./shared/index.ts";
 
-export async function createCompensationPlanningModelingRecord(
+export function createCompensationPlanningModelingRecord(
   input: CreateCompensationPlanningModelingInput,
   _context?: HrSuiteFeatureContext
 ): Promise<CompensationPlanningModelingRecord> {
-  return {
-    id: randomUUID(),
-    name: input.name.trim(),
-    status: "draft",
-  };
+  return runHrSuiteFeatureAction<Promise<CompensationPlanningModelingRecord>>(
+    async () => ({
+      id: randomUUID(),
+      name: input.name.trim(),
+      status: "draft",
+    })
+  );
 }
 
-export async function updateCompensationPlanningModelingRecord(
+export function updateCompensationPlanningModelingRecord(
   input: UpdateCompensationPlanningModelingInput,
   _context?: HrSuiteFeatureContext
 ): Promise<CompensationPlanningModelingRecord> {
-  return {
-    id: input.id,
-    name: input.name?.trim() || "Unnamed",
-    status: input.status ?? "draft",
-  };
+  return runHrSuiteFeatureAction<Promise<CompensationPlanningModelingRecord>>(
+    async () => ({
+      id: input.id,
+      name: input.name?.trim() || "Unnamed",
+      status: input.status ?? "draft",
+    })
+  );
 }

@@ -1,5 +1,14 @@
 "use client";
 
+export type {
+  ButtonGroupPatternName,
+  ButtonGroupPatternSpec,
+} from "./button-group.catalog";
+export {
+  buttonGroupPatternCatalog,
+  buttonGroupPatternCount,
+  buttonGroupPatternNames,
+} from "./button-group.catalog";
 export {
   ButtonGroup,
   ButtonGroupSeparator,

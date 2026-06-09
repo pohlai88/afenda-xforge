@@ -27,7 +27,8 @@ const registryTupleSchema = z
     }
   });
 
-export const designSystemRegistryEntrySchema = registryEntrySchema;
+export const designSystemRegistryEntrySchema: typeof registryEntrySchema =
+  registryEntrySchema;
 
 export function defineRegistry<const T extends readonly [string, ...string[]]>(
   entries: T

@@ -2,30 +2,35 @@ import "server-only";
 
 import { randomUUID } from "node:crypto";
 import type {
-  CreateCompetencySkillsFrameworkInput,
   CompetencySkillsFrameworkRecord,
+  CreateCompetencySkillsFrameworkInput,
   UpdateCompetencySkillsFrameworkInput,
 } from "./contract.ts";
+import { runHrSuiteFeatureAction } from "./execution/action.ts";
 import type { HrSuiteFeatureContext } from "./shared/index.ts";
 
-export async function createCompetencySkillsFrameworkRecord(
+export function createCompetencySkillsFrameworkRecord(
   input: CreateCompetencySkillsFrameworkInput,
   _context?: HrSuiteFeatureContext
 ): Promise<CompetencySkillsFrameworkRecord> {
-  return {
-    id: randomUUID(),
-    name: input.name.trim(),
-    status: "draft",
-  };
+  return runHrSuiteFeatureAction<Promise<CompetencySkillsFrameworkRecord>>(
+    async () => ({
+      id: randomUUID(),
+      name: input.name.trim(),
+      status: "draft",
+    })
+  );
 }
 
-export async function updateCompetencySkillsFrameworkRecord(
+export function updateCompetencySkillsFrameworkRecord(
   input: UpdateCompetencySkillsFrameworkInput,
   _context?: HrSuiteFeatureContext
 ): Promise<CompetencySkillsFrameworkRecord> {
-  return {
-    id: input.id,
-    name: input.name?.trim() || "Unnamed",
-    status: input.status ?? "draft",
-  };
+  return runHrSuiteFeatureAction<Promise<CompetencySkillsFrameworkRecord>>(
+    async () => ({
+      id: input.id,
+      name: input.name?.trim() || "Unnamed",
+      status: input.status ?? "draft",
+    })
+  );
 }

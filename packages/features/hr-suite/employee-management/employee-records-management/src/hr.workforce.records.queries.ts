@@ -8,20 +8,29 @@ import type {
 import { hrRecordsStore } from "./hr.workforce.records.store.ts";
 
 type QueryContext = {
+  canRead?: boolean;
   canViewSensitive?: boolean;
   organizationId?: string;
 };
 
 export function listHrEmployeeRecords(
   _query: HrRecordsSearchParams = {},
-  _context?: QueryContext
+  context?: QueryContext
 ): readonly HrEmployeeRecordSummary[] {
-  return hrRecordsStore.list();
+  if (context?.canRead === false) {
+    return [];
+  }
+
+  return hrRecordsStore.list({ organizationId: context?.organizationId });
 }
 
 export function getHrEmployeeRecord(
   id: string,
-  _context?: QueryContext
+  context?: QueryContext
 ): HrEmployeeRecordDetail | null {
-  return hrRecordsStore.get(id);
+  if (context?.canRead === false) {
+    return null;
+  }
+
+  return hrRecordsStore.get(id, { organizationId: context?.organizationId });
 }

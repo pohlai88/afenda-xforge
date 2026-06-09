@@ -1,3 +1,9 @@
+export {
+  type CollapsiblePatternName,
+  collapsiblePatternCatalog,
+  collapsiblePatternCount,
+  collapsiblePatternNames,
+} from "./collapsible.catalog";
 export { CollapsibleAnimatedCard } from "./collapsible-animated-card";
 export { CollapsibleBasic } from "./collapsible-basic";
 export { CollapsibleCardWithBottomTrigger } from "./collapsible-card-with-bottom-trigger";

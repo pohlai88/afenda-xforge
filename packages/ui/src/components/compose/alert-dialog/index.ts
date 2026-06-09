@@ -1,4 +1,10 @@
 export {
+  type AlertDialogPatternName,
+  alertDialogPatternCatalog,
+  alertDialogPatternCount,
+  alertDialogPatternNames,
+} from "./alert-dialog.catalog";
+export {
   AlertDialog,
   AlertDialogAction,
   AlertDialogCancel,
@@ -17,7 +23,6 @@ export { ConsentCheckboxDialog } from "./consent-checkbox-dialog";
 export { DestructiveConfirmationDialog } from "./destructive-confirmation-dialog";
 export { FormEntryDialog } from "./form-entry-dialog";
 export { InlineHelpDialog } from "./inline-help-dialog";
-export { MediaPreviewDialog } from "./media-preview-dialog";
 export { OnboardingDialog } from "./onboarding-dialog";
 export { PaymentConfirmationDialog } from "./payment-confirmation-dialog";
 export { ScrollableContentDialog } from "./scrollable-content-dialog";
