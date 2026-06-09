@@ -16,11 +16,18 @@ export type {
   HrRecordsUpdateEmployeeInput,
 } from "./hr.workforce.records.contract.ts";
 export { hrRecordsSearchParamsSchema } from "./hr.workforce.records.contract.ts";
-export { hrRecordsCreateEmployeeSchema } from "./hr.workforce.records-form.shared.ts";
+export {
+  hrRecordsCreateEmployeeSchema,
+  hrRecordsUpdateEmployeeSchema,
+} from "./hr.workforce.records-form.shared.ts";
 export {
   hrEmployeeDetailRoutePath,
   hrRecordsRoutePaths,
 } from "./hr.workforce.records-route.contract.ts";
 export { hrRecordsFeatureManifest } from "./manifest.ts";
 export { hrRecordsFeatureMetadata } from "./metadata.ts";
+export {
+  type HrEmployeeRecordDetailView,
+  projectHrEmployeeRecordDetail,
+} from "./projector/record-detail.ts";
 export { hrRecordsFeatureScope } from "./shared/index.ts";

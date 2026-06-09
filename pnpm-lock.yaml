@@ -272,6 +272,9 @@ importers:
       '@repo/features-master-data-customers':
         specifier: workspace:*
         version: link:../../packages/features/master-data/customers
+      '@repo/features-system-admin-control-plane':
+        specifier: workspace:*
+        version: link:../../packages/features/system-admin/control-plane
       '@repo/integrations-linear':
         specifier: workspace:*
         version: link:../../packages/integrations/linear
@@ -2059,6 +2062,9 @@ importers:
       '@repo/audit':
         specifier: workspace:*
         version: link:../../../audit
+      '@repo/database':
+        specifier: workspace:*
+        version: link:../../../database
       '@repo/execution':
         specifier: workspace:*
         version: link:../../../execution
@@ -2071,6 +2077,9 @@ importers:
       '@repo/shared':
         specifier: workspace:*
         version: link:../../../shared
+      drizzle-orm:
+        specifier: 'catalog:'
+        version: 0.45.2(@opentelemetry/api@1.9.1)(@upstash/redis@1.38.0)(postgres@3.4.9)
       server-only:
         specifier: 'catalog:'
         version: 0.0.1

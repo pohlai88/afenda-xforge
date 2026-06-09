@@ -149,7 +149,7 @@ export const composeRegistryGroups = [
     kind: "data-display",
     metadataRoles: ["state", "section"],
     capabilities: ["summary"],
-    readiness: "preview-only",
+    readiness: "metadata-ready",
     patterns: [
       pattern("basic", "Basic", "A basic user avatar."),
       pattern("basic-group", "Basic Group", "A compact group of avatars."),
@@ -283,7 +283,7 @@ export const composeRegistryGroups = [
     kind: "visualization",
     metadataRoles: ["metric", "visualization"],
     capabilities: ["summary"],
-    readiness: "preview-only",
+    readiness: "metadata-ready",
     patterns: [
       pattern("basic-bar", "Basic Bar", "A basic bar chart."),
       pattern("vertical-bar", "Vertical Bar", "A vertical bar chart."),
@@ -371,6 +371,30 @@ export const composeRegistryGroups = [
     ],
   }),
   group({
+    name: "command",
+    title: "Command",
+    description:
+      "Search-first action surfaces for navigation and quick execution.",
+    kind: "navigation",
+    metadataRoles: ["action", "navigation"],
+    capabilities: ["controlled", "filtering", "selection"],
+    readiness: "metadata-ready",
+    patterns: [
+      pattern("basic", "Basic", "A basic command surface for quick lookup."),
+      pattern("groups", "Groups", "Command items grouped by functional area."),
+      pattern(
+        "shortcuts",
+        "Shortcuts",
+        "Command items with keyboard shortcut labels.",
+      ),
+      pattern(
+        "dialog",
+        "Dialog",
+        "A modal command palette for global actions.",
+      ),
+    ],
+  }),
+  group({
     name: "data-grid",
     title: "Data Grids",
     description:
@@ -431,6 +455,90 @@ export const composeRegistryGroups = [
     ],
   }),
   group({
+    name: "dropdown-menu",
+    title: "Dropdown Menus",
+    description:
+      "Compact action menus for row tools, settings, and context actions.",
+    kind: "action",
+    metadataRoles: ["action", "navigation"],
+    capabilities: ["controlled", "selection"],
+    readiness: "metadata-ready",
+    patterns: [
+      pattern("basic", "Basic", "A standard dropdown menu."),
+      pattern(
+        "checkboxes",
+        "Checkboxes",
+        "A dropdown menu with multi-select toggles.",
+      ),
+      pattern(
+        "radio-group",
+        "Radio Group",
+        "A dropdown menu with single-choice options.",
+      ),
+      pattern(
+        "destructive",
+        "Destructive",
+        "A dropdown menu with destructive actions.",
+      ),
+    ],
+  }),
+  group({
+    name: "empty",
+    title: "Empty States",
+    description:
+      "Designed empty states for collections, workflows, and onboarding gaps.",
+    kind: "feedback",
+    metadataRoles: ["feedback", "section", "state"],
+    capabilities: ["empty-state", "summary"],
+    readiness: "metadata-ready",
+    patterns: [
+      pattern("basic", "Basic", "A simple empty state."),
+      pattern(
+        "actions",
+        "Actions",
+        "An empty state with primary and secondary actions.",
+      ),
+      pattern(
+        "avatar",
+        "Avatar",
+        "An empty state framed by collaborator identity.",
+      ),
+      pattern(
+        "input-group",
+        "Input Group",
+        "An empty state with inline input capture.",
+      ),
+    ],
+  }),
+  group({
+    name: "field",
+    title: "Fields",
+    description:
+      "Labeled field compositions for forms, settings, and metadata sections.",
+    kind: "data-entry",
+    metadataRoles: ["field", "section"],
+    capabilities: ["form", "validation"],
+    readiness: "metadata-ready",
+    patterns: [
+      pattern("input", "Input", "A standard labeled input field layout."),
+      pattern(
+        "checkbox",
+        "Checkbox",
+        "A horizontal field for binary settings.",
+      ),
+      pattern(
+        "responsive",
+        "Responsive",
+        "A field layout that adapts between stacked and inline modes.",
+      ),
+      pattern(
+        "group",
+        "Group",
+        "A grouped form section with subsection separation.",
+      ),
+    ],
+  }),
+  group({
     name: "file-upload",
     title: "File Upload",
     description: "Upload inputs for attachment fields and document workflows.",
@@ -483,6 +591,34 @@ export const composeRegistryGroups = [
         "Panels with visible separation.",
       ),
       pattern("stacked-panels", "Stacked Panels", "Stacked section frames."),
+    ],
+  }),
+  group({
+    name: "input-group",
+    title: "Input Groups",
+    description:
+      "Structured inputs with inline addons, controls, and block-level helpers.",
+    kind: "data-entry",
+    metadataRoles: ["field"],
+    capabilities: ["controlled", "form", "validation"],
+    readiness: "metadata-ready",
+    patterns: [
+      pattern("basic", "Basic", "A basic input group for text entry."),
+      pattern(
+        "with-icon",
+        "With Icon",
+        "An input group with a leading icon addon.",
+      ),
+      pattern(
+        "with-button",
+        "With Button",
+        "An input group with a trailing action button.",
+      ),
+      pattern(
+        "block-start",
+        "Block Start",
+        "An input group with a block-level header addon.",
+      ),
     ],
   }),
   group({
@@ -583,6 +719,42 @@ export const composeRegistryGroups = [
     patterns: [
       pattern("horizontal", "Horizontal", "Horizontal section navigation."),
       pattern("vertical", "Vertical", "Vertical section navigation."),
+    ],
+  }),
+  group({
+    name: "sheet",
+    title: "Sheets",
+    description:
+      "Context panels for secondary flows, navigation, and review tasks.",
+    kind: "layout",
+    metadataRoles: ["action", "section", "state"],
+    capabilities: ["controlled", "form"],
+    readiness: "metadata-ready",
+    patterns: [
+      pattern("basic", "Basic", "A standard side sheet."),
+      pattern("left", "Left", "A left-side sheet for supporting context."),
+      pattern(
+        "no-close-button",
+        "No Close Button",
+        "A sheet that relies on explicit footer actions.",
+      ),
+      pattern("top", "Top", "A top sheet for compact summary content."),
+    ],
+  }),
+  group({
+    name: "skeleton",
+    title: "Skeletons",
+    description:
+      "Loading placeholders for text, cards, tables, and identity surfaces.",
+    kind: "feedback",
+    metadataRoles: ["feedback", "section", "state"],
+    capabilities: ["loading-state"],
+    readiness: "metadata-ready",
+    patterns: [
+      pattern("text", "Text", "Text line loading placeholders."),
+      pattern("avatar", "Avatar", "Profile loading placeholders."),
+      pattern("card", "Card", "Card loading placeholders."),
+      pattern("table", "Table", "Table loading placeholders."),
     ],
   }),
   group({

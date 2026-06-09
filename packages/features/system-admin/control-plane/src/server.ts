@@ -19,3 +19,11 @@ export {
   listSystemAdminSections,
   readSystemAdminOverview,
 } from "./queries.ts";
+export type {
+  SystemAdminWebhookEndpoint,
+  UpsertSystemAdminWebhookEndpointInput,
+} from "./webhook-endpoints.ts";
+export {
+  listSystemAdminWebhookEndpoints,
+  upsertSystemAdminWebhookEndpoint,
+} from "./webhook-endpoints.ts";

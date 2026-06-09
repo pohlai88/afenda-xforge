@@ -28,3 +28,11 @@ export type {
   SystemAdminSection,
   TenantAdminSettingUpdate,
 } from "./schema.ts";
+export type {
+  SystemAdminWebhookEndpoint,
+  UpsertSystemAdminWebhookEndpointInput,
+} from "./webhook-endpoints.ts";
+export {
+  listSystemAdminWebhookEndpoints,
+  upsertSystemAdminWebhookEndpoint,
+} from "./webhook-endpoints.ts";

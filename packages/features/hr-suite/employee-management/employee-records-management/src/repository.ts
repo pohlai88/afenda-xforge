@@ -55,6 +55,21 @@ const hrEmployeeRecordEntitySchema = z.object({
   preferredName: z.string().nullable(),
   departmentName: z.string().nullable(),
   positionTitle: z.string().nullable(),
+  employmentStartDate: isoDateSchema.nullable(),
+  employmentType: z.string(),
+  workerCategory: z.string(),
+  grade: z.string(),
+  level: z.string(),
+  legalEntityCode: z.string(),
+  workLocationCode: z.string(),
+  countryCode: z.string(),
+  contractStartDate: isoDateSchema.nullable(),
+  contractEndDate: isoDateSchema.nullable(),
+  currentDepartmentId: z.string().trim().min(1).nullable(),
+  currentPositionId: z.string().trim().min(1).nullable(),
+  managerEmployeeId: z.string().trim().min(1).nullable(),
+  matrixManagerEmployeeId: z.string().trim().min(1).nullable(),
+  hrOwnerEmployeeId: z.string().trim().min(1).nullable(),
   email: z.string(),
   identityNumber: z.string(),
   identityDocumentType: z.string(),
@@ -67,6 +82,9 @@ const hrEmployeeRecordEntitySchema = z.object({
   languagePreference: z.string(),
   residentialAddress: z.string(),
   mailingAddress: z.string(),
+  emergencyContactName: z.string(),
+  emergencyContactRelationship: z.string(),
+  emergencyContactPhoneNumber: z.string(),
   createdAt: isoDateSchema,
   updatedAt: isoDateSchema,
 });
@@ -94,6 +112,32 @@ let cache: HrEmployeeRecordsRepositoryState | null = null;
 const normalizeOrganizationId = (
   organizationId: string | undefined
 ): string | null => organizationId?.trim() || null;
+
+const normalizeText = (value: string | undefined): string =>
+  value?.trim() ?? "";
+
+const normalizeNullableText = (value: string | undefined): string | null => {
+  const trimmed = value?.trim();
+  return trimmed ? trimmed : null;
+};
+
+const normalizeDate = (value: Date | undefined): Date | null => value ?? null;
+
+const updateTextField = (
+  current: string,
+  next: string | undefined
+): string => (next === undefined ? current : normalizeText(next));
+
+const updateNullableTextField = (
+  current: string | null,
+  next: string | undefined
+): string | null =>
+  next === undefined ? current : normalizeNullableText(next);
+
+const updateDateField = (
+  current: Date | null,
+  next: Date | undefined
+): Date | null => (next === undefined ? current : normalizeDate(next));
 
 const cloneState = (
   state: HrEmployeeRecordsRepositoryState
@@ -200,7 +244,36 @@ const buildBaseRecord = (input: {
   employeeNumber: string;
   legalName: string;
   preferredName?: string;
+  employmentStartDate?: Date;
+  employmentType?: string;
+  workerCategory?: string;
+  grade?: string;
+  level?: string;
+  legalEntityCode?: string;
+  workLocationCode?: string;
+  countryCode?: string;
+  contractStartDate?: Date;
+  contractEndDate?: Date;
+  currentDepartmentId?: string;
+  currentPositionId?: string;
+  managerEmployeeId?: string;
+  matrixManagerEmployeeId?: string;
+  hrOwnerEmployeeId?: string;
   email?: string;
+  personalEmail?: string;
+  identityDocumentType?: string;
+  identityNumber?: string;
+  nationality?: string;
+  dateOfBirth?: Date;
+  phoneNumber?: string;
+  gender?: string;
+  maritalStatus?: string;
+  languagePreference?: string;
+  residentialAddress?: string;
+  mailingAddress?: string;
+  emergencyContactName?: string;
+  emergencyContactRelationship?: string;
+  emergencyContactPhoneNumber?: string;
   employmentStatus: HrEmployeeRecordEntity["employmentStatus"];
 }): HrEmployeeRecordEntity => {
   const now = new Date();
@@ -216,20 +289,42 @@ const buildBaseRecord = (input: {
     employmentStatus: input.employmentStatus,
     legalName: input.legalName.trim(),
     preferredName: input.preferredName?.trim() || null,
-    departmentName: null,
-    positionTitle: null,
-    email: input.email?.trim() || "",
-    identityNumber: "",
-    identityDocumentType: "",
-    nationality: "",
-    phoneNumber: "",
-    personalEmail: "",
-    dateOfBirth: null,
-    gender: "",
-    maritalStatus: "",
-    languagePreference: "",
-    residentialAddress: "",
-    mailingAddress: "",
+    departmentName: normalizeNullableText(input.currentDepartmentId),
+    positionTitle: normalizeNullableText(input.currentPositionId),
+    employmentStartDate: normalizeDate(input.employmentStartDate),
+    employmentType: normalizeText(input.employmentType),
+    workerCategory: normalizeText(input.workerCategory),
+    grade: normalizeText(input.grade),
+    level: normalizeText(input.level),
+    legalEntityCode: normalizeText(input.legalEntityCode),
+    workLocationCode: normalizeText(input.workLocationCode),
+    countryCode: normalizeText(input.countryCode),
+    contractStartDate: normalizeDate(input.contractStartDate),
+    contractEndDate: normalizeDate(input.contractEndDate),
+    currentDepartmentId: normalizeNullableText(input.currentDepartmentId),
+    currentPositionId: normalizeNullableText(input.currentPositionId),
+    managerEmployeeId: normalizeNullableText(input.managerEmployeeId),
+    matrixManagerEmployeeId: normalizeNullableText(input.matrixManagerEmployeeId),
+    hrOwnerEmployeeId: normalizeNullableText(input.hrOwnerEmployeeId),
+    email: normalizeText(input.email),
+    identityNumber: normalizeText(input.identityNumber),
+    identityDocumentType: normalizeText(input.identityDocumentType),
+    nationality: normalizeText(input.nationality),
+    phoneNumber: normalizeText(input.phoneNumber),
+    personalEmail: normalizeText(input.personalEmail),
+    dateOfBirth: normalizeDate(input.dateOfBirth),
+    gender: normalizeText(input.gender),
+    maritalStatus: normalizeText(input.maritalStatus),
+    languagePreference: normalizeText(input.languagePreference),
+    residentialAddress: normalizeText(input.residentialAddress),
+    mailingAddress: normalizeText(input.mailingAddress),
+    emergencyContactName: normalizeText(input.emergencyContactName),
+    emergencyContactRelationship: normalizeText(
+      input.emergencyContactRelationship
+    ),
+    emergencyContactPhoneNumber: normalizeText(
+      input.emergencyContactPhoneNumber
+    ),
     createdAt: now,
     updatedAt: now,
   };
@@ -305,7 +400,36 @@ export function createHrEmployeeRecordRepository(
     employeeNumber: input.employeeNumber,
     legalName: input.legalName,
     preferredName: input.preferredName,
+    employmentStartDate: input.employmentStartDate,
+    employmentType: input.employmentType,
+    workerCategory: input.workerCategory,
+    grade: input.grade,
+    level: input.level,
+    legalEntityCode: input.legalEntityCode,
+    workLocationCode: input.workLocationCode,
+    countryCode: input.countryCode,
+    contractStartDate: input.contractStartDate,
+    contractEndDate: input.contractEndDate,
+    currentDepartmentId: input.currentDepartmentId,
+    currentPositionId: input.currentPositionId,
+    managerEmployeeId: input.managerEmployeeId,
+    matrixManagerEmployeeId: input.matrixManagerEmployeeId,
+    hrOwnerEmployeeId: input.hrOwnerEmployeeId,
     email: input.email,
+    personalEmail: input.personalEmail,
+    identityDocumentType: input.identityDocumentType,
+    identityNumber: input.identityNumber,
+    nationality: input.nationality,
+    dateOfBirth: input.dateOfBirth,
+    phoneNumber: input.phoneNumber,
+    gender: input.gender,
+    maritalStatus: input.maritalStatus,
+    languagePreference: input.languagePreference,
+    residentialAddress: input.residentialAddress,
+    mailingAddress: input.mailingAddress,
+    emergencyContactName: input.emergencyContactName,
+    emergencyContactRelationship: input.emergencyContactRelationship,
+    emergencyContactPhoneNumber: input.emergencyContactPhoneNumber,
     employmentStatus: "draft",
   });
 
@@ -333,19 +457,123 @@ export function updateHrEmployeeRecordRepository(
     }
 
     const current = draft.records[index];
+    const nextPreferredName =
+      input.preferredName !== undefined
+        ? normalizeNullableText(input.preferredName)
+        : current.preferredName;
+
     updatedRecord = {
       ...current,
       employeeNumber: input.employeeNumber?.trim() ?? current.employeeNumber,
       displayName: buildDisplayName({
         legalName: input.legalName?.trim() ?? current.legalName,
-        preferredName:
-          input.preferredName ?? current.preferredName ?? undefined,
+        preferredName: nextPreferredName ?? undefined,
       }),
       employmentStatus:
         input.employmentStatus ?? current.employmentStatus ?? "draft",
       legalName: input.legalName?.trim() ?? current.legalName,
-      preferredName: input.preferredName?.trim() ?? current.preferredName,
+      preferredName: nextPreferredName,
+      employmentStartDate:
+        input.employmentStartDate !== undefined
+          ? normalizeDate(input.employmentStartDate)
+          : current.employmentStartDate,
+      employmentType:
+        input.employmentType !== undefined
+          ? normalizeText(input.employmentType)
+          : current.employmentType,
+      workerCategory:
+        input.workerCategory !== undefined
+          ? normalizeText(input.workerCategory)
+          : current.workerCategory,
+      grade:
+        input.grade !== undefined ? normalizeText(input.grade) : current.grade,
+      level:
+        input.level !== undefined ? normalizeText(input.level) : current.level,
+      legalEntityCode:
+        input.legalEntityCode !== undefined
+          ? normalizeText(input.legalEntityCode)
+          : current.legalEntityCode,
+      workLocationCode:
+        input.workLocationCode !== undefined
+          ? normalizeText(input.workLocationCode)
+          : current.workLocationCode,
+      countryCode:
+        input.countryCode !== undefined
+          ? normalizeText(input.countryCode)
+          : current.countryCode,
+      contractStartDate:
+        input.contractStartDate !== undefined
+          ? normalizeDate(input.contractStartDate)
+          : current.contractStartDate,
+      contractEndDate:
+        input.contractEndDate !== undefined
+          ? normalizeDate(input.contractEndDate)
+          : current.contractEndDate,
+      matrixManagerEmployeeId:
+        input.matrixManagerEmployeeId !== undefined
+          ? normalizeNullableText(input.matrixManagerEmployeeId)
+          : current.matrixManagerEmployeeId,
+      hrOwnerEmployeeId:
+        input.hrOwnerEmployeeId !== undefined
+          ? normalizeNullableText(input.hrOwnerEmployeeId)
+          : current.hrOwnerEmployeeId,
       email: input.email?.trim() ?? current.email,
+      identityDocumentType:
+        input.identityDocumentType !== undefined
+          ? normalizeText(input.identityDocumentType)
+          : current.identityDocumentType,
+      identityNumber:
+        input.identityNumber !== undefined
+          ? normalizeText(input.identityNumber)
+          : current.identityNumber,
+      nationality:
+        input.nationality !== undefined
+          ? normalizeText(input.nationality)
+          : current.nationality,
+      dateOfBirth:
+        input.dateOfBirth !== undefined
+          ? normalizeDate(input.dateOfBirth)
+          : current.dateOfBirth,
+      phoneNumber:
+        input.phoneNumber !== undefined
+          ? normalizeText(input.phoneNumber)
+          : current.phoneNumber,
+      personalEmail:
+        input.personalEmail !== undefined
+          ? normalizeText(input.personalEmail)
+          : current.personalEmail,
+      gender:
+        input.gender !== undefined
+          ? normalizeText(input.gender)
+          : current.gender,
+      maritalStatus:
+        input.maritalStatus !== undefined
+          ? normalizeText(input.maritalStatus)
+          : current.maritalStatus,
+      languagePreference:
+        input.languagePreference !== undefined
+          ? normalizeText(input.languagePreference)
+          : current.languagePreference,
+      residentialAddress:
+        input.residentialAddress !== undefined
+          ? normalizeText(input.residentialAddress)
+          : current.residentialAddress,
+      mailingAddress:
+        input.mailingAddress !== undefined
+          ? normalizeText(input.mailingAddress)
+          : current.mailingAddress,
+      emergencyContactName:
+        input.emergencyContactName !== undefined
+          ? normalizeText(input.emergencyContactName)
+          : current.emergencyContactName,
+      emergencyContactRelationship:
+        input.emergencyContactRelationship !== undefined
+          ? normalizeText(input.emergencyContactRelationship)
+          : current.emergencyContactRelationship,
+      emergencyContactPhoneNumber:
+        input.emergencyContactPhoneNumber !== undefined
+          ? normalizeText(input.emergencyContactPhoneNumber)
+          : current.emergencyContactPhoneNumber,
       updatedAt: new Date(),
     };
 
@@ -405,10 +633,26 @@ export function assignHrEmployeeRecordRepository(
     }
 
     const current = draft.records[index];
+    const nextCurrentDepartmentId =
+      input.currentDepartmentId !== undefined
+        ? normalizeNullableText(input.currentDepartmentId)
+        : current.currentDepartmentId;
+    const nextCurrentPositionId =
+      input.currentPositionId !== undefined
+        ? normalizeNullableText(input.currentPositionId)
+        : current.currentPositionId;
+    const nextManagerEmployeeId =
+      input.managerEmployeeId !== undefined
+        ? normalizeNullableText(input.managerEmployeeId)
+        : current.managerEmployeeId;
+
     assignedRecord = {
       ...current,
-      departmentName: input.currentDepartmentId ?? current.departmentName,
-      positionTitle: input.currentPositionId ?? current.positionTitle,
+      departmentName: nextCurrentDepartmentId,
+      positionTitle: nextCurrentPositionId,
+      currentDepartmentId: nextCurrentDepartmentId,
+      currentPositionId: nextCurrentPositionId,
+      managerEmployeeId: nextManagerEmployeeId,
       updatedAt: new Date(),
     };
 
@@ -431,6 +675,7 @@ export function rehireHrEmployeeRecordRepository(
     employeeNumber: input.employeeNumber,
     legalName: input.legalName,
     preferredName: input.preferredName,
+    employmentStartDate: input.employmentStartDate,
     email: input.email,
     employmentStatus: "active",
   });

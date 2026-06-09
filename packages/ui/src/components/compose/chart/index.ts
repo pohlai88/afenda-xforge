@@ -1,5 +1,11 @@
 "use client";
 
+export type { ChartPatternName, ChartPatternSpec } from "./chart.catalog";
+export {
+  chartPatternCatalog,
+  chartPatternCount,
+  chartPatternNames,
+} from "./chart.catalog";
 export type { ChartConfig } from "./chart.shared";
 export {
   Card,

@@ -17,6 +17,8 @@
   "files": [
     "architecture.md",
     "dod.md",
+    "index.ts",
+    "server.ts",
     "src",
     "package.json",
     "README.md"
@@ -31,6 +33,8 @@
   "dependencies": {
     "@repo/api": "workspace:*",
     "@repo/audit": "workspace:*",
+    "@repo/database": "workspace:*",
+    "drizzle-orm": "catalog:",
     "@repo/execution": "workspace:*",
     "@repo/metadata": "workspace:*",
     "@repo/permissions": "workspace:*",

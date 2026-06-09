@@ -118,6 +118,15 @@ export {
   autocompletePatternCount,
   autocompletePatternNames,
 } from "./autocomplete";
+export type {
+  AvatarCatalogPatternName,
+  AvatarCatalogPatternSpec,
+} from "./avatar";
+export {
+  avatarPatternCatalog,
+  avatarPatternCount,
+  avatarPatternNames,
+} from "./avatar";
 export { AvatarBadgeIcon } from "./avatar/avatar-badge-icon";
 export { AvatarBasic } from "./avatar/avatar-basic";
 export { AvatarBasicGroup } from "./avatar/avatar-basic-group";
@@ -289,6 +298,7 @@ export {
   TreeViewWithFileActions,
 } from "./collapsible";
 export * from "./combobox";
+export * from "./command";
 export type {
   ComposeCapability,
   ComposeComponentKind,
@@ -315,15 +325,21 @@ export {
 } from "./compose.renderers";
 export * from "./data-grid";
 export * from "./date-selector";
+export * from "./dropdown-menu";
+export * from "./empty";
+export * from "./field";
 export * from "./file-upload";
 export * from "./filters";
 export * from "./frame";
+export * from "./input-group";
 export * from "./kanban";
 export * from "./line-chart";
 export * from "./number-field";
 export * from "./phone-input";
 export * from "./rating";
 export * from "./scrollspy";
+export * from "./sheet";
+export * from "./skeleton";
 export {
   Sortable,
   SortableDefault,

@@ -17,6 +17,7 @@
     "@repo/features-employee-management-employee-records-management": "workspace:*",
     "@repo/features-master-data-companies": "workspace:*",
     "@repo/features-master-data-customers": "workspace:*",
+    "@repo/features-system-admin-control-plane": "workspace:*",
     "@repo/integrations-linear": "workspace:*",
     "@repo/integrations-workday": "workspace:*",
     "@repo/next-config": "workspace:*",

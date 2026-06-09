@@ -1,4 +1,11 @@
 export {
+  type AvatarCatalogPatternName,
+  type AvatarCatalogPatternSpec,
+  avatarPatternCatalog,
+  avatarPatternCount,
+  avatarPatternNames,
+} from "./avatar.catalog";
+export {
   AvatarActionButton,
   AvatarLabel,
   AvatarPatternCard,

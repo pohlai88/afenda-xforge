@@ -3,14 +3,17 @@ import { alertPatternCatalog } from "./alert/alert.catalog";
 import { alertDialogPatternCatalog } from "./alert-dialog/alert-dialog.catalog";
 import { aspectRatioPatternCatalog } from "./aspect-ratio/aspect-ratio.catalog";
 import { autocompletePatternCatalog } from "./autocomplete/autocomplete.catalog";
+import { avatarPatternCatalog } from "./avatar/avatar.catalog";
 import { badgePatternCatalog } from "./badge/badge.catalog";
 import { breadcrumbPatternCatalog } from "./breadcrumb/breadcrumb.catalog";
 import { buttonPatternCatalog } from "./button/button.catalog";
 import { buttonGroupPatternCatalog } from "./button-group/button-group.catalog";
 import { cardPatternCatalog } from "./card/card.catalog";
+import { chartPatternCatalog } from "./chart/chart.catalog";
 import { checkboxPatternCatalog } from "./checkbox/checkbox.catalog";
 import { collapsiblePatternCatalog } from "./collapsible/collapsible.catalog";
 import { comboboxPatternCatalog } from "./combobox/combobox.catalog";
+import { commandPatternCatalog } from "./command/command.catalog";
 import type { ComposeRenderablePatternSpec } from "./compose.contract";
 import type { ComposeRegistryGroupName } from "./compose.registry";
 import { getComposeRegistryGroup } from "./compose.registry";
@@ -20,9 +23,13 @@ import { DataGridDenseTable } from "./data-grid/data-grid-dense-table";
 import { DataGridRowSelection } from "./data-grid/data-grid-row-selection";
 import { DataGridSortableColumns } from "./data-grid/data-grid-sortable-columns";
 import { dateSelectorPatternCatalog } from "./date-selector/date-selector.catalog";
+import { dropdownMenuPatternCatalog } from "./dropdown-menu/dropdown-menu.catalog";
+import { emptyPatternCatalog } from "./empty/empty.catalog";
+import { fieldPatternCatalog } from "./field/field.catalog";
 import { fileUploadPatternCatalog } from "./file-upload/file-upload.catalog";
 import { filtersPatternCatalog } from "./filters/filters.catalog";
 import { framePatternCatalog } from "./frame/frame.catalog";
+import { inputGroupPatternCatalog } from "./input-group/input-group.catalog";
 import { KanbanDefault } from "./kanban/kanban-default";
 import { KanbanOverlayPattern } from "./kanban/kanban-overlay";
 import { lineChartPatternCatalog } from "./line-chart/line-chart.catalog";
@@ -30,6 +37,8 @@ import { numberFieldPatternCatalog } from "./number-field/number-field.catalog";
 import { phoneInputPatternCatalog } from "./phone-input/phone-input.catalog";
 import { ratingPatternCatalog } from "./rating/rating.catalog";
 import { scrollspyPatternCatalog } from "./scrollspy/scrollspy.catalog";
+import { sheetPatternCatalog } from "./sheet/sheet.catalog";
+import { skeletonPatternCatalog } from "./skeleton/skeleton.catalog";
 import { sortablePatternCatalog } from "./sortable/sortable.catalog";
 import { spinnerPatternCatalog } from "./spinner/spinner.catalog";
 import { statisticCardPatternCatalog } from "./statistic-card/statistic-card.catalog";
@@ -134,6 +143,7 @@ export const composeRenderableCatalogs = {
     "autocomplete",
     autocompletePatternCatalog,
   ),
+  avatar: createRenderableCatalog("avatar", avatarPatternCatalog),
   badge: createRenderableCatalog("badge", badgePatternCatalog),
   breadcrumb: createRenderableCatalog("breadcrumb", breadcrumbPatternCatalog),
   button: createRenderableCatalog("button", buttonPatternCatalog),
@@ -142,23 +152,35 @@ export const composeRenderableCatalogs = {
     buttonGroupPatternCatalog,
   ),
   card: createRenderableCatalog("card", cardPatternCatalog),
+  chart: createRenderableCatalog("chart", chartPatternCatalog),
   checkbox: createRenderableCatalog("checkbox", checkboxPatternCatalog),
   collapsible: createRenderableCatalog(
     "collapsible",
     collapsiblePatternCatalog,
   ),
   combobox: createRenderableCatalog("combobox", comboboxPatternCatalog),
+  command: createRenderableCatalog("command", commandPatternCatalog),
   "data-grid": createRenderableCatalog("data-grid", dataGridRenderableCatalog),
   "date-selector": createRenderableCatalog(
     "date-selector",
     dateSelectorPatternCatalog,
   ),
+  "dropdown-menu": createRenderableCatalog(
+    "dropdown-menu",
+    dropdownMenuPatternCatalog,
+  ),
+  empty: createRenderableCatalog("empty", emptyPatternCatalog),
+  field: createRenderableCatalog("field", fieldPatternCatalog),
   "file-upload": createRenderableCatalog(
     "file-upload",
     fileUploadPatternCatalog,
   ),
   filters: createRenderableCatalog("filters", filtersPatternCatalog),
   frame: createRenderableCatalog("frame", framePatternCatalog),
+  "input-group": createRenderableCatalog(
+    "input-group",
+    inputGroupPatternCatalog,
+  ),
   kanban: createRenderableCatalog("kanban", kanbanRenderableCatalog),
   "line-chart": createRenderableCatalog("line-chart", lineChartPatternCatalog),
   "number-field": createRenderableCatalog(
@@ -171,6 +193,8 @@ export const composeRenderableCatalogs = {
   ),
   rating: createRenderableCatalog("rating", ratingPatternCatalog),
   scrollspy: createRenderableCatalog("scrollspy", scrollspyPatternCatalog),
+  sheet: createRenderableCatalog("sheet", sheetPatternCatalog),
+  skeleton: createRenderableCatalog("skeleton", skeletonPatternCatalog),
   sortable: createRenderableCatalog("sortable", sortablePatternCatalog),
   spinner: createRenderableCatalog("spinner", spinnerPatternCatalog),
   "statistic-card": createRenderableCatalog(

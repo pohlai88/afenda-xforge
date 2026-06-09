@@ -1,16 +1,29 @@
+import type { SystemAdminScope } from "@repo/features-system-admin-control-plane";
+import {
+  listSystemAdminWebhookEndpoints,
+  upsertSystemAdminWebhookEndpoint,
+} from "@repo/features-system-admin-control-plane/server";
 import { NextResponse } from "next/server";
 
-import {
-  listWebhookEndpointsForTenant,
-  requireWebhookManagementAccess,
-  upsertWebhookEndpointForTenant,
-  writeWebhookOperationalAudit,
-} from "../_lib/runtime";
+import { requireWebhookManagementAccess } from "../_lib/runtime";
+
+const createSystemAdminScope = (access: {
+  grantedPermissions: string[];
+  role: string;
+  tenantId: string;
+  userId: string;
+}): SystemAdminScope => ({
+  grantedPermissions: access.grantedPermissions,
+  tenantId: access.tenantId,
+  userId: access.userId,
+});
 
 export async function GET(): Promise<NextResponse> {
   try {
     const access = await requireWebhookManagementAccess();
-    const endpoints = await listWebhookEndpointsForTenant(access.tenantId);
+    const endpoints = await listSystemAdminWebhookEndpoints(
+      createSystemAdminScope(access)
+    );
 
     return NextResponse.json(
       {
@@ -45,18 +58,9 @@ export async function POST(request: Request): Promise<NextResponse> {
       secret: string;
       status?: string;
     };
-    const endpoint = await upsertWebhookEndpointForTenant(
-      access.tenantId,
-      payload
-    );
-
-    await writeWebhookOperationalAudit({
-      action: "webhooks.endpoint.upsert",
+    const endpoint = await upsertSystemAdminWebhookEndpoint(payload, {
+      ...createSystemAdminScope(access),
       requestId: crypto.randomUUID(),
-      targetId: endpoint.id,
-      targetType: "webhook-endpoint",
-      tenantId: access.tenantId,
-      userId: access.userId,
     });
 
     return NextResponse.json(endpoint, { status: 200 });

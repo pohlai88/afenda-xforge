@@ -6,6 +6,7 @@ import type {
   HrRecordsSearchParams,
 } from "./hr.workforce.records.contract.ts";
 import { hrRecordsStore } from "./hr.workforce.records.store.ts";
+import { canReadHrEmployeeRecord } from "./policy.ts";
 
 type QueryContext = {
   canRead?: boolean;
@@ -17,7 +18,7 @@ export function listHrEmployeeRecords(
   _query: HrRecordsSearchParams = {},
   context?: QueryContext
 ): readonly HrEmployeeRecordSummary[] {
-  if (context?.canRead === false) {
+  if (!canReadHrEmployeeRecord(context ?? {})) {
     return [];
   }
 
@@ -28,7 +29,7 @@ export function getHrEmployeeRecord(
   id: string,
   context?: QueryContext
 ): HrEmployeeRecordDetail | null {
-  if (context?.canRead === false) {
+  if (!canReadHrEmployeeRecord(context ?? {})) {
     return null;
   }
 

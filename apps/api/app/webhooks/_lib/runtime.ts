@@ -78,31 +78,6 @@ type TrustedWebhookEndpoint = Readonly<{
   tenantId: string;
 }>;
 
-type ManagedWebhookEndpoint = Readonly<{
-  applicationId?: string;
-  applicationName?: string;
-  companyId?: string;
-  endpointId: string;
-  eventOwner: string;
-  id: string;
-  provider: string;
-  schemaVersion: string;
-  status: string;
-  tenantId: string;
-}>;
-
-export type UpsertWebhookEndpointInput = Readonly<{
-  applicationId?: string;
-  applicationName?: string;
-  companyId?: string;
-  endpointId: string;
-  eventOwner: string;
-  provider: string;
-  schemaVersion: string;
-  secret: string;
-  status?: string;
-}>;
-
 const findTrustedWebhookEndpoint = async (
   provider: string,
   endpointId: string
@@ -229,11 +204,15 @@ const createOperationalPermissionContext = (
 });
 
 export const requireWebhookManagementAccess = async (): Promise<{
+  grantedPermissions: string[];
   role: string;
   tenantId: string;
   userId: string;
 }> => {
   const access = await requireActiveTenantAccess();
+  const grantedPermissions = resolvePermissionsForTenantRole(
+    access.membership.role
+  );
 
   requirePermission(
     createOperationalPermissionContext(
@@ -247,6 +226,7 @@ export const requireWebhookManagementAccess = async (): Promise<{
   );
 
   return {
+    grantedPermissions,
     role: access.membership.role,
     tenantId: access.membership.tenantId,
     userId: access.user.id,
@@ -792,144 +772,6 @@ const listDispatchableTenantIds = async (): Promise<string[]> => {
   );
 
   return Array.from(new Set(endpoints.map((entry) => entry.tenantId)));
-};
-
-const mapManagedWebhookEndpoint = (row: {
-  applicationId: string | null;
-  applicationName: string | null;
-  companyId: string | null;
-  endpointId: string;
-  eventOwner: string;
-  id: string;
-  provider: string;
-  schemaVersion: string;
-  status: string;
-  tenantId: string;
-}): ManagedWebhookEndpoint => ({
-  ...(row.applicationId
-    ? {
-        applicationId: row.applicationId,
-      }
-    : {}),
-  ...(row.applicationName
-    ? {
-        applicationName: row.applicationName,
-      }
-    : {}),
-  ...(row.companyId
-    ? {
-        companyId: row.companyId,
-      }
-    : {}),
-  endpointId: row.endpointId,
-  eventOwner: row.eventOwner,
-  id: row.id,
-  provider: row.provider,
-  schemaVersion: row.schemaVersion,
-  status: row.status,
-  tenantId: row.tenantId,
-});
-
-export const listWebhookEndpointsForTenant = async (
-  tenantId: string
-): Promise<ManagedWebhookEndpoint[]> => {
-  const endpoints = await timeDatabaseQuery(
-    () =>
-      database
-        .select({
-          applicationId: webhookEndpoints.applicationId,
-          applicationName: webhookEndpoints.applicationName,
-          companyId: webhookEndpoints.companyId,
-          endpointId: webhookEndpoints.endpointId,
-          eventOwner: webhookEndpoints.eventOwner,
-          id: webhookEndpoints.id,
-          provider: webhookEndpoints.provider,
-          schemaVersion: webhookEndpoints.schemaVersion,
-          status: webhookEndpoints.status,
-          tenantId: webhookEndpoints.tenantId,
-        })
-        .from(webhookEndpoints)
-        .where(eq(webhookEndpoints.tenantId, tenantId)),
-    {
-      operation: "select",
-      resource: "webhook_endpoints",
-      metadata: {
-        tenantId,
-      },
-    }
-  );
-
-  return endpoints.map(mapManagedWebhookEndpoint);
-};
-
-export const upsertWebhookEndpointForTenant = async (
-  tenantId: string,
-  input: UpsertWebhookEndpointInput
-): Promise<ManagedWebhookEndpoint> => {
-  if (
-    input.companyId &&
-    !(await validateCompanyInTenant(tenantId, input.companyId))
-  ) {
-    throw new Error("Webhook endpoint company scope is not trusted");
-  }
-
-  const [endpoint] = await timeDatabaseQuery(
-    () =>
-      database
-        .insert(webhookEndpoints)
-        .values({
-          applicationId: input.applicationId?.trim() || null,
-          applicationName: input.applicationName?.trim() || null,
-          companyId: input.companyId?.trim() || null,
-          endpointId: input.endpointId.trim(),
-          eventOwner: input.eventOwner.trim(),
-          provider: input.provider.trim(),
-          schemaVersion: input.schemaVersion.trim(),
-          secret: input.secret.trim(),
-          status: input.status?.trim() || ACTIVE_WEBHOOK_ENDPOINT_STATUS,
-          tenantId,
-        })
-        .onConflictDoUpdate({
-          target: [webhookEndpoints.provider, webhookEndpoints.endpointId],
-          set: {
-            applicationId: input.applicationId?.trim() || null,
-            applicationName: input.applicationName?.trim() || null,
-            companyId: input.companyId?.trim() || null,
-            eventOwner: input.eventOwner.trim(),
-            schemaVersion: input.schemaVersion.trim(),
-            secret: input.secret.trim(),
-            status: input.status?.trim() || ACTIVE_WEBHOOK_ENDPOINT_STATUS,
-            updatedAt: new Date(),
-          },
-        })
-        .returning({
-          applicationId: webhookEndpoints.applicationId,
-          applicationName: webhookEndpoints.applicationName,
-          companyId: webhookEndpoints.companyId,
-          endpointId: webhookEndpoints.endpointId,
-          eventOwner: webhookEndpoints.eventOwner,
-          id: webhookEndpoints.id,
-          provider: webhookEndpoints.provider,
-          schemaVersion: webhookEndpoints.schemaVersion,
-          status: webhookEndpoints.status,
-          tenantId: webhookEndpoints.tenantId,
-        }),
-    {
-      operation: "upsert",
-      resource: "webhook_endpoints",
-      metadata: {
-        endpointId: input.endpointId,
-        provider: input.provider,
-        tenantId,
-      },
-    }
-  );
-
-  if (!endpoint) {
-    throw new Error("Failed to upsert webhook endpoint");
-  }
-
-  return mapManagedWebhookEndpoint(endpoint);
 };
 
 export const dispatchQueuedWebhooksForAllTenants = async (

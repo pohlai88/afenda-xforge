@@ -1,24 +1,24 @@
 import "server-only";
 
 import type { HrRecordsActionResult } from "./hr.workforce.records.contract.ts";
+import type { HrRecordsPolicyContext } from "./policy.ts";
+import {
+  canViewHrEmployeeRecordSensitiveData as canViewHrEmployeeRecordSensitiveDataPolicy,
+  requireHrRecordsWrite as requireHrRecordsWritePolicy,
+} from "./policy.ts";
 
-export type HrRecordsAccessContext = {
-  canWrite?: boolean;
-  canViewSensitive?: boolean;
-  organizationId?: string;
-  userId?: string;
-};
+export type HrRecordsAccessContext = HrRecordsPolicyContext;
 
 export function requireHrRecordsWrite(
   context: HrRecordsAccessContext
 ): HrRecordsActionResult {
-  return context.canWrite
-    ? { ok: true }
-    : { ok: false, error: "Write access denied for employee records" };
+  return requireHrRecordsWritePolicy(context);
 }
 
 export function canViewHrRecordsSensitiveData(
   context: HrRecordsAccessContext
 ): boolean {
-  return Boolean(context.canViewSensitive);
+  return canViewHrEmployeeRecordSensitiveDataPolicy(context);
 }
+
+export { canReadHrEmployeeRecord, canWriteHrEmployeeRecord } from "./policy.ts";

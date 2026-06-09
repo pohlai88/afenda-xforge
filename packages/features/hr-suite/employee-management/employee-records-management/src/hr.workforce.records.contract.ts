@@ -1,6 +1,10 @@
 import { z } from "zod";
 import type { HrRecordsEmploymentStatus } from "./hr.workforce.records-employment-status.schema.ts";
 import { hrRecordsEmploymentStatusSchema } from "./hr.workforce.records-employment-status.schema.ts";
+import type {
+  hrRecordsCreateEmployeeSchema,
+  hrRecordsUpdateEmployeeSchema,
+} from "./hr.workforce.records-form.shared.ts";
 import type { HrRecordsRoutePath } from "./hr.workforce.records-route.contract.ts";
 
 export const hrWorkforceRecordsReadPermission = {
@@ -35,6 +39,21 @@ export type HrEmployeeRecordSummary = {
 export type HrEmployeeRecord = HrEmployeeRecordSummary & {
   departmentName: string | null;
   positionTitle: string | null;
+  employmentStartDate: Date | null;
+  employmentType: string;
+  workerCategory: string;
+  grade: string;
+  level: string;
+  legalEntityCode: string;
+  workLocationCode: string;
+  countryCode: string;
+  contractStartDate: Date | null;
+  contractEndDate: Date | null;
+  currentDepartmentId: string | null;
+  currentPositionId: string | null;
+  managerEmployeeId: string | null;
+  matrixManagerEmployeeId: string | null;
+  hrOwnerEmployeeId: string | null;
   createdAt: Date;
   updatedAt: Date;
 };
@@ -54,6 +73,9 @@ export type HrEmployeeRecordDetail = HrEmployeeRecord & {
   languagePreference: string;
   residentialAddress: string;
   mailingAddress: string;
+  emergencyContactName: string;
+  emergencyContactRelationship: string;
+  emergencyContactPhoneNumber: string;
 };
 
 export type HrRecordsSearchParams = {
@@ -67,21 +89,13 @@ export type HrRecordsSearchParams = {
   employmentStatusFilter?: HrRecordsEmploymentStatus;
 };
 
-export type HrRecordsCreateEmployeeInput = {
-  employeeNumber: string;
-  legalName: string;
-  preferredName?: string;
-  email?: string;
-};
+export type HrRecordsCreateEmployeeInput = z.infer<
+  typeof hrRecordsCreateEmployeeSchema
+>;
 
-export type HrRecordsUpdateEmployeeInput = {
-  employeeId: string;
-  employeeNumber?: string;
-  legalName?: string;
-  preferredName?: string;
-  email?: string;
-  employmentStatus?: HrRecordsEmploymentStatus;
-};
+export type HrRecordsUpdateEmployeeInput = z.infer<
+  typeof hrRecordsUpdateEmployeeSchema
+>;
 
 export type HrRecordsAssignmentInput = {
   employeeId: string;
@@ -96,6 +110,8 @@ export type HrRecordsRehireEmployeeInput = {
   legalName: string;
   preferredName?: string;
   email?: string;
+  employmentStartDate?: Date;
+  reason?: string;
 };
 
 export type HrRecordsArchiveEmployeeInput = {

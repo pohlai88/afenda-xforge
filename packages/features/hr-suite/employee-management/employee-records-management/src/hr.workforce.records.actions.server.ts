@@ -18,6 +18,7 @@ import {
   hrRecordsRehireEmployeeSchema,
   hrRecordsUpdateEmployeeSchema,
 } from "./hr.workforce.records-form.shared.ts";
+import { requireHrRecordsWrite } from "./policy.ts";
 
 type RecordsActionContext = {
   canWrite?: boolean;
@@ -25,17 +26,13 @@ type RecordsActionContext = {
   userId?: string;
 };
 
-const denyWrite = (): HrRecordsActionResult => ({
-  ok: false,
-  error: "Write access denied for employee records",
-});
-
 export function createHrEmployeeRecordAction(
   input: HrRecordsCreateEmployeeInput,
   context: RecordsActionContext
 ): HrRecordsActionResult {
-  if (!context.canWrite) {
-    return denyWrite();
+  const writeAccess = requireHrRecordsWrite(context);
+  if (!writeAccess.ok) {
+    return writeAccess;
   }
 
   try {
@@ -51,8 +48,9 @@ export function updateHrEmployeeRecordAction(
   input: HrRecordsUpdateEmployeeInput,
   context: RecordsActionContext
 ): HrRecordsActionResult {
-  if (!context.canWrite) {
-    return denyWrite();
+  const writeAccess = requireHrRecordsWrite(context);
+  if (!writeAccess.ok) {
+    return writeAccess;
   }
 
   try {
@@ -70,8 +68,9 @@ export function archiveHrEmployeeRecordAction(
   input: HrRecordsArchiveEmployeeInput,
   context: RecordsActionContext
 ): HrRecordsActionResult {
-  if (!context.canWrite) {
-    return denyWrite();
+  const writeAccess = requireHrRecordsWrite(context);
+  if (!writeAccess.ok) {
+    return writeAccess;
   }
 
   try {
@@ -89,8 +88,9 @@ export function recordHrEmployeeAssignmentAction(
   input: HrRecordsAssignmentInput,
   context: RecordsActionContext
 ): HrRecordsActionResult {
-  if (!context.canWrite) {
-    return denyWrite();
+  const writeAccess = requireHrRecordsWrite(context);
+  if (!writeAccess.ok) {
+    return writeAccess;
   }
 
   try {
@@ -108,8 +108,9 @@ export function rehireHrEmployeeAction(
   input: HrRecordsRehireEmployeeInput,
   context: RecordsActionContext
 ): HrRecordsActionResult {
-  if (!context.canWrite) {
-    return denyWrite();
+  const writeAccess = requireHrRecordsWrite(context);
+  if (!writeAccess.ok) {
+    return writeAccess;
   }
 
   try {
