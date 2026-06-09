@@ -441,7 +441,7 @@ export const hrOrgStore = {
   upsertPosition(
     input: UpsertHrOrgPositionInput,
     context?: HrOrgWriteContext
-  ): HrOrgChartNode {
+  ): HrOrgPositionProjection {
     const id = input.id ?? randomUUID();
     const existing = positions.get(id);
     const organizationUnitId = normalizeRequiredText(
@@ -508,29 +508,12 @@ export const hrOrgStore = {
       )
     );
 
-    return toChartNode({
-      id: next.id,
-      tenantId: next.tenantId,
-      companyId: next.companyId,
-      code: next.code,
-      name: next.title,
-      unitType: "department",
-      parentUnitId: next.organizationUnitId,
-      managerEmployeeId: next.managerEmployeeId,
-      costCenterCode: next.costCenterCode,
-      locationCode: next.locationCode,
-      legalEntityCode: null,
-      status: next.status,
-      effectiveFrom: next.effectiveFrom,
-      effectiveTo: next.effectiveTo,
-      createdAt: next.createdAt,
-      updatedAt: next.updatedAt,
-    } as HrOrgUnitRecord);
+    return toPositionProjection(next);
   },
   upsertReportingLine(
     input: UpsertHrOrgReportingRelationshipInput,
     context?: HrOrgWriteContext
-  ): HrOrgChartNode {
+  ): HrOrgReportingRelationshipProjection {
     const id = input.id ?? randomUUID();
     const existing = reportingRelationships.get(id);
     const employeeId = normalizeRequiredText(input.employeeId, "employeeId");
@@ -587,24 +570,7 @@ export const hrOrgStore = {
       )
     );
 
-    return toChartNode({
-      id: next.id,
-      tenantId: next.tenantId,
-      companyId: next.companyId,
-      code: next.relationshipType,
-      name: next.relationshipType,
-      unitType: "team",
-      parentUnitId: next.managerEmployeeId,
-      managerEmployeeId: next.managerEmployeeId,
-      costCenterCode: null,
-      locationCode: null,
-      legalEntityCode: null,
-      status: "active",
-      effectiveFrom: next.effectiveFrom,
-      effectiveTo: next.effectiveTo,
-      createdAt: next.createdAt,
-      updatedAt: next.updatedAt,
-    } as HrOrgUnitRecord);
+    return toReportingRelationshipProjection(next);
   },
   resetForTesting(): void {
     units.clear();

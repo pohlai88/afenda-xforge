@@ -105,6 +105,7 @@ function renderDeniedSection(
     },
     diagnostics,
     governanceDecision: governance.decision,
+    level: "warning",
     rendererKey: section.kind ?? "section",
   });
 
@@ -179,6 +180,7 @@ export function renderMetadataSection({
     },
     diagnostics,
     governanceDecision: governance.decision,
+    level: "debug",
     rendererKey: section.kind ?? "section",
   });
 
@@ -214,6 +216,7 @@ export function renderMetadataSection({
       },
       diagnostics,
       governanceDecision: governance.decision,
+      level: "info",
       rendererKey: section.kind ?? "section",
     });
 
@@ -232,6 +235,7 @@ export function renderMetadataSection({
         sectionKey: section.key,
       },
       diagnostics: result.diagnostics,
+      level: "error",
       rendererKey: section.kind ?? "section",
     });
 

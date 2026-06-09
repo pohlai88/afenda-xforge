@@ -3,8 +3,10 @@ import "server-only";
 export {
   activateEmployeeLifecycleOnboarding,
   approveEmployeeLifecycleProbationConfirmation,
+  archiveEmployeeLifecycleExit,
   completeEmployeeLifecycleOnboardingTask,
   employeeLifecycleContractActionCatalog,
+  employeeLifecycleExitActionCatalog,
   employeeLifecycleMovementActionCatalog,
   employeeLifecycleOnboardingActionCatalog,
   employeeLifecycleProbationActionCatalog,
@@ -31,7 +33,11 @@ export {
   startEmployeeLifecycleHold,
   startEmployeeLifecycleOnboarding,
   startEmployeeLifecycleProbation,
+  startEmployeeLifecycleResignation,
+  startEmployeeLifecycleRetirement,
   startEmployeeLifecycleSuspension,
+  startEmployeeLifecycleTermination,
+  triggerEmployeeLifecycleOffboarding,
 } from "./actions.ts";
 export {
   employeeLifecycleManagementAcceptanceCoverage,
@@ -62,6 +68,7 @@ export { employeeLifecycleManagementManifest } from "./manifest.ts";
 export { employeeLifecycleManagementMetadata } from "./metadata.ts";
 export {
   getEmployeeLifecycleContractStatus,
+  getEmployeeLifecycleExitStatus,
   getEmployeeLifecycleMovementStatus,
   getEmployeeLifecycleOnboardingStatus,
   getEmployeeLifecycleProbationStatus,
@@ -69,6 +76,8 @@ export {
   listEmployeeLifecycleContractReminderEntries,
   listEmployeeLifecycleContractReviewEntries,
   listEmployeeLifecycleContractStatuses,
+  listEmployeeLifecycleExitEntries,
+  listEmployeeLifecycleExitStatuses,
   listEmployeeLifecycleMovementEntries,
   listEmployeeLifecycleMovementStatuses,
   listEmployeeLifecycleOnboardingStatuses,
@@ -81,6 +90,7 @@ export {
 export {
   createEmployeeLifecycleRepositoryId,
   findEmployeeLifecycleContractRecordByEmployeeId,
+  findEmployeeLifecycleExitRecordByEmployeeId,
   findEmployeeLifecycleMovementRecordByEmployeeId,
   findEmployeeLifecycleOnboardingRecordByEmployeeId,
   findEmployeeLifecycleProbationRecordByEmployeeId,
@@ -90,6 +100,7 @@ export {
   loadEmployeeLifecycleRepository,
   mutateEmployeeLifecycleRepository,
   removeEmployeeLifecycleContractRecord,
+  removeEmployeeLifecycleExitRecord,
   removeEmployeeLifecycleMovementRecord,
   removeEmployeeLifecycleOnboardingRecord,
   removeEmployeeLifecycleProbationRecord,
@@ -99,6 +110,7 @@ export {
   saveEmployeeLifecycleRepository,
   setEmployeeLifecycleRepositoryPathForTesting,
   upsertEmployeeLifecycleContractRecord,
+  upsertEmployeeLifecycleExitRecord,
   upsertEmployeeLifecycleMovementRecord,
   upsertEmployeeLifecycleOnboardingRecord,
   upsertEmployeeLifecycleProbationRecord,

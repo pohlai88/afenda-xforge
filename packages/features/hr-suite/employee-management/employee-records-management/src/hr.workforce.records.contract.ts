@@ -89,6 +89,8 @@ export type HrRecordsSearchParams = {
   documentReferencesSearch?: string;
   separatedSearch?: string;
   employmentStatusFilter?: HrRecordsEmploymentStatus;
+  page?: number;
+  pageSize?: number;
 };
 
 export type HrRecordsCreateEmployeeInput = z.infer<
@@ -129,6 +131,8 @@ export type HrRecordsPageModelInput = {
   organizationId: string;
   canWrite: boolean;
   canViewSensitive: boolean;
+  page?: number;
+  pageSize?: number;
   incompleteSearch?: string;
   directorySearch?: string;
   assignmentsSearch?: string;
@@ -147,6 +151,10 @@ export type HrEmployeeRecordPageModel = {
   search: HrRecordsSearchParams;
   routePaths: Record<string, HrRecordsRoutePath>;
   records: readonly HrEmployeeRecordSummary[];
+  page: number;
+  pageSize: number;
+  totalCount: number;
+  hasNextPage: boolean;
 };
 
 export const hrRecordsSearchParamsSchema = z.object({
@@ -158,4 +166,6 @@ export const hrRecordsSearchParamsSchema = z.object({
   documentReferencesSearch: z.string().trim().optional(),
   separatedSearch: z.string().trim().optional(),
   employmentStatusFilter: hrRecordsEmploymentStatusSchema.optional(),
+  page: z.number().int().positive().optional(),
+  pageSize: z.number().int().positive().max(100).optional(),
 });

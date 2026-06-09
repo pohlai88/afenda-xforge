@@ -8,6 +8,8 @@ const root = process.cwd();
 const checkedExtensions = new Set([
   ".js",
   ".jsx",
+  ".md",
+  ".mdx",
   ".mjs",
   ".mts",
   ".ts",
@@ -31,6 +33,12 @@ const packageRoots = {
   metadataUi: path.join(root, "packages", "metadata-ui"),
   ui: path.join(root, "packages", "ui"),
 };
+
+const appRoots = existsSync(path.join(root, "apps"))
+  ? readdirSync(path.join(root, "apps"), { withFileTypes: true })
+      .filter((entry) => entry.isDirectory())
+      .map((entry) => path.join(root, "apps", entry.name))
+  : [];
 
 const allowedWorkspaceDependenciesByPackage = {
   "@repo/customization": new Set(["@repo/metadata", "@repo/typescript-config"]),
@@ -150,6 +158,10 @@ function getPackageKind(filePath) {
     return "metadata";
   }
 
+  if (relativePath.startsWith("apps/")) {
+    return "app";
+  }
+
   return null;
 }
 
@@ -212,17 +224,38 @@ function checkBusinessRuntimeImports(filePath, packageKind, specifier) {
 }
 
 function checkCrossPackageImports(filePath, packageKind, specifier) {
+  const extension = path.extname(filePath);
+  const isDocumentationFile = extension === ".md" || extension === ".mdx";
+  const relativePath = relativeToRoot(filePath);
+
+  if (isDocumentationFile) {
+    return;
+  }
+
+  if (
+    relativePath === "packages/metadata-ui/fixtures/public-api-consumer.tsx" &&
+    (specifier === "@repo/metadata-ui" ||
+      specifier.startsWith("@repo/metadata-ui/"))
+  ) {
+    return;
+  }
+
+  if (packageKind !== "ui" && specifier.startsWith("@repo/ui/")) {
+    addViolation(
+      `${relativePath}: non-ui packages must import @repo/ui from the root surface only, not ${specifier}`
+    );
+  }
+
   if (
     packageKind === "designSystem" &&
     (specifier === "@repo/ui" ||
-      specifier.startsWith("@repo/ui/") ||
       specifier === "@repo/metadata" ||
       specifier.startsWith("@repo/metadata/") ||
       specifier === "@repo/metadata-ui" ||
       specifier.startsWith("@repo/metadata-ui/"))
   ) {
     addViolation(
-      `${relativeToRoot(filePath)}: @repo/design-system must stay vocabulary-only and must not import ${specifier}`
+      `${relativePath}: @repo/design-system must stay vocabulary-only and must not import ${specifier}`
     );
   }
 
@@ -234,7 +267,7 @@ function checkCrossPackageImports(filePath, packageKind, specifier) {
     )
   ) {
     addViolation(
-      `${relativeToRoot(filePath)}: @repo/ui must only import design-system primitives and must not import ${specifier}`
+      `${relativePath}: @repo/ui must only import design-system primitives and must not import ${specifier}`
     );
   }
 
@@ -246,7 +279,7 @@ function checkCrossPackageImports(filePath, packageKind, specifier) {
     )
   ) {
     addViolation(
-      `${relativeToRoot(filePath)}: @repo/metadata-ui must only import @repo/ui, @repo/metadata, and @repo/customization, not ${specifier}`
+      `${relativePath}: @repo/metadata-ui must only import @repo/ui, @repo/metadata, and @repo/customization, not ${specifier}`
     );
   }
 
@@ -258,13 +291,13 @@ function checkCrossPackageImports(filePath, packageKind, specifier) {
     )
   ) {
     addViolation(
-      `${relativeToRoot(filePath)}: @repo/customization must only import @repo/metadata, not ${specifier}`
+      `${relativePath}: @repo/customization must only import @repo/metadata, not ${specifier}`
     );
   }
 }
 
 function checkImports() {
-  for (const packageRoot of Object.values(packageRoots)) {
+  for (const packageRoot of [...Object.values(packageRoots), ...appRoots]) {
     for (const filePath of walk(packageRoot)) {
       const packageKind = getPackageKind(filePath);
 

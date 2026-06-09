@@ -102,6 +102,7 @@ function renderDeniedAction(
     },
     diagnostics,
     governanceDecision: governance.decision,
+    level: "warning",
     rendererKey: action.surface ?? action.kind,
   });
 
@@ -180,6 +181,7 @@ export function renderMetadataAction({
     },
     diagnostics,
     governanceDecision: governance.decision,
+    level: "debug",
     rendererKey: action.surface ?? action.kind,
   });
 
@@ -202,6 +204,7 @@ export function renderMetadataAction({
           },
           diagnostics,
           governanceDecision: governance.decision,
+          level: "info",
           rendererKey: nextResolvedAction.surface ?? nextResolvedAction.kind,
         });
         onAction?.(nextResolvedAction);
@@ -234,6 +237,7 @@ export function renderMetadataAction({
       },
       diagnostics,
       governanceDecision: governance.decision,
+      level: "info",
       rendererKey: action.surface ?? action.kind,
     });
 
@@ -253,6 +257,7 @@ export function renderMetadataAction({
         message: result.diagnostics.at(-1)?.message ?? "render failed",
       },
       diagnostics: result.diagnostics,
+      level: "error",
       rendererKey: action.surface ?? action.kind,
     });
 

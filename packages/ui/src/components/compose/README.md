@@ -4,12 +4,14 @@
 It is not a demo namespace.
 
 Use it for generic, feature-agnostic patterns that can be selected by
-`@repo/metadata-ui` through names, roles, and capabilities.
+`@repo/metadata-ui` through names, roles, and capabilities. The registry
+contract is exposed from the root `@repo/ui` package so consumers do not need
+deep subpath imports.
 
 ## Boundary
 
-- `@repo/ui/components/compose` may expose primitive compositions, pattern
-  catalogs, and registry metadata.
+- The compose registry and its stable metadata contract are the only
+  consumer-facing surface.
 - It must not import `@repo/metadata`, `@repo/metadata-ui`, feature packages,
   database code, auth code, or server actions.
 - Preview galleries may exist for documentation, but they are secondary to the
@@ -33,16 +35,7 @@ remain outside `@repo/ui`.
 
 ## Preview Galleries
 
-Preview-only galleries live under the internal `_previews` folder and are
-available through the public alias:
-
-```tsx
-import {
-  DataGridComposeGallery,
-  composePreviewGalleryComponents,
-} from "@repo/ui/components/compose/previews";
-```
-
-Use this subpath for docs, Storybook, and local inspection surfaces. Metadata
+Preview-only galleries can exist inside `@repo/ui` for local documentation and
+Storybook, but they are not part of the cross-package public API. Metadata
 renderers should depend on registry names and capabilities instead of gallery
 components.

@@ -3454,3 +3454,684 @@ export function buildEmployeeLifecycleSuspensionReadModel(
     events: record.events,
   });
 }
+
+export const employeeLifecycleExitKindValues = [
+  "resignation",
+  "termination",
+  "retirement",
+] as const;
+
+export type EmployeeLifecycleExitKindValue =
+  (typeof employeeLifecycleExitKindValues)[number];
+
+export const employeeLifecycleExitStatusValues = [
+  "initiated",
+  "notice_recorded",
+  "offboarding_triggered",
+  "archived",
+] as const;
+
+export type EmployeeLifecycleExitStatusValue =
+  (typeof employeeLifecycleExitStatusValues)[number];
+
+export const employeeLifecycleExitEventKindValues = [
+  "resignation_started",
+  "termination_started",
+  "retirement_started",
+  "notice_recorded",
+  "offboarding_triggered",
+  "archived",
+] as const;
+
+export type EmployeeLifecycleExitEventKindValue =
+  (typeof employeeLifecycleExitEventKindValues)[number];
+
+export const employeeLifecycleExitStartInputSchema = z.object({
+  employeeId: employeeLifecycleTrimmedStringSchema,
+  companyId: employeeLifecycleOptionalTrimmedStringSchema,
+  tenantId: employeeLifecycleOptionalTrimmedStringSchema,
+  exitKind: z.enum(employeeLifecycleExitKindValues),
+  effectiveAt: employeeLifecycleDateSchema.optional(),
+  recordedAt: employeeLifecycleDateSchema.optional(),
+  noticeEndsAt: employeeLifecycleDateSchema.nullish(),
+  lastWorkingAt: employeeLifecycleDateSchema.nullish(),
+  approvalReference: z.string().trim().min(1).nullable().optional(),
+  actorId: employeeLifecycleOptionalTrimmedStringSchema,
+  reason: z.string().trim().nullable().optional(),
+  metadata: employeeLifecycleMetadataSchema,
+});
+
+export const employeeLifecycleExitNoticeInputSchema = z.object({
+  employeeId: employeeLifecycleTrimmedStringSchema,
+  noticeReference: employeeLifecycleTrimmedStringSchema,
+  noticeRecordedAt: employeeLifecycleDateSchema.optional(),
+  noticeEndsAt: employeeLifecycleDateSchema.nullish(),
+  lastWorkingAt: employeeLifecycleDateSchema.nullish(),
+  approvalReference: z.string().trim().min(1).nullable().optional(),
+  actorId: employeeLifecycleOptionalTrimmedStringSchema,
+  reason: z.string().trim().nullable().optional(),
+  metadata: employeeLifecycleMetadataSchema,
+});
+
+export const employeeLifecycleExitOffboardingInputSchema = z.object({
+  employeeId: employeeLifecycleTrimmedStringSchema,
+  offboardingReference: employeeLifecycleTrimmedStringSchema,
+  offboardingAt: employeeLifecycleDateSchema.optional(),
+  actorId: employeeLifecycleOptionalTrimmedStringSchema,
+  reason: z.string().trim().nullable().optional(),
+  metadata: employeeLifecycleMetadataSchema,
+});
+
+export const employeeLifecycleExitArchiveInputSchema = z.object({
+  employeeId: employeeLifecycleTrimmedStringSchema,
+  archiveReference: employeeLifecycleTrimmedStringSchema,
+  archivedAt: employeeLifecycleDateSchema.optional(),
+  actorId: employeeLifecycleOptionalTrimmedStringSchema,
+  reason: z.string().trim().nullable().optional(),
+  metadata: employeeLifecycleMetadataSchema,
+});
+
+export const employeeLifecycleExitEntrySchema = z.object({
+  id: employeeLifecycleTrimmedStringSchema,
+  sequence: z.number().int().nonnegative(),
+  employeeId: employeeLifecycleTrimmedStringSchema,
+  exitKind: z.enum(employeeLifecycleExitKindValues),
+  status: z.enum(employeeLifecycleExitStatusValues),
+  finalStage: z.enum(["separated", "retired"]),
+  effectiveAt: employeeLifecycleDateSchema,
+  recordedAt: employeeLifecycleDateSchema,
+  approvalReference: z.string().trim().min(1).nullable().optional(),
+  noticeReference: employeeLifecycleTrimmedStringSchema.nullish(),
+  noticeEndsAt: employeeLifecycleDateSchema.nullish(),
+  lastWorkingAt: employeeLifecycleDateSchema.nullish(),
+  offboardingReference: employeeLifecycleTrimmedStringSchema.nullish(),
+  offboardingAt: employeeLifecycleDateSchema.nullish(),
+  archiveReference: employeeLifecycleTrimmedStringSchema.nullish(),
+  archivedAt: employeeLifecycleDateSchema.nullish(),
+  actorId: employeeLifecycleOptionalTrimmedStringSchema,
+  reason: z.string().trim().nullable().optional(),
+  metadata: employeeLifecycleMetadataSchema,
+});
+
+export const employeeLifecycleExitEventSchema = z.object({
+  id: employeeLifecycleTrimmedStringSchema,
+  sequence: z.number().int().nonnegative(),
+  employeeId: employeeLifecycleTrimmedStringSchema,
+  event: z.enum(employeeLifecycleExitEventKindValues),
+  exitKind: z.enum(employeeLifecycleExitKindValues),
+  finalStage: z.enum(["separated", "retired"]),
+  approvalReference: z.string().trim().min(1).nullable().optional(),
+  noticeReference: employeeLifecycleTrimmedStringSchema.nullish(),
+  noticeEndsAt: employeeLifecycleDateSchema.nullish(),
+  lastWorkingAt: employeeLifecycleDateSchema.nullish(),
+  offboardingReference: employeeLifecycleTrimmedStringSchema.nullish(),
+  offboardingAt: employeeLifecycleDateSchema.nullish(),
+  archiveReference: employeeLifecycleTrimmedStringSchema.nullish(),
+  archivedAt: employeeLifecycleDateSchema.nullish(),
+  actorId: employeeLifecycleOptionalTrimmedStringSchema,
+  reason: z.string().trim().nullable().optional(),
+  metadata: employeeLifecycleMetadataSchema,
+  createdAt: employeeLifecycleDateSchema,
+});
+
+export const employeeLifecycleExitRecordSchema = z.object({
+  id: employeeLifecycleTrimmedStringSchema,
+  employeeId: employeeLifecycleTrimmedStringSchema,
+  companyId: employeeLifecycleOptionalTrimmedStringSchema,
+  tenantId: employeeLifecycleOptionalTrimmedStringSchema,
+  entries: z.array(employeeLifecycleExitEntrySchema),
+  events: z.array(employeeLifecycleExitEventSchema),
+  startedAt: employeeLifecycleDateSchema,
+  lastNoticeAt: employeeLifecycleDateSchema.nullish(),
+  lastOffboardingAt: employeeLifecycleDateSchema.nullish(),
+  lastArchivedAt: employeeLifecycleDateSchema.nullish(),
+  createdAt: employeeLifecycleDateSchema,
+  updatedAt: employeeLifecycleDateSchema,
+});
+
+export const employeeLifecycleExitReadModelSchema = z.object({
+  employeeId: employeeLifecycleTrimmedStringSchema,
+  companyId: employeeLifecycleOptionalTrimmedStringSchema,
+  tenantId: employeeLifecycleOptionalTrimmedStringSchema,
+  lifecycleStage: employeeLifecycleStageSchema,
+  exitKind: z.enum(employeeLifecycleExitKindValues),
+  exitStatus: z.enum(employeeLifecycleExitStatusValues),
+  finalStage: z.enum(["separated", "retired"]),
+  exitCount: z.number().int().nonnegative(),
+  startedAt: employeeLifecycleDateSchema,
+  lastNoticeAt: employeeLifecycleDateSchema.nullish(),
+  lastOffboardingAt: employeeLifecycleDateSchema.nullish(),
+  lastArchivedAt: employeeLifecycleDateSchema.nullish(),
+  approvalReference: z.string().trim().min(1).nullable().optional(),
+  noticeReference: employeeLifecycleTrimmedStringSchema.nullish(),
+  noticeEndsAt: employeeLifecycleDateSchema.nullish(),
+  lastWorkingAt: employeeLifecycleDateSchema.nullish(),
+  offboardingReference: employeeLifecycleTrimmedStringSchema.nullish(),
+  offboardingAt: employeeLifecycleDateSchema.nullish(),
+  archiveReference: employeeLifecycleTrimmedStringSchema.nullish(),
+  archivedAt: employeeLifecycleDateSchema.nullish(),
+  isNoticeActive: z.boolean(),
+  isOffboardingTriggered: z.boolean(),
+  isArchived: z.boolean(),
+  entries: z.array(employeeLifecycleExitEntrySchema),
+  events: z.array(employeeLifecycleExitEventSchema),
+});
+
+export type EmployeeLifecycleExitStartInput = z.infer<
+  typeof employeeLifecycleExitStartInputSchema
+>;
+export type EmployeeLifecycleExitNoticeInput = z.infer<
+  typeof employeeLifecycleExitNoticeInputSchema
+>;
+export type EmployeeLifecycleExitOffboardingInput = z.infer<
+  typeof employeeLifecycleExitOffboardingInputSchema
+>;
+export type EmployeeLifecycleExitArchiveInput = z.infer<
+  typeof employeeLifecycleExitArchiveInputSchema
+>;
+export type EmployeeLifecycleExitEntry = z.infer<
+  typeof employeeLifecycleExitEntrySchema
+>;
+export type EmployeeLifecycleExitEvent = z.infer<
+  typeof employeeLifecycleExitEventSchema
+>;
+export type EmployeeLifecycleExitRecord = z.infer<
+  typeof employeeLifecycleExitRecordSchema
+>;
+export type EmployeeLifecycleExitReadModel = z.infer<
+  typeof employeeLifecycleExitReadModelSchema
+>;
+
+const buildEmployeeLifecycleExitEntryId = (
+  employeeId: string,
+  sequence: number,
+  event: EmployeeLifecycleExitEventKindValue
+): string => `${employeeId}:exit:${sequence}:${event}`;
+
+const buildEmployeeLifecycleExitEvent = (
+  input: Readonly<{
+    employeeId: string;
+    sequence: number;
+    event: EmployeeLifecycleExitEventKindValue;
+    exitKind: EmployeeLifecycleExitKindValue;
+    finalStage: "separated" | "retired";
+    approvalReference?: string | null;
+    noticeReference?: string | null;
+    noticeEndsAt?: Date | null;
+    lastWorkingAt?: Date | null;
+    offboardingReference?: string | null;
+    offboardingAt?: Date | null;
+    archiveReference?: string | null;
+    archivedAt?: Date | null;
+    actorId?: string | null;
+    reason?: string | null;
+    metadata?: Record<string, unknown>;
+    createdAt: Date;
+  }>
+): EmployeeLifecycleExitEvent =>
+  employeeLifecycleExitEventSchema.parse({
+    id: buildEmployeeLifecycleExitEntryId(
+      input.employeeId,
+      input.sequence,
+      input.event
+    ),
+    sequence: input.sequence,
+    employeeId: input.employeeId,
+    event: input.event,
+    exitKind: input.exitKind,
+    finalStage: input.finalStage,
+    approvalReference: input.approvalReference ?? null,
+    noticeReference: input.noticeReference ?? null,
+    noticeEndsAt: input.noticeEndsAt ?? null,
+    lastWorkingAt: input.lastWorkingAt ?? null,
+    offboardingReference: input.offboardingReference ?? null,
+    offboardingAt: input.offboardingAt ?? null,
+    archiveReference: input.archiveReference ?? null,
+    archivedAt: input.archivedAt ?? null,
+    actorId: input.actorId ?? undefined,
+    reason: input.reason ?? null,
+    metadata: input.metadata ?? {},
+    createdAt: input.createdAt,
+  });
+
+const buildEmployeeLifecycleExitEntry = (
+  input: Readonly<{
+    employeeId: string;
+    sequence: number;
+    exitKind: EmployeeLifecycleExitKindValue;
+    status: EmployeeLifecycleExitStatusValue;
+    finalStage: "separated" | "retired";
+    effectiveAt: Date;
+    recordedAt: Date;
+    approvalReference?: string | null;
+    noticeReference?: string | null;
+    noticeEndsAt?: Date | null;
+    lastWorkingAt?: Date | null;
+    offboardingReference?: string | null;
+    offboardingAt?: Date | null;
+    archiveReference?: string | null;
+    archivedAt?: Date | null;
+    actorId?: string | null;
+    reason?: string | null;
+    metadata?: Record<string, unknown>;
+  }>
+): EmployeeLifecycleExitEntry =>
+  employeeLifecycleExitEntrySchema.parse({
+    id: buildEmployeeLifecycleExitEntryId(
+      input.employeeId,
+      input.sequence,
+      getEmployeeLifecycleExitEntryEventId(input.status, input.exitKind)
+    ),
+    sequence: input.sequence,
+    employeeId: input.employeeId,
+    exitKind: input.exitKind,
+    status: input.status,
+    finalStage: input.finalStage,
+    effectiveAt: input.effectiveAt,
+    recordedAt: input.recordedAt,
+    approvalReference: input.approvalReference ?? null,
+    noticeReference: input.noticeReference ?? null,
+    noticeEndsAt: input.noticeEndsAt ?? null,
+    lastWorkingAt: input.lastWorkingAt ?? null,
+    offboardingReference: input.offboardingReference ?? null,
+    offboardingAt: input.offboardingAt ?? null,
+    archiveReference: input.archiveReference ?? null,
+    archivedAt: input.archivedAt ?? null,
+    actorId: input.actorId ?? undefined,
+    reason: input.reason ?? null,
+    metadata: input.metadata ?? {},
+  });
+
+const buildEmployeeLifecycleExitRecordFromSeed = (
+  input: Readonly<{
+    employeeId: string;
+    companyId?: string | null;
+    tenantId?: string | null;
+    exitKind: EmployeeLifecycleExitKindValue;
+    effectiveAt: Date;
+    recordedAt: Date;
+    noticeEndsAt?: Date | null;
+    lastWorkingAt?: Date | null;
+    approvalReference?: string | null;
+    actorId?: string | null;
+    reason?: string | null;
+    metadata?: Record<string, unknown>;
+  }>
+): EmployeeLifecycleExitRecord =>
+  employeeLifecycleExitRecordSchema.parse({
+    id: `${input.employeeId}:exit`,
+    employeeId: input.employeeId,
+    companyId: input.companyId ?? undefined,
+    tenantId: input.tenantId ?? undefined,
+    entries: [
+      buildEmployeeLifecycleExitEntry({
+        employeeId: input.employeeId,
+        sequence: 0,
+        exitKind: input.exitKind,
+        status: "initiated",
+        finalStage: getEmployeeLifecycleExitFinalStage(input.exitKind),
+        effectiveAt: input.effectiveAt,
+        recordedAt: input.recordedAt,
+        approvalReference: input.approvalReference ?? null,
+        noticeEndsAt: input.noticeEndsAt ?? null,
+        lastWorkingAt: input.lastWorkingAt ?? null,
+        actorId: input.actorId ?? undefined,
+        reason: input.reason ?? null,
+        metadata: input.metadata ?? {},
+      }),
+    ],
+    events: [
+      buildEmployeeLifecycleExitEvent({
+        employeeId: input.employeeId,
+        sequence: 0,
+        event: getEmployeeLifecycleExitStartedEvent(input.exitKind),
+        exitKind: input.exitKind,
+        finalStage: getEmployeeLifecycleExitFinalStage(input.exitKind),
+        approvalReference: input.approvalReference ?? null,
+        noticeEndsAt: input.noticeEndsAt ?? null,
+        lastWorkingAt: input.lastWorkingAt ?? null,
+        actorId: input.actorId ?? undefined,
+        reason: input.reason ?? null,
+        metadata: {
+          ...(input.metadata ?? {}),
+          exitKind: input.exitKind,
+        },
+        createdAt: input.recordedAt,
+      }),
+    ],
+    startedAt: input.recordedAt,
+    lastNoticeAt: null,
+    lastOffboardingAt: null,
+    lastArchivedAt: null,
+    createdAt: input.recordedAt,
+    updatedAt: input.recordedAt,
+  });
+
+export function createEmployeeLifecycleExitRecord(
+  input: EmployeeLifecycleExitStartInput
+): EmployeeLifecycleExitRecord {
+  const parsedInput = employeeLifecycleExitStartInputSchema.parse(input);
+  const effectiveAt = parsedInput.effectiveAt ?? new Date();
+  const recordedAt = parsedInput.recordedAt ?? effectiveAt;
+
+  return buildEmployeeLifecycleExitRecordFromSeed({
+    employeeId: parsedInput.employeeId,
+    companyId: parsedInput.companyId,
+    tenantId: parsedInput.tenantId,
+    exitKind: parsedInput.exitKind,
+    effectiveAt,
+    recordedAt,
+    noticeEndsAt: parsedInput.noticeEndsAt ?? null,
+    lastWorkingAt: parsedInput.lastWorkingAt ?? null,
+    approvalReference: parsedInput.approvalReference ?? null,
+    actorId: parsedInput.actorId ?? undefined,
+    reason: parsedInput.reason ?? null,
+    metadata: parsedInput.metadata ?? {},
+  });
+}
+
+const appendEmployeeLifecycleExitEntry = (
+  record: EmployeeLifecycleExitRecord,
+  input: EmployeeLifecycleExitNoticeInput
+): EmployeeLifecycleExitRecord => {
+  const parsedRecord = employeeLifecycleExitRecordSchema.parse(record);
+  const recordedAt = input.noticeRecordedAt ?? new Date();
+  const latestEntry = parsedRecord.entries.at(-1);
+
+  if (!latestEntry) {
+    throw new Error(
+      `Employee ${parsedRecord.employeeId} exit record is missing an initiation entry.`
+    );
+  }
+
+  const nextEntry = buildEmployeeLifecycleExitEntry({
+    employeeId: parsedRecord.employeeId,
+    sequence: parsedRecord.entries.length,
+    exitKind: latestEntry.exitKind,
+    status: "notice_recorded",
+    finalStage: latestEntry.finalStage,
+    effectiveAt: latestEntry.effectiveAt,
+    recordedAt,
+    approvalReference: input.approvalReference ?? null,
+    noticeReference: input.noticeReference,
+    noticeEndsAt: input.noticeEndsAt ?? null,
+    lastWorkingAt: input.lastWorkingAt ?? null,
+    actorId: input.actorId ?? undefined,
+    reason: input.reason ?? null,
+    metadata: input.metadata ?? {},
+  });
+
+  return employeeLifecycleExitRecordSchema.parse({
+    ...parsedRecord,
+    entries: [...parsedRecord.entries, nextEntry],
+    events: [
+      ...parsedRecord.events,
+      buildEmployeeLifecycleExitEvent({
+        employeeId: parsedRecord.employeeId,
+        sequence: parsedRecord.events.length,
+        event: "notice_recorded",
+        exitKind: latestEntry.exitKind,
+        finalStage: latestEntry.finalStage,
+        approvalReference: input.approvalReference ?? null,
+        noticeReference: input.noticeReference,
+        noticeEndsAt: input.noticeEndsAt ?? null,
+        lastWorkingAt: input.lastWorkingAt ?? null,
+        actorId: input.actorId ?? undefined,
+        reason: input.reason ?? null,
+        metadata: {
+          ...(input.metadata ?? {}),
+          exitKind: latestEntry.exitKind,
+        },
+        createdAt: recordedAt,
+      }),
+    ],
+    lastNoticeAt: recordedAt,
+    updatedAt: recordedAt,
+  });
+};
+
+const appendEmployeeLifecycleExitOffboardingEntry = (
+  record: EmployeeLifecycleExitRecord,
+  input: EmployeeLifecycleExitOffboardingInput
+): EmployeeLifecycleExitRecord => {
+  const parsedRecord = employeeLifecycleExitRecordSchema.parse(record);
+  const offboardingAt = input.offboardingAt ?? new Date();
+  const latestEntry = parsedRecord.entries.at(-1);
+
+  if (!latestEntry) {
+    throw new Error(
+      `Employee ${parsedRecord.employeeId} exit record is missing an initiation entry.`
+    );
+  }
+
+  const nextEntry = buildEmployeeLifecycleExitEntry({
+    employeeId: parsedRecord.employeeId,
+    sequence: parsedRecord.entries.length,
+    exitKind: latestEntry.exitKind,
+    status: "offboarding_triggered",
+    finalStage: latestEntry.finalStage,
+    effectiveAt: latestEntry.effectiveAt,
+    recordedAt: offboardingAt,
+    approvalReference: latestEntry.approvalReference ?? null,
+    noticeReference: latestEntry.noticeReference ?? null,
+    noticeEndsAt: latestEntry.noticeEndsAt ?? null,
+    lastWorkingAt: latestEntry.lastWorkingAt ?? null,
+    offboardingReference: input.offboardingReference,
+    offboardingAt,
+    actorId: input.actorId ?? undefined,
+    reason: input.reason ?? null,
+    metadata: input.metadata ?? {},
+  });
+
+  return employeeLifecycleExitRecordSchema.parse({
+    ...parsedRecord,
+    entries: [...parsedRecord.entries, nextEntry],
+    events: [
+      ...parsedRecord.events,
+      buildEmployeeLifecycleExitEvent({
+        employeeId: parsedRecord.employeeId,
+        sequence: parsedRecord.events.length,
+        event: "offboarding_triggered",
+        exitKind: latestEntry.exitKind,
+        finalStage: latestEntry.finalStage,
+        approvalReference: latestEntry.approvalReference ?? null,
+        noticeReference: latestEntry.noticeReference ?? null,
+        noticeEndsAt: latestEntry.noticeEndsAt ?? null,
+        lastWorkingAt: latestEntry.lastWorkingAt ?? null,
+        offboardingReference: input.offboardingReference,
+        offboardingAt,
+        actorId: input.actorId ?? undefined,
+        reason: input.reason ?? null,
+        metadata: {
+          ...(input.metadata ?? {}),
+          exitKind: latestEntry.exitKind,
+        },
+        createdAt: offboardingAt,
+      }),
+    ],
+    lastOffboardingAt: offboardingAt,
+    updatedAt: offboardingAt,
+  });
+};
+
+const appendEmployeeLifecycleExitArchiveEntry = (
+  record: EmployeeLifecycleExitRecord,
+  input: EmployeeLifecycleExitArchiveInput
+): EmployeeLifecycleExitRecord => {
+  const parsedRecord = employeeLifecycleExitRecordSchema.parse(record);
+  const archivedAt = input.archivedAt ?? new Date();
+  const latestEntry = parsedRecord.entries.at(-1);
+
+  if (!latestEntry) {
+    throw new Error(
+      `Employee ${parsedRecord.employeeId} exit record is missing an initiation entry.`
+    );
+  }
+
+  const nextEntry = buildEmployeeLifecycleExitEntry({
+    employeeId: parsedRecord.employeeId,
+    sequence: parsedRecord.entries.length,
+    exitKind: latestEntry.exitKind,
+    status: "archived",
+    finalStage: latestEntry.finalStage,
+    effectiveAt: latestEntry.effectiveAt,
+    recordedAt: archivedAt,
+    approvalReference: latestEntry.approvalReference ?? null,
+    noticeReference: latestEntry.noticeReference ?? null,
+    noticeEndsAt: latestEntry.noticeEndsAt ?? null,
+    lastWorkingAt: latestEntry.lastWorkingAt ?? null,
+    offboardingReference: latestEntry.offboardingReference ?? null,
+    offboardingAt: latestEntry.offboardingAt ?? null,
+    archiveReference: input.archiveReference,
+    archivedAt,
+    actorId: input.actorId ?? undefined,
+    reason: input.reason ?? null,
+    metadata: input.metadata ?? {},
+  });
+
+  return employeeLifecycleExitRecordSchema.parse({
+    ...parsedRecord,
+    entries: [...parsedRecord.entries, nextEntry],
+    events: [
+      ...parsedRecord.events,
+      buildEmployeeLifecycleExitEvent({
+        employeeId: parsedRecord.employeeId,
+        sequence: parsedRecord.events.length,
+        event: "archived",
+        exitKind: latestEntry.exitKind,
+        finalStage: latestEntry.finalStage,
+        approvalReference: latestEntry.approvalReference ?? null,
+        noticeReference: latestEntry.noticeReference ?? null,
+        noticeEndsAt: latestEntry.noticeEndsAt ?? null,
+        lastWorkingAt: latestEntry.lastWorkingAt ?? null,
+        offboardingReference: latestEntry.offboardingReference ?? null,
+        offboardingAt: latestEntry.offboardingAt ?? null,
+        archiveReference: input.archiveReference,
+        archivedAt,
+        actorId: input.actorId ?? undefined,
+        reason: input.reason ?? null,
+        metadata: {
+          ...(input.metadata ?? {}),
+          exitKind: latestEntry.exitKind,
+        },
+        createdAt: archivedAt,
+      }),
+    ],
+    lastArchivedAt: archivedAt,
+    updatedAt: archivedAt,
+  });
+};
+
+export function appendEmployeeLifecycleExitNotice(
+  record: EmployeeLifecycleExitRecord,
+  input: EmployeeLifecycleExitNoticeInput
+): EmployeeLifecycleExitRecord {
+  return appendEmployeeLifecycleExitEntry(record, input);
+}
+
+export function applyEmployeeLifecycleExitOffboarding(
+  record: EmployeeLifecycleExitRecord,
+  input: EmployeeLifecycleExitOffboardingInput
+): EmployeeLifecycleExitRecord {
+  return appendEmployeeLifecycleExitOffboardingEntry(record, input);
+}
+
+export function applyEmployeeLifecycleExitArchive(
+  record: EmployeeLifecycleExitRecord,
+  input: EmployeeLifecycleExitArchiveInput
+): EmployeeLifecycleExitRecord {
+  return appendEmployeeLifecycleExitArchiveEntry(record, input);
+}
+
+const getEmployeeLifecycleExitFinalStage = (
+  exitKind: EmployeeLifecycleExitKindValue
+): "separated" | "retired" =>
+  exitKind === "retirement" ? "retired" : "separated";
+
+const getEmployeeLifecycleExitEntryEventId = (
+  status: EmployeeLifecycleExitEntry["status"],
+  exitKind: EmployeeLifecycleExitKindValue
+): EmployeeLifecycleExitEventKindValue => {
+  if (status === "initiated") {
+    return `${exitKind}_started`;
+  }
+
+  if (status === "notice_recorded") {
+    return "notice_recorded";
+  }
+
+  if (status === "offboarding_triggered") {
+    return "offboarding_triggered";
+  }
+
+  return "archived";
+};
+
+const getEmployeeLifecycleExitStartedEvent = (
+  exitKind: EmployeeLifecycleExitKindValue
+): "resignation_started" | "termination_started" | "retirement_started" => {
+  if (exitKind === "resignation") {
+    return "resignation_started";
+  }
+
+  if (exitKind === "termination") {
+    return "termination_started";
+  }
+
+  return "retirement_started";
+};
+
+export function buildEmployeeLifecycleExitReadModel(
+  input: Readonly<{
+    state: EmployeeLifecycleState | null;
+    record?: EmployeeLifecycleExitRecord | null;
+  }>
+): EmployeeLifecycleExitReadModel | null {
+  if (!(input.state && input.record)) {
+    return null;
+  }
+
+  const record = employeeLifecycleExitRecordSchema.parse(input.record);
+  const currentEntry = record.entries.at(-1);
+  if (!currentEntry) {
+    return null;
+  }
+
+  const isNoticeActive =
+    input.state.currentStage === "notice_period" &&
+    (currentEntry.status === "initiated" ||
+      currentEntry.status === "notice_recorded");
+  const isOffboardingTriggered =
+    input.state.currentStage === "offboarding" ||
+    currentEntry.status === "offboarding_triggered" ||
+    currentEntry.status === "archived";
+  const isArchived = input.state.currentStage === "archived";
+
+  return employeeLifecycleExitReadModelSchema.parse({
+    employeeId: input.state.employeeId,
+    companyId: record.companyId ?? input.state.companyId ?? undefined,
+    tenantId: record.tenantId ?? input.state.tenantId ?? undefined,
+    lifecycleStage: input.state.currentStage,
+    exitKind: currentEntry.exitKind,
+    exitStatus: currentEntry.status,
+    finalStage: currentEntry.finalStage,
+    exitCount: record.entries.length,
+    startedAt: record.startedAt,
+    lastNoticeAt: record.lastNoticeAt ?? null,
+    lastOffboardingAt: record.lastOffboardingAt ?? null,
+    lastArchivedAt: record.lastArchivedAt ?? null,
+    approvalReference: currentEntry.approvalReference ?? null,
+    noticeReference: currentEntry.noticeReference ?? null,
+    noticeEndsAt: currentEntry.noticeEndsAt ?? null,
+    lastWorkingAt: currentEntry.lastWorkingAt ?? null,
+    offboardingReference: currentEntry.offboardingReference ?? null,
+    offboardingAt: currentEntry.offboardingAt ?? null,
+    archiveReference: currentEntry.archiveReference ?? null,
+    archivedAt: currentEntry.archivedAt ?? null,
+    isNoticeActive,
+    isOffboardingTriggered,
+    isArchived,
+    entries: record.entries,
+    events: record.events,
+  });
+}

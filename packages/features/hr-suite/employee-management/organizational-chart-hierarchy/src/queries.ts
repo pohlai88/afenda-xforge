@@ -1,4 +1,7 @@
 export {
+  getHrOrgPositionById,
+  getHrOrgReportingRelationshipById,
+  getHrOrgUnitById,
   listHrOrgHeadcountWindow,
   listHrOrgPositionsWindow,
   listHrOrgReportingLinesWindow,

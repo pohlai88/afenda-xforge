@@ -107,6 +107,7 @@ function renderDeniedField(
     },
     diagnostics,
     governanceDecision: governance.decision,
+    level: "warning",
     rendererKey: field.kind ?? "text",
   });
 
@@ -185,6 +186,7 @@ export function renderMetadataField({
     },
     diagnostics,
     governanceDecision: governance.decision,
+    level: "debug",
     rendererKey: field.kind ?? "text",
   });
 
@@ -224,6 +226,7 @@ export function renderMetadataField({
       },
       diagnostics,
       governanceDecision: governance.decision,
+      level: "info",
       rendererKey: field.kind ?? "text",
     });
 
@@ -242,6 +245,7 @@ export function renderMetadataField({
         message: result.diagnostics.at(-1)?.message ?? "render failed",
       },
       diagnostics: result.diagnostics,
+      level: "error",
       rendererKey: field.kind ?? "text",
     });
 

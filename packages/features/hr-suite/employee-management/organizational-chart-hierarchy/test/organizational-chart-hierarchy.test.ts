@@ -24,12 +24,16 @@ import {
 } from "../src/index.ts";
 import { buildHrOrgPageModel } from "../src/page-model.server.ts";
 import {
+  getHrOrgPositionById,
+  getHrOrgReportingRelationshipById,
+  getHrOrgUnitById,
   listHrOrgHeadcountWindow,
   listHrOrgPositionsWindow,
   listHrOrgReportingLinesWindow,
   listHrOrgStructureAuditTrailWindow,
   listHrOrgUnitsWindow,
   listHrVacantPositionsWindow,
+  loadHrOrgChartTreeNodes,
 } from "../src/queries.ts";
 import {
   loadHrOrgRepository,
@@ -285,6 +289,183 @@ test("slice 5 fail-closed access denies reads and writes without context", async
   assert.equal(deniedModel.orgChartNodes.length, 0);
   assert.equal(deniedModel.unitsList.totalCount, 0);
   assert.equal(deniedModel.overviewStatGroups[0].stats[0].value, 0);
+});
+
+test("slice 6 unit vertical slice filters and resolves units", () => {
+  const root = hrOrgStore.upsertUnit({
+    code: "ACME",
+    name: "Acme Holdings",
+    unitType: "legal_entity",
+    status: "active",
+    locationCode: "NYC",
+    legalEntityCode: "ACME",
+  });
+
+  const engineering = hrOrgStore.upsertUnit({
+    code: "ENG",
+    name: "Engineering",
+    unitType: "department",
+    parentUnitId: root.id,
+    status: "active",
+    locationCode: "NYC",
+    legalEntityCode: "ACME",
+  });
+
+  hrOrgStore.upsertUnit({
+    code: "OPS",
+    name: "Operations",
+    unitType: "department",
+    parentUnitId: root.id,
+    status: "planned",
+    locationCode: "LON",
+    legalEntityCode: "BRAVO",
+  });
+
+  const filtered = listHrOrgUnitsWindow(
+    {
+      search: "engin",
+      status: "active",
+      unitType: "department",
+      locationCode: "NYC",
+      legalEntityCode: "ACME",
+    },
+    readContext
+  );
+
+  assert.equal(filtered.totalCount, 1);
+  assert.equal(filtered.rows[0].id, engineering.id);
+
+  const projection = getHrOrgUnitById(engineering.id, readContext);
+  assert.equal(projection?.code, "ENG");
+  assert.equal(loadHrOrgChartTreeNodes(readContext).length, 3);
+});
+
+test("slice 7 position vertical slice persists distinct positions and derives views", () => {
+  const unit = hrOrgStore.upsertUnit({
+    code: "OPS",
+    name: "Operations",
+    unitType: "department",
+    status: "active",
+    legalEntityCode: "ACME",
+    locationCode: "NYC",
+  });
+
+  assert.throws(
+    () =>
+      hrOrgStore.upsertPosition({
+        code: "MISSING",
+        title: "Missing Unit Position",
+        organizationUnitId: "missing-unit",
+        status: "planned",
+      }),
+    /does not exist/i
+  );
+
+  const activePosition = hrOrgStore.upsertPosition({
+    code: "POS-001",
+    title: "Operations Manager",
+    organizationUnitId: unit.id,
+    status: "active",
+    locationCode: "NYC",
+  });
+  const plannedPosition = hrOrgStore.upsertPosition({
+    code: "POS-002",
+    title: "Operations Analyst",
+    organizationUnitId: unit.id,
+    status: "planned",
+    locationCode: "NYC",
+  });
+
+  assert.equal("childCount" in activePosition, false);
+  assert.equal(activePosition.organizationUnitId, unit.id);
+
+  const filtered = listHrOrgPositionsWindow(
+    {
+      search: "operations",
+      status: "active",
+      organizationUnitId: unit.id,
+      locationCode: "NYC",
+      legalEntityCode: "ACME",
+    },
+    readContext
+  );
+
+  assert.equal(filtered.totalCount, 1);
+  assert.equal(filtered.rows[0].id, activePosition.id);
+
+  const positionProjection = getHrOrgPositionById(
+    plannedPosition.id,
+    readContext
+  );
+  assert.equal(positionProjection?.title, "Operations Analyst");
+  assert.equal(listHrVacantPositionsWindow(readContext).totalCount, 1);
+  assert.equal(
+    listHrOrgHeadcountWindow(readContext).rows[0].activePositionCount,
+    1
+  );
+});
+
+test("slice 8 reporting line vertical slice keeps hierarchy separate, queryable, and audited", async () => {
+  hrOrgStore.upsertUnit({
+    code: "ROOT",
+    name: "Root",
+    unitType: "legal_entity",
+    status: "active",
+  });
+
+  assert.throws(
+    () =>
+      hrOrgStore.upsertReportingLine({
+        employeeId: "emp-001",
+        managerEmployeeId: "emp-001",
+        relationshipType: "direct",
+      }),
+    /same employee/i
+  );
+
+  const relationship = hrOrgStore.upsertReportingLine({
+    employeeId: "emp-001",
+    managerEmployeeId: "emp-002",
+    relationshipType: "functional",
+    reason: "Matrix support",
+  });
+
+  assert.equal("childCount" in relationship, false);
+  assert.equal(loadHrOrgChartTreeNodes(readContext).length, 1);
+
+  const pageModel = await buildHrOrgPageModel({
+    organizationId: "org-001",
+    canWrite: true,
+    readContext,
+    reportingLinesSearch: "matrix",
+  });
+
+  assert.equal(pageModel.reportingLinesList.totalCount, 1);
+  assert.equal(pageModel.reportingLinesList.rows[0].id, relationship.id);
+
+  const filtered = listHrOrgReportingLinesWindow(
+    {
+      employeeId: "emp-001",
+      managerEmployeeId: "emp-002",
+      relationshipType: "functional",
+      search: "matrix",
+    },
+    readContext
+  );
+
+  assert.equal(filtered.totalCount, 1);
+  assert.equal(filtered.rows[0].reason, "Matrix support");
+  assert.equal(
+    getHrOrgReportingRelationshipById(relationship.id, readContext)?.employeeId,
+    "emp-001"
+  );
+
+  const auditTrail = listHrOrgStructureAuditTrailWindow(readContext);
+  assert.equal(auditTrail.totalCount, 2);
+  assert.equal(
+    auditTrail.rows.some((row) => row.entityType === "reporting_relationship"),
+    true
+  );
 });
 
 test("hierarchy mutations keep structural collections separated and enforce parent integrity", () => {

@@ -1,4 +1,7 @@
-import { runPublicApiConsumerSmoke } from "../fixtures/public-api-consumer.tsx";
+import {
+  metadataConsumerScenarioMatrix,
+  runPublicApiConsumerSmoke,
+} from "../fixtures/public-api-consumer.tsx";
 
 const result = runPublicApiConsumerSmoke();
 const violations: string[] = [];
@@ -29,6 +32,57 @@ if (result.stateBoundaryType === null) {
   violations.push(
     "MetadataStateBoundary did not return a renderable consumer element"
   );
+}
+
+const coveredModes = new Set(result.scenarios.map((scenario) => scenario.mode));
+
+for (const mode of ["create", "read", "update", "review"] as const) {
+  if (!coveredModes.has(mode)) {
+    violations.push(
+      `public consumer fixture is missing mode coverage for '${mode}'`
+    );
+  }
+}
+
+for (const scenario of metadataConsumerScenarioMatrix) {
+  const observedScenario = result.scenarios.find(
+    (candidate) => candidate.id === scenario.id
+  );
+
+  if (!observedScenario) {
+    violations.push(
+      `public consumer fixture is missing scenario '${scenario.id}'`
+    );
+    continue;
+  }
+
+  if (!observedScenario.formText.includes("Profile")) {
+    violations.push(`scenario '${scenario.id}' did not render the form header`);
+  }
+
+  if (!observedScenario.containsActionLabel) {
+    violations.push(
+      `scenario '${scenario.id}' did not render the action label`
+    );
+  }
+
+  if (!observedScenario.sectionText.includes("Records")) {
+    violations.push(
+      `scenario '${scenario.id}' did not render the metadata section stack`
+    );
+  }
+
+  if (!observedScenario.stateText.includes("Ready content")) {
+    violations.push(
+      `scenario '${scenario.id}' did not preserve ready state boundary children`
+    );
+  }
+
+  if (observedScenario.containsDisabledControl !== scenario.expectedDisabled) {
+    violations.push(
+      `scenario '${scenario.id}' expected disabled controls '${scenario.expectedDisabled}' but received '${observedScenario.containsDisabledControl}'`
+    );
+  }
 }
 
 if (violations.length > 0) {

@@ -692,6 +692,18 @@ Acceptance criteria:
 - Compliance worker snapshot consumption is possible without duplicating employee master ownership.
 - Tests cover manifest validity, route contract shape, action decisions, event payload validation, and downstream-safe redaction.
 
+Status: implemented on 2026-06-09.
+
+Implementation evidence:
+
+- `src/identity.ts` and `src/feature-scope.ts` define the stable feature identity and downstream-safe scope constants.
+- `src/manifest.ts`, `src/metadata.ts`, `src/contracts/manifest.contract.ts`, and `src/contracts/metadata.contract.ts` now validate the feature manifest and metadata against versioned Zod contracts.
+- `src/contracts/bounded-context.contract.ts`, `src/contracts/action.contract.ts`, and `src/contracts/route.contract.ts` capture the versioned bounded context, action, and route contracts for downstream consumers.
+- `src/contracts/integration.contract.ts`, `src/projector/integration.ts`, and `src/registry/integration.ts` define the stable employee integration snapshot, change event, and registry surface.
+- `src/registry/action-registry.ts` records capabilities, approval, risk, audit linkage, and integration-event linkage for governed employee-record actions.
+- `src/hr.workforce.records-route.contract.ts`, `src/contract.ts`, `src/index.ts`, and `src/server.ts` export the stable integration surface and route contract for dependent modules.
+- `test/integration-contracts.test.ts` validates manifest shape, route contract versioning, registry decisions, downstream-safe snapshot redaction, change-event payloads, and compliance consumer compatibility.
+
 Validation commands:
 
 ```powershell

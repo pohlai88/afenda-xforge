@@ -14,3 +14,14 @@ export const hrRecordsRouteContractSchema = z.object({
 export type HrRecordsRouteContract = z.infer<
   typeof hrRecordsRouteContractSchema
 >;
+
+export const hrRecordsRouteContract = hrRecordsRouteContractSchema.parse({
+  version: "v1",
+  routes: {
+    archive: "/hr/records/:employeeId/archive",
+    assignments: "/hr/records/:employeeId/assignments",
+    detail: "/hr/records/:employeeId",
+    rehire: "/hr/records/:employeeId/rehire",
+    statusHistory: "/hr/records/:employeeId/status-history",
+  },
+});

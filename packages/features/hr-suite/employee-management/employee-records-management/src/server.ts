@@ -13,13 +13,16 @@ export {
 } from "./hr.workforce.records.detail.page-model.server.ts";
 export { buildHrRecordsPageModel } from "./hr.workforce.records.page-model.server.ts";
 export {
-  buildHrEmployeeIntegrationChangeEvent,
-  buildHrEmployeeIntegrationSnapshot,
-} from "./registry/integration.ts";
-export {
   getHrEmployeeRecord,
   listHrEmployeeRecords,
 } from "./hr.workforce.records.queries.ts";
 export { listHrEmployeeAssignments } from "./queries/assignments.query.ts";
-export { listHrEmployeeRecordSummaries } from "./queries/records.query.ts";
+export {
+  listHrEmployeeRecordSummaries,
+  listHrEmployeeRecordSummariesPage,
+} from "./queries/records.query.ts";
 export { listHrEmployeeStatusHistory } from "./queries/status-history.query.ts";
+export {
+  buildHrEmployeeIntegrationChangeEvent,
+  buildHrEmployeeIntegrationSnapshot,
+} from "./registry/integration.ts";

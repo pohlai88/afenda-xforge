@@ -2,7 +2,6 @@ export type {
   HrEmployeeAssignmentRecord,
   HrEmployeeAssignmentsPageModel,
   HrEmployeeAssignmentView,
-  HrEmployeeRecordAuditRecord,
   HrEmployeeIntegrationAssignmentReference,
   HrEmployeeIntegrationChangeEvent,
   HrEmployeeIntegrationDocumentCoverage,
@@ -10,6 +9,7 @@ export type {
   HrEmployeeIntegrationReference,
   HrEmployeeIntegrationSensitiveData,
   HrEmployeeIntegrationSnapshot,
+  HrEmployeeRecordAuditRecord,
   HrEmployeeStatusHistoryPageModel,
   HrEmployeeStatusHistoryRecord,
   HrEmployeeStatusHistoryView,
@@ -17,16 +17,18 @@ export type {
   HrRecordsActionCapability,
   HrRecordsActionContract,
   HrRecordsActionRisk,
-  HrRecordsBoundedContext,
   HrRecordsArchiveAuditAction,
   HrRecordsArchiveCommand,
   HrRecordsAssignmentsQuery,
+  HrRecordsBoundedContext,
   HrRecordsFeatureManifest,
   HrRecordsFeatureMetadata,
+  HrRecordsRouteContract,
   HrRecordsStatusHistoryCommand,
   HrRecordsStatusHistoryQuery,
-  HrRecordsRouteContract,
 } from "./contracts/index.ts";
+export { hrRecordsRouteContract } from "./contracts/index.ts";
+export { hrRecordsFeatureScope, hrSuiteFeatureScope } from "./feature-scope.ts";
 export {
   type HrEmployeeRecord,
   type HrEmployeeRecordDetail,
@@ -65,6 +67,7 @@ export {
   hrEmployeeStatusHistoryRoutePath,
   hrRecordsRoutePaths,
 } from "./hr.workforce.records-route.contract.ts";
+export { parseHrRecordsSearchParams } from "./hr.workforce.records-search-params.parse.shared.ts";
 export {
   hrRecordsFeature,
   hrRecordsFeatureDomain,
@@ -73,8 +76,6 @@ export {
   hrRecordsFeatureSource,
   hrRecordsFeatureSuite,
 } from "./identity.ts";
-export { hrRecordsFeatureScope, hrSuiteFeatureScope } from "./feature-scope.ts";
-export { parseHrRecordsSearchParams } from "./hr.workforce.records-search-params.parse.shared.ts";
 export {
   buildHrEmployeeIntegrationChangeEvent,
   buildHrEmployeeIntegrationSnapshot,

@@ -14,6 +14,12 @@ import type {
   EmployeeLifecycleContractRenewalInput,
   EmployeeLifecycleContractReviewInput,
   EmployeeLifecycleContractStartInput,
+  EmployeeLifecycleExitArchiveInput,
+  EmployeeLifecycleExitNoticeInput,
+  EmployeeLifecycleExitOffboardingInput,
+  EmployeeLifecycleExitReadModel,
+  EmployeeLifecycleExitRecord,
+  EmployeeLifecycleExitStartInput,
   EmployeeLifecycleMovementInput,
   EmployeeLifecycleMovementKindValue,
   EmployeeLifecycleMovementReadModel,
@@ -28,22 +34,27 @@ import type {
   EmployeeLifecycleSuspensionStartInput,
 } from "./schema.ts";
 import {
+  appendEmployeeLifecycleExitNotice,
   appendEmployeeLifecycleMovement,
   appendEmployeeLifecycleSuspension,
   applyEmployeeLifecycleContractReminder,
   applyEmployeeLifecycleContractRenewal,
   applyEmployeeLifecycleContractReview,
+  applyEmployeeLifecycleExitArchive,
+  applyEmployeeLifecycleExitOffboarding,
   releaseEmployeeLifecycleSuspension as applyEmployeeLifecycleSuspensionRelease,
   resolveEmployeeLifecycleSuspension as applyEmployeeLifecycleSuspensionResolution,
   completeEmployeeLifecycleOnboardingRecordTask as applyEmployeeLifecycleTaskCompletion,
   applyEmployeeLifecycleTransition,
   approveEmployeeLifecycleProbationConfirmationRecord,
   buildEmployeeLifecycleContractReadModel,
+  buildEmployeeLifecycleExitReadModel,
   buildEmployeeLifecycleMovementReadModel,
   buildEmployeeLifecycleOnboardingReadModel,
   buildEmployeeLifecycleProbationReadModel,
   buildEmployeeLifecycleSuspensionReadModel,
   createEmployeeLifecycleContractRecord,
+  createEmployeeLifecycleExitRecord,
   createEmployeeLifecycleMovementRecord,
   createEmployeeLifecycleOnboardingRecord,
   createEmployeeLifecycleProbationRecord,
@@ -54,6 +65,11 @@ import {
   employeeLifecycleContractRenewalInputSchema,
   employeeLifecycleContractReviewInputSchema,
   employeeLifecycleContractStartInputSchema,
+  employeeLifecycleExitArchiveInputSchema,
+  employeeLifecycleExitNoticeInputSchema,
+  employeeLifecycleExitOffboardingInputSchema,
+  employeeLifecycleExitReadModelSchema,
+  employeeLifecycleExitStartInputSchema,
   employeeLifecycleMovementInputSchema,
   employeeLifecycleMovementReadModelSchema,
   employeeLifecycleOnboardingProfileSchema,
@@ -792,12 +808,14 @@ const ensureEmployeeLifecycleContractStateIsEligible = (
 ): void => {
   if (
     state.currentStage === "suspended" ||
+    state.currentStage === "notice_period" ||
+    state.currentStage === "offboarding" ||
     state.currentStage === "separated" ||
     state.currentStage === "retired" ||
     state.currentStage === "archived"
   ) {
     throw new Error(
-      `Employee ${state.employeeId} cannot have a contract lifecycle updated while suspended or after exit.`
+      `Employee ${state.employeeId} cannot have a contract lifecycle updated while suspended, exiting, or after exit.`
     );
   }
 };
@@ -1543,4 +1561,350 @@ export const employeeLifecycleSuspensionActionCatalog = {
   releaseHold: "releaseEmployeeLifecycleHold",
   resolve: "resolveEmployeeLifecycleSuspension",
   resolveHold: "resolveEmployeeLifecycleHold",
+} as const;
+
+const resolveEmployeeLifecycleExitScope = (
+  input: Readonly<{
+    companyId?: string | null;
+    tenantId?: string | null;
+  }>,
+  scope?: EmployeeLifecycleRepositoryScope
+): EmployeeLifecycleRepositoryScope | undefined => {
+  if (scope === undefined) {
+    return {
+      companyId: input.companyId ?? undefined,
+      tenantId: input.tenantId ?? undefined,
+    };
+  }
+
+  if (
+    input.companyId &&
+    scope.companyId &&
+    input.companyId !== scope.companyId
+  ) {
+    throw new Error("Exit input companyId does not match repository scope");
+  }
+
+  if (input.tenantId && scope.tenantId && input.tenantId !== scope.tenantId) {
+    throw new Error("Exit input tenantId does not match repository scope");
+  }
+
+  return {
+    companyId: scope.companyId ?? input.companyId ?? undefined,
+    tenantId: scope.tenantId ?? input.tenantId ?? undefined,
+  };
+};
+
+const ensureEmployeeLifecycleExitStateIsEligible = (
+  state: EmployeeLifecycleState
+): void => {
+  if (
+    state.currentStage === "notice_period" ||
+    state.currentStage === "offboarding" ||
+    state.currentStage === "separated" ||
+    state.currentStage === "retired" ||
+    state.currentStage === "archived"
+  ) {
+    throw new Error(
+      `Employee ${state.employeeId} already has an exit lifecycle in progress or completed.`
+    );
+  }
+};
+
+const ensureEmployeeLifecycleExitStateIsNoticePeriod = (
+  state: EmployeeLifecycleState
+): void => {
+  if (state.currentStage !== "notice_period") {
+    throw new Error(
+      `Employee ${state.employeeId} must be in the notice period before offboarding can be triggered.`
+    );
+  }
+};
+
+const buildExitReadModel = (
+  state: EmployeeLifecycleState,
+  record: EmployeeLifecycleExitRecord
+): EmployeeLifecycleExitReadModel => {
+  const readModel = buildEmployeeLifecycleExitReadModel({
+    state,
+    record,
+  });
+
+  if (readModel === null) {
+    throw new Error(`Employee ${state.employeeId} exit read model is invalid.`);
+  }
+
+  return employeeLifecycleExitReadModelSchema.parse(readModel);
+};
+
+const startEmployeeLifecycleExit = (
+  input: Omit<EmployeeLifecycleExitStartInput, "exitKind">,
+  scope: EmployeeLifecycleRepositoryScope | undefined,
+  exitKind: "resignation" | "termination" | "retirement"
+): EmployeeLifecycleExitReadModel => {
+  const parsedInput = employeeLifecycleExitStartInputSchema.parse({
+    ...input,
+    exitKind,
+  });
+  const resolvedScope = resolveEmployeeLifecycleExitScope(parsedInput, scope);
+  const effectiveAt = parsedInput.effectiveAt ?? new Date();
+  const recordedAt = parsedInput.recordedAt ?? effectiveAt;
+  let readModel: EmployeeLifecycleExitReadModel | null = null;
+
+  mutateEmployeeLifecycleRepository((draft) => {
+    const stateIndex = draft.states.findIndex(
+      (state) => state.employeeId === parsedInput.employeeId
+    );
+    if (stateIndex < 0) {
+      throw new Error(
+        `Exit state not found for employee ${parsedInput.employeeId}.`
+      );
+    }
+
+    const currentState = draft.states[stateIndex];
+    ensureEmployeeLifecycleExitStateIsEligible(currentState);
+
+    const recordIndex = draft.exitRecords.findIndex(
+      (record) => record.employeeId === parsedInput.employeeId
+    );
+    if (recordIndex >= 0) {
+      throw new Error(
+        `Exit record already exists for employee ${parsedInput.employeeId}.`
+      );
+    }
+
+    const nextRecord = createEmployeeLifecycleExitRecord({
+      ...parsedInput,
+      companyId: resolvedScope?.companyId ?? parsedInput.companyId ?? undefined,
+      tenantId: resolvedScope?.tenantId ?? parsedInput.tenantId ?? undefined,
+      effectiveAt,
+      recordedAt,
+    });
+    draft.exitRecords = [...draft.exitRecords, nextRecord];
+
+    const nextState = applyEmployeeLifecycleTransition(currentState, {
+      toStage: "notice_period",
+      effectiveAt,
+      recordedAt,
+      actorId: parsedInput.actorId ?? undefined,
+      reason: parsedInput.reason ?? null,
+      approvalReference: parsedInput.approvalReference ?? null,
+    });
+    draft.states[stateIndex] = nextState;
+
+    readModel = buildExitReadModel(nextState, nextRecord);
+  }, resolvedScope);
+
+  return employeeLifecycleExitReadModelSchema.parse(readModel);
+};
+
+export function startEmployeeLifecycleResignation(
+  input: Omit<EmployeeLifecycleExitStartInput, "exitKind">,
+  scope?: EmployeeLifecycleRepositoryScope
+): EmployeeLifecycleExitReadModel {
+  return startEmployeeLifecycleExit(input, scope, "resignation");
+}
+
+export function startEmployeeLifecycleTermination(
+  input: Omit<EmployeeLifecycleExitStartInput, "exitKind">,
+  scope?: EmployeeLifecycleRepositoryScope
+): EmployeeLifecycleExitReadModel {
+  return startEmployeeLifecycleExit(input, scope, "termination");
+}
+
+export function startEmployeeLifecycleRetirement(
+  input: Omit<EmployeeLifecycleExitStartInput, "exitKind">,
+  scope?: EmployeeLifecycleRepositoryScope
+): EmployeeLifecycleExitReadModel {
+  return startEmployeeLifecycleExit(input, scope, "retirement");
+}
+
+export function recordEmployeeLifecycleExitNotice(
+  input: EmployeeLifecycleExitNoticeInput,
+  scope?: EmployeeLifecycleRepositoryScope
+): EmployeeLifecycleExitReadModel {
+  const parsedInput = employeeLifecycleExitNoticeInputSchema.parse(input);
+  const recordedAt = parsedInput.noticeRecordedAt ?? new Date();
+  let readModel: EmployeeLifecycleExitReadModel | null = null;
+
+  mutateEmployeeLifecycleRepository((draft) => {
+    const stateIndex = draft.states.findIndex(
+      (state) => state.employeeId === parsedInput.employeeId
+    );
+    if (stateIndex < 0) {
+      throw new Error(
+        `Exit state not found for employee ${parsedInput.employeeId}.`
+      );
+    }
+
+    const currentState = draft.states[stateIndex];
+    ensureEmployeeLifecycleExitStateIsNoticePeriod(currentState);
+
+    const recordIndex = draft.exitRecords.findIndex(
+      (record) => record.employeeId === parsedInput.employeeId
+    );
+    if (recordIndex < 0) {
+      throw new Error(
+        `Exit record not found for employee ${parsedInput.employeeId}.`
+      );
+    }
+
+    const nextRecord = appendEmployeeLifecycleExitNotice(
+      draft.exitRecords[recordIndex],
+      {
+        ...parsedInput,
+        noticeRecordedAt: recordedAt,
+      }
+    );
+    draft.exitRecords[recordIndex] = nextRecord;
+
+    readModel = buildExitReadModel(currentState, nextRecord);
+  }, scope);
+
+  return employeeLifecycleExitReadModelSchema.parse(readModel);
+}
+
+export function triggerEmployeeLifecycleOffboarding(
+  input: EmployeeLifecycleExitOffboardingInput,
+  scope?: EmployeeLifecycleRepositoryScope
+): EmployeeLifecycleExitReadModel {
+  const parsedInput = employeeLifecycleExitOffboardingInputSchema.parse(input);
+  const offboardingAt = parsedInput.offboardingAt ?? new Date();
+  let readModel: EmployeeLifecycleExitReadModel | null = null;
+
+  mutateEmployeeLifecycleRepository((draft) => {
+    const stateIndex = draft.states.findIndex(
+      (state) => state.employeeId === parsedInput.employeeId
+    );
+    if (stateIndex < 0) {
+      throw new Error(
+        `Exit state not found for employee ${parsedInput.employeeId}.`
+      );
+    }
+
+    const currentState = draft.states[stateIndex];
+    ensureEmployeeLifecycleExitStateIsNoticePeriod(currentState);
+
+    const recordIndex = draft.exitRecords.findIndex(
+      (record) => record.employeeId === parsedInput.employeeId
+    );
+    if (recordIndex < 0) {
+      throw new Error(
+        `Exit record not found for employee ${parsedInput.employeeId}.`
+      );
+    }
+
+    const nextRecord = applyEmployeeLifecycleExitOffboarding(
+      draft.exitRecords[recordIndex],
+      {
+        ...parsedInput,
+        offboardingAt,
+      }
+    );
+    draft.exitRecords[recordIndex] = nextRecord;
+
+    const nextState = applyEmployeeLifecycleTransition(currentState, {
+      toStage: "offboarding",
+      effectiveAt: offboardingAt,
+      recordedAt: offboardingAt,
+      actorId: parsedInput.actorId ?? undefined,
+      reason: parsedInput.reason ?? null,
+    });
+    draft.states[stateIndex] = nextState;
+
+    readModel = buildExitReadModel(nextState, nextRecord);
+  }, scope);
+
+  return employeeLifecycleExitReadModelSchema.parse(readModel);
+}
+
+export function archiveEmployeeLifecycleExit(
+  input: EmployeeLifecycleExitArchiveInput,
+  scope?: EmployeeLifecycleRepositoryScope
+): EmployeeLifecycleExitReadModel {
+  const parsedInput = employeeLifecycleExitArchiveInputSchema.parse(input);
+  const archivedAt = parsedInput.archivedAt ?? new Date();
+  let readModel: EmployeeLifecycleExitReadModel | null = null;
+
+  mutateEmployeeLifecycleRepository((draft) => {
+    const stateIndex = draft.states.findIndex(
+      (state) => state.employeeId === parsedInput.employeeId
+    );
+    if (stateIndex < 0) {
+      throw new Error(
+        `Exit state not found for employee ${parsedInput.employeeId}.`
+      );
+    }
+
+    const currentState = draft.states[stateIndex];
+    if (
+      currentState.currentStage !== "offboarding" &&
+      currentState.currentStage !== "separated" &&
+      currentState.currentStage !== "retired"
+    ) {
+      throw new Error(
+        `Employee ${parsedInput.employeeId} must be in offboarding before archival can be recorded.`
+      );
+    }
+
+    const recordIndex = draft.exitRecords.findIndex(
+      (record) => record.employeeId === parsedInput.employeeId
+    );
+    if (recordIndex < 0) {
+      throw new Error(
+        `Exit record not found for employee ${parsedInput.employeeId}.`
+      );
+    }
+
+    const nextRecord = applyEmployeeLifecycleExitArchive(
+      draft.exitRecords[recordIndex],
+      {
+        ...parsedInput,
+        archivedAt,
+      }
+    );
+    draft.exitRecords[recordIndex] = nextRecord;
+
+    const latestEntry = nextRecord.entries.at(-1);
+    if (!latestEntry) {
+      throw new Error(
+        `Exit record for employee ${parsedInput.employeeId} is missing its latest entry.`
+      );
+    }
+
+    let nextState = currentState;
+    if (currentState.currentStage === "offboarding") {
+      nextState = applyEmployeeLifecycleTransition(currentState, {
+        toStage: latestEntry.finalStage,
+        effectiveAt: archivedAt,
+        recordedAt: archivedAt,
+        actorId: parsedInput.actorId ?? undefined,
+        reason: parsedInput.reason ?? null,
+      });
+    }
+
+    if (nextState.currentStage !== "archived") {
+      nextState = applyEmployeeLifecycleTransition(nextState, {
+        toStage: "archived",
+        effectiveAt: archivedAt,
+        recordedAt: archivedAt,
+        actorId: parsedInput.actorId ?? undefined,
+        reason: parsedInput.reason ?? null,
+      });
+    }
+
+    draft.states[stateIndex] = nextState;
+    readModel = buildExitReadModel(nextState, nextRecord);
+  }, scope);
+
+  return employeeLifecycleExitReadModelSchema.parse(readModel);
+}
+
+export const employeeLifecycleExitActionCatalog = {
+  startResignation: "startEmployeeLifecycleResignation",
+  startTermination: "startEmployeeLifecycleTermination",
+  startRetirement: "startEmployeeLifecycleRetirement",
+  recordNotice: "recordEmployeeLifecycleExitNotice",
+  triggerOffboarding: "triggerEmployeeLifecycleOffboarding",
+  archive: "archiveEmployeeLifecycleExit",
 } as const;

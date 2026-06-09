@@ -1,9 +1,9 @@
 import { z } from "zod";
-import type { HrEmployeeRecordDetail } from "../hr.workforce.records.contract.ts";
-import {
+import type {
   hrEmployeeIntegrationChangeEventSchema,
   hrEmployeeIntegrationSnapshotSchema,
 } from "../contracts/integration.contract.ts";
+import type { HrEmployeeRecordDetail } from "../hr.workforce.records.contract.ts";
 import {
   projectHrEmployeeIntegrationChangeEvent,
   projectHrEmployeeIntegrationSnapshot,
@@ -21,14 +21,20 @@ export const hrRecordsIntegrationSnapshotVersion = 1 as const;
 
 export function buildHrEmployeeIntegrationSnapshot(
   record: HrEmployeeRecordDetail,
-  canViewSensitive = false
+  options?: {
+    canViewSensitive?: boolean;
+    organizationId?: string | null;
+  }
 ): z.infer<typeof hrEmployeeIntegrationSnapshotSchema> {
-  return projectHrEmployeeIntegrationSnapshot(record, canViewSensitive);
+  return projectHrEmployeeIntegrationSnapshot(record, options);
 }
 
 export function buildHrEmployeeIntegrationChangeEvent(
   record: HrEmployeeRecordDetail,
-  canViewSensitive = false
+  options?: {
+    canViewSensitive?: boolean;
+    organizationId?: string | null;
+  }
 ): z.infer<typeof hrEmployeeIntegrationChangeEventSchema> {
-  return projectHrEmployeeIntegrationChangeEvent(record, canViewSensitive);
+  return projectHrEmployeeIntegrationChangeEvent(record, options);
 }

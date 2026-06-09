@@ -6,6 +6,11 @@ import type {
   HrOrgPageModelInput,
   HrOrgSearchParams,
 } from "./contracts/org-model.contract.ts";
+import type {
+  ListHrOrgPositionsQuery,
+  ListHrOrgReportingRelationshipsQuery,
+  ListHrOrgUnitsQuery,
+} from "./contracts/query.contract.ts";
 import {
   listHrOrgHeadcountWindow,
   listHrOrgPositionsWindow,
@@ -41,6 +46,22 @@ export async function buildHrOrgPageModel(
     locationFilter: input.locationFilter,
     legalEntityFilter: input.legalEntityFilter,
   } satisfies HrOrgSearchParams;
+  const unitListQuery = {
+    search: search.unitsSearch,
+    unitType: search.unitTypeFilter,
+    status: search.statusFilter,
+    locationCode: search.locationFilter,
+    legalEntityCode: search.legalEntityFilter,
+  } satisfies ListHrOrgUnitsQuery;
+  const positionListQuery = {
+    search: search.positionsSearch,
+    status: search.statusFilter,
+    locationCode: search.locationFilter,
+    legalEntityCode: search.legalEntityFilter,
+  } satisfies ListHrOrgPositionsQuery;
+  const reportingLineListQuery = {
+    search: search.reportingLinesSearch,
+  } satisfies ListHrOrgReportingRelationshipsQuery;
   const [
     snapshot,
     chart,
@@ -61,15 +82,20 @@ export async function buildHrOrgPageModel(
     }),
     settleOrgListLoad({
       sectionTitle: hrOrgUiCopy.units.surfaceHeaderTitle,
-      load: () => listHrOrgUnitsWindow(input.readContext),
+      load: () => listHrOrgUnitsWindow(unitListQuery, input.readContext),
     }),
     settleOrgListLoad({
       sectionTitle: hrOrgUiCopy.positions.surfaceHeaderTitle,
-      load: () => listHrOrgPositionsWindow(input.readContext),
+      load: () =>
+        listHrOrgPositionsWindow(positionListQuery, input.readContext),
     }),
     settleOrgListLoad({
       sectionTitle: hrOrgUiCopy.reportingLines.surfaceHeaderTitle,
-      load: () => listHrOrgReportingLinesWindow(input.readContext),
+      load: () =>
+        listHrOrgReportingLinesWindow(
+          reportingLineListQuery,
+          input.readContext
+        ),
     }),
     settleOrgListLoad({
       sectionTitle: hrOrgUiCopy.vacancies.surfaceHeaderTitle,

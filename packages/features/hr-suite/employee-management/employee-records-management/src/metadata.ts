@@ -1,8 +1,7 @@
+import type { HrRecordsFeatureMetadata } from "./contracts/metadata.contract.ts";
+import { hrRecordsFeatureMetadataSchema } from "./contracts/metadata.contract.ts";
 import { hrRecordsFeatureId } from "./identity.ts";
-import {
-  hrRecordsFeatureMetadataSchema,
-  type HrRecordsFeatureMetadata,
-} from "./contracts/metadata.contract.ts";
+
 export { hrRecordsUiCopy } from "./hr.workforce.records-ui.copy.shared.ts";
 
 export const hrRecordsFeatureMetadata: HrRecordsFeatureMetadata =

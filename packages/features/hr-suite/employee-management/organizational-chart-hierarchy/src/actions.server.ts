@@ -62,6 +62,7 @@ export function upsertHrOrgUnitAction(
     legalEntityCode: readOrgFormField(formData, "legalEntityCode"),
     status: readOrgFormField(formData, "status", "orgUnitStatus"),
     effectiveFrom: readOrgFormField(formData, "effectiveFrom"),
+    effectiveTo: readOrgFormField(formData, "effectiveTo"),
   });
 
   if (!parsed.success) {
@@ -83,6 +84,7 @@ export function upsertHrOrgUnitAction(
         legalEntityCode: input.legalEntityCode,
         status: input.status,
         effectiveFrom: input.effectiveFrom,
+        effectiveTo: input.effectiveTo,
       },
       writeContext.success ? writeContext.data : undefined
     );
@@ -124,6 +126,7 @@ export function upsertHrOrgPositionAction(
     locationCode: readOrgFormField(formData, "locationCode"),
     status: readOrgFormField(formData, "status", "positionStatus"),
     effectiveFrom: readOrgFormField(formData, "effectiveFrom"),
+    effectiveTo: readOrgFormField(formData, "effectiveTo"),
   });
 
   if (!parsed.success) {
@@ -132,7 +135,7 @@ export function upsertHrOrgPositionAction(
 
   try {
     const input = upsertHrOrgPositionInputSchema.parse(parsed.data);
-    const node = hrOrgStore.upsertPosition(
+    const position = hrOrgStore.upsertPosition(
       {
         id: input.id ?? undefined,
         code: input.code,
@@ -143,12 +146,13 @@ export function upsertHrOrgPositionAction(
         locationCode: input.locationCode,
         status: input.status,
         effectiveFrom: input.effectiveFrom,
+        effectiveTo: input.effectiveTo,
       },
       writeContext.success ? writeContext.data : undefined
     );
     return {
       ok: true,
-      targetId: node.id,
+      targetId: position.id,
       message: hrOrgAuditActions.position.created,
     };
   } catch (error) {
@@ -176,6 +180,7 @@ export function upsertHrOrgReportingRelationshipAction(
     managerEmployeeId: readOrgFormField(formData, "managerEmployeeId"),
     relationshipType: readOrgFormField(formData, "relationshipType"),
     effectiveFrom: readOrgFormField(formData, "effectiveFrom"),
+    effectiveTo: readOrgFormField(formData, "effectiveTo"),
     reason: readOrgFormField(formData, "reason"),
   });
 
@@ -187,20 +192,21 @@ export function upsertHrOrgReportingRelationshipAction(
     const input = upsertHrOrgReportingRelationshipInputSchema.parse(
       parsed.data
     );
-    const node = hrOrgStore.upsertReportingLine(
+    const relationship = hrOrgStore.upsertReportingLine(
       {
         id: input.id ?? undefined,
         employeeId: input.employeeId,
         managerEmployeeId: input.managerEmployeeId,
         relationshipType: input.relationshipType,
         effectiveFrom: input.effectiveFrom,
+        effectiveTo: input.effectiveTo,
         reason: input.reason,
       },
       writeContext.success ? writeContext.data : undefined
     );
     return {
       ok: true,
-      targetId: node.id,
+      targetId: relationship.id,
       message: hrOrgAuditActions.reportingLine.recorded,
     };
   } catch (error) {

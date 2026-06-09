@@ -4,7 +4,6 @@ export type {
   HrEmployeeAssignmentRecord,
   HrEmployeeAssignmentsPageModel,
   HrEmployeeAssignmentView,
-  HrEmployeeRecordAuditRecord,
   HrEmployeeIntegrationAssignmentReference,
   HrEmployeeIntegrationChangeEvent,
   HrEmployeeIntegrationDocumentCoverage,
@@ -12,6 +11,7 @@ export type {
   HrEmployeeIntegrationReference,
   HrEmployeeIntegrationSensitiveData,
   HrEmployeeIntegrationSnapshot,
+  HrEmployeeRecordAuditRecord,
   HrEmployeeStatusHistoryPageModel,
   HrEmployeeStatusHistoryRecord,
   HrEmployeeStatusHistoryView,
@@ -19,17 +19,18 @@ export type {
   HrRecordsActionCapability,
   HrRecordsActionContract,
   HrRecordsActionRisk,
-  HrRecordsBoundedContext,
   HrRecordsArchiveAuditAction,
   HrRecordsArchiveCommand,
   HrRecordsAssignmentsQuery,
+  HrRecordsBoundedContext,
   HrRecordsFeatureManifest,
   HrRecordsFeatureMetadata,
+  HrRecordsRouteContract,
   HrRecordsStatusHistoryCommand,
   HrRecordsStatusHistoryQuery,
-  HrRecordsRouteContract,
 } from "./contracts/index.ts";
 export { hrRecordsExecutionSurface } from "./execution/index.ts";
+export { hrRecordsFeatureScope, hrSuiteFeatureScope } from "./feature-scope.ts";
 export type {
   HrEmployeeRecord,
   HrEmployeeRecordDetail,
@@ -46,13 +47,6 @@ export type {
   HrRecordsUpdateEmployeeInput,
 } from "./hr.workforce.records.contract.ts";
 export { hrRecordsSearchParamsSchema } from "./hr.workforce.records.contract.ts";
-export {
-  buildHrEmployeeIntegrationChangeEvent,
-  buildHrEmployeeIntegrationSnapshot,
-  hrRecordsIntegrationEventSchema,
-  hrRecordsIntegrationEvents,
-  hrRecordsIntegrationSnapshotVersion,
-} from "./registry/integration.ts";
 export {
   buildHrEmployeeRecordDetailPageModel,
   buildHrEmployeeRecordExportPageModel,
@@ -74,8 +68,10 @@ export {
   hrEmployeeDetailRoutePath,
   hrEmployeeRehireRoutePath,
   hrEmployeeStatusHistoryRoutePath,
+  hrRecordsRouteContract,
   hrRecordsRoutePaths,
 } from "./hr.workforce.records-route.contract.ts";
+export { parseHrRecordsSearchParams } from "./hr.workforce.records-search-params.parse.shared.ts";
 export {
   hrRecordsFeature,
   hrRecordsFeatureDomain,
@@ -84,7 +80,6 @@ export {
   hrRecordsFeatureSource,
   hrRecordsFeatureSuite,
 } from "./identity.ts";
-export { parseHrRecordsSearchParams } from "./hr.workforce.records-search-params.parse.shared.ts";
 export { hrRecordsFeatureManifest } from "./manifest.ts";
 export { hrRecordsFeatureMetadata } from "./metadata.ts";
 export { projectHrEmployeeAssignment } from "./projector/assignment.ts";
@@ -102,4 +97,10 @@ export {
   projectHrEmployeeRecordExportDetail,
 } from "./projector/record-detail.ts";
 export { projectHrEmployeeStatusHistory } from "./projector/status.ts";
-export { hrRecordsFeatureScope, hrSuiteFeatureScope } from "./feature-scope.ts";
+export {
+  buildHrEmployeeIntegrationChangeEvent,
+  buildHrEmployeeIntegrationSnapshot,
+  hrRecordsIntegrationEventSchema,
+  hrRecordsIntegrationEvents,
+  hrRecordsIntegrationSnapshotVersion,
+} from "./registry/integration.ts";

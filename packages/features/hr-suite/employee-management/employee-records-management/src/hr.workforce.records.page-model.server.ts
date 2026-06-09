@@ -7,7 +7,7 @@ import type {
 import { buildHrRecordsOverviewStatGroups } from "./hr.workforce.records-overview-stat.surface.ts";
 import { hrRecordsRoutePaths } from "./hr.workforce.records-route.contract.ts";
 import { parseHrRecordsSearchParams } from "./hr.workforce.records-search-params.parse.shared.ts";
-import { listHrEmployeeRecordSummaries } from "./queries/records.query.ts";
+import { listHrEmployeeRecordSummariesPage } from "./queries/records.query.ts";
 
 type HrRecordsPageModel = HrEmployeeRecordPageModel & {
   overviewStats: readonly {
@@ -24,6 +24,8 @@ export function buildHrRecordsPageModel(
   input: HrRecordsPageModelInput
 ): HrRecordsPageModel {
   const search = parseHrRecordsSearchParams({
+    page: input.page,
+    pageSize: input.pageSize,
     incompleteSearch: input.incompleteSearch,
     directorySearch: input.directorySearch,
     assignmentsSearch: input.assignmentsSearch,
@@ -33,6 +35,10 @@ export function buildHrRecordsPageModel(
     separatedSearch: input.separatedSearch,
     employmentStatusFilter: input.employmentStatusFilter,
   });
+  const recordsPage = listHrEmployeeRecordSummariesPage(search, {
+    canRead: true,
+    organizationId: input.organizationId,
+  });
 
   return {
     organizationId: input.organizationId,
@@ -41,9 +47,10 @@ export function buildHrRecordsPageModel(
     routePaths: hrRecordsRoutePaths,
     search,
     overviewStats: buildHrRecordsOverviewStatGroups(input.organizationId),
-    records: listHrEmployeeRecordSummaries(search, {
-      canRead: true,
-      organizationId: input.organizationId,
-    }),
+    records: recordsPage.records,
+    page: recordsPage.page,
+    pageSize: recordsPage.pageSize,
+    totalCount: recordsPage.totalCount,
+    hasNextPage: recordsPage.hasNextPage,
   } satisfies HrRecordsPageModel;
 }

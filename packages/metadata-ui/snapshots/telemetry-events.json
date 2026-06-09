@@ -2,58 +2,114 @@
   "events": [
     {
       "name": "metadata.action.clicked",
+      "level": "info",
+      "requiredContext": ["correlationId"],
+      "allowsDiagnostics": true,
+      "allowsGovernanceDecision": true,
       "attributes": ["actionKey", "actionSurface", "disabled"]
     },
     {
       "name": "metadata.action.render.completed",
+      "level": "info",
+      "requiredContext": ["correlationId"],
+      "allowsDiagnostics": true,
+      "allowsGovernanceDecision": true,
       "attributes": ["actionKey", "actionSurface", "disabled", "readonly"]
     },
     {
       "name": "metadata.action.render.error",
+      "level": "error",
+      "requiredContext": ["correlationId"],
+      "allowsDiagnostics": true,
+      "allowsGovernanceDecision": false,
       "attributes": ["actionKey", "message"]
     },
     {
       "name": "metadata.action.render.started",
+      "level": "debug",
+      "requiredContext": ["correlationId"],
+      "allowsDiagnostics": true,
+      "allowsGovernanceDecision": true,
       "attributes": ["actionKey", "actionSurface", "disabled", "readonly"]
     },
     {
       "name": "metadata.field.render.completed",
+      "level": "info",
+      "requiredContext": ["correlationId"],
+      "allowsDiagnostics": true,
+      "allowsGovernanceDecision": true,
       "attributes": ["fieldKey", "disabled", "readonly"]
     },
     {
       "name": "metadata.field.render.error",
+      "level": "error",
+      "requiredContext": ["correlationId"],
+      "allowsDiagnostics": true,
+      "allowsGovernanceDecision": false,
       "attributes": ["fieldKey", "message"]
     },
     {
       "name": "metadata.field.render.started",
+      "level": "debug",
+      "requiredContext": ["correlationId"],
+      "allowsDiagnostics": true,
+      "allowsGovernanceDecision": true,
       "attributes": ["fieldKey", "disabled", "readonly", "visible"]
     },
     {
       "name": "metadata.renderer.fallback",
+      "level": "warning",
+      "requiredContext": ["correlationId"],
+      "allowsDiagnostics": true,
+      "allowsGovernanceDecision": true,
       "attributes": ["effect", "reason"]
     },
     {
       "name": "metadata.section.render.completed",
+      "level": "info",
+      "requiredContext": ["correlationId"],
+      "allowsDiagnostics": true,
+      "allowsGovernanceDecision": true,
       "attributes": ["sectionKey", "sectionKind"]
     },
     {
       "name": "metadata.section.render.error",
+      "level": "error",
+      "requiredContext": ["correlationId"],
+      "allowsDiagnostics": true,
+      "allowsGovernanceDecision": false,
       "attributes": ["sectionKey", "message"]
     },
     {
       "name": "metadata.section.render.started",
+      "level": "debug",
+      "requiredContext": ["correlationId"],
+      "allowsDiagnostics": true,
+      "allowsGovernanceDecision": true,
       "attributes": ["sectionKey", "sectionKind", "visible"]
     },
     {
       "name": "metadata.state.render.completed",
+      "level": "info",
+      "requiredContext": ["correlationId"],
+      "allowsDiagnostics": true,
+      "allowsGovernanceDecision": false,
       "attributes": ["state"]
     },
     {
       "name": "metadata.state.render.error",
+      "level": "error",
+      "requiredContext": ["correlationId"],
+      "allowsDiagnostics": true,
+      "allowsGovernanceDecision": false,
       "attributes": ["state", "message"]
     },
     {
       "name": "metadata.state.render.started",
+      "level": "debug",
+      "requiredContext": ["correlationId"],
+      "allowsDiagnostics": true,
+      "allowsGovernanceDecision": false,
       "attributes": ["state"]
     }
   ]

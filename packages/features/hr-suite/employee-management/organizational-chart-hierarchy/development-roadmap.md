@@ -143,6 +143,8 @@ Validation evidence:
 
 Implement governed organization-unit upsert, list, get, chart projection, and audit behavior.
 
+Status: complete
+
 Acceptance criteria:
 
 - Unit upsert validates code, name, type, status, effective dates, and parent reference.
@@ -150,15 +152,29 @@ Acceptance criteria:
 - Unit list supports search, status, type, location, and legal-entity filters.
 - Audit event is appended in the same mutation.
 
+Validation evidence:
+
+- `pnpm --filter @repo/features-employee-management-organizational-chart-hierarchy typecheck`
+- `pnpm --filter @repo/features-employee-management-organizational-chart-hierarchy lint`
+- `pnpm --filter @repo/features-employee-management-organizational-chart-hierarchy test`
+
 ### Slice 7: Position Vertical Slice
 
 Implement distinct position persistence and position-derived operational views.
+
+Status: complete
 
 Acceptance criteria:
 
 - Positions no longer masquerade as chart nodes.
 - Position department references validate against organization units.
 - Vacancy and headcount projections derive from position facts.
+
+Validation evidence:
+
+- `pnpm --filter @repo/features-employee-management-organizational-chart-hierarchy typecheck`
+- `pnpm --filter @repo/features-employee-management-organizational-chart-hierarchy lint`
+- `pnpm --filter @repo/features-employee-management-organizational-chart-hierarchy test`
 
 ### Slice 8: Reporting-Line Vertical Slice
 

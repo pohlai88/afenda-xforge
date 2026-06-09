@@ -93,17 +93,18 @@ See `examples/purpose-variants.example.tsx` for a package-local fixture version 
 ## Compose registry
 
 `compose` is a metadata-preparation layer, not a demo bucket. Import it through
-the explicit subpath:
+the root `@repo/ui` surface:
 
 ```tsx
 import {
   composeRegistryGroups,
   getComposeRegistryPattern,
-} from "@repo/ui/components/compose";
+} from "@repo/ui";
 ```
 
 The registry is intentionally generic. It describes reusable patterns by group,
 metadata role, capability, and pattern name so `@repo/metadata-ui` can decide
 which UI pattern to render without `@repo/ui` importing metadata contracts.
-Gallery components may exist for documentation, but metadata renderers should
-prefer the registry contract.
+Gallery components may exist for documentation inside `@repo/ui`, but
+cross-package consumers should stick to the registry contract exposed from the
+root package.

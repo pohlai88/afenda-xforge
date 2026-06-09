@@ -21,7 +21,6 @@ Internal layout:
 
 Public surface:
 - root `@repo/ui`
-- `@repo/ui/components/*`
 
 Notes:
 - Keep package-local imports relative.

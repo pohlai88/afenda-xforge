@@ -4,7 +4,11 @@ import {
   hrOrgReportingRelationshipQuerySchema,
   hrOrgUnitQuerySchema,
 } from "../schema.ts";
-import type { HrOrgStatus, HrOrgUnitType } from "./domain.contract.ts";
+import type {
+  HrOrgReportingRelationshipType,
+  HrOrgStatus,
+  HrOrgUnitType,
+} from "./domain.contract.ts";
 
 export type HrOrgListQuery = {
   page?: number;
@@ -29,6 +33,7 @@ export type ListHrOrgPositionsQuery = HrOrgListQuery & {
 export type ListHrOrgReportingRelationshipsQuery = HrOrgListQuery & {
   employeeId?: string;
   managerEmployeeId?: string;
+  relationshipType?: HrOrgReportingRelationshipType;
 };
 
 export type ListHrOrgAuditQuery = HrOrgListQuery & {

@@ -1,3 +1,5 @@
+export { hrRecordsRouteContract } from "./contracts/route.contract.ts";
+
 export const hrRecordsRoutePaths = {
   hub: "/hr",
   employees: "/hr/employees",

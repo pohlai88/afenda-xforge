@@ -3,8 +3,18 @@ import { join, resolve } from "node:path";
 
 type TelemetryManifest = {
   events: Array<{
+    allowsDiagnostics: boolean;
+    allowsGovernanceDecision: boolean;
     attributes?: readonly string[];
+    level: "debug" | "error" | "info" | "warning";
     name: string;
+    requiredContext: readonly (
+      | "correlationId"
+      | "featureId"
+      | "moduleId"
+      | "routeId"
+      | "surfaceId"
+    )[];
   }>;
 };
 
@@ -33,15 +43,58 @@ const sourceText = sourceFiles
 
 const violations: string[] = [];
 
+function getEventCallSlice(eventIndex: number): string {
+  const nextEventIndex = sourceText.indexOf(
+    "emitMetadataTelemetry(",
+    eventIndex + 1
+  );
+
+  return sourceText.slice(
+    eventIndex,
+    nextEventIndex === -1 ? eventIndex + 4000 : nextEventIndex
+  );
+}
+
 for (const event of manifest.events) {
-  if (!sourceText.includes(`"${event.name}"`)) {
+  const eventLiteral = `"${event.name}"`;
+  const eventIndex = sourceText.indexOf(eventLiteral);
+
+  if (eventIndex === -1) {
     violations.push(`Missing telemetry event usage: ${event.name}`);
     continue;
   }
 
+  const nextSlice = getEventCallSlice(eventIndex);
+
+  if (!nextSlice.includes(`level: "${event.level}"`)) {
+    violations.push(
+      `Telemetry event '${event.name}' is missing expected level '${event.level}'.`
+    );
+  }
+
+  const hasDiagnostics = /\bdiagnostics\b\s*(?::|,|\n|\r)/m.test(nextSlice);
+  const hasGovernanceDecision =
+    /\bgovernanceDecision\b\s*(?::|,|\n|\r)/m.test(nextSlice);
+
+  if (event.allowsDiagnostics !== hasDiagnostics) {
+    violations.push(
+      `Telemetry event '${event.name}' diagnostics allowance expected '${event.allowsDiagnostics}' but observed '${hasDiagnostics}'.`
+    );
+  }
+
+  if (event.allowsGovernanceDecision !== hasGovernanceDecision) {
+    violations.push(
+      `Telemetry event '${event.name}' governance allowance expected '${event.allowsGovernanceDecision}' but observed '${hasGovernanceDecision}'.`
+    );
+  }
+
+  if (!event.requiredContext.includes("correlationId")) {
+    violations.push(
+      `Telemetry event '${event.name}' must declare 'correlationId' as required context.`
+    );
+  }
+
   for (const attribute of event.attributes ?? []) {
-    const eventIndex = sourceText.indexOf(`"${event.name}"`);
-    const nextSlice = sourceText.slice(eventIndex, eventIndex + 1200);
     const attributePattern = new RegExp(
       `\\b${attribute}\\b\\s*(?::|,|\\n|\\r)`,
       "m"

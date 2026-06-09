@@ -1,8 +1,8 @@
-import type { HrEmployeeRecordDetail } from "../hr.workforce.records.contract.ts";
 import {
   hrEmployeeIntegrationChangeEventSchema,
   hrEmployeeIntegrationSnapshotSchema,
 } from "../contracts/integration.contract.ts";
+import type { HrEmployeeRecordDetail } from "../hr.workforce.records.contract.ts";
 
 const toIsoDate = (value: Date | null | undefined): string | null =>
   value ? value.toISOString() : null;
@@ -12,15 +12,19 @@ const toNullableString = (value: string | null | undefined): string | null =>
 
 export function projectHrEmployeeIntegrationSnapshot(
   record: HrEmployeeRecordDetail,
-  canViewSensitive = false
+  options?: {
+    canViewSensitive?: boolean;
+    organizationId?: string | null;
+  }
 ): ReturnType<typeof hrEmployeeIntegrationSnapshotSchema.parse> {
+  const canViewSensitive = options?.canViewSensitive ?? false;
   const snapshot = {
     snapshotVersion: 1 as const,
     reference: {
       employeeId: record.id,
       employeeNumber: record.employeeNumber,
       displayName: record.displayName,
-      organizationId: record.organizationId,
+      organizationId: options?.organizationId ?? null,
       employmentStatus: record.employmentStatus,
     },
     assignment: {
@@ -50,7 +54,8 @@ export function projectHrEmployeeIntegrationSnapshot(
     },
     documentReferenceCoverage: {
       status: "not-owned" as const,
-      reason: "Document references are owned by the document-management package.",
+      reason:
+        "Document references are owned by the document-management package.",
     },
     ...(canViewSensitive
       ? {
@@ -75,14 +80,21 @@ export function projectHrEmployeeIntegrationSnapshot(
 
 export function projectHrEmployeeIntegrationChangeEvent(
   record: HrEmployeeRecordDetail,
-  canViewSensitive = false
+  options?: {
+    canViewSensitive?: boolean;
+    organizationId?: string | null;
+  }
 ): ReturnType<typeof hrEmployeeIntegrationChangeEventSchema.parse> {
+  const canViewSensitive = options?.canViewSensitive ?? false;
   return hrEmployeeIntegrationChangeEventSchema.parse({
     eventName: "hr.employees.employee.integration.changed.v1",
     eventVersion: 1,
     occurredAt: record.updatedAt.toISOString(),
-    organizationId: record.organizationId,
+    organizationId: options?.organizationId ?? null,
     employeeId: record.id,
-    snapshot: projectHrEmployeeIntegrationSnapshot(record, canViewSensitive),
+    snapshot: projectHrEmployeeIntegrationSnapshot(record, {
+      canViewSensitive,
+      organizationId: options?.organizationId ?? null,
+    }),
   });
 }

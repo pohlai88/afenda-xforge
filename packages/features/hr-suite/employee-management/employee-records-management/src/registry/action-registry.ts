@@ -1,3 +1,4 @@
+import type { HrRecordsActionContract } from "../contracts/action.contract.ts";
 import { hrRecordsAuditActions } from "../hr.workforce.records.event.ts";
 import { hrRecordsAuditEvents } from "./audit.ts";
 import { hrRecordsIntegrationEvents } from "./integration.ts";
@@ -44,6 +45,6 @@ export const hrRecordsActionRegistry = {
     approval: { required: false },
     risk: "high",
   },
-} as const;
+} as const satisfies Record<string, HrRecordsActionContract>;
 
 export type HrRecordsActionRegistry = typeof hrRecordsActionRegistry;

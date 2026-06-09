@@ -7,6 +7,8 @@ import {
   HR_RECORDS_LIST_SURFACE_KEYS,
 } from "./hr.workforce.records-surface-metadata.shared.ts";
 
+const MAX_DIRECTORY_PAGE_SIZE = 100;
+
 function readSearchParam(
   searchParams: Record<string, string | string[] | undefined>,
   key: string
@@ -22,6 +24,28 @@ function readSearchParam(
   return;
 }
 
+function readPositiveIntegerSearchParam(
+  searchParams: Record<string, string | string[] | undefined>,
+  key: string,
+  maxValue?: number
+): number | undefined {
+  const rawValue = readSearchParam(searchParams, key);
+  if (!rawValue) {
+    return undefined;
+  }
+
+  const value = Number(rawValue);
+  if (!Number.isInteger(value) || value <= 0) {
+    return undefined;
+  }
+
+  if (maxValue && value > maxValue) {
+    return maxValue;
+  }
+
+  return value;
+}
+
 export type HrRecordsSearchParams = {
   incompleteSearch?: string;
   directorySearch?: string;
@@ -31,6 +55,8 @@ export type HrRecordsSearchParams = {
   documentReferencesSearch?: string;
   separatedSearch?: string;
   employmentStatusFilter?: HrRecordsEmploymentStatus;
+  page?: number;
+  pageSize?: number;
 };
 
 export function parseHrRecordsSearchParams(
@@ -76,6 +102,13 @@ export function parseHrRecordsSearchParams(
     }
   }
 
+  parsed.page = readPositiveIntegerSearchParam(searchParams, "page");
+  parsed.pageSize = readPositiveIntegerSearchParam(
+    searchParams,
+    "pageSize",
+    MAX_DIRECTORY_PAGE_SIZE
+  );
+
   return parsed;
 }
 
@@ -91,6 +124,8 @@ export function toHrRecordsPageModelInput(input: {
     organizationId: input.organizationId,
     canWrite: input.canWrite,
     canViewSensitive: input.canViewSensitive,
+    page: parsed.page,
+    pageSize: parsed.pageSize,
     incompleteSearch: parsed.incompleteSearch,
     directorySearch: parsed.directorySearch,
     assignmentsSearch: parsed.assignmentsSearch,

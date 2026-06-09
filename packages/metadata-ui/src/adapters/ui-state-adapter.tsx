@@ -62,6 +62,7 @@ export function renderMetadataState({
 
   emitMetadataTelemetry(resolvedContext, "metadata.state.render.started", {
     diagnostics,
+    level: "debug",
     rendererKey: state,
     attributes: {
       state,
@@ -84,6 +85,7 @@ export function renderMetadataState({
 
     emitMetadataTelemetry(resolvedContext, "metadata.state.render.completed", {
       diagnostics,
+      level: "info",
       rendererKey: state,
       attributes: {
         state,
@@ -104,6 +106,7 @@ export function renderMetadataState({
 
     emitMetadataTelemetry(resolvedContext, "metadata.state.render.error", {
       diagnostics: nextDiagnostics,
+      level: "error",
       rendererKey: state,
       attributes: {
         message: rendererDiagnostic.message,

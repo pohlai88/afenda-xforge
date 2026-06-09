@@ -17,6 +17,10 @@ export type {
   MetadataCompositionNodeKind,
 } from "./composition.contract";
 export type {
+  MetadataConsumerScenarioDefinition,
+  MetadataConsumerScenarioResult,
+} from "./consumer-fixture.contract";
+export type {
   MetadataDiagnostic,
   MetadataDiagnosticCode,
   MetadataDiagnosticSeverity,

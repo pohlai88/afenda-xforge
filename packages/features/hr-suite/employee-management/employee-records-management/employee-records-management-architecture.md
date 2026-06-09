@@ -518,6 +518,21 @@ Deliverables:
 - event publication or change-notification strategy
 - clearer ownership boundaries for document references and organization context
 
+Phase 4 implementation evidence:
+
+- `src/identity.ts` and `src/feature-scope.ts` define the stable feature identity, suite/domain identifiers, and downstream-safe scope constants.
+- `src/contracts/manifest.contract.ts`, `src/contracts/metadata.contract.ts`, `src/contracts/bounded-context.contract.ts`, `src/contracts/action.contract.ts`, and `src/contracts/route.contract.ts` define the versioned manifest, metadata, bounded-context, action, and route contracts.
+- `src/contracts/integration.contract.ts`, `src/projector/integration.ts`, and `src/registry/integration.ts` define the downstream-safe employee integration snapshot, change event, and versioned integration event registry.
+- `src/registry/action-registry.ts` now captures capabilities, risk, approval, integration-event linkage, and archive reason requirements on the governed action registry.
+- `src/hr.workforce.records-route.contract.ts`, `src/contract.ts`, `src/index.ts`, and `src/server.ts` export the route contract, stable employee integration builders, manifest, metadata, and server-facing integration surface.
+- `test/integration-contracts.test.ts` validates manifest shape, route contract versioning, action registry decisions, downstream-safe snapshot redaction, versioned change events, and compliance consumer compatibility without duplicating employee ownership.
+
+Validation completed on 2026-06-09:
+
+- `pnpm --filter @repo/features-employee-management-employee-records-management typecheck`
+- `pnpm --filter @repo/features-employee-management-employee-records-management test`
+- `pnpm exec biome check packages/features/hr-suite/employee-management/employee-records-management`
+
 ### Phase 5: Operational hardening
 
 Objective: make the capability enterprise-ready at scale.

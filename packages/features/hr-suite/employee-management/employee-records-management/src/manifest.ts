@@ -1,6 +1,6 @@
+import { hrRecordsFeatureManifestSchema } from "./contracts/manifest.contract.ts";
 import { hrRecordsFeatureId, hrRecordsFeaturePackageName } from "./identity.ts";
 import { hrRecordsFeatureMetadata } from "./metadata.ts";
-import { hrRecordsFeatureManifestSchema } from "./contracts/manifest.contract.ts";
 
 export type HrRecordsFeatureManifest = {
   description: string;

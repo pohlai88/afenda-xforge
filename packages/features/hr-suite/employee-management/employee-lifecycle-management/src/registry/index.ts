@@ -8,6 +8,7 @@ export {
   employeeLifecycleManagementAuditEventGroups,
   employeeLifecycleManagementAuditEvents,
   employeeLifecycleManagementContractAuditEventCatalog,
+  employeeLifecycleManagementExitAuditEventCatalog,
   employeeLifecycleManagementMovementAuditEventCatalog,
   employeeLifecycleManagementOnboardingAuditEventCatalog,
   employeeLifecycleManagementProbationAuditEventCatalog,

@@ -1,5 +1,4 @@
 import { z } from "zod";
-import { hrRecordsAuditEventSchema } from "../registry/audit.ts";
 
 export const hrRecordsActionRiskSchema = z.enum([
   "standard",
@@ -22,9 +21,11 @@ export const hrRecordsActionApprovalSchema = z.object({
 export const hrRecordsActionContractSchema = z.object({
   id: z.string().trim().min(1),
   capabilities: hrRecordsActionCapabilitySchema.array(),
-  auditEvent: hrRecordsAuditEventSchema,
+  auditEvent: z.string().trim().min(1),
   approval: hrRecordsActionApprovalSchema,
   risk: hrRecordsActionRiskSchema,
+  integrationEvent: z.string().trim().min(1),
+  requiresReason: z.boolean().optional(),
 });
 
 export type HrRecordsActionRisk = z.infer<typeof hrRecordsActionRiskSchema>;
