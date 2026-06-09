@@ -12,12 +12,14 @@ export function listCompensationPlanningModelingRecords(
   _query: ListCompensationPlanningModelingQuery = {},
   _context?: HrSuiteFeatureContext
 ): Promise<readonly CompensationPlanningModelingRecord[]> {
-  return inMemoryRecords;
+  return Promise.resolve(inMemoryRecords);
 }
 
 export function getCompensationPlanningModelingRecord(
   id: string,
   _context?: HrSuiteFeatureContext
 ): Promise<CompensationPlanningModelingRecord | null> {
-  return inMemoryRecords.find((record) => record.id === id) ?? null;
+  return Promise.resolve(
+    inMemoryRecords.find((record) => record.id === id) ?? null
+  );
 }

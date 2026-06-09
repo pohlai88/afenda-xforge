@@ -15,15 +15,15 @@ Audit date: 2026-06-09.
 | Area | Evidence | Current state |
 | --- | --- | --- |
 | Package scripts | `package.json` | Has `lint`, `format`, `test`, and `typecheck`. |
-| Public contract | `src/index.ts`, `src/hr.workforce.records.contract.ts`, `src/hr.workforce.records-form.shared.ts`, `src/contracts/*.contract.ts` | Defines core record types, assignment projection/query contracts, permissions, search params, create/update/archive/assignment/rehire schemas, and exports the create-input and assignment schemas for API validation. |
-| Write actions | `src/hr.workforce.records.actions.server.ts` | Provides create, update, archive, assignment, and rehire commands with `canWrite` checks and Zod parsing. |
+| Public contract | `src/index.ts`, `src/records.contract.ts`, `src/form.shared.ts`, `src/contracts/*.contract.ts` | Defines core record types, assignment projection/query contracts, permissions, search params, create/update/archive/assignment/rehire schemas, and exports the create-input and assignment schemas for API validation. |
+| Write actions | `src/actions.server.ts` | Provides create, update, archive, assignment, and rehire commands with `canWrite` checks and Zod parsing. |
 | Repository | `src/repository.ts` | File-backed persistence with scoped load/save/mutate, assignment-history facts, test hooks, and organization filtering. |
-| Store | `src/hr.workforce.records.store.ts` | Compatibility wrapper that delegates to the repository and accepts optional read/write scope context. |
-| Mutation helper | `src/hr.workforce.records.mutation.shared.server.ts` | Defines audit metadata shape and wraps mutation failure handling, but does not orchestrate repository persistence or audit writes. |
-| Queries | `src/hr.workforce.records.queries.ts`, `src/queries/assignments.query.ts` | Lists and gets records from the repository, and now respects read access, organization scope, and assignment-history filtering. |
-| Page models | `src/hr.workforce.records.page-model.server.ts`, `src/hr.workforce.records.detail.page-model.server.ts`, `src/projector/read-models.ts` | Builds overview/detail models and assignment read models from scoped repository reads. |
-| Access policy | `src/hr.workforce.records.access.policy.server.ts`, `src/hr.workforce.records-sensitive-access.shared.ts` | Has write gating and masking helpers, but read gating, capability checks, and export-safe redaction are not centralized. |
-| Audit events | `src/hr.workforce.records.event.ts` | Defines employee, assignment, profile, and emergency-contact audit action names. |
+| Store | `src/records-store.ts` | Compatibility wrapper that delegates to the repository and accepts optional read/write scope context. |
+| Mutation orchestration | `src/actions.server.ts`, `src/repository.ts` | Coordinates command validation, scoped writes, lifecycle checks, and mutation failure mapping without a separate wrapper helper. |
+| Queries | `src/queries.server.ts`, `src/queries/assignments.query.ts` | Lists and gets records from the repository, and now respects read access, organization scope, and assignment-history filtering. |
+| Page models | `src/page-model.server.ts`, `src/detail-page-model.server.ts`, `src/projector/read-models.ts` | Builds overview/detail models and assignment read models from scoped repository reads. |
+| Access policy | `src/policy.ts`, `src/sensitive-access.shared.ts` | Has write gating and masking helpers, but read gating, capability checks, and export-safe redaction are not centralized. |
+| Audit events | `src/events.ts` | Defines employee, assignment, profile, and emergency-contact audit action names. |
 | Execution surface | `src/execution/index.ts` | Exposes package commands and queries as a callable feature surface. |
 | Database | `packages/database/schema.ts` | Contains tenants, companies, company grants, compliance tables, employee assignment history, and `audit_events`. |
 | API routes | `apps/api/app/api/hr/records/*` | GET/POST routes and the employee assignments route now delegate to the feature server surface with request-scoped read/write context. |
@@ -46,7 +46,7 @@ The compliance package shows the target shape for mature HR domain packages:
 - API routes live under `apps/api/app/api/hr/<feature>` and delegate to package server functions.
 - Tests use `tsx --conditions=react-server --test test/**/*.test.ts` with Node `node:test`.
 
-Employee Records should move toward this shape. Existing `hr.workforce.records-*` files should remain as compatibility barrels or surface-specific files until callers are migrated.
+Employee Records should move toward this shape. The internal file set now uses concise package-local names instead of the older `hr.workforce.records-*` prefixing.
 
 ## Current Gap List
 
@@ -93,14 +93,13 @@ Implement the new durable core using the compliance-style names:
 - `src/contract.ts`
 - `src/index.ts`
 
-Keep these existing files only as needed for compatibility or UI/surface metadata:
+Keep these existing files only as needed for UI/surface metadata or internal orchestration:
 
-- `src/hr.workforce.records-*.surface.ts`
-- `src/hr.workforce.records-*.shared.ts`
-- `src/hr.workforce.records.actions.server.ts`
-- `src/hr.workforce.records.queries.ts`
-- `src/hr.workforce.records.store.ts`
-- `src/hr.workforce.records.mutation.shared.server.ts`
+- `src/*.surface.ts`
+- `src/*.shared.ts`
+- `src/actions.server.ts`
+- `src/queries.server.ts`
+- `src/records-store.ts`
 - `src/execution/index.ts`
 
 ## Slice Rules
@@ -148,7 +147,7 @@ Files to inspect/change:
 - `src/server.ts`
 - `src/contract.ts`
 - `src/index.ts`
-- compatibility updates in `src/hr.workforce.records.*`
+- internal import updates across `src/*.ts`
 - `apps/api/app/api/hr/records/_lib/context.ts`
 - `apps/api/app/api/hr/records/route.ts`
 - `test/employee-records-management.test.ts`
@@ -171,8 +170,8 @@ Status: implemented on 2026-06-09.
 Evidence:
 
 - `packages/features/hr-suite/employee-management/employee-records-management/src/repository.ts`
-- `packages/features/hr-suite/employee-management/employee-records-management/src/hr.workforce.records.store.ts`
-- `packages/features/hr-suite/employee-management/employee-records-management/src/hr.workforce.records.queries.ts`
+- `packages/features/hr-suite/employee-management/employee-records-management/src/records-store.ts`
+- `packages/features/hr-suite/employee-management/employee-records-management/src/queries.server.ts`
 - `packages/features/hr-suite/employee-management/employee-records-management/src/index.ts`
 - `apps/api/app/api/hr/records/_lib/context.ts`
 - `apps/api/app/api/hr/records/route.ts`
@@ -216,8 +215,8 @@ Files to inspect/change:
 - `src/actions.ts`
 - `src/queries/records.query.ts`
 - `src/projector/record-detail.ts`
-- `src/hr.workforce.records-sensitive-access.shared.ts`
-- `src/hr.workforce.records.detail.page-model.server.ts`
+- `src/sensitive-access.shared.ts`
+- `src/detail-page-model.server.ts`
 - `apps/api/app/api/hr/records/[employeeId]/route.ts`
 - `test/profile-sensitive-read.test.ts`
 - `employee-records-management-architecture.md`
@@ -236,12 +235,12 @@ Status: implemented on 2026-06-09.
 
 Evidence:
 
-- `packages/features/hr-suite/employee-management/employee-records-management/src/hr.workforce.records.contract.ts`
+- `packages/features/hr-suite/employee-management/employee-records-management/src/records.contract.ts`
 - `packages/features/hr-suite/employee-management/employee-records-management/src/policy.ts`
 - `packages/features/hr-suite/employee-management/employee-records-management/src/repository.ts`
 - `packages/features/hr-suite/employee-management/employee-records-management/src/projector/record-detail.ts`
-- `packages/features/hr-suite/employee-management/employee-records-management/src/hr.workforce.records.detail.page-model.server.ts`
-- `packages/features/hr-suite/employee-management/employee-records-management/src/hr.workforce.records.actions.server.ts`
+- `packages/features/hr-suite/employee-management/employee-records-management/src/detail-page-model.server.ts`
+- `packages/features/hr-suite/employee-management/employee-records-management/src/actions.server.ts`
 - `packages/features/hr-suite/employee-management/employee-records-management/test/profile-sensitive-read.test.ts`
 - `apps/api/app/api/hr/records/[employeeId]/route.ts`
 - Validation: `pnpm --filter @repo/features-employee-management-employee-records-management lint`, `pnpm --filter @repo/features-employee-management-employee-records-management test`, `pnpm --filter api typecheck`
@@ -279,7 +278,7 @@ Files to inspect/change:
 - `src/queries/assignments.query.ts`
 - `src/projector/assignment.ts`
 - `src/projector/read-models.ts`
-- `src/hr.workforce.records-assignments-list.surface.ts`
+- `src/assignments-list.surface.ts`
 - `apps/api/app/api/hr/records/[employeeId]/assignments/route.ts`
 - `test/assignment-history.test.ts`
 - `employee-records-management-architecture.md`
@@ -294,7 +293,7 @@ Evidence:
 - `packages/features/hr-suite/employee-management/employee-records-management/src/queries/assignments.query.ts`
 - `packages/features/hr-suite/employee-management/employee-records-management/src/projector/assignment.ts`
 - `packages/features/hr-suite/employee-management/employee-records-management/src/projector/read-models.ts`
-- `packages/features/hr-suite/employee-management/employee-records-management/src/hr.workforce.records-assignments-list.surface.ts`
+- `packages/features/hr-suite/employee-management/employee-records-management/src/assignments-list.surface.ts`
 - `packages/features/hr-suite/employee-management/employee-records-management/test/assignment-history.test.ts`
 - `apps/api/app/api/hr/records/[employeeId]/assignments/route.ts`
 - `packages/database/drizzle/0005_nebulous_stranger.sql`
@@ -341,8 +340,8 @@ Files to inspect/change:
 - `src/queries/status-history.query.ts`
 - `src/projector/status.ts`
 - `src/projector/read-models.ts`
-- `src/hr.workforce.records-employment-status.schema.ts`
-- `src/hr.workforce.records-status-history-list.surface.ts`
+- `src/employment-status.schema.ts`
+- `src/status-history-list.surface.ts`
 - `apps/api/app/api/hr/records/[employeeId]/status-history/route.ts`
 - `test/status-history.test.ts`
 - `employee-records-management-architecture.md`
@@ -373,7 +372,7 @@ Implementation evidence:
 - `src/repository.ts` seeds the initial status fact, validates transitions, appends lifecycle history, and synthesizes legacy status rows on read.
 - `src/projector/status.ts` and `src/projector/read-models.ts` derive ordered history views and the current status snapshot.
 - `src/queries/status-history.query.ts` filters by employee, status, source, search text, current/as-of state, and organization scope.
-- `src/hr.workforce.records-status-history-list.surface.ts` and `apps/api/app/api/hr/records/[employeeId]/status-history/route.ts` expose the status-history surface.
+- `src/status-history-list.surface.ts` and `apps/api/app/api/hr/records/[employeeId]/status-history/route.ts` expose the status-history surface.
 - `packages/database/schema.ts` adds `employee_record_status_history` with tenant/company/employee, status, source, and effective-time indexes.
 - `packages/database/drizzle/0006_sloppy_crystal.sql` records the generated migration.
 - `test/status-history.test.ts` covers initial status, valid transitions, invalid transitions, ordering, read denial, and cross-company isolation.
@@ -411,8 +410,8 @@ Files to inspect/change:
 - `src/actions.ts`
 - `src/queries/records.query.ts`
 - `src/projector/record-summary.ts`
-- `src/hr.workforce.records-separated-list.surface.ts`
-- `src/hr.workforce.records.page-model.server.ts`
+- `src/separated-list.surface.ts`
+- `src/page-model.server.ts`
 - `apps/api/app/api/hr/records/[employeeId]/archive/route.ts`
 - `test/archive-lifecycle.test.ts`
 - `employee-records-management-architecture.md`
@@ -433,7 +432,7 @@ Implementation evidence:
 - `src/registry/action-registry.ts` and `src/registry/audit.ts` register the archive capability and build the audit record in a typed form.
 - `src/repository.ts` appends the archive status fact and audit trail entry in the same repository mutation and keeps repeated archive behavior idempotent.
 - `src/projector/record-summary.ts` and `src/queries/records.query.ts` exclude archived records from the default directory while allowing separated reads to include them.
-- `src/hr.workforce.records-separated-list.surface.ts` and `src/hr.workforce.records.page-model.server.ts` expose the archive-aware operational read behavior.
+- `src/separated-list.surface.ts` and `src/page-model.server.ts` expose the archive-aware operational read behavior.
 - `apps/api/app/api/hr/records/[employeeId]/archive/route.ts` exposes the archive command as a request-scoped API route.
 - `test/archive-lifecycle.test.ts` covers success, missing reason, idempotent repeat archive, separated inclusion, directory exclusion, audit trail persistence, and cross-company isolation.
 
@@ -474,7 +473,7 @@ Files to inspect/change:
 - `src/repository.ts`
 - `src/actions.ts`
 - `src/projector/record-detail.ts`
-- `src/hr.workforce.records.detail.page-model.server.ts`
+- `src/detail-page-model.server.ts`
 - `apps/api/app/api/hr/records/[employeeId]/rehire/route.ts`
 - `test/rehire-lifecycle.test.ts`
 - `employee-records-management-architecture.md`
@@ -521,10 +520,10 @@ Files to inspect/change:
 - `src/projector/document-reference.ts`
 - `src/projector/completeness.ts`
 - `src/projector/overview.ts`
-- `src/hr.workforce.records-document-references-list.surface.ts`
-- `src/hr.workforce.records-coverage.shared.ts`
-- `src/hr.workforce.records-incomplete-list.surface.ts`
-- `src/hr.workforce.records-overview.shared.ts`
+- `src/document-references-list.surface.ts`
+- `src/coverage.shared.ts`
+- `src/incomplete-list.surface.ts`
+- `src/overview.shared.ts`
 - `apps/api/app/api/hr/records/[employeeId]/document-references/route.ts`
 - `test/document-references-completeness.test.ts`
 - `employee-records-management-architecture.md`
@@ -568,7 +567,7 @@ Files to inspect/change:
 - `src/repository.ts`
 - `src/queries/audit.query.ts`
 - `src/projector/audit.ts`
-- `src/hr.workforce.records-audit-trail-list.surface.ts`
+- `src/audit-trail-list.surface.ts`
 - `apps/api/app/api/hr/records/audit-trail/route.ts`
 - `test/audit-persistence.test.ts`
 - `employee-records-management-architecture.md`
@@ -618,11 +617,11 @@ Files to inspect/change:
 - `src/projector/overview.ts`
 - `src/projector/record-summary.ts`
 - `src/projector/record-detail.ts`
-- `src/hr.workforce.records-list.shared.ts`
-- `src/hr.workforce.records-list-load.shared.ts`
-- `src/hr.workforce.records-directory-list.surface.ts`
-- `src/hr.workforce.records.page-model.server.ts`
-- `src/hr.workforce.records.detail.page-model.server.ts`
+- `src/list.shared.ts`
+- `src/list-load.shared.ts`
+- `src/directory-list.surface.ts`
+- `src/page-model.server.ts`
+- `src/detail-page-model.server.ts`
 - `apps/api/app/api/hr/records/*`
 - `test/operational-read-models.test.ts`
 - `employee-records-management-architecture.md`
@@ -701,7 +700,7 @@ Implementation evidence:
 - `src/contracts/bounded-context.contract.ts`, `src/contracts/action.contract.ts`, and `src/contracts/route.contract.ts` capture the versioned bounded context, action, and route contracts for downstream consumers.
 - `src/contracts/integration.contract.ts`, `src/projector/integration.ts`, and `src/registry/integration.ts` define the stable employee integration snapshot, change event, and registry surface.
 - `src/registry/action-registry.ts` records capabilities, approval, risk, audit linkage, and integration-event linkage for governed employee-record actions.
-- `src/hr.workforce.records-route.contract.ts`, `src/contract.ts`, `src/index.ts`, and `src/server.ts` export the stable integration surface and route contract for dependent modules.
+- `src/route-paths.ts`, `src/contract.ts`, `src/index.ts`, and `src/server.ts` export the stable integration surface and route contract for dependent modules.
 - `test/integration-contracts.test.ts` validates manifest shape, route contract versioning, registry decisions, downstream-safe snapshot redaction, change-event payloads, and compliance consumer compatibility.
 
 Validation commands:

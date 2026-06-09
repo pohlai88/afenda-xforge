@@ -12,12 +12,14 @@ export function listCandidateSelfservicePortalRecords(
   _query: ListCandidateSelfservicePortalQuery = {},
   _context?: HrSuiteFeatureContext
 ): Promise<readonly CandidateSelfservicePortalRecord[]> {
-  return inMemoryRecords;
+  return Promise.resolve(inMemoryRecords);
 }
 
 export function getCandidateSelfservicePortalRecord(
   id: string,
   _context?: HrSuiteFeatureContext
 ): Promise<CandidateSelfservicePortalRecord | null> {
-  return inMemoryRecords.find((record) => record.id === id) ?? null;
+  return Promise.resolve(
+    inMemoryRecords.find((record) => record.id === id) ?? null
+  );
 }

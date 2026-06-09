@@ -13,12 +13,14 @@ export function listFieldWorkerRemoteWorkforceManagementRecords(
   _query: ListFieldWorkerRemoteWorkforceManagementQuery = {},
   _context?: HrSuiteFeatureContext
 ): Promise<readonly FieldWorkerRemoteWorkforceManagementRecord[]> {
-  return inMemoryRecords;
+  return Promise.resolve(inMemoryRecords);
 }
 
 export function getFieldWorkerRemoteWorkforceManagementRecord(
   id: string,
   _context?: HrSuiteFeatureContext
 ): Promise<FieldWorkerRemoteWorkforceManagementRecord | null> {
-  return inMemoryRecords.find((record) => record.id === id) ?? null;
+  return Promise.resolve(
+    inMemoryRecords.find((record) => record.id === id) ?? null
+  );
 }

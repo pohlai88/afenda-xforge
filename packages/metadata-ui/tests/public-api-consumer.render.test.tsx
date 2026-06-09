@@ -1,12 +1,3 @@
-import {
-  createMetadataRenderContext,
-  createMetadataUiCompatibilityReport,
-  createMetadataUiQualityAssessment,
-  MetadataForm,
-  MetadataSectionStack,
-  MetadataStateBoundary,
-} from "@repo/metadata-ui";
-import type { MetadataConsumerScenarioDefinition } from "@repo/metadata-ui/contracts";
 import { render, screen, within } from "@testing-library/react";
 import { describe, expect, it } from "vitest";
 
@@ -16,6 +7,15 @@ import {
   publicConsumerFields,
   publicConsumerSections,
 } from "../fixtures/public-api-consumer";
+import {
+  createMetadataRenderContext,
+  createMetadataUiCompatibilityReport,
+  createMetadataUiQualityAssessment,
+  MetadataForm,
+  MetadataSectionStack,
+  MetadataStateBoundary,
+} from "../index.tsx";
+import type { MetadataConsumerScenarioDefinition } from "../src/contracts/index.ts";
 
 function renderConsumerScenario(
   scenario: MetadataConsumerScenarioDefinition

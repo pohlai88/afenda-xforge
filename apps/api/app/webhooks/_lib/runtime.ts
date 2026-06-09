@@ -415,6 +415,11 @@ const executeInboundDomainWebhook = async (
           operationId: message.envelope.operationId,
           requestId: message.envelope.requestId,
           tenantId: message.envelope.tenantId,
+          trustedSystem: {
+            actorType: "integration",
+            channel: "webhook",
+            tenantVerified: true,
+          },
           userId: systemActorId,
         }
       );

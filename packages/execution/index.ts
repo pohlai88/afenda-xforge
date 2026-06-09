@@ -12,5 +12,7 @@ export type {
   ExecutionPipelineHooks,
   ExecutionPostCommitHook,
   ExecutionTenant,
+  QueryExecutionContext,
+  QueryPipelineHooks,
 } from "./pipeline.ts";
-export { createExecutionPipeline } from "./pipeline.ts";
+export { createExecutionPipeline, createQueryPipeline } from "./pipeline.ts";

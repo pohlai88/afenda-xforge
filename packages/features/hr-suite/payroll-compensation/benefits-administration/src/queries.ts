@@ -12,12 +12,14 @@ export function listBenefitsAdministrationRecords(
   _query: ListBenefitsAdministrationQuery = {},
   _context?: HrSuiteFeatureContext
 ): Promise<readonly BenefitsAdministrationRecord[]> {
-  return inMemoryRecords;
+  return Promise.resolve(inMemoryRecords);
 }
 
 export function getBenefitsAdministrationRecord(
   id: string,
   _context?: HrSuiteFeatureContext
 ): Promise<BenefitsAdministrationRecord | null> {
-  return inMemoryRecords.find((record) => record.id === id) ?? null;
+  return Promise.resolve(
+    inMemoryRecords.find((record) => record.id === id) ?? null
+  );
 }

@@ -1,16 +1,16 @@
 import assert from "node:assert/strict";
 import { test } from "node:test";
-import { hrRecordsSearchParamsSchema } from "../src/hr.workforce.records.contract.ts";
+import { hrRecordsSearchParamsSchema } from "../src/records.contract.ts";
 import {
   hrEmployeeArchiveRoutePath,
   hrEmployeeDetailRoutePath,
   hrEmployeeRehireRoutePath,
   hrEmployeeStatusHistoryRoutePath,
-} from "../src/hr.workforce.records-route.contract.ts";
+} from "../src/route-paths.ts";
 import {
   parseHrRecordsSearchParams,
   toHrRecordsPageModelInput,
-} from "../src/hr.workforce.records-search-params.parse.shared.ts";
+} from "../src/search-params.parse.shared.ts";
 
 test("normalizes legacy employee record search params", () => {
   const parsed = parseHrRecordsSearchParams({

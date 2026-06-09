@@ -5,11 +5,13 @@
   "type": "module",
   "exports": {
     ".": "./index.ts",
+    "./access": "./access.ts",
     "./client": "./client.ts",
     "./components/sign-in": "./components/sign-in.tsx",
     "./components/sign-up": "./components/sign-up.tsx",
     "./components/sign-out": "./components/sign-out.tsx",
     "./keys": "./keys.ts",
+    "./host": "./host.ts",
     "./provider": "./provider.tsx",
     "./proxy": "./proxy.ts",
     "./routes": "./routes.ts",
@@ -17,9 +19,11 @@
     "./package.json": "./package.json"
   },
   "files": [
+    "access.ts",
     "client.ts",
     "components/sign-in.tsx",
     "components/sign-up.tsx",
+    "host.ts",
     "index.ts",
     "keys.ts",
     "provider.tsx",
@@ -30,6 +34,7 @@
   ],
   "scripts": {
     "clean": "git clean -xdf .cache .turbo dist node_modules",
+    "test": "node --conditions react-server --import tsx --test tests/auth.test.ts",
     "typecheck": "tsc --noEmit --emitDeclarationOnly false",
     "lint": "biome check .",
     "format": "biome format --write ."
@@ -51,6 +56,7 @@
     "@types/node": "catalog:",
     "@types/react": "catalog:",
     "@types/react-dom": "catalog:",
+    "tsx": "catalog:",
     "typescript": "catalog:"
   }
 }

@@ -4,11 +4,11 @@ import { rmSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { resolve } from "node:path";
 import { afterEach, beforeEach, test } from "node:test";
-import { createHrEmployeeRecordAction } from "../src/hr.workforce.records.actions.server.ts";
+import { createHrEmployeeRecordAction } from "../src/actions.server.ts";
 import {
   getHrEmployeeRecord,
   listHrEmployeeRecords,
-} from "../src/hr.workforce.records.queries.ts";
+} from "../src/queries.server.ts";
 import {
   resetHrEmployeeRecordsRepositoryForTesting,
   setHrEmployeeRecordsRepositoryPathForTesting,

@@ -6,6 +6,12 @@
 
 ---
 
+# Public Read Surface
+
+The package exposes overview, stage, history, task, and audit-trail projections through `src/projector.ts`, `src/queries.ts`, and `src/server.ts`, with API routes under `/api/hr/lifecycle/*`. Sensitive actor, reason, and approval details are redacted unless the caller has sensitive-read access.
+
+---
+
 # Employee Lifecycle Management Includes
 
 | Area                           | What It Covers                                                                                      |

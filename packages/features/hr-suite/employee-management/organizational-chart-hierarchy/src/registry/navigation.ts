@@ -1,7 +1,8 @@
+import { organizationalChartHierarchyFeatureId } from "../identity.ts";
 import { organizationalChartHierarchyCapabilities } from "./capability.ts";
 
 export const organizationalChartHierarchyNavigation = {
-  featureId: "hr-suite.employee-management.organizational-chart-hierarchy",
+  featureId: organizationalChartHierarchyFeatureId,
   basePath: "/hr/org",
   defaultPage: "overview",
   pages: [

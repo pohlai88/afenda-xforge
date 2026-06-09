@@ -31,6 +31,7 @@ export const listCustomersForTenant = async (
   );
 
   return listCustomers(query, {
+    grantedPermissions: access.grantedPermissions,
     tenantId: access.tenantId,
     userId: access.actorId,
   });

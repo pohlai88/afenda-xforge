@@ -7,9 +7,9 @@ import { afterEach, beforeEach, test } from "node:test";
 import {
   createHrEmployeeRecordAction,
   updateHrEmployeeRecordAction,
-} from "../src/hr.workforce.records.actions.server.ts";
-import { buildHrEmployeeRecordDetailPageModel } from "../src/hr.workforce.records.detail.page-model.server.ts";
-import { getHrEmployeeRecord } from "../src/hr.workforce.records.queries.ts";
+} from "../src/actions.server.ts";
+import { buildHrEmployeeRecordDetailPageModel } from "../src/detail-page-model.server.ts";
+import { getHrEmployeeRecord } from "../src/queries.server.ts";
 import {
   resetHrEmployeeRecordsRepositoryForTesting,
   setHrEmployeeRecordsRepositoryPathForTesting,

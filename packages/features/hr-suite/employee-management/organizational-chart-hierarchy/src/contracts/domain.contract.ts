@@ -14,9 +14,9 @@ export type {
   HrOrgScope,
   HrOrgStatus,
   HrOrgUnitQuery,
-  HrOrgVacancyQuery,
   HrOrgUnitRecord,
   HrOrgUnitType,
+  HrOrgVacancyQuery,
   HrOrgWriteContext,
 } from "../schema.ts";
 export {

@@ -7,8 +7,41 @@ import postgres from "postgres";
 import { loadDatabaseKeys } from "./keys.ts";
 import { databaseSchema } from "./schema.ts";
 
-const connectionString: string = loadDatabaseKeys().DATABASE_URL;
 const databaseLogger = createLogger("database");
+
+type DatabaseClient = ReturnType<typeof postgres>;
+
+const resolveDatabaseUrl = (): string => loadDatabaseKeys().DATABASE_URL;
+
+const createDatabaseClient = (): DatabaseClient =>
+  postgres(resolveDatabaseUrl(), { prepare: false });
+
+let cachedClient: DatabaseClient | null = null;
+
+const getDatabaseClient = (): DatabaseClient =>
+  (cachedClient ??= createDatabaseClient());
+
+const createDatabaseInstance = () =>
+  drizzle(getDatabaseClient(), {
+    schema: databaseSchema,
+  });
+
+type DatabaseInstance = ReturnType<typeof createDatabaseInstance>;
+
+let cachedDatabase: DatabaseInstance | null = null;
+
+export const getDatabase = (): DatabaseInstance =>
+  (cachedDatabase ??= createDatabaseInstance());
+
+const bindProxyValue = <TValue>(owner: object, value: TValue): TValue => {
+  if (typeof value === "function") {
+    return value.bind(owner) as TValue;
+  }
+
+  return value;
+};
+
+const clientProxyTarget = (() => undefined) as unknown as DatabaseClient;
 
 export type TimedDatabaseQueryOptions = {
   logger?: AppLogger;
@@ -18,10 +51,36 @@ export type TimedDatabaseQueryOptions = {
 };
 
 // Supabase's shared pooler requires prepared statements to be disabled.
-export const client = postgres(connectionString, { prepare: false });
+export const client = new Proxy(clientProxyTarget, {
+  apply(_target, thisArg, args) {
+    return Reflect.apply(
+      getDatabaseClient() as unknown as (...input: unknown[]) => unknown,
+      thisArg,
+      args
+    );
+  },
+  get(_target, property) {
+    const resolvedClient = getDatabaseClient() as unknown as Record<
+      PropertyKey,
+      unknown
+    >;
 
-export const database = drizzle(client, {
-  schema: databaseSchema,
+    return bindProxyValue(
+      resolvedClient,
+      Reflect.get(resolvedClient, property)
+    );
+  },
+});
+
+export const database = new Proxy({} as DatabaseInstance, {
+  get(_target, property) {
+    const resolvedDatabase = getDatabase();
+
+    return bindProxyValue(
+      resolvedDatabase,
+      Reflect.get(resolvedDatabase, property)
+    );
+  },
 });
 
 export const timeDatabaseQuery = async <T>(
@@ -60,7 +119,7 @@ export const timeDatabaseQuery = async <T>(
 };
 
 export const pingDatabase = (): Promise<unknown> =>
-  timeDatabaseQuery(() => client`SELECT 1`, {
+  timeDatabaseQuery(() => getDatabaseClient()`SELECT 1`, {
     operation: "healthcheck",
     resource: "postgres",
   });

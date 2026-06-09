@@ -26,6 +26,7 @@ export type {
 export {
   hrOrgAuditEventSchema,
   hrOrgChartNodeSchema,
+  hrOrgHeadcountQuerySchema,
   hrOrgOverviewSchema,
   hrOrgPositionRecordSchema,
   hrOrgReadContextSchema,
@@ -36,6 +37,7 @@ export {
   hrOrgStatusSchema,
   hrOrgUnitRecordSchema,
   hrOrgUnitTypeSchema,
+  hrOrgVacancyQuerySchema,
   hrOrgWriteContextSchema,
 } from "./domain.contract.ts";
 export type { OrganizationalChartHierarchyManifest } from "./manifest.contract.ts";
@@ -84,10 +86,12 @@ export {
 } from "./projection.contract.ts";
 export type {
   HrOrgAuditQuery,
+  HrOrgHeadcountQuery,
   HrOrgListQuery,
   HrOrgPositionQuery,
   HrOrgReportingRelationshipQuery,
   HrOrgUnitQuery,
+  HrOrgVacancyQuery,
   ListHrOrgAuditQuery,
   ListHrOrgHeadcountQuery,
   ListHrOrgPositionsQuery,
@@ -97,9 +101,11 @@ export type {
 } from "./query.contract.ts";
 export {
   listHrOrgAuditQuerySchema,
+  listHrOrgHeadcountQuerySchema,
   listHrOrgPositionsQuerySchema,
   listHrOrgReportingRelationshipsQuerySchema,
   listHrOrgUnitsQuerySchema,
+  listHrOrgVacanciesQuerySchema,
 } from "./query.contract.ts";
 export {
   hrOrgRoutePaths,

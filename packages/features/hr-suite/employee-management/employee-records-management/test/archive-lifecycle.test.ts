@@ -7,11 +7,11 @@ import { afterEach, beforeEach, test } from "node:test";
 import {
   archiveHrEmployeeRecordAction,
   createHrEmployeeRecordAction,
-} from "../src/hr.workforce.records.actions.server.ts";
+} from "../src/actions.server.ts";
 import {
   getHrEmployeeRecord,
   listHrEmployeeRecords,
-} from "../src/hr.workforce.records.queries.ts";
+} from "../src/queries.server.ts";
 import {
   loadHrEmployeeRecordsRepository,
   resetHrEmployeeRecordsRepositoryForTesting,

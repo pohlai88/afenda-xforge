@@ -145,6 +145,10 @@ export const documentsManagementAcknowledgmentMethodSchema = z.preprocess(
 );
 
 export const documentsManagementDocumentReferenceSchema = z.object({
+  contentType: optionalTrimmedStringSchema,
+  fileName: optionalTrimmedStringSchema,
+  sizeBytes: z.number().int().nonnegative().nullish(),
+  storagePath: optionalTrimmedStringSchema,
   sourceDocumentId: optionalTrimmedStringSchema,
   sourceDocumentNumber: optionalTrimmedStringSchema,
   sourceNotes: z.string().trim().nullable().optional(),
@@ -158,10 +162,14 @@ export const documentsManagementRetentionSchema = z.object({
 });
 
 export const documentsManagementDocumentVersionSchema = z.object({
+  contentType: optionalTrimmedStringSchema,
   id: trimmedStringSchema,
   documentId: trimmedStringSchema,
+  fileName: optionalTrimmedStringSchema,
+  sizeBytes: z.number().int().nonnegative().nullish(),
   versionNumber: z.number().int().positive(),
   state: documentsManagementDocumentVersionStateSchema,
+  storagePath: optionalTrimmedStringSchema,
   sourceDocumentId: optionalTrimmedStringSchema,
   sourceDocumentNumber: optionalTrimmedStringSchema,
   sourceNotes: z.string().trim().nullable().optional(),

@@ -1,11 +1,11 @@
-import type { HrRecordsPageModelInput } from "./hr.workforce.records.contract.ts";
-import type { HrRecordsEmploymentStatus } from "./hr.workforce.records-employment-status.schema.ts";
-import { hrRecordsEmploymentStatusSchema } from "./hr.workforce.records-employment-status.schema.ts";
+import type { HrRecordsEmploymentStatus } from "./employment-status.schema.ts";
+import { hrRecordsEmploymentStatusSchema } from "./employment-status.schema.ts";
+import type { HrRecordsPageModelInput } from "./records.contract.ts";
 import {
   HR_RECORDS_LIST_SEARCH_PARAM_MODEL_FIELDS,
   HR_RECORDS_LIST_SEARCH_PARAMS_BY_KEY,
   HR_RECORDS_LIST_SURFACE_KEYS,
-} from "./hr.workforce.records-surface-metadata.shared.ts";
+} from "./surface-metadata.shared.ts";
 
 const MAX_DIRECTORY_PAGE_SIZE = 100;
 

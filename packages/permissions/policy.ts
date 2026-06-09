@@ -39,6 +39,13 @@ export const resolvePermissionDecision = (
   const required: PermissionRequirement = {
     allOf: requirement.allOf?.filter(Boolean),
     anyOf: requirement.anyOf?.filter(Boolean),
+    recordRules: requirement.recordRules?.filter(Boolean),
+  };
+  const scope = {
+    companyId: context.companyId,
+    record: context.record,
+    resource: context.resource,
+    tenantId: context.tenantId,
   };
 
   if (
@@ -54,6 +61,7 @@ export const resolvePermissionDecision = (
       reason: "missing-permissions",
       required,
       missing,
+      scope,
     };
   }
 
@@ -68,13 +76,27 @@ export const resolvePermissionDecision = (
       missing: required.anyOf.filter(
         (permission) => !hasPermission(grantedPermissions, permission)
       ),
+      scope,
     };
+  }
+
+  for (const recordRule of required.recordRules ?? []) {
+    if (!recordRule.assess(context)) {
+      return {
+        allow: false,
+        reason: "record-rule-denied",
+        required,
+        failedRecordRule: recordRule.name,
+        scope,
+      };
+    }
   }
 
   return {
     allow: true,
     reason: "allowed",
     required,
+    scope,
   };
 };
 

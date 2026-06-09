@@ -48,6 +48,12 @@ const getBlobStorageConfig = (): BlobStorageConfig | null => {
     return null;
   }
 
+  if (!BLOB_READ_WRITE_TOKEN) {
+    throw new Error(
+      "Vercel Blob storage is partially configured. BLOB_READ_WRITE_TOKEN is required for server-side blob operations."
+    );
+  }
+
   return {
     storeId: BLOB_STORE_ID,
     token: BLOB_READ_WRITE_TOKEN,

@@ -13,12 +13,14 @@ export function listFoodHandlerCertificationHealthComplianceRecords(
   _query: ListFoodHandlerCertificationHealthComplianceQuery = {},
   _context?: HrSuiteFeatureContext
 ): Promise<readonly FoodHandlerCertificationHealthComplianceRecord[]> {
-  return inMemoryRecords;
+  return Promise.resolve(inMemoryRecords);
 }
 
 export function getFoodHandlerCertificationHealthComplianceRecord(
   id: string,
   _context?: HrSuiteFeatureContext
 ): Promise<FoodHandlerCertificationHealthComplianceRecord | null> {
-  return inMemoryRecords.find((record) => record.id === id) ?? null;
+  return Promise.resolve(
+    inMemoryRecords.find((record) => record.id === id) ?? null
+  );
 }

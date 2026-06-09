@@ -1,11 +1,11 @@
 import { z } from "zod";
-import type { HrRecordsEmploymentStatus } from "./hr.workforce.records-employment-status.schema.ts";
-import { hrRecordsEmploymentStatusSchema } from "./hr.workforce.records-employment-status.schema.ts";
+import type { HrRecordsEmploymentStatus } from "./employment-status.schema.ts";
+import { hrRecordsEmploymentStatusSchema } from "./employment-status.schema.ts";
 import type {
   hrRecordsCreateEmployeeSchema,
   hrRecordsUpdateEmployeeSchema,
-} from "./hr.workforce.records-form.shared.ts";
-import type { HrRecordsRoutePath } from "./hr.workforce.records-route.contract.ts";
+} from "./form.shared.ts";
+import type { HrRecordsRoutePath } from "./route-paths.ts";
 
 export const hrRecordsReadPermission = {
   module: "hr",

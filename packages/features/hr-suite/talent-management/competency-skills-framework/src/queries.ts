@@ -12,12 +12,14 @@ export function listCompetencySkillsFrameworkRecords(
   _query: ListCompetencySkillsFrameworkQuery = {},
   _context?: HrSuiteFeatureContext
 ): Promise<readonly CompetencySkillsFrameworkRecord[]> {
-  return inMemoryRecords;
+  return Promise.resolve(inMemoryRecords);
 }
 
 export function getCompetencySkillsFrameworkRecord(
   id: string,
   _context?: HrSuiteFeatureContext
 ): Promise<CompetencySkillsFrameworkRecord | null> {
-  return inMemoryRecords.find((record) => record.id === id) ?? null;
+  return Promise.resolve(
+    inMemoryRecords.find((record) => record.id === id) ?? null
+  );
 }

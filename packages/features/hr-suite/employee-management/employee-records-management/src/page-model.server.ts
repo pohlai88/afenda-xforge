@@ -1,13 +1,13 @@
 import "server-only";
 
+import { buildHrRecordsOverviewStatGroups } from "./overview-stat.surface.ts";
+import { listHrEmployeeRecordSummariesPage } from "./queries/records.query.ts";
 import type {
   HrEmployeeRecordPageModel,
   HrRecordsPageModelInput,
-} from "./hr.workforce.records.contract.ts";
-import { buildHrRecordsOverviewStatGroups } from "./hr.workforce.records-overview-stat.surface.ts";
-import { hrRecordsRoutePaths } from "./hr.workforce.records-route.contract.ts";
-import { parseHrRecordsSearchParams } from "./hr.workforce.records-search-params.parse.shared.ts";
-import { listHrEmployeeRecordSummariesPage } from "./queries/records.query.ts";
+} from "./records.contract.ts";
+import { hrRecordsRoutePaths } from "./route-paths.ts";
+import { parseHrRecordsSearchParams } from "./search-params.parse.shared.ts";
 
 type HrRecordsPageModel = HrEmployeeRecordPageModel & {
   overviewStats: readonly {

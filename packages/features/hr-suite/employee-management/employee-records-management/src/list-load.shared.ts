@@ -1,8 +1,8 @@
-import type { HrRecordsListWindow } from "./hr.workforce.records-list.shared.ts";
+import type { HrRecordsListWindow } from "./list.shared.ts";
 import {
   buildHrRecordsListSearchToolbar,
   buildHrRecordsOperationalListSurface,
-} from "./hr.workforce.records-list.shared.ts";
+} from "./list.shared.ts";
 
 export type EmptyState = {
   description: string;

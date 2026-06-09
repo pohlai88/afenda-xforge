@@ -3,16 +3,14 @@ import {
   hrOrgHeadcountQuerySchema,
   hrOrgPositionQuerySchema,
   hrOrgReportingRelationshipQuerySchema,
-  hrOrgVacancyQuerySchema,
   hrOrgUnitQuerySchema,
+  hrOrgVacancyQuerySchema,
 } from "../schema.ts";
 import type {
-  HrOrgHeadcountQuery,
   HrOrgReportingRelationshipType,
   HrOrgRepositoryEntityType,
   HrOrgStatus,
   HrOrgUnitType,
-  HrOrgVacancyQuery,
 } from "./domain.contract.ts";
 
 export type HrOrgListQuery = {

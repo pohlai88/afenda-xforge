@@ -4,13 +4,13 @@ import { rmSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { resolve } from "node:path";
 import { afterEach, beforeEach, test } from "node:test";
-import { createHrEmployeeRecordAction } from "../src/hr.workforce.records.actions.server.ts";
-import { buildHrRecordsPageModel } from "../src/hr.workforce.records.page-model.server.ts";
-import { toHrRecordsPageModelInput } from "../src/hr.workforce.records-search-params.parse.shared.ts";
+import { createHrEmployeeRecordAction } from "../src/actions.server.ts";
+import { buildHrRecordsPageModel } from "../src/page-model.server.ts";
 import {
   resetHrEmployeeRecordsRepositoryForTesting,
   setHrEmployeeRecordsRepositoryPathForTesting,
 } from "../src/repository.ts";
+import { toHrRecordsPageModelInput } from "../src/search-params.parse.shared.ts";
 
 let repositoryPath = "";
 

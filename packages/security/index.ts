@@ -9,16 +9,21 @@ export type {
   SecurityCSRFDecision,
   SecurityCSRFRequestInput,
   SecurityCSRFTokenOptions,
+  SecurityCSRFValidationOptions,
 } from "./csrf.ts";
 export {
   createCSRFDecision,
-  generateCSRFToken,
-  getCSRFToken,
-  rotateCSRFToken,
-  validateCSRFToken,
+  createSignedCSRFToken,
+  validateSignedCSRFToken,
 } from "./csrf.ts";
-export type { SecurityHeadersOptions } from "./headers.ts";
-export { createSecurityHeaders } from "./headers.ts";
+export type {
+  ContentSecurityPolicyOptions,
+  SecurityHeadersOptions,
+} from "./headers.ts";
+export {
+  createContentSecurityPolicy,
+  createSecurityHeaders,
+} from "./headers.ts";
 export { keys, loadSecurityKeys } from "./keys.ts";
 export type { SecurityAssessment } from "./middleware.ts";
 export {

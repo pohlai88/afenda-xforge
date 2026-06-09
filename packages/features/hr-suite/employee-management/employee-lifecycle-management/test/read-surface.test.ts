@@ -93,7 +93,7 @@ test("projects overview, history, tasks, and audit trail read models", () => {
     repositoryScope
   );
 
-  recordEmployeeLifecycleExitNotice(
+  const noticeRecord = recordEmployeeLifecycleExitNotice(
     {
       employeeId: "emp-exit",
       noticeReference: "NOTICE-100",
@@ -184,5 +184,6 @@ test("projects overview, history, tasks, and audit trail read models", () => {
     exitTasks.some((task) => task.title.includes("Exit notice")),
     true
   );
-  assert.equal(exitRecord.exitStatus, "notice_recorded");
+  assert.equal(exitRecord.exitStatus, "initiated");
+  assert.equal(noticeRecord.exitStatus, "notice_recorded");
 });

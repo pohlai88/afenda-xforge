@@ -12,12 +12,21 @@ import {
   resetDocumentsManagementRepositoryForTesting,
   setDocumentsManagementRepositoryPathForTesting,
 } from "../../../packages/features/hr-suite/employee-management/documents-management/src/repository.ts";
+import {
+  resetDocumentsManagementBlobClientForTesting,
+  setDocumentsManagementBlobClientForTesting,
+} from "../app/api/hr/documents/_lib/storage.ts";
+import { GET as downloadDocumentRoute } from "../app/api/hr/documents/[documentId]/download/route.ts";
 import { GET as getDocumentRoute } from "../app/api/hr/documents/[documentId]/route.ts";
 import { GET as getExpiringRoute } from "../app/api/hr/documents/expiring/route.ts";
 import { GET as getReadinessRoute } from "../app/api/hr/documents/readiness/route.ts";
-import { GET as getDocumentsRoute } from "../app/api/hr/documents/route.ts";
+import {
+  GET as getDocumentsRoute,
+  POST as postDocumentsRoute,
+} from "../app/api/hr/documents/route.ts";
 
 let sandboxDirectory: string;
+let blobContents: Map<string, { contentType: string; payload: Uint8Array }>;
 
 const baseHeaders = {
   "x-can-read-documents": "true",
@@ -45,12 +54,64 @@ const daysFromNow = (days: number): Date => {
 beforeEach(() => {
   sandboxDirectory = mkdtempSync(join(tmpdir(), "api-documents-routes-"));
   const repositoryPath = join(sandboxDirectory, "repository.json");
+  blobContents = new Map();
 
   setDocumentsManagementRepositoryPathForTesting(repositoryPath);
   resetDocumentsManagementRepositoryForTesting();
+  setDocumentsManagementBlobClientForTesting({
+    download({ key }) {
+      const storedBlob = blobContents.get(key);
+
+      if (!storedBlob) {
+        return Promise.resolve(null);
+      }
+
+      return Promise.resolve({
+        blob: {
+          cacheControl: "private, max-age=0",
+          contentDisposition: `attachment; filename="${key.split("/").at(-1) ?? "document"}"`,
+          contentType: storedBlob.contentType,
+          downloadUrl: `https://blob.local/${key}?download=1`,
+          etag: "test-etag",
+          pathname: key,
+          size: storedBlob.payload.byteLength,
+          uploadedAt: new Date("2026-06-09T00:00:00.000Z"),
+          url: `https://blob.local/${key}`,
+        },
+        headers: new Headers({
+          "content-length": String(storedBlob.payload.byteLength),
+          "content-type": storedBlob.contentType,
+        }),
+        statusCode: 200 as const,
+        stream: new ReadableStream({
+          start(controller) {
+            controller.enqueue(storedBlob.payload);
+            controller.close();
+          },
+        }),
+      });
+    },
+    async upload({ body, contentType, key }) {
+      const payload = new Uint8Array(await body.arrayBuffer());
+
+      blobContents.set(key, {
+        contentType: contentType ?? "application/octet-stream",
+        payload,
+      });
+
+      return {
+        contentType: contentType ?? "application/octet-stream",
+        key,
+        provider: "blob",
+        size: payload.byteLength,
+        url: `https://blob.local/${key}`,
+      };
+    },
+  });
 });
 
 afterEach(() => {
+  resetDocumentsManagementBlobClientForTesting();
   rmSync(sandboxDirectory, { recursive: true, force: true });
 });
 
@@ -226,6 +287,138 @@ test("fails closed for invalid queries and denied reads", async () => {
   });
   assert.deepEqual(await invalidQueryResponse.json(), {
     error: "Invalid query parameters",
+    ok: false,
+  });
+});
+
+test("uploads a document through the API and downloads the stored binary", async () => {
+  const formData = new FormData();
+  formData.set(
+    "file",
+    new File(["passport-binary"], "passport.pdf", {
+      type: "application/pdf",
+    })
+  );
+  formData.set("documentCategory", "identity");
+  formData.set("documentType", "passport");
+  formData.set("employeeId", "employee-upload");
+  formData.set("mandatory", "true");
+  formData.set("title", "Passport Upload");
+
+  const uploadResponse = await postDocumentsRoute(
+    new Request("http://localhost/api/hr/documents", {
+      body: formData,
+      headers: {
+        ...baseHeaders,
+        "x-can-write-documents": "true",
+      },
+      method: "POST",
+    })
+  );
+
+  assert.equal(uploadResponse.status, 201);
+
+  const createdDocument = (await uploadResponse.json()) as {
+    id: string;
+    reference: {
+      contentType?: string | null;
+      fileName?: string | null;
+      sizeBytes?: number | null;
+      storagePath?: string | null;
+    };
+  };
+
+  assert.equal(createdDocument.reference.contentType, "application/pdf");
+  assert.equal(createdDocument.reference.fileName, "passport.pdf");
+  assert.equal(createdDocument.reference.sizeBytes, 15);
+  assert.equal(typeof createdDocument.reference.storagePath, "string");
+
+  const downloadResponse = await downloadDocumentRoute(
+    buildRequest(`/api/hr/documents/${createdDocument.id}/download`),
+    {
+      params: Promise.resolve({ documentId: createdDocument.id }),
+    }
+  );
+
+  assert.equal(downloadResponse.status, 200);
+  assert.equal(downloadResponse.headers.get("content-type"), "application/pdf");
+  assert.match(
+    downloadResponse.headers.get("content-disposition") ?? "",
+    /attachment;\sfilename="passport\.pdf"/
+  );
+  assert.equal(await downloadResponse.text(), "passport-binary");
+});
+
+test("surfaces blob storage failures as service-unavailable responses", async () => {
+  setDocumentsManagementBlobClientForTesting({
+    download() {
+      return Promise.reject(new Error("blob unavailable"));
+    },
+    upload() {
+      return Promise.reject(new Error("blob unavailable"));
+    },
+  });
+
+  const formData = new FormData();
+  formData.set(
+    "file",
+    new File(["passport-binary"], "passport.pdf", {
+      type: "application/pdf",
+    })
+  );
+  formData.set("documentCategory", "identity");
+  formData.set("documentType", "passport");
+  formData.set("employeeId", "employee-upload");
+  formData.set("title", "Passport Upload");
+
+  const uploadResponse = await postDocumentsRoute(
+    new Request("http://localhost/api/hr/documents", {
+      body: formData,
+      headers: {
+        ...baseHeaders,
+        "x-can-write-documents": "true",
+      },
+      method: "POST",
+    })
+  );
+
+  assert.equal(uploadResponse.status, 503);
+  assert.deepEqual(await uploadResponse.json(), {
+    error: "Document storage is unavailable",
+    ok: false,
+  });
+
+  const registeredDocument = registerDocumentsManagementDocument(
+    {
+      documentCategory: "identity",
+      documentType: "passport",
+      employeeId: "employee-download",
+      reference: {
+        contentType: "application/pdf",
+        fileName: "passport.pdf",
+        sizeBytes: 15,
+        storagePath: "hr/documents/tenant-a/employee-download/passport.pdf",
+      },
+      title: "Passport Download",
+    },
+    {
+      canRead: true,
+      canWrite: true,
+      companyId: "company-a",
+      tenantId: "tenant-a",
+    }
+  );
+
+  const downloadResponse = await downloadDocumentRoute(
+    buildRequest(`/api/hr/documents/${registeredDocument.id}/download`),
+    {
+      params: Promise.resolve({ documentId: registeredDocument.id }),
+    }
+  );
+
+  assert.equal(downloadResponse.status, 503);
+  assert.deepEqual(await downloadResponse.json(), {
+    error: "Document storage is unavailable",
     ok: false,
   });
 });

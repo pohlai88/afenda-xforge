@@ -1,12 +1,33 @@
 import "server-only";
 
+import { requireTenantActorAccess } from "@repo/auth/access";
 import { customers, database, timeDatabaseQuery } from "@repo/database";
+import { createQueryPipeline } from "@repo/execution";
 import { appendRequestContextMetadata } from "@repo/logger";
-import type { TenantActorScope } from "@repo/shared";
+import {
+  createTenantRecordRule,
+  permissionCatalog,
+  requirePermission,
+  resolvePermissionsForTenantRole,
+} from "@repo/permissions";
+import type { UserActorScope } from "@repo/shared";
 import { and, desc, eq, ilike, or, sql } from "drizzle-orm";
 import type { Customer, CustomerList, ListCustomersQuery } from "./contract.ts";
+import { listCustomersQuerySchema } from "./contract.ts";
 
-type CustomerQueryContext = TenantActorScope;
+export type CustomerQueryContext = UserActorScope & {
+  grantedPermissions?: string[];
+  tenantId: string;
+  trustedSystem?: {
+    tenantVerified: boolean;
+  };
+};
+
+type ResolvedCustomerQueryAccess = {
+  grantedPermissions: string[];
+  tenantId: string;
+  userId: string;
+};
 
 const mapCustomer = (row: {
   code: string;
@@ -22,9 +43,32 @@ const mapCustomer = (row: {
   status: row.status === "inactive" ? "inactive" : "active",
 });
 
-export const listCustomers = async (
-  query: ListCustomersQuery,
+const resolveCustomerQueryAccess = async (
   context: CustomerQueryContext
+): Promise<ResolvedCustomerQueryAccess> => {
+  if (context.trustedSystem?.tenantVerified) {
+    return {
+      grantedPermissions: context.grantedPermissions ?? [],
+      tenantId: context.tenantId,
+      userId: context.userId,
+    };
+  }
+
+  const access = await requireTenantActorAccess({
+    tenantId: context.tenantId,
+    userId: context.userId,
+  });
+
+  return {
+    grantedPermissions: resolvePermissionsForTenantRole(access.membership.role),
+    tenantId: access.membership.tenantId,
+    userId: access.membership.userId,
+  };
+};
+
+const executeCustomerListQuery = async (
+  query: ListCustomersQuery,
+  context: ResolvedCustomerQueryAccess
 ): Promise<CustomerList> => {
   const trimmedSearch = query.search?.trim();
   const filters = [
@@ -97,4 +141,56 @@ export const listCustomers = async (
     pageSize: query.pageSize,
     total: totalResult[0]?.total ?? 0,
   };
+};
+
+export const listCustomers = (
+  query: ListCustomersQuery,
+  context: CustomerQueryContext
+): Promise<CustomerList> => {
+  const parsedQuery = listCustomersQuerySchema.parse(query);
+  let resolvedAccess: ResolvedCustomerQueryAccess | null = null;
+  const pipeline = createQueryPipeline<ListCustomersQuery, CustomerList>({
+    executeQuery: ({ input }) => {
+      if (!resolvedAccess) {
+        throw new Error("Customer query access was not resolved");
+      }
+
+      return executeCustomerListQuery(input, resolvedAccess);
+    },
+    permissionContext: () => {
+      if (!resolvedAccess) {
+        throw new Error("Customer query access was not resolved");
+      }
+
+      return {
+        action: "customers.list",
+        actorId: resolvedAccess.userId,
+        grantedPermissions: resolvedAccess.grantedPermissions,
+        resource: "customers",
+        tenantId: resolvedAccess.tenantId,
+      };
+    },
+    permissionRequirement: {
+      allOf: [permissionCatalog.customers.read],
+      recordRules: [createTenantRecordRule("customers.tenant-scope")],
+    },
+    requireAuth: async () => {
+      resolvedAccess = await resolveCustomerQueryAccess(context);
+      return { actorId: resolvedAccess.userId };
+    },
+    requirePermission,
+    requireTenantMembership: () => Promise.resolve(),
+    resolveActiveTenant: () => {
+      if (!resolvedAccess) {
+        throw new Error("Customer query access was not resolved");
+      }
+
+      return Promise.resolve({ tenantId: resolvedAccess.tenantId });
+    },
+    validateInput: (input) => {
+      listCustomersQuerySchema.parse(input);
+    },
+  });
+
+  return pipeline(parsedQuery);
 };

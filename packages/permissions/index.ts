@@ -6,7 +6,9 @@ export type {
   PermissionContext,
   PermissionDecision,
   PermissionKey,
+  PermissionRecordRule,
   PermissionRequirement,
+  PermissionScope,
 } from "./contract.ts";
 export {
   hasAllPermissions,
@@ -24,4 +26,5 @@ export {
   createNoopPermissionProvider,
   createPermissionGrantSet,
   createStaticPermissionProvider,
+  createTenantRecordRule,
 } from "./provider.ts";

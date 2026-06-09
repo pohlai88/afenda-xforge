@@ -12,12 +12,14 @@ export function listLearningManagementSystemLmsRecords(
   _query: ListLearningManagementSystemLmsQuery = {},
   _context?: HrSuiteFeatureContext
 ): Promise<readonly LearningManagementSystemLmsRecord[]> {
-  return inMemoryRecords;
+  return Promise.resolve(inMemoryRecords);
 }
 
 export function getLearningManagementSystemLmsRecord(
   id: string,
   _context?: HrSuiteFeatureContext
 ): Promise<LearningManagementSystemLmsRecord | null> {
-  return inMemoryRecords.find((record) => record.id === id) ?? null;
+  return Promise.resolve(
+    inMemoryRecords.find((record) => record.id === id) ?? null
+  );
 }

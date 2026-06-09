@@ -5,6 +5,7 @@ import {
   companyGrants,
   database,
   tenantMemberships,
+  tenants,
   timeDatabaseQuery,
 } from "@repo/database";
 import { ForbiddenError, UnauthorizedError } from "@repo/errors";
@@ -15,6 +16,7 @@ import { createClient } from "@supabase/supabase-js";
 import { and, asc, eq } from "drizzle-orm";
 import { cookies } from "next/headers";
 import { cache } from "react";
+import { resolveTenantSlugFromHost } from "./host.ts";
 import { loadAuthKeys } from "./keys.ts";
 
 type SupabaseConfig = {
@@ -250,6 +252,75 @@ const findActiveTenantMembership = async (
   return membership ?? null;
 };
 
+const findTenantMembership = async ({
+  tenantId,
+  userId,
+}: {
+  tenantId: string;
+  userId: string;
+}): Promise<ActiveTenantMembership | null> => {
+  const [membership] = await timeDatabaseQuery(
+    () =>
+      database
+        .select({
+          id: tenantMemberships.id,
+          role: tenantMemberships.role,
+          tenantId: tenantMemberships.tenantId,
+          userId: tenantMemberships.userId,
+        })
+        .from(tenantMemberships)
+        .where(
+          and(
+            eq(tenantMemberships.tenantId, tenantId),
+            eq(tenantMemberships.userId, userId)
+          )
+        )
+        .limit(1),
+    {
+      operation: "select",
+      resource: "tenant_memberships",
+      metadata: {
+        tenantId,
+        userId,
+      },
+    }
+  );
+
+  return membership ?? null;
+};
+
+export const resolveTenantByHost = async (
+  host: string
+): Promise<{ tenantId: string; slug: string } | null> => {
+  const slug = resolveTenantSlugFromHost(host);
+
+  if (!slug) {
+    return null;
+  }
+
+  const [tenant] = await timeDatabaseQuery(
+    () =>
+      database
+        .select({
+          tenantId: tenants.id,
+          slug: tenants.slug,
+        })
+        .from(tenants)
+        .where(eq(tenants.slug, slug))
+        .limit(1),
+    {
+      operation: "select",
+      resource: "tenants",
+      metadata: {
+        host,
+        slug,
+      },
+    }
+  );
+
+  return tenant ?? null;
+};
+
 const findActiveCompanyGrant = async ({
   tenantId,
   userId,
@@ -338,6 +409,29 @@ export const requireActiveTenantAccess =
     };
   };
 
+export const requireTenantAccess = async ({
+  tenantId,
+}: {
+  tenantId: string;
+}): Promise<ActiveTenantAccess> => {
+  const user = await requireAuth();
+  const membership = await findTenantMembership({
+    tenantId,
+    userId: user.id,
+  });
+
+  if (!membership) {
+    throw new ForbiddenError(
+      "Tenant membership is required for this operation"
+    );
+  }
+
+  return {
+    membership,
+    user,
+  };
+};
+
 export const getActiveCompanyGrant =
   async (): Promise<ActiveCompanyGrant | null> => {
     const access = await requireActiveTenantAccess();
@@ -385,3 +479,30 @@ export const requireActiveCompanyAccess =
       user: access.user,
     };
   };
+
+export const requireCompanyAccess = async ({
+  companyId,
+  tenantId,
+}: {
+  companyId: string;
+  tenantId: string;
+}): Promise<ActiveCompanyAccess> => {
+  const access = await requireTenantAccess({ tenantId });
+  const grant = await findActiveCompanyGrant({
+    companyId,
+    tenantId,
+    userId: access.user.id,
+  });
+
+  if (!grant) {
+    throw new ForbiddenError("A company grant is required for this operation");
+  }
+
+  return {
+    company: grant,
+    membership: access.membership,
+    user: access.user,
+  };
+};
+
+export { resolveTenantSlugFromHost } from "./host.ts";

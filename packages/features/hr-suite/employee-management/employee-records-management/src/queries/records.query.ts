@@ -1,9 +1,5 @@
 import "server-only";
 
-import type {
-  HrEmployeeRecordSummary,
-  HrRecordsSearchParams,
-} from "../hr.workforce.records.contract.ts";
 import { canReadHrEmployeeRecord } from "../policy.ts";
 import { projectHrEmployeeRecordCoverage } from "../projector/completeness.ts";
 import {
@@ -11,6 +7,10 @@ import {
   projectHrEmployeeRecordSummary,
   sortHrEmployeeRecordSummaries,
 } from "../projector/record-summary.ts";
+import type {
+  HrEmployeeRecordSummary,
+  HrRecordsSearchParams,
+} from "../records.contract.ts";
 import { loadHrEmployeeRecordsRepository } from "../repository.ts";
 
 type QueryContext = {

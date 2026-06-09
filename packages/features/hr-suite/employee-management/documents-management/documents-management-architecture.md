@@ -140,13 +140,21 @@ The package now exposes explicit read projections and HTTP GET routes instead of
 - `test/document-read-models.test.ts` covers search, paging, employee readiness aggregation, and expiring-document behavior.
 - Read paths still fail closed when tenant-scoped read access is missing, and the projections stay separate from the repository storage shape.
 
+## Upload and Download Integration
+
+The route surface now supports binary document ingress and egress without moving blob ownership into the feature package.
+
+- `apps/api/app/api/hr/documents/route.ts` accepts multipart uploads, persists the binary through `@repo/storage`, and registers only the resulting storage reference plus file metadata in the document aggregate.
+- `apps/api/app/api/hr/documents/[documentId]/download/route.ts` resolves the stored document reference, retrieves the binary from blob storage, and enforces secure download behavior through the existing read context.
+- The canonical record continues to own metadata, version history, retention, and lifecycle state. It still does not own raw file bytes or a storage provider implementation.
+
 ## Tests and Hardening
 
 The final slice adds route-level coverage and a dedicated API test script so the read surface is exercised end to end.
 
 - `apps/api/package.json` now includes a `test` script for route-level checks.
-- `apps/api/test/hr-documents-routes.test.ts` exercises the list, detail, readiness, and expiring routes directly.
-- The route tests cover valid list/detail responses, paging behavior, invalid query rejection, and denied-read fail-closed behavior.
+- `apps/api/test/hr-documents-routes.test.ts` exercises the list, detail, readiness, expiring, upload, and download routes directly.
+- The route tests cover valid list/detail responses, paging behavior, invalid query rejection, denied-read fail-closed behavior, binary upload/download behavior, and storage-failure service responses.
 - The package test suite and API test suite both pass after the hardening changes.
 
 ## Audit Sign-Off
@@ -159,7 +167,7 @@ Evidence:
 
 - The roadmap records slices 1 through 10 as implemented with code references.
 - The feature package passes typecheck, lint, and its full test suite.
-- The API app passes typecheck and its route-level test suite.
+- The API app passes typecheck, lint, and its route-level test suite, including upload/download coverage.
 - The package subtree audit found no remaining `TODO` or `FIXME` markers.
 
 ---

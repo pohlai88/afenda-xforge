@@ -2,7 +2,6 @@ import "server-only";
 
 import { listCompanies } from "@repo/features-master-data-companies/server";
 import { listCustomers } from "@repo/features-master-data-customers/server";
-import type { TenantActorScope } from "@repo/shared";
 import type {
   XforgeAssistantDefinition,
   XforgeContextBundle,
@@ -45,7 +44,10 @@ export const buildXforgeBusinessContext = async (
   context: XforgeConversationContext,
   options?: { maxContextTokens?: number }
 ): Promise<XforgeContextBundle> => {
-  const scopedContext: TenantActorScope = {
+  const scopedContext = {
+    grantedPermissions: context.grantedPermissions
+      ? [...context.grantedPermissions]
+      : [],
     tenantId: context.tenantId,
     userId: context.userId,
   };

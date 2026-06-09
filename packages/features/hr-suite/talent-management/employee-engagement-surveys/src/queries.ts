@@ -12,12 +12,14 @@ export function listEmployeeEngagementSurveysRecords(
   _query: ListEmployeeEngagementSurveysQuery = {},
   _context?: HrSuiteFeatureContext
 ): Promise<readonly EmployeeEngagementSurveysRecord[]> {
-  return inMemoryRecords;
+  return Promise.resolve(inMemoryRecords);
 }
 
 export function getEmployeeEngagementSurveysRecord(
   id: string,
   _context?: HrSuiteFeatureContext
 ): Promise<EmployeeEngagementSurveysRecord | null> {
-  return inMemoryRecords.find((record) => record.id === id) ?? null;
+  return Promise.resolve(
+    inMemoryRecords.find((record) => record.id === id) ?? null
+  );
 }

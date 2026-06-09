@@ -15,7 +15,7 @@ const parseAllowedOrigins = (value?: string): string[] =>
         .split(",")
         .map((origin) => origin.trim())
         .filter(Boolean)
-    : ["http://localhost:3000"];
+    : [];
 
 export const createSecurityCorsConfig = (
   options: SecurityCorsOptions = {}
@@ -86,25 +86,30 @@ export const applySecurityCorsHeaders = (
   requestOrigin?: string
 ): Record<string, string> => {
   const result = { ...headers };
-  const origin = requestOrigin ?? "http://localhost:3000";
+  const origin = requestOrigin?.trim();
 
   let originAllowed = false;
 
-  if (typeof options.origin === "function") {
+  if (!origin) {
+    originAllowed = false;
+  } else if (typeof options.origin === "function") {
     originAllowed = options.origin(origin);
   } else if (typeof options.origin === "string") {
-    originAllowed = options.origin === "*" || options.origin === origin;
+    originAllowed =
+      options.origin === origin ||
+      (options.origin === "*" && options.credentials !== true);
   } else if (Array.isArray(options.origin)) {
     originAllowed = options.origin.includes(origin);
   } else if (options.origin instanceof RegExp) {
     originAllowed = options.origin.test(origin);
   }
 
-  if (originAllowed) {
+  if (originAllowed && origin) {
     result["Access-Control-Allow-Origin"] = origin;
+    result.Vary = result.Vary ? `${result.Vary}, Origin` : "Origin";
   }
 
-  if (options.credentials) {
+  if (options.credentials && originAllowed) {
     result["Access-Control-Allow-Credentials"] = "true";
   }
 

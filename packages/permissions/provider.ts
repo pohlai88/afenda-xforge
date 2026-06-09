@@ -2,6 +2,7 @@ import type {
   PermissionContext,
   PermissionDecision,
   PermissionKey,
+  PermissionRecordRule,
   PermissionRequirement,
 } from "./contract.ts";
 import { resolvePermissionDecision } from "./policy.ts";
@@ -40,3 +41,16 @@ export const createNoopPermissionProvider = (): PermissionProvider => ({
 export const createPermissionGrantSet = (
   permissions: Iterable<PermissionKey>
 ): Set<PermissionKey> => new Set(permissions);
+
+export const createTenantRecordRule = (
+  name = "tenant-record-scope"
+): PermissionRecordRule => ({
+  name,
+  assess: (context: PermissionContext): boolean => {
+    if (!(context.record && context.tenantId)) {
+      return true;
+    }
+
+    return context.record.tenantId === context.tenantId;
+  },
+});

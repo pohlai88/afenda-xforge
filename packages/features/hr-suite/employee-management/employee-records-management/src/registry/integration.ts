@@ -3,11 +3,11 @@ import type {
   hrEmployeeIntegrationChangeEventSchema,
   hrEmployeeIntegrationSnapshotSchema,
 } from "../contracts/integration.contract.ts";
-import type { HrEmployeeRecordDetail } from "../hr.workforce.records.contract.ts";
 import {
   projectHrEmployeeIntegrationChangeEvent,
   projectHrEmployeeIntegrationSnapshot,
 } from "../projector/integration.ts";
+import type { HrEmployeeRecordDetail } from "../records.contract.ts";
 
 export const hrRecordsIntegrationEvents = {
   employeeIntegrationChanged: "hr.employees.employee.integration.changed.v1",

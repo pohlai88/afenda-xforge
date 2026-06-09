@@ -9,6 +9,8 @@ export const organizationalChartHierarchyRoutePaths: Record<
   units: "/api/hr/org/units",
   positions: "/api/hr/org/positions",
   reportingLines: "/api/hr/org/reporting-lines",
+  vacancies: "/api/hr/org/vacancies",
+  headcount: "/api/hr/org/headcount",
   overview: "/api/hr/org/overview",
   auditTrail: "/api/hr/org/audit-trail",
 } as const;
@@ -30,6 +32,16 @@ export const organizationalChartHierarchyRouteContracts = {
   reportingLines: {
     method: "GET",
     path: organizationalChartHierarchyRoutePaths.reportingLines,
+    version: ORGANIZATIONAL_CHART_HIERARCHY_CONTRACT_VERSION,
+  },
+  vacancies: {
+    method: "GET",
+    path: organizationalChartHierarchyRoutePaths.vacancies,
+    version: ORGANIZATIONAL_CHART_HIERARCHY_CONTRACT_VERSION,
+  },
+  headcount: {
+    method: "GET",
+    path: organizationalChartHierarchyRoutePaths.headcount,
     version: ORGANIZATIONAL_CHART_HIERARCHY_CONTRACT_VERSION,
   },
   overview: {

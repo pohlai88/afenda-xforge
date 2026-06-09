@@ -1,5 +1,5 @@
 import type { HrRecordsActionContract } from "../contracts/action.contract.ts";
-import { hrRecordsAuditActions } from "../hr.workforce.records.event.ts";
+import { hrRecordsAuditActions } from "../events.ts";
 import { hrRecordsAuditEvents } from "./audit.ts";
 import { hrRecordsIntegrationEvents } from "./integration.ts";
 

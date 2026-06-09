@@ -122,6 +122,43 @@ export type ExecutionPostCommitHook<TInput, TResult> = (
   context: ExecutionMutationContext<TInput>
 ) => Promise<void> | void;
 
+export type QueryExecutionContext<TInput> = {
+  input: TInput;
+  actor: ExecutionActor;
+  tenant: ExecutionTenant;
+  company?: ExecutionCompany;
+};
+
+export type QueryPipelineHooks<TInput, TResult> = {
+  requireAuth: () => Promise<ExecutionActor>;
+  resolveActiveTenant: (actor: ExecutionActor) => Promise<ExecutionTenant>;
+  requireTenantMembership: (
+    actor: ExecutionActor,
+    tenant: ExecutionTenant
+  ) => Promise<void>;
+  resolveActiveCompany?: (
+    actor: ExecutionActor,
+    tenant: ExecutionTenant
+  ) => Promise<ExecutionCompany | null>;
+  requireCompanyGrant?: (
+    actor: ExecutionActor,
+    tenant: ExecutionTenant,
+    company: ExecutionCompany
+  ) => Promise<void>;
+  validateInput: (input: TInput) => Promise<void> | void;
+  permissionContext: (
+    actor: ExecutionActor,
+    tenant: ExecutionTenant,
+    company: ExecutionCompany | null
+  ) => PermissionContext;
+  permissionRequirement: PermissionRequirement;
+  requirePermission: (
+    context: PermissionContext,
+    requirement: PermissionRequirement
+  ) => Promise<void> | void;
+  executeQuery: (context: QueryExecutionContext<TInput>) => Promise<TResult>;
+};
+
 const resolveAuditModule = (
   action: string,
   module: string | undefined
@@ -174,8 +211,20 @@ type ExecutionPipelineContext<TInput, TResult> = {
   tenant: ExecutionTenant;
 };
 
-const resolveExecutionCompany = async <TInput, TResult>(
-  hooks: ExecutionPipelineHooks<TInput, TResult>,
+type CompanyResolutionHooks = {
+  resolveActiveCompany?: (
+    actor: ExecutionActor,
+    tenant: ExecutionTenant
+  ) => Promise<ExecutionCompany | null>;
+  requireCompanyGrant?: (
+    actor: ExecutionActor,
+    tenant: ExecutionTenant,
+    company: ExecutionCompany
+  ) => Promise<void>;
+};
+
+const resolveExecutionCompany = async (
+  hooks: CompanyResolutionHooks,
   actor: ExecutionActor,
   tenant: ExecutionTenant
 ): Promise<ExecutionCompany | null> => {
@@ -409,4 +458,28 @@ export const createExecutionPipeline =
     });
 
     return executionResult.operation.result;
+  };
+
+export const createQueryPipeline =
+  <TInput, TResult>(hooks: QueryPipelineHooks<TInput, TResult>) =>
+  async (input: TInput): Promise<TResult> => {
+    const actor = await hooks.requireAuth();
+    const tenant = await hooks.resolveActiveTenant(actor);
+    await hooks.requireTenantMembership(actor, tenant);
+    await hooks.validateInput(input);
+
+    const company = await resolveExecutionCompany(hooks, actor, tenant);
+    const permissionContext = hooks.permissionContext(actor, tenant, company);
+
+    await hooks.requirePermission(
+      permissionContext,
+      hooks.permissionRequirement
+    );
+
+    return hooks.executeQuery({
+      actor,
+      company: company ?? undefined,
+      input,
+      tenant,
+    });
   };

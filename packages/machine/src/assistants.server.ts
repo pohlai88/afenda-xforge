@@ -34,7 +34,10 @@ const buildCustomerSearchTool = createSearchTool({
     input: z.output<typeof customerSearchInputSchema>,
     context: XforgeConversationContext
   ) => {
-    const scopedContext: TenantActorScope = {
+    const scopedContext = {
+      grantedPermissions: context.grantedPermissions
+        ? [...context.grantedPermissions]
+        : [],
       tenantId: context.tenantId,
       userId: context.userId,
     };

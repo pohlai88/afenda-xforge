@@ -8,6 +8,7 @@ import {
 } from "node:fs";
 import { dirname, resolve } from "node:path";
 import { z } from "zod";
+import { hrRecordsEmploymentStatusSchema } from "./employment-status.schema.ts";
 import type {
   HrEmployeeRecordDetail,
   HrEmployeeRecordSummary,
@@ -16,8 +17,7 @@ import type {
   HrRecordsCreateEmployeeInput,
   HrRecordsRehireEmployeeInput,
   HrRecordsUpdateEmployeeInput,
-} from "./hr.workforce.records.contract.ts";
-import { hrRecordsEmploymentStatusSchema } from "./hr.workforce.records-employment-status.schema.ts";
+} from "./records.contract.ts";
 import { hrRecordsActionRegistry } from "./registry/action-registry.ts";
 import {
   buildHrEmployeeRecordArchiveAuditRecord,

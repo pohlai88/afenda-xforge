@@ -6,7 +6,7 @@ import {
   getEmployeeLifecycleQuery,
 } from "../_lib/context.ts";
 
-export async function GET(request: Request) {
+export function GET(request: Request) {
   const context = createEmployeeLifecycleReadContext(request);
   const query = getEmployeeLifecycleQuery(request);
   const data = listEmployeeLifecycleTaskEntries(
@@ -17,4 +17,3 @@ export async function GET(request: Request) {
 
   return NextResponse.json(data);
 }
-

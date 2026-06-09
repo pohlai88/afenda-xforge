@@ -1,11 +1,11 @@
-import type { HrEmployeeRecordDetail } from "../hr.workforce.records.contract.ts";
+import type { HrEmployeeRecordDetail } from "../records.contract.ts";
 import {
   maskHrEmployeeSensitiveAddress,
   maskHrEmployeeSensitiveDateOfBirth,
   maskHrEmployeeSensitiveEmail,
   maskHrEmployeeSensitiveIdentity,
   maskHrEmployeeSensitivePhone,
-} from "../hr.workforce.records-sensitive-access.shared.ts";
+} from "../sensitive-access.shared.ts";
 
 type HrEmployeeRecordDetailDateKeys =
   | "contractEndDate"

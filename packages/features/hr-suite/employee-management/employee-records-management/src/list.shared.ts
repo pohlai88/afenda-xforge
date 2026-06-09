@@ -1,4 +1,4 @@
-import { hrRecordsReadPermission } from "./hr.workforce.records.contract.ts";
+import { hrRecordsReadPermission } from "./records.contract.ts";
 
 export type HrRecordsListWindow = {
   pageSize: number;

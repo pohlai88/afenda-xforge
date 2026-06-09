@@ -3,6 +3,7 @@ import { resolveLayeredCustomizedEntityMetadata } from "@repo/customization/reso
 import { ForbiddenError } from "@repo/errors";
 import { companyMetadata } from "@repo/features-master-data-companies/metadata";
 import { customerMetadata } from "@repo/features-master-data-customers/metadata";
+import type { EntityMetadata } from "@repo/metadata";
 import Link from "next/link";
 import type { ReactElement } from "react";
 import type { DashboardEntityCustomizationLayers } from "./_customizations.ts";

@@ -19,6 +19,8 @@ export type DocumentsManagementRoutePath =
   (typeof documentsManagementRoutePaths)[keyof typeof documentsManagementRoutePaths];
 
 export const documentsManagementApiRoutePaths = {
+  documentDownload: (documentId: string): `/api/hr/documents/${string}/download` =>
+    `/api/hr/documents/${documentId}/download`,
   document: (documentId: string): `/api/hr/documents/${string}` =>
     `/api/hr/documents/${documentId}`,
   documents: "/api/hr/documents",
@@ -30,6 +32,7 @@ export type DocumentsManagementApiRoutePath =
   | (typeof documentsManagementApiRoutePaths)["documents"]
   | (typeof documentsManagementApiRoutePaths)["expiring"]
   | (typeof documentsManagementApiRoutePaths)["readiness"]
+  | ReturnType<typeof documentsManagementApiRoutePaths.documentDownload>
   | ReturnType<typeof documentsManagementApiRoutePaths.document>;
 
 export function hrEmployeeDetailRoutePath(
@@ -39,7 +42,7 @@ export function hrEmployeeDetailRoutePath(
 }
 
 export function hrTenantDocumentDownloadPath(documentId: string): string {
-  return `/api/internal/v1/documents/${documentId}/download?moduleId=hr`;
+  return documentsManagementApiRoutePaths.documentDownload(documentId);
 }
 
 export type DocumentsManagementRouteContract = {
@@ -61,8 +64,18 @@ export const documentsManagementRouteContracts: readonly DocumentsManagementRout
         "List document summary projections with search, filtering, and paging.",
     },
     {
+      path: documentsManagementApiRoutePaths.documents,
+      description:
+        "Upload a document binary to object storage and register its metadata reference.",
+    },
+    {
       path: "/api/hr/documents/[documentId]",
       description: "Read a single document summary projection by id.",
+    },
+    {
+      path: "/api/hr/documents/[documentId]/download",
+      description:
+        "Download a stored document binary through the secured document-management API.",
     },
     {
       path: documentsManagementApiRoutePaths.readiness,

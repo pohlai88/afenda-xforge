@@ -12,12 +12,14 @@ export function listUnionManagementRecords(
   _query: ListUnionManagementQuery = {},
   _context?: HrSuiteFeatureContext
 ): Promise<readonly UnionManagementRecord[]> {
-  return inMemoryRecords;
+  return Promise.resolve(inMemoryRecords);
 }
 
 export function getUnionManagementRecord(
   id: string,
   _context?: HrSuiteFeatureContext
 ): Promise<UnionManagementRecord | null> {
-  return inMemoryRecords.find((record) => record.id === id) ?? null;
+  return Promise.resolve(
+    inMemoryRecords.find((record) => record.id === id) ?? null
+  );
 }

@@ -1,10 +1,12 @@
 import "server-only";
 
 import { randomUUID } from "node:crypto";
+import type { Audit7W1HActorType, Audit7W1HChannel } from "@repo/audit";
 import {
   writeAuditEvent as persistAuditEvent,
   writeAuditEventInTransaction,
 } from "@repo/audit";
+import { requireTenantActorAccess } from "@repo/auth/access";
 import { customers, database, timeDatabaseQuery } from "@repo/database";
 import type {
   ExecutionDatabaseTransaction,
@@ -15,21 +17,40 @@ import type {
 import { createExecutionPipeline } from "@repo/execution";
 import { appendRequestContextMetadata } from "@repo/logger";
 import type { PermissionContext } from "@repo/permissions";
-import { permissionCatalog, requirePermission } from "@repo/permissions";
-import type { TenantActorScope } from "@repo/shared";
+import {
+  permissionCatalog,
+  requirePermission,
+  resolvePermissionsForTenantRole,
+} from "@repo/permissions";
+import type { UserActorScope } from "@repo/shared";
 import type { CreateCustomerBody, Customer } from "./contract.ts";
+import { createCustomerBodySchema } from "./contract.ts";
 
 type CustomerPostCommitHook = (
   operation: ExecutionDomainResult<Customer>,
   context: ExecutionMutationContext<CreateCustomerBody>
 ) => Promise<void> | void;
 
-type CustomerCommandContext = TenantActorScope & {
+type CustomerCommandContext = UserActorScope & {
   db?: ExecutionDatabaseTransaction;
-  grantedPermissions: string[];
+  grantedPermissions?: string[];
   postCommitHooks?: CustomerPostCommitHook[];
   operationId?: string;
   requestId?: string;
+  tenantId: string;
+  trustedSystem?: {
+    actorType?: Audit7W1HActorType;
+    channel?: Audit7W1HChannel;
+    tenantVerified: boolean;
+  };
+};
+
+type ResolvedCustomerCommandAccess = {
+  actorType?: Audit7W1HActorType;
+  channel?: Audit7W1HChannel;
+  grantedPermissions: string[];
+  tenantId: string;
+  userId: string;
 };
 
 const mapCustomer = (row: {
@@ -47,7 +68,7 @@ const mapCustomer = (row: {
 });
 
 const createCustomerPermissionContext = (
-  context: CustomerCommandContext,
+  context: ResolvedCustomerCommandAccess,
   action: string
 ): PermissionContext => ({
   action,
@@ -56,6 +77,31 @@ const createCustomerPermissionContext = (
   resource: "customers",
   tenantId: context.tenantId,
 });
+
+const resolveCustomerCommandAccess = async (
+  context: CustomerCommandContext
+): Promise<ResolvedCustomerCommandAccess> => {
+  if (context.trustedSystem?.tenantVerified) {
+    return {
+      actorType: context.trustedSystem.actorType ?? "integration",
+      channel: context.trustedSystem.channel,
+      grantedPermissions: context.grantedPermissions ?? [],
+      tenantId: context.tenantId,
+      userId: context.userId,
+    };
+  }
+
+  const access = await requireTenantActorAccess({
+    tenantId: context.tenantId,
+    userId: context.userId,
+  });
+
+  return {
+    grantedPermissions: resolvePermissionsForTenantRole(access.membership.role),
+    tenantId: access.membership.tenantId,
+    userId: access.membership.userId,
+  };
+};
 
 const insertCustomerRecord = async (
   input: CreateCustomerBody,
@@ -115,6 +161,8 @@ export const createCustomer = (
   input: CreateCustomerBody,
   context: CustomerCommandContext
 ): Promise<Customer> => {
+  const parsedInput = createCustomerBodySchema.parse(input);
+  let resolvedAccess: ResolvedCustomerCommandAccess | null = null;
   const pipeline = createExecutionPipeline<CreateCustomerBody, Customer>({
     executeDomainOperation: async ({
       db,
@@ -135,14 +183,23 @@ export const createCustomer = (
           customer,
         },
         before: {},
+        channel: resolvedAccess?.channel,
         reason: "create customer",
         result: customer,
         targetId: customer.id,
         targetType: "customer",
       };
     },
-    permissionContext: () =>
-      createCustomerPermissionContext(context, "customers.create"),
+    permissionContext: () => {
+      if (!resolvedAccess) {
+        throw new Error("Customer command access was not resolved");
+      }
+
+      return createCustomerPermissionContext(
+        resolvedAccess,
+        "customers.create"
+      );
+    },
     permissionRequirement: {
       allOf: [permissionCatalog.customers.write],
     },
@@ -154,14 +211,29 @@ export const createCustomer = (
       Customer
     >["postCommitHooks"],
     operationId: context.operationId ?? context.requestId ?? randomUUID(),
-    requireAuth: async () => ({ actorId: context.userId }),
+    requireAuth: async () => {
+      resolvedAccess = await resolveCustomerCommandAccess(context);
+
+      return {
+        actorId: resolvedAccess.userId,
+        actorType: resolvedAccess.actorType,
+      };
+    },
     requirePermission,
-    requireTenantMembership: async () => undefined,
-    resolveActiveTenant: async () => ({ tenantId: context.tenantId }),
+    requireTenantMembership: () => Promise.resolve(),
+    resolveActiveTenant: () => {
+      if (!resolvedAccess) {
+        throw new Error("Customer command access was not resolved");
+      }
+
+      return Promise.resolve({ tenantId: resolvedAccess.tenantId });
+    },
     requestId: context.requestId ?? randomUUID(),
-    validateInput: async () => undefined,
+    validateInput: (executionInput) => {
+      createCustomerBodySchema.parse(executionInput);
+    },
     writeAuditEvent: persistCustomerAuditEvent,
   });
 
-  return pipeline(input);
+  return pipeline(parsedInput);
 };

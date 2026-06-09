@@ -101,12 +101,16 @@ const buildDocumentVersion = (input: {
   versionNumber: number;
 }): DocumentsManagementDocumentVersion =>
   documentsManagementDocumentVersionSchema.parse({
+    contentType: input.document.reference.contentType,
     createdAt: new Date(),
     documentId: input.document.id,
+    fileName: input.document.reference.fileName,
     id: randomUUID(),
     isLatest: input.isLatest,
     previousVersionId: input.previousVersionId,
     replacedByVersionId: input.replacedByVersionId,
+    sizeBytes: input.document.reference.sizeBytes ?? null,
+    storagePath: input.document.reference.storagePath,
     sourceDocumentId: input.document.reference.sourceDocumentId,
     sourceDocumentNumber: input.document.reference.sourceDocumentNumber,
     sourceNotes: input.document.reference.sourceNotes,
@@ -173,11 +177,15 @@ const resolveCurrentDocumentsManagementDocumentVersion = (
 const buildDocumentVersionMetadata = (
   version: DocumentsManagementDocumentVersion
 ): Record<string, unknown> => ({
+  contentType: version.contentType,
   documentVersionId: version.id,
   documentVersionNumber: version.versionNumber,
   documentVersionState: version.state,
+  fileName: version.fileName,
   previousVersionId: version.previousVersionId ?? null,
   replacedByVersionId: version.replacedByVersionId ?? null,
+  sizeBytes: version.sizeBytes ?? null,
+  storagePath: version.storagePath,
   sourceDocumentId: version.sourceDocumentId,
   sourceDocumentNumber: version.sourceDocumentNumber,
 });
@@ -287,6 +295,10 @@ const createDocumentReference = (
   }
 
   return {
+    contentType: normalizeNullableString(input.contentType),
+    fileName: normalizeNullableString(input.fileName),
+    sizeBytes: input.sizeBytes ?? null,
+    storagePath: normalizeNullableString(input.storagePath),
     sourceDocumentId: normalizeNullableString(input.sourceDocumentId),
     sourceDocumentNumber: normalizeNullableString(input.sourceDocumentNumber),
     sourceNotes: normalizeNullableString(input.sourceNotes),

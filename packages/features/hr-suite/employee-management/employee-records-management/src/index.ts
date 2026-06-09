@@ -29,54 +29,23 @@ export type {
   HrRecordsStatusHistoryCommand,
   HrRecordsStatusHistoryQuery,
 } from "./contracts/index.ts";
-export { hrRecordsExecutionSurface } from "./execution/index.ts";
-export { hrRecordsFeatureScope, hrSuiteFeatureScope } from "./feature-scope.ts";
-export type {
-  HrEmployeeRecord,
-  HrEmployeeRecordDetail,
-  HrEmployeeRecordExportView,
-  HrEmployeeRecordPageModel,
-  HrEmployeeRecordSummary,
-  HrRecordsActionResult,
-  HrRecordsArchiveEmployeeInput,
-  HrRecordsAssignmentInput,
-  HrRecordsCreateEmployeeInput,
-  HrRecordsPageModelInput,
-  HrRecordsRehireEmployeeInput,
-  HrRecordsSearchParams,
-  HrRecordsUpdateEmployeeInput,
-} from "./hr.workforce.records.contract.ts";
-export {
-  hrRecordsReadPermission,
-  hrRecordsSearchParamsSchema,
-  hrRecordsSensitiveReadPermission,
-  hrRecordsWritePermission,
-} from "./hr.workforce.records.contract.ts";
 export {
   buildHrEmployeeRecordDetailPageModel,
   buildHrEmployeeRecordExportPageModel,
-} from "./hr.workforce.records.detail.page-model.server.ts";
+} from "./detail-page-model.server.ts";
 export {
   type HrRecordsEmploymentStatus,
   hrRecordsEmploymentStatusSchema,
-} from "./hr.workforce.records-employment-status.schema.ts";
+} from "./employment-status.schema.ts";
+export { hrRecordsExecutionSurface } from "./execution/index.ts";
+export { hrRecordsFeatureScope, hrSuiteFeatureScope } from "./feature-scope.ts";
 export {
   hrRecordsArchiveEmployeeSchema,
   hrRecordsAssignmentSchema,
   hrRecordsCreateEmployeeSchema,
   hrRecordsRehireEmployeeSchema,
   hrRecordsUpdateEmployeeSchema,
-} from "./hr.workforce.records-form.shared.ts";
-export {
-  hrEmployeeArchiveRoutePath,
-  hrEmployeeAssignmentsRoutePath,
-  hrEmployeeDetailRoutePath,
-  hrEmployeeRehireRoutePath,
-  hrEmployeeStatusHistoryRoutePath,
-  hrRecordsRouteContract,
-  hrRecordsRoutePaths,
-} from "./hr.workforce.records-route.contract.ts";
-export { parseHrRecordsSearchParams } from "./hr.workforce.records-search-params.parse.shared.ts";
+} from "./form.shared.ts";
 export {
   hrRecordsFeature,
   hrRecordsFeatureDomain,
@@ -106,6 +75,27 @@ export {
   listHrEmployeeRecordSummaries,
   listHrEmployeeRecordSummariesPage,
 } from "./queries/records.query.ts";
+export type {
+  HrEmployeeRecord,
+  HrEmployeeRecordDetail,
+  HrEmployeeRecordExportView,
+  HrEmployeeRecordPageModel,
+  HrEmployeeRecordSummary,
+  HrRecordsActionResult,
+  HrRecordsArchiveEmployeeInput,
+  HrRecordsAssignmentInput,
+  HrRecordsCreateEmployeeInput,
+  HrRecordsPageModelInput,
+  HrRecordsRehireEmployeeInput,
+  HrRecordsSearchParams,
+  HrRecordsUpdateEmployeeInput,
+} from "./records.contract.ts";
+export {
+  hrRecordsReadPermission,
+  hrRecordsSearchParamsSchema,
+  hrRecordsSensitiveReadPermission,
+  hrRecordsWritePermission,
+} from "./records.contract.ts";
 export {
   buildHrEmployeeIntegrationChangeEvent,
   buildHrEmployeeIntegrationSnapshot,
@@ -113,3 +103,13 @@ export {
   hrRecordsIntegrationEvents,
   hrRecordsIntegrationSnapshotVersion,
 } from "./registry/integration.ts";
+export {
+  hrEmployeeArchiveRoutePath,
+  hrEmployeeAssignmentsRoutePath,
+  hrEmployeeDetailRoutePath,
+  hrEmployeeRehireRoutePath,
+  hrEmployeeStatusHistoryRoutePath,
+  hrRecordsRouteContract,
+  hrRecordsRoutePaths,
+} from "./route-paths.ts";
+export { parseHrRecordsSearchParams } from "./search-params.parse.shared.ts";

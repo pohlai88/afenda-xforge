@@ -1,4 +1,4 @@
-import { loadHrRecordsOverviewSnapshot } from "./hr.workforce.records-overview.shared.ts";
+import { loadHrRecordsOverviewSnapshot } from "./overview.shared.ts";
 
 export const hrRecordsOverviewStatSurfaceKey =
   "hr.records.overview.stats" as const;

@@ -12,12 +12,14 @@ export function listRecruitmentOnboardingRecords(
   _query: ListRecruitmentOnboardingQuery = {},
   _context?: HrSuiteFeatureContext
 ): Promise<readonly RecruitmentOnboardingRecord[]> {
-  return inMemoryRecords;
+  return Promise.resolve(inMemoryRecords);
 }
 
 export function getRecruitmentOnboardingRecord(
   id: string,
   _context?: HrSuiteFeatureContext
 ): Promise<RecruitmentOnboardingRecord | null> {
-  return inMemoryRecords.find((record) => record.id === id) ?? null;
+  return Promise.resolve(
+    inMemoryRecords.find((record) => record.id === id) ?? null
+  );
 }

@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { hrRecordsEmploymentStatusSchema } from "./hr.workforce.records-employment-status.schema.ts";
+import { hrRecordsEmploymentStatusSchema } from "./employment-status.schema.ts";
 
 const isoDateSchema = z.preprocess((value: unknown) => {
   if (value instanceof Date) {

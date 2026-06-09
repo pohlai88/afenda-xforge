@@ -193,6 +193,47 @@ const describeEmployeeLifecycleExitEvent = (
   }
 };
 
+const resolveEmployeeLifecycleOverviewLatestActivityAt = (
+  input: Readonly<{
+    state: EmployeeLifecycleState;
+    onboarding: EmployeeLifecycleOnboardingReadModel | null;
+    probation: EmployeeLifecycleProbationReadModel | null;
+    movement: EmployeeLifecycleMovementReadModel | null;
+    contract: EmployeeLifecycleContractReadModel | null;
+    suspension: EmployeeLifecycleSuspensionReadModel | null;
+    exit: EmployeeLifecycleExitReadModel | null;
+  }>
+): Date =>
+  getLatestActivityAt([
+    input.state.updatedAt,
+    input.onboarding?.activatedAt ??
+      input.onboarding?.readyAt ??
+      input.onboarding?.startedAt ??
+      input.state.updatedAt,
+    input.probation?.startedAt ?? input.state.updatedAt,
+    input.movement?.latestMovementAt ?? input.state.updatedAt,
+    input.contract?.startedAt ?? input.state.updatedAt,
+    input.suspension?.startedAt ?? input.state.updatedAt,
+    input.exit?.startedAt ?? input.state.updatedAt,
+  ]);
+
+const resolveEmployeeLifecycleOverviewNeedsAttention = (
+  input: Readonly<{
+    onboarding: EmployeeLifecycleOnboardingReadModel | null;
+    probation: EmployeeLifecycleProbationReadModel | null;
+    contract: EmployeeLifecycleContractReadModel | null;
+    suspension: EmployeeLifecycleSuspensionReadModel | null;
+    exit: EmployeeLifecycleExitReadModel | null;
+  }>
+): boolean =>
+  Boolean(
+    (input.onboarding && input.onboarding.workflowStatus !== "activated") ||
+      (input.probation && input.probation.workflowStatus !== "confirmed") ||
+      (input.contract && input.contract.contractStatus !== "active") ||
+      (input.suspension && input.suspension.suspensionStatus !== "released") ||
+      (input.exit && input.exit.exitStatus !== "archived")
+  );
+
 export const employeeLifecycleStageSummarySchema = z.object({
   stage: employeeLifecycleStageSchema,
   count: z.number().int().nonnegative(),
@@ -297,11 +338,10 @@ const buildStateHistoryEntry = (
       occurredAt: entry.recordedAt,
       effectiveAt: entry.effectiveAt,
       actorId: canViewSensitive ? (entry.actorId ?? null) : null,
-      approvalReference: canViewSensitive
-        ? "approvalReference" in entry
+      approvalReference:
+        canViewSensitive && "approvalReference" in entry
           ? (entry.approvalReference ?? null)
-          : null
-        : null,
+          : null,
       reason: canViewSensitive ? (entry.reason ?? null) : null,
       summary: describeEmployeeLifecycleStateEvent(entry),
       metadata: entry.metadata,
@@ -536,6 +576,23 @@ const buildEmployeeLifecycleOverviewEntry = (
     ),
   });
 
+  const latestActivityAt = resolveEmployeeLifecycleOverviewLatestActivityAt({
+    state,
+    onboarding,
+    probation,
+    movement,
+    contract,
+    suspension,
+    exit,
+  });
+  const needsAttention = resolveEmployeeLifecycleOverviewNeedsAttention({
+    onboarding,
+    probation,
+    contract,
+    suspension,
+    exit,
+  });
+
   const overview = employeeLifecycleOverviewEntrySchema.parse({
     employeeId: state.employeeId,
     companyId: state.companyId ?? undefined,
@@ -551,24 +608,8 @@ const buildEmployeeLifecycleOverviewEntry = (
     suspensionStatus: suspension?.suspensionStatus ?? null,
     exitStatus: exit?.exitStatus ?? null,
     movementCount: movement?.movementCount ?? 0,
-    latestActivityAt: getLatestActivityAt([
-      state.updatedAt,
-      onboarding?.activatedAt ??
-        onboarding?.readyAt ??
-        onboarding?.startedAt ??
-        state.updatedAt,
-      probation?.startedAt ?? state.updatedAt,
-      movement?.latestMovementAt ?? state.updatedAt,
-      contract?.startedAt ?? state.updatedAt,
-      suspension?.startedAt ?? state.updatedAt,
-      exit?.startedAt ?? state.updatedAt,
-    ]),
-    needsAttention:
-      Boolean(onboarding && onboarding.workflowStatus !== "activated") ||
-      Boolean(probation && probation.workflowStatus !== "confirmed") ||
-      Boolean(contract && contract.contractStatus !== "active") ||
-      Boolean(suspension && suspension.suspensionStatus !== "released") ||
-      Boolean(exit && exit.exitStatus !== "archived"),
+    latestActivityAt,
+    needsAttention,
   });
 
   return overview;
@@ -880,7 +921,7 @@ const buildSuspensionTaskEntries = (
   state: EmployeeLifecycleState,
   suspension: EmployeeLifecycleSuspensionReadModel | null
 ): readonly EmployeeLifecycleTaskEntry[] =>
-  suspension && suspension.isRestricted && !suspension.isClosed
+  suspension?.isRestricted && !suspension.isClosed
     ? [
         employeeLifecycleTaskEntrySchema.parse({
           id: `${state.employeeId}:suspension-resolution`,

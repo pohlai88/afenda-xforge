@@ -53,6 +53,7 @@ const loadCustomers = async (
           pageSize: 5,
         },
         {
+          grantedPermissions: access.grantedPermissions,
           tenantId: access.tenantId,
           userId: access.actorId,
         }

@@ -1,32 +1,32 @@
 import {
   hrRecordsAssignmentsSearchParam,
   hrRecordsAssignmentsSurfaceKey,
-} from "./hr.workforce.records-assignments-list.surface.ts";
+} from "./assignments-list.surface.ts";
 import {
   hrRecordsAuditTrailSearchParam,
   hrRecordsAuditTrailSurfaceKey,
-} from "./hr.workforce.records-audit-trail-list.surface.ts";
+} from "./audit-trail-list.surface.ts";
 import {
   hrRecordsDirectorySearchParam,
   hrRecordsDirectorySurfaceKey,
   hrRecordsEmploymentStatusFilterParam,
-} from "./hr.workforce.records-directory-list.surface.ts";
+} from "./directory-list.surface.ts";
 import {
   hrRecordsDocumentReferencesSearchParam,
   hrRecordsDocumentReferencesSurfaceKey,
-} from "./hr.workforce.records-document-references-list.surface.ts";
+} from "./document-references-list.surface.ts";
 import {
   hrRecordsIncompleteSearchParam,
   hrRecordsIncompleteSurfaceKey,
-} from "./hr.workforce.records-incomplete-list.surface.ts";
+} from "./incomplete-list.surface.ts";
 import {
   hrRecordsSeparatedSearchParam,
   hrRecordsSeparatedSurfaceKey,
-} from "./hr.workforce.records-separated-list.surface.ts";
+} from "./separated-list.surface.ts";
 import {
   hrRecordsStatusHistorySearchParam,
   hrRecordsStatusHistorySurfaceKey,
-} from "./hr.workforce.records-status-history-list.surface.ts";
+} from "./status-history-list.surface.ts";
 import {
   hrRecordsAssignmentsColumnsId,
   hrRecordsAuditTrailColumnsId,
@@ -35,7 +35,7 @@ import {
   hrRecordsIncompleteColumnsId,
   hrRecordsSeparatedColumnsId,
   hrRecordsStatusHistoryColumnsId,
-} from "./hr.workforce.records-surface-columns.shared.ts";
+} from "./surface-columns.shared.ts";
 
 export const HR_RECORDS_LIST_SURFACE_KEYS = [
   hrRecordsIncompleteSurfaceKey,

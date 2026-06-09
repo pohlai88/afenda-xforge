@@ -73,7 +73,7 @@ let repositoryFilePath: string =
   process.env.AFENDA_EMPLOYEE_LIFECYCLE_MANAGEMENT_REPOSITORY_PATH ??
   process.env.AFENDA_EMPLOYEE_LIFECYCLE_MANAGEMENT_STORE_PATH ??
   resolve(
-    process.cwd(),
+    /* turbopackIgnore: true */ process.cwd(),
     ".cache",
     "hr-suite",
     "employee-lifecycle-management.repository.json"

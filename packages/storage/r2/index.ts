@@ -43,6 +43,27 @@ const getR2StorageConfig = (): R2StorageConfig | null => {
     CLOUDFLARE_R2_SECRET_ACCESS_KEY,
   } = loadR2StorageKeys();
 
+  const configuredRequiredValues = {
+    CLOUDFLARE_R2_ACCESS_KEY_ID,
+    CLOUDFLARE_R2_ACCOUNT_ID,
+    CLOUDFLARE_R2_BUCKET_NAME,
+    CLOUDFLARE_R2_SECRET_ACCESS_KEY,
+  };
+
+  if (Object.values(configuredRequiredValues).every((value) => !value)) {
+    return null;
+  }
+
+  const missingRequiredKeys = Object.entries(configuredRequiredValues)
+    .filter(([, value]) => !value)
+    .map(([key]) => key);
+
+  if (missingRequiredKeys.length > 0) {
+    throw new Error(
+      `Cloudflare R2 storage is partially configured. Missing: ${missingRequiredKeys.join(", ")}`
+    );
+  }
+
   if (
     !(
       CLOUDFLARE_R2_ACCESS_KEY_ID &&
@@ -51,7 +72,9 @@ const getR2StorageConfig = (): R2StorageConfig | null => {
       CLOUDFLARE_R2_SECRET_ACCESS_KEY
     )
   ) {
-    return null;
+    throw new Error(
+      "Cloudflare R2 storage configuration could not be resolved."
+    );
   }
 
   return {

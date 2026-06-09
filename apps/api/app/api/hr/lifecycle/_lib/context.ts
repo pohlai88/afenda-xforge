@@ -13,7 +13,8 @@ const boolHeader = (request: Request, name: string): boolean | undefined => {
   return value === "true" || value === "1";
 };
 
-export type EmployeeLifecycleApiReadContext = EmployeeLifecycleManagementPolicyContext;
+export type EmployeeLifecycleApiReadContext =
+  EmployeeLifecycleManagementPolicyContext;
 
 export type EmployeeLifecycleApiWriteContext =
   EmployeeLifecycleApiReadContext & {
@@ -60,4 +61,3 @@ export const getEmployeeLifecycleQuery = (
 
   return query;
 };
-

@@ -37,6 +37,9 @@ const parseBooleanQueryValue = (
 export type DocumentsManagementApiReadContext =
   DocumentsManagementPolicyContext;
 
+export type DocumentsManagementApiWriteContext =
+  DocumentsManagementPolicyContext;
+
 export const createDocumentsManagementReadContext = (
   request: Request
 ): DocumentsManagementApiReadContext => ({
@@ -45,6 +48,19 @@ export const createDocumentsManagementReadContext = (
   canViewSensitive:
     boolHeader(request, "x-can-view-sensitive-documents") ?? false,
   companyId: header(request, "x-company-id"),
+  tenantId: header(request, "x-tenant-id"),
+});
+
+export const createDocumentsManagementWriteContext = (
+  request: Request
+): DocumentsManagementApiWriteContext => ({
+  actorId: header(request, "x-actor-id"),
+  canRead: boolHeader(request, "x-can-read-documents") ?? true,
+  canViewSensitive:
+    boolHeader(request, "x-can-view-sensitive-documents") ?? false,
+  canWrite: boolHeader(request, "x-can-write-documents") ?? false,
+  companyId: header(request, "x-company-id"),
+  requestId: header(request, "x-request-id"),
   tenantId: header(request, "x-tenant-id"),
 });
 

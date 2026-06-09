@@ -12,12 +12,14 @@ export function listPerformanceAppraisalsRecords(
   _query: ListPerformanceAppraisalsQuery = {},
   _context?: HrSuiteFeatureContext
 ): Promise<readonly PerformanceAppraisalsRecord[]> {
-  return inMemoryRecords;
+  return Promise.resolve(inMemoryRecords);
 }
 
 export function getPerformanceAppraisalsRecord(
   id: string,
   _context?: HrSuiteFeatureContext
 ): Promise<PerformanceAppraisalsRecord | null> {
-  return inMemoryRecords.find((record) => record.id === id) ?? null;
+  return Promise.resolve(
+    inMemoryRecords.find((record) => record.id === id) ?? null
+  );
 }

@@ -16,6 +16,7 @@ Audit date: 2026-06-09.
 | Public contract | `src/contract.ts`, `src/index.ts` | Exposes the stable contract layer, route constants, permissions, and package feature id. |
 | Write actions | `src/actions.ts` | Provides create/update commands that persist through the repository layer. |
 | Document registration | `src/registration.ts`, `src/server.ts` | Registers employee-linked document metadata, updates document facts, and appends audit trail events. |
+| Binary storage integration | `apps/api/app/api/hr/documents/route.ts`, `apps/api/app/api/hr/documents/[documentId]/download/route.ts`, `apps/api/app/api/hr/documents/_lib/storage.ts`, `packages/storage/blob/index.ts` | Uploads document binaries through Vercel Blob, persists only metadata and storage references in the aggregate, and serves secure downloads through the API layer. |
 | Document lifecycle | `src/registration.ts`, `src/server.ts`, `src/contracts/command.contract.ts`, `src/schema.ts`, `test/document-lifecycle.test.ts` | Verifies, rejects, expires, archives, and updates retention metadata through versioned audit-safe transitions. |
 | Query surface | `src/queries.ts` | Lists and gets repository-backed records plus document summary, readiness, and expiring projections with paging, search, and scope filtering. |
 | Audit trail | `src/registration.ts`, `src/repository.ts`, `test/document-registration.test.ts` | Persists and reads document registration audit events with tenant/company scoping. |
@@ -42,6 +43,7 @@ Evidence recorded:
 - Documents Management owns document metadata, document references, verification state, expiry state, retention metadata, and audit history.
 - Employee master identity and employment status remain owned by Employee Records Management.
 - Binary document storage remains outside the package boundary.
+- Binary upload/download orchestration now lives in the API/storage integration layer while the feature package persists only references and metadata.
 - Compliance rule monitoring remains owned by Compliance & Regulatory Tracking.
 - Tenant/company scoping remains a required constraint for all future writes and reads.
 
@@ -214,8 +216,8 @@ Slice 10 hardened the Documents Management implementation in:
 Evidence recorded:
 
 - The API app now exposes a runnable `test` script for route-level coverage.
-- The route test suite exercises the list, detail, readiness, and expiring document routes directly.
-- The route tests verify successful projections, paging behavior, invalid-query handling, and read-denial fail-closed behavior.
+- The route test suite exercises the list, detail, readiness, expiring, upload, and download document routes directly.
+- The route tests verify successful projections, paging behavior, invalid-query handling, read-denial fail-closed behavior, binary upload/download behavior, and storage-failure handling.
 - The roadmap and architecture docs now record the implemented hardening surface alongside the earlier slices.
 
 Validation:

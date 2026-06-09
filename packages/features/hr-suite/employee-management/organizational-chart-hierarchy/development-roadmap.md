@@ -216,12 +216,22 @@ Validation evidence:
 
 Expose the mature server and HTTP surfaces, then update architecture evidence.
 
+Status: complete
+
 Acceptance criteria:
 
 - API routes delegate to package server functions.
 - Route contracts document methods and paths.
 - Registry covers capabilities, actions, audit events, navigation, classification, dashboards, and requirement coverage.
 - Architecture doc is updated only after code, tests, routes, and validation evidence exist.
+
+Validation evidence:
+
+- `pnpm --filter @repo/features-employee-management-organizational-chart-hierarchy typecheck`
+- `pnpm --filter @repo/features-employee-management-organizational-chart-hierarchy lint`
+- `pnpm --filter @repo/features-employee-management-organizational-chart-hierarchy test`
+- `pnpm --filter api typecheck`
+- `pnpm --filter api test`
 
 ## Validation Commands
 

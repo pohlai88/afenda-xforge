@@ -10,6 +10,7 @@ import {
   findEmployeeLifecycleStateByEmployeeId,
   mutateEmployeeLifecycleRepository,
 } from "./repository.ts";
+import { runEmployeeLifecycleManagementAction } from "./execution/index.ts";
 import type {
   EmployeeLifecycleContractReadModel,
   EmployeeLifecycleContractReminderInput,
@@ -231,6 +232,16 @@ const resolveEmployeeLifecycleOnboardingState = (
     initialStage: "preboarding",
   });
 
+const mutateEmployeeLifecycleAction = <
+  TResult = EmployeeLifecycleRepositoryState,
+>(
+  updater: (draft: EmployeeLifecycleRepositoryState) => TResult,
+  scope?: EmployeeLifecycleRepositoryScope
+): TResult =>
+  runEmployeeLifecycleManagementAction(() =>
+    mutateEmployeeLifecycleRepository(updater, scope)
+  );
+
 const resolveEmployeeLifecycleProbationScope = (
   input: Readonly<{
     companyId?: string | null;
@@ -373,7 +384,7 @@ export function startEmployeeLifecycleOnboarding(
   const recordedAt = parsed.recordedAt ?? startedAt;
   let readModel: EmployeeLifecycleOnboardingReadModel | null = null;
 
-  mutateEmployeeLifecycleRepository((draft) => {
+  mutateEmployeeLifecycleAction((draft) => {
     const existingStateIndex = draft.states.findIndex(
       (state) => state.employeeId === parsed.profile.employeeId
     );
@@ -438,7 +449,7 @@ export function completeEmployeeLifecycleOnboardingTask(
   const completedAt = input.completedAt ?? new Date();
   let readModel: EmployeeLifecycleOnboardingReadModel | null = null;
 
-  mutateEmployeeLifecycleRepository((draft) => {
+  mutateEmployeeLifecycleAction((draft) => {
     const recordIndex = draft.onboardingRecords.findIndex(
       (record) => record.employeeId === input.employeeId
     );
@@ -490,7 +501,7 @@ export function activateEmployeeLifecycleOnboarding(
   const activatedAt = input.activatedAt ?? new Date();
   let readModel: EmployeeLifecycleOnboardingReadModel | null = null;
 
-  mutateEmployeeLifecycleRepository((draft) => {
+  mutateEmployeeLifecycleAction((draft) => {
     const recordIndex = draft.onboardingRecords.findIndex(
       (record) => record.employeeId === input.employeeId
     );
@@ -563,7 +574,7 @@ export function startEmployeeLifecycleProbation(
   const recordedAt = parsedInput.recordedAt ?? startedAt;
   let readModel: EmployeeLifecycleProbationReadModel | null = null;
 
-  mutateEmployeeLifecycleRepository((draft) => {
+  mutateEmployeeLifecycleAction((draft) => {
     const probationState = resolveEmployeeLifecycleProbationState(draft, {
       employeeId: parsedInput.employeeId,
       companyId: resolvedScope?.companyId ?? parsedInput.companyId ?? undefined,
@@ -604,7 +615,7 @@ export function recordEmployeeLifecycleProbationReview(
   const reviewedAt = parsedInput.reviewedAt ?? new Date();
   let readModel: EmployeeLifecycleProbationReadModel | null = null;
 
-  mutateEmployeeLifecycleRepository((draft) => {
+  mutateEmployeeLifecycleAction((draft) => {
     const recordIndex = draft.probationRecords.findIndex(
       (record) => record.employeeId === parsedInput.employeeId
     );
@@ -700,7 +711,7 @@ export function approveEmployeeLifecycleProbationConfirmation(
   const approvedAt = parsedInput.approvedAt ?? new Date();
   let readModel: EmployeeLifecycleProbationReadModel | null = null;
 
-  mutateEmployeeLifecycleRepository((draft) => {
+  mutateEmployeeLifecycleAction((draft) => {
     const recordIndex = draft.probationRecords.findIndex(
       (record) => record.employeeId === parsedInput.employeeId
     );
@@ -957,7 +968,7 @@ export function recordEmployeeLifecycleMovement(
   const recordedAt = parsedInput.recordedAt ?? effectiveAt;
   let readModel: EmployeeLifecycleMovementReadModel | null = null;
 
-  mutateEmployeeLifecycleRepository((draft) => {
+  mutateEmployeeLifecycleAction((draft) => {
     const stateIndex = draft.states.findIndex(
       (state) => state.employeeId === parsedInput.employeeId
     );
@@ -1129,7 +1140,7 @@ export function startEmployeeLifecycleContract(
   const recordedAt = parsedInput.recordedAt ?? startedAt;
   let readModel: EmployeeLifecycleContractReadModel | null = null;
 
-  mutateEmployeeLifecycleRepository((draft) => {
+  mutateEmployeeLifecycleAction((draft) => {
     const stateIndex = draft.states.findIndex(
       (state) => state.employeeId === parsedInput.employeeId
     );
@@ -1177,7 +1188,7 @@ export function renewEmployeeLifecycleContract(
   const renewedAt = parsedInput.renewedAt ?? new Date();
   let readModel: EmployeeLifecycleContractReadModel | null = null;
 
-  mutateEmployeeLifecycleRepository((draft) => {
+  mutateEmployeeLifecycleAction((draft) => {
     const stateIndex = draft.states.findIndex(
       (state) => state.employeeId === parsedInput.employeeId
     );
@@ -1225,7 +1236,7 @@ export function recordEmployeeLifecycleContractReview(
   const reviewedAt = parsedInput.reviewedAt ?? new Date();
   let readModel: EmployeeLifecycleContractReadModel | null = null;
 
-  mutateEmployeeLifecycleRepository((draft) => {
+  mutateEmployeeLifecycleAction((draft) => {
     const stateIndex = draft.states.findIndex(
       (state) => state.employeeId === parsedInput.employeeId
     );
@@ -1273,7 +1284,7 @@ export function recordEmployeeLifecycleContractReminder(
   const remindedAt = parsedInput.remindedAt ?? new Date();
   let readModel: EmployeeLifecycleContractReadModel | null = null;
 
-  mutateEmployeeLifecycleRepository((draft) => {
+  mutateEmployeeLifecycleAction((draft) => {
     const stateIndex = draft.states.findIndex(
       (state) => state.employeeId === parsedInput.employeeId
     );
@@ -1394,7 +1405,7 @@ export function startEmployeeLifecycleSuspension(
   const recordedAt = parsedInput.recordedAt ?? effectiveAt;
   let readModel: EmployeeLifecycleSuspensionReadModel | null = null;
 
-  mutateEmployeeLifecycleRepository((draft) => {
+  mutateEmployeeLifecycleAction((draft) => {
     const stateIndex = draft.states.findIndex(
       (state) => state.employeeId === parsedInput.employeeId
     );
@@ -1463,7 +1474,7 @@ const resolveEmployeeLifecycleSuspensionAction = (
   const closedAt = parsedInput.closedAt ?? new Date();
   let readModel: EmployeeLifecycleSuspensionReadModel | null = null;
 
-  mutateEmployeeLifecycleRepository((draft) => {
+  mutateEmployeeLifecycleAction((draft) => {
     const stateIndex = draft.states.findIndex(
       (state) => state.employeeId === parsedInput.employeeId
     );
@@ -1653,7 +1664,7 @@ const startEmployeeLifecycleExit = (
   const recordedAt = parsedInput.recordedAt ?? effectiveAt;
   let readModel: EmployeeLifecycleExitReadModel | null = null;
 
-  mutateEmployeeLifecycleRepository((draft) => {
+  mutateEmployeeLifecycleAction((draft) => {
     const stateIndex = draft.states.findIndex(
       (state) => state.employeeId === parsedInput.employeeId
     );
@@ -1729,7 +1740,7 @@ export function recordEmployeeLifecycleExitNotice(
   const recordedAt = parsedInput.noticeRecordedAt ?? new Date();
   let readModel: EmployeeLifecycleExitReadModel | null = null;
 
-  mutateEmployeeLifecycleRepository((draft) => {
+  mutateEmployeeLifecycleAction((draft) => {
     const stateIndex = draft.states.findIndex(
       (state) => state.employeeId === parsedInput.employeeId
     );
@@ -1774,7 +1785,7 @@ export function triggerEmployeeLifecycleOffboarding(
   const offboardingAt = parsedInput.offboardingAt ?? new Date();
   let readModel: EmployeeLifecycleExitReadModel | null = null;
 
-  mutateEmployeeLifecycleRepository((draft) => {
+  mutateEmployeeLifecycleAction((draft) => {
     const stateIndex = draft.states.findIndex(
       (state) => state.employeeId === parsedInput.employeeId
     );
@@ -1828,7 +1839,7 @@ export function archiveEmployeeLifecycleExit(
   const archivedAt = parsedInput.archivedAt ?? new Date();
   let readModel: EmployeeLifecycleExitReadModel | null = null;
 
-  mutateEmployeeLifecycleRepository((draft) => {
+  mutateEmployeeLifecycleAction((draft) => {
     const stateIndex = draft.states.findIndex(
       (state) => state.employeeId === parsedInput.employeeId
     );
@@ -1911,7 +1922,7 @@ export function transitionEmployeeLifecycleState(
   const recordedAt = parsedInput.recordedAt ?? effectiveAt;
   let nextState: EmployeeLifecycleState | null = null;
 
-  mutateEmployeeLifecycleRepository((draft) => {
+  mutateEmployeeLifecycleAction((draft) => {
     const stateIndex = draft.states.findIndex(
       (state) => state.employeeId === parsedInput.employeeId
     );

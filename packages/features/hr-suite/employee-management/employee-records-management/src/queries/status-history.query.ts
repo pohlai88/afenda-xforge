@@ -1,6 +1,5 @@
 import "server-only";
 
-import { hrRecordsStore } from "../hr.workforce.records.store.ts";
 import { canReadHrEmployeeRecord } from "../policy.ts";
 import {
   projectHrEmployeeStatusHistory,
@@ -8,6 +7,7 @@ import {
   resolveCurrentHrEmployeeStatusHistory,
   sortHrEmployeeStatusHistory,
 } from "../projector/status.ts";
+import { hrRecordsStore } from "../records-store.ts";
 import type {
   HrEmployeeStatusHistoryPageModel,
   HrEmployeeStatusHistoryRecord,

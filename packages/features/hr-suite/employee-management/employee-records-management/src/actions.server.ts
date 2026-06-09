@@ -1,5 +1,18 @@
 import "server-only";
 
+import { toHrRecordsActionFailure } from "./action-result.shared.ts";
+import { hrRecordsAuditActions } from "./events.ts";
+import {
+  hrRecordsArchiveEmployeeSchema,
+  hrRecordsAssignmentSchema,
+  hrRecordsCreateEmployeeSchema,
+  hrRecordsRehireEmployeeSchema,
+  hrRecordsUpdateEmployeeSchema,
+} from "./form.shared.ts";
+import {
+  requireHrEmployeeSensitiveMutationAccess,
+  requireHrRecordsWrite,
+} from "./policy.ts";
 import type {
   HrRecordsActionResult,
   HrRecordsArchiveEmployeeInput,
@@ -7,21 +20,8 @@ import type {
   HrRecordsCreateEmployeeInput,
   HrRecordsRehireEmployeeInput,
   HrRecordsUpdateEmployeeInput,
-} from "./hr.workforce.records.contract.ts";
-import { hrRecordsAuditActions } from "./hr.workforce.records.event.ts";
-import { hrRecordsStore } from "./hr.workforce.records.store.ts";
-import { toHrRecordsActionFailure } from "./hr.workforce.records-action-result.shared.ts";
-import {
-  hrRecordsArchiveEmployeeSchema,
-  hrRecordsAssignmentSchema,
-  hrRecordsCreateEmployeeSchema,
-  hrRecordsRehireEmployeeSchema,
-  hrRecordsUpdateEmployeeSchema,
-} from "./hr.workforce.records-form.shared.ts";
-import {
-  requireHrEmployeeSensitiveMutationAccess,
-  requireHrRecordsWrite,
-} from "./policy.ts";
+} from "./records.contract.ts";
+import { hrRecordsStore } from "./records-store.ts";
 
 type HrRecordsActionContext = {
   canWrite?: boolean;

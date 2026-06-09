@@ -1,6 +1,4 @@
 import "server-only";
-import { hrRecordsStore } from "./hr.workforce.records.store.ts";
-import { hrEmployeeDetailRoutePath } from "./hr.workforce.records-route.contract.ts";
 import type {
   HrEmployeeRecordDetailView,
   HrEmployeeRecordExportView,
@@ -9,6 +7,8 @@ import {
   projectHrEmployeeRecordDetail,
   projectHrEmployeeRecordExportDetail,
 } from "./projector/record-detail.ts";
+import { hrRecordsStore } from "./records-store.ts";
+import { hrEmployeeDetailRoutePath } from "./route-paths.ts";
 
 export type HrEmployeeRecordDetailPageModelInput = {
   organizationId: string;

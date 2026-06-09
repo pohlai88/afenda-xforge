@@ -22,12 +22,15 @@
     "lint": "biome check .",
     "format": "biome format --write .",
     "clean": "git clean -xdf .cache .turbo dist node_modules",
+    "test": "node --conditions react-server --import tsx --test tests/customers.test.ts",
     "typecheck": "tsc --noEmit --emitDeclarationOnly false"
   },
   "dependencies": {
     "@repo/api": "workspace:*",
     "@repo/audit": "workspace:*",
+    "@repo/auth": "workspace:*",
     "@repo/database": "workspace:*",
+    "@repo/errors": "workspace:*",
     "@repo/execution": "workspace:*",
     "@repo/logger": "workspace:*",
     "@repo/metadata": "workspace:*",
@@ -40,6 +43,7 @@
   "devDependencies": {
     "@repo/typescript-config": "workspace:*",
     "@types/node": "catalog:",
+    "tsx": "catalog:",
     "typescript": "catalog:"
   }
 }

@@ -13,12 +13,14 @@ export function listManufacturingSafetyTrainingOshaComplianceRecords(
   _query: ListManufacturingSafetyTrainingOshaComplianceQuery = {},
   _context?: HrSuiteFeatureContext
 ): Promise<readonly ManufacturingSafetyTrainingOshaComplianceRecord[]> {
-  return inMemoryRecords;
+  return Promise.resolve(inMemoryRecords);
 }
 
 export function getManufacturingSafetyTrainingOshaComplianceRecord(
   id: string,
   _context?: HrSuiteFeatureContext
 ): Promise<ManufacturingSafetyTrainingOshaComplianceRecord | null> {
-  return inMemoryRecords.find((record) => record.id === id) ?? null;
+  return Promise.resolve(
+    inMemoryRecords.find((record) => record.id === id) ?? null
+  );
 }

@@ -17,3 +17,5 @@ storybook-static
 .biome-ai.json
 apps/email/.react-email/
 docs/runtime/
+
+.vercel

@@ -309,12 +309,12 @@ The current package already includes employee-record-specific structures and ser
 | Feature identity | [`src/metadata.ts`](src/metadata.ts), [`src/manifest.ts`](src/manifest.ts), [`src/shared/index.ts`](src/shared/index.ts) | Declares package metadata, feature scope, package name, and legacy source provenance |
 | Public contracts | [`src/contract.ts`](src/contract.ts) | Re-exports employee-record types, forms, permissions, status schema, and route contracts |
 | Public door | [`src/index.ts`](src/index.ts), [`src/server.ts`](src/server.ts) | Exposes the server-only package API and page-model builders |
-| Write actions | [`src/actions.ts`](src/actions.ts), [`src/hr.workforce.records.actions.server.ts`](src/hr.workforce.records.actions.server.ts) | Provides explicit employee lifecycle commands including create, update, assignment, archive, and rehire |
-| Queries | [`src/queries.ts`](src/queries.ts), [`src/hr.workforce.records.queries.ts`](src/hr.workforce.records.queries.ts) | Exposes governed record lookup and listing flows |
-| Store and mutation support | [`src/hr.workforce.records.store.ts`](src/hr.workforce.records.store.ts), [`src/hr.workforce.records.mutation.shared.server.ts`](src/hr.workforce.records.mutation.shared.server.ts) | Maintains the underlying employee record state and shared mutation logic |
-| Page models | [`src/hr.workforce.records.page-model.server.ts`](src/hr.workforce.records.page-model.server.ts), [`src/hr.workforce.records.detail.page-model.server.ts`](src/hr.workforce.records.detail.page-model.server.ts) | Builds overview and detail read models for HR surfaces |
-| Access control | [`src/hr.workforce.records.access.policy.server.ts`](src/hr.workforce.records.access.policy.server.ts), [`src/hr.workforce.records-sensitive-access.shared.ts`](src/hr.workforce.records-sensitive-access.shared.ts) | Defines access policy and sensitive-read behavior |
-| Domain surfaces | `src/hr.workforce.records-*.surface.ts`, `src/hr.workforce.records-*.shared.ts` | Provides domain-specific list, stats, metadata, coverage, and audit surface definitions |
+| Write actions | [`src/actions.ts`](src/actions.ts), [`src/actions.server.ts`](src/actions.server.ts) | Provides explicit employee lifecycle commands including create, update, assignment, archive, and rehire |
+| Queries | [`src/queries.ts`](src/queries.ts), [`src/queries.server.ts`](src/queries.server.ts) | Exposes governed record lookup and listing flows |
+| Store and mutation support | [`src/records-store.ts`](src/records-store.ts), [`src/actions.server.ts`](src/actions.server.ts) | Maintains the underlying employee record state and shared mutation logic |
+| Page models | [`src/page-model.server.ts`](src/page-model.server.ts), [`src/detail-page-model.server.ts`](src/detail-page-model.server.ts) | Builds overview and detail read models for HR surfaces |
+| Access control | [`src/policy.ts`](src/policy.ts), [`src/sensitive-access.shared.ts`](src/sensitive-access.shared.ts) | Defines access policy and sensitive-read behavior |
+| Domain surfaces | `src/*.surface.ts`, `src/*.shared.ts`, [`src/coverage.shared.ts`](src/coverage.shared.ts) | Provides domain-specific list, stats, metadata, coverage, and audit surface definitions |
 | Execution surface | [`src/execution/index.ts`](src/execution/index.ts) | Packages the operational commands and queries into a callable feature surface |
 
 ### What the code does not yet fully implement
@@ -333,8 +333,8 @@ The package already models the employee-records domain with meaningful server-si
 Slice 1 is implemented as a durable record baseline with scoped repository persistence and API wiring.
 
 - `src/repository.ts` now owns file-backed load/save/mutate behavior, organization scoping, and test hooks.
-- `src/hr.workforce.records.store.ts` delegates reads and writes to the repository while preserving compatibility call sites.
-- `src/hr.workforce.records.queries.ts` now respects read denial and organization scope.
+- `src/records-store.ts` delegates reads and writes to the repository while preserving compatibility call sites.
+- `src/queries.server.ts` now respects read denial and organization scope.
 - `src/index.ts` exports `hrRecordsCreateEmployeeSchema` so the API can validate create payloads against the package contract.
 - `apps/api/app/api/hr/records/_lib/context.ts`, `apps/api/app/api/hr/records/route.ts`, and `apps/api/app/api/hr/records/[employeeId]/route.ts` provide request-scoped read/write access to the feature surface.
 - `test/public-api.test.ts` and `test/records-baseline.test.ts` cover export compatibility, parsing, scoped persistence, read denial, and write denial.
@@ -349,11 +349,11 @@ Validation completed on 2026-06-09:
 
 Slice 2 is implemented as full profile persistence with sensitive-aware detail projection.
 
-- `src/hr.workforce.records.contract.ts` now models the persisted profile fields on the canonical employee record.
+- `src/records.contract.ts` now models the persisted profile fields on the canonical employee record.
 - `src/policy.ts` centralizes read, write, and sensitive-read decisions.
 - `src/repository.ts` persists the full profile payload accepted by the create/update forms and updates assignment-linked references.
 - `src/projector/record-detail.ts` projects detail reads into a JSON-safe view and masks sensitive fields when sensitive access is not granted.
-- `src/hr.workforce.records.detail.page-model.server.ts` uses the shared projector instead of duplicating masking logic.
+- `src/detail-page-model.server.ts` uses the shared projector instead of duplicating masking logic.
 - `apps/api/app/api/hr/records/[employeeId]/route.ts` serves the sensitive-aware detail read and PATCH update path.
 - `test/profile-sensitive-read.test.ts` covers profile persistence, default masking, sensitive access visibility, and update persistence.
 
@@ -372,7 +372,7 @@ Slice 3 is implemented as effective-dated assignment history with current-state 
 - `src/repository.ts` appends assignment facts, preserves prior assignment context, and synthesizes legacy assignment history for older records.
 - `src/queries/assignments.query.ts` filters assignment history by employee, manager, department, location, current/as-of, and pagination.
 - `src/projector/assignment.ts` and `src/projector/read-models.ts` derive the current assignment and validate the read model shape.
-- `src/hr.workforce.records-assignments-list.surface.ts` and `apps/api/app/api/hr/records/[employeeId]/assignments/route.ts` expose the assignment history surface.
+- `src/assignments-list.surface.ts` and `apps/api/app/api/hr/records/[employeeId]/assignments/route.ts` expose the assignment history surface.
 - `packages/database/schema.ts` adds `employee_record_assignment_history` with tenant/company/employee indexes.
 - `packages/database/drizzle/0005_nebulous_stranger.sql` records the generated migration.
 - `test/assignment-history.test.ts` covers append behavior, current derivation, prior preservation, invalid employee handling, and cross-company isolation.
@@ -394,7 +394,7 @@ Slice 4 is implemented as effective-dated employment status history with lifecyc
 - `src/repository.ts` seeds the initial status fact, validates transitions, appends lifecycle history, and synthesizes legacy status rows on read.
 - `src/projector/status.ts` and `src/projector/read-models.ts` derive ordered history views and the current status snapshot.
 - `src/queries/status-history.query.ts` filters by employee, status, source, search text, current/as-of state, and organization scope.
-- `src/hr.workforce.records-status-history-list.surface.ts` and `apps/api/app/api/hr/records/[employeeId]/status-history/route.ts` expose the status-history surface.
+- `src/status-history-list.surface.ts` and `apps/api/app/api/hr/records/[employeeId]/status-history/route.ts` expose the status-history surface.
 - `packages/database/schema.ts` adds `employee_record_status_history` with tenant/company/employee, status, source, and effective-time indexes.
 - `packages/database/drizzle/0006_sloppy_crystal.sql` records the generated migration.
 - `test/status-history.test.ts` covers initial status, valid transitions, invalid transitions, ordering, read denial, and cross-company isolation.
@@ -418,7 +418,7 @@ Slice 5 is implemented as a governed archive lifecycle with audit persistence an
 - `src/registry/action-registry.ts` and `src/registry/audit.ts` register the archive capability and build the audit record in a typed form.
 - `src/repository.ts` appends the archive status fact and audit trail entry in the same repository mutation and keeps repeated archive behavior idempotent.
 - `src/projector/record-summary.ts` and `src/queries/records.query.ts` exclude archived records from the default directory while allowing separated reads to include them.
-- `src/hr.workforce.records-separated-list.surface.ts` and `src/hr.workforce.records.page-model.server.ts` expose the archive-aware operational read behavior.
+- `src/separated-list.surface.ts` and `src/page-model.server.ts` expose the archive-aware operational read behavior.
 - `apps/api/app/api/hr/records/[employeeId]/archive/route.ts` exposes the archive command as a request-scoped API route.
 - `test/archive-lifecycle.test.ts` covers success, missing reason, idempotent repeat archive, separated inclusion, directory exclusion, audit trail persistence, and cross-company isolation.
 
@@ -445,8 +445,8 @@ Deliverables:
 Phase 1 implementation evidence:
 
 - `src/repository.ts` now persists audit entries for create, update, assignment, archive, and rehire mutations, and treats archived or separated records as read-only until they are rehired.
-- `src/hr.workforce.records.actions.server.ts` and `src/hr.workforce.records.store.ts` surface archive and rehire failures as structured action results instead of assuming success.
-- `src/hr.workforce.records-route.contract.ts` and `apps/api/app/api/hr/records/[employeeId]/rehire/route.ts` expose a rehire surface alongside the archive surface.
+- `src/actions.server.ts` and `src/records-store.ts` surface archive and rehire failures as structured action results instead of assuming success.
+- `src/route-paths.ts` and `apps/api/app/api/hr/records/[employeeId]/rehire/route.ts` expose a rehire surface alongside the archive surface.
 - Rehire is implemented as a canonical-record reactivation model: the prior employee record is reactivated after archive or separation instead of creating a brand-new employee master record.
 - `test/mutation-audit.test.ts` covers lifecycle audit persistence, archive-to-rehire continuity, active-state rejection, and cross-company isolation.
 - `test/archive-lifecycle.test.ts` covers archive success, missing reason, repeated archive, separated inclusion, directory exclusion, and audit trail persistence.
@@ -473,7 +473,7 @@ Phase 2 implementation evidence:
 
 - `src/repository.ts` now treats assignment history as effective-dated facts by closing the prior interval whenever a new assignment is appended, and it rejects invalid temporal ordering before persistence.
 - `src/queries/assignments.query.ts` and `src/queries/status-history.query.ts` derive current snapshots from the full stored history first, then apply current-versus-historical filtering and pagination consistently.
-- `src/projector/completeness.ts`, `src/queries/records.query.ts`, `src/hr.workforce.records-overview.shared.ts`, and `src/hr.workforce.records-overview-stat.surface.ts` project completeness and incomplete counts from stored facts instead of manual flags.
+- `src/projector/completeness.ts`, `src/queries/records.query.ts`, `src/overview.shared.ts`, and `src/overview-stat.surface.ts` project completeness and incomplete counts from stored facts instead of manual flags.
 - `src/repository.ts` validates manager and organizational references against scoped employee records before create, update, and assignment writes are accepted.
 - `test/temporal-organizational-model.test.ts`, `test/assignment-history.test.ts`, `test/profile-sensitive-read.test.ts`, and `test/mutation-audit.test.ts` cover assignment interval closure, current-state derivation by `asOf`, scoped reference validation, and deterministic completeness projection.
 
@@ -497,8 +497,8 @@ Deliverables:
 Phase 3 implementation evidence:
 
 - `src/policy.ts` now centralizes sensitive-field mutation gating so create, update, and rehire writes that carry email, identity, phone, date-of-birth, or address data fail closed unless sensitive access is granted.
-- `src/projector/record-detail.ts` adds an export-safe detail projection that omits sensitive fields entirely, and `src/hr.workforce.records.detail.page-model.server.ts` exposes an export page-model helper built on that projection.
-- `src/hr.workforce.records.actions.server.ts` enforces the sensitive mutation gate before persistence, so sensitive profile writes cannot bypass the read-policy flag.
+- `src/projector/record-detail.ts` adds an export-safe detail projection that omits sensitive fields entirely, and `src/detail-page-model.server.ts` exposes an export page-model helper built on that projection.
+- `src/actions.server.ts` enforces the sensitive mutation gate before persistence, so sensitive profile writes cannot bypass the read-policy flag.
 - `test/profile-sensitive-read.test.ts` now covers masked detail reads, export-safe projection shape, allowed sensitive writes with sensitive access, and denied sensitive writes without it.
 
 Validation completed on 2026-06-09:
@@ -524,7 +524,7 @@ Phase 4 implementation evidence:
 - `src/contracts/manifest.contract.ts`, `src/contracts/metadata.contract.ts`, `src/contracts/bounded-context.contract.ts`, `src/contracts/action.contract.ts`, and `src/contracts/route.contract.ts` define the versioned manifest, metadata, bounded-context, action, and route contracts.
 - `src/contracts/integration.contract.ts`, `src/projector/integration.ts`, and `src/registry/integration.ts` define the downstream-safe employee integration snapshot, change event, and versioned integration event registry.
 - `src/registry/action-registry.ts` now captures capabilities, risk, approval, integration-event linkage, and archive reason requirements on the governed action registry.
-- `src/hr.workforce.records-route.contract.ts`, `src/contract.ts`, `src/index.ts`, and `src/server.ts` export the route contract, stable employee integration builders, manifest, metadata, and server-facing integration surface.
+- `src/route-paths.ts`, `src/contract.ts`, `src/index.ts`, and `src/server.ts` export the route contract, stable employee integration builders, manifest, metadata, and server-facing integration surface.
 - `test/integration-contracts.test.ts` validates manifest shape, route contract versioning, action registry decisions, downstream-safe snapshot redaction, versioned change events, and compliance consumer compatibility without duplicating employee ownership.
 
 Validation completed on 2026-06-09:
@@ -546,10 +546,10 @@ Deliverables:
 
 Phase 5 implementation evidence:
 
-- `src/hr.workforce.records-search-params.parse.shared.ts` now parses directory page windows and caps bulk page size before it reaches the query layer.
-- `src/hr.workforce.records.contract.ts` extends the page-model contract with page window fields so the directory surface can report bulk-read metadata explicitly.
+- `src/search-params.parse.shared.ts` now parses directory page windows and caps bulk page size before it reaches the query layer.
+- `src/records.contract.ts` extends the page-model contract with page window fields so the directory surface can report bulk-read metadata explicitly.
 - `src/queries/records.query.ts` adds a paginated directory query helper, keeps the legacy full-list helper for compatibility, and preserves organization scoping plus archive/separation filtering.
-- `src/hr.workforce.records.page-model.server.ts` now returns a windowed directory model with `page`, `pageSize`, `totalCount`, and `hasNextPage` for operational use.
+- `src/page-model.server.ts` now returns a windowed directory model with `page`, `pageSize`, `totalCount`, and `hasNextPage` for operational use.
 - `src/server.ts` and `src/index.ts` export the paginated directory helper so dependent code can consume the bulk-safe read surface directly.
 - `test/operational-hardening.test.ts` covers page parsing, bulk-window capping, window metadata, and paginated directory reads.
 

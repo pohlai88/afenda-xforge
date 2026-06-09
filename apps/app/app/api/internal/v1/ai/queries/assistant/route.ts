@@ -62,6 +62,7 @@ const assistantRoute = createContractRoute(
     const result = await machine.chat({
       context: {
         companyId: companyGrant?.companyId,
+        grantedPermissions: access.grantedPermissions,
         history: body.history,
         module: selectedModule,
         tenantId: access.tenantId,

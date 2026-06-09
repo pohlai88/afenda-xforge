@@ -6,7 +6,7 @@ import type {
   HrRecordsCreateEmployeeInput,
   HrRecordsRehireEmployeeInput,
   HrRecordsUpdateEmployeeInput,
-} from "./hr.workforce.records.contract.ts";
+} from "./records.contract.ts";
 import {
   archiveHrEmployeeRecordRepository,
   assignHrEmployeeRecordRepository,

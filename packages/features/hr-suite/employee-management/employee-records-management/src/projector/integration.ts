@@ -2,7 +2,7 @@ import {
   hrEmployeeIntegrationChangeEventSchema,
   hrEmployeeIntegrationSnapshotSchema,
 } from "../contracts/integration.contract.ts";
-import type { HrEmployeeRecordDetail } from "../hr.workforce.records.contract.ts";
+import type { HrEmployeeRecordDetail } from "../records.contract.ts";
 
 const toIsoDate = (value: Date | null | undefined): string | null =>
   value ? value.toISOString() : null;

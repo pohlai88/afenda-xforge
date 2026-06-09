@@ -1,13 +1,13 @@
 import "server-only";
 
-import { runHrSuiteFeatureAction } from "./execution/action.ts";
 import {
   archiveHrEmployeeRecordAction,
   createHrEmployeeRecordAction,
   recordHrEmployeeAssignmentAction,
   rehireHrEmployeeAction,
   updateHrEmployeeRecordAction,
-} from "./hr.workforce.records.actions.server.ts";
+} from "./actions.server.ts";
+import { runHrSuiteFeatureAction } from "./execution/action.ts";
 
 export const archiveHrEmployeeRecord = (
   ...args: Parameters<typeof archiveHrEmployeeRecordAction>

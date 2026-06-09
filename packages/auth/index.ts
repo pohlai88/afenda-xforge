@@ -1,3 +1,13 @@
+export type {
+  ExplicitCompanyAccess,
+  ExplicitCompanyGrant,
+  ExplicitTenantAccess,
+  ExplicitTenantMembership,
+} from "./access.ts";
+export {
+  requireCompanyActorAccess,
+  requireTenantActorAccess,
+} from "./access.ts";
 export { createBrowserSupabaseClient } from "./client.ts";
 export type { SignInProps } from "./components/sign-in.tsx";
 export { SignIn } from "./components/sign-in.tsx";
@@ -5,6 +15,7 @@ export type { SignOutProps } from "./components/sign-out.tsx";
 export { SignOut } from "./components/sign-out.tsx";
 export type { SignUpProps } from "./components/sign-up.tsx";
 export { SignUp } from "./components/sign-up.tsx";
+export { resolveTenantSlugFromHost } from "./host.ts";
 export type { AuthKeys } from "./keys.ts";
 export { keys, loadAuthKeys } from "./keys.ts";
 export type { AuthProviderProps } from "./provider.tsx";
@@ -40,5 +51,8 @@ export {
   requireActiveTenantAccess,
   requireActiveTenantMembership,
   requireAuth,
+  requireCompanyAccess,
+  requireTenantAccess,
+  resolveTenantByHost,
   verifyOtpCode,
 } from "./server.ts";

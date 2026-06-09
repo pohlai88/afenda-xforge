@@ -7,13 +7,13 @@ import { afterEach, beforeEach, test } from "node:test";
 import {
   createHrEmployeeRecordAction,
   recordHrEmployeeAssignmentAction,
-} from "../src/hr.workforce.records.actions.server.ts";
+} from "../src/actions.server.ts";
+import { loadHrRecordsOverviewSnapshot } from "../src/overview.shared.ts";
+import { listHrEmployeeAssignments } from "../src/queries/assignments.query.ts";
 import {
   getHrEmployeeRecord,
   listHrEmployeeRecords,
-} from "../src/hr.workforce.records.queries.ts";
-import { loadHrRecordsOverviewSnapshot } from "../src/hr.workforce.records-overview.shared.ts";
-import { listHrEmployeeAssignments } from "../src/queries/assignments.query.ts";
+} from "../src/queries.server.ts";
 import {
   loadHrEmployeeRecordsRepository,
   resetHrEmployeeRecordsRepositoryForTesting,

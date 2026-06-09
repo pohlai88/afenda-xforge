@@ -12,12 +12,14 @@ export function listBonusIncentiveManagementRecords(
   _query: ListBonusIncentiveManagementQuery = {},
   _context?: HrSuiteFeatureContext
 ): Promise<readonly BonusIncentiveManagementRecord[]> {
-  return inMemoryRecords;
+  return Promise.resolve(inMemoryRecords);
 }
 
 export function getBonusIncentiveManagementRecord(
   id: string,
   _context?: HrSuiteFeatureContext
 ): Promise<BonusIncentiveManagementRecord | null> {
-  return inMemoryRecords.find((record) => record.id === id) ?? null;
+  return Promise.resolve(
+    inMemoryRecords.find((record) => record.id === id) ?? null
+  );
 }

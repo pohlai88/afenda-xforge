@@ -23,9 +23,9 @@ export const keys = (): SecurityKeys =>
   createEnv({
     skipValidation: process.env.SKIP_ENV_VALIDATION === "true",
     server: {
-      SECURITY_ENABLE_STRICT_HEADERS: z.coerce.boolean().optional(),
-      SECURITY_ENABLE_BOT_PROTECTION: z.coerce.boolean().optional(),
-      SECURITY_ALLOW_UNSAFE_METHODS: z.coerce.boolean().optional(),
+      SECURITY_ENABLE_STRICT_HEADERS: z.stringbool().optional(),
+      SECURITY_ENABLE_BOT_PROTECTION: z.stringbool().optional(),
+      SECURITY_ALLOW_UNSAFE_METHODS: z.stringbool().optional(),
       SECURITY_ALLOWED_ORIGINS: z.string().optional(),
       SECURITY_CONTENT_SECURITY_POLICY: z.string().optional(),
       SECURITY_CONTENT_SECURITY_POLICY_REPORT_ONLY: z.string().optional(),

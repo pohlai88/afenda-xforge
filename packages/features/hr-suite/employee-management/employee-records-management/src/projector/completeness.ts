@@ -1,4 +1,4 @@
-import type { HrEmployeeRecord } from "../hr.workforce.records.contract.ts";
+import type { HrEmployeeRecord } from "../records.contract.ts";
 
 export const hrEmployeeRecordCoverageFields = [
   "currentDepartmentId",

@@ -1,4 +1,4 @@
-import type { HrEmployeeRecordSummary } from "./hr.workforce.records.contract.ts";
+import type { HrEmployeeRecordSummary } from "./records.contract.ts";
 
 export const hrRecordsDirectorySurfaceKey = "hr.records.directory" as const;
 export const hrRecordsDirectorySearchParam = "directorySearch" as const;

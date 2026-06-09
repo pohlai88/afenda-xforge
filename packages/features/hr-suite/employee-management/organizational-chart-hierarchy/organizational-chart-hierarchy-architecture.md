@@ -297,28 +297,27 @@ The current package already models core organization-structure concepts and expo
 
 | Area | Code location | Current behavior |
 | --- | --- | --- |
-| Feature identity | [`src/metadata.ts`](src/metadata.ts), [`src/manifest.ts`](src/manifest.ts), [`src/shared/index.ts`](src/shared/index.ts) | Declares feature metadata, package scope, package name, and legacy source provenance |
-| Public contracts | [`src/contract.ts`](src/contract.ts), [`src/contracts/index.ts`](src/contracts/index.ts) | Exposes org-unit status and type schemas plus the underlying domain types for units, chart nodes, searches, and upsert inputs |
-| Public door | [`src/index.ts`](src/index.ts), [`src/server.ts`](src/server.ts) | Re-exports the server-only package API, queries, mutations, and page-model builder |
-| Write actions | [`src/actions.ts`](src/actions.ts), [`src/actions.server.ts`](src/actions.server.ts) | Accepts form-driven upserts for units, positions, and reporting relationships |
-| Query layer | [`src/queries.ts`](src/queries.ts), [`src/queries/read-models.ts`](src/queries/read-models.ts) | Exposes chart, overview, units, positions, reporting lines, vacancies, headcount, and audit windows |
-| Page model | [`src/page-model.server.ts`](src/page-model.server.ts) | Composes search state and all read surfaces into a server-ready organizational workspace model |
-| Store | [`src/store.ts`](src/store.ts) | Uses an in-memory store to persist structural nodes for units, positions, and reporting relationships |
-| Forms and surface helpers | [`src/shared/form.shared.ts`](src/shared/form.shared.ts), [`src/shared/list-load.shared.ts`](src/shared/list-load.shared.ts), [`src/shared/list-surfaces.surface.ts`](src/shared/list-surfaces.surface.ts), [`src/shared/overview-stat.surface.ts`](src/shared/overview-stat.surface.ts), [`src/shared/search-params.parse.shared.ts`](src/shared/search-params.parse.shared.ts), [`src/shared/ui-copy.shared.ts`](src/shared/ui-copy.shared.ts) | Defines schema validation, UI copy, columns, metadata, and list-surface helpers |
+| Feature identity | [`src/metadata.ts`](src/metadata.ts), [`src/manifest.ts`](src/manifest.ts), [`src/shared/index.ts`](src/shared/index.ts) | Declares feature metadata, package scope, package name, source provenance, and feature-scoped UI copy |
+| Public contracts | [`src/contract.ts`](src/contract.ts), [`src/contracts/index.ts`](src/contracts/index.ts) | Exposes canonical schemas and types for units, positions, reporting lines, vacancies, headcount, audit, queries, projections, routes, and mutation inputs |
+| Public door | [`src/index.ts`](src/index.ts), [`src/server.ts`](src/server.ts) | Re-exports the server-only package API, read-model functions, mutations, projection helpers, and registry metadata |
+| API routes | [`apps/api/app/api/hr/org/*`](../../../../../../apps/api/app/api/hr/org) | Delegates GET endpoints for overview, units, positions, reporting lines, vacancies, headcount, and audit trail back to package server functions |
+| Write actions | [`src/actions.ts`](src/actions.ts), [`src/actions.server.ts`](src/actions.server.ts) | Accepts form-driven upserts for units, positions, and reporting relationships and returns canonical mutation results |
+| Query layer | [`src/queries.ts`](src/queries.ts), [`src/queries/read-models.ts`](src/queries/read-models.ts) | Exposes validated chart, overview, units, positions, reporting lines, vacancies, headcount, and audit windows |
+| Page model | [`src/page-model.server.ts`](src/page-model.server.ts) | Composes search state and all read surfaces into a server-ready organizational workspace model via canonical query functions |
+| Store | [`src/store.ts`](src/store.ts), [`src/repository.ts`](src/repository.ts) | Persists units, positions, reporting relationships, and audit events with scoped, durable repository backing |
+| Registry | [`src/registry/*`](src/registry), [`src/metadata.ts`](src/metadata.ts), [`src/manifest.ts`](src/manifest.ts) | Declares capabilities, actions, audit events, navigation, dashboards, classification, and requirement coverage |
+| Forms and surface helpers | [`src/shared/form.shared.ts`](src/shared/form.shared.ts), [`src/shared/list-load.shared.ts`](src/shared/list-load.shared.ts), [`src/shared/list-surfaces.surface.ts`](src/shared/list-surfaces.surface.ts), [`src/shared/overview-stat.surface.ts`](src/shared/overview-stat.surface.ts), [`src/shared/search-params.parse.shared.ts`](src/shared/search-params.parse.shared.ts), [`src/shared/ui-copy.shared.ts`](src/shared/ui-copy.shared.ts) | Defines schema validation, UI copy, search params, and list-surface helpers |
 | Events and execution surface | [`src/execution/event.ts`](src/execution/event.ts), [`src/execution/index.ts`](src/execution/index.ts) | Defines audit-style action names and wraps the write operations into a callable execution surface |
 
 ### What the code does not yet fully implement
 
-- no durable database-backed repository
-- no explicit hierarchy-loop prevention in the current store implementation
-- no real separation between unit, position, and reporting-line persistence models
-- no full effective-dated historical structure engine
-- no real vacancy, headcount, or audit-trail persistence beyond placeholder query outputs
-- no employee or workflow integration beyond structural references
+- no point-in-time temporal query engine for historical reconstruction of structure state
+- no employee master-data resolution or workflow-routing integration beyond structural references
+- no write-oriented HTTP routes for org mutations; write entry points remain server-action based
 
 ### Mapping judgment
 
-The package already has real domain-specific structure, but much of the operational depth is still placeholder-grade. The architecture doc should therefore be read as a target design with a partially implemented Xforge package beneath it.
+The package now owns the core structural domain with durable persistence, canonical read models, and delegated HTTP read routes. Remaining work is primarily around temporal reconstruction and adjacent HR integrations.
 
 ## Upgrade plan
 
@@ -381,8 +380,8 @@ Deliverables:
 
 These are the highest-value fixes to bring the current package closer to the target architecture.
 
-1. Replace the in-memory `hrOrgStore` with durable persistence.
-2. Split unit, position, and reporting-line data into distinct persistence models instead of storing all three as chart nodes.
-3. Add hierarchy-integrity validation for loops, self-parenting, and invalid parent types.
-4. Implement real vacancy, headcount, and audit-trail projections instead of placeholder results.
-5. Add tests for upsert flows, effective-date handling, and page-model correctness.
+1. Add temporal reconstruction support for historical structure views.
+2. Integrate employee master-data and workflow-routing lookups into reporting-line and manager references.
+3. Add write-oriented HTTP route coverage if the API boundary needs to expose mutations beyond server actions.
+4. Expand export/reporting workflows for downstream HR and analytics consumers.
+5. Extend integration tests to cover app API routes and read-model contracts end to end.

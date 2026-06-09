@@ -28,7 +28,26 @@ export type {
   HrRecordsStatusHistoryQuery,
 } from "./contracts/index.ts";
 export { hrRecordsRouteContract } from "./contracts/index.ts";
+export {
+  type HrRecordsEmploymentStatus,
+  hrRecordsEmploymentStatusSchema,
+} from "./employment-status.schema.ts";
 export { hrRecordsFeatureScope, hrSuiteFeatureScope } from "./feature-scope.ts";
+export {
+  hrRecordsArchiveEmployeeSchema,
+  hrRecordsAssignmentSchema,
+  hrRecordsCreateEmployeeSchema,
+  hrRecordsRehireEmployeeSchema,
+  hrRecordsUpdateEmployeeSchema,
+} from "./form.shared.ts";
+export {
+  hrRecordsFeature,
+  hrRecordsFeatureDomain,
+  hrRecordsFeatureId,
+  hrRecordsFeaturePackageName,
+  hrRecordsFeatureSource,
+  hrRecordsFeatureSuite,
+} from "./identity.ts";
 export {
   type HrEmployeeRecord,
   type HrEmployeeRecordDetail,
@@ -46,18 +65,14 @@ export {
   hrRecordsSearchParamsSchema,
   hrRecordsSensitiveReadPermission,
   hrRecordsWritePermission,
-} from "./hr.workforce.records.contract.ts";
+} from "./records.contract.ts";
 export {
-  type HrRecordsEmploymentStatus,
-  hrRecordsEmploymentStatusSchema,
-} from "./hr.workforce.records-employment-status.schema.ts";
-export {
-  hrRecordsArchiveEmployeeSchema,
-  hrRecordsAssignmentSchema,
-  hrRecordsCreateEmployeeSchema,
-  hrRecordsRehireEmployeeSchema,
-  hrRecordsUpdateEmployeeSchema,
-} from "./hr.workforce.records-form.shared.ts";
+  buildHrEmployeeIntegrationChangeEvent,
+  buildHrEmployeeIntegrationSnapshot,
+  hrRecordsIntegrationEventSchema,
+  hrRecordsIntegrationEvents,
+  hrRecordsIntegrationSnapshotVersion,
+} from "./registry/integration.ts";
 export {
   type HrRecordsRoutePath,
   hrEmployeeArchiveRoutePath,
@@ -66,20 +81,5 @@ export {
   hrEmployeeRehireRoutePath,
   hrEmployeeStatusHistoryRoutePath,
   hrRecordsRoutePaths,
-} from "./hr.workforce.records-route.contract.ts";
-export { parseHrRecordsSearchParams } from "./hr.workforce.records-search-params.parse.shared.ts";
-export {
-  hrRecordsFeature,
-  hrRecordsFeatureDomain,
-  hrRecordsFeatureId,
-  hrRecordsFeaturePackageName,
-  hrRecordsFeatureSource,
-  hrRecordsFeatureSuite,
-} from "./identity.ts";
-export {
-  buildHrEmployeeIntegrationChangeEvent,
-  buildHrEmployeeIntegrationSnapshot,
-  hrRecordsIntegrationEventSchema,
-  hrRecordsIntegrationEvents,
-  hrRecordsIntegrationSnapshotVersion,
-} from "./registry/integration.ts";
+} from "./route-paths.ts";
+export { parseHrRecordsSearchParams } from "./search-params.parse.shared.ts";

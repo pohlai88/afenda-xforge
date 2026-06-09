@@ -12,12 +12,14 @@ export function listGovernmentClassificationPayGradesRecords(
   _query: ListGovernmentClassificationPayGradesQuery = {},
   _context?: HrSuiteFeatureContext
 ): Promise<readonly GovernmentClassificationPayGradesRecord[]> {
-  return inMemoryRecords;
+  return Promise.resolve(inMemoryRecords);
 }
 
 export function getGovernmentClassificationPayGradesRecord(
   id: string,
   _context?: HrSuiteFeatureContext
 ): Promise<GovernmentClassificationPayGradesRecord | null> {
-  return inMemoryRecords.find((record) => record.id === id) ?? null;
+  return Promise.resolve(
+    inMemoryRecords.find((record) => record.id === id) ?? null
+  );
 }

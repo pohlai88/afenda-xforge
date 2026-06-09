@@ -1,12 +1,12 @@
 import "server-only";
 
+import { canReadHrEmployeeRecord } from "./policy.ts";
+import { listHrEmployeeRecordSummaries } from "./queries/records.query.ts";
 import type {
   HrEmployeeRecordDetail,
   HrRecordsSearchParams,
-} from "./hr.workforce.records.contract.ts";
-import { hrRecordsStore } from "./hr.workforce.records.store.ts";
-import { canReadHrEmployeeRecord } from "./policy.ts";
-import { listHrEmployeeRecordSummaries } from "./queries/records.query.ts";
+} from "./records.contract.ts";
+import { hrRecordsStore } from "./records-store.ts";
 
 type QueryContext = {
   canRead?: boolean;

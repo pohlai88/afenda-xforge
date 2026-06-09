@@ -1,8 +1,8 @@
 import { randomUUID } from "node:crypto";
 import { z } from "zod";
 import type { HrEmployeeRecordAuditRecord } from "../contracts/audit.contract.ts";
-import type { HrRecordsAuditAction } from "../hr.workforce.records.event.ts";
-import { hrRecordsAuditActions } from "../hr.workforce.records.event.ts";
+import type { HrRecordsAuditAction } from "../events.ts";
+import { hrRecordsAuditActions } from "../events.ts";
 import { hrEmployeeRecordAuditEntrySchema } from "../schema.ts";
 
 export const hrRecordsAuditEvents = {

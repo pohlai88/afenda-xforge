@@ -34,6 +34,7 @@
     "lint": "biome check .",
     "format": "biome format --write .",
     "clean": "git clean -xdf .cache .turbo dist node_modules",
+    "test": "node --import tsx --test tests/security.test.ts",
     "typecheck": "tsc --noEmit --emitDeclarationOnly false"
   },
   "dependencies": {
@@ -44,6 +45,7 @@
     "@repo/typescript-config": "workspace:*",
     "@types/node": "catalog:",
     "next": "catalog:",
+    "tsx": "catalog:",
     "typescript": "catalog:"
   }
 }

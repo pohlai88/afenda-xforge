@@ -15,6 +15,7 @@ export type XforgeChatMessage = Readonly<{
 
 export type XforgeConversationContext = Readonly<{
   companyId?: string;
+  grantedPermissions?: readonly string[];
   history?: readonly XforgeChatMessage[];
   language?: XforgeLanguage;
   metadata?: Record<string, unknown>;

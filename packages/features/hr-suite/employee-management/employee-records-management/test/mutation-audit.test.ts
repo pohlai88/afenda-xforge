@@ -10,7 +10,7 @@ import {
   recordHrEmployeeAssignmentAction,
   rehireHrEmployeeAction,
   updateHrEmployeeRecordAction,
-} from "../src/hr.workforce.records.actions.server.ts";
+} from "../src/actions.server.ts";
 import {
   loadHrEmployeeRecordsRepository,
   resetHrEmployeeRecordsRepositoryForTesting,

@@ -1,4 +1,4 @@
-import type { HrRecordsActionResult } from "./hr.workforce.records.contract.ts";
+import type { HrRecordsActionResult } from "./records.contract.ts";
 
 export type HrRecordsPolicyContext = {
   canRead?: boolean;
