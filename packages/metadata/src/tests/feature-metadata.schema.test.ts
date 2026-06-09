@@ -11,6 +11,14 @@ import { parseFeatureMetadata } from "../validation/parse-feature-metadata.ts";
 
 const validFeatureMetadata = {
   id: "customer.records",
+  customization: {
+    presentation: {
+      density: true,
+      tone: true,
+      variant: true,
+    },
+    scopes: ["tenant", "company"],
+  },
   entity: "customer",
   title: "Customer Records",
   description: "Declarative customer metadata for list and form surfaces.",
@@ -34,6 +42,11 @@ const validFeatureMetadata = {
   },
   fields: [
     {
+      customization: {
+        label: true,
+        order: true,
+        placeholder: true,
+      },
       key: "name",
       label: "Name",
       kind: "text",
@@ -41,6 +54,10 @@ const validFeatureMetadata = {
       validationHint: "Use a descriptive business name.",
     },
     {
+      customization: {
+        hidden: "allow-required",
+        label: true,
+      },
       key: "status",
       label: "Status",
       kind: "select",
@@ -49,6 +66,11 @@ const validFeatureMetadata = {
   ],
   sections: [
     {
+      customization: {
+        columns: true,
+        fieldKeys: true,
+        label: true,
+      },
       key: "general",
       label: "General",
       fieldKeys: ["name", "status"],
@@ -58,10 +80,20 @@ const validFeatureMetadata = {
   ],
   tables: [
     {
+      customization: {
+        columns: true,
+        title: true,
+      },
       key: "customer-table",
       title: "Customers",
       columns: [
         {
+          customization: {
+            align: true,
+            hidden: true,
+            label: true,
+            width: true,
+          },
           key: "name",
           label: "Name",
           field: "name",
@@ -71,6 +103,12 @@ const validFeatureMetadata = {
           width: "lg",
         },
         {
+          customization: {
+            align: true,
+            hidden: true,
+            label: true,
+            width: true,
+          },
           key: "status",
           label: "Status",
           field: "status",
@@ -92,6 +130,11 @@ const validFeatureMetadata = {
   ],
   forms: [
     {
+      customization: {
+        label: true,
+        layout: true,
+        sectionKeys: true,
+      },
       key: "customer-form",
       label: "Customer form",
       fieldKeys: ["name", "status"],
@@ -103,6 +146,10 @@ const validFeatureMetadata = {
   ],
   filters: [
     {
+      customization: {
+        hidden: true,
+        label: true,
+      },
       key: "status-filter",
       label: "Status",
       field: "status",
@@ -118,6 +165,11 @@ const validFeatureMetadata = {
   ],
   actions: [
     {
+      customization: {
+        label: true,
+        placement: true,
+        safe: true,
+      },
       key: "save",
       label: "Save",
       kind: "update",
@@ -139,6 +191,7 @@ test("metadataFeatureSchema parses a valid feature contract", () => {
   const parsed = metadataFeatureSchema.parse(validFeatureMetadata);
 
   assert.equal(parsed.labels.plural, "Customers");
+  assert.equal(parsed.customization?.scopes?.[1], "company");
   assert.equal(parsed.tables?.[0].supports.pagination, true);
   assert.equal(parsed.states?.[0].uiState, "ready");
 });
@@ -186,6 +239,18 @@ test("metadataFeatureSchema rejects unsupported table support flags", () => {
           },
         },
       ],
+    });
+  });
+});
+
+test("metadataFeatureSchema rejects invalid customization scopes", () => {
+  assert.throws(() => {
+    metadataFeatureSchema.parse({
+      ...validFeatureMetadata,
+      customization: {
+        ...validFeatureMetadata.customization,
+        scopes: ["tenant", "global"],
+      },
     });
   });
 });

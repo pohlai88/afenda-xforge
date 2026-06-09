@@ -17,6 +17,7 @@ export const isSafeMethod = (method: string): boolean =>
 export type RequestSecurityDecision = {
   allow: boolean;
   reason?: string;
+  riskSignals: string[];
 };
 
 export const createRequestSecurityDecision = (
@@ -30,15 +31,16 @@ export const createRequestSecurityDecision = (
 ): RequestSecurityDecision => {
   const pathname = new URL(request.url).pathname;
   const userAgent = request.headers.get("user-agent") ?? "";
+  const riskSignals: string[] = [];
 
   if (isPublicAssetPath(pathname)) {
-    return { allow: true, reason: "public-asset" };
+    return { allow: true, reason: "public-asset", riskSignals };
   }
 
   if (
     options.blockedPathPrefixes?.some((prefix) => pathname.startsWith(prefix))
   ) {
-    return { allow: false, reason: "blocked-path" };
+    return { allow: false, reason: "blocked-path", riskSignals };
   }
 
   if (
@@ -49,15 +51,16 @@ export const createRequestSecurityDecision = (
       options.allowedUserAgents.some((allowed) => userAgent.includes(allowed))
     )
   ) {
-    return { allow: false, reason: "user-agent-denied" };
+    riskSignals.push("user-agent-unrecognized");
   }
 
   if (!(isSafeMethod(request.method) || options.allowUnsafeMethods)) {
     return {
       allow: false,
       reason: "unsafe-method",
+      riskSignals,
     };
   }
 
-  return { allow: true, reason: "allowed" };
+  return { allow: true, reason: "allowed", riskSignals };
 };

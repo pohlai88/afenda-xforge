@@ -14,7 +14,7 @@ import { createServerClient } from "@supabase/ssr";
 import type { EmailOtpType, Session, User } from "@supabase/supabase-js";
 import { createClient } from "@supabase/supabase-js";
 import { and, asc, eq } from "drizzle-orm";
-import { cookies } from "next/headers";
+import { cookies, headers } from "next/headers";
 import { cache } from "react";
 import { resolveTenantSlugFromHost } from "./host.ts";
 import { loadAuthKeys } from "./keys.ts";
@@ -289,6 +289,18 @@ const findTenantMembership = async ({
   return membership ?? null;
 };
 
+const getRequestHost = async (): Promise<string | null> => {
+  try {
+    const headerStore = await headers();
+
+    return (
+      headerStore.get("x-forwarded-host") ?? headerStore.get("host") ?? null
+    );
+  } catch {
+    return null;
+  }
+};
+
 export const resolveTenantByHost = async (
   host: string
 ): Promise<{ tenantId: string; slug: string } | null> => {
@@ -319,6 +331,15 @@ export const resolveTenantByHost = async (
   );
 
   return tenant ?? null;
+};
+
+const resolveRequestTenant = async (): Promise<{
+  tenantId: string;
+  slug: string;
+} | null> => {
+  const host = await getRequestHost();
+
+  return host ? resolveTenantByHost(host) : null;
 };
 
 const findActiveCompanyGrant = async ({
@@ -375,13 +396,26 @@ export const getActiveTenantMembership =
       return null;
     }
 
-    return findActiveTenantMembership(user.id);
+    const requestTenant = await resolveRequestTenant();
+
+    return requestTenant
+      ? findTenantMembership({
+          tenantId: requestTenant.tenantId,
+          userId: user.id,
+        })
+      : findActiveTenantMembership(user.id);
   };
 
 export const requireActiveTenantMembership =
   async (): Promise<ActiveTenantMembership> => {
     const user = await requireAuth();
-    const membership = await findActiveTenantMembership(user.id);
+    const requestTenant = await resolveRequestTenant();
+    const membership = requestTenant
+      ? await findTenantMembership({
+          tenantId: requestTenant.tenantId,
+          userId: user.id,
+        })
+      : await findActiveTenantMembership(user.id);
 
     if (!membership) {
       throw new ForbiddenError(
@@ -395,7 +429,13 @@ export const requireActiveTenantMembership =
 export const requireActiveTenantAccess =
   async (): Promise<ActiveTenantAccess> => {
     const user = await requireAuth();
-    const membership = await findActiveTenantMembership(user.id);
+    const requestTenant = await resolveRequestTenant();
+    const membership = requestTenant
+      ? await findTenantMembership({
+          tenantId: requestTenant.tenantId,
+          userId: user.id,
+        })
+      : await findActiveTenantMembership(user.id);
 
     if (!membership) {
       throw new ForbiddenError(

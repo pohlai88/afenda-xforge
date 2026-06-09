@@ -16,6 +16,7 @@
     "./proxy": "./proxy.ts",
     "./routes": "./routes.ts",
     "./server": "./server.ts",
+    "./trusted": "./trusted.ts",
     "./package.json": "./package.json"
   },
   "files": [
@@ -30,6 +31,7 @@
     "proxy.ts",
     "routes.ts",
     "server.ts",
+    "trusted.ts",
     "package.json"
   ],
   "scripts": {

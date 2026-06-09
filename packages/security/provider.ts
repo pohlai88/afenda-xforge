@@ -15,5 +15,6 @@ export const createNoopSecurityProvider = (): SecurityProvider => ({
   assess: async (): Promise<RequestSecurityDecision> => ({
     allow: true,
     reason: "noop-provider",
+    riskSignals: [],
   }),
 });

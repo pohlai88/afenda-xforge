@@ -9,15 +9,63 @@ export type CustomizationActorMetadata = {
   by: string;
 };
 
+export type CustomizationRollbackMetadata = CustomizationActorMetadata & {
+  fromVersion: number;
+};
+
 export type CustomizationLifecycleContract = {
   archived?: CustomizationActorMetadata;
   baseMetadataFingerprint?: string;
   created?: CustomizationActorMetadata;
   published?: CustomizationActorMetadata;
+  rolledBack?: CustomizationRollbackMetadata;
   status?: CustomizationStatus;
   updated?: CustomizationActorMetadata;
   version?: number;
 };
+
+export const customizationValidationIssueCodes = [
+  "customization.company_scope_not_allowed",
+  "customization.entity_mismatch",
+  "customization.entity_table_not_supported",
+  "customization.feature_mismatch",
+  "customization.hidden_required_field",
+  "customization.hidden_system_field",
+  "customization.invalid_default_sort",
+  "customization.override_not_allowed",
+  "customization.stale_metadata",
+  "customization.unknown_key",
+  "customization.unknown_reference",
+  "customization.unsafe_action",
+] as const;
+
+export type CustomizationValidationIssueCode =
+  (typeof customizationValidationIssueCodes)[number];
+
+export type CustomizationValidationSeverity = "error" | "warning";
+
+export type CustomizationValidationMode =
+  | "import-draft"
+  | "import-strict"
+  | "preview"
+  | "publish"
+  | "runtime";
+
+export type CustomizationValidationIssue = {
+  code: CustomizationValidationIssueCode;
+  hint?: string;
+  message: string;
+  path: readonly (number | string)[];
+  severity: CustomizationValidationSeverity;
+};
+
+export type CustomizationValidationResult = {
+  issues: readonly CustomizationValidationIssue[];
+  valid: boolean;
+  validationMode: CustomizationValidationMode;
+};
+
+export type CustomizationImportMode = "draft-with-warnings" | "strict";
 
 export type CustomizationPresentationContract = {
   density?: "comfortable" | "compact" | "default";
@@ -99,12 +147,9 @@ export type CustomizationActionOverrideContract = {
   placement?: "overflow" | "primary" | "row" | "secondary";
 };
 
-export type CustomizationContract = {
+export type CustomizationContract = CustomizationLifecycleContract & {
   actions?: readonly CustomizationActionOverrideContract[];
-  archived?: CustomizationActorMetadata;
-  baseMetadataFingerprint?: string;
   companyId?: string;
-  created?: CustomizationActorMetadata;
   description?: string;
   entity: string;
   featureId: MetadataId;
@@ -113,16 +158,12 @@ export type CustomizationContract = {
   forms?: readonly CustomizationFormOverrideContract[];
   id: MetadataId;
   presentation?: CustomizationPresentationContract;
-  published?: CustomizationActorMetadata;
   sections?: readonly CustomizationSectionOverrideContract[];
   scope: CustomizationScope;
-  status?: CustomizationStatus;
   table?: CustomizationEntityTableOverrideContract;
   tables?: readonly CustomizationTableOverrideContract[];
   tenantId: string;
   title?: string;
-  updated?: CustomizationActorMetadata;
-  version?: number;
 };
 
 export type CustomizationLookupContract = {
@@ -149,21 +190,82 @@ export type ArchiveCustomizationInput = CustomizationVersionLookupContract & {
   actorId: string;
 };
 
+export type RollbackCustomizationInput = CustomizationVersionLookupContract & {
+  actorId: string;
+  fromVersion: number;
+};
+
+export type CustomizationRuntimeLookupContract = CustomizationLookupContract & {
+  metadataFingerprint?: string;
+};
+
+export type CustomizationPreviewLookupContract =
+  CustomizationRuntimeLookupContract & {
+    includeDrafts: true;
+  };
+
+export type ImportCustomizationDraftInput = {
+  actorId: string;
+  fixture: CustomizationFixtureContract;
+  mode: CustomizationImportMode;
+};
+
+export type ExportCustomizationVersionInput =
+  CustomizationVersionLookupContract;
+
+export type CustomizationLayerLoadContract = {
+  company?: CustomizationContract | null;
+  tenant?: CustomizationContract | null;
+};
+
+export type CustomizationImportReviewContract = {
+  customization: CustomizationContract;
+  issues: readonly CustomizationValidationIssue[];
+  mode: CustomizationImportMode;
+  publishable: boolean;
+  requiresReview: boolean;
+  valid: boolean;
+};
+
+export type CustomizationResolutionStatus = "base_fallback" | "resolved";
+
+export type CustomizationResolutionResult<TMetadata> = {
+  appliedCustomizations: readonly CustomizationContract[];
+  diagnostics: readonly CustomizationValidationIssue[];
+  metadata: TMetadata;
+  status: CustomizationResolutionStatus;
+};
+
 export type CustomizationRepositoryContract = {
   archiveCustomization: (
     input: ArchiveCustomizationInput
   ) => Promise<CustomizationContract>;
+  exportCustomizationVersion: (
+    input: ExportCustomizationVersionInput
+  ) => Promise<CustomizationFixtureContract>;
   getPublishedCustomization: (
     lookup: CustomizationLookupContract
   ) => Promise<CustomizationContract | null>;
+  getPublishedCustomizationLayers: (
+    lookup: CustomizationRuntimeLookupContract
+  ) => Promise<CustomizationLayerLoadContract>;
   getCustomizationVersion: (
     lookup: CustomizationVersionLookupContract
   ) => Promise<CustomizationContract | null>;
+  getPreviewCustomizationLayers: (
+    lookup: CustomizationPreviewLookupContract
+  ) => Promise<CustomizationLayerLoadContract>;
+  importCustomizationDraft: (
+    input: ImportCustomizationDraftInput
+  ) => Promise<CustomizationImportReviewContract>;
   listCustomizationVersions: (
     lookup: CustomizationLookupContract
   ) => Promise<readonly CustomizationContract[]>;
   publishCustomization: (
     input: PublishCustomizationInput
+  ) => Promise<CustomizationContract>;
+  rollbackCustomization: (
+    input: RollbackCustomizationInput
   ) => Promise<CustomizationContract>;
   saveDraftCustomization: (
     input: SaveCustomizationDraftInput

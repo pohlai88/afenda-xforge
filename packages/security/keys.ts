@@ -8,6 +8,9 @@ export type SecurityKeys = {
   readonly SECURITY_ALLOWED_ORIGINS?: string;
   readonly SECURITY_CONTENT_SECURITY_POLICY?: string;
   readonly SECURITY_CONTENT_SECURITY_POLICY_REPORT_ONLY?: string;
+  readonly SECURITY_CSRF_COOKIE_NAME?: string;
+  readonly SECURITY_CSRF_HEADER_NAME?: string;
+  readonly SECURITY_CSRF_SECRET?: string;
   readonly SECURITY_BLOCKED_PATH_PREFIXES?: string;
   readonly SECURITY_ALLOWED_USER_AGENTS?: string;
   readonly SECURITY_REFERRER_POLICY?:
@@ -29,6 +32,9 @@ export const keys = (): SecurityKeys =>
       SECURITY_ALLOWED_ORIGINS: z.string().optional(),
       SECURITY_CONTENT_SECURITY_POLICY: z.string().optional(),
       SECURITY_CONTENT_SECURITY_POLICY_REPORT_ONLY: z.string().optional(),
+      SECURITY_CSRF_COOKIE_NAME: z.string().min(1).optional(),
+      SECURITY_CSRF_HEADER_NAME: z.string().min(1).optional(),
+      SECURITY_CSRF_SECRET: z.string().min(16).optional(),
       SECURITY_BLOCKED_PATH_PREFIXES: z.string().optional(),
       SECURITY_ALLOWED_USER_AGENTS: z.string().optional(),
       SECURITY_REFERRER_POLICY: z
@@ -53,6 +59,9 @@ export const keys = (): SecurityKeys =>
         process.env.SECURITY_CONTENT_SECURITY_POLICY,
       SECURITY_CONTENT_SECURITY_POLICY_REPORT_ONLY:
         process.env.SECURITY_CONTENT_SECURITY_POLICY_REPORT_ONLY,
+      SECURITY_CSRF_COOKIE_NAME: process.env.SECURITY_CSRF_COOKIE_NAME,
+      SECURITY_CSRF_HEADER_NAME: process.env.SECURITY_CSRF_HEADER_NAME,
+      SECURITY_CSRF_SECRET: process.env.SECURITY_CSRF_SECRET,
       SECURITY_BLOCKED_PATH_PREFIXES:
         process.env.SECURITY_BLOCKED_PATH_PREFIXES,
       SECURITY_ALLOWED_USER_AGENTS: process.env.SECURITY_ALLOWED_USER_AGENTS,

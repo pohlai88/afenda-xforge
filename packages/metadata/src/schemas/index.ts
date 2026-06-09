@@ -1,4 +1,5 @@
 export * from "./action.schema.ts";
+export * from "./customization-policy.schema.ts";
 export * from "./entity-metadata.schema.ts";
 export * from "./feature-metadata.schema.ts";
 export * from "./field.schema.ts";

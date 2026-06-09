@@ -11,11 +11,17 @@ import {
 import {
   resolveLayeredCustomizedEntityMetadata,
   resolveLayeredCustomizedMetadata,
+  resolvePreviewCustomizationLayers,
+  resolvePreviewCustomizedEntityMetadataResult,
+  resolvePublishedCustomizedEntityMetadataResult,
 } from "../resolution/resolve-layered-customization.ts";
 import {
+  assertCustomizationFixtureMatchesMetadata,
   createCustomizationFixture,
   deserializeCustomizationFixture,
+  reviewCustomizationFixtureImport,
   serializeCustomizationFixture,
+  validateCustomizationFixtureAgainstMetadata,
 } from "../serialization/customization-fixture.ts";
 import {
   assertCustomizationMatchesMetadata,
@@ -24,6 +30,13 @@ import {
 
 const customerMetadata: MetadataFeatureContract = {
   id: "customer.records",
+  customization: {
+    presentation: {
+      density: true,
+      tone: true,
+    },
+    scopes: ["tenant", "company"],
+  },
   entity: "customer",
   title: "Customer Records",
   labels: {
@@ -36,12 +49,19 @@ const customerMetadata: MetadataFeatureContract = {
   },
   fields: [
     {
+      customization: {
+        label: true,
+        order: true,
+      },
       key: "name",
       label: "Name",
       kind: "text",
       required: true,
     },
     {
+      customization: {
+        hidden: "allow-required",
+      },
       key: "status",
       label: "Status",
       kind: "select",
@@ -49,6 +69,11 @@ const customerMetadata: MetadataFeatureContract = {
   ],
   sections: [
     {
+      customization: {
+        columns: true,
+        fieldKeys: true,
+        label: true,
+      },
       key: "general",
       label: "General",
       fieldKeys: ["name", "status"],
@@ -57,6 +82,9 @@ const customerMetadata: MetadataFeatureContract = {
   ],
   forms: [
     {
+      customization: {
+        layout: true,
+      },
       key: "customer-form",
       label: "Customer form",
       fieldKeys: ["name", "status"],
@@ -65,10 +93,18 @@ const customerMetadata: MetadataFeatureContract = {
   ],
   tables: [
     {
+      customization: {
+        columns: true,
+        title: true,
+      },
       key: "customer-table",
       title: "Customers",
       columns: [
         {
+          customization: {
+            label: true,
+            width: true,
+          },
           key: "name",
           label: "Name",
           field: "name",
@@ -76,6 +112,9 @@ const customerMetadata: MetadataFeatureContract = {
           width: "lg",
         },
         {
+          customization: {
+            hidden: true,
+          },
           key: "status",
           label: "Status",
           field: "status",
@@ -94,6 +133,11 @@ const customerMetadata: MetadataFeatureContract = {
   ],
   actions: [
     {
+      customization: {
+        label: true,
+        placement: true,
+        safe: true,
+      },
       key: "save",
       label: "Save",
       kind: "update",
@@ -180,6 +224,7 @@ const tenantCustomization: CustomizationContract = {
 };
 
 test("resolveCustomizedMetadata applies governed tenant overrides", () => {
+  const originalMetadata = structuredClone(customerMetadata);
   const resolved = resolveCustomizedMetadata(
     customerMetadata,
     tenantCustomization
@@ -198,6 +243,24 @@ test("resolveCustomizedMetadata applies governed tenant overrides", () => {
   assert.equal(resolved.tables?.[0].columns[0].width, "auto");
   assert.equal(resolved.actions?.[0].label, "Save account");
   assert.equal(resolved.actions?.[0].placement, "secondary");
+  assert.deepEqual(customerMetadata, originalMetadata);
+});
+
+test("resolveCustomizedMetadata removes hidden field references from sections and forms", () => {
+  const resolved = resolveCustomizedMetadata(customerMetadata, {
+    ...tenantCustomization,
+    fields: [
+      {
+        key: "status",
+        hidden: true,
+      },
+    ],
+    forms: undefined,
+    sections: undefined,
+  });
+
+  assert.deepEqual(resolved.sections?.[0].fieldKeys, ["name"]);
+  assert.deepEqual(resolved.forms?.[0].fieldKeys, ["name"]);
 });
 
 test("resolveCustomizedMetadata refuses mismatched feature overlays", () => {
@@ -218,6 +281,7 @@ test("resolveCustomizedMetadata refuses mismatched feature overlays", () => {
 
 test("resolveCustomizedEntityMetadata applies current entity metadata overrides", () => {
   const entityMetadata: EntityMetadata = {
+    customization: customerMetadata.customization,
     id: customerMetadata.id,
     entity: customerMetadata.entity,
     title: customerMetadata.title,
@@ -228,10 +292,19 @@ test("resolveCustomizedEntityMetadata applies current entity metadata overrides"
     forms: customerMetadata.forms,
     actions: customerMetadata.actions,
     table: {
+      customization: {
+        columns: true,
+        defaultSort: true,
+        title: true,
+      },
       defaultSort: "status",
       title: "Customer directory",
       columns: [
         {
+          customization: {
+            label: true,
+            width: true,
+          },
           key: "name",
           label: "Name",
           field: "name",
@@ -239,6 +312,9 @@ test("resolveCustomizedEntityMetadata applies current entity metadata overrides"
           width: "lg",
         },
         {
+          customization: {
+            hidden: true,
+          },
           key: "status",
           label: "Status",
           field: "status",
@@ -290,20 +366,42 @@ test("validateCustomizationAgainstMetadata reports unsafe metadata drift", () =>
     },
     {
       id: customerMetadata.id,
+      customization: customerMetadata.customization,
       entity: customerMetadata.entity,
       labels: customerMetadata.labels,
-      fields: customerMetadata.fields,
+      fields: customerMetadata.fields?.map((field) =>
+        field.key === "name"
+          ? {
+              ...field,
+              customization: {
+                ...field.customization,
+                hidden: "allow",
+              },
+            }
+          : field
+      ),
       sections: customerMetadata.sections,
       table: {
+        customization: {
+          columns: true,
+          defaultSort: true,
+          title: true,
+        },
         defaultSort: "status",
         columns: [
           {
+            customization: {
+              label: true,
+            },
             key: "name",
             label: "Name",
             field: "name",
             sortable: true,
           },
           {
+            customization: {
+              hidden: true,
+            },
             key: "status",
             label: "Status",
             field: "status",
@@ -326,6 +424,92 @@ test("validateCustomizationAgainstMetadata reports unsafe metadata drift", () =>
     result.issues.some(
       (issue) => issue.code === "customization.invalid_default_sort"
     )
+  );
+});
+
+test("validateCustomizationAgainstMetadata denies policy-less sensitive overrides", () => {
+  const result = validateCustomizationAgainstMetadata(
+    {
+      ...tenantCustomization,
+      actions: [
+        {
+          key: "save",
+          label: "Save account",
+        },
+      ],
+      presentation: {
+        density: "compact",
+      },
+    },
+    {
+      ...customerMetadata,
+      actions: customerMetadata.actions?.map((action) => ({
+        ...action,
+        customization: undefined,
+      })),
+      customization: {
+        presentation: {},
+        scopes: ["tenant"],
+      },
+    }
+  );
+
+  assert.equal(result.valid, false);
+  assert.ok(
+    result.issues.some((issue) => issue.code === "customization.unsafe_action")
+  );
+  assert.ok(
+    result.issues.some(
+      (issue) => issue.code === "customization.override_not_allowed"
+    )
+  );
+});
+
+test("validateCustomizationAgainstMetadata rejects unsupported table surfaces", () => {
+  const noTableMetadata: EntityMetadata = {
+    actions: customerMetadata.actions,
+    entity: customerMetadata.entity,
+    fields: customerMetadata.fields,
+    filters: customerMetadata.filters,
+    forms: customerMetadata.forms,
+    id: customerMetadata.id,
+    labels: customerMetadata.labels,
+    sections: customerMetadata.sections,
+    title: customerMetadata.title,
+  };
+
+  const result = validateCustomizationAgainstMetadata(
+    {
+      ...tenantCustomization,
+      table: {
+        defaultSort: "name",
+        columns: [
+          {
+            key: "name",
+            label: "Account Name",
+          },
+        ],
+      },
+      tables: [
+        {
+          key: "customer-table",
+        },
+      ],
+    },
+    noTableMetadata,
+    {
+      rejectUnsupportedMetadataSurfaces: true,
+    }
+  );
+
+  assert.equal(result.valid, false);
+  assert.ok(
+    result.issues.some(
+      (issue) => issue.code === "customization.entity_table_not_supported"
+    )
+  );
+  assert.ok(
+    result.issues.some((issue) => issue.code === "customization.unknown_key")
   );
 });
 
@@ -389,17 +573,26 @@ test("resolveLayeredCustomizedMetadata applies published tenant before company",
 test("resolveLayeredCustomizedEntityMetadata ignores drafts outside preview", () => {
   const draftTenant: CustomizationContract = {
     ...tenantCustomization,
+    actions: undefined,
+    fields: undefined,
+    forms: undefined,
+    presentation: undefined,
+    sections: undefined,
+    table: undefined,
+    tables: undefined,
     status: "draft",
     title: "Draft Accounts",
     version: 1,
   };
   const entityMetadata: EntityMetadata = {
     actions: customerMetadata.actions,
+    customization: customerMetadata.customization,
     id: customerMetadata.id,
     entity: customerMetadata.entity,
     fields: customerMetadata.fields,
     forms: customerMetadata.forms,
     labels: customerMetadata.labels,
+    presentation: customerMetadata.presentation,
     sections: customerMetadata.sections,
     title: customerMetadata.title,
   };
@@ -424,6 +617,34 @@ test("resolveLayeredCustomizedEntityMetadata ignores drafts outside preview", ()
   assert.equal(previewResolved.title, "Draft Accounts");
 });
 
+test("resolvePreviewCustomizationLayers excludes archived customization", () => {
+  const archivedTenant: CustomizationContract = {
+    ...tenantCustomization,
+    archived: {
+      at: "2026-06-09T00:00:00.000Z",
+      by: "admin-user",
+    },
+    baseMetadataFingerprint: "customer.records@2026-06-09",
+    created: {
+      at: "2026-06-09T00:00:00.000Z",
+      by: "admin-user",
+    },
+    status: "archived",
+    updated: {
+      at: "2026-06-09T00:00:00.000Z",
+      by: "admin-user",
+    },
+    version: 2,
+  };
+
+  assert.deepEqual(
+    resolvePreviewCustomizationLayers({
+      tenant: archivedTenant,
+    }),
+    []
+  );
+});
+
 test("customization fixtures serialize deterministically", () => {
   const fixture = createCustomizationFixture({
     customization: tenantCustomization,
@@ -436,4 +657,225 @@ test("customization fixtures serialize deterministically", () => {
   assert.equal(deserialized.schemaVersion, 1);
   assert.deepEqual(deserialized, fixture);
   assert.ok(serialized.endsWith("\n"));
+});
+
+test("customization fixtures reuse metadata-aware validation", () => {
+  const fixture = createCustomizationFixture({
+    customization: tenantCustomization,
+    exportedAt: "2026-06-09T00:00:00.000Z",
+    exportedBy: "admin-user",
+  });
+
+  const validResult = validateCustomizationFixtureAgainstMetadata(
+    fixture,
+    customerMetadata
+  );
+  const invalidResult = validateCustomizationFixtureAgainstMetadata(
+    createCustomizationFixture({
+      customization: {
+        ...tenantCustomization,
+        fields: [
+          {
+            key: "unknown-field",
+          },
+        ],
+      },
+      exportedAt: "2026-06-09T00:00:00.000Z",
+      exportedBy: "admin-user",
+    }),
+    customerMetadata
+  );
+
+  assert.equal(validResult.valid, true);
+  assert.equal(
+    assertCustomizationFixtureMatchesMetadata(fixture, customerMetadata),
+    fixture
+  );
+  assert.equal(invalidResult.valid, false);
+});
+
+test("reviewCustomizationFixtureImport warns for stale draft imports and rejects strict publishability", () => {
+  const fixture = createCustomizationFixture({
+    customization: {
+      ...tenantCustomization,
+      baseMetadataFingerprint: "customer.records@stale",
+    },
+    exportedAt: "2026-06-09T00:00:00.000Z",
+    exportedBy: "admin-user",
+  });
+
+  const draftReview = reviewCustomizationFixtureImport({
+    fixture,
+    metadata: customerMetadata,
+    mode: "draft-with-warnings",
+    options: {
+      metadataFingerprint: "customer.records@2026-06-09",
+    },
+  });
+  const strictReview = reviewCustomizationFixtureImport({
+    fixture,
+    metadata: customerMetadata,
+    mode: "strict",
+    options: {
+      metadataFingerprint: "customer.records@2026-06-09",
+    },
+  });
+
+  assert.equal(draftReview.valid, true);
+  assert.equal(draftReview.publishable, false);
+  assert.ok(
+    draftReview.issues.some(
+      (issue) =>
+        issue.code === "customization.stale_metadata" &&
+        issue.severity === "warning"
+    )
+  );
+  assert.equal(strictReview.valid, false);
+  assert.equal(strictReview.publishable, false);
+});
+
+test("resolvePublishedCustomizedEntityMetadataResult fails closed for invalid published overlays", () => {
+  const entityMetadata: EntityMetadata = {
+    actions: customerMetadata.actions,
+    customization: customerMetadata.customization,
+    entity: customerMetadata.entity,
+    fields: customerMetadata.fields?.map((field) =>
+      field.key === "status"
+        ? {
+            ...field,
+            customization: undefined,
+          }
+        : field
+    ),
+    id: customerMetadata.id,
+    labels: customerMetadata.labels,
+    sections: customerMetadata.sections,
+    table: {
+      customization: {
+        columns: true,
+        defaultSort: true,
+        title: true,
+      },
+      columns: [
+        {
+          customization: {
+            label: true,
+          },
+          field: "name",
+          key: "name",
+          label: "Name",
+          sortable: true,
+        },
+        {
+          customization: {
+            hidden: true,
+          },
+          field: "status",
+          key: "status",
+          label: "Status",
+        },
+      ],
+      defaultSort: "status",
+      title: "Customer directory",
+    },
+    title: customerMetadata.title,
+  };
+
+  const result = resolvePublishedCustomizedEntityMetadataResult(
+    entityMetadata,
+    {
+      tenant: {
+        ...tenantCustomization,
+        baseMetadataFingerprint: "customer.records@2026-06-09",
+        created: {
+          at: "2026-06-09T00:00:00.000Z",
+          by: "admin-user",
+        },
+        published: {
+          at: "2026-06-09T00:00:00.000Z",
+          by: "admin-user",
+        },
+        status: "published",
+        updated: {
+          at: "2026-06-09T00:00:00.000Z",
+          by: "admin-user",
+        },
+        version: 1,
+      },
+    }
+  );
+
+  assert.equal(result.status, "base_fallback");
+  assert.equal(result.metadata, entityMetadata);
+  assert.ok(
+    result.diagnostics.some(
+      (issue) => issue.code === "customization.override_not_allowed"
+    )
+  );
+});
+
+test("resolvePreviewCustomizedEntityMetadataResult surfaces preview warnings without failing closed", () => {
+  const entityMetadata: EntityMetadata = {
+    actions: customerMetadata.actions,
+    customization: customerMetadata.customization,
+    entity: customerMetadata.entity,
+    fields: customerMetadata.fields,
+    id: customerMetadata.id,
+    labels: customerMetadata.labels,
+    presentation: customerMetadata.presentation,
+    sections: customerMetadata.sections,
+    table: {
+      customization: {
+        columns: true,
+        defaultSort: true,
+        title: true,
+      },
+      columns: [
+        {
+          customization: {
+            label: true,
+          },
+          field: "name",
+          key: "name",
+          label: "Name",
+          sortable: true,
+        },
+      ],
+      defaultSort: "name",
+      title: "Customer directory",
+    },
+    title: customerMetadata.title,
+  };
+
+  const result = resolvePreviewCustomizedEntityMetadataResult(
+    entityMetadata,
+    {
+      tenant: {
+        ...tenantCustomization,
+        actions: undefined,
+        baseMetadataFingerprint: "customer.records@stale",
+        fields: undefined,
+        forms: undefined,
+        presentation: undefined,
+        sections: undefined,
+        status: "draft",
+        table: undefined,
+        tables: undefined,
+        title: "Draft Accounts",
+        version: 1,
+      },
+    },
+    {
+      metadataFingerprint: "customer.records@2026-06-09",
+    }
+  );
+
+  assert.equal(result.status, "resolved");
+  assert.ok(
+    result.diagnostics.some(
+      (issue) =>
+        issue.code === "customization.stale_metadata" &&
+        issue.severity === "warning"
+    )
+  );
 });

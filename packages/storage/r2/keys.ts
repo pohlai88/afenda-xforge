@@ -7,6 +7,11 @@ export type R2StorageKeys = {
   readonly CLOUDFLARE_R2_BUCKET_NAME?: string;
   readonly CLOUDFLARE_R2_PUBLIC_URL?: string;
   readonly CLOUDFLARE_R2_SECRET_ACCESS_KEY?: string;
+  readonly OBJECT_STORAGE_ACCESS_KEY_ID?: string;
+  readonly OBJECT_STORAGE_BUCKET?: string;
+  readonly OBJECT_STORAGE_ENDPOINT?: string;
+  readonly OBJECT_STORAGE_PUBLIC_URL?: string;
+  readonly OBJECT_STORAGE_SECRET_ACCESS_KEY?: string;
 };
 
 export const keys = (): R2StorageKeys =>
@@ -18,6 +23,11 @@ export const keys = (): R2StorageKeys =>
       CLOUDFLARE_R2_BUCKET_NAME: z.string().min(1).optional(),
       CLOUDFLARE_R2_PUBLIC_URL: z.string().url().optional(),
       CLOUDFLARE_R2_SECRET_ACCESS_KEY: z.string().min(1).optional(),
+      OBJECT_STORAGE_ACCESS_KEY_ID: z.string().min(1).optional(),
+      OBJECT_STORAGE_BUCKET: z.string().min(1).optional(),
+      OBJECT_STORAGE_ENDPOINT: z.string().url().optional(),
+      OBJECT_STORAGE_PUBLIC_URL: z.string().url().optional(),
+      OBJECT_STORAGE_SECRET_ACCESS_KEY: z.string().min(1).optional(),
     },
     runtimeEnv: {
       CLOUDFLARE_R2_ACCESS_KEY_ID: process.env.CLOUDFLARE_R2_ACCESS_KEY_ID,
@@ -26,6 +36,12 @@ export const keys = (): R2StorageKeys =>
       CLOUDFLARE_R2_PUBLIC_URL: process.env.CLOUDFLARE_R2_PUBLIC_URL,
       CLOUDFLARE_R2_SECRET_ACCESS_KEY:
         process.env.CLOUDFLARE_R2_SECRET_ACCESS_KEY,
+      OBJECT_STORAGE_ACCESS_KEY_ID: process.env.OBJECT_STORAGE_ACCESS_KEY_ID,
+      OBJECT_STORAGE_BUCKET: process.env.OBJECT_STORAGE_BUCKET,
+      OBJECT_STORAGE_ENDPOINT: process.env.OBJECT_STORAGE_ENDPOINT,
+      OBJECT_STORAGE_PUBLIC_URL: process.env.OBJECT_STORAGE_PUBLIC_URL,
+      OBJECT_STORAGE_SECRET_ACCESS_KEY:
+        process.env.OBJECT_STORAGE_SECRET_ACCESS_KEY,
     },
   });
 

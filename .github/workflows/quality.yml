@@ -7,6 +7,32 @@ on:
       - main
 
 jobs:
+  changes:
+    name: Detect Search Changes
+    runs-on: ubuntu-latest
+    outputs:
+      search: ${{ steps.filter.outputs.search }}
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Detect changed paths
+        id: filter
+        uses: dorny/paths-filter@v3
+        with:
+          filters: |
+            search:
+              - '.github/workflows/quality.yml'
+              - 'docker-compose.search.yml'
+              - 'package.json'
+              - 'packages/search/**'
+              - 'pnpm-lock.yaml'
+              - 'pnpm-workspace.yaml'
+              - 'scripts/search-local.mjs'
+
   quality:
     name: Quality
     runs-on: ubuntu-latest
@@ -36,3 +62,35 @@ jobs:
 
       - name: Run CI
         run: pnpm run ci
+
+  search-integration:
+    name: Search Integration
+    runs-on: ubuntu-latest
+    needs: changes
+    if: needs.changes.outputs.search == 'true'
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Enable Corepack
+        run: corepack enable
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 10.0.0
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: pnpm
+
+      - name: Install
+        run: pnpm install --frozen-lockfile
+
+      - name: Run search integration
+        run: node scripts/search-local.mjs integration

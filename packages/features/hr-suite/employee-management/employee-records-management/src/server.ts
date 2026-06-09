@@ -26,3 +26,8 @@ export {
   buildHrEmployeeIntegrationChangeEvent,
   buildHrEmployeeIntegrationSnapshot,
 } from "./registry/integration.ts";
+export {
+  hasHrEmployeeRecordsSearch,
+  searchHrEmployeeRecords,
+  syncAllHrEmployeeRecordsSearchDocuments,
+} from "./search.ts";

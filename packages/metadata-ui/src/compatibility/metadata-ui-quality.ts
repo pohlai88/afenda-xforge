@@ -12,7 +12,13 @@ export type MetadataUiQualityCategory =
 
 export type MetadataUiQualityVerification = {
   boundaryLint?: boolean;
+  changeNote?: boolean;
+  consumerFixture?: boolean;
+  declarationSnapshot?: boolean;
+  generated?: boolean;
   lint?: boolean;
+  publicApi?: boolean;
+  telemetrySchema?: boolean;
   test?: boolean;
   typecheck?: boolean;
 };
@@ -41,6 +47,12 @@ export type MetadataUiQualityAssessment = {
   percentage: number;
   summary: string;
   totalScore: number;
+};
+
+type WeightedSignal = {
+  label: string;
+  passed: boolean;
+  weight: number;
 };
 
 const weights: Record<MetadataUiQualityCategory, number> = {
@@ -96,146 +108,355 @@ const createSummary = (percentage: number): string => {
   return "metadata-ui still has meaningful architecture or verification gaps before enterprise rollout.";
 };
 
-const createContractMetric = (): MetadataUiQualityMetric =>
-  createMetric(
-    "contracts",
-    92,
-    "Contracts are explicit, typed, and scoped around metadata-ui responsibilities.",
+const scoreSignals = (signals: readonly WeightedSignal[]): number => {
+  const totalWeight = signals.reduce((sum, signal) => sum + signal.weight, 0);
+
+  if (totalWeight === 0) {
+    return 0;
+  }
+
+  const passedWeight = signals.reduce(
+    (sum, signal) => sum + (signal.passed ? signal.weight : 0),
+    0
+  );
+
+  return Math.round((passedWeight / totalWeight) * 100);
+};
+
+const summarizeSignals = (
+  signals: readonly WeightedSignal[],
+  additionalEvidence: readonly string[] = [],
+  additionalImprovements: readonly string[] = []
+): {
+  evidence: readonly string[];
+  improvementTargets: readonly string[];
+} => ({
+  evidence: [
+    ...signals.filter((signal) => signal.passed).map((signal) => signal.label),
+    ...additionalEvidence,
+  ],
+  improvementTargets: [
+    ...signals
+      .filter((signal) => !signal.passed)
+      .map((signal) => `Pass ${signal.label.toLowerCase()}.`),
+    ...additionalImprovements,
+  ],
+});
+
+const createContractMetric = (
+  verification: MetadataUiQualityVerification
+): MetadataUiQualityMetric => {
+  const signals = [
+    {
+      label: "Public API verification passed",
+      passed: verification.publicApi === true,
+      weight: 4,
+    },
+    {
+      label: "Declaration snapshot verification passed",
+      passed: verification.declarationSnapshot === true,
+      weight: 3,
+    },
+    {
+      label: "Typecheck passed",
+      passed: verification.typecheck === true,
+      weight: 2,
+    },
+  ] as const;
+  const score = scoreSignals(signals);
+  const { evidence, improvementTargets } = summarizeSignals(
+    signals,
+    [],
     [
-      "Render context requires correlationId and readonly maps.",
-      "Governance, telemetry, diagnostics, registry, and layout contracts are distinct.",
-    ],
-    [
-      "Add consumer-only public export smoke tests.",
-      "Add declaration diff checks for API stability.",
+      "Keep public exports and declarations aligned with generated package surface.",
     ]
   );
 
+  return createMetric(
+    "contracts",
+    score,
+    score >= 90
+      ? "Contract quality is backed by API, declaration, and type-level verification."
+      : "Contract quality is only partially verified by the current check set.",
+    evidence,
+    improvementTargets
+  );
+};
+
 const createRegistryMetric = (
-  compatibility: MetadataUiCompatibilityReport
-): MetadataUiQualityMetric =>
-  createMetric(
-    "registry",
-    compatibility.ok ? 95 : Math.max(55, 95 - compatibility.issues.length * 20),
-    compatibility.ok
-      ? "Default metadata keys and metadata-ready compose groups are aligned."
-      : "Registry coverage or compose readiness has gaps.",
+  compatibility: MetadataUiCompatibilityReport,
+  verification: MetadataUiQualityVerification,
+  defaultRendererCoverage: boolean
+): MetadataUiQualityMetric => {
+  const compatibilityScore = compatibility.ok
+    ? 100
+    : Math.max(0, 100 - compatibility.issues.length * 25);
+  const signalScore = scoreSignals([
+    {
+      label: "Default renderer coverage present",
+      passed: defaultRendererCoverage,
+      weight: 3,
+    },
+    {
+      label: "Generated registry outputs are current",
+      passed: verification.generated === true,
+      weight: 2,
+    },
+  ]);
+  const score = Math.round((compatibilityScore * 0.6 + signalScore * 0.4) / 1);
+  const { evidence, improvementTargets } = summarizeSignals(
+    [
+      {
+        label: "Default renderer coverage present",
+        passed: defaultRendererCoverage,
+        weight: 1,
+      },
+      {
+        label: "Generated registry outputs are current",
+        passed: verification.generated === true,
+        weight: 1,
+      },
+    ],
     compatibility.ok
       ? ["Compatibility report passed with no issues."]
       : compatibility.issues.map(
           (issue) => `${issue.area}:${issue.key} - ${issue.message}`
         ),
     [
-      "Keep compatibility mapping in lockstep with renderer registrations.",
-      "Add manifest checks for intentional registry keys.",
+      "Keep compatibility mapping in lockstep with manifest-backed registry entries.",
     ]
   );
+
+  return createMetric(
+    "registry",
+    score,
+    compatibility.ok
+      ? "Registry readiness is verified through compatibility checks and generated output validation."
+      : "Registry readiness has measurable compatibility or generation gaps.",
+    evidence,
+    improvementTargets
+  );
+};
 
 const createGovernanceMetric = (
+  verification: MetadataUiQualityVerification,
   governanceFallbackCoverage: boolean
-): MetadataUiQualityMetric =>
-  createMetric(
-    "governance",
-    governanceFallbackCoverage ? 93 : 78,
-    governanceFallbackCoverage
-      ? "Governance decisions now carry fallback semantics into runtime rendering."
-      : "Governance contracts are richer than the tested runtime behavior.",
-    governanceFallbackCoverage
-      ? [
-          "Decisions preserve evaluated policy metadata.",
-          "Fallback effects can drive forbidden, hide, disable, and readonly behavior.",
-        ]
-      : ["Fallback semantics are not yet consistently applied."],
+): MetadataUiQualityMetric => {
+  const signals = [
+    {
+      label: "Governance fallback coverage present",
+      passed: governanceFallbackCoverage,
+      weight: 4,
+    },
+    {
+      label: "Consumer fixture verification passed",
+      passed: verification.consumerFixture === true,
+      weight: 2,
+    },
+    {
+      label: "Test suite passed",
+      passed: verification.test === true,
+      weight: 1,
+    },
+  ] as const;
+  const score = scoreSignals(signals);
+  const { evidence, improvementTargets } = summarizeSignals(
+    signals,
+    [],
     [
-      "Expand governance matrix tests across actions, fields, and sections.",
-      "Add stronger machine checks that UI governance never implies server authority.",
+      "Expand governance matrix coverage across table and section-driven consumer flows.",
     ]
   );
 
-const createObservabilityMetric = (
-  telemetryCorrelationCoverage: boolean
-): MetadataUiQualityMetric =>
-  createMetric(
-    "observability",
-    telemetryCorrelationCoverage ? 91 : 76,
-    telemetryCorrelationCoverage
-      ? "Telemetry and diagnostics are normalized around the active correlation and UI identity."
-      : "Telemetry exists, but correlation and identity propagation are incomplete.",
-    telemetryCorrelationCoverage
-      ? [
-          "Telemetry inherits feature, module, route, and surface context.",
-          "Diagnostics are rebound to the active render correlation.",
-        ]
-      : ["Correlation-safe diagnostics are not guaranteed."],
-    [
-      "Add telemetry schema checks for known event names and required attributes.",
-      "Add duration measurement for expensive render flows.",
-    ]
+  return createMetric(
+    "governance",
+    score,
+    score >= 90
+      ? "Governance behavior is supported by fallback and consumer-path verification."
+      : "Governance behavior is specified, but the executed checks do not fully prove the runtime matrix.",
+    evidence,
+    improvementTargets
   );
+};
+
+const createObservabilityMetric = (
+  verification: MetadataUiQualityVerification,
+  telemetryCorrelationCoverage: boolean
+): MetadataUiQualityMetric => {
+  const signals = [
+    {
+      label: "Telemetry correlation coverage present",
+      passed: telemetryCorrelationCoverage,
+      weight: 4,
+    },
+    {
+      label: "Telemetry schema verification passed",
+      passed: verification.telemetrySchema === true,
+      weight: 3,
+    },
+    {
+      label: "Consumer fixture verification passed",
+      passed: verification.consumerFixture === true,
+      weight: 1,
+    },
+  ] as const;
+  const score = scoreSignals(signals);
+  const { evidence, improvementTargets } = summarizeSignals(
+    signals,
+    [],
+    ["Add browser-level verification for telemetry on public read surfaces."]
+  );
+
+  return createMetric(
+    "observability",
+    score,
+    score >= 90
+      ? "Observability quality is supported by correlation-aware tests plus schema verification."
+      : "Observability exists, but the executed verification set does not yet prove it end to end.",
+    evidence,
+    improvementTargets
+  );
+};
 
 const createBoundaryMetric = (
   verification: MetadataUiQualityVerification
-): MetadataUiQualityMetric =>
-  createMetric(
-    "boundary-discipline",
-    verification.boundaryLint === false ? 76 : 92,
-    verification.boundaryLint === false
-      ? "Boundary checks exist, but a dedicated boundary gate is still missing."
-      : "metadata-ui is guarded against preview, design-system, and infrastructure leaks.",
-    verification.boundaryLint === false
-      ? ["Boundary-specific lint gate not yet verified."]
-      : ["Compatibility tests forbid preview and infrastructure imports."],
-    [
-      "Add a dedicated dependency-boundary rule in CI.",
-      "Prefer package-local DTOs where direct upstream type coupling is unnecessary.",
-    ]
+): MetadataUiQualityMetric => {
+  const signals = [
+    {
+      label: "Boundary checks passed",
+      passed: verification.boundaryLint === true,
+      weight: 4,
+    },
+    {
+      label: "Public API verification passed",
+      passed: verification.publicApi === true,
+      weight: 2,
+    },
+    {
+      label: "Consumer fixture verification passed",
+      passed: verification.consumerFixture === true,
+      weight: 1,
+    },
+  ] as const;
+  const score = scoreSignals(signals);
+  const { evidence, improvementTargets } = summarizeSignals(
+    signals,
+    [],
+    ["Keep package boundaries enforced in CI before any release path."]
   );
+
+  return createMetric(
+    "boundary-discipline",
+    score,
+    score >= 90
+      ? "Boundary discipline is directly backed by dedicated checks and public-surface verification."
+      : "Boundary discipline is partly specified but not fully proven by the current verification set.",
+    evidence,
+    improvementTargets
+  );
+};
 
 const createAdapterMetric = (
-  gracefulUnknownFallbacks: boolean
-): MetadataUiQualityMetric =>
-  createMetric(
-    "adapter-integration",
-    gracefulUnknownFallbacks ? 92 : 80,
-    gracefulUnknownFallbacks
-      ? "Adapters degrade safely for unknown metadata kinds and runtime failures."
-      : "Unknown metadata kinds do not have full graceful fallback coverage.",
-    gracefulUnknownFallbacks
-      ? [
-          "Unknown field/action/section/state keys resolve to stable error surfaces.",
-          "Adapters return typed diagnostics with render results.",
-        ]
-      : ["Fallback runtime behavior is incomplete for unknown renderers."],
+  verification: MetadataUiQualityVerification,
+  gracefulUnknownFallbacks: boolean,
+  defaultRendererCoverage: boolean
+): MetadataUiQualityMetric => {
+  const signals = [
+    {
+      label: "Graceful unknown fallback coverage present",
+      passed: gracefulUnknownFallbacks,
+      weight: 4,
+    },
+    {
+      label: "Default renderer coverage present",
+      passed: defaultRendererCoverage,
+      weight: 2,
+    },
+    {
+      label: "Consumer fixture verification passed",
+      passed: verification.consumerFixture === true,
+      weight: 2,
+    },
+  ] as const;
+  const score = scoreSignals(signals);
+  const { evidence, improvementTargets } = summarizeSignals(
+    signals,
+    [],
     [
-      "Move more section-specific composition behind registry-driven renderers.",
-      "Reduce remaining duplication between section composition entry points.",
+      "Reduce duplication between component wrappers and adapter result surfaces.",
     ]
   );
 
+  return createMetric(
+    "adapter-integration",
+    score,
+    score >= 90
+      ? "Adapter integration quality is backed by fallback coverage and consumer-path verification."
+      : "Adapter integration still relies on assumptions that are not fully exercised by the current checks.",
+    evidence,
+    improvementTargets
+  );
+};
+
 const createTestingMetric = (
-  verification: MetadataUiQualityVerification,
-  defaultRendererCoverage: boolean
-): MetadataUiQualityMetric =>
-  createMetric(
-    "testing",
-    (verification.typecheck ? 3 : 0) * 10 +
-      (verification.lint ? 3 : 0) * 10 +
-      (verification.test ? 2 : 0) * 10 +
-      (defaultRendererCoverage ? 2 : 0) * 10,
-    "Quality gates are measured from static checks plus renderer compatibility coverage.",
+  verification: MetadataUiQualityVerification
+): MetadataUiQualityMetric => {
+  const signals = [
+    {
+      label: "Typecheck passed",
+      passed: verification.typecheck === true,
+      weight: 2,
+    },
+    {
+      label: "Lint passed",
+      passed: verification.lint === true,
+      weight: 2,
+    },
+    {
+      label: "Test suite passed",
+      passed: verification.test === true,
+      weight: 2,
+    },
+    {
+      label: "Consumer fixture verification passed",
+      passed: verification.consumerFixture === true,
+      weight: 1,
+    },
+    {
+      label: "Generated output verification passed",
+      passed: verification.generated === true,
+      weight: 1,
+    },
+    {
+      label: "Change-note verification passed",
+      passed: verification.changeNote === true,
+      weight: 1,
+    },
+    {
+      label: "Telemetry schema verification passed",
+      passed: verification.telemetrySchema === true,
+      weight: 1,
+    },
+  ] as const;
+  const score = scoreSignals(signals);
+  const { evidence, improvementTargets } = summarizeSignals(
+    signals,
+    [],
     [
-      verification.typecheck ? "typecheck passed" : "typecheck missing",
-      verification.lint ? "lint passed" : "lint missing",
-      verification.test ? "tests passed" : "tests missing",
-      defaultRendererCoverage
-        ? "default renderer coverage present"
-        : "default renderer coverage missing",
-    ],
-    [
-      "Add governance matrix generation and packaging smoke tests.",
-      "Add public export and API surface regression checks.",
+      "Add browser smoke verification to complement the current package-local check matrix.",
     ]
   );
+
+  return createMetric(
+    "testing",
+    score,
+    score >= 90
+      ? "Testing quality reflects the executed package verification matrix."
+      : "Testing quality is limited by missing executed verification gates.",
+    evidence,
+    improvementTargets
+  );
+};
 
 const createQualityMetrics = (
   compatibility: MetadataUiCompatibilityReport,
@@ -243,13 +464,27 @@ const createQualityMetrics = (
   signals: MetadataUiQualitySignals
 ): readonly MetadataUiQualityMetric[] =>
   [
-    createContractMetric(),
-    createRegistryMetric(compatibility),
-    createGovernanceMetric(signals.governanceFallbackCoverage ?? false),
-    createObservabilityMetric(signals.telemetryCorrelationCoverage ?? false),
+    createContractMetric(verification),
+    createRegistryMetric(
+      compatibility,
+      verification,
+      signals.defaultRendererCoverage ?? false
+    ),
+    createGovernanceMetric(
+      verification,
+      signals.governanceFallbackCoverage ?? false
+    ),
+    createObservabilityMetric(
+      verification,
+      signals.telemetryCorrelationCoverage ?? false
+    ),
     createBoundaryMetric(verification),
-    createAdapterMetric(signals.gracefulUnknownFallbacks ?? false),
-    createTestingMetric(verification, signals.defaultRendererCoverage ?? false),
+    createAdapterMetric(
+      verification,
+      signals.gracefulUnknownFallbacks ?? false,
+      signals.defaultRendererCoverage ?? false
+    ),
+    createTestingMetric(verification),
   ] as const;
 
 export function createMetadataUiQualityAssessment(

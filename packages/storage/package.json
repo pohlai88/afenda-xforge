@@ -8,6 +8,7 @@
     "./blob": "./blob/index.ts",
     "./blob/client": "./blob/client.ts",
     "./blob/keys": "./blob/keys.ts",
+    "./provider": "./provider.ts",
     "./r2": "./r2/index.ts",
     "./r2/keys": "./r2/keys.ts",
     "./types": "./types.ts",
@@ -19,6 +20,7 @@
     ".env.example",
     "blob",
     "index.ts",
+    "provider.ts",
     "r2",
     "supabase",
     "types.ts",
@@ -32,6 +34,7 @@
   },
   "dependencies": {
     "@aws-sdk/client-s3": "catalog:",
+    "@aws-sdk/s3-request-presigner": "catalog:",
     "@t3-oss/env-nextjs": "catalog:",
     "@vercel/blob": "catalog:",
     "@supabase/supabase-js": "catalog:",

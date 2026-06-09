@@ -3,7 +3,7 @@ import { test } from "node:test";
 import type { ReactElement, ReactNode } from "react";
 
 import { renderMetadataField } from "../src/adapters";
-import { MetadataForm } from "../src/components";
+import { MetadataForm, renderMetadataFormResult } from "../src/components";
 import type { MetadataFieldContract } from "../src/contracts";
 import type { MetadataRenderContext } from "../src/contracts/render-context.contract";
 import { createMetadataRenderContext } from "../src/contracts/render-context.defaults";
@@ -120,4 +120,22 @@ test("MetadataForm renders a form grid with all fields", () => {
   assert.ok(grid);
   assert.equal(Array.isArray(grid?.props.children), true);
   assert.equal(grid?.props.children.length, fields.length);
+});
+
+test("renderMetadataFormResult surfaces diagnostics for governed field fallbacks", () => {
+  const result = renderMetadataFormResult({
+    fields: [
+      {
+        key: "employeeStatus",
+        kind: "text",
+        label: "Status",
+        permission: "employee.write",
+      },
+    ],
+    state: "ready",
+  });
+
+  assert.equal(result.diagnostics.length > 0, true);
+  assert.equal(result.diagnostics[0]?.code, "missing-permission");
+  assert.equal(result.element.type, "form");
 });

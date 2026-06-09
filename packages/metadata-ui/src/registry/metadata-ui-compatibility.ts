@@ -6,6 +6,7 @@ import type { MetadataActionSurface } from "../contracts/action-renderer.contrac
 import type { MetadataFieldKind } from "../contracts/field-renderer.contract";
 import type { MetadataUiState } from "../contracts/render-context.contract";
 import type { MetadataSectionKind } from "../contracts/section-renderer.contract";
+import { generatedMetadataUiComposeCompatibilityMap } from "../generated/compatibility.generated";
 import { defaultActionRegistry } from "./default-action-registry.tsx";
 import { defaultFieldRegistry } from "./default-field-registry.tsx";
 import { defaultSectionRegistry } from "./default-section-registry.tsx";
@@ -38,40 +39,9 @@ export type MetadataUiComposeCompatibilityMap = {
 
 export const metadataUiComposeCompatibilityMap: MetadataUiComposeCompatibilityMap =
   {
-    action: {
-      button: "button",
-      destructive: "alert-dialog",
-      menu: "dropdown-menu",
-    },
-    field: {
-      checkbox: "checkbox",
-      date: "date-selector",
-      email: "input-group",
-      money: "input-group",
-      number: "number-field",
-      select: "combobox",
-      status: "badge",
-      switch: "field",
-      textarea: "field",
-      text: "field",
-    },
-    section: {
-      activity: "timeline",
-      approval: "alert-dialog",
-      card: "card",
-      chart: "chart",
-      dashboard: "statistic-card",
-      details: "card",
-      evidence: "file-upload",
-      form: "field",
-      kanban: "kanban",
-      list: "data-grid",
-      section: "frame",
-      stat: "statistic-card",
-      table: "data-grid",
-      timeline: "timeline",
-      workflow: "stepper",
-    },
+    action: generatedMetadataUiComposeCompatibilityMap.action,
+    field: generatedMetadataUiComposeCompatibilityMap.field,
+    section: generatedMetadataUiComposeCompatibilityMap.section,
     state: {
       degraded: "alert",
       empty: "empty",

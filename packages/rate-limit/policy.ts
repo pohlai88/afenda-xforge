@@ -46,13 +46,18 @@ export type RateLimitDecision = {
   retryAfterSeconds: number;
 };
 
-const normalizeSegment = (value: string): string =>
-  value
-    .trim()
-    .toLowerCase()
-    .replace(/[^a-z0-9._-]+/g, "-")
-    .replace(/-+/g, "-")
-    .replace(/^-|-$/g, "") || "unknown";
+const encodeSegment = (value: string): string => {
+  const trimmed = value.trim();
+  return trimmed.length > 0 ? encodeURIComponent(trimmed) : "unknown";
+};
+
+const ensurePositiveInteger = (value: number, field: string): number => {
+  if (!Number.isInteger(value) || value <= 0) {
+    throw new RangeError(`${field} must be a positive integer`);
+  }
+
+  return value;
+};
 
 export const createRateLimitPolicy = (
   overrides: RateLimitPolicyOverrides = {},
@@ -61,16 +66,27 @@ export const createRateLimitPolicy = (
     limit: 100,
     windowSeconds: 60,
   }
-): RateLimitPolicy => ({
-  namespace: overrides.namespace ?? defaults.namespace,
-  scope: overrides.scope ?? "ip",
-  limit: overrides.limit ?? defaults.limit,
-  windowSeconds: overrides.windowSeconds ?? defaults.windowSeconds,
-  blockOnExhaustion: overrides.blockOnExhaustion ?? true,
-  includeHeaders: overrides.includeHeaders ?? true,
-  route: overrides.route,
-  keySuffix: overrides.keySuffix,
-});
+): RateLimitPolicy => {
+  const namespace = (overrides.namespace ?? defaults.namespace).trim();
+
+  if (namespace.length === 0) {
+    throw new RangeError("namespace must be a non-empty string");
+  }
+
+  return {
+    namespace,
+    scope: overrides.scope ?? "ip",
+    limit: ensurePositiveInteger(overrides.limit ?? defaults.limit, "limit"),
+    windowSeconds: ensurePositiveInteger(
+      overrides.windowSeconds ?? defaults.windowSeconds,
+      "windowSeconds"
+    ),
+    blockOnExhaustion: overrides.blockOnExhaustion ?? true,
+    includeHeaders: overrides.includeHeaders ?? true,
+    route: overrides.route,
+    keySuffix: overrides.keySuffix,
+  };
+};
 
 export const resolveRateLimitKey = (
   policy: RateLimitPolicy,
@@ -118,7 +134,11 @@ export const resolveRateLimitKey = (
     }
   }
 
-  if (policy.route) {
+  if (
+    policy.route &&
+    policy.scope !== "route" &&
+    policy.scope !== "composite"
+  ) {
     parts.push(policy.route);
   }
 
@@ -130,5 +150,5 @@ export const resolveRateLimitKey = (
     parts.push(policy.keySuffix);
   }
 
-  return parts.map(normalizeSegment).join(":");
+  return parts.map(encodeSegment).join(":");
 };

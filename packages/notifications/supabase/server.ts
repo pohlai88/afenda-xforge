@@ -6,6 +6,7 @@ import type {
   NotificationDispatchResult,
 } from "../shared/types.ts";
 import { loadSupabaseNotificationsKeys } from "./keys.ts";
+import { normalizeNotificationDispatchRequest } from "./request.ts";
 
 const DEFAULT_EDGE_FUNCTION_NAME = "notifications-dispatch";
 
@@ -66,6 +67,7 @@ export const invokeSupabaseNotificationsDispatch = async <
 >(
   request: NotificationDispatchRequest<TPayload>
 ): Promise<NotificationDispatchResult | null> => {
+  const normalizedRequest = normalizeNotificationDispatchRequest(request);
   const supabase = createSupabaseNotificationsAdminClient();
   const config = getSupabaseNotificationsConfig();
 
@@ -77,11 +79,15 @@ export const invokeSupabaseNotificationsDispatch = async <
     await supabase.functions.invoke<NotificationDispatchResult>(
       config.functionName,
       {
-        body: request,
+        body: normalizedRequest,
       }
     );
 
   if (error) {
+    console.error("Supabase notifications dispatch failed", {
+      error,
+      functionName: config.functionName,
+    });
     return null;
   }
 

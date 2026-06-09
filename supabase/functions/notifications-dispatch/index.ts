@@ -40,6 +40,101 @@ const getChannelPrefix = (): string =>
 
 const normalizeSegment = (value: string): string => encodeURIComponent(value);
 
+const isNonEmptyString = (value: unknown): value is string =>
+  typeof value === "string" && value.trim().length > 0;
+
+const isPlainRecord = (value: unknown): value is Record<string, unknown> =>
+  typeof value === "object" && value !== null && !Array.isArray(value);
+
+const assertNonEmptyString = (value: unknown, label: string): string => {
+  if (!isNonEmptyString(value)) {
+    throw new Error(`Invalid notification payload: ${label}`);
+  }
+
+  return value;
+};
+
+const normalizeCompanyId = (
+  companyId: unknown
+): string | null | undefined => {
+  if (companyId === undefined) {
+    return undefined;
+  }
+
+  if (companyId === null) {
+    return null;
+  }
+
+  return assertNonEmptyString(companyId, "recipient companyId");
+};
+
+const parseNotificationDispatchRequest = (
+  body: unknown
+): NotificationDispatchRequest => {
+  if (!isPlainRecord(body)) {
+    throw new Error("Invalid notification payload");
+  }
+
+  const { event, notificationId, payload, recipients } = body;
+
+  if (
+    !isNonEmptyString(event) ||
+    !isPlainRecord(payload) ||
+    !Array.isArray(recipients) ||
+    recipients.length === 0
+  ) {
+    throw new Error("Invalid notification payload");
+  }
+
+  const normalizedRecipients: NotificationAudience[] = [];
+  const seenRecipients = new Set<string>();
+
+  for (const recipient of recipients) {
+    if (!isPlainRecord(recipient)) {
+      throw new Error("Invalid notification payload");
+    }
+
+    const { companyId, tenantId, userId } = recipient;
+
+    if (
+      !isNonEmptyString(tenantId) ||
+      !isNonEmptyString(userId) ||
+      !(
+        companyId === undefined ||
+        companyId === null ||
+        isNonEmptyString(companyId)
+      )
+    ) {
+      throw new Error("Invalid notification payload");
+    }
+
+    const normalizedRecipient: NotificationAudience = {
+      companyId: normalizeCompanyId(companyId),
+      tenantId,
+      userId,
+    };
+    const recipientKey = JSON.stringify([
+      normalizedRecipient.tenantId,
+      normalizedRecipient.companyId ?? null,
+      normalizedRecipient.userId,
+    ]);
+
+    if (seenRecipients.has(recipientKey)) {
+      continue;
+    }
+
+    seenRecipients.add(recipientKey);
+    normalizedRecipients.push(normalizedRecipient);
+  }
+
+  return {
+    event,
+    notificationId: isNonEmptyString(notificationId) ? notificationId : undefined,
+    payload,
+    recipients: normalizedRecipients,
+  };
+};
+
 const createRecipientNotificationsTopic = ({
   companyId,
   tenantId,
@@ -68,23 +163,25 @@ Deno.serve(async (request: Request): Promise<Response> => {
     return new Response("Missing Supabase configuration", { status: 500 });
   }
 
-  const { event, notificationId, payload, recipients } =
-    (await request.json()) as NotificationDispatchRequest;
+  let dispatchRequest: NotificationDispatchRequest;
 
-  if (!(event && Array.isArray(recipients) && recipients.length > 0)) {
+  try {
+    dispatchRequest = parseNotificationDispatchRequest(await request.json());
+  } catch {
     return new Response("Invalid notification payload", { status: 400 });
   }
 
-  const resolvedNotificationId = notificationId ?? crypto.randomUUID();
+  const resolvedNotificationId =
+    dispatchRequest.notificationId ?? crypto.randomUUID();
   const occurredAt = new Date().toISOString();
-  const messages = recipients.map((recipient) => ({
+  const messages = dispatchRequest.recipients.map((recipient) => ({
     event: DEFAULT_EVENT_NAME,
     payload: {
       audience: recipient,
-      event,
+      event: dispatchRequest.event,
       notificationId: resolvedNotificationId,
       occurredAt,
-      payload,
+      payload: dispatchRequest.payload,
     } satisfies NotificationEnvelope,
     topic: createRecipientNotificationsTopic(recipient),
   }));

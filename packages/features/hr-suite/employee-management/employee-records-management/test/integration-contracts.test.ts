@@ -73,8 +73,8 @@ test("exports stable downstream integration contracts", () => {
   );
 });
 
-test("builds downstream-safe integration snapshots and versioned change events", () => {
-  const manager = createHrEmployeeRecord(
+test("builds downstream-safe integration snapshots and versioned change events", async () => {
+  const manager = await createHrEmployeeRecord(
     {
       employeeNumber: "M700",
       legalName: "Integration Manager",
@@ -92,7 +92,7 @@ test("builds downstream-safe integration snapshots and versioned change events",
 
   assert.equal(manager.ok, true);
 
-  const worker = createHrEmployeeRecord(
+  const worker = await createHrEmployeeRecord(
     {
       employeeNumber: "E700",
       legalName: "Integration Worker",

@@ -2,6 +2,7 @@ import "server-only";
 
 import { writeAuditEvent } from "@repo/audit";
 import { requireActiveTenantAccess } from "@repo/auth/server";
+import { createTrustedTenantContext } from "@repo/auth/trusted";
 import {
   companies,
   database,
@@ -415,11 +416,12 @@ const executeInboundDomainWebhook = async (
           operationId: message.envelope.operationId,
           requestId: message.envelope.requestId,
           tenantId: message.envelope.tenantId,
-          trustedSystem: {
+          trustedSystem: createTrustedTenantContext({
             actorType: "integration",
             channel: "webhook",
-            tenantVerified: true,
-          },
+            reason: "validated inbound webhook endpoint tenant",
+            tenantId: message.envelope.tenantId,
+          }),
           userId: systemActorId,
         }
       );

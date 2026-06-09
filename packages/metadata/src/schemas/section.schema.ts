@@ -1,9 +1,11 @@
 import { z } from "zod";
+import { metadataSectionCustomizationSchema } from "./customization-policy.schema.ts";
 
 export const metadataSectionSchema = z
   .object({
     key: z.string().trim().min(1),
     label: z.string().trim().min(1),
+    customization: metadataSectionCustomizationSchema.optional(),
     description: z.string().trim().min(1).optional(),
     fieldKeys: z.array(z.string().trim().min(1)).readonly(),
     columns: z

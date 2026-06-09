@@ -1,3 +1,5 @@
+import type { MetadataFilterCustomizationPolicy } from "./customization-policy.contract.ts";
+
 export type MetadataFilterKind =
   | "boolean"
   | "date"
@@ -28,6 +30,7 @@ export type MetadataFilterOption = {
 };
 
 export type MetadataFilterContract = {
+  customization?: MetadataFilterCustomizationPolicy;
   description?: string;
   field: string;
   kind: MetadataFilterKind;

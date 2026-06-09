@@ -1,6 +1,9 @@
 import "server-only";
 
+import { writeAuditEvent } from "@repo/audit";
 import { requireTenantActorAccess } from "@repo/auth/access";
+import type { TrustedTenantContext } from "@repo/auth/trusted";
+import { isTrustedTenantContext } from "@repo/auth/trusted";
 import { customers, database, timeDatabaseQuery } from "@repo/database";
 import { createQueryPipeline } from "@repo/execution";
 import { appendRequestContextMetadata } from "@repo/logger";
@@ -17,10 +20,9 @@ import { listCustomersQuerySchema } from "./contract.ts";
 
 export type CustomerQueryContext = UserActorScope & {
   grantedPermissions?: string[];
+  requestId?: string;
   tenantId: string;
-  trustedSystem?: {
-    tenantVerified: boolean;
-  };
+  trustedSystem?: TrustedTenantContext;
 };
 
 type ResolvedCustomerQueryAccess = {
@@ -46,7 +48,11 @@ const mapCustomer = (row: {
 const resolveCustomerQueryAccess = async (
   context: CustomerQueryContext
 ): Promise<ResolvedCustomerQueryAccess> => {
-  if (context.trustedSystem?.tenantVerified) {
+  if (
+    context.trustedSystem &&
+    isTrustedTenantContext(context.trustedSystem) &&
+    context.trustedSystem.tenantId === context.tenantId
+  ) {
     return {
       grantedPermissions: context.grantedPermissions ?? [],
       tenantId: context.tenantId,
@@ -157,6 +163,27 @@ export const listCustomers = (
 
       return executeCustomerListQuery(input, resolvedAccess);
     },
+    auditQueryEvent: (result, { actor, input, tenant }) => ({
+      action: "customers.list",
+      actorId: actor.actorId,
+      actorType: "user",
+      after: {},
+      before: {},
+      metadata: {
+        page: input.page,
+        pageSize: input.pageSize,
+        resultCount: result.items.length,
+        total: result.total,
+      },
+      module: "customers",
+      reason: "list customer records",
+      requestId: context.requestId ?? "customers.list",
+      route: "/api/customers",
+      summary: "Customer records listed",
+      targetId: tenant.tenantId,
+      targetType: "tenant",
+      tenantId: tenant.tenantId,
+    }),
     permissionContext: () => {
       if (!resolvedAccess) {
         throw new Error("Customer query access was not resolved");
@@ -190,6 +217,7 @@ export const listCustomers = (
     validateInput: (input) => {
       listCustomersQuerySchema.parse(input);
     },
+    writeAuditEvent,
   });
 
   return pipeline(parsedQuery);

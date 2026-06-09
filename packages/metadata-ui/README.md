@@ -99,3 +99,40 @@ export function MetadataBoundaryExample() {
 The package keeps rendering logic declarative and uses the root `@repo/ui` surface rather than deep component imports.
 
 See `examples/metadata-boundary.example.tsx` for a package-local fixture that composes `Button`, `Card`, `Badge`, and `Table` with `EntityMetadata`.
+
+## Renderer Catalog
+
+<!-- metadata-ui-generated-renderer-catalog:start -->
+<!-- This section is auto-generated. Do not edit manually. -->
+
+| Kind | Registry Key | Renderer Export | Compose Group |
+| --- | --- | --- | --- |
+| action | `button` | `ButtonActionRenderer` | `button` |
+| action | `destructive` | `DestructiveActionRenderer` | `alert-dialog` |
+| action | `menu` | `MenuActionRenderer` | `dropdown-menu` |
+| field | `checkbox` | `CheckboxFieldRenderer` | `checkbox` |
+| field | `date` | `DateFieldRenderer` | `date-selector` |
+| field | `email` | `TextFieldRenderer` | `input-group` |
+| field | `money` | `MoneyFieldRenderer` | `input-group` |
+| field | `number` | `NumberFieldRenderer` | `number-field` |
+| field | `select` | `SelectFieldRenderer` | `combobox` |
+| field | `status` | `TextFieldRenderer` | `badge` |
+| field | `switch` | `SwitchFieldRenderer` | `field` |
+| field | `text` | `TextFieldRenderer` | `field` |
+| field | `textarea` | `TextareaFieldRenderer` | `field` |
+| section | `activity` | `MetadataSectionRenderer` | `timeline` |
+| section | `approval` | `MetadataSectionRenderer` | `alert-dialog` |
+| section | `card` | `MetadataCardSectionRenderer` | `card` |
+| section | `chart` | `MetadataCardSectionRenderer` | `chart` |
+| section | `dashboard` | `MetadataSectionRenderer` | `statistic-card` |
+| section | `details` | `MetadataCardSectionRenderer` | `card` |
+| section | `evidence` | `MetadataCardSectionRenderer` | `file-upload` |
+| section | `form` | `MetadataFormSectionRenderer` | `field` |
+| section | `kanban` | `MetadataSectionRenderer` | `kanban` |
+| section | `list` | `MetadataTableSectionRenderer` | `data-grid` |
+| section | `section` | `MetadataSectionRenderer` | `frame` |
+| section | `stat` | `MetadataCardSectionRenderer` | `statistic-card` |
+| section | `table` | `MetadataTableSectionRenderer` | `data-grid` |
+| section | `timeline` | `MetadataSectionRenderer` | `timeline` |
+| section | `workflow` | `MetadataSectionRenderer` | `stepper` |
+<!-- metadata-ui-generated-renderer-catalog:end -->

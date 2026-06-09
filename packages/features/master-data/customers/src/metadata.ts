@@ -2,6 +2,16 @@ import type { EntityMetadata } from "@repo/metadata";
 
 export const customerMetadata: EntityMetadata = {
   id: "master-data.customers",
+  customization: {
+    presentation: {
+      density: true,
+      icon: true,
+      size: true,
+      tone: true,
+      variant: true,
+    },
+    scopes: ["tenant", "company"],
+  },
   entity: "customer",
   title: "Customers",
   description:
@@ -26,6 +36,11 @@ export const customerMetadata: EntityMetadata = {
   },
   fields: [
     {
+      customization: {
+        label: true,
+        order: true,
+        placeholder: true,
+      },
       key: "code",
       label: "Code",
       kind: "text",
@@ -34,6 +49,11 @@ export const customerMetadata: EntityMetadata = {
       validationHint: "Use a stable customer code.",
     },
     {
+      customization: {
+        label: true,
+        order: true,
+        placeholder: true,
+      },
       key: "name",
       label: "Name",
       kind: "text",
@@ -42,6 +62,12 @@ export const customerMetadata: EntityMetadata = {
       validationHint: "Use the registered or display name.",
     },
     {
+      customization: {
+        hidden: "allow",
+        label: true,
+        order: true,
+        placeholder: true,
+      },
       key: "email",
       label: "Primary email",
       kind: "text",
@@ -49,6 +75,10 @@ export const customerMetadata: EntityMetadata = {
       permissionHint: "master-data.customers:contact:view",
     },
     {
+      customization: {
+        label: true,
+        order: true,
+      },
       key: "status",
       label: "Status",
       kind: "select",
@@ -59,6 +89,10 @@ export const customerMetadata: EntityMetadata = {
   ],
   filters: [
     {
+      customization: {
+        hidden: true,
+        label: true,
+      },
       key: "customer-code",
       label: "Code",
       field: "code",
@@ -67,6 +101,10 @@ export const customerMetadata: EntityMetadata = {
       placeholder: "Search code",
     },
     {
+      customization: {
+        hidden: true,
+        label: true,
+      },
       key: "customer-status",
       label: "Status",
       field: "status",
@@ -86,6 +124,11 @@ export const customerMetadata: EntityMetadata = {
   ],
   forms: [
     {
+      customization: {
+        label: true,
+        layout: true,
+        sectionKeys: true,
+      },
       key: "customer-create",
       label: "Create customer",
       fieldKeys: ["code", "name", "email", "status"],
@@ -99,6 +142,11 @@ export const customerMetadata: EntityMetadata = {
       layout: "grid",
     },
     {
+      customization: {
+        label: true,
+        layout: true,
+        sectionKeys: true,
+      },
       key: "customer-edit",
       label: "Edit customer",
       fieldKeys: ["code", "name", "email", "status"],
@@ -114,6 +162,12 @@ export const customerMetadata: EntityMetadata = {
   ],
   actions: [
     {
+      customization: {
+        hidden: true,
+        label: true,
+        placement: true,
+        safe: true,
+      },
       key: "customer-create",
       label: "Create",
       kind: "create",
@@ -121,6 +175,12 @@ export const customerMetadata: EntityMetadata = {
       permissionHint: "master-data.customers:write",
     },
     {
+      customization: {
+        hidden: true,
+        label: true,
+        placement: true,
+        safe: true,
+      },
       key: "customer-save",
       label: "Save changes",
       kind: "update",
@@ -128,6 +188,9 @@ export const customerMetadata: EntityMetadata = {
       permissionHint: "master-data.customers:write",
     },
     {
+      customization: {
+        safe: false,
+      },
       key: "customer-archive",
       label: "Archive",
       kind: "archive",
@@ -141,6 +204,9 @@ export const customerMetadata: EntityMetadata = {
       },
     },
     {
+      customization: {
+        safe: false,
+      },
       key: "customer-restore",
       label: "Restore",
       kind: "restore",
@@ -154,12 +220,23 @@ export const customerMetadata: EntityMetadata = {
   ],
   sections: [
     {
+      customization: {
+        columns: true,
+        fieldKeys: true,
+        label: true,
+      },
       key: "customer-identity",
       label: "Identity",
       fieldKeys: ["code", "name"],
       columns: 2,
     },
     {
+      customization: {
+        columns: true,
+        fieldKeys: true,
+        hidden: true,
+        label: true,
+      },
       key: "customer-contact",
       label: "Contact",
       fieldKeys: ["email"],
@@ -167,6 +244,11 @@ export const customerMetadata: EntityMetadata = {
       collapsible: true,
     },
     {
+      customization: {
+        columns: true,
+        fieldKeys: true,
+        label: true,
+      },
       key: "customer-lifecycle",
       label: "Lifecycle",
       fieldKeys: ["status"],
@@ -194,10 +276,21 @@ export const customerMetadata: EntityMetadata = {
     },
   ],
   table: {
+    customization: {
+      columns: true,
+      defaultSort: true,
+      title: true,
+    },
     defaultSort: "name",
     title: "Customer directory",
     columns: [
       {
+        customization: {
+          hidden: true,
+          label: true,
+          order: true,
+          width: true,
+        },
         key: "code",
         label: "Code",
         field: "code",
@@ -206,6 +299,12 @@ export const customerMetadata: EntityMetadata = {
         width: "sm",
       },
       {
+        customization: {
+          hidden: true,
+          label: true,
+          order: true,
+          width: true,
+        },
         key: "name",
         label: "Name",
         field: "name",
@@ -214,6 +313,12 @@ export const customerMetadata: EntityMetadata = {
         width: "lg",
       },
       {
+        customization: {
+          hidden: true,
+          label: true,
+          order: true,
+          width: true,
+        },
         key: "email",
         label: "Email",
         field: "email",
@@ -223,6 +328,13 @@ export const customerMetadata: EntityMetadata = {
         width: "md",
       },
       {
+        customization: {
+          align: true,
+          hidden: true,
+          label: true,
+          order: true,
+          width: true,
+        },
         key: "status",
         label: "Status",
         field: "status",

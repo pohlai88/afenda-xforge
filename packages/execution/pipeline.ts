@@ -157,6 +157,12 @@ export type QueryPipelineHooks<TInput, TResult> = {
     requirement: PermissionRequirement
   ) => Promise<void> | void;
   executeQuery: (context: QueryExecutionContext<TInput>) => Promise<TResult>;
+  auditQueryEvent?: (
+    result: TResult,
+    context: QueryExecutionContext<TInput>,
+    permissionContext: PermissionContext
+  ) => Audit7W1HEventInput | null;
+  writeAuditEvent?: (event: Audit7W1HEventInput) => Promise<unknown> | unknown;
 };
 
 const resolveAuditModule = (
@@ -476,10 +482,22 @@ export const createQueryPipeline =
       hooks.permissionRequirement
     );
 
-    return hooks.executeQuery({
+    const queryContext = {
       actor,
       company: company ?? undefined,
       input,
       tenant,
-    });
+    };
+    const result = await hooks.executeQuery(queryContext);
+    const auditEvent = hooks.auditQueryEvent?.(
+      result,
+      queryContext,
+      permissionContext
+    );
+
+    if (auditEvent && hooks.writeAuditEvent) {
+      await hooks.writeAuditEvent(auditEvent);
+    }
+
+    return result;
   };

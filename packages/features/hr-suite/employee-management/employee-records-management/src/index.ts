@@ -112,4 +112,5 @@ export {
   hrRecordsRouteContract,
   hrRecordsRoutePaths,
 } from "./route-paths.ts";
+export { hasHrEmployeeRecordsSearch } from "./search.ts";
 export { parseHrRecordsSearchParams } from "./search-params.parse.shared.ts";

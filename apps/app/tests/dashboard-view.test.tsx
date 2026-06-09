@@ -2,10 +2,8 @@ import { companyMetadata } from "@repo/features-master-data-companies/metadata";
 import { customerMetadata } from "@repo/features-master-data-customers/metadata";
 import { render, screen } from "@testing-library/react";
 import { describe, expect, it } from "vitest";
-import {
-  DashboardView,
-  type DashboardSectionState,
-} from "../app/(authenticated)/dashboard/dashboard-view.tsx";
+import type { DashboardSectionState } from "../app/(authenticated)/dashboard/dashboard-view.tsx";
+import { DashboardView } from "../app/(authenticated)/dashboard/dashboard-view.tsx";
 
 const createReadyState = (
   rows: readonly { id: string; [key: string]: string | number | boolean }[]
@@ -50,9 +48,9 @@ describe("DashboardView", () => {
     ).toBeInTheDocument();
     expect(screen.getAllByText("Customers").length).toBeGreaterThanOrEqual(1);
     expect(screen.getAllByText("Companies").length).toBeGreaterThanOrEqual(1);
-    expect(screen.getAllByPlaceholderText(/search/i).length).toBeGreaterThanOrEqual(
-      2
-    );
+    expect(
+      screen.getAllByPlaceholderText(/search/i).length
+    ).toBeGreaterThanOrEqual(2);
     expect(screen.getByText("owner@tenant.test")).toBeInTheDocument();
   });
 

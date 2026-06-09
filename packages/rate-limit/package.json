@@ -5,6 +5,7 @@
   "type": "module",
   "exports": {
     ".": "./index.ts",
+    "./index": "./index.ts",
     "./headers": "./headers.ts",
     "./keys": "./keys.ts",
     "./middleware": "./middleware.ts",
@@ -27,6 +28,7 @@
     "lint": "biome check .",
     "format": "biome format --write .",
     "clean": "git clean -xdf .cache .turbo dist node_modules",
+    "test": "node --import tsx --test tests/rate-limit.test.ts",
     "typecheck": "tsc --noEmit --emitDeclarationOnly false"
   },
   "dependencies": {
@@ -38,6 +40,7 @@
   "devDependencies": {
     "@repo/typescript-config": "workspace:*",
     "@types/node": "catalog:",
+    "tsx": "catalog:",
     "typescript": "catalog:"
   }
 }

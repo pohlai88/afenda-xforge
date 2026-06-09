@@ -1,4 +1,9 @@
 import type { MetadataActionContract } from "./action.contract.ts";
+import type {
+  MetadataEntityTableCustomizationPolicy,
+  MetadataFeatureCustomizationPolicy,
+  MetadataTableColumnCustomizationPolicy,
+} from "./customization-policy.contract.ts";
 import type { MetadataFieldContract } from "./field.contract.ts";
 import type { MetadataFilterContract } from "./filter.contract.ts";
 import type { MetadataFormContract } from "./form.contract.ts";
@@ -9,8 +14,9 @@ import type { MetadataStateContract } from "./state.contract.ts";
 
 type EntityMetadataColumnKind = "date" | "email" | "money" | "status" | "text";
 
-type EntityMetadataTableColumn = {
+export type EntityMetadataTableColumn = {
   align?: "center" | "end" | "start";
+  customization?: MetadataTableColumnCustomizationPolicy;
   description?: string;
   field?: string;
   key: string;
@@ -28,12 +34,14 @@ export type EntityLabels = {
 
 export type EntityTableMetadata = {
   columns: readonly EntityMetadataTableColumn[];
+  customization?: MetadataEntityTableCustomizationPolicy;
   defaultSort: string;
   title?: string;
 };
 
 export type EntityMetadata = {
   actions?: readonly MetadataActionContract[];
+  customization?: MetadataFeatureCustomizationPolicy;
   description?: string;
   entity: string;
   fields?: readonly MetadataFieldContract[];

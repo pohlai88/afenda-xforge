@@ -1,3 +1,12 @@
+export type {
+  SecurityBoundaryDecision,
+  SecurityBoundaryOptions,
+} from "./boundary.ts";
+export {
+  assessErpRequestBoundary,
+  DEFAULT_CSRF_COOKIE_NAME,
+  DEFAULT_CSRF_HEADER_NAME,
+} from "./boundary.ts";
 export type { SecurityCorsOptions } from "./cors.ts";
 export {
   applySecurityCorsHeaders,

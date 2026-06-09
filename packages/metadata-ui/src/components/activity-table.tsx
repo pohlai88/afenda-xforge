@@ -115,6 +115,18 @@ const normalizeColumns = (
     }));
 };
 
+const getAriaSort = (
+  columnKey: string,
+  sortColumn: string | null,
+  sortOrder: SortOrder
+): "ascending" | "descending" | "none" => {
+  if (sortColumn !== columnKey || sortOrder === null) {
+    return "none";
+  }
+
+  return sortOrder === "asc" ? "ascending" : "descending";
+};
+
 export function ActivityTable({
   columns,
   defaultSortColumn,
@@ -297,7 +309,10 @@ export function ActivityTable({
           <TableHeader>
             <TableRow>
               {resolvedColumns.map((column) => (
-                <TableHead key={column.key}>
+                <TableHead
+                  aria-sort={getAriaSort(column.key, sortColumn, sortOrder)}
+                  key={column.key}
+                >
                   <button
                     className="inline-flex items-center gap-1 font-medium"
                     onClick={(): void => handleSort(column.key)}

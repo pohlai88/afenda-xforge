@@ -1,4 +1,5 @@
 import type { MetadataActionContract } from "./action.contract.ts";
+import type { MetadataFeatureCustomizationPolicy } from "./customization-policy.contract.ts";
 import type { MetadataFieldContract } from "./field.contract.ts";
 import type { MetadataFilterContract } from "./filter.contract.ts";
 import type { MetadataFormContract } from "./form.contract.ts";
@@ -16,6 +17,7 @@ export type MetadataLabelsContract = {
 
 export type MetadataFeatureContract = {
   actions?: readonly MetadataActionContract[];
+  customization?: MetadataFeatureCustomizationPolicy;
   description?: string;
   entity: string;
   fields?: readonly MetadataFieldContract[];

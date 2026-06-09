@@ -1,9 +1,11 @@
 import { z } from "zod";
 
 import { metadataActionKinds } from "../constants/action-kinds.ts";
+import { metadataActionCustomizationSchema } from "./customization-policy.schema.ts";
 
 export const metadataActionSchema = z
   .object({
+    customization: metadataActionCustomizationSchema.optional(),
     key: z.string().trim().min(1),
     label: z.string().trim().min(1),
     kind: z.enum(metadataActionKinds),

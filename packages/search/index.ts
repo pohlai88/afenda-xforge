@@ -5,7 +5,6 @@ export {
   SEARCH_LANGUAGE_PRESETS,
   VIETNAMESE_SEARCH_STOP_WORDS,
 } from "./language.ts";
-export * from "./meilisearch/index.ts";
 export {
   buildSearchIndexName,
   clearSearchIndexRegistry,

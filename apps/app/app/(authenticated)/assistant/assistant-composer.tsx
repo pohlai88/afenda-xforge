@@ -8,6 +8,7 @@ import type {
 import { machineAssistantResponseSchema } from "@repo/machine/contract";
 import type { ChangeEvent, FormEvent, ReactElement } from "react";
 import { useState } from "react";
+import { withCSRFHeader } from "../../../lib/csrf.client.ts";
 
 type ModuleSelection = "auto" | (typeof xforgeAiModules)[number];
 
@@ -81,9 +82,9 @@ export function AssistantComposer(): ReactElement {
           message,
           ...(module === "auto" ? {} : { module }),
         }),
-        headers: {
+        headers: withCSRFHeader({
           "content-type": "application/json",
-        },
+        }),
         method: "POST",
       });
 

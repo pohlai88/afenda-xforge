@@ -15,7 +15,13 @@ test("metadata-ui quality assessment produces an enterprise-ready score for the 
     telemetryCorrelationCoverage: true,
     verification: {
       boundaryLint: true,
+      changeNote: true,
+      consumerFixture: true,
+      declarationSnapshot: true,
+      generated: true,
       lint: true,
+      publicApi: true,
+      telemetrySchema: true,
       test: true,
       typecheck: true,
     },
@@ -50,12 +56,18 @@ test("metadata-ui quality assessment degrades when compatibility and verificatio
     telemetryCorrelationCoverage: false,
     verification: {
       boundaryLint: false,
+      changeNote: false,
+      consumerFixture: false,
+      declarationSnapshot: false,
+      generated: false,
       lint: false,
+      publicApi: false,
+      telemetrySchema: false,
       test: true,
       typecheck: false,
     },
   });
 
-  assert.equal(assessment.grade, "C");
-  assert.ok(assessment.percentage < 80);
+  assert.equal(assessment.grade, "D");
+  assert.ok(assessment.percentage < 70);
 });

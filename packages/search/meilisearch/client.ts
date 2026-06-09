@@ -57,6 +57,10 @@ export const getMeilisearchClient = (
   return cachedClient;
 };
 
+export const resetMeilisearchClientCache = (): void => {
+  cachedClient = null;
+};
+
 export const getMeilisearchConfig = (
   overrides: Partial<MeilisearchConfig> = {}
 ): MeilisearchConfig => resolveConfig(overrides);

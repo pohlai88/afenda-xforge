@@ -23,6 +23,7 @@ export const documentsManagementApiRoutePaths = {
     `/api/hr/documents/${documentId}/download`,
   document: (documentId: string): `/api/hr/documents/${string}` =>
     `/api/hr/documents/${documentId}`,
+  documentUpload: "/api/hr/documents/upload",
   documents: "/api/hr/documents",
   expiring: "/api/hr/documents/expiring",
   readiness: "/api/hr/documents/readiness",
@@ -30,6 +31,7 @@ export const documentsManagementApiRoutePaths = {
 
 export type DocumentsManagementApiRoutePath =
   | (typeof documentsManagementApiRoutePaths)["documents"]
+  | (typeof documentsManagementApiRoutePaths)["documentUpload"]
   | (typeof documentsManagementApiRoutePaths)["expiring"]
   | (typeof documentsManagementApiRoutePaths)["readiness"]
   | ReturnType<typeof documentsManagementApiRoutePaths.documentDownload>
@@ -43,6 +45,10 @@ export function hrEmployeeDetailRoutePath(
 
 export function hrTenantDocumentDownloadPath(documentId: string): string {
   return documentsManagementApiRoutePaths.documentDownload(documentId);
+}
+
+export function hrTenantDocumentUploadPath(): string {
+  return documentsManagementApiRoutePaths.documentUpload;
 }
 
 export type DocumentsManagementRouteContract = {
@@ -66,7 +72,12 @@ export const documentsManagementRouteContracts: readonly DocumentsManagementRout
     {
       path: documentsManagementApiRoutePaths.documents,
       description:
-        "Upload a document binary to object storage and register its metadata reference.",
+        "Upload a document binary to the active object storage backend and register its metadata reference.",
+    },
+    {
+      path: documentsManagementApiRoutePaths.documentUpload,
+      description:
+        "Generate direct browser upload credentials for the active object storage backend.",
     },
     {
       path: "/api/hr/documents/[documentId]",

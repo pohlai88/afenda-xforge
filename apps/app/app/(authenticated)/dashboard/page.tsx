@@ -7,9 +7,9 @@ import type { EntityMetadata } from "@repo/metadata";
 import Link from "next/link";
 import type { ReactElement } from "react";
 import type { DashboardEntityCustomizationLayers } from "./_customizations.ts";
-import { DashboardView } from "./dashboard-view.tsx";
 import { loadDashboardMetadataCustomizations } from "./_customizations.ts";
 import { loadDashboardData } from "./_data.ts";
+import { DashboardView } from "./dashboard-view.tsx";
 
 const renderDashboardAccessError = (message: string): ReactElement => (
   <section className="rounded-[var(--radius-xl)] border border-border bg-card/95 p-8 shadow-sm">
@@ -27,11 +27,14 @@ const renderDashboardAccessError = (message: string): ReactElement => (
 
 const resolveDashboardMetadata = (
   metadata: EntityMetadata,
-  layers: DashboardEntityCustomizationLayers
+  layers: DashboardEntityCustomizationLayers,
+  companyId: string | null
 ): EntityMetadata => {
   try {
     return resolveLayeredCustomizedEntityMetadata(metadata, layers, {
-      companyAware: Boolean(layers.company),
+      companyAware: Boolean(
+        companyId && layers.company?.companyId === companyId
+      ),
     });
   } catch (error) {
     console.warn("Invalid dashboard metadata customization ignored.", {
@@ -46,16 +49,19 @@ const resolveDashboardMetadata = (
 export default async function DashboardPage(): Promise<ReactElement> {
   try {
     const dashboard = await loadDashboardData();
-    const customizations = await loadDashboardMetadataCustomizations(
-      dashboard.tenantId
-    );
+    const customizations = await loadDashboardMetadataCustomizations({
+      companyId: dashboard.companyId,
+      tenantId: dashboard.tenantId,
+    });
     const resolvedCustomerMetadata = resolveDashboardMetadata(
       customerMetadata,
-      customizations.customers
+      customizations.customers,
+      dashboard.companyId
     );
     const resolvedCompanyMetadata = resolveDashboardMetadata(
       companyMetadata,
-      customizations.companies
+      customizations.companies,
+      dashboard.companyId
     );
     return (
       <DashboardView
@@ -80,6 +86,12 @@ export default async function DashboardPage(): Promise<ReactElement> {
               href="/audit"
             >
               Open audit
+            </Link>
+            <Link
+              className="inline-flex h-10 items-center justify-center rounded-md border border-border bg-background px-4 py-2 font-medium text-sm transition hover:bg-muted"
+              href="/hr/documents"
+            >
+              Open documents
             </Link>
             <SignOut className="inline-flex h-10 items-center justify-center rounded-md bg-primary px-4 py-2 font-medium text-primary-foreground text-sm transition hover:opacity-90" />
           </>

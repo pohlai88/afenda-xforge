@@ -1,21 +1,46 @@
 import type { RateLimitContext } from "./policy.ts";
 
-export const getClientIp = (request: Request): string | null => {
-  const forwarded = request.headers.get("x-forwarded-for");
+export type RateLimitRequestOptions = {
+  trustProxy?: boolean;
+};
 
-  if (forwarded) {
-    const firstHop = forwarded.split(",")[0]?.trim();
+const trimHeader = (request: Request, headerName: string): string | null =>
+  request.headers.get(headerName)?.trim() || null;
 
-    if (firstHop) {
-      return firstHop;
+export const getClientIp = (
+  request: Request,
+  options: RateLimitRequestOptions = {}
+): string | null => {
+  for (const headerName of [
+    "cf-connecting-ip",
+    "fly-client-ip",
+    "true-client-ip",
+  ]) {
+    const value = trimHeader(request, headerName);
+
+    if (value) {
+      return value;
     }
   }
 
-  return (
-    request.headers.get("cf-connecting-ip")?.trim() ??
-    request.headers.get("x-real-ip")?.trim() ??
-    null
-  );
+  if (!options.trustProxy) {
+    return null;
+  }
+
+  const realIp = trimHeader(request, "x-real-ip");
+
+  if (realIp) {
+    return realIp;
+  }
+
+  const forwarded = request.headers.get("x-forwarded-for");
+
+  if (!forwarded) {
+    return null;
+  }
+
+  const firstHop = forwarded.split(",")[0]?.trim();
+  return firstHop || null;
 };
 
 export const getRequestPath = (request: Request): string => {
@@ -28,9 +53,10 @@ export const getRequestPath = (request: Request): string => {
 
 export const createRateLimitContextFromRequest = (
   request: Request,
-  overrides: RateLimitContext = {}
+  overrides: RateLimitContext = {},
+  options: RateLimitRequestOptions = {}
 ): RateLimitContext => ({
-  ip: overrides.ip ?? getClientIp(request) ?? undefined,
+  ip: overrides.ip ?? getClientIp(request, options) ?? undefined,
   userId: overrides.userId,
   actorId: overrides.actorId,
   tenantId: overrides.tenantId,

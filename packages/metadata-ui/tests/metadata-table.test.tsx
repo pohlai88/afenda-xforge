@@ -2,28 +2,57 @@ import assert from "node:assert/strict";
 import { test } from "node:test";
 import type { EntityMetadata } from "@repo/metadata";
 import type { ReactElement, ReactNode } from "react";
-import { EntityMetadataPanel, EntityMetadataTable } from "../index";
+import {
+  EntityMetadataPanel,
+  EntityMetadataTable,
+  renderMetadataPanelResult,
+  renderMetadataTableResult,
+} from "../index";
 
 const metadata: EntityMetadata = {
+  customization: {
+    presentation: {
+      density: true,
+      tone: true,
+      variant: true,
+    },
+    scopes: ["tenant", "company"],
+  },
   entity: "customer",
   labels: {
     singular: "Customer",
     plural: "Customers",
   },
   table: {
+    customization: {
+      columns: true,
+      defaultSort: true,
+      title: true,
+    },
     defaultSort: "name",
     columns: [
       {
+        customization: {
+          label: true,
+        },
         key: "name",
         label: "Name",
         sortable: true,
       },
       {
+        customization: {
+          hidden: true,
+          label: true,
+        },
         key: "email",
         label: "Email",
         kind: "email",
       },
       {
+        customization: {
+          hidden: true,
+          label: true,
+        },
         key: "status",
         label: "Status",
         kind: "status",
@@ -42,6 +71,24 @@ const rows = [
 ] as const;
 
 type TestElement = ReactElement<any, any>;
+
+const createTelemetrySink = (): {
+  events: Array<{ name: string }>;
+  sink: {
+    emit: (event: { name: string }) => void;
+  };
+} => {
+  const events: Array<{ name: string }> = [];
+
+  return {
+    events,
+    sink: {
+      emit: (event: { name: string }): void => {
+        events.push({ name: event.name });
+      },
+    },
+  };
+};
 
 const collectElements = (
   node: ReactNode,
@@ -164,4 +211,166 @@ test("EntityMetadataPanel applies governed metadata customization", () => {
 
   assert.equal(toolbar?.props.title, "Accounts");
   assert.equal(toolbar?.props.badges?.[2]?.label, "2 columns");
+});
+
+test("renderMetadataTableResult emits render telemetry with the threaded context", () => {
+  const telemetry = createTelemetrySink();
+
+  const result = renderMetadataTableResult({
+    context: {
+      routeId: "tests/metadata-table",
+      surfaceId: "metadata-table:test-surface",
+      telemetry: telemetry.sink,
+    },
+    metadata,
+    rows,
+  });
+
+  assert.equal(
+    (result.element.type as { name?: string }).name,
+    "ActivityTable"
+  );
+  assert.deepEqual(
+    telemetry.events.map((event) => event.name),
+    ["metadata.table.render.started", "metadata.table.render.completed"]
+  );
+  assert.equal(result.diagnostics.length, 0);
+});
+
+test("renderMetadataPanelResult surfaces unsupported column diagnostics", () => {
+  const telemetry = createTelemetrySink();
+
+  const result = renderMetadataPanelResult({
+    context: {
+      routeId: "tests/metadata-panel",
+      telemetry: telemetry.sink,
+    },
+    metadata: {
+      ...metadata,
+      table: {
+        columns: [
+          {
+            key: "total",
+            kind: "money",
+            label: "Total",
+          },
+        ],
+        defaultSort: "total",
+      },
+    },
+    rows: [{ id: "row-1", total: 1200.5 }],
+  });
+
+  assert.equal((result.element.type as { name?: string }).name, "Card");
+  assert.equal(result.diagnostics.length, 1);
+  assert.equal(result.diagnostics[0]?.code, "missing-renderer");
+  assert.deepEqual(
+    telemetry.events.map((event) => event.name),
+    [
+      "metadata.table.render.started",
+      "metadata.table.render.completed",
+      "metadata.panel.render.started",
+      "metadata.panel.render.completed",
+    ]
+  );
+});
+
+test("EntityMetadataPanel accepts layered customization input", () => {
+  const element = EntityMetadataPanel({
+    customizationLayers: {
+      company: {
+        baseMetadataFingerprint: "customer.records@2026-06-09",
+        companyId: "company-main",
+        created: {
+          at: "2026-06-09T00:00:00.000Z",
+          by: "admin-user",
+        },
+        entity: "customer",
+        featureId: "customer.records",
+        fields: [
+          {
+            key: "name",
+            label: "Company Account Name",
+          },
+        ],
+        id: "customer.records.company-main",
+        published: {
+          at: "2026-06-09T00:00:00.000Z",
+          by: "admin-user",
+        },
+        scope: "company",
+        status: "published",
+        tenantId: "tenant-acme",
+        updated: {
+          at: "2026-06-09T00:00:00.000Z",
+          by: "admin-user",
+        },
+        version: 2,
+      },
+      tenant: {
+        baseMetadataFingerprint: "customer.records@2026-06-09",
+        created: {
+          at: "2026-06-09T00:00:00.000Z",
+          by: "admin-user",
+        },
+        entity: "customer",
+        featureId: "customer.records",
+        fields: [
+          {
+            key: "email",
+            hidden: true,
+          },
+        ],
+        id: "customer.records.tenant-acme",
+        published: {
+          at: "2026-06-09T00:00:00.000Z",
+          by: "admin-user",
+        },
+        scope: "tenant",
+        status: "published",
+        tenantId: "tenant-acme",
+        title: "Tenant Accounts",
+        updated: {
+          at: "2026-06-09T00:00:00.000Z",
+          by: "admin-user",
+        },
+        version: 1,
+      },
+    },
+    customizationOptions: {
+      companyAware: true,
+    },
+    metadata: {
+      ...metadata,
+      fields: [
+        {
+          customization: {
+            label: true,
+          },
+          key: "name",
+          kind: "text",
+          label: "Name",
+        },
+        {
+          customization: {
+            hidden: "allow",
+          },
+          key: "email",
+          kind: "text",
+          label: "Email",
+        },
+      ],
+      id: "customer.records",
+      title: "Customers",
+    },
+    rows,
+    totalRecords: 1,
+  }) as TestElement;
+
+  const toolbar = collectElements(element.props.children).find(
+    (candidate) =>
+      (candidate.type as { name?: string }).name === "MetadataToolbar"
+  ) as TestElement | undefined;
+
+  assert.equal(toolbar?.props.title, "Tenant Accounts");
 });

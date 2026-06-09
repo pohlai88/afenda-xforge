@@ -1,3 +1,5 @@
+import type { MetadataPresentationCustomizationPolicy } from "./customization-policy.contract.ts";
+
 export type MetadataDensityMode = "comfortable" | "compact" | "default";
 
 export type MetadataComponentSize = "icon" | "lg" | "md" | "sm";
@@ -22,6 +24,7 @@ export type MetadataComponentVariant =
   | "warning";
 
 export type MetadataPresentationContract = {
+  customization?: MetadataPresentationCustomizationPolicy;
   density?: MetadataDensityMode;
   icon?: string;
   size?: MetadataComponentSize;

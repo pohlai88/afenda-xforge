@@ -1,21 +1,15 @@
-import {
-  hrRecordsCreateEmployeeSchema,
-  parseHrRecordsSearchParams,
-} from "@repo/features-employee-management-employee-records-management";
-import {
-  createHrEmployeeRecord,
-  listHrEmployeeRecords,
-} from "@repo/features-employee-management-employee-records-management/server";
+import { hrRecordsCreateEmployeeSchema } from "@repo/features-employee-management-employee-records-management";
+import { createHrEmployeeRecord } from "@repo/features-employee-management-employee-records-management/server";
 import { NextResponse } from "next/server";
 import {
   createHrRecordsReadContext,
   createHrRecordsWriteContext,
 } from "./_lib/context.ts";
+import { listHrEmployeeRecordsForApi } from "./_lib/search.ts";
 
-export function GET(request: Request): Response {
-  const url = new URL(request.url);
-  const records = listHrEmployeeRecords(
-    parseHrRecordsSearchParams(Object.fromEntries(url.searchParams.entries())),
+export async function GET(request: Request): Promise<Response> {
+  const records = await listHrEmployeeRecordsForApi(
+    request,
     createHrRecordsReadContext(request)
   );
 
@@ -26,7 +20,7 @@ export async function POST(request: Request): Promise<Response> {
   try {
     const body = hrRecordsCreateEmployeeSchema.parse(await request.json());
 
-    const result = createHrEmployeeRecord(
+    const result = await createHrEmployeeRecord(
       body,
       createHrRecordsWriteContext(request)
     );

@@ -41,7 +41,7 @@ export type SearchResult<TDocument extends SearchDocument = SearchDocument> = {
   indexKey: string;
   indexName: string;
   document: TDocument;
-  formatted: Record<string, unknown>;
+  formatted: Partial<TDocument>;
   rankingScore: number | null;
 };
 

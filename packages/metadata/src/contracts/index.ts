@@ -1,4 +1,5 @@
 export * from "./action.contract.ts";
+export * from "./customization-policy.contract.ts";
 export * from "./entity-metadata.contract.ts";
 export * from "./feature-metadata.contract.ts";
 export * from "./field.contract.ts";

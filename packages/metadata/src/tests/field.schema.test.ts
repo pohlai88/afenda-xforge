@@ -5,6 +5,12 @@ import { metadataFieldSchema } from "../schemas/field.schema.ts";
 
 test("metadataFieldSchema parses a valid field contract", () => {
   const field = metadataFieldSchema.parse({
+    customization: {
+      hidden: "allow",
+      label: true,
+      order: true,
+      placeholder: true,
+    },
     key: "status",
     label: "Status",
     kind: "select",
@@ -16,6 +22,7 @@ test("metadataFieldSchema parses a valid field contract", () => {
   });
 
   assert.equal(field.kind, "select");
+  assert.equal(field.customization?.hidden, "allow");
   assert.equal(field.required, true);
   assert.equal(field.key, "status");
 });
@@ -26,6 +33,19 @@ test("metadataFieldSchema rejects unsupported field kinds", () => {
       key: "status",
       label: "Status",
       kind: "email",
+    });
+  });
+});
+
+test("metadataFieldSchema rejects invalid customization policy values", () => {
+  assert.throws(() => {
+    metadataFieldSchema.parse({
+      customization: {
+        hidden: "sometimes",
+      },
+      key: "status",
+      label: "Status",
+      kind: "select",
     });
   });
 });

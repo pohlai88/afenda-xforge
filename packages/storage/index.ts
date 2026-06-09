@@ -1,4 +1,3 @@
-export * from "./blob/index.ts";
 export type {
   StorageBucketSummary,
   StorageObjectSummary,

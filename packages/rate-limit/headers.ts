@@ -22,3 +22,14 @@ export const createRateLimitHeaders = (
 
   return headers;
 };
+
+export const applyRateLimitHeaders = <T extends Response>(
+  response: T,
+  headers: Headers
+): T => {
+  for (const [name, value] of headers.entries()) {
+    response.headers.set(name, value);
+  }
+
+  return response;
+};

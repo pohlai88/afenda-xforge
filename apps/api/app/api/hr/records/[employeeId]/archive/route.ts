@@ -29,7 +29,7 @@ export async function POST(
     ...(body as Record<string, unknown>),
     employeeId,
   });
-  const result = archiveHrEmployeeRecord(
+  const result = await archiveHrEmployeeRecord(
     parsed,
     createHrRecordsWriteContext(request)
   );

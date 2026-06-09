@@ -39,5 +39,9 @@ let cachedMeilisearchKeys: MeilisearchKeys | null = null;
 export const loadMeilisearchKeys = (): MeilisearchKeys =>
   (cachedMeilisearchKeys ??= keys());
 
+export const resetMeilisearchKeysCache = (): void => {
+  cachedMeilisearchKeys = null;
+};
+
 export const hasMeilisearchConfig = (): boolean =>
   Boolean(loadMeilisearchKeys().MEILISEARCH_URL);

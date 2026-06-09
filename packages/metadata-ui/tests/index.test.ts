@@ -3,6 +3,8 @@ import "./action-renderer-hardening.test.tsx";
 import "./default-field-registry.test.tsx";
 import "./compatibility.test.tsx";
 import "./adapter-pipeline.test.tsx";
+import "./generated/renderer-smoke.generated.test.tsx";
+import "./manifest-generation.test.ts";
 import "./metadata-form.test.tsx";
 import "./metadata-section-stack.test.tsx";
 import "./metadata-table.test.tsx";

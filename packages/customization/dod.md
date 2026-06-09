@@ -202,23 +202,25 @@ Before tenant customization is enabled in production:
 
 ## Current Package Status
 
-Current status: foundation complete, enterprise lifecycle incomplete.
+Current status: package foundations and governance contracts are implemented; admin, persistence, and consuming-layer enforcement remain external.
 
 Already present:
 
 - strict schemas
 - tenant/company scope validation
+- duplicate-key rejection
+- metadata-aware validation
+- lifecycle/status/version contracts
+- tenant/company layering resolver
+- repository port contracts
+- audit operation descriptors
+- import/export fixture contracts
 - metadata resolver
 - package boundary isolation
 - baseline tests
 
 Still needed:
 
-- metadata-aware validation
-- duplicate-key rejection
-- lifecycle/status/version contracts
-- tenant/company layering resolver
-- repository port contracts
-- audit operation descriptors
-- import/export fixture contracts
 - admin integration through a future admin package
+- consuming-layer publish/rollback orchestration
+- trusted runtime loading of published customization from persistence

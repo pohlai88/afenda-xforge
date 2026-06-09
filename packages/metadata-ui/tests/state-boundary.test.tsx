@@ -2,7 +2,10 @@ import assert from "node:assert/strict";
 import { test } from "node:test";
 import type { ReactElement } from "react";
 
-import { MetadataStateBoundary } from "../src/components";
+import {
+  MetadataStateBoundary,
+  renderMetadataStateBoundaryResult,
+} from "../src/components";
 
 type TestElement = ReactElement<any, any>;
 
@@ -26,4 +29,14 @@ test("MetadataStateBoundary renders ready children", () => {
 
   assert.equal((element.type as { name?: string }).name, "ReadyState");
   assert.equal((element.props.children as TestElement).type, "span");
+});
+
+test("renderMetadataStateBoundaryResult exposes fallback diagnostics", () => {
+  const result = renderMetadataStateBoundaryResult({
+    state: "mystery" as never,
+  });
+
+  assert.equal((result.element as TestElement).type.name, "ErrorState");
+  assert.equal(result.diagnostics.length > 0, true);
+  assert.equal(result.diagnostics[0]?.code, "missing-renderer");
 });

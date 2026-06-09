@@ -1,0 +1,12 @@
+
+> web@ dev C:\JackProject\afenda-bolt\afenda-Xforge\apps\web
+> next dev -p 3001
+
+▲ Next.js 16.2.7 (Turbopack)
+- Local:         http://localhost:3001
+- Network:       http://192.168.2.81:3001
+- Environments: .env.local
+✓ Ready in 1843ms
+
+○ Compiling / ...
+ GET / 200 in 13.5s (next.js: 12.3s, application-code: 1134ms)

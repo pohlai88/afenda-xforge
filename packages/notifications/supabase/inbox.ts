@@ -10,6 +10,7 @@ import type {
   NotificationInboxListResult,
   PersistAndDispatchNotificationsResult,
 } from "../shared/types.ts";
+import { normalizeNotificationDispatchRequest } from "./request.ts";
 import { invokeSupabaseNotificationsDispatch } from "./server.ts";
 import { createRecipientNotificationsTopic } from "./topics.ts";
 
@@ -55,16 +56,18 @@ export const persistNotificationInboxEntries = async <
 >(
   request: NotificationDispatchRequest<TPayload>
 ): Promise<readonly NotificationInboxEntry[]> => {
-  const notificationId = request.notificationId ?? crypto.randomUUID();
+  const normalizedRequest = normalizeNotificationDispatchRequest(request);
+  const notificationId =
+    normalizedRequest.notificationId ?? crypto.randomUUID();
   const dispatchedAt = new Date();
-  const rows = request.recipients.map((recipient) => ({
+  const rows = normalizedRequest.recipients.map((recipient) => ({
     notificationId,
     tenantId: recipient.tenantId,
     companyId: recipient.companyId ?? null,
     userId: recipient.userId,
-    event: request.event,
+    event: normalizedRequest.event,
     topic: createRecipientNotificationsTopic(recipient),
-    payload: request.payload,
+    payload: normalizedRequest.payload,
     dispatchedAt,
     createdAt: dispatchedAt,
     updatedAt: dispatchedAt,
@@ -86,11 +89,14 @@ export const persistAndDispatchNotifications = async <
 >(
   request: NotificationDispatchRequest<TPayload>
 ): Promise<PersistAndDispatchNotificationsResult> => {
-  const items = await persistNotificationInboxEntries(request);
+  const normalizedRequest = normalizeNotificationDispatchRequest(request);
+  const items = await persistNotificationInboxEntries(normalizedRequest);
   const notificationId =
-    items[0]?.notificationId ?? request.notificationId ?? crypto.randomUUID();
+    items[0]?.notificationId ??
+    normalizedRequest.notificationId ??
+    crypto.randomUUID();
   const dispatch = await invokeSupabaseNotificationsDispatch({
-    ...request,
+    ...normalizedRequest,
     notificationId,
   });
 
@@ -257,12 +263,17 @@ export const markAllNotificationsRead = async ({
   readonly userId: string;
 }): Promise<number> => {
   const companyScope = buildCompanyScope({ companyId, includeCrossCompany });
-  const where = and(
+  const filters = [
     eq(notificationInbox.tenantId, tenantId),
     eq(notificationInbox.userId, userId),
     isNull(notificationInbox.readAt),
-    companyScope
-  );
+  ];
+
+  if (companyScope) {
+    filters.push(companyScope);
+  }
+
+  const where = and(...filters);
   const now = new Date();
   const updated = await timeDatabaseQuery(
     () =>

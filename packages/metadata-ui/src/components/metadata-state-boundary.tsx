@@ -1,5 +1,6 @@
 import type { ReactElement, ReactNode } from "react";
 import { renderMetadataState } from "../adapters";
+import type { MetadataRenderAdapterResult } from "../adapters/adapter-result";
 import type {
   MetadataRenderContext,
   MetadataUiState,
@@ -20,7 +21,10 @@ export type MetadataStateBoundaryProps = {
   state: MetadataUiState;
 };
 
-export function MetadataStateBoundary({
+export type MetadataStateBoundaryRenderResult =
+  MetadataRenderAdapterResult<ReactElement | null>;
+
+export function renderMetadataStateBoundaryResult({
   children,
   context,
   emptyDescription,
@@ -32,7 +36,7 @@ export function MetadataStateBoundary({
   loadingTitle,
   onRetry,
   state,
-}: MetadataStateBoundaryProps): ReactElement | null {
+}: MetadataStateBoundaryProps): MetadataStateBoundaryRenderResult {
   const resolvedContext = createMetadataRenderContext(context, { state });
 
   return renderMetadataState({
@@ -47,5 +51,11 @@ export function MetadataStateBoundary({
     loadingTitle,
     onRetry,
     state,
-  }).element;
+  });
+}
+
+export function MetadataStateBoundary(
+  props: MetadataStateBoundaryProps
+): ReactElement | null {
+  return renderMetadataStateBoundaryResult(props).element;
 }

@@ -1,5 +1,5 @@
 import { createErrorResponse, RateLimitError } from "@repo/errors";
-import { createRateLimitHeaders } from "./headers.ts";
+import { applyRateLimitHeaders, createRateLimitHeaders } from "./headers.ts";
 import { loadRateLimitKeys } from "./keys.ts";
 import type {
   RateLimitContext,
@@ -10,6 +10,7 @@ import type {
 import { createRateLimitPolicy, resolveRateLimitKey } from "./policy.ts";
 import type { RateLimitProvider } from "./provider.ts";
 import { createConfiguredRateLimitProvider } from "./provider.ts";
+import type { RateLimitRequestOptions } from "./request.ts";
 import { createRateLimitContextFromRequest } from "./request.ts";
 
 export type RateLimitAssessment = {
@@ -23,7 +24,15 @@ export type RateLimitMiddlewareOptions = {
   provider?: RateLimitProvider;
   policy?: RateLimitPolicyOverrides;
   context?: RateLimitContext;
-  onDenied?: (assessment: RateLimitAssessment) => Response;
+  trustProxy?: RateLimitRequestOptions["trustProxy"];
+  onAllowed?:
+    | ((
+        assessment: RateLimitAssessment
+      ) => Response | null | Promise<Response | null>)
+    | undefined;
+  onDenied?:
+    | ((assessment: RateLimitAssessment) => Response | Promise<Response>)
+    | undefined;
 };
 
 const createDefaultPolicy = (
@@ -45,7 +54,9 @@ const resolveAssessment = async (
 ): Promise<RateLimitAssessment> => {
   const provider = options.provider ?? createConfiguredRateLimitProvider();
   const policy = createDefaultPolicy(options.policy);
-  const context = createRateLimitContextFromRequest(request, options.context);
+  const context = createRateLimitContextFromRequest(request, options.context, {
+    trustProxy: options.trustProxy,
+  });
   const key = resolveRateLimitKey(policy, context);
   const input = {
     key,
@@ -76,11 +87,13 @@ const resolveAssessment = async (
   };
 
   if (!decision.success && policy.blockOnExhaustion) {
-    assessment.response =
-      options.onDenied?.(assessment) ??
-      createErrorResponse(new RateLimitError(decision.retryAfterSeconds), {
-        headers,
-      });
+    const deniedResponse = options.onDenied
+      ? await options.onDenied(assessment)
+      : createErrorResponse(new RateLimitError(decision.retryAfterSeconds), {
+          headers,
+        });
+
+    assessment.response = applyRateLimitHeaders(deniedResponse, headers);
   }
 
   return assessment;
@@ -104,7 +117,9 @@ export const resetRateLimitRequest = async (
 ): Promise<void> => {
   const provider = options.provider ?? createConfiguredRateLimitProvider();
   const policy = createDefaultPolicy(options.policy);
-  const context = createRateLimitContextFromRequest(request, options.context);
+  const context = createRateLimitContextFromRequest(request, options.context, {
+    trustProxy: options.trustProxy,
+  });
   const key = resolveRateLimitKey(policy, context);
 
   await provider.reset({
@@ -121,7 +136,11 @@ export const createRateLimitMiddleware =
     const assessment = await assessRateLimitRequest(request, options);
 
     if (assessment.allowed) {
-      return null;
+      const allowedResponse = await options.onAllowed?.(assessment);
+
+      return allowedResponse
+        ? applyRateLimitHeaders(allowedResponse, assessment.headers)
+        : null;
     }
 
     return (

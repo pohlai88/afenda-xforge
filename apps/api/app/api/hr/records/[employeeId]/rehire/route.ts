@@ -29,7 +29,7 @@ export async function POST(
     ...(body as Record<string, unknown>),
     priorEmployeeId: employeeId,
   });
-  const result = rehireHrEmployeeRecord(
+  const result = await rehireHrEmployeeRecord(
     parsed,
     createHrRecordsWriteContext(request)
   );

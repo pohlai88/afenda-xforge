@@ -5,12 +5,25 @@ import { fileURLToPath } from "node:url";
 const dashboardPagePath = fileURLToPath(
   new URL("../app/(authenticated)/dashboard/page.tsx", import.meta.url)
 );
+const dashboardViewPath = fileURLToPath(
+  new URL(
+    "../app/(authenticated)/dashboard/dashboard-view.tsx",
+    import.meta.url
+  )
+);
+
 const dashboardPageSource = readFileSync(dashboardPagePath, "utf8");
+const dashboardViewSource = readFileSync(dashboardViewPath, "utf8");
 
 assert.match(
   dashboardPageSource,
-  /from\s+["']@repo\/metadata-ui["']/,
-  "dashboard page must consume metadata-ui through the public package export"
+  /resolveLayeredCustomizedEntityMetadata/,
+  "dashboard page must resolve layered customization before rendering metadata UI"
+);
+assert.match(
+  dashboardPageSource,
+  /loadDashboardMetadataCustomizations/,
+  "dashboard page must load dashboard customization layers from the server path"
 );
 assert.doesNotMatch(
   dashboardPageSource,
@@ -19,14 +32,24 @@ assert.doesNotMatch(
 );
 
 assert.match(
-  dashboardPageSource,
-  /if \(state\.status === "forbidden"\)[\s\S]*?<EntityMetadataPanel[\s\S]*?forbidden[\s\S]*?rows=\{\[\]\}/,
-  "dashboard page must keep a governed forbidden fallback through EntityMetadataPanel"
+  dashboardViewSource,
+  /from\s+["']@repo\/metadata-ui["']/,
+  "dashboard view must consume metadata-ui through the public package export"
+);
+assert.doesNotMatch(
+  dashboardViewSource,
+  /@repo\/metadata-ui\/src\//,
+  "dashboard view must not import metadata-ui internals"
 );
 assert.match(
-  dashboardPageSource,
+  dashboardViewSource,
+  /if \(state\.status === "forbidden"\)[\s\S]*?<EntityMetadataPanel[\s\S]*?forbidden[\s\S]*?rows=\{\[\]\}/,
+  "dashboard view must keep a governed forbidden fallback through EntityMetadataPanel"
+);
+assert.match(
+  dashboardViewSource,
   /return \(\s*<EntityMetadataPanel[\s\S]*?rows=\{state\.data\.items\}[\s\S]*?totalRecords=\{state\.data\.total\}/,
-  "dashboard page must keep a ready metadata-ui consumer path through EntityMetadataPanel"
+  "dashboard view must keep a ready metadata-ui consumer path through EntityMetadataPanel"
 );
 
 console.log("app metadata-ui smoke checks passed");

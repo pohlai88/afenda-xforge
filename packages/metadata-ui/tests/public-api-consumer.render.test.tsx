@@ -64,7 +64,13 @@ describe("public api consumer fixture", () => {
       telemetryCorrelationCoverage: true,
       verification: {
         boundaryLint: true,
+        changeNote: true,
+        consumerFixture: true,
+        declarationSnapshot: true,
+        generated: true,
         lint: true,
+        publicApi: true,
+        telemetrySchema: true,
         test: true,
         typecheck: true,
       },

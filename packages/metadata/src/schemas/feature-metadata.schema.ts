@@ -1,6 +1,7 @@
 import { z } from "zod";
 
 import { metadataActionSchema } from "./action.schema.ts";
+import { metadataFeatureCustomizationSchema } from "./customization-policy.schema.ts";
 import { metadataFieldSchema } from "./field.schema.ts";
 import { metadataFilterSchema } from "./filter.schema.ts";
 import { metadataFormSchema } from "./form.schema.ts";
@@ -25,6 +26,7 @@ export const metadataLabelsSchema = z
 export const metadataFeatureSchema = z
   .object({
     actions: z.array(metadataActionSchema).readonly().optional(),
+    customization: metadataFeatureCustomizationSchema.optional(),
     description: z.string().trim().min(1).optional(),
     entity: z.string().trim().min(1),
     fields: z.array(metadataFieldSchema).readonly().optional(),

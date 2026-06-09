@@ -15,20 +15,31 @@ import type {
   SearchSuggestion,
 } from "../types.ts";
 import { getMeilisearchClient, getMeilisearchConfig } from "./client.ts";
+import {
+  assertNonNegativeInteger,
+  assertPositiveInteger,
+  buildSearchParams,
+  extractFormattedDocument,
+  extractRankingScore,
+  extractSuggestionText,
+} from "./internal.ts";
 
 const resolveSearchDefinitions = (
   indices?: readonly string[]
 ): SearchIndexDefinition[] => {
   if (!indices || indices.length === 0) {
-    return listSearchIndexDefinitions();
+    const definitions = listSearchIndexDefinitions();
+
+    if (definitions.length === 0) {
+      throw new Error(
+        "No search indices are registered. Register an index before searching."
+      );
+    }
+
+    return definitions;
   }
 
   return indices.map(requireSearchIndexDefinition);
-};
-
-const getRankingScore = (document: Record<string, unknown>): number | null => {
-  const candidate = document._rankingScore ?? document._score;
-  return typeof candidate === "number" ? candidate : null;
 };
 
 export class MeilisearchSearchClient {
@@ -46,14 +57,33 @@ export class MeilisearchSearchClient {
   async search<TDocument extends SearchDocument = SearchDocument>(
     options: SearchQueryOptions
   ): Promise<SearchResult<TDocument>[]> {
-    const limit = options.limit ?? this.defaultLimit;
-    const offset = options.offset ?? 0;
+    const query = options.query.trim();
+
+    if (query.length === 0) {
+      return [];
+    }
+
+    const limit = assertPositiveInteger(
+      options.limit ?? this.defaultLimit,
+      "Search limit"
+    );
+    const offset = assertNonNegativeInteger(
+      options.offset ?? 0,
+      "Search offset"
+    );
     const definitions = resolveSearchDefinitions(options.indices);
-    const attributesToHighlight = options.attributesToHighlight ?? [
-      "title",
-      "description",
-    ];
     const perIndexLimit = Math.max(limit + offset, limit);
+    const searchParams = buildSearchParams(
+      {
+        attributesToHighlight: options.attributesToHighlight,
+        filter: options.filter,
+        highlightPostTag: options.highlightPostTag,
+        highlightPreTag: options.highlightPreTag,
+        sort: options.sort,
+      },
+      perIndexLimit,
+      0
+    );
 
     const searchResults = await Promise.all(
       definitions.map(async (definition) => {
@@ -61,42 +91,46 @@ export class MeilisearchSearchClient {
           definition.name ??
           buildSearchIndexName(definition.key, this.indexPrefix);
         const index = this.client.index<TDocument>(indexName);
-        const response = (await index.search(options.query, {
-          attributesToHighlight,
-          filter: options.filter,
-          highlightPostTag: options.highlightPostTag,
-          highlightPreTag: options.highlightPreTag,
-          limit: perIndexLimit,
-          offset: 0,
-          showRankingScore: true,
-          sort: options.sort,
-        } as never)) as SearchResponse<TDocument>;
+        let response: SearchResponse<TDocument>;
 
-        return response.hits.map((hit) => {
-          const document = hit as TDocument & Record<string, unknown>;
-          const formatted =
-            typeof document._formatted === "object" && document._formatted
-              ? (document._formatted as Record<string, unknown>)
-              : {};
+        try {
+          response = await index.search<TDocument>(query, searchParams);
+        } catch (error) {
+          throw new Error(`Unable to search Meilisearch index "${indexName}"`, {
+            cause: error,
+          });
+        }
 
-          return {
-            document: hit,
-            formatted,
-            id: String(hit.id),
-            indexKey: definition.key,
-            indexName,
-            rankingScore: getRankingScore(document),
-          } satisfies SearchResult<TDocument>;
-        });
+        return response.hits.map(
+          (hit) =>
+            ({
+              document: hit,
+              formatted: extractFormattedDocument(hit),
+              id: String(hit.id),
+              indexKey: definition.key,
+              indexName,
+              rankingScore: extractRankingScore(hit),
+            }) satisfies SearchResult<TDocument>
+        );
       })
     );
 
     return searchResults
       .flat()
       .sort((left, right) => {
-        const leftScore = left.rankingScore ?? 0;
-        const rightScore = right.rankingScore ?? 0;
-        return rightScore - leftScore;
+        const leftScore = left.rankingScore ?? Number.NEGATIVE_INFINITY;
+        const rightScore = right.rankingScore ?? Number.NEGATIVE_INFINITY;
+
+        if (leftScore !== rightScore) {
+          return rightScore - leftScore;
+        }
+
+        const indexComparison = left.indexKey.localeCompare(right.indexKey);
+        if (indexComparison !== 0) {
+          return indexComparison;
+        }
+
+        return left.id.localeCompare(right.id);
       })
       .slice(offset, offset + limit);
   }
@@ -105,38 +139,40 @@ export class MeilisearchSearchClient {
     query: string,
     options: Pick<SearchQueryOptions, "indices" | "limit"> = {}
   ): Promise<SearchSuggestion[]> {
+    const normalizedQuery = query.trim();
+
+    if (normalizedQuery.length === 0) {
+      return [];
+    }
+
     const results = await this.search({
       attributesToHighlight: [],
       indices: options.indices,
       limit: options.limit ?? 10,
-      query,
+      query: normalizedQuery,
     });
 
-    return results
-      .map((result) => {
-        let text = "";
+    const suggestions = new Map<string, SearchSuggestion>();
 
-        if (typeof result.document.title === "string") {
-          text = result.document.title;
-        } else if (typeof result.document.description === "string") {
-          text = result.document.description;
-        }
+    for (const result of results) {
+      const text = extractSuggestionText(result.document);
 
-        if (!text) {
-          return null;
-        }
+      if (text === null) {
+        continue;
+      }
 
-        return {
-          id: result.id,
-          indexKey: result.indexKey,
-          indexName: result.indexName,
-          rankingScore: result.rankingScore,
-          text,
-        } satisfies SearchSuggestion;
-      })
-      .filter(
-        (suggestion): suggestion is SearchSuggestion => suggestion !== null
-      );
+      const suggestion = {
+        id: result.id,
+        indexKey: result.indexKey,
+        indexName: result.indexName,
+        rankingScore: result.rankingScore,
+        text,
+      } satisfies SearchSuggestion;
+
+      suggestions.set(`${suggestion.indexKey}:${suggestion.id}`, suggestion);
+    }
+
+    return [...suggestions.values()];
   }
 }
 

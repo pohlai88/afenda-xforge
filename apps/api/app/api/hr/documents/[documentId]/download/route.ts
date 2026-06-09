@@ -1,5 +1,4 @@
 import { getDocumentsManagementDocument } from "@repo/features-employee-management-documents-management/server";
-import type { GetBlobResult } from "@repo/storage/blob";
 
 import { createDocumentsManagementReadContext } from "../../_lib/context.ts";
 import {
@@ -43,7 +42,7 @@ export async function GET(
     );
   }
 
-  let blob: GetBlobResult | null;
+  let blob: Awaited<ReturnType<typeof downloadDocumentsManagementBlob>> | null;
 
   try {
     blob = await downloadDocumentsManagementBlob({
@@ -82,7 +81,7 @@ export async function GET(
     )}"`
   );
 
-  if (blob.blob.size !== null) {
+  if (typeof blob.blob.size === "number") {
     headers.set("Content-Length", String(blob.blob.size));
   }
 

@@ -1,4 +1,2 @@
-export * from "./actions";
-export * from "./fields";
-export * from "./sections";
+export * from "../generated/exports.generated";
 export * from "./states";

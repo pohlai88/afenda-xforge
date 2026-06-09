@@ -6,6 +6,7 @@
   "exports": {
     ".": "./index.ts",
     "./index": "./index.ts",
+    "./boundary": "./boundary.ts",
     "./cors": "./cors.ts",
     "./csrf": "./csrf.ts",
     "./headers": "./headers.ts",
@@ -19,6 +20,7 @@
   },
   "files": [
     "cors.ts",
+    "boundary.ts",
     "csrf.ts",
     "headers.ts",
     "index.ts",

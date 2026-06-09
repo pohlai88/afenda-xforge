@@ -18,7 +18,11 @@ The package currently provides:
 
 - strict Zod schemas for tenant and company customization payloads
 - TypeScript contracts for approved override surfaces
+- lifecycle, rollback, repository-port, and audit descriptor contracts
 - metadata resolution helpers that apply safe overrides to feature-owned metadata
+- metadata-aware validation helpers for publish-time and preview-time enforcement
+- deterministic tenant/company layering helpers for runtime and preview paths
+- import/export fixture helpers with deterministic serialization
 - tests for schema validation, mismatch rejection, and metadata resolution
 
 The package does not yet provide:

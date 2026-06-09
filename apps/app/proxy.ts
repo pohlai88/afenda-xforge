@@ -13,11 +13,39 @@ import {
   DEFAULT_AUTHENTICATED_REDIRECT_PATH,
   resolvePostAuthRedirectPath,
 } from "@repo/auth/routes";
-import { createSecurityMiddleware } from "@repo/security";
+import type { SecurityBoundaryDecision } from "@repo/security";
+import {
+  assessErpRequestBoundary,
+  createSecurityMiddleware,
+} from "@repo/security";
 import type { NextRequest } from "next/server";
 import { NextResponse } from "next/server";
 
 const evaluateSecurity = createSecurityMiddleware();
+
+const applyBoundaryResponseState = (
+  response: NextResponse,
+  boundary: SecurityBoundaryDecision
+): NextResponse => {
+  for (const cookie of boundary.cookies) {
+    response.cookies.set(cookie.name, cookie.value, {
+      httpOnly: cookie.httpOnly,
+      maxAge: cookie.maxAge,
+      path: cookie.path,
+      sameSite: cookie.sameSite,
+      secure: cookie.secure,
+    });
+  }
+
+  if (boundary.riskSignals.length > 0) {
+    response.headers.set(
+      "x-security-risk-signals",
+      boundary.riskSignals.join(",")
+    );
+  }
+
+  return response;
+};
 
 const isProtectedAppPath = (pathname: string): boolean =>
   pathname === "/dashboard" || pathname.startsWith("/dashboard/");
@@ -84,6 +112,19 @@ export async function proxy(request: NextRequest): Promise<NextResponse> {
   const baseResponse = createProxyBaseResponse(request, context);
   const authResult = await authMiddleware(request);
   const assessment = await evaluateSecurity(request);
+  const boundary = assessErpRequestBoundary(request, {
+    csrf: {
+      sessionId: authResult.sessionId,
+      userId: authResult.userId,
+    },
+    enableBotProtection: assessment.policy.enableBotProtection,
+    allowedUserAgents: assessment.policy.allowedUserAgents,
+    blockedPathPrefixes: assessment.policy.blockedPathPrefixes,
+  });
+
+  if (authResult.userId) {
+    context.userId = authResult.userId;
+  }
 
   if (!assessment.decision.allow) {
     const response = NextResponse.json(
@@ -96,28 +137,57 @@ export async function proxy(request: NextRequest): Promise<NextResponse> {
     );
 
     mergeNextResponses(response, authResult.response);
-    return applyProxyResponseHeaders(response, context, {
-      ...proxyHeaders,
-      ...assessment.headers,
-    });
+    return applyBoundaryResponseState(
+      applyProxyResponseHeaders(response, context, {
+        ...proxyHeaders,
+        ...assessment.headers,
+      }),
+      boundary
+    );
+  }
+
+  if (!boundary.allow) {
+    const response = NextResponse.json(
+      {
+        error: boundary.reason ?? "forbidden",
+      },
+      {
+        status: 403,
+      }
+    );
+
+    mergeNextResponses(response, authResult.response);
+    return applyBoundaryResponseState(
+      applyProxyResponseHeaders(response, context, {
+        ...proxyHeaders,
+        ...assessment.headers,
+      }),
+      boundary
+    );
   }
 
   const authRedirect = resolveAuthRedirect(request, authResult.isAuthenticated);
 
   if (authRedirect) {
     mergeNextResponses(authRedirect, authResult.response);
-    return applyProxyResponseHeaders(authRedirect, context, {
-      ...proxyHeaders,
-      ...assessment.headers,
-    });
+    return applyBoundaryResponseState(
+      applyProxyResponseHeaders(authRedirect, context, {
+        ...proxyHeaders,
+        ...assessment.headers,
+      }),
+      boundary
+    );
   }
 
   mergeNextResponses(baseResponse, authResult.response);
 
-  return applyProxyResponseHeaders(baseResponse, context, {
-    ...proxyHeaders,
-    ...assessment.headers,
-  });
+  return applyBoundaryResponseState(
+    applyProxyResponseHeaders(baseResponse, context, {
+      ...proxyHeaders,
+      ...assessment.headers,
+    }),
+    boundary
+  );
 }
 
 export const config = {

@@ -4,6 +4,7 @@
   "scripts": {
     "dev": "storybook dev -p 6006",
     "build": "storybook build",
+    "check:metadata-ui-browser-smoke": "tsx scripts/check-metadata-ui-browser-smoke.mts",
     "clean": "git clean -xdf .cache .turbo dist node_modules",
     "lint": "biome check .",
     "lint:fix": "biome check --write .",
@@ -11,6 +12,8 @@
     "typecheck": "tsc --noEmit --emitDeclarationOnly false"
   },
   "dependencies": {
+    "@repo/metadata": "workspace:*",
+    "@repo/metadata-ui": "workspace:*",
     "@storybook/react": "catalog:",
     "@storybook/react-vite": "catalog:",
     "react": "catalog:",
@@ -23,6 +26,7 @@
     "@types/node": "catalog:",
     "@types/react": "catalog:",
     "@types/react-dom": "catalog:",
+    "playwright": "1.60.0",
     "tailwindcss": "catalog:",
     "tw-animate-css": "catalog:",
     "typescript": "catalog:"

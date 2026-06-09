@@ -4,9 +4,13 @@ import { listCompanies } from "@repo/features-master-data-companies/server";
 import type { CustomerList } from "@repo/features-master-data-customers/contract";
 import { listCustomers } from "@repo/features-master-data-customers/server";
 import { permissionCatalog, requirePermission } from "@repo/permissions";
-import type { RuntimeTenantAccess } from "../../_runtime-access.ts";
+import type {
+  RuntimeCompanyAccess,
+  RuntimeTenantAccess,
+} from "../../_runtime-access.ts";
 import {
   createRuntimePermissionContext,
+  resolveRuntimeCompanyAccess,
   resolveRuntimeTenantAccess,
 } from "../../_runtime-access.ts";
 
@@ -30,6 +34,19 @@ const toErrorState = (error: unknown): LoadState<never> => ({
   message: error instanceof Error ? error.message : "Unable to load section",
   status: "error",
 });
+
+const loadOptionalCompanyAccess =
+  async (): Promise<RuntimeCompanyAccess | null> => {
+    try {
+      return await resolveRuntimeCompanyAccess();
+    } catch (error) {
+      if (isForbiddenError(error)) {
+        return null;
+      }
+
+      throw error;
+    }
+  };
 
 const loadCustomers = async (
   access: RuntimeTenantAccess
@@ -111,6 +128,7 @@ const loadCompanies = async (
 };
 
 export type DashboardData = {
+  companyId: string | null;
   companies: LoadState<CompanyList>;
   customers: LoadState<CustomerList>;
   tenantId: string;
@@ -119,7 +137,10 @@ export type DashboardData = {
 };
 
 export const loadDashboardData = async (): Promise<DashboardData> => {
-  const access = await resolveRuntimeTenantAccess();
+  const [access, companyAccess] = await Promise.all([
+    resolveRuntimeTenantAccess(),
+    loadOptionalCompanyAccess(),
+  ]);
 
   const [customers, companies] = await Promise.all([
     loadCustomers(access),
@@ -127,6 +148,7 @@ export const loadDashboardData = async (): Promise<DashboardData> => {
   ]);
 
   return {
+    companyId: companyAccess?.companyId ?? null,
     companies,
     customers,
     tenantId: access.tenantId,

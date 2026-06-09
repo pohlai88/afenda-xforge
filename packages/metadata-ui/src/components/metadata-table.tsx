@@ -1,10 +1,20 @@
 import type { CustomizationContract } from "@repo/customization/contracts";
-import { resolveCustomizedEntityMetadata } from "@repo/customization/resolution";
+import type {
+  CustomizationLayerSet,
+  LayeredCustomizationResolutionOptions,
+} from "@repo/customization/resolution";
+import {
+  resolveCustomizedEntityMetadata,
+  resolveLayeredCustomizedEntityMetadata,
+} from "@repo/customization/resolution";
 import type { EntityLabels, EntityMetadata } from "@repo/metadata";
 import type { DashboardTableRow, TableColumnMetadata } from "@repo/ui";
 import { Card, CardContent, CardHeader, Separator } from "@repo/ui";
 import type { ReactElement } from "react";
 
+import type { MetadataRenderAdapterResult } from "../adapters/adapter-result";
+import { emitMetadataTelemetry } from "../adapters/telemetry";
+import type { MetadataDiagnostic } from "../contracts/diagnostics.contract";
 import type { MetadataRenderContext } from "../contracts/render-context.contract";
 import { createMetadataRenderContext } from "../contracts/render-context.defaults";
 import { ActivityTable } from "./activity-table";
@@ -23,6 +33,51 @@ type MetadataToolbarBadge = {
     | "success"
     | "warning";
 };
+
+const supportedTableCellKinds = new Set(["email", "status", "text"]);
+
+const resolveMetadataSurfaceKey = (metadata: EntityMetadata): string =>
+  metadata.id ?? metadata.entity;
+
+const createMetadataTableCellDiagnostic = (
+  context: MetadataRenderContext,
+  column: TableColumnMetadata
+): MetadataDiagnostic => ({
+  code: "missing-renderer",
+  correlationId: context.correlationId,
+  details: {
+    columnKind: column.kind ?? "text",
+    fallback: "formatted-text",
+  },
+  message: `No metadata table renderer is registered for column '${column.key}' with kind '${column.kind}'. Rendering formatted text instead.`,
+  severity: "warning",
+  target: column.key,
+  timestamp: new Date().toISOString(),
+});
+
+const getResolvedMetadata = (
+  metadata: EntityMetadata,
+  customization?: CustomizationContract | null,
+  customizationLayers?: CustomizationLayerSet | null,
+  customizationOptions?: LayeredCustomizationResolutionOptions
+): EntityMetadata =>
+  customizationLayers
+    ? resolveLayeredCustomizedEntityMetadata(
+        metadata,
+        customizationLayers,
+        customizationOptions
+      )
+    : resolveCustomizedEntityMetadata(metadata, customization);
+
+const getMetadataTableDiagnostics = (
+  context: MetadataRenderContext,
+  columns: readonly TableColumnMetadata[]
+): readonly MetadataDiagnostic[] =>
+  columns.flatMap((column) =>
+    column.kind && !supportedTableCellKinds.has(column.kind)
+      ? [createMetadataTableCellDiagnostic(context, column)]
+      : []
+  );
 
 export const getEntityLabels = (metadata: EntityMetadata): EntityLabels =>
   metadata.labels;
@@ -55,6 +110,8 @@ export const getMetadataSummary = (
 export type MetadataTableProps = {
   context?: Partial<MetadataRenderContext>;
   customization?: CustomizationContract | null;
+  customizationLayers?: CustomizationLayerSet | null;
+  customizationOptions?: LayeredCustomizationResolutionOptions;
   defaultSortColumn?: string;
   emptyDescription?: string;
   emptyTitle?: string;
@@ -71,9 +128,14 @@ export type MetadataTableProps = {
   surface?: "contained" | "embedded";
 };
 
-export function MetadataTable({
-  context: _context,
+export type MetadataTableRenderResult =
+  MetadataRenderAdapterResult<ReactElement>;
+
+export function renderMetadataTableResult({
+  context,
   customization,
+  customizationLayers,
+  customizationOptions,
   defaultSortColumn,
   emptyDescription,
   emptyTitle,
@@ -88,15 +150,35 @@ export function MetadataTable({
   searchPlaceholder,
   showSearch = true,
   surface = "contained",
-}: MetadataTableProps): ReactElement {
-  const resolvedMetadata = resolveCustomizedEntityMetadata(
+}: MetadataTableProps): MetadataTableRenderResult {
+  const resolvedMetadata = getResolvedMetadata(
     metadata,
-    customization
+    customization,
+    customizationLayers,
+    customizationOptions
   );
+  const resolvedContext = createMetadataRenderContext(context, {
+    mode: "read",
+    surfaceId: `metadata-table:${resolveMetadataSurfaceKey(resolvedMetadata)}`,
+  });
   const labels = getEntityLabels(resolvedMetadata);
   const columns = getMetadataColumns(resolvedMetadata);
+  const diagnostics = getMetadataTableDiagnostics(resolvedContext, columns);
 
-  return (
+  emitMetadataTelemetry(resolvedContext, "metadata.table.render.started", {
+    attributes: {
+      columnCount: columns.length,
+      forbidden,
+      loading,
+      rowCount: rows.length,
+      surface,
+    },
+    diagnostics,
+    level: "debug",
+    rendererKey: "table",
+  });
+
+  const element = (
     <ActivityTable
       columns={columns}
       defaultSortColumn={
@@ -115,6 +197,7 @@ export function MetadataTable({
         value: unknown
       ): ReactElement | null => renderMetadataTableCell(column, value)}
       rows={rows}
+      searchAriaLabel={`Search ${labels.plural.toLowerCase()}`}
       searchPlaceholder={
         searchPlaceholder ?? `Search ${labels.plural.toLowerCase()}...`
       }
@@ -122,6 +205,29 @@ export function MetadataTable({
       surface={surface}
     />
   );
+
+  emitMetadataTelemetry(resolvedContext, "metadata.table.render.completed", {
+    attributes: {
+      columnCount: columns.length,
+      diagnosticsCount: diagnostics.length,
+      forbidden,
+      loading,
+      rowCount: rows.length,
+      surface,
+    },
+    diagnostics,
+    level: "info",
+    rendererKey: "table",
+  });
+
+  return {
+    diagnostics,
+    element,
+  };
+}
+
+export function MetadataTable(props: MetadataTableProps): ReactElement {
+  return renderMetadataTableResult(props).element;
 }
 
 export type MetadataPanelProps = MetadataTableProps & {
@@ -130,9 +236,14 @@ export type MetadataPanelProps = MetadataTableProps & {
   totalRecords?: number;
 };
 
-export function MetadataPanel({
+export type MetadataPanelRenderResult =
+  MetadataRenderAdapterResult<ReactElement>;
+
+export function renderMetadataPanelResult({
   context,
   customization,
+  customizationLayers,
+  customizationOptions,
   defaultSortColumn,
   description,
   emptyDescription,
@@ -149,20 +260,60 @@ export function MetadataPanel({
   showSearch,
   title,
   totalRecords,
-}: MetadataPanelProps): ReactElement {
-  const resolvedMetadata = resolveCustomizedEntityMetadata(
+}: MetadataPanelProps): MetadataPanelRenderResult {
+  const resolvedMetadata = getResolvedMetadata(
     metadata,
-    customization
+    customization,
+    customizationLayers,
+    customizationOptions
   );
   const summary = getMetadataSummary(
     resolvedMetadata,
     totalRecords ?? rows.length
   );
+  const panelSurfaceId = `metadata-panel:${resolveMetadataSurfaceKey(
+    resolvedMetadata
+  )}`;
   const resolvedContext = createMetadataRenderContext(context, {
     mode: "read",
+    surfaceId: panelSurfaceId,
+  });
+  const tableResult = renderMetadataTableResult({
+    context: {
+      ...resolvedContext,
+      surfaceId: `${resolvedContext.surfaceId ?? panelSurfaceId}/table`,
+    },
+    customization,
+    customizationLayers,
+    customizationOptions,
+    defaultSortColumn,
+    emptyDescription,
+    emptyTitle,
+    error,
+    forbidden,
+    loading,
+    metadata,
+    onRetry,
+    onRowClick,
+    pageSize,
+    rows,
+    searchPlaceholder,
+    showSearch,
+    surface: "embedded",
   });
 
-  return (
+  emitMetadataTelemetry(resolvedContext, "metadata.panel.render.started", {
+    attributes: {
+      columnCount: summary.columnCount,
+      recordCount: summary.totalRecords,
+      stateCount: summary.stateCount,
+    },
+    diagnostics: tableResult.diagnostics,
+    level: "debug",
+    rendererKey: "panel",
+  });
+
+  const element = (
     <Card className="overflow-hidden border-border bg-card/95 shadow-sm">
       <CardHeader className="gap-3 pb-4">
         <MetadataToolbar
@@ -220,28 +371,30 @@ export function MetadataPanel({
 
       <Separator />
 
-      <CardContent className="p-0">
-        <MetadataTable
-          context={context}
-          customization={customization}
-          defaultSortColumn={defaultSortColumn}
-          emptyDescription={emptyDescription}
-          emptyTitle={emptyTitle}
-          error={error}
-          forbidden={forbidden}
-          loading={loading}
-          metadata={metadata}
-          onRetry={onRetry}
-          onRowClick={onRowClick}
-          pageSize={pageSize}
-          rows={rows}
-          searchPlaceholder={searchPlaceholder}
-          showSearch={showSearch}
-          surface="embedded"
-        />
-      </CardContent>
+      <CardContent className="p-0">{tableResult.element}</CardContent>
     </Card>
   );
+
+  emitMetadataTelemetry(resolvedContext, "metadata.panel.render.completed", {
+    attributes: {
+      columnCount: summary.columnCount,
+      diagnosticsCount: tableResult.diagnostics.length,
+      recordCount: summary.totalRecords,
+      stateCount: summary.stateCount,
+    },
+    diagnostics: tableResult.diagnostics,
+    level: "info",
+    rendererKey: "panel",
+  });
+
+  return {
+    diagnostics: tableResult.diagnostics,
+    element,
+  };
+}
+
+export function MetadataPanel(props: MetadataPanelProps): ReactElement {
+  return renderMetadataPanelResult(props).element;
 }
 
 export const EntityMetadataTable: typeof MetadataTable = MetadataTable;

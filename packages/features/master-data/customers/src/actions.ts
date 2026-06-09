@@ -7,6 +7,8 @@ import {
   writeAuditEventInTransaction,
 } from "@repo/audit";
 import { requireTenantActorAccess } from "@repo/auth/access";
+import type { TrustedTenantContext } from "@repo/auth/trusted";
+import { isTrustedTenantContext } from "@repo/auth/trusted";
 import { customers, database, timeDatabaseQuery } from "@repo/database";
 import type {
   ExecutionDatabaseTransaction,
@@ -38,11 +40,7 @@ type CustomerCommandContext = UserActorScope & {
   operationId?: string;
   requestId?: string;
   tenantId: string;
-  trustedSystem?: {
-    actorType?: Audit7W1HActorType;
-    channel?: Audit7W1HChannel;
-    tenantVerified: boolean;
-  };
+  trustedSystem?: TrustedTenantContext;
 };
 
 type ResolvedCustomerCommandAccess = {
@@ -51,6 +49,22 @@ type ResolvedCustomerCommandAccess = {
   grantedPermissions: string[];
   tenantId: string;
   userId: string;
+};
+
+const normalizeTrustedChannel = (
+  channel: TrustedTenantContext["channel"]
+): Audit7W1HChannel | undefined => {
+  switch (channel) {
+    case "api":
+    case "cron":
+    case "migration":
+    case "server_action":
+    case "web":
+    case "webhook":
+      return channel;
+    default:
+      return;
+  }
 };
 
 const mapCustomer = (row: {
@@ -81,10 +95,14 @@ const createCustomerPermissionContext = (
 const resolveCustomerCommandAccess = async (
   context: CustomerCommandContext
 ): Promise<ResolvedCustomerCommandAccess> => {
-  if (context.trustedSystem?.tenantVerified) {
+  if (
+    context.trustedSystem &&
+    isTrustedTenantContext(context.trustedSystem) &&
+    context.trustedSystem.tenantId === context.tenantId
+  ) {
     return {
       actorType: context.trustedSystem.actorType ?? "integration",
-      channel: context.trustedSystem.channel,
+      channel: normalizeTrustedChannel(context.trustedSystem.channel),
       grantedPermissions: context.grantedPermissions ?? [],
       tenantId: context.tenantId,
       userId: context.userId,

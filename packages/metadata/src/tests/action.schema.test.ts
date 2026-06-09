@@ -5,6 +5,11 @@ import { metadataActionSchema } from "../schemas/action.schema.ts";
 
 test("metadataActionSchema parses a valid action contract", () => {
   const action = metadataActionSchema.parse({
+    customization: {
+      label: true,
+      placement: true,
+      safe: true,
+    },
     key: "approve",
     label: "Approve",
     kind: "approve",
@@ -20,6 +25,7 @@ test("metadataActionSchema parses a valid action contract", () => {
   });
 
   assert.equal(action.kind, "approve");
+  assert.equal(action.customization?.safe, true);
   assert.equal(action.placement, "primary");
   assert.deepEqual(action.stateTransition?.from, ["pending"]);
 });
@@ -30,6 +36,20 @@ test("metadataActionSchema rejects unsupported action kinds", () => {
       key: "publish",
       label: "Publish",
       kind: "publish",
+    });
+  });
+});
+
+test("metadataActionSchema rejects unknown customization policy keys", () => {
+  assert.throws(() => {
+    metadataActionSchema.parse({
+      customization: {
+        safe: true,
+        tone: true,
+      },
+      key: "approve",
+      label: "Approve",
+      kind: "approve",
     });
   });
 });

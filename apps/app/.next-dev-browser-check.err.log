@@ -1,0 +1,191 @@
+⨯ Error [UnauthorizedError]: Authentication is required
+    at requireAuth (..\..\packages\auth\server.ts:221:11)
+    at async requireActiveTenantAccess (..\..\packages\auth\server.ts:431:18)
+    at async resolveRuntimeTenantAccess (app\_runtime-access.ts:29:20)
+    at async loadHrDocumentsPageData (app\(authenticated)\hr\documents\_data.ts:132:18)
+    at async HrDocumentsPage (app\(authenticated)\hr\documents\page.tsx:41:21)
+  219 |
+  220 |   if (!user) {
+> 221 |     throw new UnauthorizedError();
+      |           ^
+  222 |   }
+  223 |
+  224 |   return user; {
+  details: undefined,
+  isOperational: true,
+  timestamp: 2026-06-09T19:25:52.179Z,
+  code: 'UNAUTHORIZED',
+  statusCode: 401,
+  digest: '2471986849'
+}
+⨯ Error [UnauthorizedError]: Authentication is required
+    at requireAuth (..\..\packages\auth\server.ts:221:11)
+    at async requireActiveTenantAccess (..\..\packages\auth\server.ts:431:18)
+    at async resolveRuntimeTenantAccess (app\_runtime-access.ts:29:20)
+    at async loadHrDocumentsPageData (app\(authenticated)\hr\documents\_data.ts:132:18)
+    at async HrDocumentsPage (app\(authenticated)\hr\documents\page.tsx:41:21)
+  219 |
+  220 |   if (!user) {
+> 221 |     throw new UnauthorizedError();
+      |           ^
+  222 |   }
+  223 |
+  224 |   return user; {
+  details: undefined,
+  isOperational: true,
+  timestamp: 2026-06-09T19:27:50.793Z,
+  code: 'UNAUTHORIZED',
+  statusCode: 401,
+  digest: '2471986849'
+}
+⚠ Blocked cross-origin request to Next.js dev resource /_next/webpack-hmr from "127.0.0.1".
+Cross-origin access to Next.js dev resources is blocked by default for safety.
+
+To allow this host in development, add it to "allowedDevOrigins" in next.config.js and restart the dev server:
+
+// next.config.js
+module.exports = {
+  allowedDevOrigins: ['127.0.0.1'],
+}
+
+Read more: https://nextjs.org/docs/app/api-reference/config/next-config-js/allowedDevOrigins
+⨯ Error [UnauthorizedError]: Authentication is required
+    at requireAuth (..\..\packages\auth\server.ts:221:11)
+    at async requireActiveTenantAccess (..\..\packages\auth\server.ts:431:18)
+    at async resolveRuntimeTenantAccess (app\_runtime-access.ts:29:20)
+    at async loadHrDocumentsPageData (app\(authenticated)\hr\documents\_data.ts:132:18)
+    at async HrDocumentsPage (app\(authenticated)\hr\documents\page.tsx:41:21)
+  219 |
+  220 |   if (!user) {
+> 221 |     throw new UnauthorizedError();
+      |           ^
+  222 |   }
+  223 |
+  224 |   return user; {
+  details: undefined,
+  isOperational: true,
+  timestamp: 2026-06-09T19:28:50.669Z,
+  code: 'UNAUTHORIZED',
+  statusCode: 401,
+  digest: '2471986849'
+}
+⨯ Error [UnauthorizedError]: Authentication is required
+    at requireAuth (..\..\packages\auth\server.ts:221:11)
+    at async requireActiveTenantAccess (..\..\packages\auth\server.ts:431:18)
+    at async resolveRuntimeTenantAccess (app\_runtime-access.ts:29:20)
+    at async loadHrDocumentDetailPageData (app\(authenticated)\hr\documents\_data.ts:184:18)
+    at async HrDocumentDetailPage (app\(authenticated)\hr\documents\[documentId]\page.tsx:104:20)
+  219 |
+  220 |   if (!user) {
+> 221 |     throw new UnauthorizedError();
+      |           ^
+  222 |   }
+  223 |
+  224 |   return user; {
+  details: undefined,
+  isOperational: true,
+  timestamp: 2026-06-09T19:28:59.701Z,
+  code: 'UNAUTHORIZED',
+  statusCode: 401,
+  digest: '1660782343'
+}
+⨯ Error [UnauthorizedError]: Authentication is required
+    at requireAuth (..\..\packages\auth\server.ts:221:11)
+    at async requireActiveTenantAccess (..\..\packages\auth\server.ts:431:18)
+    at async resolveRuntimeTenantAccess (app\_runtime-access.ts:29:20)
+    at async loadHrDocumentsPageData (app\(authenticated)\hr\documents\_data.ts:132:18)
+    at async HrDocumentsPage (app\(authenticated)\hr\documents\page.tsx:41:21)
+  219 |
+  220 |   if (!user) {
+> 221 |     throw new UnauthorizedError();
+      |           ^
+  222 |   }
+  223 |
+  224 |   return user; {
+  details: undefined,
+  isOperational: true,
+  timestamp: 2026-06-09T20:11:46.588Z,
+  code: 'UNAUTHORIZED',
+  statusCode: 401,
+  digest: '543192911'
+}
+⨯ Error [UnauthorizedError]: Authentication is required
+    at requireAuth (..\..\packages\auth\server.ts:221:11)
+    at async requireActiveTenantAccess (..\..\packages\auth\server.ts:431:18)
+    at async resolveRuntimeTenantAccess (app\_runtime-access.ts:29:20)
+    at async loadHrDocumentsPageData (app\(authenticated)\hr\documents\_data.ts:132:18)
+    at async HrDocumentsPage (app\(authenticated)\hr\documents\page.tsx:41:21)
+  219 |
+  220 |   if (!user) {
+> 221 |     throw new UnauthorizedError();
+      |           ^
+  222 |   }
+  223 |
+  224 |   return user; {
+  details: undefined,
+  isOperational: true,
+  timestamp: 2026-06-09T20:13:40.708Z,
+  code: 'UNAUTHORIZED',
+  statusCode: 401,
+  digest: '543192911'
+}
+⨯ Error [UnauthorizedError]: Authentication is required
+    at requireAuth (..\..\packages\auth\server.ts:221:11)
+    at async requireActiveTenantAccess (..\..\packages\auth\server.ts:431:18)
+    at async resolveRuntimeTenantAccess (app\_runtime-access.ts:29:20)
+    at async loadHrDocumentsPageData (app\(authenticated)\hr\documents\_data.ts:132:18)
+    at async HrDocumentsPage (app\(authenticated)\hr\documents\page.tsx:41:21)
+  219 |
+  220 |   if (!user) {
+> 221 |     throw new UnauthorizedError();
+      |           ^
+  222 |   }
+  223 |
+  224 |   return user; {
+  details: undefined,
+  isOperational: true,
+  timestamp: 2026-06-09T20:25:04.135Z,
+  code: 'UNAUTHORIZED',
+  statusCode: 401,
+  digest: '543192911'
+}
+Failed to proxy http://127.0.0.1:25000/events?token=a32cf3582a4e0b5e4a86f48247e605b7925e04ff85d2d5d3d4a0d68cd73fa738 Error: socket hang up
+    at ignore-listed frames {
+  code: 'ECONNRESET'
+}
+Error: socket hang up
+    at ignore-listed frames {
+  code: 'ECONNRESET'
+}
+Failed to proxy http://127.0.0.1:25000/events?token=a32cf3582a4e0b5e4a86f48247e605b7925e04ff85d2d5d3d4a0d68cd73fa738 Error: socket hang up
+    at ignore-listed frames {
+  code: 'ECONNRESET'
+}
+Error: socket hang up
+    at ignore-listed frames {
+  code: 'ECONNRESET'
+}
+Failed to proxy http://127.0.0.1:25000/events?token=a32cf3582a4e0b5e4a86f48247e605b7925e04ff85d2d5d3d4a0d68cd73fa738 Error: socket hang up
+    at ignore-listed frames {
+  code: 'ECONNRESET'
+}
+Error: socket hang up
+    at ignore-listed frames {
+  code: 'ECONNRESET'
+}
+Failed to proxy http://127.0.0.1:25000/events?token=a32cf3582a4e0b5e4a86f48247e605b7925e04ff85d2d5d3d4a0d68cd73fa738 Error: socket hang up
+    at ignore-listed frames {
+  code: 'ECONNRESET'
+}
+Error: socket hang up
+    at ignore-listed frames {
+  code: 'ECONNRESET'
+}
+Failed to proxy http://127.0.0.1:25000/events?token=a32cf3582a4e0b5e4a86f48247e605b7925e04ff85d2d5d3d4a0d68cd73fa738 Error: socket hang up
+    at ignore-listed frames {
+  code: 'ECONNRESET'
+}
+Error: socket hang up
+    at ignore-listed frames {
+  code: 'ECONNRESET'
+}

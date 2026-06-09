@@ -2,6 +2,16 @@ import type { EntityMetadata } from "@repo/metadata";
 
 export const companyMetadata: EntityMetadata = {
   id: "master-data.companies",
+  customization: {
+    presentation: {
+      density: true,
+      icon: true,
+      size: true,
+      tone: true,
+      variant: true,
+    },
+    scopes: ["tenant", "company"],
+  },
   entity: "company",
   title: "Companies",
   description:
@@ -26,6 +36,11 @@ export const companyMetadata: EntityMetadata = {
   },
   fields: [
     {
+      customization: {
+        label: true,
+        order: true,
+        placeholder: true,
+      },
       key: "code",
       label: "Code",
       kind: "text",
@@ -34,6 +49,11 @@ export const companyMetadata: EntityMetadata = {
       validationHint: "Use a stable company code.",
     },
     {
+      customization: {
+        label: true,
+        order: true,
+        placeholder: true,
+      },
       key: "name",
       label: "Name",
       kind: "text",
@@ -42,6 +62,10 @@ export const companyMetadata: EntityMetadata = {
       validationHint: "Use the legal or display name.",
     },
     {
+      customization: {
+        label: true,
+        order: true,
+      },
       key: "status",
       label: "Status",
       kind: "select",
@@ -52,6 +76,10 @@ export const companyMetadata: EntityMetadata = {
   ],
   filters: [
     {
+      customization: {
+        hidden: true,
+        label: true,
+      },
       key: "company-code",
       label: "Code",
       field: "code",
@@ -60,6 +88,10 @@ export const companyMetadata: EntityMetadata = {
       placeholder: "Search code",
     },
     {
+      customization: {
+        hidden: true,
+        label: true,
+      },
       key: "company-status",
       label: "Status",
       field: "status",
@@ -79,6 +111,11 @@ export const companyMetadata: EntityMetadata = {
   ],
   forms: [
     {
+      customization: {
+        label: true,
+        layout: true,
+        sectionKeys: true,
+      },
       key: "company-create",
       label: "Create company",
       fieldKeys: ["code", "name", "status"],
@@ -88,6 +125,11 @@ export const companyMetadata: EntityMetadata = {
       layout: "grid",
     },
     {
+      customization: {
+        label: true,
+        layout: true,
+        sectionKeys: true,
+      },
       key: "company-edit",
       label: "Edit company",
       fieldKeys: ["code", "name", "status"],
@@ -99,6 +141,12 @@ export const companyMetadata: EntityMetadata = {
   ],
   actions: [
     {
+      customization: {
+        hidden: true,
+        label: true,
+        placement: true,
+        safe: true,
+      },
       key: "company-create",
       label: "Create",
       kind: "create",
@@ -106,6 +154,12 @@ export const companyMetadata: EntityMetadata = {
       permissionHint: "master-data.companies:write",
     },
     {
+      customization: {
+        hidden: true,
+        label: true,
+        placement: true,
+        safe: true,
+      },
       key: "company-save",
       label: "Save changes",
       kind: "update",
@@ -113,6 +167,9 @@ export const companyMetadata: EntityMetadata = {
       permissionHint: "master-data.companies:write",
     },
     {
+      customization: {
+        safe: false,
+      },
       key: "company-archive",
       label: "Archive",
       kind: "archive",
@@ -126,6 +183,9 @@ export const companyMetadata: EntityMetadata = {
       },
     },
     {
+      customization: {
+        safe: false,
+      },
       key: "company-restore",
       label: "Restore",
       kind: "restore",
@@ -139,12 +199,23 @@ export const companyMetadata: EntityMetadata = {
   ],
   sections: [
     {
+      customization: {
+        columns: true,
+        fieldKeys: true,
+        label: true,
+      },
       key: "company-identity",
       label: "Identity",
       fieldKeys: ["code", "name"],
       columns: 2,
     },
     {
+      customization: {
+        columns: true,
+        fieldKeys: true,
+        hidden: true,
+        label: true,
+      },
       key: "company-lifecycle",
       label: "Lifecycle",
       fieldKeys: ["status"],
@@ -173,10 +244,21 @@ export const companyMetadata: EntityMetadata = {
     },
   ],
   table: {
+    customization: {
+      columns: true,
+      defaultSort: true,
+      title: true,
+    },
     defaultSort: "name",
     title: "Company directory",
     columns: [
       {
+        customization: {
+          hidden: true,
+          label: true,
+          order: true,
+          width: true,
+        },
         key: "code",
         label: "Code",
         field: "code",
@@ -185,6 +267,12 @@ export const companyMetadata: EntityMetadata = {
         width: "sm",
       },
       {
+        customization: {
+          hidden: true,
+          label: true,
+          order: true,
+          width: true,
+        },
         key: "name",
         label: "Name",
         field: "name",
@@ -193,6 +281,13 @@ export const companyMetadata: EntityMetadata = {
         width: "lg",
       },
       {
+        customization: {
+          align: true,
+          hidden: true,
+          label: true,
+          order: true,
+          width: true,
+        },
         key: "status",
         label: "Status",
         field: "status",

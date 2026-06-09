@@ -58,7 +58,7 @@ export async function PATCH(
     ...(body as Record<string, unknown>),
     employeeId,
   });
-  const result = updateHrEmployeeRecord(
+  const result = await updateHrEmployeeRecord(
     parsed,
     createHrRecordsWriteContext(request)
   );

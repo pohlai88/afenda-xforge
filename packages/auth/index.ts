@@ -56,3 +56,8 @@ export {
   resolveTenantByHost,
   verifyOtpCode,
 } from "./server.ts";
+export type { TrustedTenantContext } from "./trusted.ts";
+export {
+  createTrustedTenantContext,
+  isTrustedTenantContext,
+} from "./trusted.ts";

@@ -1,0 +1,16 @@
+export {
+  type MetadataPublicConsumerSmokeResult,
+  metadataConsumerScenarioMatrix,
+  metadataUiFixtureCoverage,
+  metadataUiGeneratedActionFixtures,
+  metadataUiGeneratedFieldFixtures,
+  metadataUiGeneratedSectionFixtures,
+  metadataUiSmokeCoverage,
+  publicConsumerActions,
+  publicConsumerFields,
+  publicConsumerMetadata,
+  publicConsumerRows,
+  publicConsumerSections,
+  publicConsumerValues,
+  runPublicApiConsumerSmoke,
+} from "../src/generated/fixtures.generated";

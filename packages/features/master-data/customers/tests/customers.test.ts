@@ -1,5 +1,6 @@
 import assert from "node:assert/strict";
 import test from "node:test";
+import { createTrustedTenantContext } from "@repo/auth/trusted";
 import { ForbiddenError } from "@repo/errors";
 
 process.env.DATABASE_URL ??=
@@ -17,9 +18,10 @@ test("customers list denies trusted context without read permission", async () =
         },
         {
           tenantId: "tenant-1",
-          trustedSystem: {
-            tenantVerified: true,
-          },
+          trustedSystem: createTrustedTenantContext({
+            reason: "test",
+            tenantId: "tenant-1",
+          }),
           userId: "system:test",
         }
       ),
@@ -40,9 +42,10 @@ test("customer create validates body before execution", async () => {
         {
           grantedPermissions: ["master-data.customers:write"],
           tenantId: "tenant-1",
-          trustedSystem: {
-            tenantVerified: true,
-          },
+          trustedSystem: createTrustedTenantContext({
+            reason: "test",
+            tenantId: "tenant-1",
+          }),
           userId: "system:test",
         }
       ),
@@ -62,10 +65,11 @@ test("customer create denies trusted context without write permission", async ()
         },
         {
           tenantId: "tenant-1",
-          trustedSystem: {
+          trustedSystem: createTrustedTenantContext({
             channel: "webhook",
-            tenantVerified: true,
-          },
+            reason: "test",
+            tenantId: "tenant-1",
+          }),
           userId: "system:webhook",
         }
       ),

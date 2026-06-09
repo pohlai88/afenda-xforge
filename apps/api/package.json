@@ -33,6 +33,7 @@
     "@repo/storage": "workspace:*",
     "@repo/ui": "workspace:*",
     "@repo/webhooks": "workspace:*",
+    "@vercel/blob": "catalog:",
     "drizzle-orm": "catalog:",
     "next": "catalog:",
     "react": "catalog:",

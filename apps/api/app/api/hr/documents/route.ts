@@ -16,6 +16,8 @@ import {
   uploadDocumentsManagementBlob,
 } from "./_lib/storage.ts";
 
+const MAX_SERVER_SIDE_UPLOAD_BYTES = 4.5 * 1024 * 1024;
+
 export function GET(request: Request): Response {
   try {
     const query = getDocumentsManagementQuery(request);
@@ -69,6 +71,25 @@ const optionalBooleanFormValue = (
   throw new Error(`Invalid boolean form field: ${key}`);
 };
 
+const optionalNumberFormValue = (
+  formData: FormData,
+  key: string
+): number | undefined => {
+  const value = optionalFormValue(formData, key);
+
+  if (value === undefined) {
+    return;
+  }
+
+  const parsedValue = Number(value);
+
+  if (!Number.isFinite(parsedValue)) {
+    throw new Error(`Invalid number form field: ${key}`);
+  }
+
+  return parsedValue;
+};
+
 const requireFormValue = (formData: FormData, key: string): string => {
   const value = optionalFormValue(formData, key);
 
@@ -105,33 +126,6 @@ const buildDocumentsManagementBlobKey = ({
 
 export async function POST(request: Request): Promise<Response> {
   try {
-    const formData = await request.formData();
-    const file = formData.get("file");
-
-    if (!(file instanceof File)) {
-      return NextResponse.json(
-        { ok: false, error: "A file upload is required" },
-        { status: 400 }
-      );
-    }
-
-    const parsedForm = {
-      description: optionalFormValue(formData, "description"),
-      documentCategory: requireFormValue(formData, "documentCategory"),
-      documentType: requireFormValue(formData, "documentType"),
-      employeeId: requireFormValue(formData, "employeeId"),
-      expiresAt: optionalFormValue(formData, "expiresAt"),
-      issuedAt: optionalFormValue(formData, "issuedAt"),
-      legalEntityCode: optionalFormValue(formData, "legalEntityCode"),
-      mandatory: optionalBooleanFormValue(formData, "mandatory"),
-      renewalDueAt: optionalFormValue(formData, "renewalDueAt"),
-      sourceDocumentId: optionalFormValue(formData, "sourceDocumentId"),
-      sourceDocumentNumber: optionalFormValue(formData, "sourceDocumentNumber"),
-      sourceNotes: optionalFormValue(formData, "sourceNotes"),
-      status: optionalFormValue(formData, "status"),
-      title: requireFormValue(formData, "title"),
-      visibility: optionalFormValue(formData, "visibility"),
-    };
     const writeContext = createDocumentsManagementWriteContext(request);
 
     if (!canWriteDocumentsManagement(writeContext)) {
@@ -141,20 +135,79 @@ export async function POST(request: Request): Promise<Response> {
       );
     }
 
-    const uploadedBlob = await uploadDocumentsManagementBlob({
-      body: file,
-      contentType: file.type || undefined,
-      key: buildDocumentsManagementBlobKey({
-        employeeId: parsedForm.employeeId,
-        fileName: file.name,
-        tenantId: writeContext.tenantId,
-      }),
-    });
+    const formData = await request.formData();
+    const file = formData.get("file");
+    const uploadedFile = file instanceof File ? file : null;
 
-    if (!uploadedBlob) {
+    if (uploadedFile && uploadedFile.size > MAX_SERVER_SIDE_UPLOAD_BYTES) {
+      return NextResponse.json(
+        {
+          ok: false,
+          error:
+            "Document is too large for server upload. Use the client upload route instead.",
+        },
+        { status: 413 }
+      );
+    }
+
+    if (!uploadedFile) {
+      const storagePath = optionalFormValue(formData, "storagePath");
+
+      if (!storagePath) {
+        return NextResponse.json(
+          { ok: false, error: "A file upload or storage path is required" },
+          { status: 400 }
+        );
+      }
+    }
+
+    const parsedForm = {
+      contentType: optionalFormValue(formData, "contentType"),
+      description: optionalFormValue(formData, "description"),
+      documentCategory: requireFormValue(formData, "documentCategory"),
+      documentType: requireFormValue(formData, "documentType"),
+      employeeId: requireFormValue(formData, "employeeId"),
+      expiresAt: optionalFormValue(formData, "expiresAt"),
+      fileName: optionalFormValue(formData, "fileName"),
+      issuedAt: optionalFormValue(formData, "issuedAt"),
+      legalEntityCode: optionalFormValue(formData, "legalEntityCode"),
+      mandatory: optionalBooleanFormValue(formData, "mandatory"),
+      renewalDueAt: optionalFormValue(formData, "renewalDueAt"),
+      sizeBytes: optionalNumberFormValue(formData, "sizeBytes"),
+      sourceDocumentId: optionalFormValue(formData, "sourceDocumentId"),
+      sourceDocumentNumber: optionalFormValue(formData, "sourceDocumentNumber"),
+      sourceNotes: optionalFormValue(formData, "sourceNotes"),
+      status: optionalFormValue(formData, "status"),
+      storagePath: optionalFormValue(formData, "storagePath"),
+      title: requireFormValue(formData, "title"),
+      visibility: optionalFormValue(formData, "visibility"),
+    };
+    const shouldUploadFile = uploadedFile !== null;
+    const uploadedBlob = shouldUploadFile
+      ? await uploadDocumentsManagementBlob({
+          body: uploadedFile,
+          contentType: uploadedFile.type || undefined,
+          key: buildDocumentsManagementBlobKey({
+            employeeId: parsedForm.employeeId,
+            fileName: uploadedFile.name,
+            tenantId: writeContext.tenantId,
+          }),
+        })
+      : null;
+
+    if (shouldUploadFile && !uploadedBlob) {
       return NextResponse.json(
         { ok: false, error: "Document storage is not configured" },
         { status: 503 }
+      );
+    }
+
+    const storagePath = uploadedBlob?.key ?? parsedForm.storagePath;
+
+    if (!storagePath) {
+      return NextResponse.json(
+        { ok: false, error: "A file upload or storage path is required" },
+        { status: 400 }
       );
     }
 
@@ -169,13 +222,24 @@ export async function POST(request: Request): Promise<Response> {
         legalEntityCode: parsedForm.legalEntityCode,
         mandatory: parsedForm.mandatory,
         reference: {
-          contentType: file.type || uploadedBlob.contentType,
-          fileName: file.name,
-          sizeBytes: file.size,
+          contentType:
+            parsedForm.contentType ??
+            uploadedFile?.type ??
+            uploadedBlob?.contentType,
+          fileName:
+            parsedForm.fileName ??
+            uploadedFile?.name ??
+            storagePath.split("/").at(-1) ??
+            undefined,
+          sizeBytes:
+            parsedForm.sizeBytes ??
+            uploadedFile?.size ??
+            uploadedBlob?.size ??
+            undefined,
           sourceDocumentId: parsedForm.sourceDocumentId,
           sourceDocumentNumber: parsedForm.sourceDocumentNumber,
           sourceNotes: parsedForm.sourceNotes,
-          storagePath: uploadedBlob.key,
+          storagePath,
         },
         renewalDueAt: parsedForm.renewalDueAt,
         status: parsedForm.status,

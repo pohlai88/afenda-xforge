@@ -1,5 +1,5 @@
-import { EntityMetadataPanel, getEntityLabels } from "@repo/metadata-ui";
 import type { EntityMetadata } from "@repo/metadata";
+import { EntityMetadataPanel, getEntityLabels } from "@repo/metadata-ui";
 import type { ReactElement, ReactNode } from "react";
 import { DashboardGrid } from "../_components/dashboard-grid.tsx";
 import { KpiCard } from "../_components/kpi-card.tsx";
@@ -152,7 +152,9 @@ export function DashboardView({
             </DashboardGrid>
           </div>
           {headerActions ? (
-            <div className="flex flex-wrap items-center gap-3">{headerActions}</div>
+            <div className="flex flex-wrap items-center gap-3">
+              {headerActions}
+            </div>
           ) : null}
         </div>
       </header>

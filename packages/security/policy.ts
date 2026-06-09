@@ -1,4 +1,5 @@
 import type { SecurityHeadersOptions } from "./headers.ts";
+import { createContentSecurityPolicy } from "./headers.ts";
 import { keys } from "./keys.ts";
 import type { SecurityProvider } from "./provider.ts";
 import { createNoopSecurityProvider } from "./provider.ts";
@@ -55,7 +56,15 @@ export const createSecurityPolicy = (
     headers: overrides.headers ?? {
       contentSecurityPolicy: env.SECURITY_CONTENT_SECURITY_POLICY,
       contentSecurityPolicyReportOnly:
-        env.SECURITY_CONTENT_SECURITY_POLICY_REPORT_ONLY,
+        env.SECURITY_CONTENT_SECURITY_POLICY_REPORT_ONLY ??
+        createContentSecurityPolicy({
+          connectSrc: [
+            "'self'",
+            ...(process.env.NEXT_PUBLIC_SUPABASE_URL
+              ? [process.env.NEXT_PUBLIC_SUPABASE_URL]
+              : []),
+          ],
+        }),
       referrerPolicy: env.SECURITY_REFERRER_POLICY,
       frameOptions: env.SECURITY_FRAME_OPTIONS,
     },

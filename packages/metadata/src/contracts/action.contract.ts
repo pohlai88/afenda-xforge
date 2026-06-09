@@ -1,4 +1,5 @@
 import type { MetadataActionKind } from "../constants/action-kinds.ts";
+import type { MetadataActionCustomizationPolicy } from "./customization-policy.contract.ts";
 
 export type MetadataActionPlacement =
   | "overflow"
@@ -8,6 +9,7 @@ export type MetadataActionPlacement =
 
 export type MetadataActionContract = {
   confirmMessage?: string;
+  customization?: MetadataActionCustomizationPolicy;
   description?: string;
   dangerous?: boolean;
   kind: MetadataActionKind;

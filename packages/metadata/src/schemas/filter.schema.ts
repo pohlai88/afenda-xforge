@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { metadataFilterCustomizationSchema } from "./customization-policy.schema.ts";
 
 export const metadataFilterOptionSchema = z
   .object({
@@ -10,6 +11,7 @@ export const metadataFilterOptionSchema = z
 
 export const metadataFilterSchema = z
   .object({
+    customization: metadataFilterCustomizationSchema.optional(),
     key: z.string().trim().min(1),
     label: z.string().trim().min(1),
     field: z.string().trim().min(1),

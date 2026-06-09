@@ -1,7 +1,14 @@
 import type { EntityMetadata, MetadataFeatureContract } from "@repo/metadata";
 
-import type { CustomizationContract } from "../contracts/customization.contract.ts";
-import { assertCustomizationMatchesMetadata } from "../validation/validate-customization-against-metadata.ts";
+import type {
+  CustomizationContract,
+  CustomizationResolutionResult,
+} from "../contracts/customization.contract.ts";
+import type { CustomizationMetadataValidationOptions } from "../validation/validate-customization-against-metadata.ts";
+import {
+  assertCustomizationMatchesMetadata,
+  validateCustomizationAgainstMetadata,
+} from "../validation/validate-customization-against-metadata.ts";
 import {
   resolveCustomizedEntityMetadata,
   resolveCustomizedMetadata,
@@ -12,13 +19,10 @@ export type CustomizationLayerSet = {
   tenant?: CustomizationContract | null;
 };
 
-export type LayeredCustomizationResolutionOptions = {
-  companyAware?: boolean;
-  includeDraftsForPreview?: boolean;
-  metadataFingerprint?: string;
-  safeActionKeys?: readonly string[];
-  systemFieldKeys?: readonly string[];
-};
+export type LayeredCustomizationResolutionOptions =
+  CustomizationMetadataValidationOptions & {
+    includeDraftsForPreview?: boolean;
+  };
 
 const isPublishedCustomization = (
   customization: CustomizationContract | null | undefined,
@@ -29,7 +33,7 @@ const isPublishedCustomization = (
   }
 
   if (includeDraftsForPreview) {
-    return true;
+    return customization.status !== "archived";
   }
 
   return customization.status === "published";
@@ -73,6 +77,18 @@ const assertLayering = (layers: CustomizationLayerSet): void => {
     assertTenantAlignment(layers.tenant ?? undefined, layers.company);
   }
 };
+
+const getLayerValidationIssues = (
+  metadata: EntityMetadata | MetadataFeatureContract,
+  layers: CustomizationLayerSet,
+  options: LayeredCustomizationResolutionOptions,
+  includeDraftsForPreview: boolean
+) =>
+  getApplicableCustomizations(layers, includeDraftsForPreview).flatMap(
+    (customization) =>
+      validateCustomizationAgainstMetadata(customization, metadata, options)
+        .issues
+  );
 
 export const resolveLayeredCustomizedMetadata = (
   metadata: MetadataFeatureContract,
@@ -124,4 +140,146 @@ export const resolvePreviewCustomizationLayers = (
 ): readonly CustomizationContract[] => {
   assertLayering(layers);
   return getApplicableCustomizations(layers, true);
+};
+
+export const resolvePublishedCustomizedMetadataResult = (
+  metadata: MetadataFeatureContract,
+  layers: CustomizationLayerSet,
+  options: LayeredCustomizationResolutionOptions = {}
+): CustomizationResolutionResult<MetadataFeatureContract> => {
+  assertLayering(layers);
+
+  const diagnostics = getLayerValidationIssues(
+    metadata,
+    layers,
+    options,
+    false
+  );
+
+  if (diagnostics.some((issue) => issue.severity === "error")) {
+    return {
+      appliedCustomizations: [],
+      diagnostics,
+      metadata,
+      status: "base_fallback",
+    };
+  }
+
+  return {
+    appliedCustomizations: resolvePublishedCustomizationLayers(layers),
+    diagnostics,
+    metadata: resolveLayeredCustomizedMetadata(metadata, layers, options),
+    status: "resolved",
+  };
+};
+
+export const resolvePublishedCustomizedEntityMetadataResult = (
+  metadata: EntityMetadata,
+  layers: CustomizationLayerSet,
+  options: LayeredCustomizationResolutionOptions = {}
+): CustomizationResolutionResult<EntityMetadata> => {
+  assertLayering(layers);
+
+  const diagnostics = getLayerValidationIssues(
+    metadata,
+    layers,
+    options,
+    false
+  );
+
+  if (diagnostics.some((issue) => issue.severity === "error")) {
+    return {
+      appliedCustomizations: [],
+      diagnostics,
+      metadata,
+      status: "base_fallback",
+    };
+  }
+
+  return {
+    appliedCustomizations: resolvePublishedCustomizationLayers(layers),
+    diagnostics,
+    metadata: resolveLayeredCustomizedEntityMetadata(metadata, layers, options),
+    status: "resolved",
+  };
+};
+
+export const resolvePreviewCustomizedMetadataResult = (
+  metadata: MetadataFeatureContract,
+  layers: CustomizationLayerSet,
+  options: LayeredCustomizationResolutionOptions = {}
+): CustomizationResolutionResult<MetadataFeatureContract> => {
+  assertLayering(layers);
+
+  const previewOptions = {
+    ...options,
+    includeDraftsForPreview: true,
+    validationMode: options.validationMode ?? "preview",
+  } satisfies LayeredCustomizationResolutionOptions;
+  const diagnostics = getLayerValidationIssues(
+    metadata,
+    layers,
+    previewOptions,
+    true
+  );
+
+  if (diagnostics.some((issue) => issue.severity === "error")) {
+    return {
+      appliedCustomizations: [],
+      diagnostics,
+      metadata,
+      status: "base_fallback",
+    };
+  }
+
+  return {
+    appliedCustomizations: resolvePreviewCustomizationLayers(layers),
+    diagnostics,
+    metadata: resolveLayeredCustomizedMetadata(
+      metadata,
+      layers,
+      previewOptions
+    ),
+    status: "resolved",
+  };
+};
+
+export const resolvePreviewCustomizedEntityMetadataResult = (
+  metadata: EntityMetadata,
+  layers: CustomizationLayerSet,
+  options: LayeredCustomizationResolutionOptions = {}
+): CustomizationResolutionResult<EntityMetadata> => {
+  assertLayering(layers);
+
+  const previewOptions = {
+    ...options,
+    includeDraftsForPreview: true,
+    validationMode: options.validationMode ?? "preview",
+  } satisfies LayeredCustomizationResolutionOptions;
+  const diagnostics = getLayerValidationIssues(
+    metadata,
+    layers,
+    previewOptions,
+    true
+  );
+
+  if (diagnostics.some((issue) => issue.severity === "error")) {
+    return {
+      appliedCustomizations: [],
+      diagnostics,
+      metadata,
+      status: "base_fallback",
+    };
+  }
+
+  return {
+    appliedCustomizations: resolvePreviewCustomizationLayers(layers),
+    diagnostics,
+    metadata: resolveLayeredCustomizedEntityMetadata(
+      metadata,
+      layers,
+      previewOptions
+    ),
+    status: "resolved",
+  };
 };

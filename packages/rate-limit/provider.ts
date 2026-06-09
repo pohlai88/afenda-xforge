@@ -3,10 +3,8 @@ import type { XForgeRedisClient } from "@repo/redis";
 import {
   getRedisClient,
   hasRedisConfig,
-  loadRedisKeys,
   sendRedisCommand,
 } from "@repo/redis";
-import { loadRateLimitKeys } from "./keys.ts";
 
 export type RateLimitProviderInput = {
   key: string;
@@ -201,6 +199,11 @@ export type RedisRateLimitProviderOptions = {
   prefix?: string;
 };
 
+export type ConfiguredRateLimitProviderOptions =
+  RedisRateLimitProviderOptions & {
+    allowMemoryFallback?: boolean;
+  };
+
 const createRedisRateLimitStorageKey = (
   input: RateLimitProviderInput,
   prefix: string
@@ -279,7 +282,8 @@ export const createRedisRateLimitProvider = (
         limit: input.limit,
         remaining,
         resetAt: new Date(Date.now() + ttlMs),
-        retryAfterSeconds: Math.max(0, Math.ceil(ttlMs / 1000)),
+        retryAfterSeconds:
+          current <= input.limit ? 0 : Math.max(0, Math.ceil(ttlMs / 1000)),
       };
     },
     get: async (
@@ -338,13 +342,20 @@ export const createRedisRateLimitProvider = (
   };
 };
 
-export const createConfiguredRateLimitProvider = (): RateLimitProvider => {
-  const env = loadRateLimitKeys();
+export const createConfiguredRateLimitProvider = (
+  options: ConfiguredRateLimitProviderOptions = {}
+): RateLimitProvider => {
+  if (hasRedisConfig() || options.client) {
+    return createRedisRateLimitProvider(options);
+  }
 
-  if (hasRedisConfig()) {
-    return createRedisRateLimitProvider({
-      prefix: env.RATE_LIMIT_NAMESPACE,
-    });
+  const allowMemoryFallback =
+    options.allowMemoryFallback ?? process.env.NODE_ENV !== "production";
+
+  if (!allowMemoryFallback) {
+    throw new ConfigurationError(
+      "Redis-backed rate limiting is required in production unless allowMemoryFallback is explicitly enabled"
+    );
   }
 
   return createMemoryRateLimitProvider();

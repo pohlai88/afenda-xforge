@@ -13,6 +13,19 @@ type SupabaseCookieToSet = {
 export type AuthProxyResult = {
   isAuthenticated: boolean;
   response: NextResponse;
+  sessionId?: string;
+  userId?: string;
+};
+
+const extractStringClaim = (
+  claims: Record<string, unknown> | undefined,
+  key: string
+): string | undefined => {
+  const value = claims?.[key];
+
+  return typeof value === "string" && value.trim().length > 0
+    ? value.trim()
+    : undefined;
 };
 
 export const updateSession = async (
@@ -66,10 +79,15 @@ export const updateSession = async (
 
   // Keep the auth refresh path contiguous so SSR cookies stay in sync.
   const { data } = await supabase.auth.getClaims();
+  const claims = data?.claims as Record<string, unknown> | undefined;
+  const userId = extractStringClaim(claims, "sub");
+  const sessionId = extractStringClaim(claims, "session_id") ?? userId;
 
   return {
-    isAuthenticated: Boolean(data?.claims?.sub),
+    isAuthenticated: Boolean(userId),
     response: supabaseResponse,
+    sessionId,
+    userId,
   };
 };
 

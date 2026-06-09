@@ -26,12 +26,129 @@ const addDuplicateKeyIssues = (
   }
 };
 
+const addCustomizationIssue = (
+  context: z.RefinementCtx,
+  path: readonly (number | string)[],
+  message: string
+): void => {
+  context.addIssue({
+    code: "custom",
+    message,
+    path: [...path],
+  });
+};
+
+type CustomizationSchemaRefinementInput = {
+  archived?: unknown;
+  baseMetadataFingerprint?: string;
+  companyId?: string;
+  created?: unknown;
+  published?: unknown;
+  rolledBack?: unknown;
+  scope: "company" | "tenant";
+  status?: "archived" | "draft" | "published";
+  updated?: unknown;
+  version?: number;
+};
+
+const validateCustomizationScope = (
+  customization: CustomizationSchemaRefinementInput,
+  context: z.RefinementCtx
+): void => {
+  if (customization.scope === "company" && !customization.companyId) {
+    addCustomizationIssue(
+      context,
+      ["companyId"],
+      "company-scoped customization requires companyId"
+    );
+  }
+
+  if (customization.scope === "tenant" && customization.companyId) {
+    addCustomizationIssue(
+      context,
+      ["companyId"],
+      "tenant-scoped customization must not include companyId"
+    );
+  }
+};
+
+const validateCustomizationLifecycle = (
+  customization: CustomizationSchemaRefinementInput,
+  context: z.RefinementCtx
+): void => {
+  const requiresPersistedLifecycle =
+    customization.status === "archived" || customization.status === "published";
+
+  if (customization.status === "published" && !customization.published) {
+    addCustomizationIssue(
+      context,
+      ["published"],
+      "published customization requires published actor metadata"
+    );
+  }
+
+  if (customization.status === "archived" && !customization.archived) {
+    addCustomizationIssue(
+      context,
+      ["archived"],
+      "archived customization requires archived actor metadata"
+    );
+  }
+
+  if (requiresPersistedLifecycle && !customization.baseMetadataFingerprint) {
+    addCustomizationIssue(
+      context,
+      ["baseMetadataFingerprint"],
+      "published and archived customization requires base metadata fingerprint"
+    );
+  }
+
+  if (requiresPersistedLifecycle && !customization.created) {
+    addCustomizationIssue(
+      context,
+      ["created"],
+      "published and archived customization requires created actor metadata"
+    );
+  }
+
+  if (requiresPersistedLifecycle && !customization.updated) {
+    addCustomizationIssue(
+      context,
+      ["updated"],
+      "published and archived customization requires updated actor metadata"
+    );
+  }
+
+  if (requiresPersistedLifecycle && !customization.version) {
+    addCustomizationIssue(
+      context,
+      ["version"],
+      "published and archived customization requires version"
+    );
+  }
+
+  if (customization.rolledBack && customization.status !== "published") {
+    addCustomizationIssue(
+      context,
+      ["rolledBack"],
+      "rollback metadata is only valid on published customization"
+    );
+  }
+};
+
 export const customizationActorMetadataSchema = z
   .object({
     at: z.string().trim().datetime({ offset: true }),
     by: z.string().trim().min(1),
   })
   .strict();
+
+export const customizationRollbackMetadataSchema =
+  customizationActorMetadataSchema
+    .extend({
+      fromVersion: z.number().int().positive(),
+    })
+    .strict();
 
 export const customizationPresentationSchema = z
   .object({
@@ -144,65 +261,39 @@ export const customizationActionOverrideSchema = z
   })
   .strict();
 
+const customizationSchemaShape = {
+  actions: z.array(customizationActionOverrideSchema).readonly().optional(),
+  archived: customizationActorMetadataSchema.optional(),
+  baseMetadataFingerprint: z.string().trim().min(1).optional(),
+  companyId: z.string().trim().min(1).optional(),
+  created: customizationActorMetadataSchema.optional(),
+  description: z.string().trim().min(1).optional(),
+  entity: z.string().trim().min(1),
+  featureId: metadataIdSchema,
+  fields: z.array(customizationFieldOverrideSchema).readonly().optional(),
+  filters: z.array(customizationFilterOverrideSchema).readonly().optional(),
+  forms: z.array(customizationFormOverrideSchema).readonly().optional(),
+  id: metadataIdSchema,
+  presentation: customizationPresentationSchema.optional(),
+  published: customizationActorMetadataSchema.optional(),
+  rolledBack: customizationRollbackMetadataSchema.optional(),
+  sections: z.array(customizationSectionOverrideSchema).readonly().optional(),
+  scope: z.enum(["company", "tenant"]),
+  status: z.enum(["archived", "draft", "published"]).optional(),
+  table: customizationEntityTableOverrideSchema.optional(),
+  tables: z.array(customizationTableOverrideSchema).readonly().optional(),
+  tenantId: z.string().trim().min(1),
+  title: z.string().trim().min(1).optional(),
+  updated: customizationActorMetadataSchema.optional(),
+  version: z.number().int().positive().optional(),
+} satisfies z.ZodRawShape;
+
 export const customizationSchema = z
-  .object({
-    actions: z.array(customizationActionOverrideSchema).readonly().optional(),
-    archived: customizationActorMetadataSchema.optional(),
-    baseMetadataFingerprint: z.string().trim().min(1).optional(),
-    companyId: z.string().trim().min(1).optional(),
-    created: customizationActorMetadataSchema.optional(),
-    description: z.string().trim().min(1).optional(),
-    entity: z.string().trim().min(1),
-    featureId: metadataIdSchema,
-    fields: z.array(customizationFieldOverrideSchema).readonly().optional(),
-    filters: z.array(customizationFilterOverrideSchema).readonly().optional(),
-    forms: z.array(customizationFormOverrideSchema).readonly().optional(),
-    id: metadataIdSchema,
-    presentation: customizationPresentationSchema.optional(),
-    published: customizationActorMetadataSchema.optional(),
-    sections: z.array(customizationSectionOverrideSchema).readonly().optional(),
-    scope: z.enum(["company", "tenant"]),
-    status: z.enum(["archived", "draft", "published"]).optional(),
-    table: customizationEntityTableOverrideSchema.optional(),
-    tables: z.array(customizationTableOverrideSchema).readonly().optional(),
-    tenantId: z.string().trim().min(1),
-    title: z.string().trim().min(1).optional(),
-    updated: customizationActorMetadataSchema.optional(),
-    version: z.number().int().positive().optional(),
-  })
+  .object(customizationSchemaShape)
   .strict()
   .superRefine((customization, context) => {
-    if (customization.scope === "company" && !customization.companyId) {
-      context.addIssue({
-        code: "custom",
-        message: "company-scoped customization requires companyId",
-        path: ["companyId"],
-      });
-    }
-
-    if (customization.scope === "tenant" && customization.companyId) {
-      context.addIssue({
-        code: "custom",
-        message: "tenant-scoped customization must not include companyId",
-        path: ["companyId"],
-      });
-    }
-
-    if (customization.status === "published" && !customization.published) {
-      context.addIssue({
-        code: "custom",
-        message: "published customization requires published actor metadata",
-        path: ["published"],
-      });
-    }
-
-    if (customization.status === "archived" && !customization.archived) {
-      context.addIssue({
-        code: "custom",
-        message: "archived customization requires archived actor metadata",
-        path: ["archived"],
-      });
-    }
+    validateCustomizationScope(customization, context);
+    validateCustomizationLifecycle(customization, context);
 
     addDuplicateKeyIssues(customization.actions, context, ["actions"]);
     addDuplicateKeyIssues(customization.fields, context, ["fields"]);

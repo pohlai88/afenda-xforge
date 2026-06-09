@@ -1,6 +1,8 @@
 import type { MetadataFieldKind } from "../constants/field-kinds.ts";
+import type { MetadataFieldCustomizationPolicy } from "./customization-policy.contract.ts";
 
 export type MetadataFieldContract = {
+  customization?: MetadataFieldCustomizationPolicy;
   description?: string;
   kind: MetadataFieldKind;
   key: string;

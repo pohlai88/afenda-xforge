@@ -1,6 +1,10 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 import { resolveTenantSlugFromHost } from "../host.ts";
+import {
+  createTrustedTenantContext,
+  isTrustedTenantContext,
+} from "../trusted.ts";
 
 test("tenant host resolution rejects reserved and apex hosts", () => {
   assert.equal(resolveTenantSlugFromHost("example.com"), null);
@@ -25,5 +29,22 @@ test("tenant host resolution can be constrained to an app base domain", () => {
       appBaseDomain: "xforge.test",
     }),
     null
+  );
+});
+
+test("trusted tenant context is created by the auth factory", () => {
+  const trusted = createTrustedTenantContext({
+    channel: "webhook",
+    reason: "verified endpoint",
+    tenantId: "tenant-1",
+  });
+
+  assert.equal(isTrustedTenantContext(trusted), true);
+  assert.equal(
+    isTrustedTenantContext({
+      tenantId: "tenant-1",
+      __xforgeTrustedTenantContext: true,
+    }),
+    false
   );
 });

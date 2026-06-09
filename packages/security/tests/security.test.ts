@@ -2,6 +2,7 @@ import assert from "node:assert/strict";
 import test from "node:test";
 import {
   applySecurityCorsHeaders,
+  assessErpRequestBoundary,
   createContentSecurityPolicy,
   createCSRFDecision,
   createSecurityCorsConfig,
@@ -121,4 +122,77 @@ test("CSRF decision rejects unsafe missing token and rotates valid token", () =>
   assert.equal(decision.allow, true);
   assert.equal(decision.reason, "valid-token");
   assert.equal(typeof decision.token, "string");
+});
+
+test("ERP request boundary issues CSRF token for safe authenticated browser requests", () => {
+  const decision = assessErpRequestBoundary(
+    new Request("https://app.example.test/api/customers", {
+      headers: {
+        cookie: "sb-session=present",
+      },
+      method: "GET",
+    }),
+    {
+      csrf: {
+        secret: "csrf-secret-with-enough-length",
+        sessionId: "session-1",
+      },
+    }
+  );
+
+  assert.equal(decision.allow, true);
+  assert.equal(decision.cookies.length, 1);
+  assert.equal(decision.cookies[0]?.name, "xforge_csrf");
+});
+
+test("ERP request boundary rejects unsafe browser requests without double-submit token", () => {
+  const decision = assessErpRequestBoundary(
+    new Request("https://app.example.test/api/customers", {
+      headers: {
+        cookie: "sb-session=present",
+        origin: "https://app.example.test",
+      },
+      method: "POST",
+    }),
+    {
+      csrf: {
+        secret: "csrf-secret-with-enough-length",
+        sessionId: "session-1",
+      },
+    }
+  );
+
+  assert.equal(decision.allow, false);
+  assert.equal(decision.reason, "csrf-double-submit-mismatch");
+});
+
+test("ERP request boundary allows valid unsafe browser double-submit token", () => {
+  const token = createSignedCSRFToken({
+    now: 1000,
+    secret: "csrf-secret-with-enough-length",
+    sessionId: "session-1",
+    userId: "user-1",
+  });
+  const decision = assessErpRequestBoundary(
+    new Request("https://app.example.test/api/customers", {
+      headers: {
+        cookie: `xforge_csrf=${encodeURIComponent(token)}`,
+        origin: "https://app.example.test",
+        "x-csrf-token": token,
+      },
+      method: "POST",
+    }),
+    {
+      csrf: {
+        secret: "csrf-secret-with-enough-length",
+        sessionId: "session-1",
+        userId: "user-1",
+      },
+      now: 2000,
+    }
+  );
+
+  assert.equal(decision.allow, true);
+  assert.equal(decision.reason, "valid-token");
+  assert.equal(decision.cookies.length, 1);
 });

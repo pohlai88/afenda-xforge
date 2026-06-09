@@ -14,7 +14,9 @@ import {
 } from "../../../packages/features/hr-suite/employee-management/documents-management/src/repository.ts";
 import {
   resetDocumentsManagementBlobClientForTesting,
+  resetDocumentsManagementStorageProviderForTesting,
   setDocumentsManagementBlobClientForTesting,
+  setDocumentsManagementStorageProviderForTesting,
 } from "../app/api/hr/documents/_lib/storage.ts";
 import { GET as downloadDocumentRoute } from "../app/api/hr/documents/[documentId]/download/route.ts";
 import { GET as getDocumentRoute } from "../app/api/hr/documents/[documentId]/route.ts";
@@ -24,6 +26,7 @@ import {
   GET as getDocumentsRoute,
   POST as postDocumentsRoute,
 } from "../app/api/hr/documents/route.ts";
+import { POST as postDocumentUploadRoute } from "../app/api/hr/documents/upload/route.ts";
 
 let sandboxDirectory: string;
 let blobContents: Map<string, { contentType: string; payload: Uint8Array }>;
@@ -56,6 +59,7 @@ beforeEach(() => {
   const repositoryPath = join(sandboxDirectory, "repository.json");
   blobContents = new Map();
 
+  setDocumentsManagementStorageProviderForTesting("blob");
   setDocumentsManagementRepositoryPathForTesting(repositoryPath);
   resetDocumentsManagementRepositoryForTesting();
   setDocumentsManagementBlobClientForTesting({
@@ -107,11 +111,29 @@ beforeEach(() => {
         url: `https://blob.local/${key}`,
       };
     },
+    uploadToken({ body, onBeforeGenerateToken, onUploadCompleted }) {
+      if (body.type === "blob.generate-client-token") {
+        return onBeforeGenerateToken(
+          body.payload.pathname,
+          body.payload.clientPayload ?? null,
+          body.payload.multipart
+        ).then(() => ({
+          clientToken: "test-client-token",
+          type: "blob.generate-client-token",
+        }));
+      }
+
+      return Promise.resolve(onUploadCompleted?.(body.payload)).then(() => ({
+        response: "ok" as const,
+        type: "blob.upload-completed" as const,
+      }));
+    },
   });
 });
 
 afterEach(() => {
   resetDocumentsManagementBlobClientForTesting();
+  resetDocumentsManagementStorageProviderForTesting();
   rmSync(sandboxDirectory, { recursive: true, force: true });
 });
 
@@ -349,12 +371,172 @@ test("uploads a document through the API and downloads the stored binary", async
   assert.equal(await downloadResponse.text(), "passport-binary");
 });
 
+test("issues a blob client upload token for direct browser uploads", async () => {
+  const tokenResponse = await postDocumentUploadRoute(
+    new Request("http://localhost/api/hr/documents/upload", {
+      body: JSON.stringify({
+        payload: {
+          clientPayload: JSON.stringify({
+            documentCategory: "identity",
+            documentType: "passport",
+            employeeId: "employee-upload",
+            fileName: "passport.pdf",
+            sizeBytes: 15,
+            title: "Passport Upload",
+          }),
+          multipart: false,
+          pathname: "hr/documents/tenant-a/employee-upload/passport.pdf",
+        },
+        type: "blob.generate-client-token",
+      }),
+      headers: {
+        ...baseHeaders,
+        "content-type": "application/json",
+        "x-can-write-documents": "true",
+      },
+      method: "POST",
+    })
+  );
+
+  assert.equal(tokenResponse.status, 200);
+  assert.deepEqual(await tokenResponse.json(), {
+    clientToken: "test-client-token",
+    type: "blob.generate-client-token",
+  });
+});
+
+test("acknowledges blob upload completion without duplicating registration", async () => {
+  const storagePath = "hr/documents/tenant-a/employee-callback/passport.pdf";
+  blobContents.set(storagePath, {
+    contentType: "application/pdf",
+    payload: new TextEncoder().encode("passport-binary"),
+  });
+
+  const completionResponse = await postDocumentUploadRoute(
+    new Request("http://localhost/api/hr/documents/upload", {
+      body: JSON.stringify({
+        payload: {
+          blob: {
+            contentType: "application/pdf",
+            pathname: storagePath,
+          },
+          tokenPayload: JSON.stringify({
+            context: {
+              actorId: "actor-a",
+              canRead: true,
+              canViewSensitive: false,
+              canWrite: true,
+              companyId: "company-a",
+              requestId: "request-a",
+              tenantId: "tenant-a",
+            },
+            document: {
+              documentCategory: "identity",
+              documentType: "passport",
+              employeeId: "employee-callback",
+              fileName: "passport.pdf",
+              sizeBytes: 15,
+              title: "Passport Callback Upload",
+            },
+          }),
+        },
+        type: "blob.upload-completed",
+      }),
+      headers: {
+        ...baseHeaders,
+        "content-type": "application/json",
+      },
+      method: "POST",
+    })
+  );
+
+  assert.equal(completionResponse.status, 200);
+  assert.deepEqual(await completionResponse.json(), {
+    response: "ok",
+    type: "blob.upload-completed",
+  });
+
+  const listResponse = await getDocumentsRoute(
+    buildRequest("/api/hr/documents?employeeId=employee-callback")
+  );
+
+  assert.equal(listResponse.status, 200);
+
+  const documents = (await listResponse.json()) as Array<{ title: string }>;
+
+  assert.equal(documents.length, 0);
+});
+
+test("registers a document from a pre-uploaded storage reference", async () => {
+  const storagePath = "hr/documents/tenant-a/employee-direct/passport.pdf";
+  blobContents.set(storagePath, {
+    contentType: "application/pdf",
+    payload: new TextEncoder().encode("passport-binary"),
+  });
+
+  const formData = new FormData();
+  formData.set("contentType", "application/pdf");
+  formData.set("documentCategory", "identity");
+  formData.set("documentType", "passport");
+  formData.set("employeeId", "employee-direct");
+  formData.set("fileName", "passport.pdf");
+  formData.set("sizeBytes", "15");
+  formData.set("storagePath", storagePath);
+  formData.set("title", "Passport Direct Upload");
+
+  const uploadResponse = await postDocumentsRoute(
+    new Request("http://localhost/api/hr/documents", {
+      body: formData,
+      headers: {
+        ...baseHeaders,
+        "x-can-write-documents": "true",
+      },
+      method: "POST",
+    })
+  );
+
+  assert.equal(uploadResponse.status, 201);
+
+  const createdDocument = (await uploadResponse.json()) as {
+    id: string;
+    reference: {
+      contentType?: string | null;
+      fileName?: string | null;
+      sizeBytes?: number | null;
+      storagePath?: string | null;
+    };
+  };
+
+  assert.equal(createdDocument.reference.contentType, "application/pdf");
+  assert.equal(createdDocument.reference.fileName, "passport.pdf");
+  assert.equal(createdDocument.reference.sizeBytes, 15);
+  assert.equal(createdDocument.reference.storagePath, storagePath);
+
+  const downloadResponse = await downloadDocumentRoute(
+    buildRequest(`/api/hr/documents/${createdDocument.id}/download`),
+    {
+      params: Promise.resolve({ documentId: createdDocument.id }),
+    }
+  );
+
+  assert.equal(downloadResponse.status, 200);
+  assert.equal(downloadResponse.headers.get("content-type"), "application/pdf");
+  assert.match(
+    downloadResponse.headers.get("content-disposition") ?? "",
+    /attachment;\sfilename="passport\.pdf"/
+  );
+  assert.equal(await downloadResponse.text(), "passport-binary");
+});
+
 test("surfaces blob storage failures as service-unavailable responses", async () => {
   setDocumentsManagementBlobClientForTesting({
     download() {
       return Promise.reject(new Error("blob unavailable"));
     },
     upload() {
+      return Promise.reject(new Error("blob unavailable"));
+    },
+    uploadToken() {
       return Promise.reject(new Error("blob unavailable"));
     },
   });

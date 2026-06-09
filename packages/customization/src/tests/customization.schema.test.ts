@@ -106,6 +106,15 @@ test("customizationSchema rejects empty tenant ids", () => {
   });
 });
 
+test("customizationSchema rejects unknown properties", () => {
+  assert.throws(() => {
+    customizationSchema.parse({
+      ...validCustomization,
+      unexpected: true,
+    });
+  });
+});
+
 test("customizationSchema rejects unsupported scopes", () => {
   assert.throws(() => {
     customizationSchema.parse({
@@ -166,10 +175,11 @@ test("customizationSchema enforces lifecycle actor metadata", () => {
       status: "published",
       version: 1,
     });
-  }, /published customization requires published actor metadata/);
+  }, /requires/);
 
   const parsed = customizationSchema.parse({
     ...validCustomization,
+    baseMetadataFingerprint: "customer.records@2026-06-09",
     status: "published",
     version: 1,
     created: {
@@ -180,8 +190,40 @@ test("customizationSchema enforces lifecycle actor metadata", () => {
       at: "2026-06-09T00:00:00.000Z",
       by: "admin-user",
     },
+    updated: {
+      at: "2026-06-09T00:00:00.000Z",
+      by: "admin-user",
+    },
   });
 
   assert.equal(parsed.status, "published");
   assert.equal(parsed.version, 1);
+});
+
+test("customizationSchema accepts rollback metadata for rollback-ready versions", () => {
+  const parsed = customizationSchema.parse({
+    ...validCustomization,
+    baseMetadataFingerprint: "customer.records@2026-06-09",
+    created: {
+      at: "2026-06-09T00:00:00.000Z",
+      by: "admin-user",
+    },
+    updated: {
+      at: "2026-06-09T00:00:00.000Z",
+      by: "admin-user",
+    },
+    rolledBack: {
+      at: "2026-06-09T00:00:00.000Z",
+      by: "admin-user",
+      fromVersion: 2,
+    },
+    status: "published",
+    version: 3,
+    published: {
+      at: "2026-06-09T00:00:00.000Z",
+      by: "admin-user",
+    },
+  });
+
+  assert.equal(parsed.rolledBack?.fromVersion, 2);
 });

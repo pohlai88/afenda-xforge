@@ -1,4 +1,7 @@
-export { createRateLimitHeaders } from "./headers.ts";
+export {
+  applyRateLimitHeaders,
+  createRateLimitHeaders,
+} from "./headers.ts";
 export type { RateLimitKeys } from "./keys.ts";
 export { keys, loadRateLimitKeys } from "./keys.ts";
 export type {
@@ -23,6 +26,7 @@ export {
   resolveRateLimitKey,
 } from "./policy.ts";
 export type {
+  ConfiguredRateLimitProviderOptions,
   RateLimitProvider,
   RateLimitProviderInput,
   RateLimitProviderResult,
@@ -33,6 +37,7 @@ export {
   createNoopRateLimitProvider,
   createRedisRateLimitProvider,
 } from "./provider.ts";
+export type { RateLimitRequestOptions } from "./request.ts";
 export {
   createRateLimitContextFromRequest,
   getClientIp,

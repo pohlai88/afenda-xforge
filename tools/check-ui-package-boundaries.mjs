@@ -41,7 +41,11 @@ const appRoots = existsSync(path.join(root, "apps"))
   : [];
 
 const allowedWorkspaceDependenciesByPackage = {
-  "@repo/customization": new Set(["@repo/metadata", "@repo/typescript-config"]),
+  "@repo/customization": new Set([
+    "@repo/metadata",
+    "@repo/shared",
+    "@repo/typescript-config",
+  ]),
   "@repo/design-system": new Set(["@repo/typescript-config"]),
   "@repo/metadata": new Set(["@repo/typescript-config"]),
   "@repo/metadata-ui": new Set([
@@ -241,7 +245,8 @@ function checkCrossPackageImports(filePath, packageKind, specifier) {
   }
 
   if (
-    relativePath === "packages/metadata-ui/tests/public-api-consumer.render.test.tsx" &&
+    relativePath ===
+      "packages/metadata-ui/tests/public-api-consumer.render.test.tsx" &&
     (specifier === "@repo/metadata-ui" ||
       specifier.startsWith("@repo/metadata-ui/"))
   ) {
@@ -294,12 +299,12 @@ function checkCrossPackageImports(filePath, packageKind, specifier) {
   if (
     packageKind === "customization" &&
     specifier.startsWith("@repo/") &&
-    !["@repo/metadata"].some(
+    !["@repo/metadata", "@repo/shared"].some(
       (allowed) => specifier === allowed || specifier.startsWith(`${allowed}/`)
     )
   ) {
     addViolation(
-      `${relativePath}: @repo/customization must only import @repo/metadata, not ${specifier}`
+      `${relativePath}: @repo/customization must only import @repo/metadata or @repo/shared, not ${specifier}`
     );
   }
 }

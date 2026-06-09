@@ -96,6 +96,7 @@ const buildPackageJson = ({ packageName }) => `{
     "./manifest": "./src/manifest.ts",
     "./metadata": "./src/metadata.ts",
     "./schema": "./src/schema.ts",
+    "./search": "./src/search.ts",
     "./server": "./src/server.ts",
     "./package.json": "./package.json"
   },
@@ -110,6 +111,7 @@ const buildPackageJson = ({ packageName }) => `{
     "typecheck": "tsc --noEmit --emitDeclarationOnly false"
   },
   "dependencies": {
+    "@repo/search": "workspace:*",
     "server-only": "catalog:"
   },
   "devDependencies": {
@@ -141,13 +143,25 @@ import "server-only";
 export type {
   Create${featurePascal}Input,
   ${featurePascal}Record,
+  ${featurePascal}SearchDocument,
+  ${featurePascal}SearchSourceRecord,
   List${featurePascal}Query,
+  Search${featurePascal}RecordsInput,
   Update${featurePascal}Input,
 } from "./contract.ts";
 export type { HrSuiteFeatureContext } from "./feature-scope.ts";
 export { ${featureCamel}FeatureScope } from "./feature-scope.ts";
 export { ${featureCamel}Manifest } from "./manifest.ts";
 export { ${featureCamel}Metadata } from "./metadata.ts";
+export {
+  ${featureCamel}SearchIndexDefinition,
+  ${featureCamel}SearchIndexKey,
+  ensure${featurePascal}SearchIndexRegistered,
+  remove${featurePascal}SearchRecord,
+  search${featurePascal}Records,
+  sync${featurePascal}SearchRecord,
+  to${featurePascal}SearchDocument,
+} from "./search.ts";
 export {
   create${featurePascal},
   get${featurePascal},
@@ -170,10 +184,40 @@ export type ${featurePascal}Record = {
   status: ${featurePascal}Status;
 };
 
+export type ${featurePascal}SearchSourceRecord = ${featurePascal}Record & {
+  companyId?: string | null;
+  tenantId?: string;
+};
+
 export type List${featurePascal}Query = {
   page?: number;
   pageSize?: number;
   search?: string;
+};
+
+export type Search${featurePascal}RecordsInput = {
+  companyId?: string;
+  filter?: string | string[];
+  limit?: number;
+  offset?: number;
+  query: string;
+  status?: ${featurePascal}Status;
+  tenantId?: string;
+};
+
+export type ${featurePascal}SearchDocument = {
+  companyId?: string | null;
+  description: string;
+  id: string;
+  metadata: {
+    companyId?: string | null;
+    featureId: string;
+    status: ${featurePascal}Status;
+  };
+  name: string;
+  status: ${featurePascal}Status;
+  tenantId: string;
+  title: string;
 };
 
 export type Create${featurePascal}Input = {
@@ -302,12 +346,13 @@ import type {
 import { run${featurePascal}Mutation } from "./execution.ts";
 import type { HrSuiteFeatureContext } from "./feature-scope.ts";
 import { upsert${featurePascal}RepositoryRecord } from "./repository.ts";
+import { sync${featurePascal}SearchRecord } from "./search.ts";
 
 export async function create${featurePascal}Record(
   input: Create${featurePascal}Input,
   _context?: HrSuiteFeatureContext
 ): Promise<${featurePascal}Record> {
-  return run${featurePascal}Mutation(
+  const record = await run${featurePascal}Mutation(
     async () =>
       upsert${featurePascal}RepositoryRecord({
         id: randomUUID(),
@@ -316,13 +361,16 @@ export async function create${featurePascal}Record(
       }),
     _context
   );
+
+  await sync${featurePascal}SearchRecord(record, _context);
+  return record;
 }
 
 export async function update${featurePascal}Record(
   input: Update${featurePascal}Input,
   _context?: HrSuiteFeatureContext
 ): Promise<${featurePascal}Record> {
-  return run${featurePascal}Mutation(
+  const record = await run${featurePascal}Mutation(
     async () =>
       upsert${featurePascal}RepositoryRecord({
         id: input.id,
@@ -331,6 +379,9 @@ export async function update${featurePascal}Record(
       }),
     _context
   );
+
+  await sync${featurePascal}SearchRecord(record, _context);
+  return record;
 }
 `;
 
@@ -345,6 +396,15 @@ export {
   get${featurePascal}Record as get${featurePascal},
   list${featurePascal}Records as list${featurePascal},
 } from "./queries.ts";
+export {
+  ${featureCamel}SearchIndexDefinition,
+  ${featureCamel}SearchIndexKey,
+  ensure${featurePascal}SearchIndexRegistered,
+  remove${featurePascal}SearchRecord,
+  search${featurePascal}Records,
+  sync${featurePascal}SearchRecord,
+  to${featurePascal}SearchDocument,
+} from "./search.ts";
 `;
 
 const buildFeatureScope = ({
@@ -405,6 +465,194 @@ export function upsert${featurePascal}RepositoryRecord(
 ): ${featurePascal}Record {
   records.set(record.id, record);
   return record;
+}
+`;
+
+const buildSearch = ({
+  domain,
+  featureCamel,
+  feature,
+  featurePascal,
+}) => `import "server-only";
+
+import {
+  getSearchIndexDefinition,
+  registerSearchIndex,
+  type SearchIndexDefinition,
+  type SearchResult,
+} from "@repo/search";
+import {
+  createMeilisearchIndexer,
+  createMeilisearchSearchClient,
+} from "@repo/search/meilisearch";
+import type {
+  ${featurePascal}SearchDocument,
+  ${featurePascal}SearchSourceRecord,
+  Search${featurePascal}RecordsInput,
+} from "./contract.ts";
+import { ${featureCamel}FeatureId } from "./contract.ts";
+import type { HrSuiteFeatureContext } from "./feature-scope.ts";
+
+export const ${featureCamel}SearchIndexKey =
+  "hr_suite_${domain}_${feature}" as const;
+
+const build${featurePascal}SearchIndexDefinition = (): SearchIndexDefinition => ({
+  key: ${featureCamel}SearchIndexKey,
+  primaryKey: "id",
+  filterableAttributes: ["tenantId", "companyId", "status"],
+  searchableAttributes: ["name", "title", "description", "status"],
+  sortableAttributes: ["name", "status"],
+});
+
+export const ${featureCamel}SearchIndexDefinition =
+  getSearchIndexDefinition(${featureCamel}SearchIndexKey) ??
+  registerSearchIndex(build${featurePascal}SearchIndexDefinition());
+
+export function ensure${featurePascal}SearchIndexRegistered(): SearchIndexDefinition {
+  return ${featureCamel}SearchIndexDefinition;
+}
+
+const resolveTenantId = (
+  record: ${featurePascal}SearchSourceRecord,
+  context?: HrSuiteFeatureContext
+): string | null => {
+  const tenantId = record.tenantId?.trim() || context?.tenantId?.trim();
+  return tenantId && tenantId.length > 0 ? tenantId : null;
+};
+
+const resolveCompanyId = (
+  record: ${featurePascal}SearchSourceRecord,
+  context?: HrSuiteFeatureContext
+): string | null | undefined => {
+  const companyId = record.companyId ?? context?.companyId;
+
+  if (typeof companyId !== "string") {
+    return companyId ?? undefined;
+  }
+
+  const normalizedCompanyId = companyId.trim();
+  return normalizedCompanyId.length > 0 ? normalizedCompanyId : undefined;
+};
+
+const escapeFilterValue = (value: string): string =>
+  value.replaceAll("\\\\", "\\\\\\\\").replaceAll('"', '\\\\\\"');
+
+const logSearchSyncFailure = (action: string, error: unknown): void => {
+  console.warn(
+    \`[\${${featureCamel}FeatureId}] Search sync skipped while trying to \${action}.\`,
+    error
+  );
+};
+
+const buildSearchFilters = (
+  input: Search${featurePascal}RecordsInput,
+  context?: HrSuiteFeatureContext
+): string[] | undefined => {
+  const filters: string[] = [];
+  const tenantId = input.tenantId?.trim() || context?.tenantId?.trim();
+  const companyId = input.companyId?.trim() || context?.companyId?.trim();
+
+  if (tenantId) {
+    filters.push(\`tenantId = "\${escapeFilterValue(tenantId)}"\`);
+  }
+
+  if (companyId) {
+    filters.push(\`companyId = "\${escapeFilterValue(companyId)}"\`);
+  }
+
+  if (input.status) {
+    filters.push(\`status = "\${escapeFilterValue(input.status)}"\`);
+  }
+
+  if (input.filter) {
+    if (Array.isArray(input.filter)) {
+      filters.push(...input.filter);
+    } else {
+      filters.push(input.filter);
+    }
+  }
+
+  return filters.length > 0 ? filters : undefined;
+};
+
+export function to${featurePascal}SearchDocument(
+  record: ${featurePascal}SearchSourceRecord,
+  context?: HrSuiteFeatureContext
+): ${featurePascal}SearchDocument {
+  const tenantId = resolveTenantId(record, context);
+
+  if (!tenantId) {
+    throw new Error(
+      \`[\${${featureCamel}FeatureId}] Search documents require a tenantId.\`
+    );
+  }
+
+  const companyId = resolveCompanyId(record, context);
+
+  return {
+    companyId,
+    description: \`\${record.name} (\${record.status})\`,
+    id: record.id,
+    metadata: {
+      companyId,
+      featureId: ${featureCamel}FeatureId,
+      status: record.status,
+    },
+    name: record.name,
+    status: record.status,
+    tenantId,
+    title: record.name,
+  };
+}
+
+export async function sync${featurePascal}SearchRecord(
+  record: ${featurePascal}SearchSourceRecord,
+  context?: HrSuiteFeatureContext
+): Promise<void> {
+  if (!resolveTenantId(record, context)) {
+    return;
+  }
+
+  ensure${featurePascal}SearchIndexRegistered();
+
+  try {
+    await createMeilisearchIndexer().indexDocument(
+      ${featureCamel}SearchIndexKey,
+      to${featurePascal}SearchDocument(record, context)
+    );
+  } catch (error) {
+    logSearchSyncFailure(\`index record "\${record.id}"\`, error);
+  }
+}
+
+export async function remove${featurePascal}SearchRecord(
+  recordId: string
+): Promise<void> {
+  ensure${featurePascal}SearchIndexRegistered();
+
+  try {
+    await createMeilisearchIndexer().removeDocument(
+      ${featureCamel}SearchIndexKey,
+      recordId
+    );
+  } catch (error) {
+    logSearchSyncFailure(\`remove record "\${recordId}"\`, error);
+  }
+}
+
+export async function search${featurePascal}Records(
+  input: Search${featurePascal}RecordsInput,
+  context?: HrSuiteFeatureContext
+): Promise<SearchResult<${featurePascal}SearchDocument>[]> {
+  ensure${featurePascal}SearchIndexRegistered();
+
+  return createMeilisearchSearchClient().search<${featurePascal}SearchDocument>({
+    filter: buildSearchFilters(input, context),
+    indices: [${featureCamel}SearchIndexKey],
+    limit: input.limit,
+    offset: input.offset,
+    query: input.query,
+  });
 }
 `;
 
@@ -525,6 +773,10 @@ for (const [domain, features] of Object.entries(domainInventory)) {
     await writeTextFile(
       path.join(absolutePackagePath, "src/server.ts"),
       buildServer({ featureCamel, featurePascal })
+    );
+    await writeTextFile(
+      path.join(absolutePackagePath, "src/search.ts"),
+      buildSearch({ domain, feature, featureCamel, featurePascal })
     );
     await writeTextFile(
       path.join(absolutePackagePath, "src/feature-scope.ts"),

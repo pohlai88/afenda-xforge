@@ -180,6 +180,43 @@ const mergeActions = (
     placement: override.placement ?? action.placement,
   }));
 
+const sanitizeSectionFieldKeys = (
+  sections: readonly MetadataSectionContract[] | undefined,
+  visibleFieldKeys: ReadonlySet<string> | undefined
+): readonly MetadataSectionContract[] | undefined => {
+  if (!(sections && visibleFieldKeys)) {
+    return sections;
+  }
+
+  return sections.map((section) => ({
+    ...section,
+    fieldKeys: section.fieldKeys.filter((fieldKey) =>
+      visibleFieldKeys.has(fieldKey)
+    ),
+  }));
+};
+
+const sanitizeFormReferences = (
+  forms: readonly MetadataFormContract[] | undefined,
+  visibleFieldKeys: ReadonlySet<string> | undefined,
+  visibleSectionKeys: ReadonlySet<string> | undefined
+): readonly MetadataFormContract[] | undefined => {
+  if (!(forms && (visibleFieldKeys || visibleSectionKeys))) {
+    return forms;
+  }
+
+  return forms.map((form) => ({
+    ...form,
+    fieldKeys: visibleFieldKeys
+      ? form.fieldKeys.filter((fieldKey) => visibleFieldKeys.has(fieldKey))
+      : form.fieldKeys,
+    sectionKeys: form.sectionKeys?.filter(
+      (sectionKey) =>
+        !(visibleSectionKeys && !visibleSectionKeys.has(sectionKey))
+    ),
+  }));
+};
+
 export const resolveCustomizedMetadata = (
   metadata: MetadataFeatureContract,
   customization?: CustomizationContract | null,
@@ -193,18 +230,36 @@ export const resolveCustomizedMetadata = (
     assertCustomizationMatchesMetadata(customization, metadata, options);
   }
 
+  const fields = mergeFields(metadata.fields, customization.fields);
+  const sections = mergeSections(metadata.sections, customization.sections);
+  const visibleFieldKeys = fields
+    ? new Set(fields.map((field) => field.key))
+    : undefined;
+  const sanitizedSections = sanitizeSectionFieldKeys(
+    sections,
+    visibleFieldKeys
+  );
+  const visibleSectionKeys = sanitizedSections
+    ? new Set(sanitizedSections.map((section) => section.key))
+    : undefined;
+  const forms = sanitizeFormReferences(
+    mergeForms(metadata.forms, customization.forms),
+    visibleFieldKeys,
+    visibleSectionKeys
+  );
+
   return {
     ...metadata,
     actions: mergeActions(metadata.actions, customization.actions),
     description: customization.description ?? metadata.description,
-    fields: mergeFields(metadata.fields, customization.fields),
+    fields,
     filters: mergeFilters(metadata.filters, customization.filters),
-    forms: mergeForms(metadata.forms, customization.forms),
+    forms,
     presentation: {
       ...metadata.presentation,
       ...customization.presentation,
     },
-    sections: mergeSections(metadata.sections, customization.sections),
+    sections: sanitizedSections,
     tables: mergeTables(metadata.tables, customization.tables),
     title: customization.title ?? metadata.title,
   };
@@ -223,18 +278,36 @@ export const resolveCustomizedEntityMetadata = (
     assertCustomizationMatchesMetadata(customization, metadata, options);
   }
 
+  const fields = mergeFields(metadata.fields, customization.fields);
+  const sections = mergeSections(metadata.sections, customization.sections);
+  const visibleFieldKeys = fields
+    ? new Set(fields.map((field) => field.key))
+    : undefined;
+  const sanitizedSections = sanitizeSectionFieldKeys(
+    sections,
+    visibleFieldKeys
+  );
+  const visibleSectionKeys = sanitizedSections
+    ? new Set(sanitizedSections.map((section) => section.key))
+    : undefined;
+  const forms = sanitizeFormReferences(
+    mergeForms(metadata.forms, customization.forms),
+    visibleFieldKeys,
+    visibleSectionKeys
+  );
+
   return {
     ...metadata,
     actions: mergeActions(metadata.actions, customization.actions),
     description: customization.description ?? metadata.description,
-    fields: mergeFields(metadata.fields, customization.fields),
+    fields,
     filters: mergeFilters(metadata.filters, customization.filters),
-    forms: mergeForms(metadata.forms, customization.forms),
+    forms,
     presentation: {
       ...metadata.presentation,
       ...customization.presentation,
     },
-    sections: mergeSections(metadata.sections, customization.sections),
+    sections: sanitizedSections,
     table: metadata.table
       ? {
           ...metadata.table,

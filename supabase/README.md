@@ -44,7 +44,9 @@ To complete email-based auth flows in the Supabase dashboard, update the Auth em
    - `NEXT_PUBLIC_SUPABASE_URL`
    - `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY`
    - optional `NEXT_PUBLIC_SUPABASE_NOTIFICATIONS_CHANNEL_PREFIX`
+   - optional `SUPABASE_NOTIFICATIONS_CHANNEL_PREFIX`
    - optional `SUPABASE_NOTIFICATIONS_EDGE_FUNCTION`
+   - when customizing the notifications channel prefix, set the same value in both prefix variables so the browser client and edge function stay aligned
 7. Authenticate the Supabase MCP client after `.mcp.json` is present.
 
 ## MCP

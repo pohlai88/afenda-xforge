@@ -95,4 +95,5 @@ export {
   documentsManagementRoutePaths,
   hrEmployeeDetailRoutePath,
   hrTenantDocumentDownloadPath,
+  hrTenantDocumentUploadPath,
 } from "./route.contract.ts";

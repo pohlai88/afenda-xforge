@@ -1,7 +1,7 @@
 import {
   metadataConsumerScenarioMatrix,
   runPublicApiConsumerSmoke,
-} from "../fixtures/public-api-consumer.tsx";
+} from "../fixtures/public-api-consumer";
 
 const result = runPublicApiConsumerSmoke();
 const violations: string[] = [];
@@ -16,21 +16,9 @@ if (result.qualityGrade !== "A") {
   );
 }
 
-if (result.formType !== "form") {
+if (!result.containsSearchPlaceholder) {
   violations.push(
-    "MetadataForm did not resolve to a form root for the consumer fixture"
-  );
-}
-
-if (result.sectionStackType !== "div") {
-  violations.push(
-    "MetadataSectionStack did not resolve to the expected consumer root element"
-  );
-}
-
-if (result.stateBoundaryType === null) {
-  violations.push(
-    "MetadataStateBoundary did not return a renderable consumer element"
+    "public consumer fixture did not render the metadata search placeholder"
   );
 }
 
@@ -69,6 +57,12 @@ for (const scenario of metadataConsumerScenarioMatrix) {
   if (!observedScenario.sectionText.includes("Records")) {
     violations.push(
       `scenario '${scenario.id}' did not render the metadata section stack`
+    );
+  }
+
+  if (!observedScenario.containsSearchPlaceholder) {
+    violations.push(
+      `scenario '${scenario.id}' did not render a searchable metadata table surface`
     );
   }
 
