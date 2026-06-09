@@ -1,5 +1,7 @@
 import "server-only";
 
+import type { EmployeeLifecycleTransitionRequest } from "./contracts/transition.contract.ts";
+import { employeeLifecycleTransitionRequestSchema } from "./contracts/transition.contract.ts";
 import type {
   EmployeeLifecycleRepositoryScope,
   EmployeeLifecycleRepositoryState,
@@ -1900,6 +1902,67 @@ export function archiveEmployeeLifecycleExit(
   return employeeLifecycleExitReadModelSchema.parse(readModel);
 }
 
+export function transitionEmployeeLifecycleState(
+  input: EmployeeLifecycleTransitionRequest,
+  scope?: EmployeeLifecycleRepositoryScope
+): EmployeeLifecycleState {
+  const parsedInput = employeeLifecycleTransitionRequestSchema.parse(input);
+  const effectiveAt = parsedInput.effectiveAt ?? new Date();
+  const recordedAt = parsedInput.recordedAt ?? effectiveAt;
+  let nextState: EmployeeLifecycleState | null = null;
+
+  mutateEmployeeLifecycleRepository((draft) => {
+    const stateIndex = draft.states.findIndex(
+      (state) => state.employeeId === parsedInput.employeeId
+    );
+    if (stateIndex < 0) {
+      throw new Error(
+        `Lifecycle state not found for employee ${parsedInput.employeeId}.`
+      );
+    }
+
+    const currentState = draft.states[stateIndex];
+    if (
+      parsedInput.companyId &&
+      currentState.companyId &&
+      parsedInput.companyId !== currentState.companyId
+    ) {
+      throw new Error(
+        "Transition input companyId does not match repository state"
+      );
+    }
+
+    if (
+      parsedInput.tenantId &&
+      currentState.tenantId &&
+      parsedInput.tenantId !== currentState.tenantId
+    ) {
+      throw new Error(
+        "Transition input tenantId does not match repository state"
+      );
+    }
+
+    nextState = applyEmployeeLifecycleTransition(currentState, {
+      toStage: parsedInput.toStage,
+      effectiveAt,
+      recordedAt,
+      actorId: parsedInput.actorId ?? undefined,
+      reason: parsedInput.reason ?? null,
+      approvalReference: parsedInput.approvalReference ?? null,
+      metadata: parsedInput.metadata,
+    });
+    draft.states[stateIndex] = nextState;
+  }, scope);
+
+  if (!nextState) {
+    throw new Error(
+      `Employee lifecycle transition could not be applied for ${parsedInput.employeeId}.`
+    );
+  }
+
+  return nextState;
+}
+
 export const employeeLifecycleExitActionCatalog = {
   startResignation: "startEmployeeLifecycleResignation",
   startTermination: "startEmployeeLifecycleTermination",
@@ -1907,4 +1970,8 @@ export const employeeLifecycleExitActionCatalog = {
   recordNotice: "recordEmployeeLifecycleExitNotice",
   triggerOffboarding: "triggerEmployeeLifecycleOffboarding",
   archive: "archiveEmployeeLifecycleExit",
+} as const;
+
+export const employeeLifecycleTransitionActionCatalog = {
+  transition: "transitionEmployeeLifecycleState",
 } as const;

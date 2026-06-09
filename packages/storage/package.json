@@ -7,6 +7,7 @@
     ".": "./index.ts",
     "./blob": "./blob/index.ts",
     "./blob/client": "./blob/client.ts",
+    "./blob/keys": "./blob/keys.ts",
     "./r2": "./r2/index.ts",
     "./r2/keys": "./r2/keys.ts",
     "./types": "./types.ts",

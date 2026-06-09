@@ -9,6 +9,8 @@
     "./contract": "./src/contract.ts",
     "./feature-scope": "./src/feature-scope.ts",
     "./identity": "./src/identity.ts",
+    "./policy": "./src/policy.ts",
+    "./projector": "./src/projector.ts",
     "./repository": "./src/repository.ts",
     "./queries": "./src/queries.ts",
     "./schema": "./src/schema.ts",

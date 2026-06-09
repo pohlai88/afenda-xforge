@@ -3,10 +3,12 @@ import "server-only";
 import {
   hrOrgAuditEventProjectionSchema,
   hrOrgChartNodeProjectionSchema,
+  hrOrgHeadcountProjectionSchema,
   hrOrgOverviewProjectionSchema,
   hrOrgPositionProjectionSchema,
   hrOrgReportingRelationshipProjectionSchema,
   hrOrgUnitProjectionSchema,
+  hrOrgVacancyProjectionSchema,
 } from "../contracts/index.ts";
 import type {
   HrOrgAuditTrailListRow,
@@ -19,9 +21,12 @@ import type {
   HrOrgVacancyListRow,
 } from "../contracts/org-model.contract.ts";
 import type {
+  ListHrOrgAuditQuery,
+  ListHrOrgHeadcountQuery,
   ListHrOrgPositionsQuery,
   ListHrOrgReportingRelationshipsQuery,
   ListHrOrgUnitsQuery,
+  ListHrOrgVacanciesQuery,
 } from "../contracts/query.contract.ts";
 import { canReadHrOrg } from "../policy.ts";
 import { hrOrgStore } from "../store.ts";
@@ -138,6 +143,93 @@ const resolveReportingLineListInvocation = (
     query:
       queryOrContext && typeof queryOrContext === "object"
         ? (queryOrContext as ListHrOrgReportingRelationshipsQuery)
+        : {},
+  };
+};
+
+const resolveVacancyListInvocation = (
+  queryOrContext?: ListHrOrgVacanciesQuery | unknown,
+  context?: unknown
+): {
+  context?: unknown;
+  query: ListHrOrgVacanciesQuery;
+} => {
+  if (context !== undefined) {
+    return {
+      context,
+      query:
+        queryOrContext && !isReadContextLike(queryOrContext)
+          ? (queryOrContext as ListHrOrgVacanciesQuery)
+          : {},
+    };
+  }
+
+  if (isReadContextLike(queryOrContext)) {
+    return { context: queryOrContext, query: {} };
+  }
+
+  return {
+    query:
+      queryOrContext && typeof queryOrContext === "object"
+        ? (queryOrContext as ListHrOrgVacanciesQuery)
+        : {},
+  };
+};
+
+const resolveHeadcountListInvocation = (
+  queryOrContext?: ListHrOrgHeadcountQuery | unknown,
+  context?: unknown
+): {
+  context?: unknown;
+  query: ListHrOrgHeadcountQuery;
+} => {
+  if (context !== undefined) {
+    return {
+      context,
+      query:
+        queryOrContext && !isReadContextLike(queryOrContext)
+          ? (queryOrContext as ListHrOrgHeadcountQuery)
+          : {},
+    };
+  }
+
+  if (isReadContextLike(queryOrContext)) {
+    return { context: queryOrContext, query: {} };
+  }
+
+  return {
+    query:
+      queryOrContext && typeof queryOrContext === "object"
+        ? (queryOrContext as ListHrOrgHeadcountQuery)
+        : {},
+  };
+};
+
+const resolveAuditListInvocation = (
+  queryOrContext?: ListHrOrgAuditQuery | unknown,
+  context?: unknown
+): {
+  context?: unknown;
+  query: ListHrOrgAuditQuery;
+} => {
+  if (context !== undefined) {
+    return {
+      context,
+      query:
+        queryOrContext && !isReadContextLike(queryOrContext)
+          ? (queryOrContext as ListHrOrgAuditQuery)
+          : {},
+    };
+  }
+
+  if (isReadContextLike(queryOrContext)) {
+    return { context: queryOrContext, query: {} };
+  }
+
+  return {
+    query:
+      queryOrContext && typeof queryOrContext === "object"
+        ? (queryOrContext as ListHrOrgAuditQuery)
         : {},
   };
 };
@@ -347,6 +439,136 @@ const applyReportingLinePagination = (
   };
 };
 
+const applyGenericPagination = <TItem>(
+  rows: readonly TItem[],
+  query: { page?: number; pageSize?: number }
+): HrOrgListWindow<TItem> => {
+  const pageSize = query.pageSize ?? rows.length;
+  const page = query.page ?? 1;
+  const start = Math.max(0, (page - 1) * pageSize);
+  const end = start + pageSize;
+
+  return {
+    rows: rows.slice(start, end),
+    pageSize: rows.length === 0 ? 0 : pageSize,
+    totalCount: rows.length,
+    hasNextPage: end < rows.length,
+  };
+};
+
+const matchesVacancySearch = (
+  vacancy: HrOrgVacancyListRow,
+  search: string | null
+): boolean => {
+  if (!search) {
+    return true;
+  }
+
+  const haystack = [
+    vacancy.code,
+    vacancy.title,
+    vacancy.status,
+    vacancy.organizationUnitId,
+    vacancy.positionId,
+  ]
+    .join(" ")
+    .toLowerCase();
+
+  return haystack.includes(search);
+};
+
+const matchesVacancyFilters = (
+  vacancy: HrOrgVacancyListRow,
+  query: ListHrOrgVacanciesQuery
+): boolean => {
+  if (
+    query.organizationUnitId &&
+    vacancy.organizationUnitId !== query.organizationUnitId
+  ) {
+    return false;
+  }
+
+  if (query.positionId && vacancy.positionId !== query.positionId) {
+    return false;
+  }
+
+  if (query.status && vacancy.status !== query.status) {
+    return false;
+  }
+
+  return matchesVacancySearch(vacancy, normalizeSearch(query.search));
+};
+
+const matchesHeadcountSearch = (
+  headcount: HrOrgHeadcountListRow,
+  search: string | null
+): boolean => {
+  if (!search) {
+    return true;
+  }
+
+  const haystack = [
+    headcount.code,
+    headcount.name,
+    headcount.organizationUnitId,
+  ]
+    .join(" ")
+    .toLowerCase();
+
+  return haystack.includes(search);
+};
+
+const matchesHeadcountFilters = (
+  headcount: HrOrgHeadcountListRow,
+  query: ListHrOrgHeadcountQuery
+): boolean => {
+  if (
+    query.organizationUnitId &&
+    headcount.organizationUnitId !== query.organizationUnitId
+  ) {
+    return false;
+  }
+
+  return matchesHeadcountSearch(headcount, normalizeSearch(query.search));
+};
+
+const matchesAuditSearch = (
+  event: HrOrgAuditTrailListRow,
+  search: string | null
+): boolean => {
+  if (!search) {
+    return true;
+  }
+
+  const haystack = [
+    event.action,
+    event.entityType,
+    event.entityId,
+    event.summary,
+    event.actorId ?? "",
+    event.reason ?? "",
+  ]
+    .join(" ")
+    .toLowerCase();
+
+  return haystack.includes(search);
+};
+
+const matchesAuditFilters = (
+  event: HrOrgAuditTrailListRow,
+  query: ListHrOrgAuditQuery
+): boolean => {
+  if (query.action && event.action !== query.action) {
+    return false;
+  }
+
+  if (query.entityType && event.entityType !== query.entityType) {
+    return false;
+  }
+
+  return matchesAuditSearch(event, normalizeSearch(query.search));
+};
+
 export function loadHrOrgChartTreeNodes(
   context?: unknown
 ): readonly HrOrgChartNode[] {
@@ -362,6 +584,7 @@ export function loadHrOrgChartTreeNodes(
 export function loadHrOrgOverviewSnapshot(context?: unknown): {
   totalUnits: number;
   totalPositions: number;
+  totalReportingLines: number;
   totalVacancies: number;
   totalHeadcount: number;
 } {
@@ -369,6 +592,7 @@ export function loadHrOrgOverviewSnapshot(context?: unknown): {
     return {
       totalUnits: 0,
       totalPositions: 0,
+      totalReportingLines: 0,
       totalVacancies: 0,
       totalHeadcount: 0,
     };
@@ -376,12 +600,14 @@ export function loadHrOrgOverviewSnapshot(context?: unknown): {
 
   const units = hrOrgStore.listUnits();
   const positions = hrOrgStore.listPositions();
+  const reportingLines = hrOrgStore.listReportingRelationships();
   const vacancies = hrOrgStore.listVacancies();
   const headcount = hrOrgStore.listHeadcount();
 
   return hrOrgOverviewProjectionSchema.parse({
     totalUnits: units.length,
     totalPositions: positions.length,
+    totalReportingLines: reportingLines.length,
     totalVacancies: vacancies.length,
     totalHeadcount: headcount.reduce(
       (total, row) => total + row.activePositionCount,
@@ -494,35 +720,64 @@ export function getHrOrgReportingRelationshipById(
 }
 
 export function listHrVacantPositionsWindow(
+  queryOrContext?: ListHrOrgVacanciesQuery | unknown,
   context?: unknown
 ): HrOrgListWindow<HrOrgVacancyListRow> {
-  if (readAccessDenied(context)) {
+  const { query, context: resolvedContext } = resolveVacancyListInvocation(
+    queryOrContext,
+    context
+  );
+
+  if (readAccessDenied(resolvedContext)) {
     return toWindow([]);
   }
 
-  return toWindow(hrOrgStore.listVacancies());
+  const filtered = hrOrgStore
+    .listVacancies()
+    .map((row) => hrOrgVacancyProjectionSchema.parse(row))
+    .filter((vacancy) => matchesVacancyFilters(vacancy, query));
+
+  return applyGenericPagination(filtered, query);
 }
 
 export function listHrOrgHeadcountWindow(
+  queryOrContext?: ListHrOrgHeadcountQuery | unknown,
   context?: unknown
 ): HrOrgListWindow<HrOrgHeadcountListRow> {
-  if (readAccessDenied(context)) {
+  const { query, context: resolvedContext } = resolveHeadcountListInvocation(
+    queryOrContext,
+    context
+  );
+
+  if (readAccessDenied(resolvedContext)) {
     return toWindow([]);
   }
 
-  return toWindow(hrOrgStore.listHeadcount());
+  const filtered = hrOrgStore
+    .listHeadcount()
+    .map((row) => hrOrgHeadcountProjectionSchema.parse(row))
+    .filter((row) => matchesHeadcountFilters(row, query));
+
+  return applyGenericPagination(filtered, query);
 }
 
 export function listHrOrgStructureAuditTrailWindow(
+  queryOrContext?: ListHrOrgAuditQuery | unknown,
   context?: unknown
 ): HrOrgListWindow<HrOrgAuditTrailListRow> {
-  if (readAccessDenied(context)) {
+  const { query, context: resolvedContext } = resolveAuditListInvocation(
+    queryOrContext,
+    context
+  );
+
+  if (readAccessDenied(resolvedContext)) {
     return toWindow([]);
   }
 
-  return toWindow(
-    hrOrgStore
-      .listAuditEvents()
-      .map((row) => hrOrgAuditEventProjectionSchema.parse(row))
-  );
+  const filtered = hrOrgStore
+    .listAuditEvents()
+    .map((row) => hrOrgAuditEventProjectionSchema.parse(row))
+    .filter((event) => matchesAuditFilters(event, query));
+
+  return applyGenericPagination(filtered, query);
 }

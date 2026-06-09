@@ -34,6 +34,7 @@ import {
   listHrOrgUnitsWindow,
   listHrVacantPositionsWindow,
   loadHrOrgChartTreeNodes,
+  loadHrOrgOverviewSnapshot,
 } from "../src/queries.ts";
 import {
   loadHrOrgRepository,
@@ -464,6 +465,111 @@ test("slice 8 reporting line vertical slice keeps hierarchy separate, queryable,
   assert.equal(auditTrail.totalCount, 2);
   assert.equal(
     auditTrail.rows.some((row) => row.entityType === "reporting_relationship"),
+    true
+  );
+});
+
+test("slice 9 read models and page model derive pure projections from canonical queries", async () => {
+  const root = hrOrgStore.upsertUnit({
+    code: "ACME",
+    name: "Acme Holdings",
+    unitType: "legal_entity",
+    status: "active",
+  });
+  const unit = hrOrgStore.upsertUnit({
+    code: "OPS",
+    name: "Operations",
+    unitType: "department",
+    parentUnitId: root.id,
+    status: "active",
+  });
+
+  hrOrgStore.upsertPosition({
+    code: "POS-001",
+    title: "Operations Manager",
+    organizationUnitId: unit.id,
+    status: "active",
+  });
+  hrOrgStore.upsertPosition({
+    code: "POS-002",
+    title: "Operations Analyst",
+    organizationUnitId: unit.id,
+    status: "planned",
+  });
+  hrOrgStore.upsertReportingLine({
+    employeeId: "emp-001",
+    managerEmployeeId: "emp-002",
+    relationshipType: "dotted_line",
+    reason: "Matrix support",
+  });
+
+  const overview = loadHrOrgOverviewSnapshot(readContext);
+  assert.equal(overview.totalUnits, 2);
+  assert.equal(overview.totalPositions, 2);
+  assert.equal(overview.totalReportingLines, 1);
+  assert.equal(overview.totalVacancies, 1);
+  assert.equal(overview.totalHeadcount, 1);
+
+  const pageModel = await buildHrOrgPageModel({
+    organizationId: "org-001",
+    canWrite: true,
+    readContext,
+    unitsSearch: "ops",
+    positionsSearch: "analyst",
+    reportingLinesSearch: "matrix",
+    vacanciesSearch: "planned",
+    headcountSearch: "operations",
+    auditTrailSearch: "recorded",
+  });
+
+  assert.equal(pageModel.overviewStatGroups[0].stats[2].value, 1);
+  assert.equal(pageModel.unitsList.totalCount, 1);
+  assert.equal(pageModel.positionsList.totalCount, 1);
+  assert.equal(pageModel.reportingLinesList.totalCount, 1);
+  assert.equal(pageModel.vacanciesList.totalCount, 1);
+  assert.equal(pageModel.headcountList.totalCount, 1);
+  assert.equal(pageModel.auditTrailList.totalCount >= 1, true);
+  assert.equal(pageModel.vacanciesList.rows[0].status, "planned");
+  assert.equal(pageModel.headcountList.rows[0].organizationUnitId, unit.id);
+
+  assert.equal(
+    listHrOrgReportingLinesWindow(
+      {
+        search: "matrix",
+        relationshipType: "dotted_line",
+      },
+      readContext
+    ).totalCount,
+    1
+  );
+  assert.equal(
+    listHrVacantPositionsWindow(
+      {
+        search: "planned",
+        organizationUnitId: unit.id,
+      },
+      readContext
+    ).totalCount,
+    1
+  );
+  assert.equal(
+    listHrOrgHeadcountWindow(
+      {
+        search: "operations",
+        organizationUnitId: unit.id,
+      },
+      readContext
+    ).totalCount,
+    1
+  );
+  assert.equal(
+    listHrOrgStructureAuditTrailWindow(
+      {
+        search: "recorded",
+        action: "hr.org.reporting-line.recorded",
+      },
+      readContext
+    ).totalCount >= 1,
     true
   );
 });

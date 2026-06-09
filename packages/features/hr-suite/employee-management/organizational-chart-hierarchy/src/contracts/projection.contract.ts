@@ -1,12 +1,14 @@
 import { z } from "zod";
 import {
   hrOrgAuditEventSchema,
+  hrOrgHeadcountRecordSchema,
   hrOrgOverviewSchema,
   hrOrgPositionRecordSchema,
   hrOrgReportingRelationshipRecordSchema,
   hrOrgStatusSchema,
   hrOrgUnitRecordSchema,
   hrOrgUnitTypeSchema,
+  hrOrgVacancyRecordSchema,
   trimmedStringSchema,
 } from "../schema.ts";
 
@@ -54,6 +56,9 @@ export const hrOrgAuditEventProjectionSchema = hrOrgAuditEventSchema
     tenantId: true,
   })
   .strict();
+export const hrOrgVacancyProjectionSchema = hrOrgVacancyRecordSchema.strict();
+export const hrOrgHeadcountProjectionSchema =
+  hrOrgHeadcountRecordSchema.strict();
 
 export type HrOrgChartNodeProjection = z.infer<
   typeof hrOrgChartNodeProjectionSchema
@@ -70,4 +75,10 @@ export type HrOrgReportingRelationshipProjection = z.infer<
 >;
 export type HrOrgAuditEventProjection = z.infer<
   typeof hrOrgAuditEventProjectionSchema
+>;
+export type HrOrgVacancyProjection = z.infer<
+  typeof hrOrgVacancyProjectionSchema
+>;
+export type HrOrgHeadcountProjection = z.infer<
+  typeof hrOrgHeadcountProjectionSchema
 >;

@@ -27,7 +27,8 @@
   "scripts": {
     "build": "tsc -p tsconfig.build.json",
     "check:boundaries": "tsx scripts/check-boundaries.mts",
-    "check:consumer-fixture": "tsx scripts/check-consumer-fixture.mts",
+    "check:change-note": "tsx scripts/check-change-note.mts",
+    "check:consumer-fixture": "vitest run tests/public-api-consumer.render.test.tsx",
     "check:declaration-snapshot": "tsx scripts/check-declaration-snapshot.mts",
     "check:public-api": "tsx scripts/check-public-api.mts",
     "check:telemetry-schema": "tsx scripts/check-telemetry-schema.mts",
@@ -35,9 +36,10 @@
     "format": "biome format --write .",
     "clean": "git clean -xdf .cache .turbo dist node_modules",
     "test": "tsx --test tests/index.test.ts",
+    "test:render": "vitest run tests/public-api-consumer.render.test.tsx",
     "typecheck": "tsc --noEmit --emitDeclarationOnly false",
     "update:declaration-snapshot": "tsx scripts/update-declaration-snapshot.mts",
-    "verify": "pnpm run typecheck && pnpm run lint && pnpm run build && pnpm run test && pnpm run check:boundaries && pnpm run check:public-api && pnpm run check:declaration-snapshot && pnpm run check:telemetry-schema && pnpm run check:consumer-fixture"
+    "verify": "pnpm run typecheck && pnpm run lint && pnpm run build && pnpm run test && pnpm run check:boundaries && pnpm run check:public-api && pnpm run check:declaration-snapshot && pnpm run check:change-note && pnpm run check:telemetry-schema && pnpm run check:consumer-fixture"
   },
   "dependencies": {
     "@repo/customization": "workspace:*",
@@ -47,11 +49,15 @@
   },
   "devDependencies": {
     "@repo/typescript-config": "workspace:*",
+    "@testing-library/jest-dom": "catalog:",
+    "@testing-library/react": "catalog:",
     "@types/node": "catalog:",
     "@types/react": "catalog:",
     "@types/react-dom": "catalog:",
+    "jsdom": "catalog:",
     "react-dom": "catalog:",
     "tsx": "catalog:",
-    "typescript": "catalog:"
+    "typescript": "catalog:",
+    "vitest": "catalog:"
   }
 }

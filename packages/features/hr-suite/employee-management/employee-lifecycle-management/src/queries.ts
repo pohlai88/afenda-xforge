@@ -1,5 +1,21 @@
 import "server-only";
 
+import type { EmployeeLifecycleManagementPolicyContext } from "./policy.ts";
+import type {
+  EmployeeLifecycleHistoryEntry,
+  EmployeeLifecycleOverviewEntry,
+  EmployeeLifecycleOverviewSnapshot,
+  EmployeeLifecycleStageSummary,
+  EmployeeLifecycleTaskEntry,
+} from "./projector.ts";
+import {
+  projectEmployeeLifecycleAuditTrailEntries,
+  projectEmployeeLifecycleHistoryEntries,
+  projectEmployeeLifecycleOverviewEntries,
+  projectEmployeeLifecycleOverviewSnapshot,
+  projectEmployeeLifecycleStageSummaries,
+  projectEmployeeLifecycleTaskEntries,
+} from "./projector.ts";
 import type { EmployeeLifecycleRepositoryScope } from "./repository.ts";
 import {
   findEmployeeLifecycleContractRecordByEmployeeId,
@@ -327,6 +343,79 @@ export function listEmployeeLifecycleMovementStatuses(
     );
 }
 
+export function getEmployeeLifecycleOverviewSnapshot(
+  scope?: EmployeeLifecycleRepositoryScope,
+  context?: EmployeeLifecycleManagementPolicyContext
+): EmployeeLifecycleOverviewSnapshot {
+  return projectEmployeeLifecycleOverviewSnapshot(scope, context);
+}
+
+export function listEmployeeLifecycleOverviewEntries(
+  scope?: EmployeeLifecycleRepositoryScope,
+  context?: EmployeeLifecycleManagementPolicyContext
+): readonly EmployeeLifecycleOverviewEntry[] {
+  return projectEmployeeLifecycleOverviewEntries(scope, context);
+}
+
+export function getEmployeeLifecycleOverviewEntry(
+  employeeId: string,
+  scope?: EmployeeLifecycleRepositoryScope,
+  context?: EmployeeLifecycleManagementPolicyContext
+): EmployeeLifecycleOverviewEntry | null {
+  return (
+    listEmployeeLifecycleOverviewEntries(scope, context).find(
+      (entry) => entry.employeeId === employeeId
+    ) ?? null
+  );
+}
+
+export function listEmployeeLifecycleStageSummaries(
+  scope?: EmployeeLifecycleRepositoryScope,
+  context?: EmployeeLifecycleManagementPolicyContext
+): readonly EmployeeLifecycleStageSummary[] {
+  return projectEmployeeLifecycleStageSummaries(scope, context);
+}
+
+export function listEmployeeLifecycleHistoryEntries(
+  employeeId?: string,
+  scope?: EmployeeLifecycleRepositoryScope,
+  context?: EmployeeLifecycleManagementPolicyContext
+): readonly EmployeeLifecycleHistoryEntry[] {
+  return projectEmployeeLifecycleHistoryEntries(scope, {
+    ...context,
+    employeeId,
+  });
+}
+
+export function listEmployeeLifecycleAuditTrailEntries(
+  employeeId?: string,
+  scope?: EmployeeLifecycleRepositoryScope,
+  context?: EmployeeLifecycleManagementPolicyContext
+): readonly EmployeeLifecycleHistoryEntry[] {
+  return projectEmployeeLifecycleAuditTrailEntries(scope, {
+    ...context,
+    employeeId,
+  });
+}
+
+export function listEmployeeLifecycleTaskEntries(
+  employeeId?: string,
+  scope?: EmployeeLifecycleRepositoryScope,
+  context?: EmployeeLifecycleManagementPolicyContext
+): readonly EmployeeLifecycleTaskEntry[] {
+  return projectEmployeeLifecycleTaskEntries(scope, {
+    ...context,
+    employeeId,
+  });
+}
+
+export {
+  employeeLifecycleHistoryEntrySchema,
+  employeeLifecycleOverviewEntrySchema,
+  employeeLifecycleOverviewSnapshotSchema,
+  employeeLifecycleStageSummarySchema,
+  employeeLifecycleTaskEntrySchema,
+} from "./projector.ts";
 export {
   employeeLifecycleContractReadModelSchema,
   employeeLifecycleExitReadModelSchema,

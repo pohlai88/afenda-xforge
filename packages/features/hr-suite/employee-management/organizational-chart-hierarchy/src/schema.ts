@@ -137,8 +137,31 @@ export const hrOrgChartNodeSchema = z.object({
 export const hrOrgOverviewSchema = z.object({
   totalUnits: z.number().int().nonnegative(),
   totalPositions: z.number().int().nonnegative(),
+  totalReportingLines: z.number().int().nonnegative(),
   totalVacancies: z.number().int().nonnegative(),
   totalHeadcount: z.number().int().nonnegative(),
+});
+
+export const hrOrgVacancyRecordSchema = z.object({
+  code: trimmedStringSchema,
+  effectiveFrom: isoDateSchema,
+  effectiveTo: z.preprocess(
+    (value: unknown) => (value === undefined ? null : value),
+    z.date().nullable()
+  ),
+  organizationUnitId: trimmedStringSchema,
+  positionId: trimmedStringSchema,
+  status: hrOrgStatusSchema,
+  title: trimmedStringSchema,
+});
+
+export const hrOrgHeadcountRecordSchema = z.object({
+  activePositionCount: z.number().int().nonnegative(),
+  code: trimmedStringSchema,
+  name: trimmedStringSchema,
+  organizationUnitId: trimmedStringSchema,
+  positionCount: z.number().int().nonnegative(),
+  vacantPositionCount: z.number().int().nonnegative(),
 });
 
 const listQueryBaseSchema = z.object({
@@ -168,6 +191,16 @@ export const hrOrgReportingRelationshipQuerySchema = listQueryBaseSchema.extend(
     relationshipType: hrOrgReportingRelationshipTypeSchema.optional(),
   }
 );
+
+export const hrOrgVacancyQuerySchema = listQueryBaseSchema.extend({
+  organizationUnitId: optionalTrimmedStringSchema,
+  positionId: optionalTrimmedStringSchema,
+  status: hrOrgStatusSchema.optional(),
+});
+
+export const hrOrgHeadcountQuerySchema = listQueryBaseSchema.extend({
+  organizationUnitId: optionalTrimmedStringSchema,
+});
 
 export const hrOrgAuditQuerySchema = listQueryBaseSchema.extend({
   action: optionalTrimmedStringSchema,
@@ -209,11 +242,15 @@ export type HrOrgReportingRelationshipRecord = z.infer<
 export type HrOrgAuditEvent = z.infer<typeof hrOrgAuditEventSchema>;
 export type HrOrgChartNodeProjection = z.infer<typeof hrOrgChartNodeSchema>;
 export type HrOrgOverviewProjection = z.infer<typeof hrOrgOverviewSchema>;
+export type HrOrgVacancyRecord = z.infer<typeof hrOrgVacancyRecordSchema>;
+export type HrOrgHeadcountRecord = z.infer<typeof hrOrgHeadcountRecordSchema>;
 export type HrOrgUnitQuery = z.infer<typeof hrOrgUnitQuerySchema>;
 export type HrOrgPositionQuery = z.infer<typeof hrOrgPositionQuerySchema>;
 export type HrOrgReportingRelationshipQuery = z.infer<
   typeof hrOrgReportingRelationshipQuerySchema
 >;
+export type HrOrgVacancyQuery = z.infer<typeof hrOrgVacancyQuerySchema>;
+export type HrOrgHeadcountQuery = z.infer<typeof hrOrgHeadcountQuerySchema>;
 export type HrOrgAuditQuery = z.infer<typeof hrOrgAuditQuerySchema>;
 export type HrOrgReadContext = z.infer<typeof hrOrgReadContextSchema>;
 export type HrOrgWriteContext = z.infer<typeof hrOrgWriteContextSchema>;

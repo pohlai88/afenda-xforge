@@ -33,17 +33,20 @@ const MAX_DIRECTORY_PAGE_SIZE = 100;
 const normalizeSearch = (value: string | undefined): string =>
   value?.trim().toLowerCase() ?? "";
 
-const resolvePage = (value: number | undefined): number =>
-  Number.isFinite(value ?? Number.NaN) && (value ?? 0) > 0
-    ? Math.floor(value ?? 1)
+const resolvePage = (value: number | undefined): number => {
+  const resolvedValue = value ?? 1;
+  return Number.isFinite(resolvedValue) && resolvedValue > 0
+    ? Math.floor(resolvedValue)
     : 1;
+};
 
 const resolvePageSize = (value: number | undefined): number => {
-  if (!Number.isFinite(value ?? Number.NaN) || (value ?? 0) <= 0) {
+  const resolvedValue = value ?? DEFAULT_DIRECTORY_PAGE_SIZE;
+  if (!Number.isFinite(resolvedValue) || resolvedValue <= 0) {
     return DEFAULT_DIRECTORY_PAGE_SIZE;
   }
 
-  return Math.min(Math.floor(value), MAX_DIRECTORY_PAGE_SIZE);
+  return Math.min(Math.floor(resolvedValue), MAX_DIRECTORY_PAGE_SIZE);
 };
 
 const paginate = <T>(

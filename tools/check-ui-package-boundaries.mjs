@@ -240,6 +240,14 @@ function checkCrossPackageImports(filePath, packageKind, specifier) {
     return;
   }
 
+  if (
+    relativePath === "packages/metadata-ui/tests/public-api-consumer.render.test.tsx" &&
+    (specifier === "@repo/metadata-ui" ||
+      specifier.startsWith("@repo/metadata-ui/"))
+  ) {
+    return;
+  }
+
   if (packageKind !== "ui" && specifier.startsWith("@repo/ui/")) {
     addViolation(
       `${relativePath}: non-ui packages must import @repo/ui from the root surface only, not ${specifier}`

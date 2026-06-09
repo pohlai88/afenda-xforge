@@ -35,3 +35,5 @@ export {
   employeeLifecycleManagementRoutePaths,
   hrLifecycleRoutePaths,
 } from "./route.contract.ts";
+export type { EmployeeLifecycleTransitionRequest } from "./transition.contract.ts";
+export { employeeLifecycleTransitionRequestSchema } from "./transition.contract.ts";

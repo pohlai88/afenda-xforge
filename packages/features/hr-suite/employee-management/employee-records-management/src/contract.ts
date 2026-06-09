@@ -42,10 +42,10 @@ export {
   type HrRecordsRehireEmployeeInput,
   type HrRecordsSearchParams,
   type HrRecordsUpdateEmployeeInput,
+  hrRecordsReadPermission,
   hrRecordsSearchParamsSchema,
-  hrWorkforceRecordsReadPermission,
-  hrWorkforceRecordsSensitiveReadPermission,
-  hrWorkforceRecordsWritePermission,
+  hrRecordsSensitiveReadPermission,
+  hrRecordsWritePermission,
 } from "./hr.workforce.records.contract.ts";
 export {
   type HrRecordsEmploymentStatus,

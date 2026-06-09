@@ -31,12 +31,12 @@ function readPositiveIntegerSearchParam(
 ): number | undefined {
   const rawValue = readSearchParam(searchParams, key);
   if (!rawValue) {
-    return undefined;
+    return;
   }
 
   const value = Number(rawValue);
   if (!Number.isInteger(value) || value <= 0) {
-    return undefined;
+    return;
   }
 
   if (maxValue && value > maxValue) {
@@ -90,9 +90,10 @@ export function parseHrRecordsSearchParams(
 
     const recordField = modelField as Exclude<
       keyof HrRecordsSearchParams,
-      "page" | "pageSize"
+      "page" | "pageSize" | "employmentStatusFilter"
     >;
-    parsed[recordField] = readSearchParam(searchParams, paramKey) ?? legacySearch;
+    parsed[recordField] =
+      readSearchParam(searchParams, paramKey) ?? legacySearch;
   }
 
   const employmentStatusRaw =

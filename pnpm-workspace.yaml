@@ -36,6 +36,8 @@ catalog:
   "@turbo/gen": ^2.8.14
   "@storybook/react": ^10.4.2
   "@storybook/react-vite": ^10.4.2
+  "@testing-library/jest-dom": ^6.9.1
+  "@testing-library/react": ^16.3.0
   "@types/lodash.merge": ^4.6.9
   "@types/node": ^25.3.5
   "@types/react": ^19.2.14
@@ -64,6 +66,7 @@ catalog:
   react: ^19.2.4
   react-dom: ^19.2.4
   redis: ^5.9.0
+  jsdom: ^26.1.0
   flags: ^4.1.0
   svix: ^1.95.1
   sonner: ^2.0.7
@@ -83,6 +86,7 @@ catalog:
   turbo: ^2.8.14
   typescript: ^5.9.3
   ultracite: 7.8.1
+  vitest: ^3.2.4
   zod: 4.3.6
 
 catalogMode: strict

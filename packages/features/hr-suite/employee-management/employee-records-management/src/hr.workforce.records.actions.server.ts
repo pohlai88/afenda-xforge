@@ -10,7 +10,7 @@ import type {
 } from "./hr.workforce.records.contract.ts";
 import { hrRecordsAuditActions } from "./hr.workforce.records.event.ts";
 import { hrRecordsStore } from "./hr.workforce.records.store.ts";
-import { toRecordsActionFailure } from "./hr.workforce.records-action-result.shared.ts";
+import { toHrRecordsActionFailure } from "./hr.workforce.records-action-result.shared.ts";
 import {
   hrRecordsArchiveEmployeeSchema,
   hrRecordsAssignmentSchema,
@@ -23,7 +23,7 @@ import {
   requireHrRecordsWrite,
 } from "./policy.ts";
 
-type RecordsActionContext = {
+type HrRecordsActionContext = {
   canWrite?: boolean;
   organizationId?: string;
   userId?: string;
@@ -31,7 +31,7 @@ type RecordsActionContext = {
 
 export function createHrEmployeeRecordAction(
   input: HrRecordsCreateEmployeeInput,
-  context: RecordsActionContext
+  context: HrRecordsActionContext
 ): HrRecordsActionResult {
   const writeAccess = requireHrRecordsWrite(context);
   if (!writeAccess.ok) {
@@ -50,13 +50,13 @@ export function createHrEmployeeRecordAction(
     const record = hrRecordsStore.create(parsed, context);
     return { ok: true, targetId: record.id };
   } catch (error) {
-    return toRecordsActionFailure(error);
+    return toHrRecordsActionFailure(error);
   }
 }
 
 export function updateHrEmployeeRecordAction(
   input: HrRecordsUpdateEmployeeInput,
-  context: RecordsActionContext
+  context: HrRecordsActionContext
 ): HrRecordsActionResult {
   const writeAccess = requireHrRecordsWrite(context);
   if (!writeAccess.ok) {
@@ -77,13 +77,13 @@ export function updateHrEmployeeRecordAction(
       ? { ok: true, targetId: record.id }
       : { ok: false, error: "Record not found" };
   } catch (error) {
-    return toRecordsActionFailure(error);
+    return toHrRecordsActionFailure(error);
   }
 }
 
 export function archiveHrEmployeeRecordAction(
   input: HrRecordsArchiveEmployeeInput,
-  context: RecordsActionContext
+  context: HrRecordsActionContext
 ): HrRecordsActionResult {
   const writeAccess = requireHrRecordsWrite(context);
   if (!writeAccess.ok) {
@@ -97,13 +97,13 @@ export function archiveHrEmployeeRecordAction(
       ? { ok: true, targetId: record.id }
       : { ok: false, error: "Record not found" };
   } catch (error) {
-    return toRecordsActionFailure(error);
+    return toHrRecordsActionFailure(error);
   }
 }
 
 export function recordHrEmployeeAssignmentAction(
   input: HrRecordsAssignmentInput,
-  context: RecordsActionContext
+  context: HrRecordsActionContext
 ): HrRecordsActionResult {
   const writeAccess = requireHrRecordsWrite(context);
   if (!writeAccess.ok) {
@@ -117,13 +117,13 @@ export function recordHrEmployeeAssignmentAction(
       ? { ok: true, targetId: record.id }
       : { ok: false, error: "Record not found" };
   } catch (error) {
-    return toRecordsActionFailure(error);
+    return toHrRecordsActionFailure(error);
   }
 }
 
 export function rehireHrEmployeeAction(
   input: HrRecordsRehireEmployeeInput,
-  context: RecordsActionContext
+  context: HrRecordsActionContext
 ): HrRecordsActionResult {
   const writeAccess = requireHrRecordsWrite(context);
   if (!writeAccess.ok) {
@@ -144,7 +144,7 @@ export function rehireHrEmployeeAction(
       ? { ok: true, targetId: record.id }
       : { ok: false, error: "Record not found" };
   } catch (error) {
-    return toRecordsActionFailure(error);
+    return toHrRecordsActionFailure(error);
   }
 }
 

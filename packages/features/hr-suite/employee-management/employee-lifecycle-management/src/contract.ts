@@ -7,6 +7,7 @@ export type {
   EmployeeLifecycleManagementPermission,
   EmployeeLifecycleManagementRouteContract,
   EmployeeLifecycleManagementRoutePath,
+  EmployeeLifecycleTransitionRequest,
   HrLifecycleRoutePath,
 } from "./contracts/index.ts";
 export {
@@ -24,6 +25,7 @@ export {
   employeeLifecycleManagementSensitiveReadPermission,
   employeeLifecycleManagementWriteCapabilities,
   employeeLifecycleManagementWritePermission,
+  employeeLifecycleTransitionRequestSchema,
   hrLifecycleRoutePaths,
   hrWorkforceLifecycleReadPermission,
   hrWorkforceLifecycleSensitiveReadPermission,

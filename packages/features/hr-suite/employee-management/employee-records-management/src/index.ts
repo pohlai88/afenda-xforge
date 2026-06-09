@@ -46,7 +46,12 @@ export type {
   HrRecordsSearchParams,
   HrRecordsUpdateEmployeeInput,
 } from "./hr.workforce.records.contract.ts";
-export { hrRecordsSearchParamsSchema } from "./hr.workforce.records.contract.ts";
+export {
+  hrRecordsReadPermission,
+  hrRecordsSearchParamsSchema,
+  hrRecordsSensitiveReadPermission,
+  hrRecordsWritePermission,
+} from "./hr.workforce.records.contract.ts";
 export {
   buildHrEmployeeRecordDetailPageModel,
   buildHrEmployeeRecordExportPageModel,
@@ -98,13 +103,13 @@ export {
 } from "./projector/record-detail.ts";
 export { projectHrEmployeeStatusHistory } from "./projector/status.ts";
 export {
+  listHrEmployeeRecordSummaries,
+  listHrEmployeeRecordSummariesPage,
+} from "./queries/records.query.ts";
+export {
   buildHrEmployeeIntegrationChangeEvent,
   buildHrEmployeeIntegrationSnapshot,
   hrRecordsIntegrationEventSchema,
   hrRecordsIntegrationEvents,
   hrRecordsIntegrationSnapshotVersion,
 } from "./registry/integration.ts";
-export {
-  listHrEmployeeRecordSummaries,
-  listHrEmployeeRecordSummariesPage,
-} from "./queries/records.query.ts";

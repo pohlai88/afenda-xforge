@@ -1,22 +1,22 @@
-import { hrWorkforceRecordsReadPermission } from "./hr.workforce.records.contract.ts";
+import { hrRecordsReadPermission } from "./hr.workforce.records.contract.ts";
 
-export type RecordsListWindow = {
+export type HrRecordsListWindow = {
   pageSize: number;
   totalCount: number;
   hasNextPage: boolean;
 };
 
-export type RecordsListColumn = {
+export type HrRecordsListColumn = {
   id: string;
   header: string;
 };
 
-export type RecordsListRow = {
+export type HrRecordsListRow = {
   id: string;
   [key: string]: unknown;
 };
 
-type RecordsListSearchToolbar = {
+type HrRecordsListSearchToolbar = {
   readonly search: {
     readonly param: string;
     readonly label: string;
@@ -25,27 +25,27 @@ type RecordsListSearchToolbar = {
   };
 };
 
-type RecordsOperationalListSurface = {
-  readonly permissions: typeof hrWorkforceRecordsReadPermission;
+type HrRecordsOperationalListSurface = {
+  readonly permissions: typeof hrRecordsReadPermission;
   readonly primaryColumnId: string;
-  readonly searchToolbar: RecordsListSearchToolbar;
-  readonly window: RecordsListWindow;
+  readonly searchToolbar: HrRecordsListSearchToolbar;
+  readonly window: HrRecordsListWindow;
   readonly surface: {
     readonly headerTitle: string;
     readonly columnsId: string;
     readonly emptyTitle: string;
     readonly emptyDescription: string;
   };
-  readonly columns: readonly RecordsListColumn[];
-  readonly rows: readonly RecordsListRow[];
+  readonly columns: readonly HrRecordsListColumn[];
+  readonly rows: readonly HrRecordsListRow[];
 };
 
-export function buildRecordsListSearchToolbar(input: {
+export function buildHrRecordsListSearchToolbar(input: {
   param: string;
   label: string;
   placeholder: string;
   value?: string;
-}): RecordsListSearchToolbar {
+}): HrRecordsListSearchToolbar {
   return {
     search: {
       param: input.param,
@@ -56,21 +56,21 @@ export function buildRecordsListSearchToolbar(input: {
   } as const;
 }
 
-export function buildRecordsOperationalListSurface(input: {
+export function buildHrRecordsOperationalListSurface(input: {
   primaryColumnId: string;
-  searchToolbar: RecordsListSearchToolbar;
-  window: RecordsListWindow;
+  searchToolbar: HrRecordsListSearchToolbar;
+  window: HrRecordsListWindow;
   surface: {
     headerTitle: string;
     columnsId: string;
     emptyTitle: string;
     emptyDescription: string;
   };
-  columns: RecordsListColumn[];
-  rows: RecordsListRow[];
-}): RecordsOperationalListSurface {
+  columns: HrRecordsListColumn[];
+  rows: HrRecordsListRow[];
+}): HrRecordsOperationalListSurface {
   return {
-    permissions: hrWorkforceRecordsReadPermission,
+    permissions: hrRecordsReadPermission,
     primaryColumnId: input.primaryColumnId,
     searchToolbar: input.searchToolbar,
     window: input.window,
@@ -111,7 +111,7 @@ export function formatRecordsEventKindLabel(kind: string): string {
     .join(" ");
 }
 
-export function resolveRecordsListTrailingAction(canWrite: boolean):
+export function resolveHrRecordsListTrailingAction(canWrite: boolean):
   | {
       allowed: true;
       visible: true;

@@ -198,11 +198,19 @@ Validation evidence:
 
 Build pure projections for all architecture surfaces.
 
+Status: complete
+
 Acceptance criteria:
 
 - Org chart, units, positions, reporting lines, vacancies, headcount, overview, and audit windows derive from facts.
 - Projections are schema validated.
 - Page model consumes canonical query functions instead of direct store reads.
+
+Validation evidence:
+
+- `pnpm --filter @repo/features-employee-management-organizational-chart-hierarchy typecheck`
+- `pnpm --filter @repo/features-employee-management-organizational-chart-hierarchy lint`
+- `pnpm --filter @repo/features-employee-management-organizational-chart-hierarchy test`
 
 ### Slice 10: API Routes, Registry, and Documentation Evidence
 

@@ -7,9 +7,12 @@ import type {
   HrOrgSearchParams,
 } from "./contracts/org-model.contract.ts";
 import type {
+  ListHrOrgAuditQuery,
+  ListHrOrgHeadcountQuery,
   ListHrOrgPositionsQuery,
   ListHrOrgReportingRelationshipsQuery,
   ListHrOrgUnitsQuery,
+  ListHrOrgVacanciesQuery,
 } from "./contracts/query.contract.ts";
 import {
   listHrOrgHeadcountWindow,
@@ -19,6 +22,7 @@ import {
   listHrOrgUnitsWindow,
   listHrVacantPositionsWindow,
   loadHrOrgChartTreeNodes,
+  loadHrOrgOverviewSnapshot,
 } from "./queries.ts";
 import { settleOrgListLoad } from "./shared/list-load.shared.ts";
 import { buildHrOrgOverviewStatGroups } from "./shared/overview-stat.surface.ts";
@@ -62,6 +66,22 @@ export async function buildHrOrgPageModel(
   const reportingLineListQuery = {
     search: search.reportingLinesSearch,
   } satisfies ListHrOrgReportingRelationshipsQuery;
+  const vacancyListQuery = {
+    search: search.vacanciesSearch,
+  } satisfies ListHrOrgVacanciesQuery;
+  const headcountListQuery = {
+    search: search.headcountSearch,
+  } satisfies ListHrOrgHeadcountQuery;
+  const auditTrailListQuery = {
+    search: search.auditTrailSearch,
+  } satisfies ListHrOrgAuditQuery;
+  const emptyOverviewSnapshot = {
+    totalUnits: 0,
+    totalPositions: 0,
+    totalReportingLines: 0,
+    totalVacancies: 0,
+    totalHeadcount: 0,
+  };
   const [
     snapshot,
     chart,
@@ -74,7 +94,7 @@ export async function buildHrOrgPageModel(
   ] = await Promise.all([
     settleOrgListLoad({
       sectionTitle: hrOrgUiCopy.overview.structureLabel,
-      load: () => buildHrOrgOverviewStatGroups(input.readContext),
+      load: () => loadHrOrgOverviewSnapshot(input.readContext),
     }),
     settleOrgListLoad({
       sectionTitle: hrOrgUiCopy.orgChart.title,
@@ -99,15 +119,21 @@ export async function buildHrOrgPageModel(
     }),
     settleOrgListLoad({
       sectionTitle: hrOrgUiCopy.vacancies.surfaceHeaderTitle,
-      load: () => listHrVacantPositionsWindow(input.readContext),
+      load: () =>
+        listHrVacantPositionsWindow(vacancyListQuery, input.readContext),
     }),
     settleOrgListLoad({
       sectionTitle: hrOrgUiCopy.headcount.surfaceHeaderTitle,
-      load: () => listHrOrgHeadcountWindow(input.readContext),
+      load: () =>
+        listHrOrgHeadcountWindow(headcountListQuery, input.readContext),
     }),
     settleOrgListLoad({
       sectionTitle: hrOrgUiCopy.auditTrail.surfaceHeaderTitle,
-      load: () => listHrOrgStructureAuditTrailWindow(input.readContext),
+      load: () =>
+        listHrOrgStructureAuditTrailWindow(
+          auditTrailListQuery,
+          input.readContext
+        ),
     }),
   ]);
 
@@ -115,8 +141,9 @@ export async function buildHrOrgPageModel(
     organizationId: input.organizationId,
     canWrite: input.canWrite,
     search,
-    overviewStatGroups:
-      snapshot.value ?? buildHrOrgOverviewStatGroups(input.readContext),
+    overviewStatGroups: buildHrOrgOverviewStatGroups(
+      snapshot.value ?? emptyOverviewSnapshot
+    ),
     orgChartNodes: chart.value ?? [],
     unitsList: units.value ?? emptyWindow(),
     positionsList: positions.value ?? emptyWindow(),

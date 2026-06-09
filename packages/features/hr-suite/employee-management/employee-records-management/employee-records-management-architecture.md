@@ -544,6 +544,21 @@ Deliverables:
 - data-retention and archival policy implementation
 - test coverage for lifecycle rules, permissions, and history integrity
 
+Phase 5 implementation evidence:
+
+- `src/hr.workforce.records-search-params.parse.shared.ts` now parses directory page windows and caps bulk page size before it reaches the query layer.
+- `src/hr.workforce.records.contract.ts` extends the page-model contract with page window fields so the directory surface can report bulk-read metadata explicitly.
+- `src/queries/records.query.ts` adds a paginated directory query helper, keeps the legacy full-list helper for compatibility, and preserves organization scoping plus archive/separation filtering.
+- `src/hr.workforce.records.page-model.server.ts` now returns a windowed directory model with `page`, `pageSize`, `totalCount`, and `hasNextPage` for operational use.
+- `src/server.ts` and `src/index.ts` export the paginated directory helper so dependent code can consume the bulk-safe read surface directly.
+- `test/operational-hardening.test.ts` covers page parsing, bulk-window capping, window metadata, and paginated directory reads.
+
+Validation completed on 2026-06-09:
+
+- `pnpm --filter @repo/features-employee-management-employee-records-management typecheck`
+- `pnpm --filter @repo/features-employee-management-employee-records-management test`
+- `pnpm exec biome check packages/features/hr-suite/employee-management/employee-records-management`
+
 ## Repair priorities
 
 These are the highest-value fixes to bring the current package closer to the target architecture.

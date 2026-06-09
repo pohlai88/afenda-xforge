@@ -1,7 +1,7 @@
-import type { RecordsListWindow } from "./hr.workforce.records-list.shared.ts";
+import type { HrRecordsListWindow } from "./hr.workforce.records-list.shared.ts";
 import {
-  buildRecordsListSearchToolbar,
-  buildRecordsOperationalListSurface,
+  buildHrRecordsListSearchToolbar,
+  buildHrRecordsOperationalListSurface,
 } from "./hr.workforce.records-list.shared.ts";
 
 export type EmptyState = {
@@ -40,10 +40,10 @@ export function buildRecordsListLoadErrorPlaceholder(input: {
   surfaceHeaderTitle: string;
   emptyTitle?: string;
   emptyDescription?: string;
-}): ReturnType<typeof buildRecordsOperationalListSurface> {
-  return buildRecordsOperationalListSurface({
+}): ReturnType<typeof buildHrRecordsOperationalListSurface> {
+  return buildHrRecordsOperationalListSurface({
     primaryColumnId: "employee",
-    searchToolbar: buildRecordsListSearchToolbar({
+    searchToolbar: buildHrRecordsListSearchToolbar({
       param: input.searchParam,
       label: input.searchLabel,
       placeholder: input.searchPlaceholder,
@@ -52,7 +52,7 @@ export function buildRecordsListLoadErrorPlaceholder(input: {
       pageSize: 25,
       totalCount: 0,
       hasNextPage: false,
-    } satisfies RecordsListWindow,
+    } satisfies HrRecordsListWindow,
     surface: {
       headerTitle: input.surfaceHeaderTitle,
       columnsId: input.columnsId,

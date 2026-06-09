@@ -7,19 +7,19 @@ import type {
 } from "./hr.workforce.records-form.shared.ts";
 import type { HrRecordsRoutePath } from "./hr.workforce.records-route.contract.ts";
 
-export const hrWorkforceRecordsReadPermission = {
+export const hrRecordsReadPermission = {
   module: "hr",
   object: "employees",
   function: "read",
 } as const;
 
-export const hrWorkforceRecordsWritePermission = {
+export const hrRecordsWritePermission = {
   module: "hr",
   object: "employees",
   function: "update",
 } as const;
 
-export const hrWorkforceRecordsSensitiveReadPermission = {
+export const hrRecordsSensitiveReadPermission = {
   module: "hr",
   object: "employees",
   function: "read",

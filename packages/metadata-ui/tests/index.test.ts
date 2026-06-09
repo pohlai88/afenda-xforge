@@ -9,4 +9,3 @@ import "./metadata-table.test.tsx";
 import "./renderer-registry.test.tsx";
 import "./state-boundary.test.tsx";
 import "./quality-assessment.test.tsx";
-import "./public-api-consumer.test.tsx";

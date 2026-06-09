@@ -5,9 +5,10 @@
     "dev": "next dev -p 3000",
     "build": "next build",
     "start": "next start",
-    "check:metadata-ui-smoke": "tsx scripts/check-metadata-ui-smoke.mts",
+    "check:metadata-ui-smoke": "vitest run tests/dashboard-view.test.tsx",
     "lint": "biome check .",
     "format": "biome format --write .",
+    "test": "vitest run",
     "typecheck": "tsc --noEmit --emitDeclarationOnly false",
     "clean": "git clean -xdf .cache .turbo dist node_modules"
   },
@@ -40,12 +41,16 @@
   },
   "devDependencies": {
     "@repo/typescript-config": "workspace:*",
+    "@testing-library/jest-dom": "catalog:",
+    "@testing-library/react": "catalog:",
     "@tailwindcss/postcss": "catalog:",
     "@types/node": "catalog:",
     "@types/react": "catalog:",
     "@types/react-dom": "catalog:",
+    "jsdom": "catalog:",
     "tailwindcss": "catalog:",
     "tsx": "catalog:",
-    "typescript": "catalog:"
+    "typescript": "catalog:",
+    "vitest": "catalog:"
   }
 }

@@ -40,7 +40,7 @@ export function buildHrRecordsPageModel(
     page,
     pageSize,
   };
-  const recordsPage = listHrEmployeeRecordSummariesPage(search, {
+  const recordsPage = listHrEmployeeRecordSummariesPage(resolvedSearch, {
     canRead: true,
     organizationId: input.organizationId,
   });

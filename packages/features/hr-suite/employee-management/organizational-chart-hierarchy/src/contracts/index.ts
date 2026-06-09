@@ -66,17 +66,21 @@ export {
 export type {
   HrOrgAuditEventProjection,
   HrOrgChartNodeProjection,
+  HrOrgHeadcountProjection,
   HrOrgPositionProjection,
   HrOrgReportingRelationshipProjection,
   HrOrgUnitProjection,
+  HrOrgVacancyProjection,
 } from "./projection.contract.ts";
 export {
   hrOrgAuditEventProjectionSchema,
   hrOrgChartNodeProjectionSchema,
+  hrOrgHeadcountProjectionSchema,
   hrOrgOverviewProjectionSchema,
   hrOrgPositionProjectionSchema,
   hrOrgReportingRelationshipProjectionSchema,
   hrOrgUnitProjectionSchema,
+  hrOrgVacancyProjectionSchema,
 } from "./projection.contract.ts";
 export type {
   HrOrgAuditQuery,
@@ -85,9 +89,11 @@ export type {
   HrOrgReportingRelationshipQuery,
   HrOrgUnitQuery,
   ListHrOrgAuditQuery,
+  ListHrOrgHeadcountQuery,
   ListHrOrgPositionsQuery,
   ListHrOrgReportingRelationshipsQuery,
   ListHrOrgUnitsQuery,
+  ListHrOrgVacanciesQuery,
 } from "./query.contract.ts";
 export {
   listHrOrgAuditQuerySchema,

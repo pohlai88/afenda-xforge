@@ -232,7 +232,7 @@ function buildExpectedAcceptanceCode(index: number): string {
   return `AC-${String(index + 1).padStart(2, "0")}`;
 }
 
-export function assertHrWorkforceRecordsEnterpriseCoverage(): void {
+export function assertHrRecordsEnterpriseCoverage(): void {
   const requirements = new Set(
     HR_WORKFORCE_RECORDS_REQUIREMENT_COVERAGE.map((entry) => entry.code)
   );
