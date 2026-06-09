@@ -1,28 +1,101 @@
-# Metadata UI Boundary
+# Metadata UI
 
-`@repo/metadata-ui` is the adapter layer between declarative metadata and the application-facing UI package.
+`@repo/metadata-ui` is the composition boundary between declarative metadata and reusable UI primitives.
 
-It owns:
+Rule of ownership:
 
-- metadata-to-UI adaptation helpers
-- table and status rendering helpers
-- entity metadata table composition
-- enterprise table states such as loading, empty, error, and forbidden
+- if the component needs `EntityMetadata` to decide what to render, it belongs here
+- if the component is a primitive control or shared visual variant, it belongs in `@repo/ui`
+- if the component owns business rules, persistence, or runtime authority, it does not belong here
+
+It provides:
+
+- metadata table and panel composition
+- registry-driven field, action, and section renderers
+- state-boundary surfaces for loading, empty, error, forbidden, and ready states
+- compatibility helpers for existing `EntityMetadataPanel` and `EntityMetadataTable` consumers
 
 It does not own:
 
 - business rules
-- tenant policy
-- permissions
+- authorization finality
 - mutation execution
-- domain-specific persistence
+- persistence
+- primitive component variants
 
-Recommended usage:
+Allowed dependencies:
 
-- import `EntityMetadataPanel` for a full metadata-driven section shell
-- import `EntityMetadataTable` for metadata-driven list surfaces
-- import `renderMetadataStatus` for status chip rendering
-- import `resolveStatusTone` when mapping metadata values to UI tones
-- import `getMetadataSummary` when a page needs metadata counts or default sort labels
+- `@repo/metadata`
+- `@repo/ui`
 
-The package should stay declarative at the contract level and use `@repo/ui` for presentational surfaces.
+Example: compose UI primitives with metadata
+
+```tsx
+import type { EntityMetadata } from "@repo/metadata";
+import { Badge, Button, Card, CardContent, CardHeader, CardTitle, Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@repo/ui";
+import { EntityMetadataPanel } from "@repo/metadata-ui";
+
+const invoiceMetadata: EntityMetadata = {
+  id: "billing.invoices",
+  entity: "invoice",
+  title: "Invoices",
+  description: "Metadata-driven invoice surface.",
+  labels: { singular: "Invoice", plural: "Invoices" },
+  table: {
+    defaultSort: "number",
+    columns: [
+      { key: "number", label: "Invoice", field: "number", sortable: true },
+      { key: "customer", label: "Customer", field: "customer", sortable: true },
+      { key: "status", label: "Status", field: "status", kind: "status", sortable: true },
+    ],
+  },
+};
+
+const rows = [
+  { id: "inv-001", number: "INV-001", customer: "Acme", status: "active" },
+  { id: "inv-002", number: "INV-002", customer: "Globex", status: "inactive" },
+];
+
+export function MetadataBoundaryExample() {
+  return (
+    <div className="grid gap-6">
+      <Card>
+        <CardHeader className="flex items-center justify-between">
+          <CardTitle>UI primitives composed locally</CardTitle>
+          <Badge variant="secondary">Metadata UI</Badge>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <div className="flex gap-2">
+            <Button variant="outline">Filter</Button>
+            <Button>New invoice</Button>
+          </div>
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHead>Invoice</TableHead>
+                <TableHead>Customer</TableHead>
+                <TableHead>Status</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {rows.map((row) => (
+                <TableRow key={row.id}>
+                  <TableCell>{row.number}</TableCell>
+                  <TableCell>{row.customer}</TableCell>
+                  <TableCell>{row.status}</TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
+        </CardContent>
+      </Card>
+
+      <EntityMetadataPanel metadata={invoiceMetadata} rows={rows} />
+    </div>
+  );
+}
+```
+
+The package keeps rendering logic declarative and intentionally avoids direct design-system imports.
+
+See `examples/metadata-boundary.example.tsx` for a package-local fixture that composes `Button`, `Card`, `Badge`, and `Table` with `EntityMetadata`.

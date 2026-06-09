@@ -1,0 +1,68 @@
+import type { ComplianceRegulatoryTrackingManifest } from "./contracts/index.ts";
+import {
+  complianceRegulatoryTrackingManifestRouteContracts,
+  complianceRegulatoryTrackingManifestSchema,
+} from "./contracts/index.ts";
+import {
+  complianceRegulatoryTrackingFeatureScope,
+  hrSuiteFeatureScope,
+} from "./feature-scope.ts";
+import { complianceRegulatoryTrackingMetadata } from "./metadata.ts";
+import {
+  complianceRegulatoryTrackingAcceptanceCoverage,
+  complianceRegulatoryTrackingActionCatalog,
+  complianceRegulatoryTrackingApprovalActions,
+  complianceRegulatoryTrackingAudit,
+  complianceRegulatoryTrackingBoundedContext,
+  complianceRegulatoryTrackingCapabilityCatalog,
+  complianceRegulatoryTrackingCapabilityGroups,
+  complianceRegulatoryTrackingDashboardMetrics,
+  complianceRegulatoryTrackingDashboards,
+  complianceRegulatoryTrackingDataClassification,
+  complianceRegulatoryTrackingGovernance,
+  complianceRegulatoryTrackingHighRiskActions,
+  complianceRegulatoryTrackingIntegrations,
+  complianceRegulatoryTrackingNavigation,
+  complianceRegulatoryTrackingOwnership,
+  complianceRegulatoryTrackingRequirementCoverage,
+  complianceRegulatoryTrackingRiskClassification,
+  complianceRegulatoryTrackingSensitiveCapabilities,
+  complianceRegulatoryTrackingStatuses,
+  complianceRegulatoryTrackingWriteCapabilities,
+} from "./registry/index.ts";
+
+export const complianceRegulatoryTrackingManifest: ComplianceRegulatoryTrackingManifest =
+  complianceRegulatoryTrackingManifestSchema.parse({
+    id: complianceRegulatoryTrackingMetadata.id,
+    title: complianceRegulatoryTrackingMetadata.title,
+    description: complianceRegulatoryTrackingMetadata.description,
+    domain: complianceRegulatoryTrackingMetadata.domain,
+    version: 1,
+    schemaVersion: 1,
+    lifecycle: "active",
+    stability: "beta",
+    packageName: complianceRegulatoryTrackingFeatureScope.packageName,
+    routeContracts: complianceRegulatoryTrackingManifestRouteContracts,
+    source: hrSuiteFeatureScope.source,
+    suite: hrSuiteFeatureScope.suite,
+    boundedContext: complianceRegulatoryTrackingBoundedContext,
+    capabilities: complianceRegulatoryTrackingCapabilityCatalog,
+    capabilityGroups: complianceRegulatoryTrackingCapabilityGroups,
+    dashboardMetrics: complianceRegulatoryTrackingDashboardMetrics,
+    ownership: complianceRegulatoryTrackingOwnership,
+    navigation: complianceRegulatoryTrackingNavigation,
+    dashboards: complianceRegulatoryTrackingDashboards,
+    governance: complianceRegulatoryTrackingGovernance,
+    actions: complianceRegulatoryTrackingActionCatalog,
+    highRiskActions: complianceRegulatoryTrackingHighRiskActions,
+    approvalActions: complianceRegulatoryTrackingApprovalActions,
+    audit: complianceRegulatoryTrackingAudit,
+    dataClassification: complianceRegulatoryTrackingDataClassification,
+    riskClassification: complianceRegulatoryTrackingRiskClassification,
+    integrations: complianceRegulatoryTrackingIntegrations,
+    requirementCoverage: complianceRegulatoryTrackingRequirementCoverage,
+    acceptanceCriteria: complianceRegulatoryTrackingAcceptanceCoverage,
+    sensitiveCapabilities: complianceRegulatoryTrackingSensitiveCapabilities,
+    statuses: complianceRegulatoryTrackingStatuses,
+    writeCapabilities: complianceRegulatoryTrackingWriteCapabilities,
+  });

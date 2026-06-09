@@ -1,7 +1,7 @@
 "use client";
 
 import { AnalyticsProvider } from "@repo/analytics/provider";
-import { DesignSystemProvider } from "@repo/design-system";
+import { DesignSystemProvider } from "@repo/ui";
 import type { ReactElement, ReactNode } from "react";
 
 type ProvidersProps = {

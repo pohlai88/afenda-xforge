@@ -152,7 +152,7 @@ Adoption decision:
 
 Target in Xforge:
 
-- Future control-plane feature or app package for tenant admin workflows
+- `packages/features/system-admin/control-plane` for governed tenant admin workflows
 - Existing `packages/health`
 - Existing `packages/metrics`
 - Existing `packages/audit`
@@ -177,7 +177,7 @@ Adoption decision:
 
 Target in Xforge:
 
-- Future control-plane app or feature package for operator tenant actions
+- `packages/features/system-admin/control-plane` for governed operator tenant actions
 - Existing `packages/health`
 - Existing `packages/metrics`
 - Existing `packages/audit`
@@ -277,7 +277,7 @@ Do not expose future tenant-admin or billing routes by importing arbitrary inter
 1. Extract the commercial source of truth from `saas/src/index.ts`.
 2. Delete the duplicated tier-to-module logic conceptually represented by `admin.getModulesForTier()`.
 3. Keep wiring current feature packages through existing `packages/audit`, `packages/permissions`, and `packages/execution` boundaries.
-4. Create a dedicated control-plane feature or app for tenant admin routes.
+4. Create or extend `packages/features/system-admin/control-plane` for governed tenant admin routes.
 5. Implement tenant provisioning and tier-change workflows only after `packages/tenancy` and `packages/billing` or `packages/commercial` land.
 
 ## Bottom Line
@@ -287,3 +287,4 @@ Do not expose future tenant-admin or billing routes by importing arbitrary inter
 - `health` and `audit` do not belong in the same control-plane file.
 - plan and entitlement truth must exist in one place only.
 - next-wave Xforge adoption should be split into commercial, tenancy, and control-plane route layers, while audit, permissions, and execution remain the current shared backbone.
+- the first XForge control-plane implementation is `packages/features/system-admin/control-plane`; it is a feature package and must not absorb billing, tenancy, monitoring, audit, permissions, execution, metadata, or customization authority.

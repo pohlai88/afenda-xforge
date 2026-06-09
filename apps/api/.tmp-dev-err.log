@@ -1,0 +1,610 @@
+❌ Invalid environment variables: [
+  {
+    expected: 'string',
+    code: 'invalid_type',
+    path: [ 'DATABASE_URL' ],
+    message: 'Invalid input: expected string, received undefined'
+  }
+]
+⨯ Error: Invalid environment variables
+    at keys (..\..\packages\database\keys.ts:9:12)
+    at loadDatabaseKeys (..\..\packages\database\keys.ts:22:27)
+    at module evaluation (..\..\packages\database\db.ts:10:50)
+    at module evaluation (..\..\packages\database\index.ts:2:1)
+    at module evaluation (..\..\packages\audit\query.ts:3:1)
+    at module evaluation (..\..\packages\audit\index.ts:36:1)
+    at module evaluation (app\webhooks\_lib\runtime.ts:3:1)
+    at module evaluation (app\api\internal\webhooks\dispatch\health\route.ts:4:1)
+   7 |
+   8 | export const keys = (): DatabaseKeys =>
+>  9 |   createEnv({
+     |            ^
+  10 |     skipValidation: process.env.SKIP_ENV_VALIDATION === "true",
+  11 |     server: {
+  12 |       DATABASE_URL: z.string().url(), {
+  page: '/api/internal/webhooks/dispatch/health'
+}
+⨯ Error: Invalid environment variables
+    at keys (..\..\packages\database\keys.ts:9:12)
+    at loadDatabaseKeys (..\..\packages\database\keys.ts:22:27)
+    at module evaluation (..\..\packages\database\db.ts:10:50)
+    at module evaluation (..\..\packages\database\index.ts:2:1)
+    at module evaluation (..\..\packages\audit\query.ts:3:1)
+    at module evaluation (..\..\packages\audit\index.ts:36:1)
+    at module evaluation (app\webhooks\_lib\runtime.ts:3:1)
+    at module evaluation (app\api\internal\webhooks\dispatch\health\route.ts:4:1)
+   7 |
+   8 | export const keys = (): DatabaseKeys =>
+>  9 |   createEnv({
+     |            ^
+  10 |     skipValidation: process.env.SKIP_ENV_VALIDATION === "true",
+  11 |     server: {
+  12 |       DATABASE_URL: z.string().url(), {
+  page: '/api/internal/webhooks/dispatch/health'
+}
+⨯ Error: Invalid environment variables
+    at keys (..\..\packages\database\keys.ts:9:12)
+    at loadDatabaseKeys (..\..\packages\database\keys.ts:22:27)
+    at module evaluation (..\..\packages\database\db.ts:10:50)
+    at module evaluation (..\..\packages\database\index.ts:2:1)
+    at module evaluation (..\..\packages\audit\query.ts:3:1)
+    at module evaluation (..\..\packages\audit\index.ts:36:1)
+    at module evaluation (app\webhooks\_lib\runtime.ts:3:1)
+    at module evaluation (app\api\internal\webhooks\dispatch\health\route.ts:4:1)
+   7 |
+   8 | export const keys = (): DatabaseKeys =>
+>  9 |   createEnv({
+     |            ^
+  10 |     skipValidation: process.env.SKIP_ENV_VALIDATION === "true",
+  11 |     server: {
+  12 |       DATABASE_URL: z.string().url(), {
+  page: '/api/internal/webhooks/dispatch/health'
+}
+⨯ Error: Invalid environment variables
+    at keys (..\..\packages\database\keys.ts:9:12)
+    at loadDatabaseKeys (..\..\packages\database\keys.ts:22:27)
+    at module evaluation (..\..\packages\database\db.ts:10:50)
+    at module evaluation (..\..\packages\database\index.ts:2:1)
+    at module evaluation (..\..\packages\audit\query.ts:3:1)
+    at module evaluation (..\..\packages\audit\index.ts:36:1)
+    at module evaluation (app\webhooks\_lib\runtime.ts:3:1)
+    at module evaluation (app\api\internal\webhooks\dispatch\health\route.ts:4:1)
+   7 |
+   8 | export const keys = (): DatabaseKeys =>
+>  9 |   createEnv({
+     |            ^
+  10 |     skipValidation: process.env.SKIP_ENV_VALIDATION === "true",
+  11 |     server: {
+  12 |       DATABASE_URL: z.string().url(), {
+  page: '/api/internal/webhooks/dispatch/health'
+}
+⨯ Error: Invalid environment variables
+    at keys (..\..\packages\database\keys.ts:9:12)
+    at loadDatabaseKeys (..\..\packages\database\keys.ts:22:27)
+    at module evaluation (..\..\packages\database\db.ts:10:50)
+    at module evaluation (..\..\packages\database\index.ts:2:1)
+    at module evaluation (..\..\packages\audit\query.ts:3:1)
+    at module evaluation (..\..\packages\audit\index.ts:36:1)
+    at module evaluation (app\webhooks\_lib\runtime.ts:3:1)
+    at module evaluation (app\api\internal\webhooks\dispatch\health\route.ts:4:1)
+   7 |
+   8 | export const keys = (): DatabaseKeys =>
+>  9 |   createEnv({
+     |            ^
+  10 |     skipValidation: process.env.SKIP_ENV_VALIDATION === "true",
+  11 |     server: {
+  12 |       DATABASE_URL: z.string().url(), {
+  page: '/api/internal/webhooks/dispatch/health'
+}
+⨯ Error: Invalid environment variables
+    at keys (..\..\packages\database\keys.ts:9:12)
+    at loadDatabaseKeys (..\..\packages\database\keys.ts:22:27)
+    at module evaluation (..\..\packages\database\db.ts:10:50)
+    at module evaluation (..\..\packages\database\index.ts:2:1)
+    at module evaluation (..\..\packages\audit\query.ts:3:1)
+    at module evaluation (..\..\packages\audit\index.ts:36:1)
+    at module evaluation (app\webhooks\_lib\runtime.ts:3:1)
+    at module evaluation (app\api\internal\webhooks\dispatch\health\route.ts:4:1)
+   7 |
+   8 | export const keys = (): DatabaseKeys =>
+>  9 |   createEnv({
+     |            ^
+  10 |     skipValidation: process.env.SKIP_ENV_VALIDATION === "true",
+  11 |     server: {
+  12 |       DATABASE_URL: z.string().url(), {
+  page: '/api/internal/webhooks/dispatch/health'
+}
+⨯ Error: Invalid environment variables
+    at keys (..\..\packages\database\keys.ts:9:12)
+    at loadDatabaseKeys (..\..\packages\database\keys.ts:22:27)
+    at module evaluation (..\..\packages\database\db.ts:10:50)
+    at module evaluation (..\..\packages\database\index.ts:2:1)
+    at module evaluation (..\..\packages\audit\query.ts:3:1)
+    at module evaluation (..\..\packages\audit\index.ts:36:1)
+    at module evaluation (app\webhooks\_lib\runtime.ts:3:1)
+    at module evaluation (app\api\internal\webhooks\dispatch\health\route.ts:4:1)
+   7 |
+   8 | export const keys = (): DatabaseKeys =>
+>  9 |   createEnv({
+     |            ^
+  10 |     skipValidation: process.env.SKIP_ENV_VALIDATION === "true",
+  11 |     server: {
+  12 |       DATABASE_URL: z.string().url(), {
+  page: '/api/internal/webhooks/dispatch/health'
+}
+⨯ Error: Invalid environment variables
+    at keys (..\..\packages\database\keys.ts:9:12)
+    at loadDatabaseKeys (..\..\packages\database\keys.ts:22:27)
+    at module evaluation (..\..\packages\database\db.ts:10:50)
+    at module evaluation (..\..\packages\database\index.ts:2:1)
+    at module evaluation (..\..\packages\audit\query.ts:3:1)
+    at module evaluation (..\..\packages\audit\index.ts:36:1)
+    at module evaluation (app\webhooks\_lib\runtime.ts:3:1)
+    at module evaluation (app\api\internal\webhooks\dispatch\health\route.ts:4:1)
+   7 |
+   8 | export const keys = (): DatabaseKeys =>
+>  9 |   createEnv({
+     |            ^
+  10 |     skipValidation: process.env.SKIP_ENV_VALIDATION === "true",
+  11 |     server: {
+  12 |       DATABASE_URL: z.string().url(), {
+  page: '/api/internal/webhooks/dispatch/health'
+}
+⨯ Error: Invalid environment variables
+    at keys (..\..\packages\database\keys.ts:9:12)
+    at loadDatabaseKeys (..\..\packages\database\keys.ts:22:27)
+    at module evaluation (..\..\packages\database\db.ts:10:50)
+    at module evaluation (..\..\packages\database\index.ts:2:1)
+    at module evaluation (..\..\packages\audit\query.ts:3:1)
+    at module evaluation (..\..\packages\audit\index.ts:36:1)
+    at module evaluation (app\webhooks\_lib\runtime.ts:3:1)
+    at module evaluation (app\api\internal\webhooks\dispatch\health\route.ts:4:1)
+   7 |
+   8 | export const keys = (): DatabaseKeys =>
+>  9 |   createEnv({
+     |            ^
+  10 |     skipValidation: process.env.SKIP_ENV_VALIDATION === "true",
+  11 |     server: {
+  12 |       DATABASE_URL: z.string().url(), {
+  page: '/api/internal/webhooks/dispatch/health'
+}
+⨯ Error: Invalid environment variables
+    at keys (..\..\packages\database\keys.ts:9:12)
+    at loadDatabaseKeys (..\..\packages\database\keys.ts:22:27)
+    at module evaluation (..\..\packages\database\db.ts:10:50)
+    at module evaluation (..\..\packages\database\index.ts:2:1)
+    at module evaluation (..\..\packages\audit\query.ts:3:1)
+    at module evaluation (..\..\packages\audit\index.ts:36:1)
+    at module evaluation (app\webhooks\_lib\runtime.ts:3:1)
+    at module evaluation (app\api\internal\webhooks\dispatch\health\route.ts:4:1)
+   7 |
+   8 | export const keys = (): DatabaseKeys =>
+>  9 |   createEnv({
+     |            ^
+  10 |     skipValidation: process.env.SKIP_ENV_VALIDATION === "true",
+  11 |     server: {
+  12 |       DATABASE_URL: z.string().url(), {
+  page: '/api/internal/webhooks/dispatch/health'
+}
+⨯ Error: Invalid environment variables
+    at keys (..\..\packages\database\keys.ts:9:12)
+    at loadDatabaseKeys (..\..\packages\database\keys.ts:22:27)
+    at module evaluation (..\..\packages\database\db.ts:10:50)
+    at module evaluation (..\..\packages\database\index.ts:2:1)
+    at module evaluation (..\..\packages\audit\query.ts:3:1)
+    at module evaluation (..\..\packages\audit\index.ts:36:1)
+    at module evaluation (app\webhooks\_lib\runtime.ts:3:1)
+    at module evaluation (app\api\internal\webhooks\dispatch\health\route.ts:4:1)
+   7 |
+   8 | export const keys = (): DatabaseKeys =>
+>  9 |   createEnv({
+     |            ^
+  10 |     skipValidation: process.env.SKIP_ENV_VALIDATION === "true",
+  11 |     server: {
+  12 |       DATABASE_URL: z.string().url(), {
+  page: '/api/internal/webhooks/dispatch/health'
+}
+⨯ Error: Invalid environment variables
+    at keys (..\..\packages\database\keys.ts:9:12)
+    at loadDatabaseKeys (..\..\packages\database\keys.ts:22:27)
+    at module evaluation (..\..\packages\database\db.ts:10:50)
+    at module evaluation (..\..\packages\database\index.ts:2:1)
+    at module evaluation (..\..\packages\audit\query.ts:3:1)
+    at module evaluation (..\..\packages\audit\index.ts:36:1)
+    at module evaluation (app\webhooks\_lib\runtime.ts:3:1)
+    at module evaluation (app\api\internal\webhooks\dispatch\health\route.ts:4:1)
+   7 |
+   8 | export const keys = (): DatabaseKeys =>
+>  9 |   createEnv({
+     |            ^
+  10 |     skipValidation: process.env.SKIP_ENV_VALIDATION === "true",
+  11 |     server: {
+  12 |       DATABASE_URL: z.string().url(), {
+  page: '/api/internal/webhooks/dispatch/health'
+}
+⨯ Error: Invalid environment variables
+    at keys (..\..\packages\database\keys.ts:9:12)
+    at loadDatabaseKeys (..\..\packages\database\keys.ts:22:27)
+    at module evaluation (..\..\packages\database\db.ts:10:50)
+    at module evaluation (..\..\packages\database\index.ts:2:1)
+    at module evaluation (..\..\packages\audit\query.ts:3:1)
+    at module evaluation (..\..\packages\audit\index.ts:36:1)
+    at module evaluation (app\webhooks\_lib\runtime.ts:3:1)
+    at module evaluation (app\api\internal\webhooks\dispatch\health\route.ts:4:1)
+   7 |
+   8 | export const keys = (): DatabaseKeys =>
+>  9 |   createEnv({
+     |            ^
+  10 |     skipValidation: process.env.SKIP_ENV_VALIDATION === "true",
+  11 |     server: {
+  12 |       DATABASE_URL: z.string().url(), {
+  page: '/api/internal/webhooks/dispatch/health'
+}
+⨯ Error: Invalid environment variables
+    at keys (..\..\packages\database\keys.ts:9:12)
+    at loadDatabaseKeys (..\..\packages\database\keys.ts:22:27)
+    at module evaluation (..\..\packages\database\db.ts:10:50)
+    at module evaluation (..\..\packages\database\index.ts:2:1)
+    at module evaluation (..\..\packages\audit\query.ts:3:1)
+    at module evaluation (..\..\packages\audit\index.ts:36:1)
+    at module evaluation (app\webhooks\_lib\runtime.ts:3:1)
+    at module evaluation (app\api\internal\webhooks\dispatch\health\route.ts:4:1)
+   7 |
+   8 | export const keys = (): DatabaseKeys =>
+>  9 |   createEnv({
+     |            ^
+  10 |     skipValidation: process.env.SKIP_ENV_VALIDATION === "true",
+  11 |     server: {
+  12 |       DATABASE_URL: z.string().url(), {
+  page: '/api/internal/webhooks/dispatch/health'
+}
+⨯ Error: Invalid environment variables
+    at keys (..\..\packages\database\keys.ts:9:12)
+    at loadDatabaseKeys (..\..\packages\database\keys.ts:22:27)
+    at module evaluation (..\..\packages\database\db.ts:10:50)
+    at module evaluation (..\..\packages\database\index.ts:2:1)
+    at module evaluation (..\..\packages\audit\query.ts:3:1)
+    at module evaluation (..\..\packages\audit\index.ts:36:1)
+    at module evaluation (app\webhooks\_lib\runtime.ts:3:1)
+    at module evaluation (app\api\internal\webhooks\dispatch\health\route.ts:4:1)
+   7 |
+   8 | export const keys = (): DatabaseKeys =>
+>  9 |   createEnv({
+     |            ^
+  10 |     skipValidation: process.env.SKIP_ENV_VALIDATION === "true",
+  11 |     server: {
+  12 |       DATABASE_URL: z.string().url(), {
+  page: '/api/internal/webhooks/dispatch/health'
+}
+⨯ Error: Invalid environment variables
+    at keys (..\..\packages\database\keys.ts:9:12)
+    at loadDatabaseKeys (..\..\packages\database\keys.ts:22:27)
+    at module evaluation (..\..\packages\database\db.ts:10:50)
+    at module evaluation (..\..\packages\database\index.ts:2:1)
+    at module evaluation (..\..\packages\audit\query.ts:3:1)
+    at module evaluation (..\..\packages\audit\index.ts:36:1)
+    at module evaluation (app\webhooks\_lib\runtime.ts:3:1)
+    at module evaluation (app\api\internal\webhooks\dispatch\health\route.ts:4:1)
+   7 |
+   8 | export const keys = (): DatabaseKeys =>
+>  9 |   createEnv({
+     |            ^
+  10 |     skipValidation: process.env.SKIP_ENV_VALIDATION === "true",
+  11 |     server: {
+  12 |       DATABASE_URL: z.string().url(), {
+  page: '/api/internal/webhooks/dispatch/health'
+}
+⨯ Error: Invalid environment variables
+    at keys (..\..\packages\database\keys.ts:9:12)
+    at loadDatabaseKeys (..\..\packages\database\keys.ts:22:27)
+    at module evaluation (..\..\packages\database\db.ts:10:50)
+    at module evaluation (..\..\packages\database\index.ts:2:1)
+    at module evaluation (..\..\packages\audit\query.ts:3:1)
+    at module evaluation (..\..\packages\audit\index.ts:36:1)
+    at module evaluation (app\webhooks\_lib\runtime.ts:3:1)
+    at module evaluation (app\api\internal\webhooks\dispatch\health\route.ts:4:1)
+   7 |
+   8 | export const keys = (): DatabaseKeys =>
+>  9 |   createEnv({
+     |            ^
+  10 |     skipValidation: process.env.SKIP_ENV_VALIDATION === "true",
+  11 |     server: {
+  12 |       DATABASE_URL: z.string().url(), {
+  page: '/api/internal/webhooks/dispatch/health'
+}
+⨯ Error: Invalid environment variables
+    at keys (..\..\packages\database\keys.ts:9:12)
+    at loadDatabaseKeys (..\..\packages\database\keys.ts:22:27)
+    at module evaluation (..\..\packages\database\db.ts:10:50)
+    at module evaluation (..\..\packages\database\index.ts:2:1)
+    at module evaluation (..\..\packages\audit\query.ts:3:1)
+    at module evaluation (..\..\packages\audit\index.ts:36:1)
+    at module evaluation (app\webhooks\_lib\runtime.ts:3:1)
+    at module evaluation (app\api\internal\webhooks\dispatch\health\route.ts:4:1)
+   7 |
+   8 | export const keys = (): DatabaseKeys =>
+>  9 |   createEnv({
+     |            ^
+  10 |     skipValidation: process.env.SKIP_ENV_VALIDATION === "true",
+  11 |     server: {
+  12 |       DATABASE_URL: z.string().url(), {
+  page: '/api/internal/webhooks/dispatch/health'
+}
+⨯ Error: Invalid environment variables
+    at keys (..\..\packages\database\keys.ts:9:12)
+    at loadDatabaseKeys (..\..\packages\database\keys.ts:22:27)
+    at module evaluation (..\..\packages\database\db.ts:10:50)
+    at module evaluation (..\..\packages\database\index.ts:2:1)
+    at module evaluation (..\..\packages\audit\query.ts:3:1)
+    at module evaluation (..\..\packages\audit\index.ts:36:1)
+    at module evaluation (app\webhooks\_lib\runtime.ts:3:1)
+    at module evaluation (app\api\internal\webhooks\dispatch\health\route.ts:4:1)
+   7 |
+   8 | export const keys = (): DatabaseKeys =>
+>  9 |   createEnv({
+     |            ^
+  10 |     skipValidation: process.env.SKIP_ENV_VALIDATION === "true",
+  11 |     server: {
+  12 |       DATABASE_URL: z.string().url(), {
+  page: '/api/internal/webhooks/dispatch/health'
+}
+⨯ Error: Invalid environment variables
+    at keys (..\..\packages\database\keys.ts:9:12)
+    at loadDatabaseKeys (..\..\packages\database\keys.ts:22:27)
+    at module evaluation (..\..\packages\database\db.ts:10:50)
+    at module evaluation (..\..\packages\database\index.ts:2:1)
+    at module evaluation (..\..\packages\audit\query.ts:3:1)
+    at module evaluation (..\..\packages\audit\index.ts:36:1)
+    at module evaluation (app\webhooks\_lib\runtime.ts:3:1)
+    at module evaluation (app\api\internal\webhooks\dispatch\health\route.ts:4:1)
+   7 |
+   8 | export const keys = (): DatabaseKeys =>
+>  9 |   createEnv({
+     |            ^
+  10 |     skipValidation: process.env.SKIP_ENV_VALIDATION === "true",
+  11 |     server: {
+  12 |       DATABASE_URL: z.string().url(), {
+  page: '/api/internal/webhooks/dispatch/health'
+}
+⨯ Error: Invalid environment variables
+    at keys (..\..\packages\database\keys.ts:9:12)
+    at loadDatabaseKeys (..\..\packages\database\keys.ts:22:27)
+    at module evaluation (..\..\packages\database\db.ts:10:50)
+    at module evaluation (..\..\packages\database\index.ts:2:1)
+    at module evaluation (..\..\packages\audit\query.ts:3:1)
+    at module evaluation (..\..\packages\audit\index.ts:36:1)
+    at module evaluation (app\webhooks\_lib\runtime.ts:3:1)
+    at module evaluation (app\api\internal\webhooks\dispatch\health\route.ts:4:1)
+   7 |
+   8 | export const keys = (): DatabaseKeys =>
+>  9 |   createEnv({
+     |            ^
+  10 |     skipValidation: process.env.SKIP_ENV_VALIDATION === "true",
+  11 |     server: {
+  12 |       DATABASE_URL: z.string().url(), {
+  page: '/api/internal/webhooks/dispatch/health'
+}
+⨯ Error: Invalid environment variables
+    at keys (..\..\packages\database\keys.ts:9:12)
+    at loadDatabaseKeys (..\..\packages\database\keys.ts:22:27)
+    at module evaluation (..\..\packages\database\db.ts:10:50)
+    at module evaluation (..\..\packages\database\index.ts:2:1)
+    at module evaluation (..\..\packages\audit\query.ts:3:1)
+    at module evaluation (..\..\packages\audit\index.ts:36:1)
+    at module evaluation (app\webhooks\_lib\runtime.ts:3:1)
+    at module evaluation (app\api\internal\webhooks\dispatch\health\route.ts:4:1)
+   7 |
+   8 | export const keys = (): DatabaseKeys =>
+>  9 |   createEnv({
+     |            ^
+  10 |     skipValidation: process.env.SKIP_ENV_VALIDATION === "true",
+  11 |     server: {
+  12 |       DATABASE_URL: z.string().url(), {
+  page: '/api/internal/webhooks/dispatch/health'
+}
+⨯ Error: Invalid environment variables
+    at keys (..\..\packages\database\keys.ts:9:12)
+    at loadDatabaseKeys (..\..\packages\database\keys.ts:22:27)
+    at module evaluation (..\..\packages\database\db.ts:10:50)
+    at module evaluation (..\..\packages\database\index.ts:2:1)
+    at module evaluation (..\..\packages\audit\query.ts:3:1)
+    at module evaluation (..\..\packages\audit\index.ts:36:1)
+    at module evaluation (app\webhooks\_lib\runtime.ts:3:1)
+    at module evaluation (app\api\internal\webhooks\dispatch\health\route.ts:4:1)
+   7 |
+   8 | export const keys = (): DatabaseKeys =>
+>  9 |   createEnv({
+     |            ^
+  10 |     skipValidation: process.env.SKIP_ENV_VALIDATION === "true",
+  11 |     server: {
+  12 |       DATABASE_URL: z.string().url(), {
+  page: '/api/internal/webhooks/dispatch/health'
+}
+⨯ Error: Invalid environment variables
+    at keys (..\..\packages\database\keys.ts:9:12)
+    at loadDatabaseKeys (..\..\packages\database\keys.ts:22:27)
+    at module evaluation (..\..\packages\database\db.ts:10:50)
+    at module evaluation (..\..\packages\database\index.ts:2:1)
+    at module evaluation (..\..\packages\audit\query.ts:3:1)
+    at module evaluation (..\..\packages\audit\index.ts:36:1)
+    at module evaluation (app\webhooks\_lib\runtime.ts:3:1)
+    at module evaluation (app\api\internal\webhooks\dispatch\health\route.ts:4:1)
+   7 |
+   8 | export const keys = (): DatabaseKeys =>
+>  9 |   createEnv({
+     |            ^
+  10 |     skipValidation: process.env.SKIP_ENV_VALIDATION === "true",
+  11 |     server: {
+  12 |       DATABASE_URL: z.string().url(), {
+  page: '/api/internal/webhooks/dispatch/health'
+}
+⨯ Error: Invalid environment variables
+    at keys (..\..\packages\database\keys.ts:9:12)
+    at loadDatabaseKeys (..\..\packages\database\keys.ts:22:27)
+    at module evaluation (..\..\packages\database\db.ts:10:50)
+    at module evaluation (..\..\packages\database\index.ts:2:1)
+    at module evaluation (..\..\packages\audit\query.ts:3:1)
+    at module evaluation (..\..\packages\audit\index.ts:36:1)
+    at module evaluation (app\webhooks\_lib\runtime.ts:3:1)
+    at module evaluation (app\api\internal\webhooks\dispatch\health\route.ts:4:1)
+   7 |
+   8 | export const keys = (): DatabaseKeys =>
+>  9 |   createEnv({
+     |            ^
+  10 |     skipValidation: process.env.SKIP_ENV_VALIDATION === "true",
+  11 |     server: {
+  12 |       DATABASE_URL: z.string().url(), {
+  page: '/api/internal/webhooks/dispatch/health'
+}
+⨯ Error: Invalid environment variables
+    at keys (..\..\packages\database\keys.ts:9:12)
+    at loadDatabaseKeys (..\..\packages\database\keys.ts:22:27)
+    at module evaluation (..\..\packages\database\db.ts:10:50)
+    at module evaluation (..\..\packages\database\index.ts:2:1)
+    at module evaluation (..\..\packages\audit\query.ts:3:1)
+    at module evaluation (..\..\packages\audit\index.ts:36:1)
+    at module evaluation (app\webhooks\_lib\runtime.ts:3:1)
+    at module evaluation (app\api\internal\webhooks\dispatch\health\route.ts:4:1)
+   7 |
+   8 | export const keys = (): DatabaseKeys =>
+>  9 |   createEnv({
+     |            ^
+  10 |     skipValidation: process.env.SKIP_ENV_VALIDATION === "true",
+  11 |     server: {
+  12 |       DATABASE_URL: z.string().url(), {
+  page: '/api/internal/webhooks/dispatch/health'
+}
+⨯ Error: Invalid environment variables
+    at keys (..\..\packages\database\keys.ts:9:12)
+    at loadDatabaseKeys (..\..\packages\database\keys.ts:22:27)
+    at module evaluation (..\..\packages\database\db.ts:10:50)
+    at module evaluation (..\..\packages\database\index.ts:2:1)
+    at module evaluation (..\..\packages\audit\query.ts:3:1)
+    at module evaluation (..\..\packages\audit\index.ts:36:1)
+    at module evaluation (app\webhooks\_lib\runtime.ts:3:1)
+    at module evaluation (app\api\internal\webhooks\dispatch\health\route.ts:4:1)
+   7 |
+   8 | export const keys = (): DatabaseKeys =>
+>  9 |   createEnv({
+     |            ^
+  10 |     skipValidation: process.env.SKIP_ENV_VALIDATION === "true",
+  11 |     server: {
+  12 |       DATABASE_URL: z.string().url(), {
+  page: '/api/internal/webhooks/dispatch/health'
+}
+⨯ Error: Invalid environment variables
+    at keys (..\..\packages\database\keys.ts:9:12)
+    at loadDatabaseKeys (..\..\packages\database\keys.ts:22:27)
+    at module evaluation (..\..\packages\database\db.ts:10:50)
+    at module evaluation (..\..\packages\database\index.ts:2:1)
+    at module evaluation (..\..\packages\audit\query.ts:3:1)
+    at module evaluation (..\..\packages\audit\index.ts:36:1)
+    at module evaluation (app\webhooks\_lib\runtime.ts:3:1)
+    at module evaluation (app\api\internal\webhooks\dispatch\health\route.ts:4:1)
+   7 |
+   8 | export const keys = (): DatabaseKeys =>
+>  9 |   createEnv({
+     |            ^
+  10 |     skipValidation: process.env.SKIP_ENV_VALIDATION === "true",
+  11 |     server: {
+  12 |       DATABASE_URL: z.string().url(), {
+  page: '/api/internal/webhooks/dispatch/health'
+}
+⨯ Error: Invalid environment variables
+    at keys (..\..\packages\database\keys.ts:9:12)
+    at loadDatabaseKeys (..\..\packages\database\keys.ts:22:27)
+    at module evaluation (..\..\packages\database\db.ts:10:50)
+    at module evaluation (..\..\packages\database\index.ts:2:1)
+    at module evaluation (..\..\packages\audit\query.ts:3:1)
+    at module evaluation (..\..\packages\audit\index.ts:36:1)
+    at module evaluation (app\webhooks\_lib\runtime.ts:3:1)
+    at module evaluation (app\api\internal\webhooks\dispatch\health\route.ts:4:1)
+   7 |
+   8 | export const keys = (): DatabaseKeys =>
+>  9 |   createEnv({
+     |            ^
+  10 |     skipValidation: process.env.SKIP_ENV_VALIDATION === "true",
+  11 |     server: {
+  12 |       DATABASE_URL: z.string().url(), {
+  page: '/api/internal/webhooks/dispatch/health'
+}
+⨯ Error: Invalid environment variables
+    at keys (..\..\packages\database\keys.ts:9:12)
+    at loadDatabaseKeys (..\..\packages\database\keys.ts:22:27)
+    at module evaluation (..\..\packages\database\db.ts:10:50)
+    at module evaluation (..\..\packages\database\index.ts:2:1)
+    at module evaluation (..\..\packages\audit\query.ts:3:1)
+    at module evaluation (..\..\packages\audit\index.ts:36:1)
+    at module evaluation (app\webhooks\_lib\runtime.ts:3:1)
+    at module evaluation (app\api\internal\webhooks\dispatch\health\route.ts:4:1)
+   7 |
+   8 | export const keys = (): DatabaseKeys =>
+>  9 |   createEnv({
+     |            ^
+  10 |     skipValidation: process.env.SKIP_ENV_VALIDATION === "true",
+  11 |     server: {
+  12 |       DATABASE_URL: z.string().url(), {
+  page: '/api/internal/webhooks/dispatch/health'
+}
+❌ Invalid environment variables: [
+  {
+    expected: 'string',
+    code: 'invalid_type',
+    path: [ 'DATABASE_URL' ],
+    message: 'Invalid input: expected string, received undefined'
+  }
+]
+⨯ Error: Invalid environment variables
+    at keys (..\..\packages\database\keys.ts:9:12)
+    at loadDatabaseKeys (..\..\packages\database\keys.ts:22:27)
+    at module evaluation (..\..\packages\database\db.ts:10:50)
+    at module evaluation (..\..\packages\database\index.ts:2:1)
+    at module evaluation (..\..\packages\audit\query.ts:3:1)
+    at module evaluation (..\..\packages\audit\index.ts:36:1)
+    at module evaluation (app\webhooks\_lib\runtime.ts:3:1)
+    at module evaluation (app\api\internal\webhooks\dispatch\route.ts:5:1)
+   7 |
+   8 | export const keys = (): DatabaseKeys =>
+>  9 |   createEnv({
+     |            ^
+  10 |     skipValidation: process.env.SKIP_ENV_VALIDATION === "true",
+  11 |     server: {
+  12 |       DATABASE_URL: z.string().url(), {
+  page: '/api/internal/webhooks/dispatch'
+}
+⨯ Error: Invalid environment variables
+    at keys (..\..\packages\database\keys.ts:9:12)
+    at loadDatabaseKeys (..\..\packages\database\keys.ts:22:27)
+    at module evaluation (..\..\packages\database\db.ts:10:50)
+    at module evaluation (..\..\packages\database\index.ts:2:1)
+    at module evaluation (..\..\packages\audit\query.ts:3:1)
+    at module evaluation (..\..\packages\audit\index.ts:36:1)
+    at module evaluation (app\webhooks\_lib\runtime.ts:3:1)
+    at module evaluation (app\api\internal\webhooks\dispatch\route.ts:5:1)
+   7 |
+   8 | export const keys = (): DatabaseKeys =>
+>  9 |   createEnv({
+     |            ^
+  10 |     skipValidation: process.env.SKIP_ENV_VALIDATION === "true",
+  11 |     server: {
+  12 |       DATABASE_URL: z.string().url(), {
+  page: '/api/internal/webhooks/dispatch'
+}
+⨯ Error: Invalid environment variables
+    at keys (..\..\packages\database\keys.ts:9:12)
+    at loadDatabaseKeys (..\..\packages\database\keys.ts:22:27)
+    at module evaluation (..\..\packages\database\db.ts:10:50)
+    at module evaluation (..\..\packages\database\index.ts:2:1)
+    at module evaluation (..\..\packages\audit\query.ts:3:1)
+    at module evaluation (..\..\packages\audit\index.ts:36:1)
+    at module evaluation (app\webhooks\_lib\runtime.ts:3:1)
+    at module evaluation (app\api\internal\webhooks\dispatch\route.ts:5:1)
+   7 |
+   8 | export const keys = (): DatabaseKeys =>
+>  9 |   createEnv({
+     |            ^
+  10 |     skipValidation: process.env.SKIP_ENV_VALIDATION === "true",
+  11 |     server: {
+  12 |       DATABASE_URL: z.string().url(), {
+  page: '/api/internal/webhooks/dispatch'
+}

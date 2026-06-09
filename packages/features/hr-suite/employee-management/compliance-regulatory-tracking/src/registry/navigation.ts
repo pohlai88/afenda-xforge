@@ -1,0 +1,130 @@
+import type { ComplianceRegulatoryTrackingNavigation } from "../contracts/index.ts";
+import { complianceRegulatoryTrackingNavigationSchema } from "../contracts/index.ts";
+import { complianceRegulatoryTrackingFeatureId } from "../identity.ts";
+import { complianceRegulatoryTrackingCapabilities } from "./capability.ts";
+
+export const complianceRegulatoryTrackingNavigation: ComplianceRegulatoryTrackingNavigation =
+  complianceRegulatoryTrackingNavigationSchema.parse({
+    featureId: complianceRegulatoryTrackingFeatureId,
+    basePath: "/hr/compliance",
+    defaultPage: "overview",
+    pages: [
+      {
+        id: "overview",
+        path: "/hr/compliance",
+        title: "Compliance Overview",
+        navigationLabel: "Overview",
+        capability: complianceRegulatoryTrackingCapabilities.overviewRead,
+        showInNavigation: true,
+        showInSearch: true,
+      },
+      {
+        id: "obligations",
+        path: "/hr/compliance/obligations",
+        title: "Compliance Obligations",
+        navigationLabel: "Obligations",
+        capability: complianceRegulatoryTrackingCapabilities.obligationsRead,
+        showInNavigation: true,
+        showInSearch: true,
+      },
+      {
+        id: "requirements",
+        path: "/hr/compliance/requirements",
+        title: "Compliance Requirements",
+        navigationLabel: "Requirements",
+        capability: complianceRegulatoryTrackingCapabilities.requirementsRead,
+        showInNavigation: true,
+        showInSearch: true,
+      },
+      {
+        id: "evidence",
+        path: "/hr/compliance/evidence",
+        title: "Compliance Evidence",
+        navigationLabel: "Evidence",
+        capability: complianceRegulatoryTrackingCapabilities.evidenceRead,
+        showInNavigation: true,
+        showInSearch: true,
+      },
+      {
+        id: "exceptions",
+        path: "/hr/compliance/exceptions",
+        title: "Compliance Exceptions",
+        navigationLabel: "Exceptions",
+        capability: complianceRegulatoryTrackingCapabilities.exceptionsRead,
+        showInNavigation: true,
+        showInSearch: true,
+      },
+      {
+        id: "corrective-actions",
+        path: "/hr/compliance/corrective-actions",
+        title: "Corrective Actions",
+        navigationLabel: "Corrective Actions",
+        capability:
+          complianceRegulatoryTrackingCapabilities.correctiveActionsRead,
+        showInNavigation: true,
+        showInSearch: true,
+      },
+      {
+        id: "calendar",
+        path: "/hr/compliance/calendar",
+        title: "Regulatory Calendar",
+        navigationLabel: "Calendar",
+        capability: complianceRegulatoryTrackingCapabilities.calendarRead,
+        showInNavigation: true,
+        showInSearch: true,
+      },
+      {
+        id: "alerts",
+        path: "/hr/compliance/alerts",
+        title: "Compliance Alerts",
+        navigationLabel: "Alerts",
+        capability: complianceRegulatoryTrackingCapabilities.alertsRead,
+        showInNavigation: true,
+        showInSearch: true,
+      },
+      {
+        id: "audit-trail",
+        path: "/hr/compliance/audit",
+        title: "Compliance Audit Trail",
+        navigationLabel: "Audit Trail",
+        capability: complianceRegulatoryTrackingCapabilities.auditRead,
+        showInNavigation: true,
+        showInSearch: true,
+      },
+      {
+        id: "filings",
+        path: "/hr/compliance/filings",
+        title: "Compliance Filings",
+        navigationLabel: "Filings",
+        capability: complianceRegulatoryTrackingCapabilities.filingsRead,
+        showInNavigation: true,
+        showInSearch: true,
+      },
+      {
+        id: "reports",
+        path: "/hr/compliance/reports",
+        title: "Compliance Reports",
+        navigationLabel: "Reports",
+        capability: complianceRegulatoryTrackingCapabilities.reportsRead,
+        showInNavigation: true,
+        showInSearch: true,
+      },
+    ],
+    navigationGroups: [
+      {
+        id: "monitoring",
+        label: "Monitoring",
+        pages: ["overview", "obligations", "requirements", "evidence"],
+      },
+      {
+        id: "risk-management",
+        label: "Risk Management",
+        pages: ["exceptions", "corrective-actions"],
+      },
+      {
+        id: "governance",
+        label: "Governance",
+        pages: ["calendar", "alerts", "audit-trail", "filings", "reports"],
+      },
+    ],
+  });

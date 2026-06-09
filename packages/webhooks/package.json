@@ -5,11 +5,35 @@
   "type": "module",
   "exports": {
     ".": "./index.ts",
+    "./contract": "./src/contract.ts",
+    "./dead-letter": "./src/dead-letter/index.ts",
+    "./inbound": "./src/inbound/index.ts",
     "./keys": "./keys.ts",
+    "./outbound/svix": "./src/outbound/svix.ts",
+    "./observability": "./src/observability/index.ts",
+    "./outbound": "./src/outbound/index.ts",
+    "./queue": "./src/queue/index.ts",
+    "./registry": "./src/registry/index.ts",
+    "./security": "./src/security/index.ts",
     "./lib/svix": "./lib/svix.ts",
     "./package.json": "./package.json"
   },
   "files": [
+    "README.md",
+    "architecture.md",
+    "dod.md",
+    "implementation.prompt.md",
+    "src/contract.ts",
+    "src/dead-letter",
+    "src/inbound",
+    "src/index.ts",
+    "src/keys.ts",
+    "src/observability",
+    "src/outbound",
+    "src/queue",
+    "src/registry",
+    "src/security",
+    "src/outbound/svix.ts",
     "index.ts",
     "keys.ts",
     "lib/svix.ts",
@@ -19,9 +43,11 @@
     "lint": "biome check .",
     "format": "biome format --write .",
     "clean": "git clean -xdf .cache .turbo dist node_modules",
+    "test": "node --import tsx --test src/tests/outbound.test.ts src/tests/inbound-verifier.test.ts src/tests/idempotency.test.ts src/tests/registry.test.ts src/tests/queue.test.ts src/tests/dead-letter.test.ts src/tests/circuit-breaker.test.ts src/tests/redaction.test.ts src/tests/tenant-resolution.test.ts",
     "typecheck": "tsc --noEmit --emitDeclarationOnly false"
   },
   "dependencies": {
+    "@repo/redis": "workspace:*",
     "@t3-oss/env-nextjs": "catalog:",
     "server-only": "catalog:",
     "svix": "catalog:",
@@ -30,6 +56,7 @@
   "devDependencies": {
     "@repo/typescript-config": "workspace:*",
     "@types/node": "catalog:",
+    "tsx": "catalog:",
     "typescript": "catalog:"
   }
 }

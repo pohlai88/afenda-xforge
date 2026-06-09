@@ -11,9 +11,9 @@
   },
   "dependencies": {
     "@repo/analytics": "workspace:*",
-    "@repo/design-system": "workspace:*",
     "@repo/next-config": "workspace:*",
     "@repo/seo": "workspace:*",
+    "@repo/ui": "workspace:*",
     "next": "catalog:",
     "react": "catalog:",
     "react-dom": "catalog:"

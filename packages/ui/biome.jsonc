@@ -1,0 +1,18 @@
+{
+  "$schema": "https://biomejs.dev/schemas/2.4.16/schema.json",
+  "root": false,
+  "extends": ["../../biome.jsonc"],
+  "vcs": {
+    "enabled": false
+  },
+  "files": {
+    "includes": ["**/*.ts", "**/*.tsx"]
+  },
+  "linter": {
+    "rules": {
+      "nursery": {
+        "useExplicitType": "off"
+      }
+    }
+  }
+}

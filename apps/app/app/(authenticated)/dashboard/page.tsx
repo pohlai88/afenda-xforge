@@ -1,12 +1,18 @@
 import { SignOut } from "@repo/auth/components/sign-out";
+import { resolveLayeredCustomizedEntityMetadata } from "@repo/customization/resolution";
 import { ForbiddenError } from "@repo/errors";
 import { companyMetadata } from "@repo/features-master-data-companies/metadata";
 import { customerMetadata } from "@repo/features-master-data-customers/metadata";
 import type { EntityMetadata } from "@repo/metadata";
 import { EntityMetadataPanel, getEntityLabels } from "@repo/metadata-ui";
-import { DashboardGrid, KpiCard } from "@repo/ui";
 import Link from "next/link";
 import type { ReactElement } from "react";
+import { DashboardGrid } from "../_components/dashboard-grid.tsx";
+import { KpiCard } from "../_components/kpi-card.tsx";
+import {
+  type DashboardEntityCustomizationLayers,
+  loadDashboardMetadataCustomizations,
+} from "./_customizations.ts";
 import { loadDashboardData } from "./_data.ts";
 
 type SectionState =
@@ -89,11 +95,40 @@ const renderDashboardAccessError = (message: string): ReactElement => (
   </section>
 );
 
+const resolveDashboardMetadata = (
+  metadata: EntityMetadata,
+  layers: DashboardEntityCustomizationLayers
+): EntityMetadata => {
+  try {
+    return resolveLayeredCustomizedEntityMetadata(metadata, layers, {
+      companyAware: Boolean(layers.company),
+    });
+  } catch (error) {
+    console.warn("Invalid dashboard metadata customization ignored.", {
+      entity: metadata.entity,
+      error: error instanceof Error ? error.message : String(error),
+    });
+
+    return metadata;
+  }
+};
+
 export default async function DashboardPage(): Promise<ReactElement> {
   try {
     const dashboard = await loadDashboardData();
-    const customerLabels = getEntityLabels(customerMetadata);
-    const companyLabels = getEntityLabels(companyMetadata);
+    const customizations = await loadDashboardMetadataCustomizations(
+      dashboard.tenantId
+    );
+    const resolvedCustomerMetadata = resolveDashboardMetadata(
+      customerMetadata,
+      customizations.customers
+    );
+    const resolvedCompanyMetadata = resolveDashboardMetadata(
+      companyMetadata,
+      customizations.companies
+    );
+    const customerLabels = getEntityLabels(resolvedCustomerMetadata);
+    const companyLabels = getEntityLabels(resolvedCompanyMetadata);
 
     return (
       <section className="space-y-8">
@@ -173,13 +208,13 @@ export default async function DashboardPage(): Promise<ReactElement> {
         <div className="grid gap-8">
           {renderSection(
             customerLabels.plural,
-            customerMetadata,
+            resolvedCustomerMetadata,
             dashboard.customers,
             `Search ${customerLabels.plural.toLowerCase()}...`
           )}
           {renderSection(
             companyLabels.plural,
-            companyMetadata,
+            resolvedCompanyMetadata,
             dashboard.companies,
             `Search ${companyLabels.plural.toLowerCase()}...`
           )}

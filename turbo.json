@@ -4,11 +4,17 @@
     "**/.env",
     "**/.env.*",
     "**/.env.*local",
+    "AGENTS.md",
     "biome.jsonc",
+    "docs/runtime/**/*.md",
     "package.json",
     "pnpm-workspace.yaml",
+    "skills/reference/**/*.md",
     "tsconfig.base.json",
     "packages/typescript-config/**/*.json",
+    "tools/check-architecture-boundaries.mjs",
+    "tools/check-ui-package-boundaries.mjs",
+    "tools/scaffold-hr-suite-features.mjs",
     "turbo/generators/**/*"
   ],
   "envMode": "strict",
@@ -29,7 +35,7 @@
     },
     "test": {
       "dependsOn": ["^test"],
-      "outputs": ["coverage/**"]
+      "outputs": []
     },
     "typecheck": {
       "dependsOn": ["^typecheck"],

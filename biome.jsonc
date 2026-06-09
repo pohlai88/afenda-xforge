@@ -49,6 +49,22 @@
         "noImplicitAnyLet": "error"
       },
       "style": {
+        "noRestrictedImports": {
+          "level": "error",
+          "options": {
+            "patterns": [
+              {
+                "group": [
+                  "@repo/features-*/actions",
+                  "@repo/features-*/queries",
+                  "@repo/features-*/execution",
+                  "@repo/features-*/src/*"
+                ],
+                "message": "Use feature package public entry points: package root, /server, /contract, /metadata, /manifest, or /schema."
+              }
+            ]
+          }
+        },
         "useConsistentTypeDefinitions": "off",
         "useImportType": {
           "level": "error",

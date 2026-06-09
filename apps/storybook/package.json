@@ -8,10 +8,6 @@
     "typecheck": "tsc --noEmit --emitDeclarationOnly false"
   },
   "dependencies": {
-    "@repo/design-system": "workspace:*",
-    "@repo/metadata": "workspace:*",
-    "@repo/metadata-ui": "workspace:*",
-    "@repo/ui": "workspace:*",
     "@storybook/react": "catalog:",
     "@storybook/react-vite": "catalog:",
     "react": "catalog:",
@@ -20,9 +16,12 @@
   },
   "devDependencies": {
     "@repo/typescript-config": "workspace:*",
+    "@tailwindcss/postcss": "catalog:",
     "@types/node": "catalog:",
     "@types/react": "catalog:",
     "@types/react-dom": "catalog:",
+    "tailwindcss": "catalog:",
+    "tw-animate-css": "catalog:",
     "typescript": "catalog:"
   }
 }

@@ -3,6 +3,7 @@ packages:
   - "packages/*"
   - "packages/features/*"
   - "packages/features/*/*"
+  - "packages/features/*/*/*"
   - "packages/integrations/*"
   - "packages/jurisdictions/*"
   - "turbo/generators"

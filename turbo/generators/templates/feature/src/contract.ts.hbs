@@ -1,29 +1,16 @@
+export type {
+  Create{{ recordPascal }}Input,
+  List{{ featurePascal }}Input,
+  Update{{ recordPascal }}Input,
+  {{ recordPascal }}Record,
+} from "./schema.js";
+
 export type {{ recordPascal }}ExecutionContext = {
   tenantId: string;
   actorId: string;
   requestId?: string;
   companyId?: string;
   grantId?: string;
-};
-
-export type {{ recordPascal }}Record = {
-  id: string;
-  tenantId: string;
-  companyId{{#if companyScoped}}: string;{{else}}?: string;{{/if}}
-  createdAt?: Date;
-  updatedAt?: Date;
-} & Record<string, unknown>;
-
-export type List{{ featurePascal }}Input = {
-  cursor?: string;
-  limit?: number;
-};
-
-export type Create{{ recordPascal }}Input = Record<string, unknown>;
-
-export type Update{{ recordPascal }}Input = {
-  id: string;
-  data: Record<string, unknown>;
 };
 
 export const {{ recordCamel }}ActionNames = {

@@ -1,0 +1,47 @@
+{
+  "name": "@repo/features-system-admin-control-plane",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "exports": {
+    ".": "./src/index.ts",
+    "./contract": "./src/contract.ts",
+    "./execution": "./src/execution/index.ts",
+    "./manifest": "./src/manifest.ts",
+    "./metadata": "./src/metadata.ts",
+    "./schema": "./src/schema.ts",
+    "./server": "./src/server.ts",
+    "./shared": "./src/shared/index.ts",
+    "./package.json": "./package.json"
+  },
+  "files": [
+    "architecture.md",
+    "dod.md",
+    "src",
+    "package.json",
+    "README.md"
+  ],
+  "scripts": {
+    "lint": "biome check .",
+    "format": "biome format --write .",
+    "clean": "git clean -xdf .cache .turbo dist node_modules",
+    "test": "node --conditions react-server --import tsx --test src/tests/*.test.ts",
+    "typecheck": "tsc --noEmit --emitDeclarationOnly false"
+  },
+  "dependencies": {
+    "@repo/api": "workspace:*",
+    "@repo/audit": "workspace:*",
+    "@repo/execution": "workspace:*",
+    "@repo/metadata": "workspace:*",
+    "@repo/permissions": "workspace:*",
+    "@repo/shared": "workspace:*",
+    "server-only": "catalog:",
+    "zod": "catalog:"
+  },
+  "devDependencies": {
+    "@repo/typescript-config": "workspace:*",
+    "@types/node": "catalog:",
+    "tsx": "catalog:",
+    "typescript": "catalog:"
+  }
+}

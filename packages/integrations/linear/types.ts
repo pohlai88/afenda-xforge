@@ -28,3 +28,11 @@ export type LinearWebhookVerificationInput = {
   now?: number;
   maxSkewMs?: number;
 };
+
+export type LinearWebhookMappingInput = Readonly<{
+  applicationId?: string;
+  applicationName?: string;
+  eventId: string;
+  payload: unknown;
+  schemaVersion: string;
+}>;

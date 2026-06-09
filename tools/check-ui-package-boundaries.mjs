@@ -1,12 +1,10 @@
 #!/usr/bin/env node
 
-import { existsSync, readdirSync, readFileSync, statSync } from "node:fs";
+import { existsSync, readdirSync, readFileSync } from "node:fs";
 import path from "node:path";
 import process from "node:process";
 
 const root = process.cwd();
-const uiRoot = path.join(root, "packages", "ui");
-const designSystemRoot = path.join(root, "packages", "design-system");
 const checkedExtensions = new Set([
   ".js",
   ".jsx",
@@ -23,8 +21,59 @@ const ignoredDirectories = new Set([
   "coverage",
   "dist",
   "node_modules",
+  "storybook-static",
 ]);
-const uiForbiddenDirectories = ["hooks", "lib", "providers", "styles"];
+
+const packageRoots = {
+  customization: path.join(root, "packages", "customization"),
+  designSystem: path.join(root, "packages", "design-system"),
+  metadata: path.join(root, "packages", "metadata"),
+  metadataUi: path.join(root, "packages", "metadata-ui"),
+  ui: path.join(root, "packages", "ui"),
+};
+
+const allowedWorkspaceDependenciesByPackage = {
+  "@repo/customization": new Set([
+    "@repo/metadata",
+    "@repo/typescript-config",
+  ]),
+  "@repo/design-system": new Set(["@repo/typescript-config"]),
+  "@repo/metadata": new Set(["@repo/typescript-config"]),
+  "@repo/metadata-ui": new Set([
+    "@repo/customization",
+    "@repo/metadata",
+    "@repo/typescript-config",
+    "@repo/ui",
+  ]),
+  "@repo/ui": new Set(["@repo/design-system", "@repo/typescript-config"]),
+};
+
+const businessRuntimePrefixes = [
+  "@repo/audit",
+  "@repo/auth",
+  "@repo/database",
+  "@repo/execution",
+  "@repo/features-",
+  "@repo/logger",
+  "@repo/customization",
+  "@repo/metadata",
+  "@repo/metadata-ui",
+  "@repo/permissions",
+  "@repo/search",
+];
+
+const uiRepoImports = new Set([
+  "@repo/design-system",
+  "@repo/typescript-config",
+]);
+
+const metadataUiRepoImports = new Set([
+  "@repo/customization",
+  "@repo/metadata",
+  "@repo/typescript-config",
+  "@repo/ui",
+]);
+
 const violations = [];
 
 function toPosix(filePath) {
@@ -81,164 +130,168 @@ function extractImports(source) {
   return [...imports];
 }
 
-function checkForbiddenUiDirectories() {
-  for (const directoryName of uiForbiddenDirectories) {
-    const fullPath = path.join(uiRoot, directoryName);
-
-    if (existsSync(fullPath) && statSync(fullPath).isDirectory()) {
-      addViolation(
-        `packages/ui must not own ${directoryName}/; move that responsibility into packages/design-system`
-      );
-    }
-  }
-}
-
-function checkPackageExports() {
-  const uiPackage = readJson(path.join(uiRoot, "package.json"));
-  const designSystemPackage = readJson(
-    path.join(designSystemRoot, "package.json")
-  );
-  const uiExports = Object.keys(uiPackage.exports ?? {});
-
-  for (const exportKey of uiExports) {
-    if (
-      exportKey.startsWith("./hooks") ||
-      exportKey.startsWith("./lib") ||
-      exportKey.startsWith("./providers") ||
-      exportKey.startsWith("./styles")
-    ) {
-      addViolation(
-        `packages/ui package exports must stay presentational and must not expose ${exportKey}`
-      );
-    }
-  }
-
-  const designSystemDependencies = {
-    ...(designSystemPackage.dependencies ?? {}),
-    ...(designSystemPackage.devDependencies ?? {}),
-  };
-
-  if (Object.hasOwn(designSystemDependencies, "@repo/ui")) {
-    addViolation("packages/design-system must not depend on @repo/ui");
-  }
-}
-
-function checkRootEntrypoints() {
-  const designSystemIndex = readFileSync(
-    path.join(designSystemRoot, "index.tsx"),
-    "utf8"
-  );
-  const uiIndex = readFileSync(path.join(uiRoot, "index.tsx"), "utf8");
-
-  for (const forbiddenName of ["ModeToggle", "cn", "capitalize"]) {
-    if (designSystemIndex.includes(forbiddenName)) {
-      addViolation(
-        `packages/design-system/index.tsx must stay infrastructure-only and must not re-export ${forbiddenName}`
-      );
-    }
-  }
-
-  if (uiIndex.includes("@repo/design-system")) {
-    addViolation(
-      "packages/ui/index.tsx must export local UI components only and must not re-export @repo/design-system directly"
-    );
-  }
-}
-
-function getFilesToCheck() {
-  const files = [
-    ...walk(uiRoot),
-    ...walk(designSystemRoot),
-    ...walk(path.join(root, "apps")),
-    ...walk(path.join(root, "packages")),
-  ];
-  return [...new Set(files)];
-}
-
-function checkDesignSystemImports({
-  isDesignSystemFile,
-  relativePath,
-  specifier,
-}) {
-  if (isDesignSystemFile && specifier.startsWith("@repo/ui")) {
-    addViolation(
-      `${relativePath}: packages/design-system must not import @repo/ui`
-    );
-  }
-}
-
-function checkUiImports({ isUiFile, relativePath, specifier }) {
-  if (isUiFile && specifier === "@repo/design-system") {
-    addViolation(
-      `${relativePath}: packages/ui must use explicit @repo/design-system subpath imports`
-    );
-  }
-
-  if (
-    isUiFile &&
-    (specifier.startsWith("@repo/design-system/providers/") ||
-      specifier.startsWith("@repo/design-system/styles/") ||
-      specifier.startsWith("@repo/design-system/hooks/"))
-  ) {
-    addViolation(
-      `${relativePath}: packages/ui must not depend on design-system provider/style/hook internals: ${specifier}`
-    );
-  }
-}
-
-function checkExternalDesignSystemImports({
-  isDesignSystemFile,
-  isUiFile,
-  relativePath,
-  specifier,
-}) {
-  if (
-    !(isUiFile || isDesignSystemFile) &&
-    (specifier.startsWith("@repo/design-system/components/") ||
-      specifier.startsWith("@repo/design-system/lib/") ||
-      specifier.startsWith("@repo/design-system/hooks/") ||
-      specifier.startsWith("@repo/design-system/providers/"))
-  ) {
-    addViolation(
-      `${relativePath}: application and feature code must import presentational components from @repo/ui and design-system infrastructure only from approved root/style entrypoints: ${specifier}`
-    );
-  }
-}
-
-function checkImportsForFile(filePath) {
+function getPackageKind(filePath) {
   const relativePath = relativeToRoot(filePath);
-  const source = readFileSync(filePath, "utf8");
-  const imports = extractImports(source);
-  const isUiFile = relativePath.startsWith("packages/ui/");
-  const isDesignSystemFile = relativePath.startsWith("packages/design-system/");
 
-  for (const specifier of imports) {
-    const context = {
-      isDesignSystemFile,
-      isUiFile,
-      relativePath,
-      specifier,
-    };
+  if (relativePath.startsWith("packages/design-system/")) {
+    return "designSystem";
+  }
 
-    checkDesignSystemImports(context);
-    checkUiImports(context);
-    checkExternalDesignSystemImports(context);
+  if (relativePath.startsWith("packages/ui/")) {
+    return "ui";
+  }
+
+  if (relativePath.startsWith("packages/metadata-ui/")) {
+    return "metadataUi";
+  }
+
+  if (relativePath.startsWith("packages/customization/")) {
+    return "customization";
+  }
+
+  if (relativePath.startsWith("packages/metadata/")) {
+    return "metadata";
+  }
+
+  return null;
+}
+
+function checkRequiredDesignSystemScaffold() {
+  const requiredFiles = [
+    "architecture.md",
+    "src/index.ts",
+    "src/tokens/index.ts",
+    "src/contracts/index.ts",
+    "src/variants/index.ts",
+  ];
+
+  for (const relativeFile of requiredFiles) {
+    const filePath = path.join(packageRoots.designSystem, relativeFile);
+
+    if (!existsSync(filePath)) {
+      addViolation(
+        `packages/design-system must include ${relativeToRoot(filePath)}`
+      );
+    }
+  }
+}
+
+function checkWorkspaceDependencies() {
+  for (const packageRoot of Object.values(packageRoots)) {
+    const packageJson = readJson(path.join(packageRoot, "package.json"));
+    const packageName = packageJson.name;
+    const allowedWorkspaceDependencies =
+      allowedWorkspaceDependenciesByPackage[packageName];
+    const declaredWorkspaceDependencies = [
+      ...Object.keys(packageJson.dependencies ?? {}),
+      ...Object.keys(packageJson.devDependencies ?? {}),
+      ...Object.keys(packageJson.peerDependencies ?? {}),
+    ].filter((dependencyName) => dependencyName.startsWith("@repo/"));
+
+    for (const dependencyName of declaredWorkspaceDependencies) {
+      if (!allowedWorkspaceDependencies?.has(dependencyName)) {
+        addViolation(
+          `${packageName} must not declare workspace dependency ${dependencyName}`
+        );
+      }
+    }
+  }
+}
+
+function checkBusinessRuntimeImports(filePath, packageKind, specifier) {
+  if (packageKind !== "designSystem" && packageKind !== "metadata") {
+    return;
+  }
+
+  if (
+    businessRuntimePrefixes.some(
+      (prefix) => specifier === prefix || specifier.startsWith(`${prefix}/`)
+    )
+  ) {
+    addViolation(
+      `${relativeToRoot(filePath)}: ${packageKind} must not import runtime/business packages: ${specifier}`
+    );
+  }
+}
+
+function checkCrossPackageImports(filePath, packageKind, specifier) {
+  if (
+    packageKind === "designSystem" &&
+    (specifier === "@repo/ui" ||
+      specifier.startsWith("@repo/ui/") ||
+      specifier === "@repo/metadata" ||
+      specifier.startsWith("@repo/metadata/") ||
+      specifier === "@repo/metadata-ui" ||
+      specifier.startsWith("@repo/metadata-ui/"))
+  ) {
+    addViolation(
+      `${relativeToRoot(filePath)}: @repo/design-system must stay vocabulary-only and must not import ${specifier}`
+    );
+  }
+
+  if (
+    packageKind === "ui" &&
+    specifier.startsWith("@repo/") &&
+    ![...uiRepoImports].some(
+      (allowed) => specifier === allowed || specifier.startsWith(`${allowed}/`)
+    )
+  ) {
+    addViolation(
+      `${relativeToRoot(filePath)}: @repo/ui must only import design-system primitives and must not import ${specifier}`
+    );
+  }
+
+  if (
+    packageKind === "metadataUi" &&
+    specifier.startsWith("@repo/") &&
+    ![...metadataUiRepoImports].some(
+      (allowed) => specifier === allowed || specifier.startsWith(`${allowed}/`)
+    )
+  ) {
+    addViolation(
+      `${relativeToRoot(filePath)}: @repo/metadata-ui must only import @repo/ui, @repo/metadata, and @repo/customization, not ${specifier}`
+    );
+  }
+
+  if (
+    packageKind === "customization" &&
+    specifier.startsWith("@repo/") &&
+    !["@repo/metadata"].some(
+      (allowed) => specifier === allowed || specifier.startsWith(`${allowed}/`)
+    )
+  ) {
+    addViolation(
+      `${relativeToRoot(filePath)}: @repo/customization must only import @repo/metadata, not ${specifier}`
+    );
   }
 }
 
 function checkImports() {
-  for (const filePath of getFilesToCheck()) {
-    checkImportsForFile(filePath);
+  for (const packageRoot of Object.values(packageRoots)) {
+    for (const filePath of walk(packageRoot)) {
+      const packageKind = getPackageKind(filePath);
+
+      if (!packageKind) {
+        continue;
+      }
+
+      const source = readFileSync(filePath, "utf8");
+      const imports = extractImports(source);
+
+      for (const specifier of imports) {
+        checkBusinessRuntimeImports(filePath, packageKind, specifier);
+        checkCrossPackageImports(filePath, packageKind, specifier);
+      }
+    }
   }
 }
 
-checkForbiddenUiDirectories();
-checkPackageExports();
-checkRootEntrypoints();
+checkRequiredDesignSystemScaffold();
+checkWorkspaceDependencies();
 checkImports();
 
 if (violations.length > 0) {
-  console.error("UI/design-system boundary violations found:\n");
+  console.error("UI/design-system/metadata boundary violations found:\n");
 
   for (const violation of violations) {
     console.error(`- ${violation}`);
@@ -247,4 +300,4 @@ if (violations.length > 0) {
   process.exit(1);
 }
 
-console.log("UI/design-system boundary check passed.");
+console.log("UI/design-system/metadata boundary check passed.");

@@ -15,6 +15,7 @@ XForge must optimize for:
 - clear ownership of code and business rules
 - predictable dependency direction
 - tenant-scoped data access
+- tenant-scoped customization within governed bounds
 - server-side permission enforcement
 - auditable mutations
 - incremental delivery of one business module at a time
@@ -142,6 +143,7 @@ These packages may exist as supporting infrastructure packages:
 packages/analytics
 packages/ai
 packages/cache
+packages/customization
 packages/events
 packages/health
 packages/integrations/*
@@ -165,6 +167,7 @@ Rules:
 - `packages/jurisdictions/*` owns country-specific legal/compliance constants, pure calculators, validation schemas, reference catalogs, and formatting helpers, not persistence or workflow authority.
 - `packages/notifications` owns notification transport helpers, Supabase topic conventions, and Edge Function dispatch clients, not business decisions.
 - `packages/cache` owns cache clients and helpers, not source-of-truth state.
+- `packages/customization` owns tenant-approved override contracts and resolution helpers for safe labels, field visibility, form layout, table columns, filters, and presentation. It must not own permission finality, execution, audit, or business rules.
 - `packages/rate-limit` owns request throttling policies, limiter adapters, and response headers, not business decisions.
 - `packages/search` owns indexing and search clients, not canonical records.
 - Features may publish events, invalidate cache, and update search read models only after the canonical execution pipeline succeeds.
@@ -205,6 +208,7 @@ xforge/
 │   ├── audit/            # Audit event contract and writer
 │   ├── auth/             # Authentication, session, tenant resolution
 │   ├── cache/            # Optional Redis cache helpers
+│   ├── customization/    # Tenant-approved UI and layout override contracts
 │   ├── database/         # Database client, schema, migrations
 │   ├── email/            # Optional transactional email package
 │   ├── events/           # Optional NATS/event contracts and publishers
@@ -214,6 +218,8 @@ xforge/
 │   ├── features/
 │   │   ├── master-data/
 │   │   │   └── customers/ # Canonical master-data feature package pattern
+│   │   ├── system-admin/
+│   │   │   └── control-plane/ # Governed tenant administration feature surface
 │   │   ├── hr/            # Later feature family
 │   │   ├── inventory/     # Later feature family
 │   │   └── finance/       # Later feature family
@@ -245,15 +251,17 @@ xforge/
 ### Directory ownership rules
 
 - `apps/*` owns routing, shell composition, and page-level wiring.
-- `packages/ui` owns reusable presentational components only.
+- `packages/ui` owns reusable presentational components only. It is the home for primitive controls and generic purpose variants that stay feature-agnostic, such as `metadata`, `crud`, `danger`, `ts`, `compact`, or `accent`.
 - `packages/database` owns schema, migrations, client setup, and table definitions.
 - `packages/auth` owns authentication, session access, tenant membership, hostname and subdomain tenant resolution, and active tenant resolution.
 - `packages/execution` owns the only canonical mutation entrypoint.
 - `packages/features/master-data/<feature-name>` owns the feature-specific master-data capability, its server entrypoint, its metadata, its vertical scaffold, and any horizontal business areas inside the package.
+- `packages/features/system-admin/control-plane` owns the governed tenant system administration feature surface. It composes foundation packages for admin workflows, but it must not own tenant resolution, permission finality, audit authority, customization resolution, health collection, metrics collection, or mutation finality.
+- `packages/features/_integration` owns reusable ERP orchestration, master-data support primitives, and cross-feature composition across feature families. It may only call approved feature server entrypoints.
 - `packages/permissions` owns permission contracts and server-side guards.
 - `packages/audit` owns the 7W1H audit event shape and persistence.
 - `packages/metadata` owns metadata contracts only.
-- `packages/metadata-ui` owns metadata-driven rendering helpers.
+- `packages/metadata-ui` owns metadata-driven rendering helpers. It may compose `packages/ui` primitives into metadata panels, toolbars, tables, and entity surfaces, but it must not define the base primitive layer.
 - `packages/shared` owns cross-feature primitives, value objects, constants, and narrow contracts that are not business execution logic.
 - `packages/integrations/*` owns external system clients, webhook verification helpers, retry policy helpers, and provider-specific request/response mapping.
 - `packages/cache`, `packages/events`, `packages/health`, `packages/jurisdictions/*`, `packages/logger`, `packages/notifications`, `packages/search`, `packages/rate-limit`, `packages/security`, `packages/storage`, `packages/observability`, `packages/email`, `packages/analytics`, `packages/ai`, and `packages/seo` are supporting infrastructure packages, not ERP business modules.
@@ -281,6 +289,10 @@ feature package -> metadata-ui
 feature package -> jurisdictions/*
 feature package -> shared
 feature package -> ui
+apps/app -> packages/customization
+packages/metadata-ui -> packages/customization
+packages/customization -> packages/metadata
+packages/customization -> packages/shared
 execution -> auth
 execution -> permissions
 execution -> audit
@@ -328,9 +340,9 @@ Cross-feature writes must always go through the canonical execution pipeline.
 
 ### Cross-feature orchestration
 
-Cross-feature orchestration must not live inside a feature package.
+Cross-feature orchestration must not live inside a business feature package or a feature `metadata.ts` file.
 
-For the first production target, keep general orchestration inside `apps/app`. If orchestration becomes reusable or complex, introduce `packages/orchestration` later. Product-specific AI orchestration may live in `packages/machine` as a narrow supporting package.
+For the first production target, keep general orchestration inside `apps/app`. If orchestration becomes reusable or complex across ERP feature families, introduce `packages/features/_integration` as the dedicated support area. Product-specific AI orchestration may live in `packages/machine` as a narrow supporting package.
 
 The orchestration layer may call approved feature `server.ts` entrypoints only. It must not import feature internals, and it must not bypass tenant, company, permission, execution, or audit rules.
 
@@ -432,11 +444,17 @@ Each master-data feature package should publish these stable entry points:
 - `manifest.ts` for feature registration and shell integration
 - `index.ts` for the public export surface
 - `server.ts` for server-only queries and mutations
-- `contract.ts` for schemas, types, action names, and request/response contracts
+- `contract.ts` for execution context, action names, and request/response contracts
+- `schema.ts` for the feature-local TypeScript domain schema and record/input shapes
 - `metadata.ts` for feature metadata such as labels, columns, filters, states, and presentation hints
-- `shared/` for narrow feature-local primitives that may be reused inside the feature boundary
-- `execution/` for the feature-local execution surface and orchestration helpers
+- `feature-scope.ts` for narrow feature-local scope and context primitives when needed
+- `execution.ts` or `execution/` for feature-local orchestration helpers when needed
+- `repository.ts` or `repository/` for feature business-record persistence adapters when needed
 - `queries.ts` and `actions.ts` may exist as internal implementation files or as explicitly exported subpaths, but they must not become a bypass around `server.ts`
+
+Do not create hollow `shared/` or `execution/` folders to satisfy a scaffold. Use a single internal file when the boundary is small, and promote to a directory only when it contains real submodules.
+
+Do not use `storage.ts` for feature business records. `packages/storage` owns object/file storage only. Feature source-of-truth records belong in feature repositories backed by `packages/database`.
 
 Feature packages grow along two axes:
 
@@ -451,12 +469,14 @@ packages/features/master-data/customers/
     ├── manifest.ts
     ├── index.ts
     ├── contract.ts
+    ├── schema.ts
     ├── metadata.ts
+    ├── feature-scope.ts
+    ├── execution.ts
+    ├── repository.ts
     ├── queries.ts
     ├── actions.ts
     ├── server.ts
-    ├── shared/
-    ├── execution/
     ├── components/
     ├── forms/
     ├── tables/
@@ -476,6 +496,7 @@ packages/features/hr/
     ├── payroll/
     │   ├── manifest.ts
     │   ├── contract.ts
+    │   ├── schema.ts
     │   ├── metadata.ts
     │   ├── queries.ts
     │   ├── actions.ts
@@ -484,6 +505,7 @@ packages/features/hr/
     ├── benefits/
     │   ├── manifest.ts
     │   ├── contract.ts
+    │   ├── schema.ts
     │   ├── metadata.ts
     │   ├── queries.ts
     │   ├── actions.ts
@@ -492,6 +514,7 @@ packages/features/hr/
     └── leave/
         ├── manifest.ts
         ├── contract.ts
+        ├── schema.ts
         ├── metadata.ts
         ├── queries.ts
         ├── actions.ts
@@ -506,17 +529,18 @@ Rules for the feature contract:
 - `queries.ts` contains server-side read operations and must enforce tenant scope.
 - `actions.ts` contains server-side mutation actions and must call the canonical execution pipeline.
 - `server.ts` is the primary approved public server entrypoint for a feature or sub-feature.
-- `server.ts` may delegate to `queries.ts`, `actions.ts`, `shared/`, and `execution/`.
+- `server.ts` may delegate to `queries.ts`, `actions.ts`, feature-local scope helpers, execution helpers, repositories, and projection modules.
 - `queries.ts` and `actions.ts` are internal implementation files unless explicitly exported through the feature package surface for controlled reuse.
-- `shared/` must stay within the feature boundary and must not import sibling feature packages.
-- `execution/` must express the feature-local orchestration layer and must not bypass the canonical app-level execution pipeline.
+- Feature-local shared or scope helpers must stay within the feature boundary and must not import sibling feature packages.
+- `execution.ts` or `execution/` must express the feature-local orchestration layer and must not bypass the canonical app-level execution pipeline.
+- `repository.ts` or `repository/` must express business-record persistence and must not be confused with `packages/storage`.
 - `metadata.ts` must remain declarative and must not contain business rules.
 - `index.ts` should stay thin, start with `import "server-only"`, and only re-export approved public surface area for server composition.
 - Apps and approved orchestration layers should import feature behavior through the published entry points, not by reaching into arbitrary internal files.
 - Published subpaths should mirror the feature entry points: the package root for `index.ts`, plus `manifest`, `server`, `contract`, and `metadata` subpaths.
-- Feature packages may also publish `shared`, `execution`, `queries`, and `actions` subpaths, but application code should still prefer `server.ts` and `index.ts` as the normal entry points.
+- Feature packages may also publish pure `shared` or runtime `execution`, `queries`, and `actions` subpaths only when there is a deliberate reuse contract, but application code should still prefer `server.ts` and `index.ts` as the normal entry points.
 - Apps and orchestration layers must not import directly from `queries.ts`, `actions.ts`, `components/`, `forms/`, `tables/`, or `tests/`.
-- Client components must not import feature package roots, `server`, `actions`, `queries`, or `execution` subpaths. They may import pure `contract`, `manifest`, `metadata`, and intentionally pure `shared` subpaths.
+- Client components must not import feature package roots, `server`, `actions`, `queries`, or `execution` subpaths. They may import pure `contract`, `manifest`, `metadata`, and intentionally pure feature-local shared subpaths.
 - A feature may use shared packages, but it must not import another feature package directly.
 - Cross-feature coordination belongs in execution flows, application orchestration, or narrow shared contracts.
 - If a capability grows large enough to need sub-features, model them as horizontal business areas inside the feature package until a shared abstraction is genuinely justified.
@@ -656,6 +680,8 @@ Tenant isolation is mandatory.
 - Background jobs, webhooks, cron handlers, and queue consumers that do not originate from a tenant host must receive explicit tenant context from trusted server-side inputs.
 - Custom domains may be added later as aliases to the same tenant resolution contract, but they must not replace the canonical server-side tenant membership checks.
 - Tenant-specific site identity, logos, and theme overrides should be resolved from the server-side tenant context, not from a global mutable branding singleton.
+- Tenant-safe screen customization may be stored as data and applied without redeploying, but only within governed surfaces such as labels, field visibility, field order, form layout, table columns, filters, presentation, and approved action exposure.
+- Tenant customization must never change tenant or company enforcement, permission finality, audit requirements, or the canonical execution pipeline.
 
 ### Company rules
 
@@ -756,6 +782,53 @@ Metadata must not define:
 - security enforcement
 
 Metadata describes the system. It does not govern the system.
+
+### Tenant Customization Governance
+
+Tenant customization is allowed, but only as a governed overlay on top of feature-owned metadata.
+
+Allowed tenant customization:
+
+- field labels
+- field visibility
+- field order
+- field grouping
+- form layout
+- table columns
+- filter presets
+- presentation density
+- presentation tone and icon choices
+- safe action exposure for already-approved actions
+
+Allowed customization behavior:
+
+- tenant-scoped overrides may be stored as data
+- company-scoped overrides may be added only when the feature is company-aware
+- overrides must be resolved on the server from trusted tenant context
+- overrides must not require code deployment when they stay inside the approved metadata surface
+
+Forbidden tenant customization:
+
+- permission finality
+- tenant membership rules
+- company grant rules
+- audit requirements
+- execution pipeline behavior
+- workflow authority
+- accounting rules
+- payroll rules
+- inventory valuation
+- security enforcement
+- source-of-truth data model changes
+
+The intended split is:
+
+```txt
+feature metadata     -> feature-owned defaults
+customization        -> tenant and company overrides
+metadata-ui          -> renderer
+execution            -> authority
+```
 
 ## 15. API Governance
 
@@ -948,7 +1021,7 @@ Recommended order:
 1. Scaffold the monorepo structure.
 2. Establish shared config packages.
 3. Implement database, auth, permissions, audit, and execution packages.
-4. Add the `packages/features/master-data/customers/src` vertical scaffold with `manifest.ts`, `index.ts`, `contract.ts`, `metadata.ts`, `shared/`, `execution/`, `queries.ts`, `actions.ts`, `server.ts`, UI composition folders, and tests.
+4. Add the `packages/features/master-data/customers/src` vertical scaffold with `manifest.ts`, `index.ts`, `contract.ts`, `schema.ts`, `metadata.ts`, `feature-scope.ts`, `execution.ts`, `repository.ts`, `queries.ts`, `actions.ts`, `server.ts`, UI composition folders, and tests.
 5. Wire `apps/app` to the canonical execution pipeline through the Customers master-data feature package.
 6. Add observability and harden tenant/permission checks.
 7. Add `apps/api` only if the app needs a separate runtime.

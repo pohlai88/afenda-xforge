@@ -1,6 +1,7 @@
-import { DashboardGrid, KpiCard } from "@repo/ui";
 import Link from "next/link";
 import type { ReactElement } from "react";
+import { DashboardGrid } from "../_components/dashboard-grid.tsx";
+import { KpiCard } from "../_components/kpi-card.tsx";
 import { AssistantComposer } from "./assistant-composer.tsx";
 
 export default function AssistantPage(): ReactElement {

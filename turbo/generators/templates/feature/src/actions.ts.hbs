@@ -1,12 +1,14 @@
 import "server-only";
 
 import {
-  type Create{{ recordPascal }}Input,
   type {{ recordPascal }}ExecutionContext,
-  type {{ recordPascal }}Record,
   {{ recordCamel }}ActionNames,
-  type Update{{ recordPascal }}Input,
 } from "./contract.js";
+import {
+  type Create{{ recordPascal }}Input,
+  type {{ recordPascal }}Record,
+  type Update{{ recordPascal }}Input,
+} from "./schema.js";
 import { execute{{ recordPascal }}Mutation } from "./execution/index.js";
 
 export async function create{{ recordPascal }}Record(

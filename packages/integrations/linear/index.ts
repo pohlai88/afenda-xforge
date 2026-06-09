@@ -6,9 +6,11 @@ export type {
   LinearGraphQLRequest,
   LinearGraphQLResponse,
   LinearRequestOptions,
+  LinearWebhookMappingInput,
   LinearWebhookVerificationInput,
 } from "./types.ts";
 export {
   assertLinearWebhookSignature,
+  mapLinearWebhookEvent,
   verifyLinearWebhookSignature,
 } from "./webhooks.ts";

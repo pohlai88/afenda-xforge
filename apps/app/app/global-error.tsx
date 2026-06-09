@@ -1,6 +1,6 @@
 "use client";
 
-import { fonts } from "@repo/design-system";
+import { fonts } from "@repo/ui";
 import type NextError from "next/error";
 import type { ReactElement } from "react";
 

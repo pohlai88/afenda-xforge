@@ -2,13 +2,15 @@ import "server-only";
 
 import { create{{ recordPascal }}Record, update{{ recordPascal }}Record } from "./actions.js";
 import {
-  type Create{{ recordPascal }}Input,
   type {{ recordPascal }}ExecutionContext,
-  type {{ recordPascal }}Record,
   {{ recordCamel }}Contract,
+} from "./contract.js";
+import {
+  type Create{{ recordPascal }}Input,
+  type {{ recordPascal }}Record,
   type List{{ featurePascal }}Input,
   type Update{{ recordPascal }}Input,
-} from "./contract.js";
+} from "./schema.js";
 import { {{ recordCamel }}Manifest } from "./manifest.js";
 import { {{ recordCamel }}Metadata } from "./metadata.js";
 import { get{{ recordPascal }}Record, list{{ featurePascal }}Records } from "./queries.js";

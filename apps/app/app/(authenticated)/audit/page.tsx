@@ -2,11 +2,16 @@ import type {
   DashboardKpiTone,
   DashboardTableRow,
   TableColumnMetadata,
-} from "@repo/metadata";
-import type { StatusBadgeTone } from "@repo/ui";
-import { ActivityTable, DashboardGrid, KpiCard, StatusBadge } from "@repo/ui";
+} from "@repo/ui";
 import Link from "next/link";
 import type { ReactElement, ReactNode } from "react";
+import { ActivityTable } from "../_components/activity-table.tsx";
+import { DashboardGrid } from "../_components/dashboard-grid.tsx";
+import { KpiCard } from "../_components/kpi-card.tsx";
+import {
+  StatusBadge,
+  type StatusBadgeTone,
+} from "../_components/status-badge.tsx";
 import { loadAuditPageData } from "./_data.ts";
 
 const auditColumns: readonly TableColumnMetadata[] = [

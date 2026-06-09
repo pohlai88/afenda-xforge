@@ -144,7 +144,12 @@ function getFeatureRoot(filePath) {
   const relative = relativeToRoot(filePath);
   const parts = relative.split("/");
 
-  if (parts[0] === "packages" && parts[1] === "features" && parts.length >= 4) {
+  if (
+    parts[0] === "packages" &&
+    parts[1] === "features" &&
+    parts[2] !== "_integration" &&
+    parts.length >= 4
+  ) {
     return parts.slice(0, 4).join("/");
   }
 
@@ -203,7 +208,7 @@ function isAppOrOrchestration(filePath) {
   const relative = relativeToRoot(filePath);
   return (
     relative.startsWith("apps/") ||
-    relative.startsWith("packages/orchestration/") ||
+    relative.startsWith("packages/features/_integration/") ||
     relative.startsWith("packages/machine/")
   );
 }
@@ -218,6 +223,16 @@ function isUiPackage(filePath) {
     relative.startsWith("packages/ui/") ||
     relative.startsWith("packages/design-system/")
   );
+}
+
+function isMetadataUiPackage(filePath) {
+  const relative = relativeToRoot(filePath);
+  return relative.startsWith("packages/metadata-ui/");
+}
+
+function isCustomizationPackage(filePath) {
+  const relative = relativeToRoot(filePath);
+  return relative.startsWith("packages/customization/");
 }
 
 function isMetadataFile(filePath) {
@@ -239,6 +254,8 @@ function checkImport(filePath, source, specifier, packageName) {
   checkAppFeatureEntrypoints(filePath, specifier, resolvedPath);
   checkClientServerImports(filePath, source, specifier, resolvedPath);
   checkUiPackageImports(filePath, specifier, resolvedPath);
+  checkMetadataUiImports(filePath, specifier, resolvedPath);
+  checkCustomizationImports(filePath, specifier, resolvedPath);
   checkMetadataImports(filePath, specifier, resolvedPath);
 }
 
@@ -362,16 +379,27 @@ function checkClientServerImports(filePath, source, specifier, resolvedPath) {
 
 function checkUiPackageImports(filePath, specifier, resolvedPath) {
   if (isUiPackage(filePath)) {
+    const allowedUiImports = new Set([
+      "@repo/design-system",
+      "@repo/typescript-config",
+    ]);
     const importsForbiddenRuntime =
-      specifier === "@repo/database" ||
-      specifier.startsWith("@repo/database/") ||
-      specifier === "@repo/auth" ||
-      specifier.startsWith("@repo/auth/") ||
-      specifier.startsWith("@repo/features-") ||
+      (specifier.startsWith("@repo/") &&
+        ![...allowedUiImports].some(
+          (allowed) =>
+            specifier === allowed || specifier.startsWith(`${allowed}/`)
+        )) ||
       (resolvedPath &&
         (relativeToRoot(resolvedPath).startsWith("packages/database/") ||
           relativeToRoot(resolvedPath).startsWith("packages/auth/") ||
-          relativeToRoot(resolvedPath).startsWith("packages/features/")));
+          relativeToRoot(resolvedPath).startsWith("packages/features/") ||
+          relativeToRoot(resolvedPath).startsWith("packages/execution/") ||
+          relativeToRoot(resolvedPath).startsWith("packages/audit/") ||
+          relativeToRoot(resolvedPath).startsWith("packages/logger/") ||
+          relativeToRoot(resolvedPath).startsWith("packages/permissions/") ||
+          relativeToRoot(resolvedPath).startsWith("packages/search/") ||
+          relativeToRoot(resolvedPath).startsWith("packages/metadata/") ||
+          relativeToRoot(resolvedPath).startsWith("packages/metadata-ui/")));
 
     if (importsForbiddenRuntime) {
       addViolation(
@@ -379,6 +407,75 @@ function checkUiPackageImports(filePath, specifier, resolvedPath) {
         `UI packages must stay presentational and must not import runtime/business packages: ${specifier}`
       );
     }
+  }
+}
+
+function checkMetadataUiImports(filePath, specifier, resolvedPath) {
+  if (isMetadataUiPackage(filePath)) {
+    const allowedMetadataUiImports = new Set([
+      "@repo/customization",
+      "@repo/metadata",
+      "@repo/ui",
+    ]);
+    const importsForbiddenRuntime =
+      (specifier.startsWith("@repo/") &&
+        ![...allowedMetadataUiImports].some(
+          (allowed) =>
+            specifier === allowed || specifier.startsWith(`${allowed}/`)
+        )) ||
+      (resolvedPath &&
+        (relativeToRoot(resolvedPath).startsWith("packages/database/") ||
+          relativeToRoot(resolvedPath).startsWith("packages/auth/") ||
+          relativeToRoot(resolvedPath).startsWith("packages/features/") ||
+          relativeToRoot(resolvedPath).startsWith("packages/execution/") ||
+          relativeToRoot(resolvedPath).startsWith("packages/audit/") ||
+          relativeToRoot(resolvedPath).startsWith("packages/logger/") ||
+          relativeToRoot(resolvedPath).startsWith("packages/permissions/") ||
+          relativeToRoot(resolvedPath).startsWith("packages/search/")));
+
+    if (importsForbiddenRuntime) {
+      addViolation(
+        filePath,
+        `@repo/metadata-ui must only import @repo/ui, @repo/metadata, and @repo/customization, not ${specifier}`
+      );
+    }
+  }
+}
+
+function checkCustomizationImports(filePath, specifier, resolvedPath) {
+  if (!isCustomizationPackage(filePath)) {
+    return;
+  }
+
+  const allowedCustomizationImports = new Set([
+    "@repo/metadata",
+    "@repo/shared",
+  ]);
+  const importsForbiddenRuntime =
+    (specifier.startsWith("@repo/") &&
+      ![...allowedCustomizationImports].some(
+        (allowed) =>
+          specifier === allowed || specifier.startsWith(`${allowed}/`)
+      )) ||
+    (resolvedPath &&
+      [
+        "packages/ui/",
+        "packages/metadata-ui/",
+        "packages/database/",
+        "packages/auth/",
+        "packages/features/",
+        "packages/execution/",
+        "packages/audit/",
+        "packages/logger/",
+        "packages/permissions/",
+        "packages/search/",
+      ].some((prefix) => relativeToRoot(resolvedPath).startsWith(prefix)));
+
+  if (importsForbiddenRuntime) {
+    addViolation(
+      filePath,
+      `@repo/customization must stay declarative and must not import runtime/business packages: ${specifier}`
+    );
   }
 }
 

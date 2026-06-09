@@ -2,8 +2,16 @@
   "$schema": "https://json.schemastore.org/tsconfig",
   "extends": "@repo/typescript-config/react-library.json",
   "compilerOptions": {
+    "baseUrl": ".",
     "module": "ESNext",
     "moduleResolution": "bundler",
+    "paths": {
+      "@headless-tree/core": ["./node_modules/@headless-tree/core/dist/index.d.mts"],
+      "@headless-tree/react": ["./node_modules/@headless-tree/react/dist/index.d.mts"],
+      "src/components/ui/*": ["./src/components/ui-shadcn/*"],
+      "src/components/hooks/*": ["./src/hooks/*"],
+      "src/*": ["./src/*"]
+    },
     "resolvePackageJsonImports": true
   },
   "include": ["**/*.ts", "**/*.tsx"],

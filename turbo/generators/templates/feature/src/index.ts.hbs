@@ -19,6 +19,12 @@ export {
   {{ recordCamel }}ActionNames,
   {{ recordCamel }}Contract,
 } from "./contract.js";
+export {
+  create{{ recordPascal }}InputSchema,
+  list{{ featurePascal }}InputSchema,
+  update{{ recordPascal }}InputSchema,
+  {{ recordCamel }}RecordSchema,
+} from "./schema.js";
 export type { {{ recordPascal }}Manifest } from "./manifest.js";
 export { {{ recordCamel }}Manifest } from "./manifest.js";
 export type { {{ recordPascal }}Metadata } from "./metadata.js";

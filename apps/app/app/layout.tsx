@@ -1,10 +1,10 @@
-import { fonts } from "@repo/design-system";
 import { Toolbar } from "@repo/feature-flags/components/toolbar";
 import {
   getTextDirection,
   resolveXforgeLocaleFromHeaders,
 } from "@repo/internationalization";
 import { createMetadata } from "@repo/seo/metadata";
+import { fonts } from "@repo/ui";
 import type { Metadata } from "next";
 import { headers } from "next/headers";
 import type { ReactElement, ReactNode } from "react";

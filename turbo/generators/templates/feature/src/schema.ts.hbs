@@ -1,0 +1,40 @@
+import { z } from "zod";
+
+export const {{ recordCamel }}RecordSchema = z.object({
+  id: z.string(),
+  tenantId: z.string(),
+  companyId: {{#if companyScoped}}z.string(),{{else}}z.string().optional(),{{/if}}
+  createdAt: z.date().optional(),
+  updatedAt: z.date().optional(),
+});
+
+export type {{ recordPascal }}Record = z.infer<
+  typeof {{ recordCamel }}RecordSchema
+>;
+
+export const list{{ featurePascal }}InputSchema = z.object({
+  cursor: z.string().optional(),
+  limit: z.number().int().positive().optional(),
+});
+
+export type List{{ featurePascal }}Input = z.infer<
+  typeof list{{ featurePascal }}InputSchema
+>;
+
+export const create{{ recordPascal }}InputSchema = z.record(
+  z.string(),
+  z.unknown()
+);
+
+export type Create{{ recordPascal }}Input = z.infer<
+  typeof create{{ recordPascal }}InputSchema
+>;
+
+export const update{{ recordPascal }}InputSchema = z.object({
+  id: z.string(),
+  data: z.record(z.string(), z.unknown()),
+});
+
+export type Update{{ recordPascal }}Input = z.infer<
+  typeof update{{ recordPascal }}InputSchema
+>;

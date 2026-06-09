@@ -1,4 +1,4 @@
-import { fonts } from "@repo/design-system";
+import { fonts } from "@repo/ui";
 import { createMetadata } from "@repo/seo/metadata";
 import type { Metadata } from "next";
 import type { ReactElement, ReactNode } from "react";

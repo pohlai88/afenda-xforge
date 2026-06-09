@@ -1,0 +1,236 @@
+import type { EntityMetadata } from "@repo/metadata";
+
+export const supplierMetadata: EntityMetadata = {
+  id: "master-data.suppliers",
+  entity: "supplier",
+  title: "Suppliers",
+  description:
+    "Governed metadata for supplier master-data used across procurement and fulfillment workflows.",
+  labels: {
+    singular: "Supplier",
+    plural: "Suppliers",
+  },
+  presentation: {
+    density: "default",
+    icon: "truck",
+    size: "md",
+    tone: "info",
+    variant: "outline",
+  },
+  permissionHint: {
+    action: "view",
+    claim: "master-data.suppliers:read",
+    reason: "Read supplier records",
+    scope: "tenant",
+    subject: "supplier",
+  },
+  fields: [
+    {
+      key: "code",
+      label: "Code",
+      kind: "text",
+      required: true,
+      placeholder: "SUP-001",
+      validationHint: "Use a stable supplier code.",
+    },
+    {
+      key: "name",
+      label: "Name",
+      kind: "text",
+      required: true,
+      placeholder: "Northwind Supply",
+      validationHint: "Use the registered or display name.",
+    },
+    {
+      key: "email",
+      label: "Primary email",
+      kind: "text",
+      placeholder: "procurement@example.com",
+      permissionHint: "master-data.suppliers:contact:view",
+    },
+    {
+      key: "status",
+      label: "Status",
+      kind: "select",
+      required: true,
+      validationHint:
+        "Use active for approved suppliers and inactive for closed suppliers.",
+    },
+  ],
+  filters: [
+    {
+      key: "supplier-code",
+      label: "Code",
+      field: "code",
+      kind: "text",
+      operator: "contains",
+      placeholder: "Search code",
+    },
+    {
+      key: "supplier-status",
+      label: "Status",
+      field: "status",
+      kind: "status",
+      operator: "equals",
+      options: [
+        {
+          label: "Active",
+          value: "active",
+        },
+        {
+          label: "Inactive",
+          value: "inactive",
+        },
+      ],
+    },
+  ],
+  forms: [
+    {
+      key: "supplier-create",
+      label: "Create supplier",
+      fieldKeys: ["code", "name", "email", "status"],
+      sectionKeys: [
+        "supplier-identity",
+        "supplier-contact",
+        "supplier-lifecycle",
+      ],
+      submitActionKey: "supplier-create",
+      cancelActionKey: "cancel",
+      layout: "grid",
+    },
+    {
+      key: "supplier-edit",
+      label: "Edit supplier",
+      fieldKeys: ["code", "name", "email", "status"],
+      sectionKeys: [
+        "supplier-identity",
+        "supplier-contact",
+        "supplier-lifecycle",
+      ],
+      submitActionKey: "supplier-save",
+      cancelActionKey: "cancel",
+      layout: "grid",
+    },
+  ],
+  actions: [
+    {
+      key: "supplier-create",
+      label: "Create",
+      kind: "create",
+      placement: "primary",
+    },
+    {
+      key: "supplier-save",
+      label: "Save changes",
+      kind: "update",
+      placement: "primary",
+      permissionHint: "master-data.suppliers:write",
+    },
+    {
+      key: "supplier-archive",
+      label: "Archive",
+      kind: "archive",
+      placement: "overflow",
+      dangerous: true,
+      confirmMessage: "Archive this supplier record?",
+      permissionHint: "master-data.suppliers:write",
+      stateTransition: {
+        from: ["active"],
+        to: "inactive",
+      },
+    },
+    {
+      key: "supplier-restore",
+      label: "Restore",
+      kind: "restore",
+      placement: "overflow",
+      permissionHint: "master-data.suppliers:write",
+      stateTransition: {
+        from: ["inactive"],
+        to: "active",
+      },
+    },
+  ],
+  sections: [
+    {
+      key: "supplier-identity",
+      label: "Identity",
+      fieldKeys: ["code", "name"],
+      columns: 2,
+    },
+    {
+      key: "supplier-contact",
+      label: "Contact",
+      fieldKeys: ["email"],
+      columns: 1,
+      collapsible: true,
+    },
+    {
+      key: "supplier-lifecycle",
+      label: "Lifecycle",
+      fieldKeys: ["status"],
+      columns: 2,
+    },
+  ],
+  states: [
+    {
+      key: "supplier-draft",
+      label: "Draft",
+      uiState: "empty",
+      tone: "neutral",
+    },
+    {
+      key: "supplier-ready",
+      label: "Ready",
+      uiState: "ready",
+      tone: "success",
+    },
+    {
+      key: "supplier-inactive",
+      label: "Inactive",
+      uiState: "forbidden",
+      tone: "warning",
+    },
+  ],
+  table: {
+    defaultSort: "name",
+    title: "Supplier directory",
+    columns: [
+      {
+        key: "code",
+        label: "Code",
+        field: "code",
+        sortable: true,
+        filterable: true,
+        width: "sm",
+      },
+      {
+        key: "name",
+        label: "Name",
+        field: "name",
+        sortable: true,
+        filterable: true,
+        width: "lg",
+      },
+      {
+        key: "email",
+        label: "Email",
+        field: "email",
+        kind: "email",
+        sortable: true,
+        filterable: true,
+        width: "md",
+      },
+      {
+        key: "status",
+        label: "Status",
+        field: "status",
+        kind: "status",
+        sortable: true,
+        filterable: true,
+        align: "center",
+        width: "sm",
+      },
+    ],
+  },
+};

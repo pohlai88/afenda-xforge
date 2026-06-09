@@ -6,19 +6,32 @@
   "sideEffects": false,
   "exports": {
     ".": "./index.tsx",
+    "./adapters": "./src/adapters/index.ts",
+    "./components": "./src/components/index.ts",
+    "./contracts": "./src/contracts/index.ts",
+    "./registry": "./src/registry/index.ts",
+    "./renderers": "./src/renderers/index.ts",
     "./package.json": "./package.json"
   },
   "files": [
+    "architecture.md",
+    "README.md",
     "index.tsx",
-    "package.json"
+    "package.json",
+    "src",
+    "tests",
+    "tsconfig.build.json"
   ],
   "scripts": {
+    "build": "tsc -p tsconfig.build.json",
     "lint": "biome check .",
     "format": "biome format --write .",
     "clean": "git clean -xdf .cache .turbo dist node_modules",
+    "test": "tsx --test tests/index.test.ts",
     "typecheck": "tsc --noEmit --emitDeclarationOnly false"
   },
   "dependencies": {
+    "@repo/customization": "workspace:*",
     "@repo/metadata": "workspace:*",
     "@repo/ui": "workspace:*",
     "react": "catalog:"
@@ -27,6 +40,9 @@
     "@repo/typescript-config": "workspace:*",
     "@types/node": "catalog:",
     "@types/react": "catalog:",
+    "@types/react-dom": "catalog:",
+    "react-dom": "catalog:",
+    "tsx": "catalog:",
     "typescript": "catalog:"
   }
 }

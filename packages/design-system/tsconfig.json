@@ -1,10 +1,16 @@
 {
-  "extends": "@repo/typescript-config/react-library.json",
+  "$schema": "https://json.schemastore.org/tsconfig",
   "compilerOptions": {
+    "exactOptionalPropertyTypes": true,
     "module": "ESNext",
     "moduleResolution": "bundler",
-    "resolvePackageJsonImports": true
+    "noEmit": true,
+    "noFallthroughCasesInSwitch": true,
+    "noUncheckedIndexedAccess": true,
+    "strict": true,
+    "target": "ES2022",
+    "verbatimModuleSyntax": true
   },
-  "include": ["**/*.ts", "**/*.tsx"],
-  "exclude": ["node_modules"]
+  "include": ["src/**/*.ts"],
+  "exclude": ["dist", "node_modules"]
 }

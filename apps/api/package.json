@@ -10,8 +10,20 @@
     "typecheck": "tsc --noEmit --emitDeclarationOnly false"
   },
   "dependencies": {
-    "@repo/design-system": "workspace:*",
+    "@repo/auth": "workspace:*",
+    "@repo/audit": "workspace:*",
+    "@repo/database": "workspace:*",
+    "@repo/features-master-data-companies": "workspace:*",
+    "@repo/features-master-data-customers": "workspace:*",
+    "@repo/features-employee-management-compliance-regulatory-tracking": "workspace:*",
+    "@repo/integrations-linear": "workspace:*",
+    "@repo/integrations-workday": "workspace:*",
+    "@repo/permissions": "workspace:*",
+    "@repo/redis": "workspace:*",
     "@repo/next-config": "workspace:*",
+    "@repo/ui": "workspace:*",
+    "@repo/webhooks": "workspace:*",
+    "drizzle-orm": "catalog:",
     "next": "catalog:",
     "react": "catalog:",
     "react-dom": "catalog:"

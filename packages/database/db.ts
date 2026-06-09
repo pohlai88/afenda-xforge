@@ -5,42 +5,9 @@ import { createLogger, logQuery } from "@repo/logger";
 import { drizzle } from "drizzle-orm/postgres-js";
 import postgres from "postgres";
 import { loadDatabaseKeys } from "./keys.ts";
-import {
-  auditEvents,
-  auditEventsRelations,
-  companies,
-  companiesRelations,
-  companyGrants,
-  companyGrantsRelations,
-  customers,
-  customersRelations,
-  notificationInbox,
-  notificationInboxRelations,
-  tenantMemberships,
-  tenantMembershipsRelations,
-  tenants,
-  tenantsRelations,
-  xforge,
-} from "./schema.ts";
+import { databaseSchema } from "./schema.ts";
 
 const connectionString: string = loadDatabaseKeys().DATABASE_URL;
-const schema: typeof import("./schema.ts") = {
-  auditEvents,
-  auditEventsRelations,
-  xforge,
-  companyGrants,
-  companyGrantsRelations,
-  customers,
-  customersRelations,
-  notificationInbox,
-  notificationInboxRelations,
-  companies,
-  companiesRelations,
-  tenantMemberships,
-  tenantMembershipsRelations,
-  tenants,
-  tenantsRelations,
-};
 const databaseLogger = createLogger("database");
 
 export type TimedDatabaseQueryOptions = {
@@ -54,7 +21,7 @@ export type TimedDatabaseQueryOptions = {
 export const client = postgres(connectionString, { prepare: false });
 
 export const database = drizzle(client, {
-  schema,
+  schema: databaseSchema,
 });
 
 export const timeDatabaseQuery = async <T>(

@@ -1,0 +1,45 @@
+{
+  "name": "@repo/customization",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "sideEffects": false,
+  "exports": {
+    ".": "./index.ts",
+    "./contracts": "./src/contracts/index.ts",
+    "./contracts/*": "./src/contracts/*.ts",
+    "./resolution": "./src/resolution/index.ts",
+    "./resolution/*": "./src/resolution/*.ts",
+    "./schemas": "./src/schemas/index.ts",
+    "./schemas/*": "./src/schemas/*.ts",
+    "./serialization": "./src/serialization/index.ts",
+    "./serialization/*": "./src/serialization/*.ts",
+    "./validation": "./src/validation/index.ts",
+    "./validation/*": "./src/validation/*.ts",
+    "./package.json": "./package.json"
+  },
+  "files": [
+    "architecture.md",
+    "dod.md",
+    "index.ts",
+    "package.json",
+    "src"
+  ],
+  "scripts": {
+    "lint": "biome check .",
+    "format": "biome format --write .",
+    "clean": "git clean -xdf .cache .turbo dist node_modules",
+    "test": "node --import tsx --test src/tests/customization.schema.test.ts src/tests/resolve-customized-metadata.test.ts",
+    "typecheck": "tsc --noEmit --emitDeclarationOnly false"
+  },
+  "dependencies": {
+    "@repo/metadata": "workspace:*",
+    "zod": "catalog:"
+  },
+  "devDependencies": {
+    "@repo/typescript-config": "workspace:*",
+    "@types/node": "catalog:",
+    "tsx": "catalog:",
+    "typescript": "catalog:"
+  }
+}

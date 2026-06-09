@@ -22,3 +22,11 @@ export type WorkdayRequestOptions = {
   accessToken?: string;
   signal?: AbortSignal;
 };
+
+export type WorkdayWebhookMappingInput = Readonly<{
+  applicationId?: string;
+  applicationName?: string;
+  eventId: string;
+  payload: unknown;
+  schemaVersion: string;
+}>;

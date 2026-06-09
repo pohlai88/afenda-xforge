@@ -139,7 +139,7 @@ const featurePrompt: PlopTypes.PromptQuestion = {
   type: "input",
   name: "name",
   message:
-    "What is the master-data feature name? (example: customers, companies)",
+    "What is the master-data feature name? (examples: customers, companies, suppliers, products, locations, departments, tax-codes, currencies)",
   validate: validateWorkspaceName,
 };
 
@@ -309,6 +309,10 @@ export default function generator(plop: PlopTypes.NodePlopAPI): void {
         {
           path: "packages/features/master-data/{{ name }}/src/contract.ts",
           templateFile: "templates/feature/src/contract.ts.hbs",
+        },
+        {
+          path: "packages/features/master-data/{{ name }}/src/schema.ts",
+          templateFile: "templates/feature/src/schema.ts.hbs",
         },
         {
           path: "packages/features/master-data/{{ name }}/src/metadata.ts",

@@ -2,7 +2,7 @@
 
 import { AnalyticsProvider } from "@repo/analytics/provider";
 import { AuthProvider } from "@repo/auth/provider";
-import { DesignSystemProvider } from "@repo/design-system";
+import { DesignSystemProvider } from "@repo/ui";
 import type { ReactElement, ReactNode } from "react";
 
 type ProvidersProps = {

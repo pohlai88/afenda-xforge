@@ -6,22 +6,36 @@
   "sideEffects": false,
   "exports": {
     ".": "./index.ts",
+    "./constants": "./src/constants/index.ts",
+    "./constants/*": "./src/constants/*.ts",
+    "./contracts": "./src/contracts/index.ts",
+    "./contracts/*": "./src/contracts/*.ts",
+    "./schemas": "./src/schemas/index.ts",
+    "./schemas/*": "./src/schemas/*.ts",
+    "./validation": "./src/validation/index.ts",
+    "./validation/*": "./src/validation/*.ts",
     "./package.json": "./package.json"
   },
   "files": [
+    "architecture.md",
     "index.ts",
+    "src",
     "package.json"
   ],
   "scripts": {
     "lint": "biome check .",
     "format": "biome format --write .",
     "clean": "git clean -xdf .cache .turbo dist node_modules",
+    "test": "node --import tsx --test src/tests/field.schema.test.ts src/tests/action.schema.test.ts src/tests/feature-metadata.schema.test.ts",
     "typecheck": "tsc --noEmit --emitDeclarationOnly false"
   },
-  "dependencies": {},
+  "dependencies": {
+    "zod": "catalog:"
+  },
   "devDependencies": {
     "@repo/typescript-config": "workspace:*",
     "@types/node": "catalog:",
+    "tsx": "catalog:",
     "typescript": "catalog:"
   }
 }

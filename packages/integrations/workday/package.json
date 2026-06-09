@@ -8,6 +8,7 @@
     "./client": "./client.ts",
     "./keys": "./keys.ts",
     "./types": "./types.ts",
+    "./webhooks": "./webhooks.ts",
     "./package.json": "./package.json"
   },
   "files": [
@@ -15,6 +16,7 @@
     "index.ts",
     "keys.ts",
     "types.ts",
+    "webhooks.ts",
     "package.json"
   ],
   "scripts": {
@@ -24,6 +26,7 @@
     "format": "biome format --write ."
   },
   "dependencies": {
+    "@repo/webhooks": "workspace:*",
     "server-only": "catalog:"
   },
   "devDependencies": {

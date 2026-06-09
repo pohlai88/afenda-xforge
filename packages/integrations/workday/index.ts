@@ -4,4 +4,6 @@ export type {
   WorkdayKeys,
   WorkdayRequestOptions,
   WorkdayTokenResponse,
+  WorkdayWebhookMappingInput,
 } from "./types.ts";
+export { mapWorkdayWebhookEvent } from "./webhooks.ts";

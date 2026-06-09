@@ -1,0 +1,8 @@
+@import "tailwindcss";
+@import "tw-animate-css";
+@import "../../../packages/ui/src/styles/foundation.css";
+
+@source "../stories/**/*.{ts,tsx}";
+@source "../../../packages/ui/src/components/**/*.{ts,tsx}";
+@source "../../../packages/ui/src/lib/**/*.{ts,tsx}";
+@source "../../../packages/ui/src/index.ts";

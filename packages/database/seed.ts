@@ -10,6 +10,7 @@ import {
   customers,
   tenantMemberships,
   tenants,
+  webhookEndpoints,
 } from "./schema.ts";
 
 type TenantSeed = {
@@ -25,6 +26,19 @@ type CompanySeed = {
 type CustomerSeed = {
   code: string;
   name: string;
+};
+
+type WebhookEndpointSeed = {
+  applicationId?: string;
+  applicationName?: string;
+  companyId?: string;
+  endpointId: string;
+  eventOwner: string;
+  provider: string;
+  schemaVersion: string;
+  secret: string;
+  status?: string;
+  tenantId?: string;
 };
 
 export type SeedFoundationResult = {
@@ -55,6 +69,8 @@ const foundationCustomer: CustomerSeed = {
 };
 
 const demoUserId = process.env.XFORGE_DEMO_USER_ID?.trim() ?? "";
+const webhookEndpointsSeedJson =
+  process.env.XFORGE_WEBHOOK_ENDPOINTS_JSON?.trim() ?? "";
 
 const seedClient = postgres(loadDatabaseKeys().DATABASE_URL, {
   prepare: false,
@@ -67,8 +83,72 @@ const seedDatabaseClient = drizzle(seedClient, {
     customers,
     tenantMemberships,
     tenants,
+    webhookEndpoints,
   },
 });
+
+const parseWebhookEndpointSeeds = (): WebhookEndpointSeed[] => {
+  if (!webhookEndpointsSeedJson) {
+    return [];
+  }
+
+  const parsed = JSON.parse(webhookEndpointsSeedJson) as unknown;
+
+  if (!Array.isArray(parsed)) {
+    throw new Error("XFORGE_WEBHOOK_ENDPOINTS_JSON must be an array");
+  }
+
+  return parsed.map((entry) => {
+    if (typeof entry !== "object" || entry === null) {
+      throw new Error("Webhook endpoint seed entries must be objects");
+    }
+
+    const endpoint = entry as Record<string, unknown>;
+
+    if (
+      typeof endpoint.endpointId !== "string" ||
+      typeof endpoint.eventOwner !== "string" ||
+      typeof endpoint.provider !== "string" ||
+      typeof endpoint.schemaVersion !== "string" ||
+      typeof endpoint.secret !== "string"
+    ) {
+      throw new Error("Webhook endpoint seed entry is malformed");
+    }
+
+    return {
+      ...(typeof endpoint.applicationId === "string"
+        ? {
+            applicationId: endpoint.applicationId,
+          }
+        : {}),
+      ...(typeof endpoint.applicationName === "string"
+        ? {
+            applicationName: endpoint.applicationName,
+          }
+        : {}),
+      ...(typeof endpoint.companyId === "string"
+        ? {
+            companyId: endpoint.companyId,
+          }
+        : {}),
+      ...(typeof endpoint.status === "string"
+        ? {
+            status: endpoint.status,
+          }
+        : {}),
+      ...(typeof endpoint.tenantId === "string"
+        ? {
+            tenantId: endpoint.tenantId,
+          }
+        : {}),
+      endpointId: endpoint.endpointId,
+      eventOwner: endpoint.eventOwner,
+      provider: endpoint.provider,
+      schemaVersion: endpoint.schemaVersion,
+      secret: endpoint.secret,
+    };
+  });
+};
 
 const upsertTenant = async (seed: TenantSeed): Promise<Tenant> => {
   const [tenant] = await seedDatabaseClient
@@ -207,6 +287,47 @@ const upsertCompanyGrant = async (
   return grant;
 };
 
+export const seedWebhookEndpoints = async (
+  foundation: SeedFoundationResult,
+  seeds: WebhookEndpointSeed[] = parseWebhookEndpointSeeds()
+): Promise<number> => {
+  let seeded = 0;
+
+  for (const seed of seeds) {
+    await seedDatabaseClient
+      .insert(webhookEndpoints)
+      .values({
+        applicationId: seed.applicationId?.trim() || null,
+        applicationName: seed.applicationName?.trim() || null,
+        companyId: seed.companyId?.trim() || foundation.companyId,
+        endpointId: seed.endpointId.trim(),
+        eventOwner: seed.eventOwner.trim(),
+        provider: seed.provider.trim(),
+        schemaVersion: seed.schemaVersion.trim(),
+        secret: seed.secret.trim(),
+        status: seed.status?.trim() || "active",
+        tenantId: seed.tenantId?.trim() || foundation.tenantId,
+      })
+      .onConflictDoUpdate({
+        target: [webhookEndpoints.provider, webhookEndpoints.endpointId],
+        set: {
+          applicationId: seed.applicationId?.trim() || null,
+          applicationName: seed.applicationName?.trim() || null,
+          companyId: seed.companyId?.trim() || foundation.companyId,
+          eventOwner: seed.eventOwner.trim(),
+          schemaVersion: seed.schemaVersion.trim(),
+          secret: seed.secret.trim(),
+          status: seed.status?.trim() || "active",
+          updatedAt: new Date(),
+        },
+      });
+
+    seeded += 1;
+  }
+
+  return seeded;
+};
+
 export const seedFoundationDatabase = async (): Promise<SeedFoundationResult> =>
   seedDatabaseClient.transaction(async () => {
     const tenant = await upsertTenant(foundationTenant);
@@ -252,6 +373,7 @@ export const seedDomainFixtures = (
 export const seedDatabase = async (): Promise<SeedFoundationResult> => {
   const foundation = await seedFoundationDatabase();
   await seedDomainFixtures(foundation, demoUserId);
+  await seedWebhookEndpoints(foundation);
 
   return foundation;
 };
@@ -260,12 +382,14 @@ const run = async (): Promise<void> => {
   try {
     const foundation = await seedFoundationDatabase();
     const domain = await seedDomainFixtures(foundation, demoUserId);
+    const seededWebhookEndpoints = await seedWebhookEndpoints(foundation);
 
     const messages = [
       "seed complete",
       `tenant=${foundation.tenantId}`,
       `company=${foundation.companyId}`,
       `customer=${foundation.customerId}`,
+      `webhookEndpoints=${seededWebhookEndpoints}`,
     ];
 
     if (domain) {

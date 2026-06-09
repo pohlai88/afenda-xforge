@@ -1,7 +1,7 @@
 import { listAuditEvents } from "@repo/audit";
 import { ForbiddenError } from "@repo/errors";
-import type { DashboardTableRow } from "@repo/metadata";
 import { permissionCatalog, requirePermission } from "@repo/permissions";
+import type { DashboardTableRow } from "@repo/ui";
 import type { RuntimeTenantAccess } from "../../_runtime-access.ts";
 import {
   createRuntimePermissionContext,

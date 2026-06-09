@@ -1,0 +1,33 @@
+{
+  "name": "@repo/erp-integration",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "exports": {
+    ".": "./src/index.ts",
+    "./flow": "./src/flow.ts",
+    "./hr-suite": "./src/hr-suite/index.ts",
+    "./master-data": "./src/master-data/index.ts",
+    "./package.json": "./package.json"
+  },
+  "files": [
+    "src",
+    "README.md",
+    "package.json"
+  ],
+  "scripts": {
+    "lint": "biome check .",
+    "format": "biome format --write .",
+    "clean": "git clean -xdf .cache .turbo dist node_modules",
+    "typecheck": "tsc --noEmit --emitDeclarationOnly false"
+  },
+  "dependencies": {
+    "@repo/shared": "workspace:*",
+    "server-only": "catalog:"
+  },
+  "devDependencies": {
+    "@repo/typescript-config": "workspace:*",
+    "@types/node": "catalog:",
+    "typescript": "catalog:"
+  }
+}

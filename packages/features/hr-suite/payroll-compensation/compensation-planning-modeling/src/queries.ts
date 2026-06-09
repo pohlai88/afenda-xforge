@@ -1,0 +1,23 @@
+import "server-only";
+
+import type {
+  CompensationPlanningModelingRecord,
+  ListCompensationPlanningModelingQuery,
+} from "./contract.ts";
+import type { HrSuiteFeatureContext } from "./shared/index.ts";
+
+const inMemoryRecords: readonly CompensationPlanningModelingRecord[] = [];
+
+export async function listCompensationPlanningModelingRecords(
+  _query: ListCompensationPlanningModelingQuery = {},
+  _context?: HrSuiteFeatureContext
+): Promise<readonly CompensationPlanningModelingRecord[]> {
+  return inMemoryRecords;
+}
+
+export async function getCompensationPlanningModelingRecord(
+  id: string,
+  _context?: HrSuiteFeatureContext
+): Promise<CompensationPlanningModelingRecord | null> {
+  return inMemoryRecords.find((record) => record.id === id) ?? null;
+}

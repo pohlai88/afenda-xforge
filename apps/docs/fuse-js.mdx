@@ -1,0 +1,60 @@
+---
+title: Fuse.js
+description: A powerful, lightweight fuzzy-search library with zero dependencies.
+---
+
+# Fuse.js
+
+Fuse.js is a lightweight fuzzy-search library for client-side or local search
+experiences.
+
+## Installation
+
+Install `fuse.js` with your preferred package manager:
+
+```bash
+npm install fuse.js
+```
+
+```bash
+pnpm add fuse.js
+```
+
+```bash
+yarn add fuse.js
+```
+
+```bash
+bun add fuse.js
+```
+
+## Usage
+
+Here is a basic example of searching an array of objects:
+
+```tsx title="search.ts"
+import Fuse from "fuse.js";
+
+const data = [
+  { id: 1, name: "John Doe", email: "john.doe@example.com" },
+  { id: 2, name: "Jane Doe", email: "jane.doe@example.com" },
+];
+
+const fuse = new Fuse(data, {
+  keys: ["name", "email"],
+  minMatchCharLength: 1,
+  threshold: 0.3,
+});
+
+const results = fuse.search("john");
+
+console.log(results);
+```
+
+## Benefits
+
+- Easy to use with a simple API.
+- Lightweight and dependency-free.
+- Good fit for small and medium local search surfaces.
+
+For more information, see the [Fuse.js GitHub repository](https://github.com/krisk/Fuse).

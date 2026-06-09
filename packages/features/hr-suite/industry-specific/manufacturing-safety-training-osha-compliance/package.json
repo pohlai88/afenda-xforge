@@ -1,0 +1,34 @@
+{
+  "name": "@repo/features-industry-specific-manufacturing-safety-training-osha-compliance",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "exports": {
+    ".": "./src/index.ts",
+    "./contract": "./src/contract.ts",
+    "./execution": "./src/execution/index.ts",
+    "./manifest": "./src/manifest.ts",
+    "./metadata": "./src/metadata.ts",
+    "./shared": "./src/shared/index.ts",
+    "./server": "./src/server.ts",
+    "./package.json": "./package.json"
+  },
+  "files": [
+    "src",
+    "package.json"
+  ],
+  "scripts": {
+    "lint": "biome check .",
+    "format": "biome format --write .",
+    "clean": "git clean -xdf .cache .turbo dist node_modules",
+    "typecheck": "tsc --noEmit --emitDeclarationOnly false"
+  },
+  "dependencies": {
+    "server-only": "catalog:"
+  },
+  "devDependencies": {
+    "@repo/typescript-config": "workspace:*",
+    "@types/node": "catalog:",
+    "typescript": "catalog:"
+  }
+}

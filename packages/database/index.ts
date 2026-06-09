@@ -6,4 +6,5 @@ export {
   seedDatabase,
   seedDomainFixtures,
   seedFoundationDatabase,
+  seedWebhookEndpoints,
 } from "./seed.ts";

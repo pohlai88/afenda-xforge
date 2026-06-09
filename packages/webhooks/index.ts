@@ -1,6 +1,1 @@
-export { keys, loadWebhooksKeys } from "./keys.ts";
-export {
-  getWebhookAppPortal,
-  sendWebhook,
-  webhooks,
-} from "./lib/svix.ts";
+export * from "./src/index.ts";

@@ -2,9 +2,11 @@ import "server-only";
 
 import type {
   {{ recordPascal }}ExecutionContext,
+} from "./contract.js";
+import type {
   {{ recordPascal }}Record,
   List{{ featurePascal }}Input,
-} from "./contract.js";
+} from "./schema.js";
 import { assert{{ recordPascal }}TenantContext } from "./execution/index.js";
 
 export async function list{{ featurePascal }}Records(
