@@ -7,8 +7,8 @@ import "server-only";
 
 export type {
   CreateMultiCountryPayrollInput,
-  MultiCountryPayrollRecord,
   ListMultiCountryPayrollQuery,
+  MultiCountryPayrollRecord,
   UpdateMultiCountryPayrollInput,
 } from "./contract.ts";
 export { multiCountryPayrollExecutionSurface } from "./execution/index.ts";

@@ -9,10 +9,8 @@ import Link from "next/link";
 import type { ReactElement } from "react";
 import { DashboardGrid } from "../_components/dashboard-grid.tsx";
 import { KpiCard } from "../_components/kpi-card.tsx";
-import {
-  type DashboardEntityCustomizationLayers,
-  loadDashboardMetadataCustomizations,
-} from "./_customizations.ts";
+import type { DashboardEntityCustomizationLayers } from "./_customizations.ts";
+import { loadDashboardMetadataCustomizations } from "./_customizations.ts";
 import { loadDashboardData } from "./_data.ts";
 
 type SectionState =

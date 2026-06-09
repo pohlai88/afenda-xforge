@@ -1,21 +1,21 @@
 import "server-only";
 
 import type {
-  PerformanceAppraisalsRecord,
   ListPerformanceAppraisalsQuery,
+  PerformanceAppraisalsRecord,
 } from "./contract.ts";
 import type { HrSuiteFeatureContext } from "./shared/index.ts";
 
 const inMemoryRecords: readonly PerformanceAppraisalsRecord[] = [];
 
-export async function listPerformanceAppraisalsRecords(
+export function listPerformanceAppraisalsRecords(
   _query: ListPerformanceAppraisalsQuery = {},
   _context?: HrSuiteFeatureContext
 ): Promise<readonly PerformanceAppraisalsRecord[]> {
   return inMemoryRecords;
 }
 
-export async function getPerformanceAppraisalsRecord(
+export function getPerformanceAppraisalsRecord(
   id: string,
   _context?: HrSuiteFeatureContext
 ): Promise<PerformanceAppraisalsRecord | null> {

@@ -21,4 +21,10 @@ export function canViewHrRecordsSensitiveData(
   return canViewHrEmployeeRecordSensitiveDataPolicy(context);
 }
 
-export { canReadHrEmployeeRecord, canWriteHrEmployeeRecord } from "./policy.ts";
+export {
+  canReadHrEmployeeRecord,
+  canWriteHrEmployeeRecord,
+  hasHrEmployeeSensitiveMutationFields,
+  hrEmployeeSensitiveMutationFields,
+  requireHrEmployeeSensitiveMutationAccess,
+} from "./policy.ts";

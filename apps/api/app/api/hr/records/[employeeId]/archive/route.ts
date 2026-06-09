@@ -1,9 +1,5 @@
-import {
-  hrRecordsArchiveEmployeeSchema,
-} from "@repo/features-employee-management-employee-records-management";
-import {
-  archiveHrEmployeeRecord,
-} from "@repo/features-employee-management-employee-records-management/server";
+import { hrRecordsArchiveEmployeeSchema } from "@repo/features-employee-management-employee-records-management";
+import { archiveHrEmployeeRecord } from "@repo/features-employee-management-employee-records-management/server";
 import { NextResponse } from "next/server";
 import { createHrRecordsWriteContext } from "../../_lib/context.ts";
 

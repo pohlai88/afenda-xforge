@@ -6,16 +6,17 @@ import type {
 } from "./contract.ts";
 import type { HrSuiteFeatureContext } from "./shared/index.ts";
 
-const inMemoryRecords: readonly FieldWorkerRemoteWorkforceManagementRecord[] = [];
+const inMemoryRecords: readonly FieldWorkerRemoteWorkforceManagementRecord[] =
+  [];
 
-export async function listFieldWorkerRemoteWorkforceManagementRecords(
+export function listFieldWorkerRemoteWorkforceManagementRecords(
   _query: ListFieldWorkerRemoteWorkforceManagementQuery = {},
   _context?: HrSuiteFeatureContext
 ): Promise<readonly FieldWorkerRemoteWorkforceManagementRecord[]> {
   return inMemoryRecords;
 }
 
-export async function getFieldWorkerRemoteWorkforceManagementRecord(
+export function getFieldWorkerRemoteWorkforceManagementRecord(
   id: string,
   _context?: HrSuiteFeatureContext
 ): Promise<FieldWorkerRemoteWorkforceManagementRecord | null> {

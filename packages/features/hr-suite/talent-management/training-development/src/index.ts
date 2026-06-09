@@ -7,8 +7,8 @@ import "server-only";
 
 export type {
   CreateTrainingDevelopmentInput,
-  TrainingDevelopmentRecord,
   ListTrainingDevelopmentQuery,
+  TrainingDevelopmentRecord,
   UpdateTrainingDevelopmentInput,
 } from "./contract.ts";
 export { trainingDevelopmentExecutionSurface } from "./execution/index.ts";

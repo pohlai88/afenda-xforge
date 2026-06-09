@@ -7,8 +7,8 @@ import "server-only";
 
 export type {
   CreateSalaryBenchmarkingSurveyInput,
-  SalaryBenchmarkingSurveyRecord,
   ListSalaryBenchmarkingSurveyQuery,
+  SalaryBenchmarkingSurveyRecord,
   UpdateSalaryBenchmarkingSurveyInput,
 } from "./contract.ts";
 export { salaryBenchmarkingSurveyExecutionSurface } from "./execution/index.ts";

@@ -16,9 +16,9 @@ export { foodHandlerCertificationHealthComplianceManifest } from "./manifest.ts"
 export { foodHandlerCertificationHealthComplianceMetadata } from "./metadata.ts";
 export {
   createFoodHandlerCertificationHealthCompliance,
+  foodHandlerCertificationHealthComplianceRouteContracts,
   getFoodHandlerCertificationHealthCompliance,
   listFoodHandlerCertificationHealthCompliance,
-  foodHandlerCertificationHealthComplianceRouteContracts,
   updateFoodHandlerCertificationHealthCompliance,
 } from "./server.ts";
 export { foodHandlerCertificationHealthComplianceFeatureScope } from "./shared/index.ts";

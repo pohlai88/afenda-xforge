@@ -8,14 +8,14 @@ import type { HrSuiteFeatureContext } from "./shared/index.ts";
 
 const inMemoryRecords: readonly CompetencySkillsFrameworkRecord[] = [];
 
-export async function listCompetencySkillsFrameworkRecords(
+export function listCompetencySkillsFrameworkRecords(
   _query: ListCompetencySkillsFrameworkQuery = {},
   _context?: HrSuiteFeatureContext
 ): Promise<readonly CompetencySkillsFrameworkRecord[]> {
   return inMemoryRecords;
 }
 
-export async function getCompetencySkillsFrameworkRecord(
+export function getCompetencySkillsFrameworkRecord(
   id: string,
   _context?: HrSuiteFeatureContext
 ): Promise<CompetencySkillsFrameworkRecord | null> {

@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import type { ReactElement } from "react";
-import { webHomeMetadata, webSitePreset } from "./seo";
+import { webHomeMetadata } from "./seo";
 
 const appShellHref = new URL(
   "/",

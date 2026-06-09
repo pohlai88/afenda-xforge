@@ -7,8 +7,8 @@ import "server-only";
 
 export type {
   CreateRecruitmentOnboardingInput,
-  RecruitmentOnboardingRecord,
   ListRecruitmentOnboardingQuery,
+  RecruitmentOnboardingRecord,
   UpdateRecruitmentOnboardingInput,
 } from "./contract.ts";
 export { recruitmentOnboardingExecutionSurface } from "./execution/index.ts";

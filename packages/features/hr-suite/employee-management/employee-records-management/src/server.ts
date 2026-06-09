@@ -7,8 +7,15 @@ export {
   rehireHrEmployeeRecord,
   updateHrEmployeeRecord,
 } from "./actions.ts";
-export { buildHrEmployeeRecordDetailPageModel } from "./hr.workforce.records.detail.page-model.server.ts";
+export {
+  buildHrEmployeeRecordDetailPageModel,
+  buildHrEmployeeRecordExportPageModel,
+} from "./hr.workforce.records.detail.page-model.server.ts";
 export { buildHrRecordsPageModel } from "./hr.workforce.records.page-model.server.ts";
+export {
+  buildHrEmployeeIntegrationChangeEvent,
+  buildHrEmployeeIntegrationSnapshot,
+} from "./registry/integration.ts";
 export {
   getHrEmployeeRecord,
   listHrEmployeeRecords,

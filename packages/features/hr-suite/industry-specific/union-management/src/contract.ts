@@ -24,4 +24,5 @@ export type UpdateUnionManagementInput = {
 
 export const unionManagementRouteContracts = [] as const;
 
-export const unionManagementFeatureId = "hr-suite.industry-specific.union-management" as const;
+export const unionManagementFeatureId =
+  "hr-suite.industry-specific.union-management" as const;

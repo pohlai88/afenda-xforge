@@ -37,9 +37,6 @@
     "enabled": true,
     "rules": {
       "recommended": true,
-      "nursery": {
-        "useExplicitType": "warn"
-      },
       "performance": {
         "noBarrelFile": "off",
         "useTopLevelRegex": "off"

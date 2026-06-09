@@ -23,6 +23,16 @@ export function canWriteHrOrg(context: unknown): boolean {
   );
 }
 
+export function requireHrOrgReadAccess(
+  context: unknown
+): { ok: true } | { ok: false; error: string } {
+  if (canReadHrOrg(context)) {
+    return { ok: true };
+  }
+
+  return { ok: false, error: "Read access denied for organization structure" };
+}
+
 export function requireHrOrgWriteAccess(
   context: unknown
 ): { ok: true } | { ok: false; error: string } {

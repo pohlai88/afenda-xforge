@@ -24,4 +24,5 @@ export type UpdateSuccessionPlanningInput = {
 
 export const successionPlanningRouteContracts = [] as const;
 
-export const successionPlanningFeatureId = "hr-suite.talent-management.succession-planning" as const;
+export const successionPlanningFeatureId =
+  "hr-suite.talent-management.succession-planning" as const;

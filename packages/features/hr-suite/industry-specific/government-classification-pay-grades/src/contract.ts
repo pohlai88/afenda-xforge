@@ -1,4 +1,7 @@
-export type GovernmentClassificationPayGradesStatus = "draft" | "active" | "archived";
+export type GovernmentClassificationPayGradesStatus =
+  | "draft"
+  | "active"
+  | "archived";
 
 export type GovernmentClassificationPayGradesRecord = {
   id: string;
@@ -24,4 +27,5 @@ export type UpdateGovernmentClassificationPayGradesInput = {
 
 export const governmentClassificationPayGradesRouteContracts = [] as const;
 
-export const governmentClassificationPayGradesFeatureId = "hr-suite.industry-specific.government-classification-pay-grades" as const;
+export const governmentClassificationPayGradesFeatureId =
+  "hr-suite.industry-specific.government-classification-pay-grades" as const;

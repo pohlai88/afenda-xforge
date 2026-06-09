@@ -8,14 +8,14 @@ import type { HrSuiteFeatureContext } from "./shared/index.ts";
 
 const inMemoryRecords: readonly BonusIncentiveManagementRecord[] = [];
 
-export async function listBonusIncentiveManagementRecords(
+export function listBonusIncentiveManagementRecords(
   _query: ListBonusIncentiveManagementQuery = {},
   _context?: HrSuiteFeatureContext
 ): Promise<readonly BonusIncentiveManagementRecord[]> {
   return inMemoryRecords;
 }
 
-export async function getBonusIncentiveManagementRecord(
+export function getBonusIncentiveManagementRecord(
   id: string,
   _context?: HrSuiteFeatureContext
 ): Promise<BonusIncentiveManagementRecord | null> {

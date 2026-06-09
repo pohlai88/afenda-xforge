@@ -16,9 +16,9 @@ export { fieldWorkerRemoteWorkforceManagementManifest } from "./manifest.ts";
 export { fieldWorkerRemoteWorkforceManagementMetadata } from "./metadata.ts";
 export {
   createFieldWorkerRemoteWorkforceManagement,
+  fieldWorkerRemoteWorkforceManagementRouteContracts,
   getFieldWorkerRemoteWorkforceManagement,
   listFieldWorkerRemoteWorkforceManagement,
-  fieldWorkerRemoteWorkforceManagementRouteContracts,
   updateFieldWorkerRemoteWorkforceManagement,
 } from "./server.ts";
 export { fieldWorkerRemoteWorkforceManagementFeatureScope } from "./shared/index.ts";

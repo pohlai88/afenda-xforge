@@ -14,5 +14,6 @@ export const retailSeasonalHourlyWorkforceSchedulingFeatureScope = {
   ...hrSuiteFeatureScope,
   domain: "industry-specific",
   feature: "retail-seasonal-hourly-workforce-scheduling",
-  packageName: "@repo/features-industry-specific-retail-seasonal-hourly-workforce-scheduling",
+  packageName:
+    "@repo/features-industry-specific-retail-seasonal-hourly-workforce-scheduling",
 } as const;

@@ -6,8 +6,8 @@
 import "server-only";
 
 export type {
-  CreateCompetencySkillsFrameworkInput,
   CompetencySkillsFrameworkRecord,
+  CreateCompetencySkillsFrameworkInput,
   ListCompetencySkillsFrameworkQuery,
   UpdateCompetencySkillsFrameworkInput,
 } from "./contract.ts";
@@ -15,10 +15,10 @@ export { competencySkillsFrameworkExecutionSurface } from "./execution/index.ts"
 export { competencySkillsFrameworkManifest } from "./manifest.ts";
 export { competencySkillsFrameworkMetadata } from "./metadata.ts";
 export {
+  competencySkillsFrameworkRouteContracts,
   createCompetencySkillsFramework,
   getCompetencySkillsFramework,
   listCompetencySkillsFramework,
-  competencySkillsFrameworkRouteContracts,
   updateCompetencySkillsFramework,
 } from "./server.ts";
 export { competencySkillsFrameworkFeatureScope } from "./shared/index.ts";

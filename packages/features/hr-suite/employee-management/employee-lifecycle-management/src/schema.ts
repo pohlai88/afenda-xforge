@@ -2959,8 +2959,9 @@ export const employeeLifecycleSuspensionResolutionInputSchema = z.object({
   suspensionKind: z.enum(employeeLifecycleSuspensionKindValues),
   closedAt: employeeLifecycleDateSchema.optional(),
   resolutionReference: employeeLifecycleTrimmedStringSchema,
-  resolutionEvidenceReference:
-    employeeLifecycleOptionalTrimmedStringSchema.nullable().optional(),
+  resolutionEvidenceReference: employeeLifecycleOptionalTrimmedStringSchema
+    .nullable()
+    .optional(),
   approvalReference: z.string().trim().min(1).nullable().optional(),
   actorId: employeeLifecycleOptionalTrimmedStringSchema,
   reason: z.string().trim().nullable().optional(),
@@ -3323,7 +3324,7 @@ const closeEmployeeLifecycleSuspensionEntry = (
   const closedAt = input.closedAt ?? new Date();
   const currentEntry = parsedRecord.entries.at(-1);
 
-  if (!currentEntry || currentEntry.status !== "active") {
+  if (currentEntry?.status !== "active") {
     throw new Error(
       `Employee ${parsedRecord.employeeId} does not have an active suspension or hold to ${resolutionPath}.`
     );
@@ -3335,8 +3336,7 @@ const closeEmployeeLifecycleSuspensionEntry = (
     closedAt,
     resolutionPath,
     resolutionReference: input.resolutionReference,
-    resolutionEvidenceReference:
-      input.resolutionEvidenceReference ?? undefined,
+    resolutionEvidenceReference: input.resolutionEvidenceReference ?? undefined,
     resolutionReason: input.reason ?? null,
     resolutionActorId: input.actorId ?? undefined,
     metadata: input.metadata ?? {},
@@ -3358,8 +3358,7 @@ const closeEmployeeLifecycleSuspensionEntry = (
         authorizationReference: currentEntry.authorizationReference,
         approvalReference: input.approvalReference ?? null,
         resolutionReference: input.resolutionReference,
-        resolutionEvidenceReference:
-          input.resolutionEvidenceReference ?? null,
+        resolutionEvidenceReference: input.resolutionEvidenceReference ?? null,
         resolutionPath,
         reason: input.reason ?? null,
         closedAt,

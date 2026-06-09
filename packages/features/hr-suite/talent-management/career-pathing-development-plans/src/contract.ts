@@ -1,4 +1,7 @@
-export type CareerPathingDevelopmentPlansStatus = "draft" | "active" | "archived";
+export type CareerPathingDevelopmentPlansStatus =
+  | "draft"
+  | "active"
+  | "archived";
 
 export type CareerPathingDevelopmentPlansRecord = {
   id: string;
@@ -24,4 +27,5 @@ export type UpdateCareerPathingDevelopmentPlansInput = {
 
 export const careerPathingDevelopmentPlansRouteContracts = [] as const;
 
-export const careerPathingDevelopmentPlansFeatureId = "hr-suite.talent-management.career-pathing-development-plans" as const;
+export const careerPathingDevelopmentPlansFeatureId =
+  "hr-suite.talent-management.career-pathing-development-plans" as const;

@@ -14,5 +14,6 @@ export const governmentClassificationPayGradesFeatureScope = {
   ...hrSuiteFeatureScope,
   domain: "industry-specific",
   feature: "government-classification-pay-grades",
-  packageName: "@repo/features-industry-specific-government-classification-pay-grades",
+  packageName:
+    "@repo/features-industry-specific-government-classification-pay-grades",
 } as const;

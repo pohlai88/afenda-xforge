@@ -24,4 +24,5 @@ export type UpdateBenefitsAdministrationInput = {
 
 export const benefitsAdministrationRouteContracts = [] as const;
 
-export const benefitsAdministrationFeatureId = "hr-suite.payroll-compensation.benefits-administration" as const;
+export const benefitsAdministrationFeatureId =
+  "hr-suite.payroll-compensation.benefits-administration" as const;

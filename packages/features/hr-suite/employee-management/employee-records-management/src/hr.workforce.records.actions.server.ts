@@ -18,7 +18,10 @@ import {
   hrRecordsRehireEmployeeSchema,
   hrRecordsUpdateEmployeeSchema,
 } from "./hr.workforce.records-form.shared.ts";
-import { requireHrRecordsWrite } from "./policy.ts";
+import {
+  requireHrEmployeeSensitiveMutationAccess,
+  requireHrRecordsWrite,
+} from "./policy.ts";
 
 type RecordsActionContext = {
   canWrite?: boolean;
@@ -37,6 +40,13 @@ export function createHrEmployeeRecordAction(
 
   try {
     const parsed = hrRecordsCreateEmployeeSchema.parse(input);
+    const sensitiveAccess = requireHrEmployeeSensitiveMutationAccess(
+      context,
+      parsed
+    );
+    if (!sensitiveAccess.ok) {
+      return sensitiveAccess;
+    }
     const record = hrRecordsStore.create(parsed, context);
     return { ok: true, targetId: record.id };
   } catch (error) {
@@ -55,6 +65,13 @@ export function updateHrEmployeeRecordAction(
 
   try {
     const parsed = hrRecordsUpdateEmployeeSchema.parse(input);
+    const sensitiveAccess = requireHrEmployeeSensitiveMutationAccess(
+      context,
+      parsed
+    );
+    if (!sensitiveAccess.ok) {
+      return sensitiveAccess;
+    }
     const record = hrRecordsStore.update(parsed, context);
     return record
       ? { ok: true, targetId: record.id }
@@ -115,6 +132,13 @@ export function rehireHrEmployeeAction(
 
   try {
     const parsed = hrRecordsRehireEmployeeSchema.parse(input);
+    const sensitiveAccess = requireHrEmployeeSensitiveMutationAccess(
+      context,
+      parsed
+    );
+    if (!sensitiveAccess.ok) {
+      return sensitiveAccess;
+    }
     const record = hrRecordsStore.rehire(parsed, context);
     return record
       ? { ok: true, targetId: record.id }

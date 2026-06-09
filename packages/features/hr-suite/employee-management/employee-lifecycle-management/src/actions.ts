@@ -23,12 +23,18 @@ import type {
   EmployeeLifecycleProbationReadModel,
   EmployeeLifecycleProbationReviewOutcomeValue,
   EmployeeLifecycleState,
+  EmployeeLifecycleSuspensionReadModel,
+  EmployeeLifecycleSuspensionResolutionInput,
+  EmployeeLifecycleSuspensionStartInput,
 } from "./schema.ts";
 import {
   appendEmployeeLifecycleMovement,
+  appendEmployeeLifecycleSuspension,
   applyEmployeeLifecycleContractReminder,
   applyEmployeeLifecycleContractRenewal,
   applyEmployeeLifecycleContractReview,
+  releaseEmployeeLifecycleSuspension as applyEmployeeLifecycleSuspensionRelease,
+  resolveEmployeeLifecycleSuspension as applyEmployeeLifecycleSuspensionResolution,
   completeEmployeeLifecycleOnboardingRecordTask as applyEmployeeLifecycleTaskCompletion,
   applyEmployeeLifecycleTransition,
   approveEmployeeLifecycleProbationConfirmationRecord,
@@ -36,11 +42,13 @@ import {
   buildEmployeeLifecycleMovementReadModel,
   buildEmployeeLifecycleOnboardingReadModel,
   buildEmployeeLifecycleProbationReadModel,
+  buildEmployeeLifecycleSuspensionReadModel,
   createEmployeeLifecycleContractRecord,
   createEmployeeLifecycleMovementRecord,
   createEmployeeLifecycleOnboardingRecord,
   createEmployeeLifecycleProbationRecord,
   createEmployeeLifecycleState,
+  createEmployeeLifecycleSuspensionRecord,
   employeeLifecycleContractReadModelSchema,
   employeeLifecycleContractReminderInputSchema,
   employeeLifecycleContractRenewalInputSchema,
@@ -55,6 +63,9 @@ import {
   employeeLifecycleProbationReadModelSchema,
   employeeLifecycleProbationReviewInputSchema,
   employeeLifecycleProbationStartInputSchema,
+  employeeLifecycleSuspensionReadModelSchema,
+  employeeLifecycleSuspensionResolutionInputSchema,
+  employeeLifecycleSuspensionStartInputSchema,
   activateEmployeeLifecycleOnboardingRecord as finalizeEmployeeLifecycleOnboardingRecord,
   recordEmployeeLifecycleProbationReviewOutcome,
 } from "./schema.ts";
@@ -143,6 +154,12 @@ export type EmployeeLifecycleContractReviewCommandInput =
 
 export type EmployeeLifecycleContractReminderCommandInput =
   EmployeeLifecycleContractReminderInput;
+
+export type EmployeeLifecycleSuspensionStartCommandInput =
+  EmployeeLifecycleSuspensionStartInput;
+
+export type EmployeeLifecycleSuspensionResolutionCommandInput =
+  EmployeeLifecycleSuspensionResolutionInput;
 
 const resolveEmployeeLifecycleOnboardingScope = (
   profile: EmployeeLifecycleOnboardingProfile,
@@ -774,13 +791,74 @@ const ensureEmployeeLifecycleContractStateIsEligible = (
   state: EmployeeLifecycleState
 ): void => {
   if (
+    state.currentStage === "suspended" ||
     state.currentStage === "separated" ||
     state.currentStage === "retired" ||
     state.currentStage === "archived"
   ) {
     throw new Error(
-      `Employee ${state.employeeId} cannot have a contract lifecycle updated after exit.`
+      `Employee ${state.employeeId} cannot have a contract lifecycle updated while suspended or after exit.`
     );
+  }
+};
+
+const resolveEmployeeLifecycleSuspensionScope = (
+  input: Readonly<{
+    companyId?: string | null;
+    tenantId?: string | null;
+  }>,
+  scope?: EmployeeLifecycleRepositoryScope
+): EmployeeLifecycleRepositoryScope | undefined => {
+  if (scope === undefined) {
+    return {
+      companyId: input.companyId ?? undefined,
+      tenantId: input.tenantId ?? undefined,
+    };
+  }
+
+  if (
+    input.companyId &&
+    scope.companyId &&
+    input.companyId !== scope.companyId
+  ) {
+    throw new Error(
+      "Suspension input companyId does not match repository scope"
+    );
+  }
+
+  if (input.tenantId && scope.tenantId && input.tenantId !== scope.tenantId) {
+    throw new Error(
+      "Suspension input tenantId does not match repository scope"
+    );
+  }
+
+  return {
+    companyId: scope.companyId ?? input.companyId ?? undefined,
+    tenantId: scope.tenantId ?? input.tenantId ?? undefined,
+  };
+};
+
+const ensureEmployeeLifecycleSuspensionStateIsEligible = (
+  state: EmployeeLifecycleState
+): void => {
+  if (state.currentStage === "suspended") {
+    throw new Error(
+      `Employee ${state.employeeId} already has an active suspension or hold.`
+    );
+  }
+
+  if (state.currentStage !== "active" && state.currentStage !== "confirmed") {
+    throw new Error(
+      `Employee ${state.employeeId} must be active or confirmed before a suspension or hold can be recorded.`
+    );
+  }
+};
+
+const ensureEmployeeLifecycleSuspensionStateIsSuspended = (
+  state: EmployeeLifecycleState
+): void => {
+  if (state.currentStage !== "suspended") {
+    throw new Error(`Employee ${state.employeeId} is not currently suspended.`);
   }
 };
 
@@ -1220,4 +1298,249 @@ export const employeeLifecycleContractActionCatalog = {
   renew: "renewEmployeeLifecycleContract",
   review: "recordEmployeeLifecycleContractReview",
   reminder: "recordEmployeeLifecycleContractReminder",
+} as const;
+
+const resolveEmployeeLifecycleSuspensionRecord = (
+  draft: EmployeeLifecycleRepositoryState,
+  input: EmployeeLifecycleSuspensionStartInput
+): ReturnType<typeof createEmployeeLifecycleSuspensionRecord> => {
+  const recordIndex = draft.suspensionRecords.findIndex(
+    (record) => record.employeeId === input.employeeId
+  );
+
+  if (recordIndex < 0) {
+    return createEmployeeLifecycleSuspensionRecord(input);
+  }
+
+  return appendEmployeeLifecycleSuspension(
+    draft.suspensionRecords[recordIndex],
+    input
+  );
+};
+
+const closeEmployeeLifecycleSuspensionRecord = (
+  draft: EmployeeLifecycleRepositoryState,
+  input: EmployeeLifecycleSuspensionResolutionInput,
+  resolutionPath: "released" | "resolved"
+): ReturnType<typeof applyEmployeeLifecycleSuspensionRelease> => {
+  const recordIndex = draft.suspensionRecords.findIndex(
+    (record) => record.employeeId === input.employeeId
+  );
+  if (recordIndex < 0) {
+    throw new Error(
+      `Suspension record not found for employee ${input.employeeId}.`
+    );
+  }
+
+  const currentRecord = draft.suspensionRecords[recordIndex];
+  const nextRecord =
+    resolutionPath === "released"
+      ? applyEmployeeLifecycleSuspensionRelease(currentRecord, input)
+      : applyEmployeeLifecycleSuspensionResolution(currentRecord, input);
+
+  draft.suspensionRecords[recordIndex] = nextRecord;
+
+  return nextRecord;
+};
+
+const buildSuspensionReadModel = (
+  state: EmployeeLifecycleState,
+  record: ReturnType<typeof createEmployeeLifecycleSuspensionRecord>
+): EmployeeLifecycleSuspensionReadModel => {
+  const readModel = buildEmployeeLifecycleSuspensionReadModel({
+    state,
+    record,
+  });
+
+  if (readModel === null) {
+    throw new Error(
+      `Employee ${state.employeeId} suspension read model could not be built.`
+    );
+  }
+
+  return employeeLifecycleSuspensionReadModelSchema.parse(readModel);
+};
+
+export function startEmployeeLifecycleSuspension(
+  input: EmployeeLifecycleSuspensionStartCommandInput,
+  scope?: EmployeeLifecycleRepositoryScope
+): EmployeeLifecycleSuspensionReadModel {
+  const parsedInput = employeeLifecycleSuspensionStartInputSchema.parse(input);
+  const resolvedScope = resolveEmployeeLifecycleSuspensionScope(
+    parsedInput,
+    scope
+  );
+  const effectiveAt = parsedInput.effectiveAt ?? new Date();
+  const recordedAt = parsedInput.recordedAt ?? effectiveAt;
+  let readModel: EmployeeLifecycleSuspensionReadModel | null = null;
+
+  mutateEmployeeLifecycleRepository((draft) => {
+    const stateIndex = draft.states.findIndex(
+      (state) => state.employeeId === parsedInput.employeeId
+    );
+    if (stateIndex < 0) {
+      throw new Error(
+        `Suspension state not found for employee ${parsedInput.employeeId}.`
+      );
+    }
+
+    const currentState = draft.states[stateIndex];
+    ensureEmployeeLifecycleSuspensionStateIsEligible(currentState);
+
+    const nextRecord = resolveEmployeeLifecycleSuspensionRecord(draft, {
+      ...parsedInput,
+      companyId: resolvedScope?.companyId ?? parsedInput.companyId ?? undefined,
+      tenantId: resolvedScope?.tenantId ?? parsedInput.tenantId ?? undefined,
+      effectiveAt,
+      recordedAt,
+    });
+
+    const recordIndex = draft.suspensionRecords.findIndex(
+      (record) => record.employeeId === parsedInput.employeeId
+    );
+    if (recordIndex < 0) {
+      draft.suspensionRecords = [...draft.suspensionRecords, nextRecord];
+    } else {
+      draft.suspensionRecords[recordIndex] = nextRecord;
+    }
+
+    const nextState = applyEmployeeLifecycleTransition(currentState, {
+      toStage: "suspended",
+      effectiveAt,
+      recordedAt,
+      actorId: parsedInput.actorId ?? undefined,
+      reason: parsedInput.reason ?? null,
+      approvalReference: parsedInput.approvalReference ?? null,
+    });
+    draft.states[stateIndex] = nextState;
+
+    readModel = buildSuspensionReadModel(nextState, nextRecord);
+  }, resolvedScope);
+
+  return employeeLifecycleSuspensionReadModelSchema.parse(readModel);
+}
+
+export function startEmployeeLifecycleHold(
+  input: Omit<EmployeeLifecycleSuspensionStartCommandInput, "suspensionKind">,
+  scope?: EmployeeLifecycleRepositoryScope
+): EmployeeLifecycleSuspensionReadModel {
+  return startEmployeeLifecycleSuspension(
+    {
+      ...input,
+      suspensionKind: "hold",
+    },
+    scope
+  );
+}
+
+const resolveEmployeeLifecycleSuspensionAction = (
+  input: EmployeeLifecycleSuspensionResolutionCommandInput,
+  scope: EmployeeLifecycleRepositoryScope | undefined,
+  resolutionPath: "released" | "resolved"
+): EmployeeLifecycleSuspensionReadModel => {
+  const parsedInput =
+    employeeLifecycleSuspensionResolutionInputSchema.parse(input);
+  const closedAt = parsedInput.closedAt ?? new Date();
+  let readModel: EmployeeLifecycleSuspensionReadModel | null = null;
+
+  mutateEmployeeLifecycleRepository((draft) => {
+    const stateIndex = draft.states.findIndex(
+      (state) => state.employeeId === parsedInput.employeeId
+    );
+    if (stateIndex < 0) {
+      throw new Error(
+        `Suspension state not found for employee ${parsedInput.employeeId}.`
+      );
+    }
+
+    const currentState = draft.states[stateIndex];
+    ensureEmployeeLifecycleSuspensionStateIsSuspended(currentState);
+
+    const currentRecord = draft.suspensionRecords.find(
+      (record) => record.employeeId === parsedInput.employeeId
+    );
+    if (!currentRecord) {
+      throw new Error(
+        `Suspension record not found for employee ${parsedInput.employeeId}.`
+      );
+    }
+
+    const nextRecord = closeEmployeeLifecycleSuspensionRecord(
+      draft,
+      {
+        ...parsedInput,
+        closedAt,
+      },
+      resolutionPath
+    );
+
+    const nextState = applyEmployeeLifecycleTransition(currentState, {
+      toStage: "active",
+      effectiveAt: closedAt,
+      recordedAt: closedAt,
+      actorId: parsedInput.actorId ?? undefined,
+      reason: parsedInput.reason ?? null,
+      approvalReference: parsedInput.approvalReference ?? null,
+    });
+    draft.states[stateIndex] = nextState;
+
+    readModel = buildSuspensionReadModel(nextState, nextRecord);
+  }, scope);
+
+  return employeeLifecycleSuspensionReadModelSchema.parse(readModel);
+};
+
+export function releaseEmployeeLifecycleSuspension(
+  input: EmployeeLifecycleSuspensionResolutionCommandInput,
+  scope?: EmployeeLifecycleRepositoryScope
+): EmployeeLifecycleSuspensionReadModel {
+  return resolveEmployeeLifecycleSuspensionAction(input, scope, "released");
+}
+
+export function releaseEmployeeLifecycleHold(
+  input: Omit<
+    EmployeeLifecycleSuspensionResolutionCommandInput,
+    "suspensionKind"
+  >,
+  scope?: EmployeeLifecycleRepositoryScope
+): EmployeeLifecycleSuspensionReadModel {
+  return releaseEmployeeLifecycleSuspension(
+    {
+      ...input,
+      suspensionKind: "hold",
+    },
+    scope
+  );
+}
+
+export function resolveEmployeeLifecycleSuspension(
+  input: EmployeeLifecycleSuspensionResolutionCommandInput,
+  scope?: EmployeeLifecycleRepositoryScope
+): EmployeeLifecycleSuspensionReadModel {
+  return resolveEmployeeLifecycleSuspensionAction(input, scope, "resolved");
+}
+
+export function resolveEmployeeLifecycleHold(
+  input: Omit<
+    EmployeeLifecycleSuspensionResolutionCommandInput,
+    "suspensionKind"
+  >,
+  scope?: EmployeeLifecycleRepositoryScope
+): EmployeeLifecycleSuspensionReadModel {
+  return resolveEmployeeLifecycleSuspension(
+    {
+      ...input,
+      suspensionKind: "hold",
+    },
+    scope
+  );
+}
+
+export const employeeLifecycleSuspensionActionCatalog = {
+  start: "startEmployeeLifecycleSuspension",
+  hold: "startEmployeeLifecycleHold",
+  release: "releaseEmployeeLifecycleSuspension",
+  releaseHold: "releaseEmployeeLifecycleHold",
+  resolve: "resolveEmployeeLifecycleSuspension",
+  resolveHold: "resolveEmployeeLifecycleHold",
 } as const;

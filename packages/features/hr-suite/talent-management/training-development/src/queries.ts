@@ -1,21 +1,21 @@
 import "server-only";
 
 import type {
-  TrainingDevelopmentRecord,
   ListTrainingDevelopmentQuery,
+  TrainingDevelopmentRecord,
 } from "./contract.ts";
 import type { HrSuiteFeatureContext } from "./shared/index.ts";
 
 const inMemoryRecords: readonly TrainingDevelopmentRecord[] = [];
 
-export async function listTrainingDevelopmentRecords(
+export function listTrainingDevelopmentRecords(
   _query: ListTrainingDevelopmentQuery = {},
   _context?: HrSuiteFeatureContext
 ): Promise<readonly TrainingDevelopmentRecord[]> {
   return inMemoryRecords;
 }
 
-export async function getTrainingDevelopmentRecord(
+export function getTrainingDevelopmentRecord(
   id: string,
   _context?: HrSuiteFeatureContext
 ): Promise<TrainingDevelopmentRecord | null> {

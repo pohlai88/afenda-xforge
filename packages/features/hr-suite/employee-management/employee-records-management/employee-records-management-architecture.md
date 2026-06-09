@@ -494,6 +494,19 @@ Deliverables:
 - field-level masking rules
 - stronger auditability for sensitive access and mutation paths
 
+Phase 3 implementation evidence:
+
+- `src/policy.ts` now centralizes sensitive-field mutation gating so create, update, and rehire writes that carry email, identity, phone, date-of-birth, or address data fail closed unless sensitive access is granted.
+- `src/projector/record-detail.ts` adds an export-safe detail projection that omits sensitive fields entirely, and `src/hr.workforce.records.detail.page-model.server.ts` exposes an export page-model helper built on that projection.
+- `src/hr.workforce.records.actions.server.ts` enforces the sensitive mutation gate before persistence, so sensitive profile writes cannot bypass the read-policy flag.
+- `test/profile-sensitive-read.test.ts` now covers masked detail reads, export-safe projection shape, allowed sensitive writes with sensitive access, and denied sensitive writes without it.
+
+Validation completed on 2026-06-09:
+
+- `pnpm --filter @repo/features-employee-management-employee-records-management test`
+- `pnpm --filter @repo/features-employee-management-employee-records-management typecheck`
+- `pnpm exec biome check packages/features/hr-suite/employee-management/employee-records-management`
+
 ### Phase 4: Strengthen cross-domain integration contracts
 
 Objective: make the package a reliable source of truth for dependent HR modules.

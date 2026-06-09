@@ -8,14 +8,7 @@ export type HrSuiteFeatureContext = {
   tenantId?: string;
 };
 
-export const hrSuiteFeatureScope = {
-  source: "legacy-hr-suite",
-  suite: "hr-suite",
-} as const;
-
-export const hrRecordsFeatureScope = {
-  ...hrSuiteFeatureScope,
-  domain: "employee-management",
-  feature: "employee-records-management",
-  packageName: "@repo/features-employee-management-employee-records-management",
-} as const;
+export {
+  hrRecordsFeatureScope,
+  hrSuiteFeatureScope,
+} from "../feature-scope.ts";

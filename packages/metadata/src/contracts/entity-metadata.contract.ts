@@ -7,12 +7,7 @@ import type { MetadataPresentationContract } from "./presentation.contract.ts";
 import type { MetadataSectionContract } from "./section.contract.ts";
 import type { MetadataStateContract } from "./state.contract.ts";
 
-type EntityMetadataColumnKind =
-  | "date"
-  | "email"
-  | "money"
-  | "status"
-  | "text";
+type EntityMetadataColumnKind = "date" | "email" | "money" | "status" | "text";
 
 type EntityMetadataTableColumn = {
   align?: "center" | "end" | "start";

@@ -78,6 +78,8 @@ export type HrEmployeeRecordDetail = HrEmployeeRecord & {
   emergencyContactPhoneNumber: string;
 };
 
+export type { HrEmployeeRecordExportView } from "./projector/record-detail.ts";
+
 export type HrRecordsSearchParams = {
   incompleteSearch?: string;
   directorySearch?: string;

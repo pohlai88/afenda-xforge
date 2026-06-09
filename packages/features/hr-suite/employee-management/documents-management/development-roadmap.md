@@ -200,6 +200,30 @@ Validation:
 - `pnpm --filter @repo/features-employee-management-documents-management test`
 - `pnpm --filter api typecheck`
 
+## Slice 10 Status
+
+Status: implemented on 2026-06-09.
+
+Slice 10 hardened the Documents Management implementation in:
+
+- `apps/api/package.json`
+- `apps/api/test/hr-documents-routes.test.ts`
+- `development-roadmap.md`
+- `documents-management-architecture.md`
+
+Evidence recorded:
+
+- The API app now exposes a runnable `test` script for route-level coverage.
+- The route test suite exercises the list, detail, readiness, and expiring document routes directly.
+- The route tests verify successful projections, paging behavior, invalid-query handling, and read-denial fail-closed behavior.
+- The roadmap and architecture docs now record the implemented hardening surface alongside the earlier slices.
+
+Validation:
+
+- `pnpm --filter @repo/features-employee-management-documents-management lint`
+- `pnpm --filter api typecheck`
+- `pnpm --filter api test`
+
 ## Slice 5 Status
 
 Status: implemented on 2026-06-09.
@@ -330,3 +354,17 @@ When implementation begins, validate the feature package with targeted checks fi
 - `pnpm --filter @repo/features-employee-management-documents-management test`
 
 If the roadmap expands into database-backed persistence, add the relevant database generation and validation commands at that point.
+
+## Audit Outcome
+
+Audit date: 2026-06-09.
+
+No remaining implementation slices were identified in the Documents Management feature package after slice 10.
+
+Evidence:
+
+- The roadmap now records slices 1 through 10 as implemented with code references.
+- The package test suite passes with 12/12 tests green.
+- The API app typechecks cleanly and its route test suite passes.
+- The feature package lint check passes cleanly with Biome.
+- The package has no remaining `TODO` or `FIXME` markers in the Documents Management subtree based on the repository search performed during this audit.

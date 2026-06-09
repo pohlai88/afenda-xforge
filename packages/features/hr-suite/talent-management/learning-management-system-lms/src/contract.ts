@@ -24,4 +24,5 @@ export type UpdateLearningManagementSystemLmsInput = {
 
 export const learningManagementSystemLmsRouteContracts = [] as const;
 
-export const learningManagementSystemLmsFeatureId = "hr-suite.talent-management.learning-management-system-lms" as const;
+export const learningManagementSystemLmsFeatureId =
+  "hr-suite.talent-management.learning-management-system-lms" as const;

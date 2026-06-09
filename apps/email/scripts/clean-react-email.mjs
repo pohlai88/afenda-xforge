@@ -19,7 +19,7 @@ try {
     (error.code === "EBUSY" || error.code === "EPERM")
   ) {
     console.warn(
-      `Skipping .react-email cleanup because the directory is locked: ${previewAppDir}`,
+      `Skipping .react-email cleanup because the directory is locked: ${previewAppDir}`
     );
   } else {
     throw error;

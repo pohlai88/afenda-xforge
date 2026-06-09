@@ -16,9 +16,9 @@ export { employeeEngagementSurveysManifest } from "./manifest.ts";
 export { employeeEngagementSurveysMetadata } from "./metadata.ts";
 export {
   createEmployeeEngagementSurveys,
+  employeeEngagementSurveysRouteContracts,
   getEmployeeEngagementSurveys,
   listEmployeeEngagementSurveys,
-  employeeEngagementSurveysRouteContracts,
   updateEmployeeEngagementSurveys,
 } from "./server.ts";
 export { employeeEngagementSurveysFeatureScope } from "./shared/index.ts";

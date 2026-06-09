@@ -1,4 +1,6 @@
+import { hrRecordsFeatureId, hrRecordsFeaturePackageName } from "./identity.ts";
 import { hrRecordsFeatureMetadata } from "./metadata.ts";
+import { hrRecordsFeatureManifestSchema } from "./contracts/manifest.contract.ts";
 
 export type HrRecordsFeatureManifest = {
   description: string;
@@ -10,10 +12,12 @@ export type HrRecordsFeatureManifest = {
 };
 
 export const hrRecordsFeatureManifest: HrRecordsFeatureManifest = {
-  id: hrRecordsFeatureMetadata.id,
+  id: hrRecordsFeatureId,
   title: hrRecordsFeatureMetadata.title,
   description: hrRecordsFeatureMetadata.description,
   domain: hrRecordsFeatureMetadata.domain,
-  packageName: "@repo/features-employee-management-employee-records-management",
+  packageName: hrRecordsFeaturePackageName,
   suite: "hr-suite",
 };
+
+hrRecordsFeatureManifestSchema.parse(hrRecordsFeatureManifest);

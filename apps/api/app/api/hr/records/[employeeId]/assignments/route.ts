@@ -1,6 +1,4 @@
-import {
-  hrRecordsAssignmentSchema,
-} from "@repo/features-employee-management-employee-records-management";
+import { hrRecordsAssignmentSchema } from "@repo/features-employee-management-employee-records-management";
 import {
   listHrEmployeeAssignments,
   recordHrEmployeeAssignment,
@@ -23,7 +21,7 @@ const toOptionalString = (value: string | null): string | undefined =>
 const parseOptionalBoolean = (value: string | null): boolean | undefined => {
   const normalized = value?.trim().toLowerCase();
   if (!normalized) {
-    return undefined;
+    return;
   }
 
   if (normalized === "true" || normalized === "1") {
@@ -34,19 +32,19 @@ const parseOptionalBoolean = (value: string | null): boolean | undefined => {
     return false;
   }
 
-  return undefined;
+  return;
 };
 
 const parseOptionalPositiveInteger = (
   value: string | null
 ): number | undefined => {
   if (!value?.trim()) {
-    return undefined;
+    return;
   }
 
   const parsed = Number(value);
   if (!Number.isInteger(parsed) || parsed <= 0) {
-    return undefined;
+    return;
   }
 
   return parsed;
@@ -54,12 +52,12 @@ const parseOptionalPositiveInteger = (
 
 const parseOptionalDate = (value: string | null): Date | undefined => {
   if (!value?.trim()) {
-    return undefined;
+    return;
   }
 
   const parsed = new Date(value);
   if (Number.isNaN(parsed.getTime())) {
-    return undefined;
+    return;
   }
 
   return parsed;
@@ -79,7 +77,9 @@ export async function GET(
         url.searchParams.get("managerEmployeeId")
       ),
       departmentId: toOptionalString(url.searchParams.get("departmentId")),
-      workLocationCode: toOptionalString(url.searchParams.get("workLocationCode")),
+      workLocationCode: toOptionalString(
+        url.searchParams.get("workLocationCode")
+      ),
       current: parseOptionalBoolean(url.searchParams.get("current")),
       asOf: parseOptionalDate(url.searchParams.get("asOf")),
       page: parseOptionalPositiveInteger(url.searchParams.get("page")),

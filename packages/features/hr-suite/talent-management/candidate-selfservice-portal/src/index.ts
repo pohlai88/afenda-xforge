@@ -6,8 +6,8 @@
 import "server-only";
 
 export type {
-  CreateCandidateSelfservicePortalInput,
   CandidateSelfservicePortalRecord,
+  CreateCandidateSelfservicePortalInput,
   ListCandidateSelfservicePortalQuery,
   UpdateCandidateSelfservicePortalInput,
 } from "./contract.ts";
@@ -15,10 +15,10 @@ export { candidateSelfservicePortalExecutionSurface } from "./execution/index.ts
 export { candidateSelfservicePortalManifest } from "./manifest.ts";
 export { candidateSelfservicePortalMetadata } from "./metadata.ts";
 export {
+  candidateSelfservicePortalRouteContracts,
   createCandidateSelfservicePortal,
   getCandidateSelfservicePortal,
   listCandidateSelfservicePortal,
-  candidateSelfservicePortalRouteContracts,
   updateCandidateSelfservicePortal,
 } from "./server.ts";
 export { candidateSelfservicePortalFeatureScope } from "./shared/index.ts";

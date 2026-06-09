@@ -24,4 +24,5 @@ export type UpdateBonusIncentiveManagementInput = {
 
 export const bonusIncentiveManagementRouteContracts = [] as const;
 
-export const bonusIncentiveManagementFeatureId = "hr-suite.payroll-compensation.bonus-incentive-management" as const;
+export const bonusIncentiveManagementFeatureId =
+  "hr-suite.payroll-compensation.bonus-incentive-management" as const;

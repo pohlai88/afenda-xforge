@@ -24,4 +24,5 @@ export type UpdateCandidateSelfservicePortalInput = {
 
 export const candidateSelfservicePortalRouteContracts = [] as const;
 
-export const candidateSelfservicePortalFeatureId = "hr-suite.talent-management.candidate-selfservice-portal" as const;
+export const candidateSelfservicePortalFeatureId =
+  "hr-suite.talent-management.candidate-selfservice-portal" as const;

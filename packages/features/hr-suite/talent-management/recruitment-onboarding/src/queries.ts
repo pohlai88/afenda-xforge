@@ -1,21 +1,21 @@
 import "server-only";
 
 import type {
-  RecruitmentOnboardingRecord,
   ListRecruitmentOnboardingQuery,
+  RecruitmentOnboardingRecord,
 } from "./contract.ts";
 import type { HrSuiteFeatureContext } from "./shared/index.ts";
 
 const inMemoryRecords: readonly RecruitmentOnboardingRecord[] = [];
 
-export async function listRecruitmentOnboardingRecords(
+export function listRecruitmentOnboardingRecords(
   _query: ListRecruitmentOnboardingQuery = {},
   _context?: HrSuiteFeatureContext
 ): Promise<readonly RecruitmentOnboardingRecord[]> {
   return inMemoryRecords;
 }
 
-export async function getRecruitmentOnboardingRecord(
+export function getRecruitmentOnboardingRecord(
   id: string,
   _context?: HrSuiteFeatureContext
 ): Promise<RecruitmentOnboardingRecord | null> {

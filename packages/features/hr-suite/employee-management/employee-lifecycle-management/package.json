@@ -25,8 +25,8 @@
     "package.json"
   ],
   "scripts": {
-    "lint": "biome check .",
-    "format": "biome format --write .",
+    "lint": "pnpm exec biome check .",
+    "format": "pnpm exec biome format --write .",
     "test": "tsx --conditions=react-server --test test/**/*.test.ts",
     "clean": "git clean -xdf .cache .turbo dist node_modules",
     "typecheck": "tsc --noEmit --emitDeclarationOnly false"

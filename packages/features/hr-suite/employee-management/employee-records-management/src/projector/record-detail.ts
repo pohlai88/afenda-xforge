@@ -41,6 +41,25 @@ export type HrEmployeeRecordDetailView = Omit<
   emergencyContactPhoneNumber: string;
 };
 
+const hrEmployeeRecordDetailSensitiveKeys = [
+  "dateOfBirth",
+  "email",
+  "identityNumber",
+  "mailingAddress",
+  "personalEmail",
+  "phoneNumber",
+  "residentialAddress",
+  "emergencyContactPhoneNumber",
+] as const;
+
+type HrEmployeeRecordDetailSensitiveKey =
+  (typeof hrEmployeeRecordDetailSensitiveKeys)[number];
+
+export type HrEmployeeRecordExportView = Omit<
+  HrEmployeeRecordDetailView,
+  HrEmployeeRecordDetailSensitiveKey
+>;
+
 const toIsoDate = (value: Date | null): string =>
   value ? value.toISOString() : "";
 
@@ -85,4 +104,23 @@ export function projectHrEmployeeRecordDetail(
       canViewSensitive
     ),
   } satisfies HrEmployeeRecordDetailView;
+}
+
+export function projectHrEmployeeRecordExportDetail(
+  record: HrEmployeeRecordDetail
+): HrEmployeeRecordExportView {
+  const detail = projectHrEmployeeRecordDetail(record, false);
+  const {
+    dateOfBirth: _dateOfBirth,
+    email: _email,
+    emergencyContactPhoneNumber: _emergencyContactPhoneNumber,
+    identityNumber: _identityNumber,
+    mailingAddress: _mailingAddress,
+    personalEmail: _personalEmail,
+    phoneNumber: _phoneNumber,
+    residentialAddress: _residentialAddress,
+    ...exportView
+  } = detail;
+
+  return exportView;
 }

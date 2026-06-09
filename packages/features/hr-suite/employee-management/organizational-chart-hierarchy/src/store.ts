@@ -4,6 +4,7 @@ import type {
   HrOrgPositionRecord,
   HrOrgReportingRelationshipRecord,
   HrOrgUnitRecord,
+  HrOrgWriteContext,
 } from "./contracts/domain.contract.ts";
 import type {
   HrOrgAuditTrailListRow,
@@ -358,7 +359,10 @@ export const hrOrgStore = {
       null
     );
   },
-  upsertUnit(input: UpsertHrOrgUnitInput): HrOrgChartNode {
+  upsertUnit(
+    input: UpsertHrOrgUnitInput,
+    context?: HrOrgWriteContext
+  ): HrOrgChartNode {
     const id = input.id ?? randomUUID();
     const existing = units.get(id);
     const parentUnitId = resolveOptionalText(
@@ -372,8 +376,9 @@ export const hrOrgStore = {
 
     const next: HrOrgUnitRecord = {
       id,
-      tenantId: existing?.tenantId ?? null,
-      companyId: input.companyId ?? existing?.companyId ?? null,
+      tenantId: existing?.tenantId ?? context?.tenantId ?? null,
+      companyId:
+        input.companyId ?? existing?.companyId ?? context?.companyId ?? null,
       code: normalizeRequiredText(input.code, "code"),
       name: normalizeRequiredText(input.name, "name"),
       unitType: input.unitType,
@@ -410,27 +415,33 @@ export const hrOrgStore = {
     units.set(id, next);
 
     appendAuditEvent(
-      createHrOrgMutationAuditEvent({
-        action: existing
-          ? hrOrgAuditActions.unit.updated
-          : hrOrgAuditActions.unit.created,
-        entityType: "organization_unit",
-        entityId: id,
-        summary: `Organization unit ${existing ? "updated" : "created"}: ${next.code}`,
-        metadata: {
-          code: next.code,
-          unitType: next.unitType,
-          status: next.status,
-          parentUnitId: next.parentUnitId,
-          effectiveFrom: next.effectiveFrom.toISOString(),
-          effectiveTo: next.effectiveTo?.toISOString() ?? null,
+      createHrOrgMutationAuditEvent(
+        {
+          action: existing
+            ? hrOrgAuditActions.unit.updated
+            : hrOrgAuditActions.unit.created,
+          entityType: "organization_unit",
+          entityId: id,
+          summary: `Organization unit ${existing ? "updated" : "created"}: ${next.code}`,
+          metadata: {
+            code: next.code,
+            unitType: next.unitType,
+            status: next.status,
+            parentUnitId: next.parentUnitId,
+            effectiveFrom: next.effectiveFrom.toISOString(),
+            effectiveTo: next.effectiveTo?.toISOString() ?? null,
+          },
         },
-      })
+        context
+      )
     );
 
     return toChartNode(next);
   },
-  upsertPosition(input: UpsertHrOrgPositionInput): HrOrgChartNode {
+  upsertPosition(
+    input: UpsertHrOrgPositionInput,
+    context?: HrOrgWriteContext
+  ): HrOrgChartNode {
     const id = input.id ?? randomUUID();
     const existing = positions.get(id);
     const organizationUnitId = normalizeRequiredText(
@@ -442,8 +453,9 @@ export const hrOrgStore = {
 
     const next: HrOrgPositionRecord = {
       id,
-      tenantId: existing?.tenantId ?? null,
-      companyId: input.companyId ?? existing?.companyId ?? null,
+      tenantId: existing?.tenantId ?? context?.tenantId ?? null,
+      companyId:
+        input.companyId ?? existing?.companyId ?? context?.companyId ?? null,
       code: normalizeRequiredText(input.code, "code"),
       title: normalizeRequiredText(input.title, "title"),
       organizationUnitId,
@@ -475,22 +487,25 @@ export const hrOrgStore = {
     positions.set(id, next);
 
     appendAuditEvent(
-      createHrOrgMutationAuditEvent({
-        action: existing
-          ? hrOrgAuditActions.position.updated
-          : hrOrgAuditActions.position.created,
-        entityType: "position",
-        entityId: id,
-        summary: `Position ${existing ? "updated" : "created"}: ${next.title}`,
-        metadata: {
-          code: next.code,
-          title: next.title,
-          organizationUnitId: next.organizationUnitId,
-          status: next.status,
-          effectiveFrom: next.effectiveFrom.toISOString(),
-          effectiveTo: next.effectiveTo?.toISOString() ?? null,
+      createHrOrgMutationAuditEvent(
+        {
+          action: existing
+            ? hrOrgAuditActions.position.updated
+            : hrOrgAuditActions.position.created,
+          entityType: "position",
+          entityId: id,
+          summary: `Position ${existing ? "updated" : "created"}: ${next.title}`,
+          metadata: {
+            code: next.code,
+            title: next.title,
+            organizationUnitId: next.organizationUnitId,
+            status: next.status,
+            effectiveFrom: next.effectiveFrom.toISOString(),
+            effectiveTo: next.effectiveTo?.toISOString() ?? null,
+          },
         },
-      })
+        context
+      )
     );
 
     return toChartNode({
@@ -513,7 +528,8 @@ export const hrOrgStore = {
     } as HrOrgUnitRecord);
   },
   upsertReportingLine(
-    input: UpsertHrOrgReportingRelationshipInput
+    input: UpsertHrOrgReportingRelationshipInput,
+    context?: HrOrgWriteContext
   ): HrOrgChartNode {
     const id = input.id ?? randomUUID();
     const existing = reportingRelationships.get(id);
@@ -531,8 +547,9 @@ export const hrOrgStore = {
 
     const next: HrOrgReportingRelationshipRecord = {
       id,
-      tenantId: existing?.tenantId ?? null,
-      companyId: input.companyId ?? existing?.companyId ?? null,
+      tenantId: existing?.tenantId ?? context?.tenantId ?? null,
+      companyId:
+        input.companyId ?? existing?.companyId ?? context?.companyId ?? null,
       employeeId,
       managerEmployeeId,
       relationshipType: input.relationshipType,
@@ -552,19 +569,22 @@ export const hrOrgStore = {
     reportingRelationships.set(id, next);
 
     appendAuditEvent(
-      createHrOrgMutationAuditEvent({
-        action: hrOrgAuditActions.reportingLine.recorded,
-        entityType: "reporting_relationship",
-        entityId: id,
-        summary: `Reporting relationship recorded: ${next.employeeId} -> ${next.managerEmployeeId}`,
-        metadata: {
-          employeeId: next.employeeId,
-          managerEmployeeId: next.managerEmployeeId,
-          relationshipType: next.relationshipType,
-          effectiveFrom: next.effectiveFrom.toISOString(),
-          effectiveTo: next.effectiveTo?.toISOString() ?? null,
+      createHrOrgMutationAuditEvent(
+        {
+          action: hrOrgAuditActions.reportingLine.recorded,
+          entityType: "reporting_relationship",
+          entityId: id,
+          summary: `Reporting relationship recorded: ${next.employeeId} -> ${next.managerEmployeeId}`,
+          metadata: {
+            employeeId: next.employeeId,
+            managerEmployeeId: next.managerEmployeeId,
+            relationshipType: next.relationshipType,
+            effectiveFrom: next.effectiveFrom.toISOString(),
+            effectiveTo: next.effectiveTo?.toISOString() ?? null,
+          },
         },
-      })
+        context
+      )
     );
 
     return toChartNode({

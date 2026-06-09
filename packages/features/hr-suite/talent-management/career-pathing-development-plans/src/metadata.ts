@@ -11,16 +11,17 @@ export type CareerPathingDevelopmentPlansMetadata = {
   title: string;
 };
 
-export const careerPathingDevelopmentPlansMetadata: CareerPathingDevelopmentPlansMetadata = {
-  id: "hr-suite.talent-management.career-pathing-development-plans",
-  title: "Career Pathing Development Plans",
-  description:
-    "Placeholder metadata for the extracted HR Suite slice. Replace with governed metadata during implementation.",
-  domain: "talent-management",
-  labels: {
-    singular: "Career Pathing Development Plans record",
-    plural: "Career Pathing Development Plans records",
-  },
-  source: "legacy-hr-suite",
-  suite: "hr-suite",
-};
+export const careerPathingDevelopmentPlansMetadata: CareerPathingDevelopmentPlansMetadata =
+  {
+    id: "hr-suite.talent-management.career-pathing-development-plans",
+    title: "Career Pathing Development Plans",
+    description:
+      "Placeholder metadata for the extracted HR Suite slice. Replace with governed metadata during implementation.",
+    domain: "talent-management",
+    labels: {
+      singular: "Career Pathing Development Plans record",
+      plural: "Career Pathing Development Plans records",
+    },
+    source: "legacy-hr-suite",
+    suite: "hr-suite",
+  };

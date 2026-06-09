@@ -8,10 +8,8 @@ import type { ReactElement, ReactNode } from "react";
 import { ActivityTable } from "../_components/activity-table.tsx";
 import { DashboardGrid } from "../_components/dashboard-grid.tsx";
 import { KpiCard } from "../_components/kpi-card.tsx";
-import {
-  StatusBadge,
-  type StatusBadgeTone,
-} from "../_components/status-badge.tsx";
+import type { StatusBadgeTone } from "../_components/status-badge.tsx";
+import { StatusBadge } from "../_components/status-badge.tsx";
 import { loadAuditPageData } from "./_data.ts";
 
 const auditColumns: readonly TableColumnMetadata[] = [

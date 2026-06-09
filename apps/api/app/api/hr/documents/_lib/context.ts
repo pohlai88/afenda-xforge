@@ -34,7 +34,8 @@ const parseBooleanQueryValue = (
   return value;
 };
 
-export type DocumentsManagementApiReadContext = DocumentsManagementPolicyContext;
+export type DocumentsManagementApiReadContext =
+  DocumentsManagementPolicyContext;
 
 export const createDocumentsManagementReadContext = (
   request: Request

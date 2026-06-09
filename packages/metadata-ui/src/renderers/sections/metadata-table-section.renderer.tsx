@@ -1,5 +1,5 @@
 import type { EntityMetadata } from "@repo/metadata";
-import type { DashboardTableRow, DashboardTableValue } from "@repo/ui/types";
+import type { DashboardTableRow, DashboardTableValue } from "@repo/ui";
 import type { ReactElement } from "react";
 
 import { MetadataTable } from "../../components/metadata-table";

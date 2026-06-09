@@ -1,4 +1,7 @@
-export type FoodHandlerCertificationHealthComplianceStatus = "draft" | "active" | "archived";
+export type FoodHandlerCertificationHealthComplianceStatus =
+  | "draft"
+  | "active"
+  | "archived";
 
 export type FoodHandlerCertificationHealthComplianceRecord = {
   id: string;
@@ -22,6 +25,8 @@ export type UpdateFoodHandlerCertificationHealthComplianceInput = {
   status?: FoodHandlerCertificationHealthComplianceStatus;
 };
 
-export const foodHandlerCertificationHealthComplianceRouteContracts = [] as const;
+export const foodHandlerCertificationHealthComplianceRouteContracts =
+  [] as const;
 
-export const foodHandlerCertificationHealthComplianceFeatureId = "hr-suite.industry-specific.food-handler-certification-health-compliance" as const;
+export const foodHandlerCertificationHealthComplianceFeatureId =
+  "hr-suite.industry-specific.food-handler-certification-health-compliance" as const;

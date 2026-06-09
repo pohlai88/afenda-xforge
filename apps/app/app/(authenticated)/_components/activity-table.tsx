@@ -1,5 +1,6 @@
 "use client";
 
+import type { DashboardTableRow, TableColumnMetadata } from "@repo/ui";
 import {
   Button,
   Input,
@@ -12,7 +13,6 @@ import {
   TableHeader,
   TableRow,
 } from "@repo/ui";
-import type { DashboardTableRow, TableColumnMetadata } from "@repo/ui";
 import type { ChangeEvent, ReactElement, ReactNode } from "react";
 import { useDeferredValue, useEffect, useMemo, useState } from "react";
 
@@ -28,7 +28,7 @@ type ActivityTableProps = {
   renderCell?: (
     column: TableColumnMetadata,
     value: DashboardTableRow[string],
-    row: DashboardTableRow,
+    row: DashboardTableRow
   ) => ReactNode;
   rows: readonly DashboardTableRow[];
   searchAriaLabel?: string;
@@ -55,7 +55,7 @@ const formatCellValue = (value: DashboardTableRow[string]): string => {
 
 const compareValues = (
   left: DashboardTableRow[string],
-  right: DashboardTableRow[string],
+  right: DashboardTableRow[string]
 ): number => {
   if (left instanceof Date && right instanceof Date) {
     return left.getTime() - right.getTime();
@@ -83,7 +83,7 @@ export function ActivityTable({
   const [query, setQuery] = useState("");
   const [page, setPage] = useState(1);
   const [sortColumn, setSortColumn] = useState<string | null>(
-    defaultSortColumn ?? columns[0]?.key ?? null,
+    defaultSortColumn ?? columns[0]?.key ?? null
   );
   const [sortOrder, setSortOrder] = useState<SortOrder>(defaultSortOrder);
   const deferredQuery = useDeferredValue(query);
@@ -100,13 +100,13 @@ export function ActivityTable({
 
     return rows.filter((row) =>
       columns.some((column) =>
-        formatCellValue(row[column.key]).toLowerCase().includes(normalizedQuery),
-      ),
+        formatCellValue(row[column.key]).toLowerCase().includes(normalizedQuery)
+      )
     );
   }, [columns, deferredQuery, rows]);
 
   const sortedRows = useMemo(() => {
-    if (!sortColumn || !sortOrder) {
+    if (!(sortColumn && sortOrder)) {
       return filteredRows;
     }
 
@@ -117,10 +117,6 @@ export function ActivityTable({
   }, [filteredRows, sortColumn, sortOrder]);
 
   const totalPages = Math.max(1, Math.ceil(sortedRows.length / pageSize));
-
-  useEffect(() => {
-    setPage(1);
-  }, [deferredQuery, pageSize, sortColumn, sortOrder]);
 
   const pagedRows = useMemo(() => {
     const offset = (page - 1) * pageSize;
@@ -160,9 +156,10 @@ export function ActivityTable({
       <Input
         aria-label={searchAriaLabel}
         className="max-w-sm"
-        onChange={(event: ChangeEvent<HTMLInputElement>): void =>
-          setQuery(event.target.value)
-        }
+        onChange={(event: ChangeEvent<HTMLInputElement>): void => {
+          setPage(1);
+          setQuery(event.target.value);
+        }}
         placeholder={searchPlaceholder}
         value={query}
       />
@@ -170,7 +167,9 @@ export function ActivityTable({
       {rows.length === 0 ? (
         <div className="rounded-xl border border-border bg-card/80 p-8 text-center shadow-sm">
           <h3 className="font-medium text-lg">{emptyTitle}</h3>
-          <p className="mt-2 text-muted-foreground text-sm">{emptyDescription}</p>
+          <p className="mt-2 text-muted-foreground text-sm">
+            {emptyDescription}
+          </p>
         </div>
       ) : (
         <div className="overflow-x-auto">
@@ -209,7 +208,8 @@ export function ActivityTable({
                         const value = row[column.key];
                         return (
                           <TableCell key={`${row.id}-${column.key}`}>
-                            {renderCell?.(column, value, row) ?? formatCellValue(value)}
+                            {renderCell?.(column, value, row) ??
+                              formatCellValue(value)}
                           </TableCell>
                         );
                       })}

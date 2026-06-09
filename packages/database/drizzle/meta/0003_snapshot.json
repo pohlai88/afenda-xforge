@@ -430,12 +430,8 @@
           "tableFrom": "audit_events",
           "tableTo": "tenants",
           "schemaTo": "xforge",
-          "columnsFrom": [
-            "tenant_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["tenant_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         },
@@ -444,12 +440,8 @@
           "tableFrom": "audit_events",
           "tableTo": "companies",
           "schemaTo": "xforge",
-          "columnsFrom": [
-            "company_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["company_id"],
+          "columnsTo": ["id"],
           "onDelete": "set null",
           "onUpdate": "no action"
         },
@@ -458,12 +450,8 @@
           "tableFrom": "audit_events",
           "tableTo": "company_grants",
           "schemaTo": "xforge",
-          "columnsFrom": [
-            "grant_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["grant_id"],
+          "columnsTo": ["id"],
           "onDelete": "set null",
           "onUpdate": "no action"
         }
@@ -562,12 +550,8 @@
           "tableFrom": "companies",
           "tableTo": "tenants",
           "schemaTo": "xforge",
-          "columnsFrom": [
-            "tenant_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["tenant_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         }
@@ -699,12 +683,8 @@
           "tableFrom": "company_grants",
           "tableTo": "tenants",
           "schemaTo": "xforge",
-          "columnsFrom": [
-            "tenant_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["tenant_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         },
@@ -713,12 +693,8 @@
           "tableFrom": "company_grants",
           "tableTo": "companies",
           "schemaTo": "xforge",
-          "columnsFrom": [
-            "company_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["company_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         }
@@ -851,12 +827,8 @@
           "tableFrom": "customers",
           "tableTo": "tenants",
           "schemaTo": "xforge",
-          "columnsFrom": [
-            "tenant_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["tenant_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         }
@@ -1043,12 +1015,8 @@
           "tableFrom": "notification_inbox",
           "tableTo": "tenants",
           "schemaTo": "xforge",
-          "columnsFrom": [
-            "tenant_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["tenant_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         },
@@ -1057,12 +1025,8 @@
           "tableFrom": "notification_inbox",
           "tableTo": "companies",
           "schemaTo": "xforge",
-          "columnsFrom": [
-            "company_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["company_id"],
+          "columnsTo": ["id"],
           "onDelete": "set null",
           "onUpdate": "no action"
         }
@@ -1162,12 +1126,8 @@
           "tableFrom": "tenant_memberships",
           "tableTo": "tenants",
           "schemaTo": "xforge",
-          "columnsFrom": [
-            "tenant_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["tenant_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         }
@@ -1398,12 +1358,8 @@
           "tableFrom": "webhook_endpoints",
           "tableTo": "tenants",
           "schemaTo": "xforge",
-          "columnsFrom": [
-            "tenant_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["tenant_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         },
@@ -1412,12 +1368,8 @@
           "tableFrom": "webhook_endpoints",
           "tableTo": "companies",
           "schemaTo": "xforge",
-          "columnsFrom": [
-            "company_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["company_id"],
+          "columnsTo": ["id"],
           "onDelete": "set null",
           "onUpdate": "no action"
         }

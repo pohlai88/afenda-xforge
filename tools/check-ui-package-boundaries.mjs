@@ -33,10 +33,7 @@ const packageRoots = {
 };
 
 const allowedWorkspaceDependenciesByPackage = {
-  "@repo/customization": new Set([
-    "@repo/metadata",
-    "@repo/typescript-config",
-  ]),
+  "@repo/customization": new Set(["@repo/metadata", "@repo/typescript-config"]),
   "@repo/design-system": new Set(["@repo/typescript-config"]),
   "@repo/metadata": new Set(["@repo/typescript-config"]),
   "@repo/metadata-ui": new Set([
@@ -400,7 +397,10 @@ function checkComposePublicSurface() {
 }
 
 function checkComposeRenderRegistry() {
-  const renderersPath = path.join(getComposeDirectory(), "compose.renderers.ts");
+  const renderersPath = path.join(
+    getComposeDirectory(),
+    "compose.renderers.ts"
+  );
 
   if (!existsSync(renderersPath)) {
     addViolation(
@@ -426,7 +426,10 @@ function checkComposeRenderRegistry() {
   }
 
   for (const [familyName, readiness] of readinessByName) {
-    if (readiness === "metadata-ready" && !renderableGroupNames.has(familyName)) {
+    if (
+      readiness === "metadata-ready" &&
+      !renderableGroupNames.has(familyName)
+    ) {
       addViolation(
         `${relativeToRoot(renderersPath)}: metadata-ready compose family '${familyName}' must be represented in compose.renderers.ts`
       );

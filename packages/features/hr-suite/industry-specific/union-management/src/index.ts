@@ -7,8 +7,8 @@ import "server-only";
 
 export type {
   CreateUnionManagementInput,
-  UnionManagementRecord,
   ListUnionManagementQuery,
+  UnionManagementRecord,
   UpdateUnionManagementInput,
 } from "./contract.ts";
 export { unionManagementExecutionSurface } from "./execution/index.ts";

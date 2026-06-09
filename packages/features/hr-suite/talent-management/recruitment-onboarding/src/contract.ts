@@ -24,4 +24,5 @@ export type UpdateRecruitmentOnboardingInput = {
 
 export const recruitmentOnboardingRouteContracts = [] as const;
 
-export const recruitmentOnboardingFeatureId = "hr-suite.talent-management.recruitment-onboarding" as const;
+export const recruitmentOnboardingFeatureId =
+  "hr-suite.talent-management.recruitment-onboarding" as const;

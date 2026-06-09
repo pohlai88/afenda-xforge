@@ -1,3 +1,4 @@
+import type { DashboardKpiTone } from "@repo/ui";
 import {
   Card,
   CardContent,
@@ -5,7 +6,6 @@ import {
   CardHeader,
   CardTitle,
 } from "@repo/ui";
-import type { DashboardKpiTone } from "@repo/ui";
 import type { ReactElement } from "react";
 
 type KpiCardProps = {
@@ -48,7 +48,9 @@ export function KpiCard({
         <CardTitle className="text-sm">{title}</CardTitle>
       </CardHeader>
       <CardContent>
-        <p className={`font-semibold text-3xl tracking-tight ${toneValueClassNames[tone]}`}>
+        <p
+          className={`font-semibold text-3xl tracking-tight ${toneValueClassNames[tone]}`}
+        >
           {value}
         </p>
       </CardContent>

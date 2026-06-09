@@ -14,5 +14,6 @@ export const foodHandlerCertificationHealthComplianceFeatureScope = {
   ...hrSuiteFeatureScope,
   domain: "industry-specific",
   feature: "food-handler-certification-health-compliance",
-  packageName: "@repo/features-industry-specific-food-handler-certification-health-compliance",
+  packageName:
+    "@repo/features-industry-specific-food-handler-certification-health-compliance",
 } as const;

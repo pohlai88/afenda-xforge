@@ -21,6 +21,9 @@ export const employeeLifecycleManagementAuditEvents = {
   contractRenewed: "hr.employee-lifecycle.contract.renewed",
   contractReviewRecorded: "hr.employee-lifecycle.contract.review.recorded",
   contractReminderRecorded: "hr.employee-lifecycle.contract.reminder.recorded",
+  suspensionStarted: "hr.employee-lifecycle.suspension.started",
+  suspensionReleased: "hr.employee-lifecycle.suspension.released",
+  suspensionResolved: "hr.employee-lifecycle.suspension.resolved",
 } as const;
 
 export type EmployeeLifecycleManagementAuditEvent =
@@ -31,7 +34,8 @@ export type EmployeeLifecycleManagementAuditEventGroup =
   | "onboarding"
   | "probation"
   | "movement"
-  | "contract";
+  | "contract"
+  | "suspension";
 
 export const employeeLifecycleManagementStateAuditEventCatalog: readonly EmployeeLifecycleManagementAuditEvent[] =
   [
@@ -70,6 +74,13 @@ export const employeeLifecycleManagementContractAuditEventCatalog: readonly Empl
     employeeLifecycleManagementAuditEvents.contractReminderRecorded,
   ] as const;
 
+export const employeeLifecycleManagementSuspensionAuditEventCatalog: readonly EmployeeLifecycleManagementAuditEvent[] =
+  [
+    employeeLifecycleManagementAuditEvents.suspensionStarted,
+    employeeLifecycleManagementAuditEvents.suspensionReleased,
+    employeeLifecycleManagementAuditEvents.suspensionResolved,
+  ] as const;
+
 export const employeeLifecycleManagementAuditEventGroups: Readonly<
   Record<
     EmployeeLifecycleManagementAuditEventGroup,
@@ -81,6 +92,7 @@ export const employeeLifecycleManagementAuditEventGroups: Readonly<
   probation: employeeLifecycleManagementProbationAuditEventCatalog,
   movement: employeeLifecycleManagementMovementAuditEventCatalog,
   contract: employeeLifecycleManagementContractAuditEventCatalog,
+  suspension: employeeLifecycleManagementSuspensionAuditEventCatalog,
 } as const;
 
 export const employeeLifecycleManagementAuditEventCatalog: readonly EmployeeLifecycleManagementAuditEvent[] =
@@ -90,6 +102,7 @@ export const employeeLifecycleManagementAuditEventCatalog: readonly EmployeeLife
     ...employeeLifecycleManagementProbationAuditEventCatalog,
     ...employeeLifecycleManagementMovementAuditEventCatalog,
     ...employeeLifecycleManagementContractAuditEventCatalog,
+    ...employeeLifecycleManagementSuspensionAuditEventCatalog,
   ] as const;
 
 export const employeeLifecycleManagementAudit = {

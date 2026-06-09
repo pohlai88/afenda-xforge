@@ -6,8 +6,8 @@
 import "server-only";
 
 export type {
-  CreateBenefitsAdministrationInput,
   BenefitsAdministrationRecord,
+  CreateBenefitsAdministrationInput,
   ListBenefitsAdministrationQuery,
   UpdateBenefitsAdministrationInput,
 } from "./contract.ts";
@@ -15,10 +15,10 @@ export { benefitsAdministrationExecutionSurface } from "./execution/index.ts";
 export { benefitsAdministrationManifest } from "./manifest.ts";
 export { benefitsAdministrationMetadata } from "./metadata.ts";
 export {
+  benefitsAdministrationRouteContracts,
   createBenefitsAdministration,
   getBenefitsAdministration,
   listBenefitsAdministration,
-  benefitsAdministrationRouteContracts,
   updateBenefitsAdministration,
 } from "./server.ts";
 export { benefitsAdministrationFeatureScope } from "./shared/index.ts";

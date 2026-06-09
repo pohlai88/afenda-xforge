@@ -8,14 +8,14 @@ import type { HrSuiteFeatureContext } from "./shared/index.ts";
 
 const inMemoryRecords: readonly CandidateSelfservicePortalRecord[] = [];
 
-export async function listCandidateSelfservicePortalRecords(
+export function listCandidateSelfservicePortalRecords(
   _query: ListCandidateSelfservicePortalQuery = {},
   _context?: HrSuiteFeatureContext
 ): Promise<readonly CandidateSelfservicePortalRecord[]> {
   return inMemoryRecords;
 }
 
-export async function getCandidateSelfservicePortalRecord(
+export function getCandidateSelfservicePortalRecord(
   id: string,
   _context?: HrSuiteFeatureContext
 ): Promise<CandidateSelfservicePortalRecord | null> {

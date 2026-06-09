@@ -17,8 +17,8 @@ export { governmentClassificationPayGradesMetadata } from "./metadata.ts";
 export {
   createGovernmentClassificationPayGrades,
   getGovernmentClassificationPayGrades,
-  listGovernmentClassificationPayGrades,
   governmentClassificationPayGradesRouteContracts,
+  listGovernmentClassificationPayGrades,
   updateGovernmentClassificationPayGrades,
 } from "./server.ts";
 export { governmentClassificationPayGradesFeatureScope } from "./shared/index.ts";

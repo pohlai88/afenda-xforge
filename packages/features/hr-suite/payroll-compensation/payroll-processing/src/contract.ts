@@ -24,4 +24,5 @@ export type UpdatePayrollProcessingInput = {
 
 export const payrollProcessingRouteContracts = [] as const;
 
-export const payrollProcessingFeatureId = "hr-suite.payroll-compensation.payroll-processing" as const;
+export const payrollProcessingFeatureId =
+  "hr-suite.payroll-compensation.payroll-processing" as const;

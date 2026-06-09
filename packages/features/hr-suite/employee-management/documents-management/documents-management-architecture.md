@@ -140,6 +140,28 @@ The package now exposes explicit read projections and HTTP GET routes instead of
 - `test/document-read-models.test.ts` covers search, paging, employee readiness aggregation, and expiring-document behavior.
 - Read paths still fail closed when tenant-scoped read access is missing, and the projections stay separate from the repository storage shape.
 
+## Tests and Hardening
+
+The final slice adds route-level coverage and a dedicated API test script so the read surface is exercised end to end.
+
+- `apps/api/package.json` now includes a `test` script for route-level checks.
+- `apps/api/test/hr-documents-routes.test.ts` exercises the list, detail, readiness, and expiring routes directly.
+- The route tests cover valid list/detail responses, paging behavior, invalid query rejection, and denied-read fail-closed behavior.
+- The package test suite and API test suite both pass after the hardening changes.
+
+## Audit Sign-Off
+
+Audit date: 2026-06-09.
+
+The Documents Management implementation is complete for the current 10-slice roadmap.
+
+Evidence:
+
+- The roadmap records slices 1 through 10 as implemented with code references.
+- The feature package passes typecheck, lint, and its full test suite.
+- The API app passes typecheck and its route-level test suite.
+- The package subtree audit found no remaining `TODO` or `FIXME` markers.
+
 ---
 
 # Document Management Includes

@@ -14,5 +14,6 @@ export const learningManagementSystemLmsFeatureScope = {
   ...hrSuiteFeatureScope,
   domain: "talent-management",
   feature: "learning-management-system-lms",
-  packageName: "@repo/features-talent-management-learning-management-system-lms",
+  packageName:
+    "@repo/features-talent-management-learning-management-system-lms",
 } as const;

@@ -24,4 +24,5 @@ export type UpdateCompetencySkillsFrameworkInput = {
 
 export const competencySkillsFrameworkRouteContracts = [] as const;
 
-export const competencySkillsFrameworkFeatureId = "hr-suite.talent-management.competency-skills-framework" as const;
+export const competencySkillsFrameworkFeatureId =
+  "hr-suite.talent-management.competency-skills-framework" as const;

@@ -1,21 +1,22 @@
 import "server-only";
 
 import type {
-  ManufacturingSafetyTrainingOshaComplianceRecord,
   ListManufacturingSafetyTrainingOshaComplianceQuery,
+  ManufacturingSafetyTrainingOshaComplianceRecord,
 } from "./contract.ts";
 import type { HrSuiteFeatureContext } from "./shared/index.ts";
 
-const inMemoryRecords: readonly ManufacturingSafetyTrainingOshaComplianceRecord[] = [];
+const inMemoryRecords: readonly ManufacturingSafetyTrainingOshaComplianceRecord[] =
+  [];
 
-export async function listManufacturingSafetyTrainingOshaComplianceRecords(
+export function listManufacturingSafetyTrainingOshaComplianceRecords(
   _query: ListManufacturingSafetyTrainingOshaComplianceQuery = {},
   _context?: HrSuiteFeatureContext
 ): Promise<readonly ManufacturingSafetyTrainingOshaComplianceRecord[]> {
   return inMemoryRecords;
 }
 
-export async function getManufacturingSafetyTrainingOshaComplianceRecord(
+export function getManufacturingSafetyTrainingOshaComplianceRecord(
   id: string,
   _context?: HrSuiteFeatureContext
 ): Promise<ManufacturingSafetyTrainingOshaComplianceRecord | null> {

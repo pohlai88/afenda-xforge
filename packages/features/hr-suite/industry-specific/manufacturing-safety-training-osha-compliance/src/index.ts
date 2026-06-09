@@ -7,8 +7,8 @@ import "server-only";
 
 export type {
   CreateManufacturingSafetyTrainingOshaComplianceInput,
-  ManufacturingSafetyTrainingOshaComplianceRecord,
   ListManufacturingSafetyTrainingOshaComplianceQuery,
+  ManufacturingSafetyTrainingOshaComplianceRecord,
   UpdateManufacturingSafetyTrainingOshaComplianceInput,
 } from "./contract.ts";
 export { manufacturingSafetyTrainingOshaComplianceExecutionSurface } from "./execution/index.ts";

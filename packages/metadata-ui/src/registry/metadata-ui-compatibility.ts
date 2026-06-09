@@ -1,5 +1,5 @@
-import type { ComposeRegistryGroupName } from "@repo/ui/components/compose/registry";
-import { getComposeRegistryGroup } from "@repo/ui/components/compose/registry";
+import type { ComposeRegistryGroupName } from "@repo/ui";
+import { getComposeRegistryGroup } from "@repo/ui";
 
 import { metadataUiStateKeys } from "../adapters/state-renderers";
 import type { MetadataActionSurface } from "../contracts/action-renderer.contract";

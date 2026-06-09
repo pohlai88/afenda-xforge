@@ -14,5 +14,6 @@ export const manufacturingSafetyTrainingOshaComplianceFeatureScope = {
   ...hrSuiteFeatureScope,
   domain: "industry-specific",
   feature: "manufacturing-safety-training-osha-compliance",
-  packageName: "@repo/features-industry-specific-manufacturing-safety-training-osha-compliance",
+  packageName:
+    "@repo/features-industry-specific-manufacturing-safety-training-osha-compliance",
 } as const;

@@ -12,27 +12,15 @@
     "groups": [
       {
         "group": "Overview",
-        "pages": [
-          "introduction",
-          "quickstart",
-          "development"
-        ]
+        "pages": ["introduction", "quickstart", "development"]
       },
       {
         "group": "Integrations",
-        "pages": [
-          "fuse-js",
-          "next-safe-action",
-          "react-wrap-balancer"
-        ]
+        "pages": ["fuse-js", "next-safe-action", "react-wrap-balancer"]
       },
       {
         "group": "Components",
-        "pages": [
-          "badge",
-          "date-selector",
-          "sortable"
-        ]
+        "pages": ["badge", "date-selector", "sortable"]
       }
     ]
   }

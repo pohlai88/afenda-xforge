@@ -8,14 +8,14 @@ import type { HrSuiteFeatureContext } from "./shared/index.ts";
 
 const inMemoryRecords: readonly GovernmentClassificationPayGradesRecord[] = [];
 
-export async function listGovernmentClassificationPayGradesRecords(
+export function listGovernmentClassificationPayGradesRecords(
   _query: ListGovernmentClassificationPayGradesQuery = {},
   _context?: HrSuiteFeatureContext
 ): Promise<readonly GovernmentClassificationPayGradesRecord[]> {
   return inMemoryRecords;
 }
 
-export async function getGovernmentClassificationPayGradesRecord(
+export function getGovernmentClassificationPayGradesRecord(
   id: string,
   _context?: HrSuiteFeatureContext
 ): Promise<GovernmentClassificationPayGradesRecord | null> {

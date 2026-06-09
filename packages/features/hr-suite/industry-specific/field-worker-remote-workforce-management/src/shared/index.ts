@@ -14,5 +14,6 @@ export const fieldWorkerRemoteWorkforceManagementFeatureScope = {
   ...hrSuiteFeatureScope,
   domain: "industry-specific",
   feature: "field-worker-remote-workforce-management",
-  packageName: "@repo/features-industry-specific-field-worker-remote-workforce-management",
+  packageName:
+    "@repo/features-industry-specific-field-worker-remote-workforce-management",
 } as const;

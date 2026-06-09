@@ -1,4 +1,7 @@
-export type FieldWorkerRemoteWorkforceManagementStatus = "draft" | "active" | "archived";
+export type FieldWorkerRemoteWorkforceManagementStatus =
+  | "draft"
+  | "active"
+  | "archived";
 
 export type FieldWorkerRemoteWorkforceManagementRecord = {
   id: string;
@@ -24,4 +27,5 @@ export type UpdateFieldWorkerRemoteWorkforceManagementInput = {
 
 export const fieldWorkerRemoteWorkforceManagementRouteContracts = [] as const;
 
-export const fieldWorkerRemoteWorkforceManagementFeatureId = "hr-suite.industry-specific.field-worker-remote-workforce-management" as const;
+export const fieldWorkerRemoteWorkforceManagementFeatureId =
+  "hr-suite.industry-specific.field-worker-remote-workforce-management" as const;

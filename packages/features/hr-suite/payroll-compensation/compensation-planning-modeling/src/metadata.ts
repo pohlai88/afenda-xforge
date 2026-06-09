@@ -11,16 +11,17 @@ export type CompensationPlanningModelingMetadata = {
   title: string;
 };
 
-export const compensationPlanningModelingMetadata: CompensationPlanningModelingMetadata = {
-  id: "hr-suite.payroll-compensation.compensation-planning-modeling",
-  title: "Compensation Planning Modeling",
-  description:
-    "Placeholder metadata for the extracted HR Suite slice. Replace with governed metadata during implementation.",
-  domain: "payroll-compensation",
-  labels: {
-    singular: "Compensation Planning Modeling record",
-    plural: "Compensation Planning Modeling records",
-  },
-  source: "legacy-hr-suite",
-  suite: "hr-suite",
-};
+export const compensationPlanningModelingMetadata: CompensationPlanningModelingMetadata =
+  {
+    id: "hr-suite.payroll-compensation.compensation-planning-modeling",
+    title: "Compensation Planning Modeling",
+    description:
+      "Placeholder metadata for the extracted HR Suite slice. Replace with governed metadata during implementation.",
+    domain: "payroll-compensation",
+    labels: {
+      singular: "Compensation Planning Modeling record",
+      plural: "Compensation Planning Modeling records",
+    },
+    source: "legacy-hr-suite",
+    suite: "hr-suite",
+  };

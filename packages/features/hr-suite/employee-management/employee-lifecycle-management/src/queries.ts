@@ -7,6 +7,7 @@ import {
   findEmployeeLifecycleOnboardingRecordByEmployeeId,
   findEmployeeLifecycleProbationRecordByEmployeeId,
   findEmployeeLifecycleStateByEmployeeId,
+  findEmployeeLifecycleSuspensionRecordByEmployeeId,
   loadEmployeeLifecycleRepository,
 } from "./repository.ts";
 import type {
@@ -19,12 +20,15 @@ import type {
   EmployeeLifecycleOnboardingTask,
   EmployeeLifecycleProbationReadModel,
   EmployeeLifecycleProbationReviewEntry,
+  EmployeeLifecycleSuspensionEntry,
+  EmployeeLifecycleSuspensionReadModel,
 } from "./schema.ts";
 import {
   buildEmployeeLifecycleContractReadModel,
   buildEmployeeLifecycleMovementReadModel,
   buildEmployeeLifecycleOnboardingReadModel,
   buildEmployeeLifecycleProbationReadModel,
+  buildEmployeeLifecycleSuspensionReadModel,
 } from "./schema.ts";
 
 export function getEmployeeLifecycleOnboardingStatus(
@@ -177,6 +181,57 @@ export function listEmployeeLifecycleContractStatuses(
     );
 }
 
+export function getEmployeeLifecycleSuspensionStatus(
+  employeeId: string,
+  scope?: EmployeeLifecycleRepositoryScope
+): EmployeeLifecycleSuspensionReadModel | null {
+  const state = findEmployeeLifecycleStateByEmployeeId(employeeId, scope);
+  if (!state) {
+    return null;
+  }
+
+  return buildEmployeeLifecycleSuspensionReadModel({
+    state,
+    record: findEmployeeLifecycleSuspensionRecordByEmployeeId(
+      employeeId,
+      scope
+    ),
+  });
+}
+
+export function listEmployeeLifecycleSuspensionEntries(
+  employeeId: string,
+  scope?: EmployeeLifecycleRepositoryScope
+): readonly EmployeeLifecycleSuspensionEntry[] {
+  return getEmployeeLifecycleSuspensionStatus(employeeId, scope)?.entries ?? [];
+}
+
+export function listEmployeeLifecycleSuspensionStatuses(
+  scope?: EmployeeLifecycleRepositoryScope
+): readonly EmployeeLifecycleSuspensionReadModel[] {
+  const repositoryState = loadEmployeeLifecycleRepository(scope);
+
+  return repositoryState.states
+    .map((state) =>
+      buildEmployeeLifecycleSuspensionReadModel({
+        state,
+        record: findEmployeeLifecycleSuspensionRecordByEmployeeId(
+          state.employeeId,
+          scope
+        ),
+      })
+    )
+    .filter(
+      (readModel): readModel is EmployeeLifecycleSuspensionReadModel =>
+        readModel !== null
+    )
+    .sort(
+      (left, right) =>
+        left.startedAt.getTime() - right.startedAt.getTime() ||
+        left.employeeId.localeCompare(right.employeeId)
+    );
+}
+
 export function getEmployeeLifecycleMovementStatus(
   employeeId: string,
   scope?: EmployeeLifecycleRepositoryScope
@@ -225,4 +280,5 @@ export {
   employeeLifecycleMovementReadModelSchema,
   employeeLifecycleOnboardingReadModelSchema,
   employeeLifecycleProbationReadModelSchema,
+  employeeLifecycleSuspensionReadModelSchema,
 } from "./schema.ts";

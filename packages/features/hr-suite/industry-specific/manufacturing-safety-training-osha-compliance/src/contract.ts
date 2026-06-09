@@ -1,4 +1,7 @@
-export type ManufacturingSafetyTrainingOshaComplianceStatus = "draft" | "active" | "archived";
+export type ManufacturingSafetyTrainingOshaComplianceStatus =
+  | "draft"
+  | "active"
+  | "archived";
 
 export type ManufacturingSafetyTrainingOshaComplianceRecord = {
   id: string;
@@ -22,6 +25,8 @@ export type UpdateManufacturingSafetyTrainingOshaComplianceInput = {
   status?: ManufacturingSafetyTrainingOshaComplianceStatus;
 };
 
-export const manufacturingSafetyTrainingOshaComplianceRouteContracts = [] as const;
+export const manufacturingSafetyTrainingOshaComplianceRouteContracts =
+  [] as const;
 
-export const manufacturingSafetyTrainingOshaComplianceFeatureId = "hr-suite.industry-specific.manufacturing-safety-training-osha-compliance" as const;
+export const manufacturingSafetyTrainingOshaComplianceFeatureId =
+  "hr-suite.industry-specific.manufacturing-safety-training-osha-compliance" as const;

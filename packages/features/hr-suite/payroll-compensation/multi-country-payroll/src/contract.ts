@@ -24,4 +24,5 @@ export type UpdateMultiCountryPayrollInput = {
 
 export const multiCountryPayrollRouteContracts = [] as const;
 
-export const multiCountryPayrollFeatureId = "hr-suite.payroll-compensation.multi-country-payroll" as const;
+export const multiCountryPayrollFeatureId =
+  "hr-suite.payroll-compensation.multi-country-payroll" as const;

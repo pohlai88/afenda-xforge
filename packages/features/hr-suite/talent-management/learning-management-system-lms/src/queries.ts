@@ -8,14 +8,14 @@ import type { HrSuiteFeatureContext } from "./shared/index.ts";
 
 const inMemoryRecords: readonly LearningManagementSystemLmsRecord[] = [];
 
-export async function listLearningManagementSystemLmsRecords(
+export function listLearningManagementSystemLmsRecords(
   _query: ListLearningManagementSystemLmsQuery = {},
   _context?: HrSuiteFeatureContext
 ): Promise<readonly LearningManagementSystemLmsRecord[]> {
   return inMemoryRecords;
 }
 
-export async function getLearningManagementSystemLmsRecord(
+export function getLearningManagementSystemLmsRecord(
   id: string,
   _context?: HrSuiteFeatureContext
 ): Promise<LearningManagementSystemLmsRecord | null> {

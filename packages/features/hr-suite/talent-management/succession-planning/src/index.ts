@@ -7,8 +7,8 @@ import "server-only";
 
 export type {
   CreateSuccessionPlanningInput,
-  SuccessionPlanningRecord,
   ListSuccessionPlanningQuery,
+  SuccessionPlanningRecord,
   UpdateSuccessionPlanningInput,
 } from "./contract.ts";
 export { successionPlanningExecutionSurface } from "./execution/index.ts";

@@ -125,6 +125,7 @@ export { hrOrgFeatureMetadata, hrOrgUiCopy } from "./metadata.ts";
 export {
   canReadHrOrg,
   canWriteHrOrg,
+  requireHrOrgReadAccess,
   requireHrOrgWriteAccess,
 } from "./policy.ts";
 export {

@@ -8,6 +8,7 @@ export {
   employeeLifecycleMovementActionCatalog,
   employeeLifecycleOnboardingActionCatalog,
   employeeLifecycleProbationActionCatalog,
+  employeeLifecycleSuspensionActionCatalog,
   extendEmployeeLifecycleProbation,
   recordEmployeeLifecycleContractReminder,
   recordEmployeeLifecycleContractReview,
@@ -21,10 +22,16 @@ export {
   recordEmployeeLifecyclePromotion,
   recordEmployeeLifecycleReportingLineChange,
   recordEmployeeLifecycleTransfer,
+  releaseEmployeeLifecycleHold,
+  releaseEmployeeLifecycleSuspension,
   renewEmployeeLifecycleContract,
+  resolveEmployeeLifecycleHold,
+  resolveEmployeeLifecycleSuspension,
   startEmployeeLifecycleContract,
+  startEmployeeLifecycleHold,
   startEmployeeLifecycleOnboarding,
   startEmployeeLifecycleProbation,
+  startEmployeeLifecycleSuspension,
 } from "./actions.ts";
 export {
   employeeLifecycleManagementAcceptanceCoverage,
@@ -58,6 +65,7 @@ export {
   getEmployeeLifecycleMovementStatus,
   getEmployeeLifecycleOnboardingStatus,
   getEmployeeLifecycleProbationStatus,
+  getEmployeeLifecycleSuspensionStatus,
   listEmployeeLifecycleContractReminderEntries,
   listEmployeeLifecycleContractReviewEntries,
   listEmployeeLifecycleContractStatuses,
@@ -67,6 +75,8 @@ export {
   listEmployeeLifecycleOnboardingTasks,
   listEmployeeLifecycleProbationReviews,
   listEmployeeLifecycleProbationStatuses,
+  listEmployeeLifecycleSuspensionEntries,
+  listEmployeeLifecycleSuspensionStatuses,
 } from "./queries.ts";
 export {
   createEmployeeLifecycleRepositoryId,
@@ -75,6 +85,7 @@ export {
   findEmployeeLifecycleOnboardingRecordByEmployeeId,
   findEmployeeLifecycleProbationRecordByEmployeeId,
   findEmployeeLifecycleStateByEmployeeId,
+  findEmployeeLifecycleSuspensionRecordByEmployeeId,
   getEmployeeLifecycleRepositoryPath,
   loadEmployeeLifecycleRepository,
   mutateEmployeeLifecycleRepository,
@@ -83,6 +94,7 @@ export {
   removeEmployeeLifecycleOnboardingRecord,
   removeEmployeeLifecycleProbationRecord,
   removeEmployeeLifecycleState,
+  removeEmployeeLifecycleSuspensionRecord,
   resetEmployeeLifecycleRepositoryForTesting,
   saveEmployeeLifecycleRepository,
   setEmployeeLifecycleRepositoryPathForTesting,
@@ -91,4 +103,5 @@ export {
   upsertEmployeeLifecycleOnboardingRecord,
   upsertEmployeeLifecycleProbationRecord,
   upsertEmployeeLifecycleState,
+  upsertEmployeeLifecycleSuspensionRecord,
 } from "./repository.ts";

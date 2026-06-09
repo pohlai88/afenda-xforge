@@ -53,35 +53,35 @@ export async function buildHrOrgPageModel(
   ] = await Promise.all([
     settleOrgListLoad({
       sectionTitle: hrOrgUiCopy.overview.structureLabel,
-      load: buildHrOrgOverviewStatGroups,
+      load: () => buildHrOrgOverviewStatGroups(input.readContext),
     }),
     settleOrgListLoad({
       sectionTitle: hrOrgUiCopy.orgChart.title,
-      load: loadHrOrgChartTreeNodes,
+      load: () => loadHrOrgChartTreeNodes(input.readContext),
     }),
     settleOrgListLoad({
       sectionTitle: hrOrgUiCopy.units.surfaceHeaderTitle,
-      load: listHrOrgUnitsWindow,
+      load: () => listHrOrgUnitsWindow(input.readContext),
     }),
     settleOrgListLoad({
       sectionTitle: hrOrgUiCopy.positions.surfaceHeaderTitle,
-      load: listHrOrgPositionsWindow,
+      load: () => listHrOrgPositionsWindow(input.readContext),
     }),
     settleOrgListLoad({
       sectionTitle: hrOrgUiCopy.reportingLines.surfaceHeaderTitle,
-      load: listHrOrgReportingLinesWindow,
+      load: () => listHrOrgReportingLinesWindow(input.readContext),
     }),
     settleOrgListLoad({
       sectionTitle: hrOrgUiCopy.vacancies.surfaceHeaderTitle,
-      load: listHrVacantPositionsWindow,
+      load: () => listHrVacantPositionsWindow(input.readContext),
     }),
     settleOrgListLoad({
       sectionTitle: hrOrgUiCopy.headcount.surfaceHeaderTitle,
-      load: listHrOrgHeadcountWindow,
+      load: () => listHrOrgHeadcountWindow(input.readContext),
     }),
     settleOrgListLoad({
       sectionTitle: hrOrgUiCopy.auditTrail.surfaceHeaderTitle,
-      load: listHrOrgStructureAuditTrailWindow,
+      load: () => listHrOrgStructureAuditTrailWindow(input.readContext),
     }),
   ]);
 
@@ -89,7 +89,8 @@ export async function buildHrOrgPageModel(
     organizationId: input.organizationId,
     canWrite: input.canWrite,
     search,
-    overviewStatGroups: snapshot.value ?? buildHrOrgOverviewStatGroups(),
+    overviewStatGroups:
+      snapshot.value ?? buildHrOrgOverviewStatGroups(input.readContext),
     orgChartNodes: chart.value ?? [],
     unitsList: units.value ?? emptyWindow(),
     positionsList: positions.value ?? emptyWindow(),

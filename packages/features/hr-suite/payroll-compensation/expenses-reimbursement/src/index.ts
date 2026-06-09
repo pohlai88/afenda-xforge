@@ -16,9 +16,9 @@ export { expensesReimbursementManifest } from "./manifest.ts";
 export { expensesReimbursementMetadata } from "./metadata.ts";
 export {
   createExpensesReimbursement,
+  expensesReimbursementRouteContracts,
   getExpensesReimbursement,
   listExpensesReimbursement,
-  expensesReimbursementRouteContracts,
   updateExpensesReimbursement,
 } from "./server.ts";
 export { expensesReimbursementFeatureScope } from "./shared/index.ts";

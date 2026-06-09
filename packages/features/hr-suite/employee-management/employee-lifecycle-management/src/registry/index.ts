@@ -11,6 +11,7 @@ export {
   employeeLifecycleManagementMovementAuditEventCatalog,
   employeeLifecycleManagementOnboardingAuditEventCatalog,
   employeeLifecycleManagementProbationAuditEventCatalog,
+  employeeLifecycleManagementSuspensionAuditEventCatalog,
 } from "./audit.ts";
 export type {
   EmployeeLifecycleManagementCapability,

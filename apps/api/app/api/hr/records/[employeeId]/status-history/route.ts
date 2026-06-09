@@ -1,9 +1,5 @@
-import {
-  hrRecordsEmploymentStatusSchema,
-} from "@repo/features-employee-management-employee-records-management";
-import {
-  listHrEmployeeStatusHistory,
-} from "@repo/features-employee-management-employee-records-management/server";
+import { hrRecordsEmploymentStatusSchema } from "@repo/features-employee-management-employee-records-management";
+import { listHrEmployeeStatusHistory } from "@repo/features-employee-management-employee-records-management/server";
 import { NextResponse } from "next/server";
 import { createHrRecordsReadContext } from "../../_lib/context.ts";
 
@@ -19,7 +15,7 @@ const toOptionalString = (value: string | null): string | undefined =>
 const parseOptionalBoolean = (value: string | null): boolean | undefined => {
   const normalized = value?.trim().toLowerCase();
   if (!normalized) {
-    return undefined;
+    return;
   }
 
   if (normalized === "true" || normalized === "1") {
@@ -30,19 +26,19 @@ const parseOptionalBoolean = (value: string | null): boolean | undefined => {
     return false;
   }
 
-  return undefined;
+  return;
 };
 
 const parseOptionalPositiveInteger = (
   value: string | null
 ): number | undefined => {
   if (!value?.trim()) {
-    return undefined;
+    return;
   }
 
   const parsed = Number(value);
   if (!Number.isInteger(parsed) || parsed <= 0) {
-    return undefined;
+    return;
   }
 
   return parsed;
@@ -50,12 +46,12 @@ const parseOptionalPositiveInteger = (
 
 const parseOptionalDate = (value: string | null): Date | undefined => {
   if (!value?.trim()) {
-    return undefined;
+    return;
   }
 
   const parsed = new Date(value);
   if (Number.isNaN(parsed.getTime())) {
-    return undefined;
+    return;
   }
 
   return parsed;

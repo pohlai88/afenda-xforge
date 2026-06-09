@@ -2,8 +2,7 @@ import { createMetadata } from "@repo/seo/metadata";
 import { createWebSitePreset } from "@repo/seo/presets";
 import { createRobots } from "@repo/seo/robots";
 import { createSitemap } from "@repo/seo/sitemap";
-import type { Metadata } from "next";
-import type { MetadataRoute } from "next";
+import type { Metadata, MetadataRoute } from "next";
 
 const webBaseUrl = process.env.NEXT_PUBLIC_WEB_URL ?? "http://localhost:3001";
 

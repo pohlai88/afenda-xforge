@@ -24,4 +24,5 @@ export type UpdateSalaryBenchmarkingSurveyInput = {
 
 export const salaryBenchmarkingSurveyRouteContracts = [] as const;
 
-export const salaryBenchmarkingSurveyFeatureId = "hr-suite.payroll-compensation.salary-benchmarking-survey" as const;
+export const salaryBenchmarkingSurveyFeatureId =
+  "hr-suite.payroll-compensation.salary-benchmarking-survey" as const;

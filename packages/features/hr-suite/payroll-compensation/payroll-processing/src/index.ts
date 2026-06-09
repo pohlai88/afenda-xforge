@@ -7,8 +7,8 @@ import "server-only";
 
 export type {
   CreatePayrollProcessingInput,
-  PayrollProcessingRecord,
   ListPayrollProcessingQuery,
+  PayrollProcessingRecord,
   UpdatePayrollProcessingInput,
 } from "./contract.ts";
 export { payrollProcessingExecutionSurface } from "./execution/index.ts";

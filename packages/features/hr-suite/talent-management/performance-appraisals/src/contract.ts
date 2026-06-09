@@ -24,4 +24,5 @@ export type UpdatePerformanceAppraisalsInput = {
 
 export const performanceAppraisalsRouteContracts = [] as const;
 
-export const performanceAppraisalsFeatureId = "hr-suite.talent-management.performance-appraisals" as const;
+export const performanceAppraisalsFeatureId =
+  "hr-suite.talent-management.performance-appraisals" as const;

@@ -24,4 +24,5 @@ export type UpdateEmployeeEngagementSurveysInput = {
 
 export const employeeEngagementSurveysRouteContracts = [] as const;
 
-export const employeeEngagementSurveysFeatureId = "hr-suite.talent-management.employee-engagement-surveys" as const;
+export const employeeEngagementSurveysFeatureId =
+  "hr-suite.talent-management.employee-engagement-surveys" as const;

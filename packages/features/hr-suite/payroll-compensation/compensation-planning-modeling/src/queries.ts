@@ -8,14 +8,14 @@ import type { HrSuiteFeatureContext } from "./shared/index.ts";
 
 const inMemoryRecords: readonly CompensationPlanningModelingRecord[] = [];
 
-export async function listCompensationPlanningModelingRecords(
+export function listCompensationPlanningModelingRecords(
   _query: ListCompensationPlanningModelingQuery = {},
   _context?: HrSuiteFeatureContext
 ): Promise<readonly CompensationPlanningModelingRecord[]> {
   return inMemoryRecords;
 }
 
-export async function getCompensationPlanningModelingRecord(
+export function getCompensationPlanningModelingRecord(
   id: string,
   _context?: HrSuiteFeatureContext
 ): Promise<CompensationPlanningModelingRecord | null> {

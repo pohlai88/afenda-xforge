@@ -43,6 +43,7 @@ test("persists employee records and respects organization scope", () => {
     },
     {
       canWrite: true,
+      canViewSensitive: true,
       organizationId: "org-1",
       userId: "hr-admin",
     }

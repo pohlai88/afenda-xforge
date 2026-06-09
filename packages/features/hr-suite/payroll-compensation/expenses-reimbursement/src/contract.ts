@@ -24,4 +24,5 @@ export type UpdateExpensesReimbursementInput = {
 
 export const expensesReimbursementRouteContracts = [] as const;
 
-export const expensesReimbursementFeatureId = "hr-suite.payroll-compensation.expenses-reimbursement" as const;
+export const expensesReimbursementFeatureId =
+  "hr-suite.payroll-compensation.expenses-reimbursement" as const;

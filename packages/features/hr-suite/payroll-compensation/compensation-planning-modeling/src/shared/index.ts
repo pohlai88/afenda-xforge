@@ -14,5 +14,6 @@ export const compensationPlanningModelingFeatureScope = {
   ...hrSuiteFeatureScope,
   domain: "payroll-compensation",
   feature: "compensation-planning-modeling",
-  packageName: "@repo/features-payroll-compensation-compensation-planning-modeling",
+  packageName:
+    "@repo/features-payroll-compensation-compensation-planning-modeling",
 } as const;

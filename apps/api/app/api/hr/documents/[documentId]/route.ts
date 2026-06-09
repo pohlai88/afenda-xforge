@@ -1,6 +1,4 @@
-import {
-  getDocumentsManagementDocumentSummary,
-} from "@repo/features-employee-management-documents-management/server";
+import { getDocumentsManagementDocumentSummary } from "@repo/features-employee-management-documents-management/server";
 import { NextResponse } from "next/server";
 
 import { createDocumentsManagementReadContext } from "../_lib/context.ts";
@@ -30,4 +28,3 @@ export async function GET(
 
   return NextResponse.json(document);
 }
-

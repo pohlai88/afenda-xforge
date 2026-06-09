@@ -124,12 +124,20 @@ Validation evidence:
 
 Enforce scoped read/write access and normalized mutation outcomes.
 
+Status: complete
+
 Acceptance criteria:
 
 - Reads fail closed without read context.
 - Writes fail closed without write context.
 - All write helpers normalize actor, company, tenant, and audit metadata.
 - Denied writes do not mutate state.
+
+Validation evidence:
+
+- `pnpm --filter @repo/features-employee-management-organizational-chart-hierarchy typecheck`
+- `pnpm --filter @repo/features-employee-management-organizational-chart-hierarchy lint`
+- `pnpm --filter @repo/features-employee-management-organizational-chart-hierarchy test`
 
 ### Slice 6: Organization Unit Vertical Slice
 

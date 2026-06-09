@@ -6,8 +6,8 @@
 import "server-only";
 
 export type {
-  CreateBonusIncentiveManagementInput,
   BonusIncentiveManagementRecord,
+  CreateBonusIncentiveManagementInput,
   ListBonusIncentiveManagementQuery,
   UpdateBonusIncentiveManagementInput,
 } from "./contract.ts";
@@ -15,10 +15,10 @@ export { bonusIncentiveManagementExecutionSurface } from "./execution/index.ts";
 export { bonusIncentiveManagementManifest } from "./manifest.ts";
 export { bonusIncentiveManagementMetadata } from "./metadata.ts";
 export {
+  bonusIncentiveManagementRouteContracts,
   createBonusIncentiveManagement,
   getBonusIncentiveManagement,
   listBonusIncentiveManagement,
-  bonusIncentiveManagementRouteContracts,
   updateBonusIncentiveManagement,
 } from "./server.ts";
 export { bonusIncentiveManagementFeatureScope } from "./shared/index.ts";

@@ -45,6 +45,23 @@ export {
   CardTitle,
 } from "./ui-shadcn/card";
 export { Checkbox } from "./ui-shadcn/checkbox";
+export type {
+  ComposeCapability,
+  ComposeComponentKind,
+  ComposeMetadataRole,
+  ComposePatternSpec,
+  ComposeReadiness,
+  ComposeRegistryGroup,
+  ComposeRenderablePatternSpec,
+} from "./compose/compose.contract";
+export {
+  type ComposeRegistryGroupName,
+  composeRegistryGroupNames,
+  composeRegistryGroups,
+  composeRegistryPatternCount,
+  getComposeRegistryGroup,
+  getComposeRegistryPattern,
+} from "./compose/compose.registry";
 export {
   Command,
   CommandDialog,

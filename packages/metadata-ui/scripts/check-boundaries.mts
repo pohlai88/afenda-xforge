@@ -4,6 +4,12 @@ import { join, relative, resolve } from "node:path";
 const packageRoot = resolve(import.meta.dirname, "..");
 const srcRoot = join(packageRoot, "src");
 const contractsRoot = join(srcRoot, "contracts");
+const checkRoots = [
+  srcRoot,
+  join(packageRoot, "examples"),
+  join(packageRoot, "fixtures"),
+  join(packageRoot, "tests"),
+];
 
 const getSourceFiles = (directory: string): string[] =>
   readdirSync(directory, { withFileTypes: true }).flatMap((entry) => {
@@ -18,6 +24,7 @@ const getSourceFiles = (directory: string): string[] =>
 
 const forbiddenSourcePatterns = [
   /from\s+["']@repo\/ui\/components\/compose\/(?:_previews|previews)(?:\/|["'])/,
+  /from\s+["']@repo\/ui\/[^"']+["']/,
   /from\s+["']@repo\/(?:database|auth|execution|audit)(?:\/|["'])/,
   /from\s+["']@repo\/design-system(?:\/|["'])/,
 ];
@@ -29,13 +36,19 @@ const forbiddenContractPatterns = [
 
 const violations: string[] = [];
 
-for (const filePath of getSourceFiles(srcRoot)) {
-  const source = readFileSync(filePath, "utf8");
-  const relativePath = relative(packageRoot, filePath);
+for (const rootDir of checkRoots) {
+  if (!rootDir) {
+    continue;
+  }
 
-  for (const pattern of forbiddenSourcePatterns) {
-    if (pattern.test(source)) {
-      violations.push(`${relativePath}: forbidden package dependency`);
+  for (const filePath of getSourceFiles(rootDir)) {
+    const source = readFileSync(filePath, "utf8");
+    const relativePath = relative(packageRoot, filePath);
+
+    for (const pattern of forbiddenSourcePatterns) {
+      if (pattern.test(source)) {
+        violations.push(`${relativePath}: forbidden package dependency`);
+      }
     }
   }
 }

@@ -24,4 +24,5 @@ export type UpdateTrainingDevelopmentInput = {
 
 export const trainingDevelopmentRouteContracts = [] as const;
 
-export const trainingDevelopmentFeatureId = "hr-suite.talent-management.training-development" as const;
+export const trainingDevelopmentFeatureId =
+  "hr-suite.talent-management.training-development" as const;

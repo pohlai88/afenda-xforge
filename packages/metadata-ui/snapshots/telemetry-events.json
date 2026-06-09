@@ -1,0 +1,60 @@
+{
+  "events": [
+    {
+      "name": "metadata.action.clicked",
+      "attributes": ["actionKey", "actionSurface", "disabled"]
+    },
+    {
+      "name": "metadata.action.render.completed",
+      "attributes": ["actionKey", "actionSurface", "disabled", "readonly"]
+    },
+    {
+      "name": "metadata.action.render.error",
+      "attributes": ["actionKey", "message"]
+    },
+    {
+      "name": "metadata.action.render.started",
+      "attributes": ["actionKey", "actionSurface", "disabled", "readonly"]
+    },
+    {
+      "name": "metadata.field.render.completed",
+      "attributes": ["fieldKey", "disabled", "readonly"]
+    },
+    {
+      "name": "metadata.field.render.error",
+      "attributes": ["fieldKey", "message"]
+    },
+    {
+      "name": "metadata.field.render.started",
+      "attributes": ["fieldKey", "disabled", "readonly", "visible"]
+    },
+    {
+      "name": "metadata.renderer.fallback",
+      "attributes": ["effect", "reason"]
+    },
+    {
+      "name": "metadata.section.render.completed",
+      "attributes": ["sectionKey", "sectionKind"]
+    },
+    {
+      "name": "metadata.section.render.error",
+      "attributes": ["sectionKey", "message"]
+    },
+    {
+      "name": "metadata.section.render.started",
+      "attributes": ["sectionKey", "sectionKind", "visible"]
+    },
+    {
+      "name": "metadata.state.render.completed",
+      "attributes": ["state"]
+    },
+    {
+      "name": "metadata.state.render.error",
+      "attributes": ["state", "message"]
+    },
+    {
+      "name": "metadata.state.render.started",
+      "attributes": ["state"]
+    }
+  ]
+}

@@ -1,4 +1,7 @@
-export type RetailSeasonalHourlyWorkforceSchedulingStatus = "draft" | "active" | "archived";
+export type RetailSeasonalHourlyWorkforceSchedulingStatus =
+  | "draft"
+  | "active"
+  | "archived";
 
 export type RetailSeasonalHourlyWorkforceSchedulingRecord = {
   id: string;
@@ -22,6 +25,8 @@ export type UpdateRetailSeasonalHourlyWorkforceSchedulingInput = {
   status?: RetailSeasonalHourlyWorkforceSchedulingStatus;
 };
 
-export const retailSeasonalHourlyWorkforceSchedulingRouteContracts = [] as const;
+export const retailSeasonalHourlyWorkforceSchedulingRouteContracts =
+  [] as const;
 
-export const retailSeasonalHourlyWorkforceSchedulingFeatureId = "hr-suite.industry-specific.retail-seasonal-hourly-workforce-scheduling" as const;
+export const retailSeasonalHourlyWorkforceSchedulingFeatureId =
+  "hr-suite.industry-specific.retail-seasonal-hourly-workforce-scheduling" as const;

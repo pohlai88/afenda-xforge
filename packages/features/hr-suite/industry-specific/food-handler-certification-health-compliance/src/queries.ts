@@ -6,16 +6,17 @@ import type {
 } from "./contract.ts";
 import type { HrSuiteFeatureContext } from "./shared/index.ts";
 
-const inMemoryRecords: readonly FoodHandlerCertificationHealthComplianceRecord[] = [];
+const inMemoryRecords: readonly FoodHandlerCertificationHealthComplianceRecord[] =
+  [];
 
-export async function listFoodHandlerCertificationHealthComplianceRecords(
+export function listFoodHandlerCertificationHealthComplianceRecords(
   _query: ListFoodHandlerCertificationHealthComplianceQuery = {},
   _context?: HrSuiteFeatureContext
 ): Promise<readonly FoodHandlerCertificationHealthComplianceRecord[]> {
   return inMemoryRecords;
 }
 
-export async function getFoodHandlerCertificationHealthComplianceRecord(
+export function getFoodHandlerCertificationHealthComplianceRecord(
   id: string,
   _context?: HrSuiteFeatureContext
 ): Promise<FoodHandlerCertificationHealthComplianceRecord | null> {

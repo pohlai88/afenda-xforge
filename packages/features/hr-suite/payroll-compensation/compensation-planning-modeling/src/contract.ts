@@ -1,4 +1,7 @@
-export type CompensationPlanningModelingStatus = "draft" | "active" | "archived";
+export type CompensationPlanningModelingStatus =
+  | "draft"
+  | "active"
+  | "archived";
 
 export type CompensationPlanningModelingRecord = {
   id: string;
@@ -24,4 +27,5 @@ export type UpdateCompensationPlanningModelingInput = {
 
 export const compensationPlanningModelingRouteContracts = [] as const;
 
-export const compensationPlanningModelingFeatureId = "hr-suite.payroll-compensation.compensation-planning-modeling" as const;
+export const compensationPlanningModelingFeatureId =
+  "hr-suite.payroll-compensation.compensation-planning-modeling" as const;

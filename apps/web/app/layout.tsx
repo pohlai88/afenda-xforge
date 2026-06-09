@@ -1,8 +1,8 @@
 import { fonts } from "@repo/ui";
 import type { Metadata } from "next";
 import type { ReactElement, ReactNode } from "react";
-import { webLayoutMetadata } from "./seo";
 import { Providers } from "./providers";
+import { webLayoutMetadata } from "./seo";
 import "./styles.css";
 
 export const metadata: Metadata = webLayoutMetadata;

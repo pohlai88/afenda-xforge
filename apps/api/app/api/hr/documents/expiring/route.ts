@@ -1,6 +1,4 @@
-import {
-  listDocumentsManagementExpiringDocuments,
-} from "@repo/features-employee-management-documents-management/server";
+import { listDocumentsManagementExpiringDocuments } from "@repo/features-employee-management-documents-management/server";
 import { NextResponse } from "next/server";
 
 import {
@@ -25,4 +23,3 @@ export function GET(request: Request): Response {
     );
   }
 }
-

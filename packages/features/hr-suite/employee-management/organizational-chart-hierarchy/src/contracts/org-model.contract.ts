@@ -5,7 +5,7 @@ import type {
   UpsertHrOrgReportingRelationshipCommandInput,
   UpsertHrOrgUnitCommandInput,
 } from "./command.contract.ts";
-import type { HrOrgStatus } from "./domain.contract.ts";
+import type { HrOrgReadContext, HrOrgStatus } from "./domain.contract.ts";
 import type {
   HrOrgAuditEventProjection,
   HrOrgPositionProjection,
@@ -59,6 +59,7 @@ export type HrOrgSearchParams = {
 export type HrOrgPageModelInput = {
   organizationId: string;
   canWrite: boolean;
+  readContext?: HrOrgReadContext;
 } & HrOrgSearchParams;
 
 export type HrOrgPageModel = {

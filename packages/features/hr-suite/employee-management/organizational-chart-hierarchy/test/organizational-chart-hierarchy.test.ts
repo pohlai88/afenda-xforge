@@ -39,6 +39,20 @@ import {
 import { upsertHrOrgUnitAction } from "../src/server.ts";
 import { hrOrgStore } from "../src/store.ts";
 
+const readContext = {
+  canRead: true,
+  companyId: "company-001",
+  tenantId: "tenant-001",
+} as const;
+
+const writeContext = {
+  actorId: "hr-admin",
+  canRead: true,
+  canWrite: true,
+  companyId: "company-001",
+  tenantId: "tenant-001",
+} as const;
+
 beforeEach(async () => {
   hrOrgStore.resetForTesting();
   await resetHrOrgRepositoryForTesting();
@@ -231,12 +245,13 @@ test("slice 1 actions accept canonical field aliases and page model loads live w
   formData.set("unitType", "department");
   formData.set("status", "active");
 
-  const actionResult = upsertHrOrgUnitAction(undefined, formData);
+  const actionResult = upsertHrOrgUnitAction(undefined, formData, writeContext);
   assert.equal(actionResult.ok, true);
 
   const model = await buildHrOrgPageModel({
     organizationId: "org-001",
     canWrite: true,
+    readContext,
   });
 
   assert.equal(
@@ -244,6 +259,32 @@ test("slice 1 actions accept canonical field aliases and page model loads live w
     true
   );
   assert.equal(model.orgChartNodes.length > 0, true);
+});
+
+test("slice 5 fail-closed access denies reads and writes without context", async () => {
+  hrOrgStore.upsertUnit({
+    code: "ROOT",
+    name: "Root",
+    unitType: "legal_entity",
+    status: "active",
+  });
+
+  const deniedForm = new FormData();
+  deniedForm.set("code", "OPS");
+
+  const deniedAction = upsertHrOrgUnitAction(undefined, deniedForm);
+
+  assert.equal(deniedAction.ok, false);
+  assert.equal(hrOrgStore.listUnits().length, 1);
+
+  const deniedModel = await buildHrOrgPageModel({
+    organizationId: "org-001",
+    canWrite: false,
+  });
+
+  assert.equal(deniedModel.orgChartNodes.length, 0);
+  assert.equal(deniedModel.unitsList.totalCount, 0);
+  assert.equal(deniedModel.overviewStatGroups[0].stats[0].value, 0);
 });
 
 test("hierarchy mutations keep structural collections separated and enforce parent integrity", () => {
@@ -292,10 +333,16 @@ test("hierarchy mutations keep structural collections separated and enforce pare
     /cycle/i
   );
 
-  assert.equal(listHrOrgUnitsWindow().totalCount, 2);
-  assert.equal(listHrOrgPositionsWindow().totalCount, 2);
-  assert.equal(listHrOrgReportingLinesWindow().totalCount, 1);
-  assert.equal(listHrVacantPositionsWindow().totalCount, 1);
-  assert.equal(listHrOrgHeadcountWindow().rows[0].activePositionCount, 1);
-  assert.equal(listHrOrgStructureAuditTrailWindow().totalCount >= 5, true);
+  assert.equal(listHrOrgUnitsWindow(readContext).totalCount, 2);
+  assert.equal(listHrOrgPositionsWindow(readContext).totalCount, 2);
+  assert.equal(listHrOrgReportingLinesWindow(readContext).totalCount, 1);
+  assert.equal(listHrVacantPositionsWindow(readContext).totalCount, 1);
+  assert.equal(
+    listHrOrgHeadcountWindow(readContext).rows[0].activePositionCount,
+    1
+  );
+  assert.equal(
+    listHrOrgStructureAuditTrailWindow(readContext).totalCount >= 5,
+    true
+  );
 });

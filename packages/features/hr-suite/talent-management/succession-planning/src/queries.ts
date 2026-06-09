@@ -1,21 +1,21 @@
 import "server-only";
 
 import type {
-  SuccessionPlanningRecord,
   ListSuccessionPlanningQuery,
+  SuccessionPlanningRecord,
 } from "./contract.ts";
 import type { HrSuiteFeatureContext } from "./shared/index.ts";
 
 const inMemoryRecords: readonly SuccessionPlanningRecord[] = [];
 
-export async function listSuccessionPlanningRecords(
+export function listSuccessionPlanningRecords(
   _query: ListSuccessionPlanningQuery = {},
   _context?: HrSuiteFeatureContext
 ): Promise<readonly SuccessionPlanningRecord[]> {
   return inMemoryRecords;
 }
 
-export async function getSuccessionPlanningRecord(
+export function getSuccessionPlanningRecord(
   id: string,
   _context?: HrSuiteFeatureContext
 ): Promise<SuccessionPlanningRecord | null> {

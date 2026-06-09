@@ -11,16 +11,17 @@ export type RetailSeasonalHourlyWorkforceSchedulingMetadata = {
   title: string;
 };
 
-export const retailSeasonalHourlyWorkforceSchedulingMetadata: RetailSeasonalHourlyWorkforceSchedulingMetadata = {
-  id: "hr-suite.industry-specific.retail-seasonal-hourly-workforce-scheduling",
-  title: "Retail Seasonal Hourly Workforce Scheduling",
-  description:
-    "Placeholder metadata for the extracted HR Suite slice. Replace with governed metadata during implementation.",
-  domain: "industry-specific",
-  labels: {
-    singular: "Retail Seasonal Hourly Workforce Scheduling record",
-    plural: "Retail Seasonal Hourly Workforce Scheduling records",
-  },
-  source: "legacy-hr-suite",
-  suite: "hr-suite",
-};
+export const retailSeasonalHourlyWorkforceSchedulingMetadata: RetailSeasonalHourlyWorkforceSchedulingMetadata =
+  {
+    id: "hr-suite.industry-specific.retail-seasonal-hourly-workforce-scheduling",
+    title: "Retail Seasonal Hourly Workforce Scheduling",
+    description:
+      "Placeholder metadata for the extracted HR Suite slice. Replace with governed metadata during implementation.",
+    domain: "industry-specific",
+    labels: {
+      singular: "Retail Seasonal Hourly Workforce Scheduling record",
+      plural: "Retail Seasonal Hourly Workforce Scheduling records",
+    },
+    source: "legacy-hr-suite",
+    suite: "hr-suite",
+  };

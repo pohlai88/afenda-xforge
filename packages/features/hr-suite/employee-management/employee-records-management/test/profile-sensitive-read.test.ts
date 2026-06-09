@@ -14,6 +14,7 @@ import {
   resetHrEmployeeRecordsRepositoryForTesting,
   setHrEmployeeRecordsRepositoryPathForTesting,
 } from "../src/repository.ts";
+import { buildHrEmployeeRecordExportPageModel } from "../src/server.ts";
 
 let repositoryPath = "";
 
@@ -52,6 +53,7 @@ test("persists profile fields and projects sensitive detail reads", () => {
     },
     {
       canWrite: true,
+      canViewSensitive: true,
       organizationId: "org-1",
       userId: "hr-admin",
     }
@@ -63,6 +65,7 @@ test("persists profile fields and projects sensitive detail reads", () => {
     },
     {
       canWrite: true,
+      canViewSensitive: true,
       organizationId: "org-1",
       userId: "hr-admin",
     }
@@ -74,6 +77,7 @@ test("persists profile fields and projects sensitive detail reads", () => {
     },
     {
       canWrite: true,
+      canViewSensitive: true,
       organizationId: "org-1",
       userId: "hr-admin",
     }
@@ -121,6 +125,7 @@ test("persists profile fields and projects sensitive detail reads", () => {
     },
     {
       canWrite: true,
+      canViewSensitive: true,
       organizationId: "org-1",
       userId: "hr-admin",
     }
@@ -183,6 +188,7 @@ test("persists profile fields and projects sensitive detail reads", () => {
     },
     {
       canWrite: true,
+      canViewSensitive: true,
       organizationId: "org-1",
       userId: "hr-admin",
     }
@@ -199,4 +205,39 @@ test("persists profile fields and projects sensitive detail reads", () => {
   assert.equal(afterUpdate?.legalName, "Ari Worker Updated");
   assert.equal(afterUpdate?.personalEmail, "ari.updated@example.com");
   assert.equal(afterUpdate?.phoneNumber, "+66899999999");
+
+  const exportModel = buildHrEmployeeRecordExportPageModel({
+    organizationId: "org-1",
+    employeeId: created.targetId,
+  });
+
+  assert.ok(exportModel);
+  assert.equal("email" in exportModel.employee, false);
+  assert.equal("personalEmail" in exportModel.employee, false);
+  assert.equal("identityNumber" in exportModel.employee, false);
+  assert.equal("dateOfBirth" in exportModel.employee, false);
+  assert.equal("phoneNumber" in exportModel.employee, false);
+  assert.equal("residentialAddress" in exportModel.employee, false);
+});
+
+test("rejects sensitive writes without sensitive access", () => {
+  const denied = createHrEmployeeRecordAction(
+    {
+      employeeNumber: "E101",
+      legalName: "Sensitive Write Blocked",
+      email: "blocked@example.com",
+      personalEmail: "blocked.private@example.com",
+      identityNumber: "ID-BLOCKED",
+      phoneNumber: "+66811111111",
+    },
+    {
+      canWrite: true,
+      canViewSensitive: false,
+      organizationId: "org-1",
+      userId: "hr-admin",
+    }
+  );
+
+  assert.equal(denied.ok, false);
+  assert.match(denied.error, /sensitive data access denied/i);
 });

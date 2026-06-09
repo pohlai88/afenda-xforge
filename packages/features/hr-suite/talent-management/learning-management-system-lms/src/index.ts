@@ -17,8 +17,8 @@ export { learningManagementSystemLmsMetadata } from "./metadata.ts";
 export {
   createLearningManagementSystemLms,
   getLearningManagementSystemLms,
-  listLearningManagementSystemLms,
   learningManagementSystemLmsRouteContracts,
+  listLearningManagementSystemLms,
   updateLearningManagementSystemLms,
 } from "./server.ts";
 export { learningManagementSystemLmsFeatureScope } from "./shared/index.ts";

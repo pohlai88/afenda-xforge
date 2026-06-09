@@ -14,5 +14,6 @@ export const careerPathingDevelopmentPlansFeatureScope = {
   ...hrSuiteFeatureScope,
   domain: "talent-management",
   feature: "career-pathing-development-plans",
-  packageName: "@repo/features-talent-management-career-pathing-development-plans",
+  packageName:
+    "@repo/features-talent-management-career-pathing-development-plans",
 } as const;

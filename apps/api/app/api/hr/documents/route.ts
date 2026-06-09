@@ -1,6 +1,4 @@
-import {
-  listDocumentsManagementDocumentSummaries,
-} from "@repo/features-employee-management-documents-management";
+import { listDocumentsManagementDocumentSummaries } from "@repo/features-employee-management-documents-management";
 import { NextResponse } from "next/server";
 
 import {

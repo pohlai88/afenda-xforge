@@ -1,5 +1,5 @@
 import type { EntityMetadata } from "@repo/metadata";
-import type { DashboardTableRow } from "@repo/ui/types";
+import type { DashboardTableRow } from "@repo/ui";
 import type { ReactElement } from "react";
 
 import { renderMetadataSection } from "../adapters";
@@ -54,7 +54,7 @@ export function MetadataSectionStack<
             section,
           }),
           context: resolvedContext,
-          section,
+          section: section as MetadataSectionContract,
         });
 
         return <div key={section.key}>{renderedSection.element}</div>;

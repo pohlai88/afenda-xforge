@@ -1,5 +1,4 @@
 import type { Preview } from "@storybook/react";
-import React from "react";
 
 import "./preview.css";
 
@@ -33,7 +32,7 @@ const preview: Preview = {
     (Story, context) => (
       <div
         className={[
-          "bg-background text-foreground min-h-screen",
+          "min-h-screen bg-background text-foreground",
           context.globals.theme === "dark" ? "dark" : "",
         ]
           .filter(Boolean)

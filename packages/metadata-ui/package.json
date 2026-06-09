@@ -27,13 +27,17 @@
   "scripts": {
     "build": "tsc -p tsconfig.build.json",
     "check:boundaries": "tsx scripts/check-boundaries.mts",
+    "check:consumer-fixture": "tsx scripts/check-consumer-fixture.mts",
+    "check:declaration-snapshot": "tsx scripts/check-declaration-snapshot.mts",
     "check:public-api": "tsx scripts/check-public-api.mts",
+    "check:telemetry-schema": "tsx scripts/check-telemetry-schema.mts",
     "lint": "biome check .",
     "format": "biome format --write .",
     "clean": "git clean -xdf .cache .turbo dist node_modules",
     "test": "tsx --test tests/index.test.ts",
     "typecheck": "tsc --noEmit --emitDeclarationOnly false",
-    "verify": "pnpm run typecheck && pnpm run lint && pnpm run build && pnpm run test && pnpm run check:boundaries && pnpm run check:public-api"
+    "update:declaration-snapshot": "tsx scripts/update-declaration-snapshot.mts",
+    "verify": "pnpm run typecheck && pnpm run lint && pnpm run build && pnpm run test && pnpm run check:boundaries && pnpm run check:public-api && pnpm run check:declaration-snapshot && pnpm run check:telemetry-schema && pnpm run check:consumer-fixture"
   },
   "dependencies": {
     "@repo/customization": "workspace:*",

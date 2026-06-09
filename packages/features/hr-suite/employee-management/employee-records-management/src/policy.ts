@@ -8,6 +8,17 @@ export type HrRecordsPolicyContext = {
   userId?: string;
 };
 
+export const hrEmployeeSensitiveMutationFields = [
+  "dateOfBirth",
+  "email",
+  "identityNumber",
+  "mailingAddress",
+  "personalEmail",
+  "phoneNumber",
+  "residentialAddress",
+  "emergencyContactPhoneNumber",
+] as const;
+
 export function canReadHrEmployeeRecord(
   context: HrRecordsPolicyContext
 ): boolean {
@@ -24,6 +35,32 @@ export function canViewHrEmployeeRecordSensitiveData(
   context: HrRecordsPolicyContext
 ): boolean {
   return Boolean(context.canViewSensitive);
+}
+
+export function hasHrEmployeeSensitiveMutationFields(
+  input: Record<string, unknown>
+): boolean {
+  return hrEmployeeSensitiveMutationFields.some(
+    (field) => input[field] !== undefined
+  );
+}
+
+export function requireHrEmployeeSensitiveMutationAccess(
+  context: HrRecordsPolicyContext,
+  input: Record<string, unknown>
+): HrRecordsActionResult {
+  if (!hasHrEmployeeSensitiveMutationFields(input)) {
+    return { ok: true };
+  }
+
+  if (canViewHrEmployeeRecordSensitiveData(context)) {
+    return { ok: true };
+  }
+
+  return {
+    ok: false,
+    error: "Sensitive data access denied for employee records",
+  };
 }
 
 export function requireHrRecordsWrite(

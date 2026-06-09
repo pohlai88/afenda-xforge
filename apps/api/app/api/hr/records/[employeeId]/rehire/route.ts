@@ -1,9 +1,5 @@
-import {
-  hrRecordsRehireEmployeeSchema,
-} from "@repo/features-employee-management-employee-records-management";
-import {
-  rehireHrEmployeeRecord,
-} from "@repo/features-employee-management-employee-records-management/server";
+import { hrRecordsRehireEmployeeSchema } from "@repo/features-employee-management-employee-records-management";
+import { rehireHrEmployeeRecord } from "@repo/features-employee-management-employee-records-management/server";
 import { NextResponse } from "next/server";
 import { createHrRecordsWriteContext } from "../../_lib/context.ts";
 

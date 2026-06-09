@@ -18,6 +18,7 @@ import type {
   EmployeeLifecycleOnboardingRecord,
   EmployeeLifecycleProbationRecord,
   EmployeeLifecycleState,
+  EmployeeLifecycleSuspensionRecord,
 } from "./schema.ts";
 import {
   assertEmployeeLifecycleStateConsistent,
@@ -26,6 +27,7 @@ import {
   employeeLifecycleOnboardingRecordSchema,
   employeeLifecycleProbationRecordSchema,
   employeeLifecycleStateSchema,
+  employeeLifecycleSuspensionRecordSchema,
 } from "./schema.ts";
 
 export type EmployeeLifecycleRepositoryScope = Readonly<{
@@ -39,6 +41,7 @@ export type EmployeeLifecycleRepositoryState = {
   movementRecords: EmployeeLifecycleMovementRecord[];
   probationRecords: EmployeeLifecycleProbationRecord[];
   contractRecords: EmployeeLifecycleContractRecord[];
+  suspensionRecords: EmployeeLifecycleSuspensionRecord[];
 };
 
 export type EmployeeLifecycleRepositoryMutationResult =
@@ -52,6 +55,9 @@ const employeeLifecycleRepositoryStateSchema = z.object({
   movementRecords: employeeLifecycleMovementRecordSchema.array().default([]),
   probationRecords: employeeLifecycleProbationRecordSchema.array().default([]),
   contractRecords: employeeLifecycleContractRecordSchema.array().default([]),
+  suspensionRecords: employeeLifecycleSuspensionRecordSchema
+    .array()
+    .default([]),
 });
 
 const employeeLifecycleRepositoryScopeSchema = z.object({
@@ -77,6 +83,7 @@ const emptyState = (): EmployeeLifecycleRepositoryState => ({
   movementRecords: [],
   probationRecords: [],
   contractRecords: [],
+  suspensionRecords: [],
 });
 
 const serializeState = (state: EmployeeLifecycleRepositoryState): string =>
@@ -159,6 +166,9 @@ const filterScopedState = (
     contractRecords: state.contractRecords.filter((entry) =>
       matchesScope(entry, scope)
     ),
+    suspensionRecords: state.suspensionRecords.filter((entry) =>
+      matchesScope(entry, scope)
+    ),
   };
 };
 
@@ -185,12 +195,16 @@ const assertStateMatchesScope = (
   const invalidContractRecord = state.contractRecords.find(
     (entry) => !matchesScope(entry, scope)
   );
+  const invalidSuspensionRecord = state.suspensionRecords.find(
+    (entry) => !matchesScope(entry, scope)
+  );
   if (
     invalidState ||
     invalidOnboardingRecord ||
     invalidMovementRecord ||
     invalidProbationRecord ||
-    invalidContractRecord
+    invalidContractRecord ||
+    invalidSuspensionRecord
   ) {
     throw new Error(
       "Employee lifecycle repository state contains records outside the requested scope."
@@ -218,6 +232,9 @@ const mergeScopedState = (
   const retainedContractRecords = current.contractRecords.filter(
     (entry) => !matchesScope(entry, scope)
   );
+  const retainedSuspensionRecords = current.suspensionRecords.filter(
+    (entry) => !matchesScope(entry, scope)
+  );
 
   return {
     states: [...retainedStates, ...next.states],
@@ -228,6 +245,10 @@ const mergeScopedState = (
     movementRecords: [...retainedMovementRecords, ...next.movementRecords],
     probationRecords: [...retainedProbationRecords, ...next.probationRecords],
     contractRecords: [...retainedContractRecords, ...next.contractRecords],
+    suspensionRecords: [
+      ...retainedSuspensionRecords,
+      ...next.suspensionRecords,
+    ],
   };
 };
 
@@ -352,6 +373,18 @@ export const findEmployeeLifecycleContractRecordByEmployeeId = (
   const repositoryState = loadEmployeeLifecycleRepository(scope);
   return (
     repositoryState.contractRecords.find(
+      (record) => record.employeeId === employeeId
+    ) ?? null
+  );
+};
+
+export const findEmployeeLifecycleSuspensionRecordByEmployeeId = (
+  employeeId: string,
+  scope?: EmployeeLifecycleRepositoryScope
+): EmployeeLifecycleSuspensionRecord | null => {
+  const repositoryState = loadEmployeeLifecycleRepository(scope);
+  return (
+    repositoryState.suspensionRecords.find(
       (record) => record.employeeId === employeeId
     ) ?? null
   );
@@ -493,6 +526,34 @@ export const upsertEmployeeLifecycleContractRecord = (
   return nextRecord;
 };
 
+export const upsertEmployeeLifecycleSuspensionRecord = (
+  nextRecord: EmployeeLifecycleSuspensionRecord,
+  scope?: EmployeeLifecycleRepositoryScope
+): EmployeeLifecycleSuspensionRecord => {
+  if (scope && !matchesScope(nextRecord, scope)) {
+    throw new Error(
+      "Employee lifecycle suspension record does not match the requested scope."
+    );
+  }
+
+  mutateEmployeeLifecycleRepository((draft) => {
+    const index = draft.suspensionRecords.findIndex(
+      (record) => record.employeeId === nextRecord.employeeId
+    );
+
+    if (index < 0) {
+      draft.suspensionRecords = [...draft.suspensionRecords, nextRecord];
+      return;
+    }
+
+    const nextRecords = [...draft.suspensionRecords];
+    nextRecords[index] = nextRecord;
+    draft.suspensionRecords = nextRecords;
+  }, scope);
+
+  return nextRecord;
+};
+
 export const removeEmployeeLifecycleOnboardingRecord = (
   employeeId: string,
   scope?: EmployeeLifecycleRepositoryScope
@@ -577,6 +638,27 @@ export const removeEmployeeLifecycleContractRecord = (
   return removed;
 };
 
+export const removeEmployeeLifecycleSuspensionRecord = (
+  employeeId: string,
+  scope?: EmployeeLifecycleRepositoryScope
+): boolean => {
+  let removed = false;
+
+  mutateEmployeeLifecycleRepository((draft) => {
+    const nextRecords = draft.suspensionRecords.filter((record) => {
+      const shouldRemove = record.employeeId === employeeId;
+      if (shouldRemove) {
+        removed = true;
+      }
+      return !shouldRemove;
+    });
+
+    draft.suspensionRecords = nextRecords;
+  }, scope);
+
+  return removed;
+};
+
 export const removeEmployeeLifecycleState = (
   employeeId: string,
   scope?: EmployeeLifecycleRepositoryScope
@@ -642,6 +724,9 @@ export const employeeLifecycleRepositoryAuditEventSchema = z.object({
     employeeLifecycleManagementAuditEvents.contractRenewed,
     employeeLifecycleManagementAuditEvents.contractReviewRecorded,
     employeeLifecycleManagementAuditEvents.contractReminderRecorded,
+    employeeLifecycleManagementAuditEvents.suspensionStarted,
+    employeeLifecycleManagementAuditEvents.suspensionReleased,
+    employeeLifecycleManagementAuditEvents.suspensionResolved,
   ]),
   id: z.string().trim().min(1),
   metadata: z.record(z.string(), z.unknown()),

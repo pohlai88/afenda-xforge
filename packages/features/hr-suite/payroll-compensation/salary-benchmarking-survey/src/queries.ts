@@ -1,21 +1,21 @@
 import "server-only";
 
 import type {
-  SalaryBenchmarkingSurveyRecord,
   ListSalaryBenchmarkingSurveyQuery,
+  SalaryBenchmarkingSurveyRecord,
 } from "./contract.ts";
 import type { HrSuiteFeatureContext } from "./shared/index.ts";
 
 const inMemoryRecords: readonly SalaryBenchmarkingSurveyRecord[] = [];
 
-export async function listSalaryBenchmarkingSurveyRecords(
+export function listSalaryBenchmarkingSurveyRecords(
   _query: ListSalaryBenchmarkingSurveyQuery = {},
   _context?: HrSuiteFeatureContext
 ): Promise<readonly SalaryBenchmarkingSurveyRecord[]> {
   return inMemoryRecords;
 }
 
-export async function getSalaryBenchmarkingSurveyRecord(
+export function getSalaryBenchmarkingSurveyRecord(
   id: string,
   _context?: HrSuiteFeatureContext
 ): Promise<SalaryBenchmarkingSurveyRecord | null> {

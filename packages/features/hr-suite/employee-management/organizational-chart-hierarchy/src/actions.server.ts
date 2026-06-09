@@ -5,9 +5,11 @@ import {
   upsertHrOrgReportingRelationshipInputSchema,
   upsertHrOrgUnitInputSchema,
 } from "./contracts/command.contract.ts";
+import { hrOrgWriteContextSchema } from "./contracts/index.ts";
 import type { HrOrgActionResult } from "./contracts/org-model.contract.ts";
 import { toOrgActionFailure } from "./execution/action-result.ts";
 import { hrOrgAuditActions } from "./execution/event.ts";
+import { requireHrOrgMutationAccess } from "./execution.ts";
 import {
   hrOrgPositionSchema,
   hrOrgReportingRelationshipSchema,
@@ -32,8 +34,18 @@ function readOrgFormField(
 
 export function upsertHrOrgUnitAction(
   _previous: unknown,
-  formData: FormData
+  formData: FormData,
+  context?: unknown
 ): HrOrgActionResult {
+  const writeContext = hrOrgWriteContextSchema.safeParse(context ?? {});
+  const access = requireHrOrgMutationAccess(
+    writeContext.success ? writeContext.data : undefined
+  );
+
+  if (access !== null) {
+    return access;
+  }
+
   const parsed = hrOrgUnitSchema.safeParse({
     id: readOptionalOrgFormField(formData, "id"),
     code: readOptionalOrgFormField(formData, "code"),
@@ -58,19 +70,22 @@ export function upsertHrOrgUnitAction(
 
   try {
     const input = upsertHrOrgUnitInputSchema.parse(parsed.data);
-    const node = hrOrgStore.upsertUnit({
-      id: input.id ?? undefined,
-      code: input.code,
-      name: input.name,
-      unitType: input.unitType,
-      parentUnitId: input.parentUnitId,
-      managerEmployeeId: input.managerEmployeeId,
-      costCenterCode: input.costCenterCode,
-      locationCode: input.locationCode,
-      legalEntityCode: input.legalEntityCode,
-      status: input.status,
-      effectiveFrom: input.effectiveFrom,
-    });
+    const node = hrOrgStore.upsertUnit(
+      {
+        id: input.id ?? undefined,
+        code: input.code,
+        name: input.name,
+        unitType: input.unitType,
+        parentUnitId: input.parentUnitId,
+        managerEmployeeId: input.managerEmployeeId,
+        costCenterCode: input.costCenterCode,
+        locationCode: input.locationCode,
+        legalEntityCode: input.legalEntityCode,
+        status: input.status,
+        effectiveFrom: input.effectiveFrom,
+      },
+      writeContext.success ? writeContext.data : undefined
+    );
     return {
       ok: true,
       targetId: node.id,
@@ -83,8 +98,18 @@ export function upsertHrOrgUnitAction(
 
 export function upsertHrOrgPositionAction(
   _previous: unknown,
-  formData: FormData
+  formData: FormData,
+  context?: unknown
 ): HrOrgActionResult {
+  const writeContext = hrOrgWriteContextSchema.safeParse(context ?? {});
+  const access = requireHrOrgMutationAccess(
+    writeContext.success ? writeContext.data : undefined
+  );
+
+  if (access !== null) {
+    return access;
+  }
+
   const parsed = hrOrgPositionSchema.safeParse({
     id: readOptionalOrgFormField(formData, "id"),
     code: readOptionalOrgFormField(formData, "code"),
@@ -107,17 +132,20 @@ export function upsertHrOrgPositionAction(
 
   try {
     const input = upsertHrOrgPositionInputSchema.parse(parsed.data);
-    const node = hrOrgStore.upsertPosition({
-      id: input.id ?? undefined,
-      code: input.code,
-      title: input.title,
-      organizationUnitId: input.organizationUnitId,
-      managerEmployeeId: input.managerEmployeeId,
-      costCenterCode: input.costCenterCode,
-      locationCode: input.locationCode,
-      status: input.status,
-      effectiveFrom: input.effectiveFrom,
-    });
+    const node = hrOrgStore.upsertPosition(
+      {
+        id: input.id ?? undefined,
+        code: input.code,
+        title: input.title,
+        organizationUnitId: input.organizationUnitId,
+        managerEmployeeId: input.managerEmployeeId,
+        costCenterCode: input.costCenterCode,
+        locationCode: input.locationCode,
+        status: input.status,
+        effectiveFrom: input.effectiveFrom,
+      },
+      writeContext.success ? writeContext.data : undefined
+    );
     return {
       ok: true,
       targetId: node.id,
@@ -130,8 +158,18 @@ export function upsertHrOrgPositionAction(
 
 export function upsertHrOrgReportingRelationshipAction(
   _previous: unknown,
-  formData: FormData
+  formData: FormData,
+  context?: unknown
 ): HrOrgActionResult {
+  const writeContext = hrOrgWriteContextSchema.safeParse(context ?? {});
+  const access = requireHrOrgMutationAccess(
+    writeContext.success ? writeContext.data : undefined
+  );
+
+  if (access !== null) {
+    return access;
+  }
+
   const parsed = hrOrgReportingRelationshipSchema.safeParse({
     id: readOptionalOrgFormField(formData, "id"),
     employeeId: readOrgFormField(formData, "employeeId"),
@@ -149,14 +187,17 @@ export function upsertHrOrgReportingRelationshipAction(
     const input = upsertHrOrgReportingRelationshipInputSchema.parse(
       parsed.data
     );
-    const node = hrOrgStore.upsertReportingLine({
-      id: input.id ?? undefined,
-      employeeId: input.employeeId,
-      managerEmployeeId: input.managerEmployeeId,
-      relationshipType: input.relationshipType,
-      effectiveFrom: input.effectiveFrom,
-      reason: input.reason,
-    });
+    const node = hrOrgStore.upsertReportingLine(
+      {
+        id: input.id ?? undefined,
+        employeeId: input.employeeId,
+        managerEmployeeId: input.managerEmployeeId,
+        relationshipType: input.relationshipType,
+        effectiveFrom: input.effectiveFrom,
+        reason: input.reason,
+      },
+      writeContext.success ? writeContext.data : undefined
+    );
     return {
       ok: true,
       targetId: node.id,

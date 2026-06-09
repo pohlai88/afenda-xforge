@@ -5,6 +5,7 @@ import type {
   HrOrgRepositoryEntityType,
   HrOrgWriteContext,
 } from "./contracts/index.ts";
+import { hrOrgWriteContextSchema } from "./contracts/index.ts";
 import { canWriteHrOrg } from "./policy.ts";
 
 export type HrOrgMutationContext = HrOrgWriteContext;
@@ -35,25 +36,35 @@ export const requireHrOrgMutationAccess = (
   canWriteHrOrg(context) ? null : denyHrOrgMutation();
 
 export const buildHrOrgAuditMetadata = (
-  metadata?: Record<string, unknown>
+  metadata?: Record<string, unknown>,
+  context?: HrOrgMutationContext
 ): Record<string, unknown> => ({
   ...metadata,
   surface: "organizational-chart-hierarchy",
+  ...(context?.actorId ? { actorId: context.actorId } : {}),
+  ...(context?.companyId ? { companyId: context.companyId } : {}),
+  ...(context?.tenantId ? { tenantId: context.tenantId } : {}),
 });
 
 export const createHrOrgMutationAuditEvent = (
   input: HrOrgAuditEventInput,
   context?: HrOrgMutationContext
-): HrOrgAuditEvent => ({
-  id: input.id ?? randomUUID(),
-  tenantId: input.tenantId ?? context?.tenantId ?? null,
-  companyId: input.companyId ?? context?.companyId ?? null,
-  actorId: input.actorId ?? normalizeHrOrgMutationActorId(context),
-  action: input.action,
-  entityType: input.entityType as HrOrgRepositoryEntityType,
-  entityId: input.entityId,
-  summary: input.summary,
-  reason: input.reason ?? null,
-  metadata: buildHrOrgAuditMetadata(input.metadata),
-  createdAt: input.createdAt ?? new Date(),
-});
+): HrOrgAuditEvent => {
+  const normalizedContext = context
+    ? hrOrgWriteContextSchema.parse(context)
+    : undefined;
+
+  return {
+    id: input.id ?? randomUUID(),
+    tenantId: input.tenantId ?? normalizedContext?.tenantId ?? null,
+    companyId: input.companyId ?? normalizedContext?.companyId ?? null,
+    actorId: input.actorId ?? normalizeHrOrgMutationActorId(normalizedContext),
+    action: input.action,
+    entityType: input.entityType as HrOrgRepositoryEntityType,
+    entityId: input.entityId,
+    summary: input.summary,
+    reason: input.reason ?? null,
+    metadata: buildHrOrgAuditMetadata(input.metadata, normalizedContext),
+    createdAt: input.createdAt ?? new Date(),
+  };
+};

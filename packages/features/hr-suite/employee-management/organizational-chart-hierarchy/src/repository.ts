@@ -1,13 +1,7 @@
 import "server-only";
 
 import { randomUUID } from "node:crypto";
-import {
-  existsSync,
-  mkdirSync,
-  readFileSync,
-  renameSync,
-  writeFileSync,
-} from "node:fs";
+import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { dirname, resolve } from "node:path";
 import type { SQL } from "drizzle-orm";
 import { and, eq } from "drizzle-orm";
@@ -130,9 +124,7 @@ const serializeRepositoryState = (state: HrOrgRepositoryState): string =>
 
 const persistRepositoryState = (state: HrOrgRepositoryState): void => {
   ensureRepositoryDirectory();
-  const temporaryPath = `${repositoryFilePath}.${process.pid}.${randomUUID()}.tmp`;
-  writeFileSync(temporaryPath, serializeRepositoryState(state), "utf8");
-  renameSync(temporaryPath, repositoryFilePath);
+  writeFileSync(repositoryFilePath, serializeRepositoryState(state), "utf8");
 };
 
 const loadDatabaseModule = async (): Promise<HrOrgDatabaseModule> =>
