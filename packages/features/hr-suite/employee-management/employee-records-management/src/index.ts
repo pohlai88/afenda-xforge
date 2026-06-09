@@ -104,3 +104,7 @@ export {
   hrRecordsIntegrationEvents,
   hrRecordsIntegrationSnapshotVersion,
 } from "./registry/integration.ts";
+export {
+  listHrEmployeeRecordSummaries,
+  listHrEmployeeRecordSummariesPage,
+} from "./queries/records.query.ts";

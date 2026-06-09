@@ -180,11 +180,19 @@ Validation evidence:
 
 Implement separate employee-manager relationship facts.
 
+Status: complete
+
 Acceptance criteria:
 
 - Reporting lines are separate from the organization-unit tree.
 - Self-manager relationships are rejected.
 - Reporting-line views are queryable and audited.
+
+Validation evidence:
+
+- `pnpm --filter @repo/features-employee-management-organizational-chart-hierarchy typecheck`
+- `pnpm --filter @repo/features-employee-management-organizational-chart-hierarchy lint`
+- `pnpm --filter @repo/features-employee-management-organizational-chart-hierarchy test`
 
 ### Slice 9: Read Models and Page Model
 

@@ -34,10 +34,12 @@ const normalizeSearch = (value: string | undefined): string =>
   value?.trim().toLowerCase() ?? "";
 
 const resolvePage = (value: number | undefined): number =>
-  Number.isFinite(value) && (value ?? 0) > 0 ? Math.floor(value ?? 1) : 1;
+  Number.isFinite(value ?? Number.NaN) && (value ?? 0) > 0
+    ? Math.floor(value ?? 1)
+    : 1;
 
 const resolvePageSize = (value: number | undefined): number => {
-  if (!Number.isFinite(value) || value === undefined || value <= 0) {
+  if (!Number.isFinite(value ?? Number.NaN) || (value ?? 0) <= 0) {
     return DEFAULT_DIRECTORY_PAGE_SIZE;
   }
 

@@ -73,8 +73,9 @@ for (const event of manifest.events) {
   }
 
   const hasDiagnostics = /\bdiagnostics\b\s*(?::|,|\n|\r)/m.test(nextSlice);
-  const hasGovernanceDecision =
-    /\bgovernanceDecision\b\s*(?::|,|\n|\r)/m.test(nextSlice);
+  const hasGovernanceDecision = /\bgovernanceDecision\b\s*(?::|,|\n|\r)/m.test(
+    nextSlice
+  );
 
   if (event.allowsDiagnostics !== hasDiagnostics) {
     violations.push(
