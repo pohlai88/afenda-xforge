@@ -6,6 +6,7 @@ import { renderMetadataField } from "../src/adapters";
 import { MetadataForm } from "../src/components";
 import type { MetadataFieldContract } from "../src/contracts";
 import type { MetadataRenderContext } from "../src/contracts/render-context.contract";
+import { createMetadataRenderContext } from "../src/contracts/render-context.defaults";
 import { defaultFieldRegistry } from "../src/registry";
 
 const fields: readonly MetadataFieldContract[] = [
@@ -57,9 +58,9 @@ const collectElements = (
 };
 
 test("defaultFieldRegistry resolves the concrete field renderer", () => {
-  const textRenderer = defaultFieldRegistry.get("text");
-  const selectRenderer = defaultFieldRegistry.get("select");
-  const checkboxRenderer = defaultFieldRegistry.get("checkbox");
+  const textRenderer = defaultFieldRegistry.get("text").renderer;
+  const selectRenderer = defaultFieldRegistry.get("select").renderer;
+  const checkboxRenderer = defaultFieldRegistry.get("checkbox").renderer;
 
   assert.equal(textRenderer.name, "TextFieldRenderer");
   assert.equal(selectRenderer.name, "SelectFieldRenderer");
@@ -67,28 +68,28 @@ test("defaultFieldRegistry resolves the concrete field renderer", () => {
 });
 
 test("renderMetadataField returns the rendered field primitive", () => {
-  const context: MetadataRenderContext = {
-    density: "default",
-    mode: "create",
-    permissions: {},
-    state: "ready",
-  };
+  const context: MetadataRenderContext = createMetadataRenderContext(
+    undefined,
+    {
+      mode: "create",
+    }
+  );
 
   const textField = renderMetadataField({
     context,
     field: fields[0],
     value: "Acme",
-  }) as TestElement;
+  }).element as TestElement;
   const selectField = renderMetadataField({
     context,
     field: fields[1],
     value: "draft",
-  }) as TestElement;
+  }).element as TestElement;
   const checkboxField = renderMetadataField({
     context,
     field: fields[2],
     value: true,
-  }) as TestElement;
+  }).element as TestElement;
 
   assert.equal(textField.type, "div");
   assert.equal(selectField.type, "div");

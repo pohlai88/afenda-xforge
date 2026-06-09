@@ -1,16 +1,13 @@
-import { createMetadata } from "@repo/seo/metadata";
 import type { Metadata } from "next";
 import type { ReactElement } from "react";
+import { webHomeMetadata, webSitePreset } from "./seo";
 
 const appShellHref = new URL(
   "/",
   process.env.NEXT_PUBLIC_APP_URL ?? "http://localhost:3000"
 ).toString();
 
-export const metadata: Metadata = createMetadata({
-  title: "XForge",
-  description: "Governance-first ERP foundation for controlled operations.",
-});
+export const metadata: Metadata = webHomeMetadata;
 
 export default function HomePage(): ReactElement {
   return (

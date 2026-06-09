@@ -13,6 +13,7 @@
     "@repo/audit": "workspace:*",
     "@repo/auth": "workspace:*",
     "@repo/database": "workspace:*",
+    "@repo/features-employee-management-documents-management": "workspace:*",
     "@repo/features-employee-management-compliance-regulatory-tracking": "workspace:*",
     "@repo/features-employee-management-employee-records-management": "workspace:*",
     "@repo/features-master-data-companies": "workspace:*",

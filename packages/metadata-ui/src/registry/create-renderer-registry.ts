@@ -1,61 +1,77 @@
-import type { MetadataRendererRegistry } from "../contracts/registry.contract";
+import type {
+  MetadataRendererRegistration,
+  MetadataRendererRegistry,
+  MetadataRendererRegistryEntry,
+} from "../contracts/registry.contract";
 import {
   MetadataRendererRegistryDuplicateError,
   MetadataRendererRegistryMissingError,
-} from "./registry-errors";
+} from "./registry-errors.ts";
 
 const cloneEntries = <TKey extends string, TRenderer>(
-  entries: readonly (readonly [TKey, TRenderer])[]
-): Map<TKey, TRenderer> => {
-  const registry = new Map<TKey, TRenderer>();
+  entries: readonly MetadataRendererRegistration<TRenderer>[]
+): Map<TKey, MetadataRendererRegistration<TRenderer>> => {
+  const registry = new Map<TKey, MetadataRendererRegistration<TRenderer>>();
 
-  for (const [key, renderer] of entries) {
-    if (registry.has(key)) {
-      throw new MetadataRendererRegistryDuplicateError(key);
+  for (const registration of entries) {
+    if (registry.has(registration.key as TKey)) {
+      throw new MetadataRendererRegistryDuplicateError(
+        registration.key as TKey
+      );
     }
 
-    registry.set(key, renderer);
+    registry.set(registration.key as TKey, registration);
   }
 
   return registry;
 };
 
+const getRegistrationOrThrow = <TKey extends string, TRenderer>(
+  registry: Map<TKey, MetadataRendererRegistration<TRenderer>>,
+  key: TKey
+): MetadataRendererRegistration<TRenderer> => {
+  const registration = registry.get(key);
+
+  if (registration === undefined) {
+    throw new MetadataRendererRegistryMissingError(key);
+  }
+
+  return registration;
+};
+
+const toRegistryEntries = <TKey extends string, TRenderer>(
+  registry: Map<TKey, MetadataRendererRegistration<TRenderer>>
+): readonly MetadataRendererRegistryEntry<TKey, TRenderer>[] =>
+  [...registry.entries()].map(([key, registration]) => ({ key, registration }));
+
 export function createRendererRegistry<TKey extends string, TRenderer>(
-  entries: readonly (readonly [TKey, TRenderer])[] = []
+  registrations: readonly MetadataRendererRegistration<TRenderer>[] = []
 ): MetadataRendererRegistry<TKey, TRenderer> {
-  const registry = cloneEntries(entries);
+  const registry = cloneEntries<TKey, TRenderer>(registrations);
 
   const build = (
-    nextRegistry: Map<TKey, TRenderer>
+    nextRegistry: Map<TKey, MetadataRendererRegistration<TRenderer>>
   ): MetadataRendererRegistry<TKey, TRenderer> => ({
-    entries: (): readonly (readonly [TKey, TRenderer])[] => [
-      ...nextRegistry.entries(),
-    ],
-    get: (key: TKey): TRenderer => {
-      const renderer = nextRegistry.get(key);
-
-      if (!renderer) {
-        throw new MetadataRendererRegistryMissingError(key);
-      }
-
-      return renderer;
-    },
+    entries: (): readonly MetadataRendererRegistryEntry<TKey, TRenderer>[] =>
+      toRegistryEntries(nextRegistry),
+    get: (key: TKey): MetadataRendererRegistration<TRenderer> =>
+      getRegistrationOrThrow(nextRegistry, key),
     has: (key: TKey): boolean => nextRegistry.has(key),
     keys: (): readonly TKey[] => [...nextRegistry.keys()],
     register: (
-      key: TKey,
-      renderer: TRenderer
+      registration: MetadataRendererRegistration<TRenderer> & { key: TKey }
     ): MetadataRendererRegistry<TKey, TRenderer> => {
-      if (nextRegistry.has(key)) {
-        throw new MetadataRendererRegistryDuplicateError(key);
+      if (nextRegistry.has(registration.key)) {
+        throw new MetadataRendererRegistryDuplicateError(registration.key);
       }
 
       const updatedRegistry = new Map(nextRegistry);
-      updatedRegistry.set(key, renderer);
+      updatedRegistry.set(registration.key, registration);
 
       return build(updatedRegistry);
     },
-    resolve: (key: TKey): TRenderer | undefined => nextRegistry.get(key),
+    resolve: (key: TKey): MetadataRendererRegistration<TRenderer> | undefined =>
+      nextRegistry.get(key),
   });
 
   return build(registry);

@@ -1,68 +1,63 @@
+import type { EntityMetadata } from "@repo/metadata";
+import type { DashboardTableRow } from "@repo/ui/types";
 import type { ReactElement } from "react";
 
+import { renderMetadataSection } from "../adapters";
 import type { MetadataRenderContext } from "../contracts/render-context.contract";
-import type { MetadataSectionContract } from "../contracts/section-renderer.contract";
-import { defaultSectionRegistry } from "../registry/default-section-registry";
-import { MetadataForm } from "./metadata-form";
-import { MetadataTable } from "./metadata-table";
+import { createMetadataRenderContext } from "../contracts/render-context.defaults";
+import type {
+  MetadataSectionContract,
+  MetadataSectionMetadata,
+  MetadataSectionRow,
+} from "../contracts/section-renderer.contract";
 
-export type MetadataSectionStackProps = {
+export type MetadataRenderableSection = MetadataSectionContract<
+  EntityMetadata,
+  DashboardTableRow
+>;
+
+export type MetadataSectionContentResolver<
+  TMetadata = MetadataSectionMetadata,
+  TRow extends MetadataSectionRow = MetadataSectionRow,
+> = (input: {
+  context: MetadataRenderContext;
+  section: MetadataSectionContract<TMetadata, TRow>;
+}) => ReactElement | null | undefined;
+
+export type MetadataSectionStackProps<
+  TMetadata extends MetadataSectionMetadata = EntityMetadata,
+  TRow extends MetadataSectionRow = DashboardTableRow,
+> = {
   context?: Partial<MetadataRenderContext>;
-  sections: readonly MetadataSectionContract[];
+  resolveSectionContent?: MetadataSectionContentResolver<TMetadata, TRow>;
+  sections: readonly MetadataSectionContract<TMetadata, TRow>[];
 };
 
-const createContext = (
-  context: Partial<MetadataRenderContext> | undefined
-): MetadataRenderContext => ({
-  density: context?.density ?? "default",
-  mode: context?.mode ?? "read",
-  permissions: context?.permissions ?? {},
-  state: context?.state ?? "ready",
-});
-
-export function MetadataSectionStack({
+export function MetadataSectionStack<
+  TMetadata extends MetadataSectionMetadata = EntityMetadata,
+  TRow extends MetadataSectionRow = DashboardTableRow,
+>({
   context,
+  resolveSectionContent,
   sections,
-}: MetadataSectionStackProps): ReactElement {
-  const resolvedContext = createContext(context);
+}: MetadataSectionStackProps<TMetadata, TRow>): ReactElement {
+  const resolvedContext = createMetadataRenderContext(context, {
+    mode: "read",
+  });
 
   return (
     <div className="space-y-6">
       {sections.map((section) => {
-        const renderer = defaultSectionRegistry.get(section.kind ?? "section");
+        const renderedSection = renderMetadataSection({
+          children: resolveSectionContent?.({
+            context: resolvedContext,
+            section,
+          }),
+          context: resolvedContext,
+          section,
+        });
 
-        let children: ReactElement | null = null;
-
-        if (section.kind === "table" && section.metadata) {
-          children = (
-            <MetadataTable
-              context={resolvedContext}
-              metadata={section.metadata}
-              rows={section.rows ?? []}
-              showSearch
-            />
-          );
-        } else if (section.kind === "form" && section.fields) {
-          children = (
-            <MetadataForm
-              actions={section.actions}
-              context={resolvedContext}
-              description={section.description}
-              fields={section.fields}
-              title={section.title}
-            />
-          );
-        }
-
-        return (
-          <div key={section.key}>
-            {renderer({
-              children,
-              context: resolvedContext,
-              section,
-            })}
-          </div>
-        );
+        return <div key={section.key}>{renderedSection.element}</div>;
       })}
     </div>
   );

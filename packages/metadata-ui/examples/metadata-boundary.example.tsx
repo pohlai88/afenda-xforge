@@ -1,21 +1,19 @@
 import type { EntityMetadata } from "@repo/metadata";
-import { Badge } from "@repo/ui/components/badge";
-import { Button } from "@repo/ui/components/button";
 import {
+  Badge,
+  Button,
   Card,
   CardContent,
   CardHeader,
   CardTitle,
-} from "@repo/ui/components/card";
-import { Separator } from "@repo/ui/components/separator";
-import {
+  Separator,
   Table,
   TableBody,
   TableCell,
   TableHead,
   TableHeader,
   TableRow,
-} from "@repo/ui/components/table";
+} from "@repo/ui";
 import type { ReactElement } from "react";
 
 import { EntityMetadataPanel } from "../src/index";

@@ -18,14 +18,33 @@ import type {
   HrRecordsUpdateEmployeeInput,
 } from "./hr.workforce.records.contract.ts";
 import { hrRecordsEmploymentStatusSchema } from "./hr.workforce.records-employment-status.schema.ts";
+import { hrRecordsActionRegistry } from "./registry/action-registry.ts";
+import {
+  buildHrEmployeeRecordArchiveAuditRecord,
+  buildHrEmployeeRecordAuditRecord,
+} from "./registry/audit.ts";
+import type {
+  HrEmployeeAssignmentRecord as HrEmployeeAssignmentRecordModel,
+  HrEmployeeRecordAuditEntry as HrEmployeeRecordAuditRecordModel,
+  HrEmployeeStatusHistoryRecord as HrEmployeeStatusHistoryRecordModel,
+} from "./schema.ts";
+import {
+  hrEmployeeAssignmentRecordSchema,
+  hrEmployeeRecordAuditEntrySchema,
+  hrEmployeeStatusHistoryRecordSchema,
+} from "./schema.ts";
 
 export type HrEmployeeRecordsRepositoryContext = {
   canRead?: boolean;
   organizationId?: string;
+  userId?: string;
 };
 
 type HrEmployeeRecordEntity = HrEmployeeRecordDetail & {
   organizationId: string | null;
+  assignmentHistory: HrEmployeeAssignmentRecordModel[];
+  auditTrail: HrEmployeeRecordAuditRecordModel[];
+  statusHistory: HrEmployeeStatusHistoryRecordModel[];
 };
 
 type HrEmployeeRecordsRepositoryState = {
@@ -70,6 +89,9 @@ const hrEmployeeRecordEntitySchema = z.object({
   managerEmployeeId: z.string().trim().min(1).nullable(),
   matrixManagerEmployeeId: z.string().trim().min(1).nullable(),
   hrOwnerEmployeeId: z.string().trim().min(1).nullable(),
+  assignmentHistory: hrEmployeeAssignmentRecordSchema.array().default([]),
+  auditTrail: hrEmployeeRecordAuditEntrySchema.array().default([]),
+  statusHistory: hrEmployeeStatusHistoryRecordSchema.array().default([]),
   email: z.string(),
   identityNumber: z.string(),
   identityDocumentType: z.string(),
@@ -116,17 +138,17 @@ const normalizeOrganizationId = (
 const normalizeText = (value: string | undefined): string =>
   value?.trim() ?? "";
 
-const normalizeNullableText = (value: string | undefined): string | null => {
+const normalizeNullableText = (
+  value: string | null | undefined
+): string | null => {
   const trimmed = value?.trim();
   return trimmed ? trimmed : null;
 };
 
 const normalizeDate = (value: Date | undefined): Date | null => value ?? null;
 
-const updateTextField = (
-  current: string,
-  next: string | undefined
-): string => (next === undefined ? current : normalizeText(next));
+const updateTextField = (current: string, next: string | undefined): string =>
+  next === undefined ? current : normalizeText(next);
 
 const updateNullableTextField = (
   current: string | null,
@@ -138,6 +160,214 @@ const updateDateField = (
   current: Date | null,
   next: Date | undefined
 ): Date | null => (next === undefined ? current : normalizeDate(next));
+
+const normalizeAssignmentReason = (
+  assignmentReason: string | undefined,
+  reason: string | undefined
+): string | null => normalizeNullableText(assignmentReason ?? reason);
+
+const normalizeStatusReason = (
+  reason: string | null | undefined
+): string | null => normalizeNullableText(reason);
+
+const compareAssignmentHistoryRecords = (
+  left: HrEmployeeAssignmentRecordModel,
+  right: HrEmployeeAssignmentRecordModel
+): number =>
+  right.effectiveFrom.getTime() - left.effectiveFrom.getTime() ||
+  right.createdAt.getTime() - left.createdAt.getTime() ||
+  right.updatedAt.getTime() - left.updatedAt.getTime() ||
+  right.id.localeCompare(left.id);
+
+const sortAssignmentHistoryRecords = (
+  assignments: readonly HrEmployeeAssignmentRecordModel[]
+): readonly HrEmployeeAssignmentRecordModel[] =>
+  [...assignments].sort(compareAssignmentHistoryRecords);
+
+const getCurrentAssignmentHistoryRecord = (
+  assignments: readonly HrEmployeeAssignmentRecordModel[]
+): HrEmployeeAssignmentRecordModel | null =>
+  sortAssignmentHistoryRecords(assignments)[0] ?? null;
+
+const closeCurrentAssignmentHistoryRecord = (
+  assignments: readonly HrEmployeeAssignmentRecordModel[],
+  effectiveTo: Date
+): readonly HrEmployeeAssignmentRecordModel[] => {
+  const currentAssignment = getCurrentAssignmentHistoryRecord(assignments);
+  if (!currentAssignment) {
+    return assignments;
+  }
+
+  if (currentAssignment.effectiveFrom.getTime() > effectiveTo.getTime()) {
+    throw new Error(
+      "Assignment effective date must not precede the current assignment"
+    );
+  }
+
+  return sortAssignmentHistoryRecords([
+    {
+      ...currentAssignment,
+      effectiveTo,
+      updatedAt: effectiveTo,
+    },
+    ...assignments.filter(
+      (assignment) => assignment.id !== currentAssignment.id
+    ),
+  ]);
+};
+
+const assertScopedEmployeeReferenceExists = (
+  records: readonly HrEmployeeRecordEntity[],
+  employeeReferenceId: string | null | undefined,
+  context: HrEmployeeRecordsRepositoryContext | undefined,
+  currentEmployeeId: string | null,
+  fieldLabel: string
+): void => {
+  const referenceId = normalizeNullableText(employeeReferenceId);
+  if (!referenceId) {
+    return;
+  }
+
+  if (referenceId === currentEmployeeId) {
+    throw new Error(
+      `${fieldLabel} cannot reference the employee record itself`
+    );
+  }
+
+  const referenceIndex = findScopedRecordIndex(records, referenceId, context);
+  if (referenceIndex < 0) {
+    throw new Error(
+      `${fieldLabel} must reference an employee in the same organization`
+    );
+  }
+};
+
+const allowedEmploymentStatusTransitions: Readonly<
+  Record<
+    HrEmployeeRecordEntity["employmentStatus"],
+    readonly HrEmployeeRecordEntity["employmentStatus"][]
+  >
+> = {
+  draft: ["active", "archived"],
+  active: ["archived", "separated"],
+  archived: ["separated"],
+  separated: [],
+};
+
+const assertEmploymentStatusTransition = (
+  currentStatus: HrEmployeeRecordEntity["employmentStatus"],
+  nextStatus: HrEmployeeRecordEntity["employmentStatus"]
+): void => {
+  if (currentStatus === nextStatus) {
+    return;
+  }
+
+  if (!allowedEmploymentStatusTransitions[currentStatus].includes(nextStatus)) {
+    throw new Error(
+      `Invalid employment status transition from ${currentStatus} to ${nextStatus}`
+    );
+  }
+};
+
+const buildStatusHistoryRecord = (input: {
+  actorId?: string | null;
+  employeeId: string;
+  effectiveAt: Date;
+  organizationId: string | null;
+  previousStatus: HrEmployeeRecordEntity["employmentStatus"] | null;
+  reason?: string | null;
+  source: string;
+  status: HrEmployeeRecordEntity["employmentStatus"];
+}): HrEmployeeStatusHistoryRecordModel =>
+  hrEmployeeStatusHistoryRecordSchema.parse({
+    id: randomUUID(),
+    organizationId: input.organizationId,
+    employeeId: input.employeeId,
+    status: input.status,
+    previousStatus: input.previousStatus,
+    effectiveAt: input.effectiveAt,
+    source: input.source.trim(),
+    reason: normalizeStatusReason(input.reason),
+    actorId: normalizeNullableText(input.actorId),
+    createdAt: input.effectiveAt,
+    updatedAt: input.effectiveAt,
+  });
+
+const buildLegacyStatusHistoryRecord = (
+  record: HrEmployeeRecordEntity
+): HrEmployeeStatusHistoryRecordModel =>
+  buildStatusHistoryRecord({
+    actorId: undefined,
+    employeeId: record.id,
+    effectiveAt: record.createdAt,
+    organizationId: record.organizationId,
+    previousStatus: null,
+    reason: undefined,
+    source: "legacy",
+    status: record.employmentStatus,
+  });
+
+const buildAssignmentHistoryRecord = (input: {
+  actorId?: string | null;
+  currentDepartmentId?: string | null;
+  currentPositionId?: string | null;
+  employeeId: string;
+  effectiveFrom: Date;
+  organizationId: string | null;
+  reason?: string | null;
+  source: string;
+  workLocationCode?: string | null;
+  managerEmployeeId?: string | null;
+}): HrEmployeeAssignmentRecordModel =>
+  hrEmployeeAssignmentRecordSchema.parse({
+    id: randomUUID(),
+    organizationId: input.organizationId,
+    employeeId: input.employeeId,
+    departmentId: input.currentDepartmentId ?? null,
+    positionId: input.currentPositionId ?? null,
+    workLocationCode: normalizeNullableText(input.workLocationCode),
+    managerEmployeeId: input.managerEmployeeId ?? null,
+    effectiveFrom: input.effectiveFrom,
+    effectiveTo: null,
+    source: input.source.trim(),
+    reason: normalizeNullableText(input.reason),
+    actorId: normalizeNullableText(input.actorId),
+    createdAt: input.effectiveFrom,
+    updatedAt: input.effectiveFrom,
+  });
+
+const buildAuditTrailRecord = (input: {
+  action: (typeof hrRecordsActionRegistry)[keyof typeof hrRecordsActionRegistry]["auditEvent"];
+  actorId?: string | null;
+  employeeId: string;
+  organizationId: string | null;
+  reason?: string | null;
+  occurredAt: Date;
+}): HrEmployeeRecordAuditRecordModel =>
+  buildHrEmployeeRecordAuditRecord({
+    action: input.action,
+    actorId: input.actorId,
+    employeeId: input.employeeId,
+    organizationId: input.organizationId,
+    reason: input.reason,
+    occurredAt: input.occurredAt,
+  });
+
+const buildLegacyAssignmentHistoryRecord = (
+  record: HrEmployeeRecordEntity
+): HrEmployeeAssignmentRecordModel =>
+  buildAssignmentHistoryRecord({
+    actorId: undefined,
+    currentDepartmentId: record.currentDepartmentId,
+    currentPositionId: record.currentPositionId,
+    employeeId: record.id,
+    effectiveFrom: record.createdAt,
+    organizationId: record.organizationId,
+    reason: undefined,
+    source: "legacy",
+    workLocationCode: record.workLocationCode,
+    managerEmployeeId: record.managerEmployeeId,
+  });
 
 const cloneState = (
   state: HrEmployeeRecordsRepositoryState
@@ -219,7 +449,13 @@ const toSummary = (
 });
 
 const toDetail = (record: HrEmployeeRecordEntity): HrEmployeeRecordDetail => {
-  const { organizationId: _organizationId, ...detail } = record;
+  const {
+    assignmentHistory: _assignmentHistory,
+    auditTrail: _auditTrail,
+    organizationId: _organizationId,
+    statusHistory: _statusHistory,
+    ...detail
+  } = record;
   return detail;
 };
 
@@ -275,8 +511,9 @@ const buildBaseRecord = (input: {
   emergencyContactRelationship?: string;
   emergencyContactPhoneNumber?: string;
   employmentStatus: HrEmployeeRecordEntity["employmentStatus"];
+  timestamp?: Date;
 }): HrEmployeeRecordEntity => {
-  const now = new Date();
+  const now = input.timestamp ?? new Date();
 
   return {
     id: input.id,
@@ -304,8 +541,13 @@ const buildBaseRecord = (input: {
     currentDepartmentId: normalizeNullableText(input.currentDepartmentId),
     currentPositionId: normalizeNullableText(input.currentPositionId),
     managerEmployeeId: normalizeNullableText(input.managerEmployeeId),
-    matrixManagerEmployeeId: normalizeNullableText(input.matrixManagerEmployeeId),
+    matrixManagerEmployeeId: normalizeNullableText(
+      input.matrixManagerEmployeeId
+    ),
     hrOwnerEmployeeId: normalizeNullableText(input.hrOwnerEmployeeId),
+    assignmentHistory: [],
+    auditTrail: [],
+    statusHistory: [],
     email: normalizeText(input.email),
     identityNumber: normalizeText(input.identityNumber),
     identityDocumentType: normalizeText(input.identityDocumentType),
@@ -394,6 +636,41 @@ export function createHrEmployeeRecordRepository(
   context?: HrEmployeeRecordsRepositoryContext
 ): HrEmployeeRecordDetail {
   const createdRecordId = randomUUID();
+  const now = new Date();
+  const initialAssignmentHistory =
+    input.currentDepartmentId !== undefined ||
+    input.currentPositionId !== undefined ||
+    input.managerEmployeeId !== undefined ||
+    input.workLocationCode !== undefined
+      ? [
+          buildAssignmentHistoryRecord({
+            actorId: context?.userId,
+            currentDepartmentId: normalizeNullableText(
+              input.currentDepartmentId
+            ),
+            currentPositionId: normalizeNullableText(input.currentPositionId),
+            employeeId: createdRecordId,
+            effectiveFrom: now,
+            organizationId: normalizeOrganizationId(context?.organizationId),
+            reason: "Initial assignment",
+            source: "create",
+            workLocationCode: normalizeText(input.workLocationCode),
+            managerEmployeeId: normalizeNullableText(input.managerEmployeeId),
+          }),
+        ]
+      : [];
+  const initialStatusHistory = [
+    buildStatusHistoryRecord({
+      actorId: context?.userId,
+      employeeId: createdRecordId,
+      effectiveAt: now,
+      organizationId: normalizeOrganizationId(context?.organizationId),
+      previousStatus: null,
+      reason: "Initial status",
+      source: "create",
+      status: "draft",
+    }),
+  ];
   const nextRecord = buildBaseRecord({
     id: createdRecordId,
     organizationId: normalizeOrganizationId(context?.organizationId),
@@ -431,9 +708,43 @@ export function createHrEmployeeRecordRepository(
     emergencyContactRelationship: input.emergencyContactRelationship,
     emergencyContactPhoneNumber: input.emergencyContactPhoneNumber,
     employmentStatus: "draft",
+    timestamp: now,
   });
+  nextRecord.assignmentHistory = initialAssignmentHistory;
+  nextRecord.statusHistory = initialStatusHistory;
+  nextRecord.auditTrail = [
+    buildAuditTrailRecord({
+      action: hrRecordsActionRegistry.create.auditEvent,
+      actorId: context?.userId,
+      employeeId: createdRecordId,
+      organizationId: normalizeOrganizationId(context?.organizationId),
+      reason: "Initial create",
+      occurredAt: now,
+    }),
+  ];
 
   mutateRepositoryState((draft) => {
+    assertScopedEmployeeReferenceExists(
+      draft.records,
+      nextRecord.managerEmployeeId,
+      context,
+      nextRecord.id,
+      "Manager"
+    );
+    assertScopedEmployeeReferenceExists(
+      draft.records,
+      nextRecord.matrixManagerEmployeeId,
+      context,
+      nextRecord.id,
+      "Matrix manager"
+    );
+    assertScopedEmployeeReferenceExists(
+      draft.records,
+      nextRecord.hrOwnerEmployeeId,
+      context,
+      nextRecord.id,
+      "HR owner"
+    );
     draft.records = [...draft.records, nextRecord];
   });
 
@@ -457,124 +768,168 @@ export function updateHrEmployeeRecordRepository(
     }
 
     const current = draft.records[index];
-    const nextPreferredName =
-      input.preferredName !== undefined
-        ? normalizeNullableText(input.preferredName)
-        : current.preferredName;
+    if (
+      current.employmentStatus === "archived" ||
+      current.employmentStatus === "separated"
+    ) {
+      throw new Error("Archived employee records are read-only");
+    }
+    const now = new Date();
+    assertScopedEmployeeReferenceExists(
+      draft.records,
+      input.matrixManagerEmployeeId,
+      context,
+      current.id,
+      "Matrix manager"
+    );
+    assertScopedEmployeeReferenceExists(
+      draft.records,
+      input.hrOwnerEmployeeId,
+      context,
+      current.id,
+      "HR owner"
+    );
+    const nextPreferredName = updateNullableTextField(
+      current.preferredName,
+      input.preferredName
+    );
+    const nextEmploymentStatus =
+      input.employmentStatus ?? current.employmentStatus;
+    const nextStatusHistory =
+      input.employmentStatus === undefined ||
+      input.employmentStatus === current.employmentStatus
+        ? current.statusHistory
+        : [
+            ...(current.statusHistory.length > 0
+              ? current.statusHistory
+              : [buildLegacyStatusHistoryRecord(current)]),
+            buildStatusHistoryRecord({
+              actorId: context?.userId,
+              employeeId: current.id,
+              effectiveAt: new Date(),
+              organizationId: current.organizationId,
+              previousStatus: current.employmentStatus,
+              reason: input.reason,
+              source: "update",
+              status: nextEmploymentStatus,
+            }),
+          ];
+
+    assertEmploymentStatusTransition(
+      current.employmentStatus,
+      nextEmploymentStatus
+    );
 
     updatedRecord = {
       ...current,
-      employeeNumber: input.employeeNumber?.trim() ?? current.employeeNumber,
+      employeeNumber: updateTextField(
+        current.employeeNumber,
+        input.employeeNumber
+      ),
       displayName: buildDisplayName({
-        legalName: input.legalName?.trim() ?? current.legalName,
+        legalName: updateTextField(current.legalName, input.legalName),
         preferredName: nextPreferredName ?? undefined,
       }),
-      employmentStatus:
-        input.employmentStatus ?? current.employmentStatus ?? "draft",
-      legalName: input.legalName?.trim() ?? current.legalName,
+      employmentStatus: nextEmploymentStatus,
+      legalName: updateTextField(current.legalName, input.legalName),
       preferredName: nextPreferredName,
-      employmentStartDate:
-        input.employmentStartDate !== undefined
-          ? normalizeDate(input.employmentStartDate)
-          : current.employmentStartDate,
-      employmentType:
-        input.employmentType !== undefined
-          ? normalizeText(input.employmentType)
-          : current.employmentType,
-      workerCategory:
-        input.workerCategory !== undefined
-          ? normalizeText(input.workerCategory)
-          : current.workerCategory,
-      grade:
-        input.grade !== undefined ? normalizeText(input.grade) : current.grade,
-      level:
-        input.level !== undefined ? normalizeText(input.level) : current.level,
-      legalEntityCode:
-        input.legalEntityCode !== undefined
-          ? normalizeText(input.legalEntityCode)
-          : current.legalEntityCode,
-      workLocationCode:
-        input.workLocationCode !== undefined
-          ? normalizeText(input.workLocationCode)
-          : current.workLocationCode,
-      countryCode:
-        input.countryCode !== undefined
-          ? normalizeText(input.countryCode)
-          : current.countryCode,
-      contractStartDate:
-        input.contractStartDate !== undefined
-          ? normalizeDate(input.contractStartDate)
-          : current.contractStartDate,
-      contractEndDate:
-        input.contractEndDate !== undefined
-          ? normalizeDate(input.contractEndDate)
-          : current.contractEndDate,
-      matrixManagerEmployeeId:
-        input.matrixManagerEmployeeId !== undefined
-          ? normalizeNullableText(input.matrixManagerEmployeeId)
-          : current.matrixManagerEmployeeId,
-      hrOwnerEmployeeId:
-        input.hrOwnerEmployeeId !== undefined
-          ? normalizeNullableText(input.hrOwnerEmployeeId)
-          : current.hrOwnerEmployeeId,
-      email: input.email?.trim() ?? current.email,
-      identityDocumentType:
-        input.identityDocumentType !== undefined
-          ? normalizeText(input.identityDocumentType)
-          : current.identityDocumentType,
-      identityNumber:
-        input.identityNumber !== undefined
-          ? normalizeText(input.identityNumber)
-          : current.identityNumber,
-      nationality:
-        input.nationality !== undefined
-          ? normalizeText(input.nationality)
-          : current.nationality,
-      dateOfBirth:
-        input.dateOfBirth !== undefined
-          ? normalizeDate(input.dateOfBirth)
-          : current.dateOfBirth,
-      phoneNumber:
-        input.phoneNumber !== undefined
-          ? normalizeText(input.phoneNumber)
-          : current.phoneNumber,
-      personalEmail:
-        input.personalEmail !== undefined
-          ? normalizeText(input.personalEmail)
-          : current.personalEmail,
-      gender:
-        input.gender !== undefined
-          ? normalizeText(input.gender)
-          : current.gender,
-      maritalStatus:
-        input.maritalStatus !== undefined
-          ? normalizeText(input.maritalStatus)
-          : current.maritalStatus,
-      languagePreference:
-        input.languagePreference !== undefined
-          ? normalizeText(input.languagePreference)
-          : current.languagePreference,
-      residentialAddress:
-        input.residentialAddress !== undefined
-          ? normalizeText(input.residentialAddress)
-          : current.residentialAddress,
-      mailingAddress:
-        input.mailingAddress !== undefined
-          ? normalizeText(input.mailingAddress)
-          : current.mailingAddress,
-      emergencyContactName:
-        input.emergencyContactName !== undefined
-          ? normalizeText(input.emergencyContactName)
-          : current.emergencyContactName,
-      emergencyContactRelationship:
-        input.emergencyContactRelationship !== undefined
-          ? normalizeText(input.emergencyContactRelationship)
-          : current.emergencyContactRelationship,
-      emergencyContactPhoneNumber:
-        input.emergencyContactPhoneNumber !== undefined
-          ? normalizeText(input.emergencyContactPhoneNumber)
-          : current.emergencyContactPhoneNumber,
-      updatedAt: new Date(),
+      employmentStartDate: updateDateField(
+        current.employmentStartDate,
+        input.employmentStartDate
+      ),
+      employmentType: updateTextField(
+        current.employmentType,
+        input.employmentType
+      ),
+      workerCategory: updateTextField(
+        current.workerCategory,
+        input.workerCategory
+      ),
+      grade: updateTextField(current.grade, input.grade),
+      level: updateTextField(current.level, input.level),
+      legalEntityCode: updateTextField(
+        current.legalEntityCode,
+        input.legalEntityCode
+      ),
+      workLocationCode: updateTextField(
+        current.workLocationCode,
+        input.workLocationCode
+      ),
+      countryCode: updateTextField(current.countryCode, input.countryCode),
+      contractStartDate: updateDateField(
+        current.contractStartDate,
+        input.contractStartDate
+      ),
+      contractEndDate: updateDateField(
+        current.contractEndDate,
+        input.contractEndDate
+      ),
+      matrixManagerEmployeeId: updateNullableTextField(
+        current.matrixManagerEmployeeId,
+        input.matrixManagerEmployeeId
+      ),
+      hrOwnerEmployeeId: updateNullableTextField(
+        current.hrOwnerEmployeeId,
+        input.hrOwnerEmployeeId
+      ),
+      email: updateTextField(current.email, input.email),
+      identityDocumentType: updateTextField(
+        current.identityDocumentType,
+        input.identityDocumentType
+      ),
+      identityNumber: updateTextField(
+        current.identityNumber,
+        input.identityNumber
+      ),
+      nationality: updateTextField(current.nationality, input.nationality),
+      dateOfBirth: updateDateField(current.dateOfBirth, input.dateOfBirth),
+      phoneNumber: updateTextField(current.phoneNumber, input.phoneNumber),
+      personalEmail: updateTextField(
+        current.personalEmail,
+        input.personalEmail
+      ),
+      gender: updateTextField(current.gender, input.gender),
+      maritalStatus: updateTextField(
+        current.maritalStatus,
+        input.maritalStatus
+      ),
+      languagePreference: updateTextField(
+        current.languagePreference,
+        input.languagePreference
+      ),
+      residentialAddress: updateTextField(
+        current.residentialAddress,
+        input.residentialAddress
+      ),
+      mailingAddress: updateTextField(
+        current.mailingAddress,
+        input.mailingAddress
+      ),
+      emergencyContactName: updateTextField(
+        current.emergencyContactName,
+        input.emergencyContactName
+      ),
+      emergencyContactRelationship: updateTextField(
+        current.emergencyContactRelationship,
+        input.emergencyContactRelationship
+      ),
+      emergencyContactPhoneNumber: updateTextField(
+        current.emergencyContactPhoneNumber,
+        input.emergencyContactPhoneNumber
+      ),
+      auditTrail: [
+        ...current.auditTrail,
+        buildAuditTrailRecord({
+          action: hrRecordsActionRegistry.update.auditEvent,
+          actorId: context?.userId,
+          employeeId: current.id,
+          organizationId: current.organizationId,
+          reason: normalizeStatusReason(input.reason),
+          occurredAt: now,
+        }),
+      ],
+      statusHistory: nextStatusHistory,
+      updatedAt: now,
     };
 
     const nextRecords = [...draft.records];
@@ -602,10 +957,45 @@ export function archiveHrEmployeeRecordRepository(
     }
 
     const current = draft.records[index];
+    const now = new Date();
+    if (current.employmentStatus === "archived") {
+      archivedRecord = current;
+      return;
+    }
+
+    assertEmploymentStatusTransition(current.employmentStatus, "archived");
+    const currentStatusHistory =
+      current.statusHistory.length > 0
+        ? [...current.statusHistory]
+        : [buildLegacyStatusHistoryRecord(current)];
     archivedRecord = {
       ...current,
       employmentStatus: hrRecordsEmploymentStatusSchema.parse("archived"),
-      updatedAt: new Date(),
+      auditTrail: [
+        ...current.auditTrail,
+        buildHrEmployeeRecordArchiveAuditRecord({
+          action: hrRecordsActionRegistry.archive.auditEvent,
+          actorId: context?.userId,
+          employeeId: current.id,
+          organizationId: current.organizationId,
+          reason: input.reason,
+          occurredAt: now,
+        }),
+      ],
+      statusHistory: [
+        ...currentStatusHistory,
+        buildStatusHistoryRecord({
+          actorId: context?.userId,
+          employeeId: current.id,
+          effectiveAt: now,
+          organizationId: current.organizationId,
+          previousStatus: current.employmentStatus,
+          reason: input.reason,
+          source: "archive",
+          status: "archived",
+        }),
+      ],
+      updatedAt: now,
     };
 
     const nextRecords = [...draft.records];
@@ -633,18 +1023,59 @@ export function assignHrEmployeeRecordRepository(
     }
 
     const current = draft.records[index];
+    if (
+      current.employmentStatus === "archived" ||
+      current.employmentStatus === "separated"
+    ) {
+      throw new Error("Archived employee records are read-only");
+    }
+    const now = new Date();
+    assertScopedEmployeeReferenceExists(
+      draft.records,
+      input.managerEmployeeId,
+      context,
+      current.id,
+      "Manager"
+    );
+    const currentAssignmentHistory =
+      current.assignmentHistory.length > 0
+        ? [...current.assignmentHistory]
+        : [buildLegacyAssignmentHistoryRecord(current)];
     const nextCurrentDepartmentId =
-      input.currentDepartmentId !== undefined
-        ? normalizeNullableText(input.currentDepartmentId)
-        : current.currentDepartmentId;
+      input.currentDepartmentId === undefined
+        ? current.currentDepartmentId
+        : normalizeNullableText(input.currentDepartmentId);
     const nextCurrentPositionId =
-      input.currentPositionId !== undefined
-        ? normalizeNullableText(input.currentPositionId)
-        : current.currentPositionId;
+      input.currentPositionId === undefined
+        ? current.currentPositionId
+        : normalizeNullableText(input.currentPositionId);
     const nextManagerEmployeeId =
-      input.managerEmployeeId !== undefined
-        ? normalizeNullableText(input.managerEmployeeId)
-        : current.managerEmployeeId;
+      input.managerEmployeeId === undefined
+        ? current.managerEmployeeId
+        : normalizeNullableText(input.managerEmployeeId);
+    const nextWorkLocationCode =
+      input.workLocationCode === undefined
+        ? current.workLocationCode
+        : updateTextField(current.workLocationCode, input.workLocationCode);
+    const assignmentEffectiveFrom = input.assignmentEffectiveFrom ?? new Date();
+    const nextAssignmentHistory = [
+      ...closeCurrentAssignmentHistoryRecord(
+        currentAssignmentHistory,
+        assignmentEffectiveFrom
+      ),
+      buildAssignmentHistoryRecord({
+        actorId: context?.userId,
+        currentDepartmentId: nextCurrentDepartmentId,
+        currentPositionId: nextCurrentPositionId,
+        employeeId: current.id,
+        effectiveFrom: assignmentEffectiveFrom,
+        organizationId: current.organizationId,
+        reason: normalizeAssignmentReason(input.assignmentReason, input.reason),
+        source: "assignment",
+        workLocationCode: nextWorkLocationCode,
+        managerEmployeeId: nextManagerEmployeeId,
+      }),
+    ].sort(compareAssignmentHistoryRecords);
 
     assignedRecord = {
       ...current,
@@ -653,7 +1084,23 @@ export function assignHrEmployeeRecordRepository(
       currentDepartmentId: nextCurrentDepartmentId,
       currentPositionId: nextCurrentPositionId,
       managerEmployeeId: nextManagerEmployeeId,
-      updatedAt: new Date(),
+      workLocationCode: nextWorkLocationCode,
+      assignmentHistory: nextAssignmentHistory,
+      auditTrail: [
+        ...current.auditTrail,
+        buildAuditTrailRecord({
+          action: hrRecordsActionRegistry.assignment.auditEvent,
+          actorId: context?.userId,
+          employeeId: current.id,
+          organizationId: current.organizationId,
+          reason: normalizeAssignmentReason(
+            input.assignmentReason,
+            input.reason
+          ),
+          occurredAt: now,
+        }),
+      ],
+      updatedAt: now,
     };
 
     const nextRecords = [...draft.records];
@@ -667,22 +1114,118 @@ export function assignHrEmployeeRecordRepository(
 export function rehireHrEmployeeRecordRepository(
   input: HrRecordsRehireEmployeeInput,
   context?: HrEmployeeRecordsRepositoryContext
-): HrEmployeeRecordDetail {
-  const createdRecordId = randomUUID();
-  const nextRecord = buildBaseRecord({
-    id: createdRecordId,
-    organizationId: normalizeOrganizationId(context?.organizationId),
-    employeeNumber: input.employeeNumber,
-    legalName: input.legalName,
-    preferredName: input.preferredName,
-    employmentStartDate: input.employmentStartDate,
-    email: input.email,
-    employmentStatus: "active",
-  });
+): HrEmployeeRecordDetail | null {
+  let rehiredRecord: HrEmployeeRecordEntity | null = null;
 
   mutateRepositoryState((draft) => {
-    draft.records = [...draft.records, nextRecord];
+    const index = findScopedRecordIndex(
+      draft.records,
+      input.priorEmployeeId,
+      context
+    );
+    if (index < 0) {
+      return;
+    }
+
+    const current = draft.records[index];
+    if (
+      current.employmentStatus !== "archived" &&
+      current.employmentStatus !== "separated"
+    ) {
+      throw new Error(
+        "Rehire requires an archived or separated employee record"
+      );
+    }
+
+    const currentStatusHistory =
+      current.statusHistory.length > 0
+        ? [...current.statusHistory]
+        : [buildLegacyStatusHistoryRecord(current)];
+    const now = new Date();
+
+    rehiredRecord = {
+      ...current,
+      employeeNumber: updateTextField(
+        current.employeeNumber,
+        input.employeeNumber
+      ),
+      legalName: updateTextField(current.legalName, input.legalName),
+      preferredName: updateNullableTextField(
+        current.preferredName,
+        input.preferredName
+      ),
+      displayName: buildDisplayName({
+        legalName: updateTextField(current.legalName, input.legalName),
+        preferredName:
+          updateNullableTextField(current.preferredName, input.preferredName) ??
+          undefined,
+      }),
+      employmentStartDate: input.employmentStartDate ?? now,
+      email: updateTextField(current.email, input.email),
+      employmentStatus: "active",
+      statusHistory: [
+        ...currentStatusHistory,
+        buildStatusHistoryRecord({
+          actorId: context?.userId,
+          employeeId: current.id,
+          effectiveAt: now,
+          organizationId: current.organizationId,
+          previousStatus: current.employmentStatus,
+          reason: normalizeStatusReason(input.reason),
+          source: "rehire",
+          status: "active",
+        }),
+      ],
+      auditTrail: [
+        ...current.auditTrail,
+        buildAuditTrailRecord({
+          action: hrRecordsActionRegistry.rehire.auditEvent,
+          actorId: context?.userId,
+          employeeId: current.id,
+          organizationId: current.organizationId,
+          reason: normalizeStatusReason(input.reason),
+          occurredAt: now,
+        }),
+      ],
+      updatedAt: now,
+    };
+
+    const nextRecords = [...draft.records];
+    nextRecords[index] = rehiredRecord;
+    draft.records = nextRecords;
   });
 
-  return toDetail(nextRecord);
+  return rehiredRecord ? toDetail(rehiredRecord) : null;
+}
+
+export function listHrEmployeeAssignmentsRepository(
+  context?: HrEmployeeRecordsRepositoryContext
+): readonly HrEmployeeAssignmentRecordModel[] {
+  if (context?.canRead === false) {
+    return [];
+  }
+
+  return loadRepositoryState()
+    .records.filter((record) => matchesScope(record, context))
+    .flatMap((record) =>
+      record.assignmentHistory.length > 0
+        ? record.assignmentHistory
+        : [buildLegacyAssignmentHistoryRecord(record)]
+    );
+}
+
+export function listHrEmployeeStatusHistoryRepository(
+  context?: HrEmployeeRecordsRepositoryContext
+): readonly HrEmployeeStatusHistoryRecordModel[] {
+  if (context?.canRead === false) {
+    return [];
+  }
+
+  return loadRepositoryState()
+    .records.filter((record) => matchesScope(record, context))
+    .flatMap((record) =>
+      record.statusHistory.length > 0
+        ? record.statusHistory
+        : [buildLegacyStatusHistoryRecord(record)]
+    );
 }

@@ -1,24 +1,33 @@
-import { employeeLifecycleManagementRouteContracts } from "./contract.ts";
-
-export type EmployeeLifecycleManagementManifest = {
-  description: string;
-  domain: string;
-  id: string;
-  packageName: string;
-  routeContracts: typeof employeeLifecycleManagementRouteContracts;
-  suite: "hr-suite";
-  title: string;
-};
+import {
+  employeeLifecycleManagementAcceptanceCoverage,
+  employeeLifecycleManagementBoundedContext,
+  employeeLifecycleManagementCapabilityCatalog,
+  employeeLifecycleManagementFeatureId,
+  employeeLifecycleManagementFeatureLabel,
+  employeeLifecycleManagementFeatureScope,
+  employeeLifecycleManagementPermissions,
+  employeeLifecycleManagementRequirementCoverage,
+  employeeLifecycleManagementRouteContracts,
+} from "./contract.ts";
+import type { EmployeeLifecycleManagementManifest } from "./contracts/index.ts";
 
 export const employeeLifecycleManagementManifest: EmployeeLifecycleManagementManifest =
   {
-    id: "hr-suite.employee-management.employee-lifecycle-management",
-    title: "Employee Lifecycle Management",
+    id: employeeLifecycleManagementFeatureId,
+    title: employeeLifecycleManagementFeatureLabel,
     description:
-      "Governed package for the legacy HR Suite employee-lifecycle-management slice at afenda-erp/packages/features/hr-suite/src/employee-management/employee-lifecycle-management.",
-    domain: "employee-management",
-    packageName:
-      "@repo/features-employee-management-employee-lifecycle-management",
+      "Governed package for the employee lifecycle management slice extracted from the legacy HR Suite.",
+    domain: employeeLifecycleManagementFeatureScope.domain,
+    suite: employeeLifecycleManagementFeatureScope.suite,
+    source: employeeLifecycleManagementFeatureScope.source,
+    packageName: employeeLifecycleManagementFeatureScope.packageName,
+    version: 1,
+    lifecycle: "active",
+    stability: "alpha",
+    boundedContext: employeeLifecycleManagementBoundedContext,
+    capabilities: employeeLifecycleManagementCapabilityCatalog,
+    permissions: employeeLifecycleManagementPermissions,
     routeContracts: employeeLifecycleManagementRouteContracts,
-    suite: "hr-suite",
+    requirementCoverage: employeeLifecycleManagementRequirementCoverage,
+    acceptanceCoverage: employeeLifecycleManagementAcceptanceCoverage,
   };

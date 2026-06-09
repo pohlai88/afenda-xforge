@@ -6,6 +6,8 @@ This document turns the Employee Records Management architecture into a 10-slice
 
 Employee Records Management is the HR suite source of truth for employee master profiles. It owns employee identity, profile facts, assignment history, status history, document references, completeness projections, and employee-record audit events. It must not own organization hierarchy stewardship, document binary storage, payroll calculations, compliance obligations, training content, attendance capture, or employee self-service workflow ownership.
 
+Phase 2 of the architecture plan is implemented through slices 3, 4, and 5. The evidence for temporal assignment modeling, status history, lifecycle invariants, and completeness projections is recorded in the architecture doc.
+
 ## Current Code Evidence
 
 Audit date: 2026-06-09.
@@ -13,19 +15,19 @@ Audit date: 2026-06-09.
 | Area | Evidence | Current state |
 | --- | --- | --- |
 | Package scripts | `package.json` | Has `lint`, `format`, `test`, and `typecheck`. |
-| Public contract | `src/index.ts`, `src/hr.workforce.records.contract.ts`, `src/hr.workforce.records-form.shared.ts` | Defines core record types, permissions, search params, create/update/archive/assignment/rehire schemas, and exports the create-input schema for API validation. |
+| Public contract | `src/index.ts`, `src/hr.workforce.records.contract.ts`, `src/hr.workforce.records-form.shared.ts`, `src/contracts/*.contract.ts` | Defines core record types, assignment projection/query contracts, permissions, search params, create/update/archive/assignment/rehire schemas, and exports the create-input and assignment schemas for API validation. |
 | Write actions | `src/hr.workforce.records.actions.server.ts` | Provides create, update, archive, assignment, and rehire commands with `canWrite` checks and Zod parsing. |
-| Repository | `src/repository.ts` | File-backed persistence with scoped load/save/mutate, test hooks, and organization filtering. |
+| Repository | `src/repository.ts` | File-backed persistence with scoped load/save/mutate, assignment-history facts, test hooks, and organization filtering. |
 | Store | `src/hr.workforce.records.store.ts` | Compatibility wrapper that delegates to the repository and accepts optional read/write scope context. |
 | Mutation helper | `src/hr.workforce.records.mutation.shared.server.ts` | Defines audit metadata shape and wraps mutation failure handling, but does not orchestrate repository persistence or audit writes. |
-| Queries | `src/hr.workforce.records.queries.ts` | Lists and gets records from the repository, and now respects read access and organization scope. |
-| Page models | `src/hr.workforce.records.page-model.server.ts`, `src/hr.workforce.records.detail.page-model.server.ts` | Builds overview/detail models from scoped repository reads. |
+| Queries | `src/hr.workforce.records.queries.ts`, `src/queries/assignments.query.ts` | Lists and gets records from the repository, and now respects read access, organization scope, and assignment-history filtering. |
+| Page models | `src/hr.workforce.records.page-model.server.ts`, `src/hr.workforce.records.detail.page-model.server.ts`, `src/projector/read-models.ts` | Builds overview/detail models and assignment read models from scoped repository reads. |
 | Access policy | `src/hr.workforce.records.access.policy.server.ts`, `src/hr.workforce.records-sensitive-access.shared.ts` | Has write gating and masking helpers, but read gating, capability checks, and export-safe redaction are not centralized. |
 | Audit events | `src/hr.workforce.records.event.ts` | Defines employee, assignment, profile, and emergency-contact audit action names. |
 | Execution surface | `src/execution/index.ts` | Exposes package commands and queries as a callable feature surface. |
-| Database | `packages/database/schema.ts` | Contains tenants, companies, company grants, compliance tables, and `audit_events`; no employee-records tables exist. |
-| API routes | `apps/api/app/api/hr/records/*` | GET/POST routes now delegate to the feature server surface with request-scoped read/write context. |
-| Tests | `test/public-api.test.ts`, `test/records-baseline.test.ts` | Package-level coverage exists for public exports, parsing, repository persistence, scope isolation, read denial, and write denial. |
+| Database | `packages/database/schema.ts` | Contains tenants, companies, company grants, compliance tables, employee assignment history, and `audit_events`. |
+| API routes | `apps/api/app/api/hr/records/*` | GET/POST routes and the employee assignments route now delegate to the feature server surface with request-scoped read/write context. |
+| Tests | `test/public-api.test.ts`, `test/records-baseline.test.ts`, `test/profile-sensitive-read.test.ts`, `test/assignment-history.test.ts` | Package-level coverage exists for public exports, parsing, repository persistence, scope isolation, read denial, write denial, profile masking, assignment-history append behavior, current derivation, and cross-company isolation. |
 
 ## Reference Pattern From Compliance
 
@@ -230,6 +232,20 @@ Acceptance criteria:
 - API supports `GET /api/hr/records/[employeeId]` and `PATCH /api/hr/records/[employeeId]`.
 - Tests cover profile update, default masking, sensitive access grant, unauthorized update, and audit redaction.
 
+Status: implemented on 2026-06-09.
+
+Evidence:
+
+- `packages/features/hr-suite/employee-management/employee-records-management/src/hr.workforce.records.contract.ts`
+- `packages/features/hr-suite/employee-management/employee-records-management/src/policy.ts`
+- `packages/features/hr-suite/employee-management/employee-records-management/src/repository.ts`
+- `packages/features/hr-suite/employee-management/employee-records-management/src/projector/record-detail.ts`
+- `packages/features/hr-suite/employee-management/employee-records-management/src/hr.workforce.records.detail.page-model.server.ts`
+- `packages/features/hr-suite/employee-management/employee-records-management/src/hr.workforce.records.actions.server.ts`
+- `packages/features/hr-suite/employee-management/employee-records-management/test/profile-sensitive-read.test.ts`
+- `apps/api/app/api/hr/records/[employeeId]/route.ts`
+- Validation: `pnpm --filter @repo/features-employee-management-employee-records-management lint`, `pnpm --filter @repo/features-employee-management-employee-records-management test`, `pnpm --filter api typecheck`
+
 Validation commands:
 
 ```powershell
@@ -268,6 +284,22 @@ Files to inspect/change:
 - `test/assignment-history.test.ts`
 - `employee-records-management-architecture.md`
 
+Status: implemented on 2026-06-09.
+
+Evidence:
+
+- `packages/features/hr-suite/employee-management/employee-records-management/src/schema.ts`
+- `packages/features/hr-suite/employee-management/employee-records-management/src/contracts/index.ts`
+- `packages/features/hr-suite/employee-management/employee-records-management/src/repository.ts`
+- `packages/features/hr-suite/employee-management/employee-records-management/src/queries/assignments.query.ts`
+- `packages/features/hr-suite/employee-management/employee-records-management/src/projector/assignment.ts`
+- `packages/features/hr-suite/employee-management/employee-records-management/src/projector/read-models.ts`
+- `packages/features/hr-suite/employee-management/employee-records-management/src/hr.workforce.records-assignments-list.surface.ts`
+- `packages/features/hr-suite/employee-management/employee-records-management/test/assignment-history.test.ts`
+- `apps/api/app/api/hr/records/[employeeId]/assignments/route.ts`
+- `packages/database/drizzle/0005_nebulous_stranger.sql`
+- Validation: `pnpm --filter @repo/features-employee-management-employee-records-management lint`, `pnpm --filter @repo/features-employee-management-employee-records-management test`, `pnpm --filter @repo/features-employee-management-employee-records-management typecheck`, `pnpm --filter @repo/database db:generate`, `pnpm --filter api typecheck`
+
 Acceptance criteria:
 
 - Database schema includes assignment history with effective dates, source/reason, actor, and tenant/company/employee indexes.
@@ -289,6 +321,8 @@ pnpm --filter api typecheck
 ## Slice 4: Employment Status History And Lifecycle Invariants
 
 Objective: store status changes as lifecycle facts and reject invalid transitions.
+
+Status: implemented on 2026-06-09.
 
 Ownership boundary:
 
@@ -332,9 +366,33 @@ pnpm --filter @repo/database db:generate
 pnpm --filter api typecheck
 ```
 
+Implementation evidence:
+
+- `src/schema.ts` defines the status-history record, projection view, query, and page-model schemas.
+- `src/contracts/*.contract.ts` exposes the status-history domain, command, query, and projection contracts.
+- `src/repository.ts` seeds the initial status fact, validates transitions, appends lifecycle history, and synthesizes legacy status rows on read.
+- `src/projector/status.ts` and `src/projector/read-models.ts` derive ordered history views and the current status snapshot.
+- `src/queries/status-history.query.ts` filters by employee, status, source, search text, current/as-of state, and organization scope.
+- `src/hr.workforce.records-status-history-list.surface.ts` and `apps/api/app/api/hr/records/[employeeId]/status-history/route.ts` expose the status-history surface.
+- `packages/database/schema.ts` adds `employee_record_status_history` with tenant/company/employee, status, source, and effective-time indexes.
+- `packages/database/drizzle/0006_sloppy_crystal.sql` records the generated migration.
+- `test/status-history.test.ts` covers initial status, valid transitions, invalid transitions, ordering, read denial, and cross-company isolation.
+
+Validation completed on 2026-06-09:
+
+- `pnpm --filter @repo/features-employee-management-employee-records-management lint`
+- `pnpm --filter @repo/features-employee-management-employee-records-management test`
+- `pnpm --filter @repo/features-employee-management-employee-records-management typecheck`
+- `pnpm --filter @repo/database db:generate`
+- `pnpm --filter @repo/database lint`
+- `pnpm --filter @repo/database typecheck`
+- `pnpm --filter api typecheck`
+
 ## Slice 5: Archive Lifecycle
 
 Objective: implement archive as a governed lifecycle action with status history, audit, and operational read behavior.
+
+Status: implemented on 2026-06-09.
 
 Ownership boundary:
 
@@ -367,6 +425,24 @@ Acceptance criteria:
 - Default directory reads exclude archived records unless explicitly filtered.
 - Repeated archive behavior is either rejected or idempotent and documented.
 - Tests cover archive success, missing reason, repeated archive, separated inclusion, directory exclusion, audit event, and cross-company isolation.
+
+Implementation evidence:
+
+- `src/schema.ts` adds the summary and audit-entry schemas used by archive read and audit surfaces.
+- `src/contracts/command.contract.ts` and `src/contracts/audit.contract.ts` define the archive command and audit action contracts.
+- `src/registry/action-registry.ts` and `src/registry/audit.ts` register the archive capability and build the audit record in a typed form.
+- `src/repository.ts` appends the archive status fact and audit trail entry in the same repository mutation and keeps repeated archive behavior idempotent.
+- `src/projector/record-summary.ts` and `src/queries/records.query.ts` exclude archived records from the default directory while allowing separated reads to include them.
+- `src/hr.workforce.records-separated-list.surface.ts` and `src/hr.workforce.records.page-model.server.ts` expose the archive-aware operational read behavior.
+- `apps/api/app/api/hr/records/[employeeId]/archive/route.ts` exposes the archive command as a request-scoped API route.
+- `test/archive-lifecycle.test.ts` covers success, missing reason, idempotent repeat archive, separated inclusion, directory exclusion, audit trail persistence, and cross-company isolation.
+
+Validation completed on 2026-06-09:
+
+- `pnpm --filter @repo/features-employee-management-employee-records-management typecheck`
+- `pnpm --filter @repo/features-employee-management-employee-records-management lint`
+- `pnpm --filter @repo/features-employee-management-employee-records-management test`
+- `pnpm --filter api typecheck`
 
 Validation commands:
 

@@ -3,18 +3,29 @@
   "version": "0.0.0",
   "private": true,
   "type": "module",
+  "description": "Shared SEO metadata, JSON-LD, robots, and sitemap helpers for XForge apps.",
+  "sideEffects": false,
   "exports": {
     ".": "./index.ts",
     "./index": "./index.ts",
     "./json-ld": "./json-ld.tsx",
     "./metadata": "./metadata.ts",
+    "./presets": "./presets.ts",
+    "./robots": "./robots.ts",
+    "./sitemap": "./sitemap.ts",
     "./site": "./site.ts",
     "./package.json": "./package.json"
   },
   "files": [
+    "README.md",
     "index.ts",
     "json-ld.tsx",
     "metadata.ts",
+    "presets.ts",
+    "robots.ts",
+    "sitemap.ts",
+    "src",
+    "tests",
     "site.ts",
     "package.json"
   ],
@@ -22,6 +33,7 @@
     "lint": "biome check .",
     "format": "biome format --write .",
     "clean": "git clean -xdf .cache .turbo dist node_modules",
+    "test": "node --import tsx --test tests/*.test.ts tests/*.test.tsx",
     "typecheck": "tsc --noEmit --emitDeclarationOnly false"
   },
   "dependencies": {
@@ -33,6 +45,8 @@
     "@repo/typescript-config": "workspace:*",
     "@types/lodash.merge": "catalog:",
     "@types/node": "catalog:",
-    "@types/react": "catalog:"
+    "@types/react": "catalog:",
+    "tsx": "catalog:",
+    "typescript": "catalog:"
   }
 }

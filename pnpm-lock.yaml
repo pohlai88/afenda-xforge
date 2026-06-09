@@ -16,7 +16,7 @@ catalogs:
       specifier: 3.1063.0
       version: 3.1063.0
     '@biomejs/biome':
-      specifier: ^2.4.6
+      specifier: ^2.4.16
       version: 2.4.16
     '@liveblocks/client':
       specifier: ^3.15.0
@@ -263,6 +263,9 @@ importers:
       '@repo/features-employee-management-compliance-regulatory-tracking':
         specifier: workspace:*
         version: link:../../packages/features/hr-suite/employee-management/compliance-regulatory-tracking
+      '@repo/features-employee-management-documents-management':
+        specifier: workspace:*
+        version: link:../../packages/features/hr-suite/employee-management/documents-management
       '@repo/features-employee-management-employee-records-management':
         specifier: workspace:*
         version: link:../../packages/features/hr-suite/employee-management/employee-records-management
@@ -553,6 +556,9 @@ importers:
       tailwindcss:
         specifier: 'catalog:'
         version: 4.3.0
+      tsx:
+        specifier: 'catalog:'
+        version: 4.22.4
       typescript:
         specifier: 'catalog:'
         version: 5.9.3
@@ -1153,6 +1159,9 @@ importers:
       server-only:
         specifier: 'catalog:'
         version: 0.0.1
+      zod:
+        specifier: 4.3.6
+        version: 4.3.6
     devDependencies:
       '@repo/typescript-config':
         specifier: workspace:*
@@ -1160,6 +1169,9 @@ importers:
       '@types/node':
         specifier: 'catalog:'
         version: 25.9.2
+      tsx:
+        specifier: 'catalog:'
+        version: 4.22.4
       typescript:
         specifier: 'catalog:'
         version: 5.9.3
@@ -1169,6 +1181,9 @@ importers:
       server-only:
         specifier: 'catalog:'
         version: 0.0.1
+      zod:
+        specifier: 4.3.6
+        version: 4.3.6
     devDependencies:
       '@repo/typescript-config':
         specifier: workspace:*
@@ -1176,6 +1191,9 @@ importers:
       '@types/node':
         specifier: 'catalog:'
         version: 25.9.2
+      tsx:
+        specifier: 'catalog:'
+        version: 4.22.4
       typescript:
         specifier: 'catalog:'
         version: 5.9.3
@@ -2619,6 +2637,12 @@ importers:
       '@types/react':
         specifier: 'catalog:'
         version: 19.2.17
+      tsx:
+        specifier: 'catalog:'
+        version: 4.22.4
+      typescript:
+        specifier: 'catalog:'
+        version: 5.9.3
 
   packages/shared:
     devDependencies:

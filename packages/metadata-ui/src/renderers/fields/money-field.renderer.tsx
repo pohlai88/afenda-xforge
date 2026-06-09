@@ -1,4 +1,4 @@
-import { Input } from "@repo/ui/components/input";
+import { Input } from "@repo/ui";
 import type { ReactElement } from "react";
 
 import type { MetadataFieldRendererProps } from "../../contracts/field-renderer.contract";

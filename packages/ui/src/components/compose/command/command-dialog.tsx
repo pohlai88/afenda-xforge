@@ -1,7 +1,7 @@
 "use client";
 
 import { Bell, Calendar, CreditCard, Search, Settings } from "lucide-react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Button } from "../../ui-shadcn/button";
 import {
   CommandDialog as CommandDialogPrimitive,
@@ -12,10 +12,37 @@ import {
   CommandList,
   CommandSeparator,
 } from "../../ui-shadcn/command";
+import { Kbd, KbdGroup } from "../../ui-shadcn/kbd";
 import { ComposePatternCard } from "../compose.pattern-shell";
 
 export function CommandDialogPattern() {
   const [open, setOpen] = useState(false);
+
+  useEffect(() => {
+    const onKeyDown = (event: KeyboardEvent) => {
+      if (
+        event.key.toLowerCase() !== "k" ||
+        (!event.metaKey && !event.ctrlKey)
+      ) {
+        return;
+      }
+
+      if (
+        event.target instanceof HTMLInputElement ||
+        event.target instanceof HTMLTextAreaElement ||
+        event.target instanceof HTMLSelectElement ||
+        (event.target instanceof HTMLElement && event.target.isContentEditable)
+      ) {
+        return;
+      }
+
+      event.preventDefault();
+      setOpen((currentOpen) => !currentOpen);
+    };
+
+    document.addEventListener("keydown", onKeyDown);
+    return () => document.removeEventListener("keydown", onKeyDown);
+  }, []);
 
   return (
     <ComposePatternCard
@@ -29,10 +56,16 @@ export function CommandDialogPattern() {
             Launch a command dialog for navigation and actions.
           </p>
         </div>
-        <Button variant="outline" onClick={() => setOpen(true)}>
-          <Search className="size-4" />
-          Open palette
-        </Button>
+        <div className="flex items-center gap-2">
+          <KbdGroup className="hidden sm:inline-flex">
+            <Kbd>Ctrl</Kbd>
+            <Kbd>K</Kbd>
+          </KbdGroup>
+          <Button variant="outline" onClick={() => setOpen(true)}>
+            <Search className="size-4" />
+            Open palette
+          </Button>
+        </div>
       </div>
       <CommandDialogPrimitive open={open} onOpenChange={setOpen}>
         <CommandInput placeholder="Type a command or search..." />

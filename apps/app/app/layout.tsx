@@ -3,7 +3,7 @@ import {
   getTextDirection,
   resolveXforgeLocaleFromHeaders,
 } from "@repo/internationalization";
-import { createMetadata } from "@repo/seo/metadata";
+import { createAppSitePreset } from "@repo/seo/presets";
 import { fonts } from "@repo/ui";
 import type { Metadata } from "next";
 import { headers } from "next/headers";
@@ -12,13 +12,11 @@ import { ensureAppBootstrap } from "./bootstrap";
 import { Providers } from "./providers";
 import "./styles.css";
 
-export const metadata: Metadata = createMetadata({
-  title: "App",
-  description: "XForge ERP application shell.",
-  site: {
-    url: process.env.NEXT_PUBLIC_APP_URL ?? "http://localhost:3000",
-  },
-});
+const appSitePreset = createAppSitePreset(
+  process.env.NEXT_PUBLIC_APP_URL ?? "http://localhost:3000"
+);
+
+export const metadata: Metadata = appSitePreset.metadata;
 
 type RootLayoutProps = {
   children: ReactNode;

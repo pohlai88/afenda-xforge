@@ -319,8 +319,6 @@ The current package already includes employee-record-specific structures and ser
 
 ### What the code does not yet fully implement
 
-- no persistent database-backed repository is evident from the public package shape
-- no explicit effective-dated assignment model with enterprise-grade temporal querying
 - no cross-package integration enforcement for organization, payroll, or compliance dependencies
 - no retention-policy or privacy-rule orchestration beyond package-local access controls
 - no event-driven synchronization model for downstream consumers
@@ -347,6 +345,90 @@ Validation completed on 2026-06-09:
 - `pnpm --filter @repo/features-employee-management-employee-records-management test`
 - `pnpm --filter api typecheck`
 
+### Slice 2 implementation evidence
+
+Slice 2 is implemented as full profile persistence with sensitive-aware detail projection.
+
+- `src/hr.workforce.records.contract.ts` now models the persisted profile fields on the canonical employee record.
+- `src/policy.ts` centralizes read, write, and sensitive-read decisions.
+- `src/repository.ts` persists the full profile payload accepted by the create/update forms and updates assignment-linked references.
+- `src/projector/record-detail.ts` projects detail reads into a JSON-safe view and masks sensitive fields when sensitive access is not granted.
+- `src/hr.workforce.records.detail.page-model.server.ts` uses the shared projector instead of duplicating masking logic.
+- `apps/api/app/api/hr/records/[employeeId]/route.ts` serves the sensitive-aware detail read and PATCH update path.
+- `test/profile-sensitive-read.test.ts` covers profile persistence, default masking, sensitive access visibility, and update persistence.
+
+Validation completed on 2026-06-09:
+
+- `pnpm --filter @repo/features-employee-management-employee-records-management lint`
+- `pnpm --filter @repo/features-employee-management-employee-records-management test`
+- `pnpm --filter api typecheck`
+
+### Slice 3 implementation evidence
+
+Slice 3 is implemented as effective-dated assignment history with current-state projection and filtered assignment list routing.
+
+- `src/schema.ts` defines the assignment-history record, projection view, query, and page-model schemas.
+- `src/contracts/*.contract.ts` exposes the assignment domain, query, and projection contracts for typed consumers.
+- `src/repository.ts` appends assignment facts, preserves prior assignment context, and synthesizes legacy assignment history for older records.
+- `src/queries/assignments.query.ts` filters assignment history by employee, manager, department, location, current/as-of, and pagination.
+- `src/projector/assignment.ts` and `src/projector/read-models.ts` derive the current assignment and validate the read model shape.
+- `src/hr.workforce.records-assignments-list.surface.ts` and `apps/api/app/api/hr/records/[employeeId]/assignments/route.ts` expose the assignment history surface.
+- `packages/database/schema.ts` adds `employee_record_assignment_history` with tenant/company/employee indexes.
+- `packages/database/drizzle/0005_nebulous_stranger.sql` records the generated migration.
+- `test/assignment-history.test.ts` covers append behavior, current derivation, prior preservation, invalid employee handling, and cross-company isolation.
+
+Validation completed on 2026-06-09:
+
+- `pnpm --filter @repo/features-employee-management-employee-records-management lint`
+- `pnpm --filter @repo/features-employee-management-employee-records-management test`
+- `pnpm --filter @repo/features-employee-management-employee-records-management typecheck`
+- `pnpm --filter @repo/database db:generate`
+- `pnpm --filter api typecheck`
+
+### Slice 4 implementation evidence
+
+Slice 4 is implemented as effective-dated employment status history with lifecycle transition guards and an ordered read surface.
+
+- `src/schema.ts` defines the status-history record, projection view, query, and page-model schemas.
+- `src/contracts/*.contract.ts` exposes the status-history domain, command, query, and projection contracts.
+- `src/repository.ts` seeds the initial status fact, validates transitions, appends lifecycle history, and synthesizes legacy status rows on read.
+- `src/projector/status.ts` and `src/projector/read-models.ts` derive ordered history views and the current status snapshot.
+- `src/queries/status-history.query.ts` filters by employee, status, source, search text, current/as-of state, and organization scope.
+- `src/hr.workforce.records-status-history-list.surface.ts` and `apps/api/app/api/hr/records/[employeeId]/status-history/route.ts` expose the status-history surface.
+- `packages/database/schema.ts` adds `employee_record_status_history` with tenant/company/employee, status, source, and effective-time indexes.
+- `packages/database/drizzle/0006_sloppy_crystal.sql` records the generated migration.
+- `test/status-history.test.ts` covers initial status, valid transitions, invalid transitions, ordering, read denial, and cross-company isolation.
+
+Validation completed on 2026-06-09:
+
+- `pnpm --filter @repo/features-employee-management-employee-records-management lint`
+- `pnpm --filter @repo/features-employee-management-employee-records-management test`
+- `pnpm --filter @repo/features-employee-management-employee-records-management typecheck`
+- `pnpm --filter @repo/database db:generate`
+- `pnpm --filter @repo/database lint`
+- `pnpm --filter @repo/database typecheck`
+- `pnpm --filter api typecheck`
+
+### Slice 5 implementation evidence
+
+Slice 5 is implemented as a governed archive lifecycle with audit persistence and archive-aware operational reads.
+
+- `src/schema.ts` adds the summary and audit-entry schemas used by archive read and audit surfaces.
+- `src/contracts/command.contract.ts` and `src/contracts/audit.contract.ts` define the archive command and audit action contracts.
+- `src/registry/action-registry.ts` and `src/registry/audit.ts` register the archive capability and build the audit record in a typed form.
+- `src/repository.ts` appends the archive status fact and audit trail entry in the same repository mutation and keeps repeated archive behavior idempotent.
+- `src/projector/record-summary.ts` and `src/queries/records.query.ts` exclude archived records from the default directory while allowing separated reads to include them.
+- `src/hr.workforce.records-separated-list.surface.ts` and `src/hr.workforce.records.page-model.server.ts` expose the archive-aware operational read behavior.
+- `apps/api/app/api/hr/records/[employeeId]/archive/route.ts` exposes the archive command as a request-scoped API route.
+- `test/archive-lifecycle.test.ts` covers success, missing reason, idempotent repeat archive, separated inclusion, directory exclusion, audit trail persistence, and cross-company isolation.
+
+Validation completed on 2026-06-09:
+
+- `pnpm --filter @repo/features-employee-management-employee-records-management typecheck`
+- `pnpm --filter @repo/features-employee-management-employee-records-management lint`
+- `pnpm --filter @repo/features-employee-management-employee-records-management test`
+- `pnpm --filter api typecheck`
+
 ## Upgrade plan
 
 ### Phase 1: Harden persistence and lifecycle invariants
@@ -360,6 +442,22 @@ Deliverables:
 - stable audit persistence for record mutations
 - consistency rules for assignment and status history
 
+Phase 1 implementation evidence:
+
+- `src/repository.ts` now persists audit entries for create, update, assignment, archive, and rehire mutations, and treats archived or separated records as read-only until they are rehired.
+- `src/hr.workforce.records.actions.server.ts` and `src/hr.workforce.records.store.ts` surface archive and rehire failures as structured action results instead of assuming success.
+- `src/hr.workforce.records-route.contract.ts` and `apps/api/app/api/hr/records/[employeeId]/rehire/route.ts` expose a rehire surface alongside the archive surface.
+- Rehire is implemented as a canonical-record reactivation model: the prior employee record is reactivated after archive or separation instead of creating a brand-new employee master record.
+- `test/mutation-audit.test.ts` covers lifecycle audit persistence, archive-to-rehire continuity, active-state rejection, and cross-company isolation.
+- `test/archive-lifecycle.test.ts` covers archive success, missing reason, repeated archive, separated inclusion, directory exclusion, and audit trail persistence.
+
+Validation completed on 2026-06-09:
+
+- `pnpm --filter @repo/features-employee-management-employee-records-management typecheck`
+- `pnpm --filter @repo/features-employee-management-employee-records-management lint`
+- `pnpm --filter @repo/features-employee-management-employee-records-management test`
+- `pnpm --filter api typecheck`
+
 ### Phase 2: Formalize temporal and organizational modeling
 
 Objective: improve traceability of employee state over time.
@@ -370,6 +468,20 @@ Deliverables:
 - clearer current-versus-historical state derivation
 - organization and manager reference validation
 - deterministic completeness and coverage derivation
+
+Phase 2 implementation evidence:
+
+- `src/repository.ts` now treats assignment history as effective-dated facts by closing the prior interval whenever a new assignment is appended, and it rejects invalid temporal ordering before persistence.
+- `src/queries/assignments.query.ts` and `src/queries/status-history.query.ts` derive current snapshots from the full stored history first, then apply current-versus-historical filtering and pagination consistently.
+- `src/projector/completeness.ts`, `src/queries/records.query.ts`, `src/hr.workforce.records-overview.shared.ts`, and `src/hr.workforce.records-overview-stat.surface.ts` project completeness and incomplete counts from stored facts instead of manual flags.
+- `src/repository.ts` validates manager and organizational references against scoped employee records before create, update, and assignment writes are accepted.
+- `test/temporal-organizational-model.test.ts`, `test/assignment-history.test.ts`, `test/profile-sensitive-read.test.ts`, and `test/mutation-audit.test.ts` cover assignment interval closure, current-state derivation by `asOf`, scoped reference validation, and deterministic completeness projection.
+
+Validation completed on 2026-06-09:
+
+- `pnpm --filter @repo/features-employee-management-employee-records-management test`
+- `pnpm --filter @repo/features-employee-management-employee-records-management typecheck`
+- `pnpm exec biome check packages/features/hr-suite/employee-management/employee-records-management`
 
 ### Phase 3: Tighten sensitive-data governance
 
@@ -408,8 +520,6 @@ Deliverables:
 
 These are the highest-value fixes to bring the current package closer to the target architecture.
 
-1. Back the current record store and mutation path with durable persistence.
-2. Make assignment and status history explicitly effective-dated and queryable.
-3. Centralize sensitive-field masking across every page-model and query surface.
-4. Persist audit events as first-class records instead of relying only on package-local behavior.
-5. Add integration tests for create, update, archive, rehire, and permission boundaries.
+1. Centralize sensitive-field masking across every page-model and query surface.
+2. Persist audit events as first-class records instead of relying only on package-local behavior.
+3. Add integration tests for create, update, archive, rehire, and permission boundaries.

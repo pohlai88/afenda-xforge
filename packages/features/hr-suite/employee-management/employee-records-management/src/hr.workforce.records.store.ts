@@ -12,14 +12,21 @@ import {
   assignHrEmployeeRecordRepository,
   createHrEmployeeRecordRepository,
   getHrEmployeeRecordRepository,
+  listHrEmployeeAssignmentsRepository,
   listHrEmployeeRecordsRepository,
+  listHrEmployeeStatusHistoryRepository,
   rehireHrEmployeeRecordRepository,
   updateHrEmployeeRecordRepository,
 } from "./repository.ts";
+import type {
+  HrEmployeeAssignmentRecord,
+  HrEmployeeStatusHistoryRecord,
+} from "./schema.ts";
 
 export type HrRecordsStoreContext = {
   canRead?: boolean;
   organizationId?: string;
+  userId?: string;
 };
 
 export const hrRecordsStore = {
@@ -56,10 +63,20 @@ export const hrRecordsStore = {
   ): HrEmployeeRecordDetail | null {
     return assignHrEmployeeRecordRepository(input, context);
   },
+  listAssignments(
+    context?: HrRecordsStoreContext
+  ): readonly HrEmployeeAssignmentRecord[] {
+    return listHrEmployeeAssignmentsRepository(context);
+  },
+  listStatusHistory(
+    context?: HrRecordsStoreContext
+  ): readonly HrEmployeeStatusHistoryRecord[] {
+    return listHrEmployeeStatusHistoryRepository(context);
+  },
   rehire(
     input: HrRecordsRehireEmployeeInput,
     context?: HrRecordsStoreContext
-  ): HrEmployeeRecordDetail {
+  ): HrEmployeeRecordDetail | null {
     return rehireHrEmployeeRecordRepository(input, context);
   },
 };

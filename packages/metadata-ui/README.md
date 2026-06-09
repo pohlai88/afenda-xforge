@@ -96,6 +96,6 @@ export function MetadataBoundaryExample() {
 }
 ```
 
-The package keeps rendering logic declarative and intentionally avoids direct design-system imports.
+The package keeps rendering logic declarative and uses the root `@repo/ui` surface rather than deep component imports.
 
 See `examples/metadata-boundary.example.tsx` for a package-local fixture that composes `Button`, `Card`, `Badge`, and `Table` with `EntityMetadata`.

@@ -1,4 +1,4 @@
-import { Skeleton } from "@repo/ui/components/skeleton";
+import { Skeleton } from "@repo/ui";
 import type { ReactElement } from "react";
 import { StatePanel } from "../../components/state-panel";
 

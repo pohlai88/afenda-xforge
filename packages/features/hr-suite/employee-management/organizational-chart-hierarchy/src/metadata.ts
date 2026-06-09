@@ -1,3 +1,5 @@
+import { hrSuiteFeatureSource, hrSuiteFeatureSuite } from "./identity.ts";
+
 export type HrOrgFeatureMetadata = {
   description: string;
   domain: string;
@@ -6,25 +8,12 @@ export type HrOrgFeatureMetadata = {
     plural: string;
     singular: string;
   };
-  source: "legacy-hr-suite";
-  suite: "hr-suite";
+  source: typeof hrSuiteFeatureSource;
+  suite: typeof hrSuiteFeatureSuite;
   title: string;
 };
 
-export const hrOrgUiCopy = {
-  overview: {
-    structureLabel: "Organizational structure",
-  },
-  orgChart: {
-    title: "Organizational chart",
-  },
-  units: { surfaceHeaderTitle: "Units" },
-  positions: { surfaceHeaderTitle: "Positions" },
-  reportingLines: { surfaceHeaderTitle: "Reporting lines" },
-  vacancies: { surfaceHeaderTitle: "Vacancies" },
-  headcount: { surfaceHeaderTitle: "Headcount" },
-  auditTrail: { surfaceHeaderTitle: "Audit trail" },
-} as const;
+export { hrOrgUiCopy } from "./shared/ui-copy.shared.ts";
 
 export const hrOrgFeatureMetadata: HrOrgFeatureMetadata = {
   id: "hr-suite.employee-management.organizational-chart-hierarchy",
@@ -36,6 +25,6 @@ export const hrOrgFeatureMetadata: HrOrgFeatureMetadata = {
     singular: "Organizational Chart Hierarchy record",
     plural: "Organizational Chart Hierarchy records",
   },
-  source: "legacy-hr-suite",
-  suite: "hr-suite",
+  source: hrSuiteFeatureSource,
+  suite: hrSuiteFeatureSuite,
 };

@@ -1,9 +1,9 @@
-import { Button } from "@repo/ui/components/button";
 import type { ReactElement } from "react";
 import { renderMetadataAction, renderMetadataField } from "../adapters";
 import type { MetadataActionContract } from "../contracts/action-renderer.contract";
 import type { MetadataFieldContract } from "../contracts/field-renderer.contract";
 import type { MetadataRenderContext } from "../contracts/render-context.contract";
+import { createMetadataRenderContext } from "../contracts/render-context.defaults";
 import { MetadataStateBoundary } from "./metadata-state-boundary";
 
 export type MetadataFormProps = {
@@ -25,16 +25,6 @@ export type MetadataFormProps = {
   values?: Record<string, unknown>;
 };
 
-const createContext = (
-  context: Partial<MetadataRenderContext> | undefined,
-  state: MetadataRenderContext["state"]
-): MetadataRenderContext => ({
-  density: context?.density ?? "default",
-  mode: context?.mode ?? "create",
-  permissions: context?.permissions ?? {},
-  state,
-});
-
 export function MetadataForm({
   actions,
   context,
@@ -53,11 +43,15 @@ export function MetadataForm({
   title,
   values,
 }: MetadataFormProps): ReactElement {
-  const resolvedContext = createContext(context, state);
+  const resolvedContext = createMetadataRenderContext(context, {
+    mode: "create",
+    state,
+  });
 
   if (state !== "ready") {
     return (
       <MetadataStateBoundary
+        context={resolvedContext}
         emptyDescription={emptyDescription}
         emptyTitle={emptyTitle}
         error={error}
@@ -86,12 +80,14 @@ export function MetadataForm({
       <div className="grid gap-4 md:grid-cols-2">
         {fields.map((field) => (
           <div key={field.key}>
-            {renderMetadataField({
-              context: resolvedContext,
-              disabled,
-              field,
-              value: values?.[field.key],
-            })}
+            {
+              renderMetadataField({
+                context: resolvedContext,
+                disabled,
+                field,
+                value: values?.[field.key],
+              }).element
+            }
           </div>
         ))}
       </div>
@@ -100,18 +96,15 @@ export function MetadataForm({
         <div className="flex flex-wrap items-center gap-2">
           {actions.map((action) => (
             <div key={action.key}>
-              {renderMetadataAction({
-                action,
-                context: resolvedContext,
-                onAction,
-              })}
+              {
+                renderMetadataAction({
+                  action,
+                  context: resolvedContext,
+                  onAction,
+                }).element
+              }
             </div>
           ))}
-          {actions.some((action) => action.kind === "button") ? null : (
-            <Button size="sm" type="button" variant="default">
-              Save
-            </Button>
-          )}
         </div>
       ) : null}
     </form>

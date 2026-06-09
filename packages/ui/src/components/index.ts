@@ -56,6 +56,7 @@ export {
   CommandSeparator,
   CommandShortcut,
 } from "./ui-shadcn/command";
+export { CopyButton } from "./ui-shadcn/copy-button";
 export {
   Dialog,
   DialogClose,
@@ -105,6 +106,7 @@ export {
   KanbanItemHandle,
   KanbanOverlay,
 } from "./ui-shadcn/kanban";
+export { Kbd, KbdGroup } from "./ui-shadcn/kbd";
 export { Label } from "./ui-shadcn/label";
 export { ModeToggle } from "./ui-shadcn/mode-toggle";
 export {

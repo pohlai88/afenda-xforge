@@ -1,9 +1,10 @@
 "use client";
 
-import { Button } from "@repo/ui/components/button";
-import { Input } from "@repo/ui/components/input";
-import { Skeleton } from "@repo/ui/components/skeleton";
+import type { DashboardTableRow, TableColumnMetadata } from "@repo/ui";
 import {
+  Button,
+  Input,
+  Skeleton,
   Table,
   TableBody,
   TableCaption,
@@ -11,8 +12,7 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from "@repo/ui/components/table";
-import type { DashboardTableRow, TableColumnMetadata } from "@repo/ui/types";
+} from "@repo/ui";
 import type { ChangeEvent, ReactElement, ReactNode } from "react";
 import { useDeferredValue, useEffect, useMemo, useState } from "react";
 import { StatePanel } from "./state-panel";

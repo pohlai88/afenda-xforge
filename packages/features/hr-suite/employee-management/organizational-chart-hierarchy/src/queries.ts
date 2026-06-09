@@ -7,4 +7,4 @@ export {
   listHrVacantPositionsWindow,
   loadHrOrgChartTreeNodes,
   loadHrOrgOverviewSnapshot,
-} from "./hr.workforce.org.queries.ts";
+} from "./queries/read-models.ts";

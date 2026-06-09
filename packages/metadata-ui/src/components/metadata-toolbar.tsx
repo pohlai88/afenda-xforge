@@ -1,4 +1,4 @@
-import { Badge } from "@repo/ui/components/badge";
+import { Badge } from "@repo/ui";
 import type { ComponentProps, ReactElement } from "react";
 import { renderMetadataAction } from "../adapters";
 import type { MetadataActionContract } from "../contracts/action-renderer.contract";
@@ -77,11 +77,13 @@ export function MetadataToolbar({
         <div className="flex flex-wrap items-center gap-2">
           {actions.map((action) => (
             <div key={action.key}>
-              {renderMetadataAction({
-                action,
-                context,
-                onAction,
-              })}
+              {
+                renderMetadataAction({
+                  action,
+                  context,
+                  onAction,
+                }).element
+              }
             </div>
           ))}
         </div>

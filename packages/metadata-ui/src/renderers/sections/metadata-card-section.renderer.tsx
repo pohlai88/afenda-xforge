@@ -1,4 +1,4 @@
-import { Card, CardContent } from "@repo/ui/components/card";
+import { Card, CardContent } from "@repo/ui";
 import type { ReactElement } from "react";
 import { MetadataToolbar } from "../../components/metadata-toolbar";
 import type { MetadataSectionRendererProps } from "../../contracts/section-renderer.contract";

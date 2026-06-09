@@ -1,16 +1,15 @@
 import type { CustomizationContract } from "@repo/customization/contracts";
 import { resolveCustomizedEntityMetadata } from "@repo/customization/resolution";
 import type { EntityLabels, EntityMetadata } from "@repo/metadata";
-import { Card, CardContent, CardHeader } from "@repo/ui/components/card";
-import { Separator } from "@repo/ui/components/separator";
-import type { DashboardTableRow, TableColumnMetadata } from "@repo/ui/types";
+import type { DashboardTableRow, TableColumnMetadata } from "@repo/ui";
+import { Card, CardContent, CardHeader, Separator } from "@repo/ui";
 import type { ReactElement } from "react";
 
 import type { MetadataRenderContext } from "../contracts/render-context.contract";
+import { createMetadataRenderContext } from "../contracts/render-context.defaults";
 import { ActivityTable } from "./activity-table";
+import { renderMetadataTableCell } from "./metadata-cell-renderers";
 import { MetadataToolbar } from "./metadata-toolbar";
-import type { StatusBadgeTone } from "./status-badge";
-import { StatusBadge } from "./status-badge";
 
 type MetadataToolbarBadge = {
   label: string;
@@ -32,29 +31,6 @@ export const getMetadataColumns = (
   metadata: EntityMetadata
 ): readonly TableColumnMetadata[] => metadata.table?.columns ?? [];
 
-export const resolveStatusTone = (value: string): StatusBadgeTone => {
-  if (value === "active") {
-    return "success";
-  }
-
-  if (value === "pending" || value === "draft") {
-    return "info";
-  }
-
-  if (value === "inactive") {
-    return "warning";
-  }
-
-  return "neutral";
-};
-
-export const renderMetadataStatus = (
-  value: string,
-  label = value
-): ReactElement => (
-  <StatusBadge tone={resolveStatusTone(value)}>{label}</StatusBadge>
-);
-
 export const getMetadataSummary = (
   metadata: EntityMetadata,
   totalRecords: number
@@ -74,15 +50,6 @@ export const getMetadataSummary = (
   sectionCount: metadata.sections?.length ?? 0,
   stateCount: metadata.states?.length ?? 0,
   totalRecords,
-});
-
-const createMetadataRenderContext = (
-  context: Partial<MetadataRenderContext> | undefined
-): MetadataRenderContext => ({
-  density: context?.density ?? "default",
-  mode: context?.mode ?? "read",
-  permissions: context?.permissions ?? {},
-  state: context?.state ?? "ready",
 });
 
 export type MetadataTableProps = {
@@ -146,24 +113,7 @@ export function MetadataTable({
       renderCell={(
         column: TableColumnMetadata,
         value: unknown
-      ): ReactElement | null => {
-        if (column.kind === "status" && typeof value === "string") {
-          return renderMetadataStatus(value);
-        }
-
-        if (column.kind === "email" && typeof value === "string" && value) {
-          return (
-            <a
-              className="font-medium text-foreground underline-offset-4 hover:underline"
-              href={`mailto:${value}`}
-            >
-              {value}
-            </a>
-          );
-        }
-
-        return null;
-      }}
+      ): ReactElement | null => renderMetadataTableCell(column, value)}
       rows={rows}
       searchPlaceholder={
         searchPlaceholder ?? `Search ${labels.plural.toLowerCase()}...`
@@ -208,7 +158,9 @@ export function MetadataPanel({
     resolvedMetadata,
     totalRecords ?? rows.length
   );
-  const resolvedContext = createMetadataRenderContext(context);
+  const resolvedContext = createMetadataRenderContext(context, {
+    mode: "read",
+  });
 
   return (
     <Card className="overflow-hidden border-border bg-card/95 shadow-sm">

@@ -1,11 +1,11 @@
 import "server-only";
 
-import { runHrSuiteFeatureAction } from "./execution/action.ts";
 import {
   upsertHrOrgPositionAction as upsertHrOrgPositionActionImpl,
   upsertHrOrgReportingRelationshipAction as upsertHrOrgReportingRelationshipActionImpl,
   upsertHrOrgUnitAction as upsertHrOrgUnitActionImpl,
-} from "./hr.workforce.org.actions.server.ts";
+} from "./actions.server.ts";
+import { runHrSuiteFeatureAction } from "./execution/action.ts";
 
 export const upsertHrOrgPositionAction = (
   ...args: Parameters<typeof upsertHrOrgPositionActionImpl>

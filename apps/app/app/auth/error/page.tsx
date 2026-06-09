@@ -4,12 +4,18 @@ import {
   DEFAULT_SIGN_IN_PATH,
 } from "@repo/auth";
 import { createMetadata } from "@repo/seo/metadata";
+import { createAppSitePreset } from "@repo/seo/presets";
 import type { Metadata } from "next";
 import type { ReactElement } from "react";
+
+const appSitePreset = createAppSitePreset(
+  process.env.NEXT_PUBLIC_APP_URL ?? "http://localhost:3000"
+);
 
 export const metadata: Metadata = createMetadata({
   title: "Authentication error",
   description: "Authentication could not be completed.",
+  site: appSitePreset.site,
 });
 
 type AuthErrorPageProps = {

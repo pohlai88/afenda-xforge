@@ -2,11 +2,11 @@ import "server-only";
 
 import type {
   HrEmployeeRecordDetail,
-  HrEmployeeRecordSummary,
   HrRecordsSearchParams,
 } from "./hr.workforce.records.contract.ts";
 import { hrRecordsStore } from "./hr.workforce.records.store.ts";
 import { canReadHrEmployeeRecord } from "./policy.ts";
+import { listHrEmployeeRecordSummaries } from "./queries/records.query.ts";
 
 type QueryContext = {
   canRead?: boolean;
@@ -15,14 +15,14 @@ type QueryContext = {
 };
 
 export function listHrEmployeeRecords(
-  _query: HrRecordsSearchParams = {},
+  query: HrRecordsSearchParams = {},
   context?: QueryContext
-): readonly HrEmployeeRecordSummary[] {
+): ReturnType<typeof listHrEmployeeRecordSummaries> {
   if (!canReadHrEmployeeRecord(context ?? {})) {
     return [];
   }
 
-  return hrRecordsStore.list({ organizationId: context?.organizationId });
+  return listHrEmployeeRecordSummaries(query, context);
 }
 
 export function getHrEmployeeRecord(
@@ -35,3 +35,6 @@ export function getHrEmployeeRecord(
 
   return hrRecordsStore.get(id, { organizationId: context?.organizationId });
 }
+
+export { listHrEmployeeAssignments } from "./queries/assignments.query.ts";
+export { listHrEmployeeStatusHistory } from "./queries/status-history.query.ts";

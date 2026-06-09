@@ -22,6 +22,11 @@ export function buildHrRecordsOverviewStatGroups(
         { id: "total", label: "Employees", value: snapshot.totalCount },
         { id: "active", label: "Active", value: snapshot.activeCount },
         { id: "archived", label: "Archived", value: snapshot.archivedCount },
+        {
+          id: "incomplete",
+          label: "Incomplete",
+          value: snapshot.incompleteCount,
+        },
       ],
     },
   ] as const;

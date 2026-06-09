@@ -1,3 +1,17 @@
+export type {
+  HrEmployeeAssignmentRecord,
+  HrEmployeeAssignmentsPageModel,
+  HrEmployeeAssignmentView,
+  HrEmployeeRecordAuditRecord,
+  HrEmployeeStatusHistoryPageModel,
+  HrEmployeeStatusHistoryRecord,
+  HrEmployeeStatusHistoryView,
+  HrRecordsArchiveAuditAction,
+  HrRecordsArchiveCommand,
+  HrRecordsAssignmentsQuery,
+  HrRecordsStatusHistoryCommand,
+  HrRecordsStatusHistoryQuery,
+} from "./contracts/index.ts";
 export {
   type HrEmployeeRecord,
   type HrEmployeeRecordDetail,
@@ -28,6 +42,11 @@ export {
 } from "./hr.workforce.records-form.shared.ts";
 export {
   type HrRecordsRoutePath,
+  hrEmployeeArchiveRoutePath,
+  hrEmployeeAssignmentsRoutePath,
   hrEmployeeDetailRoutePath,
+  hrEmployeeRehireRoutePath,
+  hrEmployeeStatusHistoryRoutePath,
   hrRecordsRoutePaths,
 } from "./hr.workforce.records-route.contract.ts";
+export { parseHrRecordsSearchParams } from "./hr.workforce.records-search-params.parse.shared.ts";

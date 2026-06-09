@@ -5,7 +5,7 @@ export {
   upsertHrOrgReportingRelationshipAction,
   upsertHrOrgUnitAction,
 } from "./actions.ts";
-export { buildHrOrgPageModel } from "./hr.workforce.org.page-model.server.ts";
+export { buildHrOrgPageModel } from "./page-model.server.ts";
 export {
   listHrOrgHeadcountWindow,
   listHrOrgPositionsWindow,

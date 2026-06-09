@@ -4,19 +4,25 @@ export type {
   HrOrgAccessDecision,
   HrOrgActionResult,
   HrOrgAuditEvent,
+  HrOrgAuditEventProjection,
   HrOrgAuditQuery,
+  HrOrgAuditTrailListRow,
   HrOrgChartNode,
   HrOrgChartNodeProjection,
+  HrOrgHeadcountListRow,
   HrOrgListQuery,
   HrOrgMutationResult,
-  HrOrgNodeInput,
   HrOrgOverviewProjection,
   HrOrgPageModel,
   HrOrgPageModelInput,
   HrOrgPolicyContext,
+  HrOrgPositionListRow,
+  HrOrgPositionProjection,
   HrOrgPositionQuery,
   HrOrgPositionRecord,
   HrOrgReadContext,
+  HrOrgReportingRelationshipListRow,
+  HrOrgReportingRelationshipProjection,
   HrOrgReportingRelationshipQuery,
   HrOrgReportingRelationshipRecord,
   HrOrgReportingRelationshipType,
@@ -24,10 +30,13 @@ export type {
   HrOrgScope,
   HrOrgSearchParams,
   HrOrgStatus,
+  HrOrgUnitListRow,
+  HrOrgUnitProjection,
   HrOrgUnitQuery,
   HrOrgUnitRecord,
   HrOrgUnitStatus,
   HrOrgUnitType,
+  HrOrgVacancyListRow,
   HrOrgWriteContext,
   ListHrOrgAuditQuery,
   ListHrOrgPositionsQuery,
@@ -87,6 +96,11 @@ export {
   upsertHrOrgReportingRelationshipInputSchema,
   upsertHrOrgUnitInputSchema,
 } from "./contract.ts";
+export {
+  type HrOrgRoutePath,
+  hrEmployeeDetailRoutePath,
+  hrOrgRoutePaths,
+} from "./contracts/route-path.contract.ts";
 export { hrOrgExecutionSurface } from "./execution/index.ts";
 export type {
   HrOrgAccessContext,
@@ -98,11 +112,6 @@ export {
   hrSuiteFeatureScope as canonicalHrSuiteFeatureScope,
   organizationalChartHierarchyFeatureScope,
 } from "./feature-scope.ts";
-export {
-  type HrOrgRoutePath,
-  hrEmployeeDetailRoutePath,
-  hrOrgRoutePaths,
-} from "./hr.workforce.org-route.contract.ts";
 export {
   hrSuiteFeatureSource,
   hrSuiteFeatureSuite,

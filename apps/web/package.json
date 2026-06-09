@@ -5,6 +5,7 @@
     "dev": "next dev -p 3001",
     "build": "next build",
     "start": "next start",
+    "test": "node --import tsx --test tests/*.test.ts",
     "analyze": "ANALYZE=true npm run build",
     "clean": "git clean -xdf .cache .turbo dist node_modules",
     "typecheck": "tsc --noEmit --emitDeclarationOnly false"
@@ -24,6 +25,7 @@
     "@types/node": "catalog:",
     "@types/react": "catalog:",
     "@types/react-dom": "catalog:",
+    "tsx": "catalog:",
     "tailwindcss": "catalog:",
     "typescript": "catalog:"
   }

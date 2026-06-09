@@ -14,16 +14,19 @@ The target package owns governed organizational structure facts and derived oper
 
 ## Current Evidence
 
-- Current store collapses units, positions, and reporting lines into one in-memory chart-node map: `src/hr.workforce.org.store.ts`
-- Current writes are form actions without scoped mutation context or durable audit events: `src/hr.workforce.org.actions.server.ts`
-- Current queries return placeholder windows from chart nodes: `src/hr.workforce.org.queries.ts`
-- Current package does not yet expose the compliance-style `schema`, grouped `contracts`, `repository`, `policy`, `execution`, `queries`, `projector`, `registry`, API routes, or tests.
+- The package now exposes the compliance-style `schema`, grouped `contracts`, `repository`, `policy`, `execution`, `queries`, `projector`, and `registry` surfaces through the package barrels.
+- The store is separated by units, positions, reporting relationships, and audit events: `src/store.ts`
+- The write layer uses scoped mutation helpers and normalized audit metadata: `src/actions.server.ts`, `src/execution.ts`
+- The query layer now returns dedicated windows for units, positions, reporting lines, vacancies, headcount, and audit trail: `src/queries/read-models.ts`
+- Package-level tests exercise schemas, policy, execution helpers, repository shape, registry compatibility, and live page-model loading: `test/organizational-chart-hierarchy.test.ts`
 
 ## Slice Plan
 
 ### Slice 1: Mature Package Frame
 
 Establish the package shape used by mature HR suite features while preserving legacy imports.
+
+Status: complete
 
 Deliverables:
 
@@ -45,9 +48,17 @@ Acceptance criteria:
 - Read and write policy helpers fail closed.
 - Initial tests run through the package test command.
 
+Validation evidence:
+
+- `npm run typecheck`
+- `npm run lint`
+- `npm test`
+
 ### Slice 2: Database Schema
 
 Add durable owned tables for organization facts and audit references.
+
+Status: complete
 
 Deliverables:
 
@@ -65,9 +76,18 @@ Acceptance criteria:
 - Migration is generated.
 - Schema preserves tenant/company scoping and effective-date fields.
 
+Validation evidence:
+
+- `pnpm --filter @repo/database typecheck`
+- `pnpm --filter @repo/database lint`
+- `pnpm --filter @repo/database db:generate`
+- Generated migration: `packages/database/drizzle/0007_awesome_roxanne_simpson.sql`
+
 ### Slice 3: Canonical Schemas and Contracts Hardening
 
 Promote canonical contracts from slice 1 into the source of truth for commands, queries, projections, policy, routes, and registry metadata.
+
+Status: complete
 
 Acceptance criteria:
 
@@ -75,9 +95,17 @@ Acceptance criteria:
 - Public contract barrels expose stable schema and type names.
 - No raw repository row is exposed as a public API projection.
 
+Validation evidence:
+
+- `pnpm --filter @repo/features-employee-management-organizational-chart-hierarchy typecheck`
+- `pnpm --filter @repo/features-employee-management-organizational-chart-hierarchy lint`
+- `pnpm --filter @repo/features-employee-management-organizational-chart-hierarchy test`
+
 ### Slice 4: Scoped Repository
 
 Replace the legacy in-memory store with a compliance-style repository.
+
+Status: complete
 
 Acceptance criteria:
 
@@ -85,6 +113,12 @@ Acceptance criteria:
 - Database-backed mode activates when `DATABASE_URL` and tenant scope are available.
 - Units, positions, reporting lines, and audit events are stored separately.
 - Test reset hooks exist.
+
+Validation evidence:
+
+- `pnpm --filter @repo/features-employee-management-organizational-chart-hierarchy typecheck`
+- `pnpm --filter @repo/features-employee-management-organizational-chart-hierarchy lint`
+- `pnpm --filter @repo/features-employee-management-organizational-chart-hierarchy test`
 
 ### Slice 5: Policy and Execution
 

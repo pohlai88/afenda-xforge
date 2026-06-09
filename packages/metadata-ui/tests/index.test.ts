@@ -1,4 +1,11 @@
+import "./default-action-registry.test.tsx";
+import "./action-renderer-hardening.test.tsx";
+import "./default-field-registry.test.tsx";
+import "./compatibility.test.tsx";
+import "./adapter-pipeline.test.tsx";
 import "./metadata-form.test.tsx";
+import "./metadata-section-stack.test.tsx";
 import "./metadata-table.test.tsx";
 import "./renderer-registry.test.tsx";
 import "./state-boundary.test.tsx";
+import "./quality-assessment.test.tsx";

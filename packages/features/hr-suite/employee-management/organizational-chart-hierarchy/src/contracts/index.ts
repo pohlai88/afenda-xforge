@@ -11,7 +11,6 @@ export {
 } from "./command.contract.ts";
 export type {
   HrOrgAuditEvent,
-  HrOrgChartNodeProjection,
   HrOrgOverviewProjection,
   HrOrgPositionRecord,
   HrOrgReadContext,
@@ -64,6 +63,13 @@ export {
   hrOrgReadAccessContextSchema,
   hrOrgWriteAccessContextSchema,
 } from "./policy.contract.ts";
+export type {
+  HrOrgAuditEventProjection,
+  HrOrgChartNodeProjection,
+  HrOrgPositionProjection,
+  HrOrgReportingRelationshipProjection,
+  HrOrgUnitProjection,
+} from "./projection.contract.ts";
 export {
   hrOrgAuditEventProjectionSchema,
   hrOrgChartNodeProjectionSchema,

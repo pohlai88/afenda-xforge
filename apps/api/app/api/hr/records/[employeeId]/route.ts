@@ -1,9 +1,11 @@
-import { updateHrEmployeeRecord } from "@repo/features-employee-management-employee-records-management/server";
 import {
   hrRecordsUpdateEmployeeSchema,
   projectHrEmployeeRecordDetail,
 } from "@repo/features-employee-management-employee-records-management";
-import { getHrEmployeeRecord } from "@repo/features-employee-management-employee-records-management/server";
+import {
+  getHrEmployeeRecord,
+  updateHrEmployeeRecord,
+} from "@repo/features-employee-management-employee-records-management/server";
 import { NextResponse } from "next/server";
 import {
   createHrRecordsReadContext,
@@ -16,7 +18,10 @@ type RouteParams = {
   }>;
 };
 
-export async function GET(request: Request, { params }: RouteParams) {
+export async function GET(
+  request: Request,
+  { params }: RouteParams
+): Promise<Response> {
   const { employeeId } = await params;
   const readContext = createHrRecordsReadContext(request);
   const record = getHrEmployeeRecord(employeeId, readContext);
@@ -33,7 +38,10 @@ export async function GET(request: Request, { params }: RouteParams) {
   );
 }
 
-export async function PATCH(request: Request, { params }: RouteParams) {
+export async function PATCH(
+  request: Request,
+  { params }: RouteParams
+): Promise<Response> {
   const { employeeId } = await params;
 
   let body: unknown;

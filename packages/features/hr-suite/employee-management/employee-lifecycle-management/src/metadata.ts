@@ -1,27 +1,33 @@
-export type EmployeeLifecycleManagementMetadata = {
-  description: string;
-  domain: string;
-  id: string;
-  labels: {
-    plural: string;
-    singular: string;
-  };
-  source: "legacy-hr-suite";
-  suite: "hr-suite";
-  title: string;
-};
+import type { EmployeeLifecycleManagementMetadata } from "./contracts/index.ts";
+import { employeeLifecycleManagementFeatureScope } from "./feature-scope.ts";
+import {
+  employeeLifecycleManagementFeatureId,
+  employeeLifecycleManagementFeatureLabel,
+} from "./identity.ts";
 
 export const employeeLifecycleManagementMetadata: EmployeeLifecycleManagementMetadata =
   {
-    id: "hr-suite.employee-management.employee-lifecycle-management",
-    title: "Employee Lifecycle Management",
+    id: employeeLifecycleManagementFeatureId,
+    title: employeeLifecycleManagementFeatureLabel,
     description:
-      "Governed metadata for the employee-management lifecycle feature extracted from the legacy HR suite.",
-    domain: "employee-management",
+      "Governed metadata for the employee lifecycle management feature extracted from the legacy HR Suite.",
+    domain: employeeLifecycleManagementFeatureScope.domain,
     labels: {
-      singular: "Employee Lifecycle Management record",
-      plural: "Employee Lifecycle Management records",
+      singular: "employee lifecycle record",
+      plural: "employee lifecycle records",
     },
-    source: "legacy-hr-suite",
-    suite: "hr-suite",
+    source: employeeLifecycleManagementFeatureScope.source,
+    suite: employeeLifecycleManagementFeatureScope.suite,
+    tags: ["hr", "employee-management", "lifecycle", "workflow"],
+    keywords: [
+      "onboarding",
+      "probation",
+      "confirmation",
+      "transfer",
+      "termination",
+    ],
+    icon: "workflow",
+    maturity: "experimental",
+    visibility: "internal",
+    version: 1,
   };

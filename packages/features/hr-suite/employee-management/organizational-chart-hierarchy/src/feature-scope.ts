@@ -24,5 +24,10 @@ export const organizationalChartHierarchyFeatureScope = {
   packageName: organizationalChartHierarchyPackageName,
 } as const;
 
+export const hrOrgFeatureScope: OrganizationalChartHierarchyFeatureScope =
+  organizationalChartHierarchyFeatureScope;
+
 export type OrganizationalChartHierarchyFeatureScope =
   typeof organizationalChartHierarchyFeatureScope;
+
+export type HrOrgFeatureScope = OrganizationalChartHierarchyFeatureScope;

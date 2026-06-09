@@ -1,7 +1,12 @@
 import assert from "node:assert/strict";
 import { test } from "node:test";
 import { hrRecordsSearchParamsSchema } from "../src/hr.workforce.records.contract.ts";
-import { hrEmployeeDetailRoutePath } from "../src/hr.workforce.records-route.contract.ts";
+import {
+  hrEmployeeArchiveRoutePath,
+  hrEmployeeDetailRoutePath,
+  hrEmployeeRehireRoutePath,
+  hrEmployeeStatusHistoryRoutePath,
+} from "../src/hr.workforce.records-route.contract.ts";
 import {
   parseHrRecordsSearchParams,
   toHrRecordsPageModelInput,
@@ -27,6 +32,18 @@ test("normalizes legacy employee record search params", () => {
 
 test("builds the employee record detail route and page model input", () => {
   assert.equal(hrEmployeeDetailRoutePath("emp-123"), "/hr/records/emp-123");
+  assert.equal(
+    hrEmployeeArchiveRoutePath("emp-123"),
+    "/hr/records/emp-123/archive"
+  );
+  assert.equal(
+    hrEmployeeRehireRoutePath("emp-123"),
+    "/hr/records/emp-123/rehire"
+  );
+  assert.equal(
+    hrEmployeeStatusHistoryRoutePath("emp-123"),
+    "/hr/records/emp-123/status-history"
+  );
 
   const modelInput = toHrRecordsPageModelInput({
     organizationId: "org-1",

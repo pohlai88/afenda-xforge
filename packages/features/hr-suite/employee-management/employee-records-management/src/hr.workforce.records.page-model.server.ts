@@ -4,10 +4,10 @@ import type {
   HrEmployeeRecordPageModel,
   HrRecordsPageModelInput,
 } from "./hr.workforce.records.contract.ts";
-import { hrRecordsStore } from "./hr.workforce.records.store.ts";
 import { buildHrRecordsOverviewStatGroups } from "./hr.workforce.records-overview-stat.surface.ts";
 import { hrRecordsRoutePaths } from "./hr.workforce.records-route.contract.ts";
 import { parseHrRecordsSearchParams } from "./hr.workforce.records-search-params.parse.shared.ts";
+import { listHrEmployeeRecordSummaries } from "./queries/records.query.ts";
 
 type HrRecordsPageModel = HrEmployeeRecordPageModel & {
   overviewStats: readonly {
@@ -41,6 +41,9 @@ export function buildHrRecordsPageModel(
     routePaths: hrRecordsRoutePaths,
     search,
     overviewStats: buildHrRecordsOverviewStatGroups(input.organizationId),
-    records: hrRecordsStore.list({ organizationId: input.organizationId }),
+    records: listHrEmployeeRecordSummaries(search, {
+      canRead: true,
+      organizationId: input.organizationId,
+    }),
   } satisfies HrRecordsPageModel;
 }

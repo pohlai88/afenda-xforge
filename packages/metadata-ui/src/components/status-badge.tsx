@@ -1,4 +1,4 @@
-import { Badge } from "@repo/ui/components/badge";
+import { Badge } from "@repo/ui";
 import type { ReactElement, ReactNode } from "react";
 
 export type StatusBadgeTone =

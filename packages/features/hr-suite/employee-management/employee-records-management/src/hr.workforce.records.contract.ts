@@ -102,6 +102,10 @@ export type HrRecordsAssignmentInput = {
   currentDepartmentId?: string;
   currentPositionId?: string;
   managerEmployeeId?: string;
+  workLocationCode?: string;
+  assignmentEffectiveFrom?: Date;
+  assignmentReason?: string;
+  reason?: string;
 };
 
 export type HrRecordsRehireEmployeeInput = {

@@ -1,10 +1,4 @@
-import { Button } from "@repo/ui/components/button";
-import {
-  Card,
-  CardContent,
-  CardHeader,
-  CardTitle,
-} from "@repo/ui/components/card";
+import { Button, Card, CardContent, CardHeader, CardTitle } from "@repo/ui";
 import type { ReactElement, ReactNode } from "react";
 
 export type StatePanelTone = "danger" | "info" | "neutral" | "warning";

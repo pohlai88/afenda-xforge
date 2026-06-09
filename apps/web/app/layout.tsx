@@ -1,17 +1,11 @@
 import { fonts } from "@repo/ui";
-import { createMetadata } from "@repo/seo/metadata";
 import type { Metadata } from "next";
 import type { ReactElement, ReactNode } from "react";
+import { webLayoutMetadata } from "./seo";
 import { Providers } from "./providers";
 import "./styles.css";
 
-export const metadata: Metadata = createMetadata({
-  title: "XForge Web",
-  description: "Public XForge web surface.",
-  site: {
-    url: process.env.NEXT_PUBLIC_WEB_URL ?? "http://localhost:3001",
-  },
-});
+export const metadata: Metadata = webLayoutMetadata;
 
 type RootLayoutProps = {
   children: ReactNode;

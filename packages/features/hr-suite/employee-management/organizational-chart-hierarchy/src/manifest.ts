@@ -1,3 +1,8 @@
+import {
+  hrSuiteFeatureSuite,
+  organizationalChartHierarchyFeatureId,
+  organizationalChartHierarchyPackageName,
+} from "./identity.ts";
 import { hrOrgFeatureMetadata } from "./metadata.ts";
 
 export type HrOrgFeatureManifest = {
@@ -5,16 +10,15 @@ export type HrOrgFeatureManifest = {
   domain: string;
   id: string;
   packageName: string;
-  suite: "hr-suite";
+  suite: typeof hrSuiteFeatureSuite;
   title: string;
 };
 
 export const hrOrgFeatureManifest: HrOrgFeatureManifest = {
-  id: hrOrgFeatureMetadata.id,
+  id: organizationalChartHierarchyFeatureId,
   title: hrOrgFeatureMetadata.title,
   description: hrOrgFeatureMetadata.description,
   domain: hrOrgFeatureMetadata.domain,
-  packageName:
-    "@repo/features-employee-management-organizational-chart-hierarchy",
-  suite: "hr-suite",
+  packageName: organizationalChartHierarchyPackageName,
+  suite: hrSuiteFeatureSuite,
 };

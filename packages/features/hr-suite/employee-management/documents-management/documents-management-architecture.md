@@ -4,6 +4,142 @@
 
 **Document Management is the HRM function that stores, organizes, secures, tracks, and controls employee-related documents, including employment contracts, identity documents, certifications, HR letters, policy acknowledgments, statutory documents, and document expiry records.**
 
+## Architecture intent
+
+This capability is the governed document-metadata boundary for the HR suite. It should support employee-related document references, document lifecycle state, expiry tracking, verification state, retention metadata, and audit-ready history.
+
+The module should not become the employee master record, the binary file store, or a compliance-rule engine. Those concerns remain owned by adjacent domains and should only be referenced by stable identifiers or metadata.
+
+## Ownership boundary
+
+| Concern | Owned by Document Management | Referenced from another domain |
+| --- | --- | --- |
+| Employee master identity | No | Employee Records Management |
+| Employee employment status | No | Employee Records Management |
+| Employee organization hierarchy | No | Organizational Chart & Hierarchy |
+| Document metadata and state | Yes | N/A |
+| Document binary storage | No | Storage / object-file layer |
+| Document references and links | Yes | N/A |
+| Verification and rejection state | Yes | N/A |
+| Expiry and retention metadata | Yes | N/A |
+| Compliance rule monitoring | No | Compliance & Regulatory Tracking |
+| Policy authoring | No | Policy governance domain |
+| Audit history for document actions | Yes | N/A |
+
+## Source-of-truth map
+
+| Data | Source-of-truth owner | Document Management responsibility |
+| --- | --- | --- |
+| Employee profile facts | Employee Records Management | Reference `employeeId`, do not duplicate profile storage |
+| Tenant and company scope | HR platform boundary | Require scoped reads and writes |
+| Document file bytes | Storage layer | Persist only references and metadata |
+| Document classification | Document Management | Own document type, group, sensitivity, and state |
+| Document lifecycle state | Document Management | Own versioning, verification, expiry, archive, and retention metadata |
+| Compliance obligations | Compliance & Regulatory Tracking | Reference readiness or linked evidence only |
+| Policy acknowledgments | Document Management for acknowledgment metadata | Policy definition remains external |
+
+## Scope rules
+
+- Keep employee master data owned by Employee Records Management.
+- Keep binary file storage and download mechanics outside the domain model unless they are just references.
+- Keep company and tenant scoping explicit in every write and read path.
+- Store facts and project read models instead of storing mutable dashboards, alerts, or derived status rows.
+- Do not add compliance monitoring logic here; that remains in Compliance & Regulatory Tracking.
+
+## Domain model foundation
+
+The schema layer should model the document boundary with explicit, reusable vocabularies for:
+
+- document category
+- document type
+- document lifecycle status
+- document visibility
+- version state
+- retention action
+- acknowledgment method
+
+The canonical record should carry document metadata, employee reference, legal-entity reference, versioning state, expiry dates, verification dates, retention metadata, and acknowledgment metadata. It should not carry file bytes or own the storage provider.
+
+## Contract layer
+
+The package should expose a stable public contract surface through dedicated contract barrels rather than ad hoc type exports from implementation files.
+
+Contract groups should cover:
+
+- command contracts for write inputs
+- query contracts for list/filter inputs
+- projection contracts for record and read-model shapes
+- permission contracts for read/write gating
+- route contracts for public paths and feature identity
+- manifest and metadata contracts for package identity and labels
+
+The compatibility barrels in `src/contract.ts` and `src/index.ts` should re-export these contracts so consumers can depend on a stable public API while the implementation evolves.
+
+## Repository and persistence
+
+The package now persists document record projections through `src/repository.ts` instead of an in-memory Map.
+
+- The repository stores records in a JSON file under `.cache/hr-suite/documents-management.repository.json` by default.
+- Repository entries keep tenant and company scope metadata alongside each document record so reads can be filtered by feature context.
+- `src/actions.ts` writes through repository helpers instead of mutating local state directly.
+- `src/queries.ts` reads through repository helpers and applies pagination and search on top of the scoped repository output.
+- The repository exposes deterministic record ID generation plus testing hooks for repository path overrides and reset behavior.
+- `test/repository.test.ts` covers persistence, scoped reads, update behavior, and reset behavior.
+
+## Policy and execution helpers
+
+The package now enforces tenant-scoped access through `src/policy.ts` and the execution helper in `src/execution/action.ts`.
+
+- Write operations require tenant-scoped write access and fail closed when the context is missing or denied.
+- Read operations return empty or null when tenant-scoped read access is missing.
+- Sensitive document projections can be redacted through a dedicated helper so future document views can mask sensitive fields without changing the underlying record shape.
+- Actor normalization and audit metadata cleanup helpers are available for future audit event recording.
+- The public execution barrel in `src/execution/index.ts` now exposes these helpers for future slices.
+
+## Document registration
+
+The first end-to-end document registration slice now lives in `src/registration.ts` and the server barrel in `src/server.ts`.
+
+- Authorized callers can register employee-linked document metadata with category, type, title, status, visibility, and retention data.
+- Updates preserve the stored document record and append a new audit event instead of overwriting the trail.
+- Read-back uses the policy layer to redact sensitive fields when the caller cannot view sensitive data.
+- Audit history is queryable by document id and filtered within the current tenant/company scope.
+- The slice is covered by `test/document-registration.test.ts`.
+
+## Versioning and replacement
+
+Versioning is now part of the document lifecycle instead of an overwrite-only update path.
+
+- Registering a document creates version 1 and stores the aggregate's current version id and version count.
+- Updating a document creates a new version record and retires the prior version as `superseded`.
+- Latest-version resolution is scope-aware and can be queried directly from the server barrel.
+- Version history keeps sensitive source notes behind the same redaction rules used for document reads.
+- The slice is covered by `test/document-versioning.test.ts`.
+
+## Verification, expiry, and retention
+
+Lifecycle transitions now own the document state fields that sit on top of the version chain.
+
+- `verifyDocumentsManagementDocument` sets the document to `verified`, records `verifiedAt`, and can stamp a renewal marker.
+- `rejectDocumentsManagementDocument` stores a required rejection reason and rejection timestamp.
+- `expireDocumentsManagementDocument` moves the document to `expired` and requires a meaningful expiry date to be present.
+- `archiveDocumentsManagementDocument` marks the document as `archived` and records an archive timestamp.
+- `updateDocumentsManagementDocumentRetention` changes retention rules through a versioned revision instead of mutating history in place.
+- The lifecycle audit trail uses explicit `verify`, `reject`, `expire`, `archive`, and `update` actions so state transitions are visible.
+- The slice is covered by `test/document-lifecycle.test.ts`.
+
+## Read Models and API Surface
+
+The package now exposes explicit read projections and HTTP GET routes instead of leaking repository internals.
+
+- `src/projector.ts` turns canonical document records into summary, readiness, and expiring projections.
+- `src/queries.ts` applies scoped filtering, search, pagination, and projection assembly for document read models.
+- `src/contracts/projection.contract.ts` and `src/contracts/route.contract.ts` define the projection schemas and route contracts for the read surface.
+- `src/server.ts` and `src/index.ts` export the read-model helpers through the public package API.
+- `apps/api/app/api/hr/documents/*` provides thin routes for list, detail, readiness, and expiring views.
+- `test/document-read-models.test.ts` covers search, paging, employee readiness aggregation, and expiring-document behavior.
+- Read paths still fail closed when tenant-scoped read access is missing, and the projections stay separate from the repository storage shape.
+
 ---
 
 # Document Management Includes

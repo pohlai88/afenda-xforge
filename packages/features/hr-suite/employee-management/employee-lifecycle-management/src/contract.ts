@@ -1,92 +1,198 @@
-export type EmployeeLifecycleManagementStatus = "draft" | "active" | "archived";
-
-export type EmployeeLifecycleManagementRecord = {
-  id: string;
-  name: string;
-  status: EmployeeLifecycleManagementStatus;
-};
-
-export type ListEmployeeLifecycleManagementQuery = {
-  page?: number;
-  pageSize?: number;
-  search?: string;
-};
-
-export type CreateEmployeeLifecycleManagementInput = {
-  name: string;
-};
-
-export type UpdateEmployeeLifecycleManagementInput = {
-  id: string;
-  name?: string;
-  status?: EmployeeLifecycleManagementStatus;
-};
-
-export const hrWorkforceLifecycleReadPermission = {
-  module: "hr",
-  object: "lifecycle",
-  function: "read",
-} as const;
-
-export const hrWorkforceLifecycleWritePermission = {
-  module: "hr",
-  object: "lifecycle",
-  function: "write",
-} as const;
-
-export const hrLifecycleRoutePaths = {
-  hub: "/hr",
-  lifecycle: "/hr/lifecycle",
-} as const;
-
-export type HrLifecycleRoutePath =
-  (typeof hrLifecycleRoutePaths)[keyof typeof hrLifecycleRoutePaths];
-
-export const hrWorkforceLifecycleAuditActions = {
-  employmentStatus: {
-    changed: "hr.lifecycle.employment_status.change",
-    scheduled: "hr.lifecycle.employment_status.schedule",
-  },
-  probation: {
-    outcomeRecorded: "hr.lifecycle.probation.outcome",
-    extended: "hr.lifecycle.probation.extend",
-  },
-  confirmation: {
-    applied: "hr.lifecycle.confirmation.apply",
-  },
-  movement: {
-    recorded: "hr.lifecycle.movement.record",
-  },
-  contract: {
-    renewed: "hr.lifecycle.contract.renew",
-  },
-  transition: {
-    cancelled: "hr.lifecycle.transition.cancel",
-    applied: "hr.lifecycle.transition.apply",
-  },
-  onboarding: {
-    caseStarted: "hr.lifecycle.onboarding.case_start",
-  },
-  offboarding: {
-    caseStarted: "hr.lifecycle.offboarding.case_start",
-  },
-  exit: {
-    noticePeriodStarted: "hr.lifecycle.exit.notice_period",
-  },
-} as const;
-
-export type HrWorkforceLifecycleAuditAction =
-  | (typeof hrWorkforceLifecycleAuditActions)["employmentStatus"][keyof (typeof hrWorkforceLifecycleAuditActions)["employmentStatus"]]
-  | (typeof hrWorkforceLifecycleAuditActions)["probation"][keyof (typeof hrWorkforceLifecycleAuditActions)["probation"]]
-  | (typeof hrWorkforceLifecycleAuditActions)["confirmation"][keyof (typeof hrWorkforceLifecycleAuditActions)["confirmation"]]
-  | (typeof hrWorkforceLifecycleAuditActions)["movement"][keyof (typeof hrWorkforceLifecycleAuditActions)["movement"]]
-  | (typeof hrWorkforceLifecycleAuditActions)["contract"][keyof (typeof hrWorkforceLifecycleAuditActions)["contract"]]
-  | (typeof hrWorkforceLifecycleAuditActions)["transition"][keyof (typeof hrWorkforceLifecycleAuditActions)["transition"]]
-  | (typeof hrWorkforceLifecycleAuditActions)["onboarding"][keyof (typeof hrWorkforceLifecycleAuditActions)["onboarding"]]
-  | (typeof hrWorkforceLifecycleAuditActions)["offboarding"][keyof (typeof hrWorkforceLifecycleAuditActions)["offboarding"]]
-  | (typeof hrWorkforceLifecycleAuditActions)["exit"][keyof (typeof hrWorkforceLifecycleAuditActions)["exit"]];
-
-export const employeeLifecycleManagementRouteContracts = [] as const;
-
-export const employeeLifecycleManagementFeatureId =
-  "hr-suite.employee-management.employee-lifecycle-management" as const;
+export type {
+  EmployeeLifecycleManagementBoundedContext,
+  EmployeeLifecycleManagementCapability,
+  EmployeeLifecycleManagementCapabilityGroup,
+  EmployeeLifecycleManagementManifest,
+  EmployeeLifecycleManagementMetadata,
+  EmployeeLifecycleManagementPermission,
+  EmployeeLifecycleManagementRouteContract,
+  EmployeeLifecycleManagementRoutePath,
+  HrLifecycleRoutePath,
+} from "./contracts/index.ts";
+export {
+  employeeLifecycleManagementBoundedContext,
+  employeeLifecycleManagementCapabilities,
+  employeeLifecycleManagementCapabilityCatalog,
+  employeeLifecycleManagementCapabilityGroups,
+  employeeLifecycleManagementCapabilityValueMap,
+  employeeLifecycleManagementPermissions,
+  employeeLifecycleManagementReadPermission,
+  employeeLifecycleManagementRouteContracts,
+  employeeLifecycleManagementRouteContractVersion,
+  employeeLifecycleManagementRoutePaths,
+  employeeLifecycleManagementSensitiveCapabilities,
+  employeeLifecycleManagementSensitiveReadPermission,
+  employeeLifecycleManagementWriteCapabilities,
+  employeeLifecycleManagementWritePermission,
+  hrLifecycleRoutePaths,
+  hrWorkforceLifecycleReadPermission,
+  hrWorkforceLifecycleSensitiveReadPermission,
+  hrWorkforceLifecycleWritePermission,
+} from "./contracts/index.ts";
+export type { EmployeeLifecycleManagementFeatureScope } from "./feature-scope.ts";
+export { employeeLifecycleManagementFeatureScope } from "./feature-scope.ts";
+export type {
+  EmployeeLifecycleManagementDomain,
+  EmployeeLifecycleManagementFeatureId,
+  EmployeeLifecycleManagementFeatureLabel,
+  EmployeeLifecycleManagementPackageName,
+  EmployeeLifecycleManagementSuite,
+} from "./identity.ts";
+export {
+  employeeLifecycleManagementDomain,
+  employeeLifecycleManagementFeatureId,
+  employeeLifecycleManagementFeatureLabel,
+  employeeLifecycleManagementPackageName,
+  employeeLifecycleManagementSuite,
+} from "./identity.ts";
+export type {
+  EmployeeLifecycleManagementAcceptanceCode,
+  EmployeeLifecycleManagementAuditEvent,
+  EmployeeLifecycleManagementAuditEventGroup,
+  EmployeeLifecycleManagementRequirementCode,
+} from "./registry/index.ts";
+export {
+  employeeLifecycleManagementAcceptanceCoverage,
+  employeeLifecycleManagementAudit,
+  employeeLifecycleManagementAuditEventCatalog,
+  employeeLifecycleManagementAuditEventGroups,
+  employeeLifecycleManagementAuditEvents,
+  employeeLifecycleManagementContractAuditEventCatalog,
+  employeeLifecycleManagementMovementAuditEventCatalog,
+  employeeLifecycleManagementProbationAuditEventCatalog,
+  employeeLifecycleManagementRequirementCoverage,
+} from "./registry/index.ts";
+export type {
+  EmployeeLifecycleAssignmentSnapshot,
+  EmployeeLifecycleContractEvent,
+  EmployeeLifecycleContractEventKindValue,
+  EmployeeLifecycleContractReadModel,
+  EmployeeLifecycleContractRecord,
+  EmployeeLifecycleContractReminderEntry,
+  EmployeeLifecycleContractReminderInput,
+  EmployeeLifecycleContractReminderKindValue,
+  EmployeeLifecycleContractRenewalInput,
+  EmployeeLifecycleContractReviewEntry,
+  EmployeeLifecycleContractReviewInput,
+  EmployeeLifecycleContractStartInput,
+  EmployeeLifecycleContractStatusValue,
+  EmployeeLifecycleMovementEntry,
+  EmployeeLifecycleMovementEvent,
+  EmployeeLifecycleMovementEventKindValue,
+  EmployeeLifecycleMovementFieldValue,
+  EmployeeLifecycleMovementInput,
+  EmployeeLifecycleMovementKindValue,
+  EmployeeLifecycleMovementReadModel,
+  EmployeeLifecycleMovementRecord,
+  EmployeeLifecycleOnboardingEvent,
+  EmployeeLifecycleOnboardingEventKindValue,
+  EmployeeLifecycleOnboardingProfile,
+  EmployeeLifecycleOnboardingReadModel,
+  EmployeeLifecycleOnboardingRecord,
+  EmployeeLifecycleOnboardingTask,
+  EmployeeLifecycleOnboardingTaskCodeValue,
+  EmployeeLifecycleOnboardingTaskStatusValue,
+  EmployeeLifecycleOnboardingWorkflowStatusValue,
+  EmployeeLifecycleProbationApprovalInput,
+  EmployeeLifecycleProbationEvent,
+  EmployeeLifecycleProbationEventKindValue,
+  EmployeeLifecycleProbationExtensionInput,
+  EmployeeLifecycleProbationReadModel,
+  EmployeeLifecycleProbationRecord,
+  EmployeeLifecycleProbationReviewEntry,
+  EmployeeLifecycleProbationReviewInput,
+  EmployeeLifecycleProbationReviewOutcomeValue,
+  EmployeeLifecycleProbationStartInput,
+  EmployeeLifecycleProbationStatusValue,
+  EmployeeLifecycleStageValue,
+  EmployeeLifecycleState,
+  EmployeeLifecycleStateCreationInput,
+  EmployeeLifecycleStateHistoryBase,
+  EmployeeLifecycleStateHistoryEntry,
+  EmployeeLifecycleStateInitializedEvent,
+  EmployeeLifecycleStateTransitionEvent,
+  EmployeeLifecycleTransitionInput,
+  EmployeeLifecycleTransitionRuleMap,
+} from "./schema.ts";
+export {
+  activateEmployeeLifecycleOnboardingRecord,
+  appendEmployeeLifecycleMovement,
+  applyEmployeeLifecycleContractReminder,
+  applyEmployeeLifecycleContractRenewal,
+  applyEmployeeLifecycleContractReview,
+  applyEmployeeLifecycleTransition,
+  approveEmployeeLifecycleProbationConfirmationRecord,
+  assertEmployeeLifecycleStateConsistent,
+  assertEmployeeLifecycleTransitionAllowed,
+  buildEmployeeLifecycleContractReadModel,
+  buildEmployeeLifecycleMovementReadModel,
+  buildEmployeeLifecycleOnboardingReadModel,
+  buildEmployeeLifecycleProbationReadModel,
+  completeEmployeeLifecycleOnboardingRecordTask,
+  createEmployeeLifecycleContractRecord,
+  createEmployeeLifecycleMovementRecord,
+  createEmployeeLifecycleOnboardingRecord,
+  createEmployeeLifecycleProbationRecord,
+  createEmployeeLifecycleState,
+  EmployeeLifecycleTransitionError,
+  employeeLifecycleAssignmentSnapshotSchema,
+  employeeLifecycleContractEventKindValues,
+  employeeLifecycleContractEventSchema,
+  employeeLifecycleContractReadModelSchema,
+  employeeLifecycleContractRecordSchema,
+  employeeLifecycleContractReminderEntrySchema,
+  employeeLifecycleContractReminderInputSchema,
+  employeeLifecycleContractReminderKindValues,
+  employeeLifecycleContractRenewalInputSchema,
+  employeeLifecycleContractReviewEntrySchema,
+  employeeLifecycleContractReviewInputSchema,
+  employeeLifecycleContractStartInputSchema,
+  employeeLifecycleContractStatusValues,
+  employeeLifecycleDateSchema,
+  employeeLifecycleMovementEventKindValues,
+  employeeLifecycleMovementEventSchema,
+  employeeLifecycleMovementFieldValues,
+  employeeLifecycleMovementInputSchema,
+  employeeLifecycleMovementKindValues,
+  employeeLifecycleMovementReadModelSchema,
+  employeeLifecycleMovementRecordSchema,
+  employeeLifecycleOnboardingEventKindValues,
+  employeeLifecycleOnboardingEventSchema,
+  employeeLifecycleOnboardingProfileSchema,
+  employeeLifecycleOnboardingReadModelSchema,
+  employeeLifecycleOnboardingRecordSchema,
+  employeeLifecycleOnboardingTaskCodeValues,
+  employeeLifecycleOnboardingTaskSchema,
+  employeeLifecycleOnboardingTaskStatusValues,
+  employeeLifecycleOnboardingWorkflowStatusValues,
+  employeeLifecycleProbationApprovalInputSchema,
+  employeeLifecycleProbationEventKindValues,
+  employeeLifecycleProbationEventSchema,
+  employeeLifecycleProbationExtensionInputSchema,
+  employeeLifecycleProbationReadModelSchema,
+  employeeLifecycleProbationRecordSchema,
+  employeeLifecycleProbationReviewEntrySchema,
+  employeeLifecycleProbationReviewInputSchema,
+  employeeLifecycleProbationReviewOutcomeValues,
+  employeeLifecycleProbationStartInputSchema,
+  employeeLifecycleProbationStatusValues,
+  employeeLifecycleStageSchema,
+  employeeLifecycleStageValues,
+  employeeLifecycleStateCreationInputSchema,
+  employeeLifecycleStateHistoryBaseSchema,
+  employeeLifecycleStateHistoryEntrySchema,
+  employeeLifecycleStateInitializedEventSchema,
+  employeeLifecycleStateSchema,
+  employeeLifecycleStateTransitionEventSchema,
+  employeeLifecycleTransitionInputSchema,
+  employeeLifecycleTransitionRules,
+  generateEmployeeLifecycleOnboardingTaskDefinitions,
+  getEmployeeLifecycleAllowedTransitionTargets,
+  getEmployeeLifecycleStateFromHistory,
+  isEmployeeLifecycleOnboardingReady,
+  isEmployeeLifecycleProbationReviewDue,
+  isEmployeeLifecycleStateConsistent,
+  isEmployeeLifecycleStateHistoryEntry,
+  isEmployeeLifecycleTransitionAllowed,
+  recordEmployeeLifecycleProbationReviewOutcome,
+} from "./schema.ts";

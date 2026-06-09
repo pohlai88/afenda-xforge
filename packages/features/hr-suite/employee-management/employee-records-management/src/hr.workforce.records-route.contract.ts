@@ -12,3 +12,27 @@ export function hrEmployeeDetailRoutePath(
 ): `/hr/records/${string}` {
   return `/hr/records/${employeeId}`;
 }
+
+export function hrEmployeeArchiveRoutePath(
+  employeeId: string
+): `/hr/records/${string}/archive` {
+  return `/hr/records/${employeeId}/archive`;
+}
+
+export function hrEmployeeRehireRoutePath(
+  employeeId: string
+): `/hr/records/${string}/rehire` {
+  return `/hr/records/${employeeId}/rehire`;
+}
+
+export function hrEmployeeAssignmentsRoutePath(
+  employeeId: string
+): `/hr/records/${string}/assignments` {
+  return `/hr/records/${employeeId}/assignments`;
+}
+
+export function hrEmployeeStatusHistoryRoutePath(
+  employeeId: string
+): `/hr/records/${string}/status-history` {
+  return `/hr/records/${employeeId}/status-history`;
+}

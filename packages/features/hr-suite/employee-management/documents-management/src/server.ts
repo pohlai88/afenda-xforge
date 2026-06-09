@@ -15,6 +15,24 @@ export {
   hrWorkforceDocumentsWritePermission,
 } from "./contract.ts";
 export {
+  getDocumentsManagementDocumentSummary,
   getDocumentsManagementRecord as getDocumentsManagement,
+  listDocumentsManagementDocumentReadinessSummaries,
+  listDocumentsManagementDocumentSummaries,
+  listDocumentsManagementExpiringDocuments,
   listDocumentsManagementRecords as listDocumentsManagement,
 } from "./queries.ts";
+export {
+  archiveDocumentsManagementDocument,
+  expireDocumentsManagementDocument,
+  getDocumentsManagementDocument,
+  getDocumentsManagementDocumentLatestVersion,
+  getDocumentsManagementDocumentVersion,
+  listDocumentsManagementDocumentAuditTrail,
+  listDocumentsManagementDocumentVersions,
+  registerDocumentsManagementDocument,
+  rejectDocumentsManagementDocument,
+  updateDocumentsManagementDocument,
+  updateDocumentsManagementDocumentRetention,
+  verifyDocumentsManagementDocument,
+} from "./registration.ts";

@@ -298,14 +298,14 @@ The current package already models core organization-structure concepts and expo
 | Area | Code location | Current behavior |
 | --- | --- | --- |
 | Feature identity | [`src/metadata.ts`](src/metadata.ts), [`src/manifest.ts`](src/manifest.ts), [`src/shared/index.ts`](src/shared/index.ts) | Declares feature metadata, package scope, package name, and legacy source provenance |
-| Public contracts | [`src/contract.ts`](src/contract.ts), [`src/hr.workforce.org.contract.ts`](src/hr.workforce.org.contract.ts) | Exposes org-unit status and type schemas plus the underlying domain types for units, chart nodes, searches, and upsert inputs |
+| Public contracts | [`src/contract.ts`](src/contract.ts), [`src/contracts/index.ts`](src/contracts/index.ts) | Exposes org-unit status and type schemas plus the underlying domain types for units, chart nodes, searches, and upsert inputs |
 | Public door | [`src/index.ts`](src/index.ts), [`src/server.ts`](src/server.ts) | Re-exports the server-only package API, queries, mutations, and page-model builder |
-| Write actions | [`src/actions.ts`](src/actions.ts), [`src/hr.workforce.org.actions.server.ts`](src/hr.workforce.org.actions.server.ts) | Accepts form-driven upserts for units, positions, and reporting relationships |
-| Query layer | [`src/queries.ts`](src/queries.ts), [`src/hr.workforce.org.queries.ts`](src/hr.workforce.org.queries.ts) | Exposes chart, overview, units, positions, reporting lines, vacancies, headcount, and audit windows |
-| Page model | [`src/hr.workforce.org.page-model.server.ts`](src/hr.workforce.org.page-model.server.ts) | Composes search state and all read surfaces into a server-ready organizational workspace model |
-| Store | [`src/hr.workforce.org.store.ts`](src/hr.workforce.org.store.ts) | Uses an in-memory store to persist structural nodes for units, positions, and reporting relationships |
-| Forms and surface helpers | [`src/hr.workforce.org-form.shared.ts`](src/hr.workforce.org-form.shared.ts), `src/hr.workforce.org-*.surface.ts`, `src/hr.workforce.org-*.shared.ts` | Defines schema validation, UI copy, columns, metadata, and list-surface helpers |
-| Events and execution surface | [`src/hr.workforce.org.event.ts`](src/hr.workforce.org.event.ts), [`src/execution/index.ts`](src/execution/index.ts) | Defines audit-style action names and wraps the write operations into a callable execution surface |
+| Write actions | [`src/actions.ts`](src/actions.ts), [`src/actions.server.ts`](src/actions.server.ts) | Accepts form-driven upserts for units, positions, and reporting relationships |
+| Query layer | [`src/queries.ts`](src/queries.ts), [`src/queries/read-models.ts`](src/queries/read-models.ts) | Exposes chart, overview, units, positions, reporting lines, vacancies, headcount, and audit windows |
+| Page model | [`src/page-model.server.ts`](src/page-model.server.ts) | Composes search state and all read surfaces into a server-ready organizational workspace model |
+| Store | [`src/store.ts`](src/store.ts) | Uses an in-memory store to persist structural nodes for units, positions, and reporting relationships |
+| Forms and surface helpers | [`src/shared/form.shared.ts`](src/shared/form.shared.ts), [`src/shared/list-load.shared.ts`](src/shared/list-load.shared.ts), [`src/shared/list-surfaces.surface.ts`](src/shared/list-surfaces.surface.ts), [`src/shared/overview-stat.surface.ts`](src/shared/overview-stat.surface.ts), [`src/shared/search-params.parse.shared.ts`](src/shared/search-params.parse.shared.ts), [`src/shared/ui-copy.shared.ts`](src/shared/ui-copy.shared.ts) | Defines schema validation, UI copy, columns, metadata, and list-surface helpers |
+| Events and execution surface | [`src/execution/event.ts`](src/execution/event.ts), [`src/execution/index.ts`](src/execution/index.ts) | Defines audit-style action names and wraps the write operations into a callable execution surface |
 
 ### What the code does not yet fully implement
 

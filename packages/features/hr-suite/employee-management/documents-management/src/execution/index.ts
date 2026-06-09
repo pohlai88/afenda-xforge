@@ -5,6 +5,20 @@ import {
   updateDocumentsManagement,
 } from "../server.ts";
 
+export type { DocumentsManagementPolicyContext } from "../policy.ts";
+export {
+  buildDocumentsManagementAuditMetadata,
+  canReadDocumentsManagement,
+  canViewDocumentsManagementSensitiveData,
+  canWriteDocumentsManagement,
+  normalizeDocumentsManagementActorId,
+  redactDocumentsManagementDocument,
+  redactDocumentsManagementDocumentSummary,
+  redactDocumentsManagementDocumentVersion,
+  redactDocumentsManagementRecord,
+  requireDocumentsManagementWriteAccess,
+} from "../policy.ts";
+
 export type DocumentsManagementExecutionSurface = {
   create: typeof createDocumentsManagement;
   getById: typeof getDocumentsManagement;

@@ -1,4 +1,12 @@
 import "server-only";
 
-export const runHrSuiteFeatureAction = <T>(operation: () => T): T =>
-  operation();
+import type { DocumentsManagementPolicyContext } from "../policy.ts";
+import { requireDocumentsManagementWriteAccess } from "../policy.ts";
+
+export const runHrSuiteFeatureAction = <T>(
+  operation: () => T,
+  context?: DocumentsManagementPolicyContext
+): T => {
+  requireDocumentsManagementWriteAccess(context);
+  return operation();
+};

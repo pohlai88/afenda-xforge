@@ -1,32 +1,14 @@
-/**
- * Server-only public door for the feature package.
- *
- * This package exposes the governed lifecycle contracts and feature surfaces
- * extracted from the legacy HR suite module.
- */
 import "server-only";
 
-export type {
-  CreateEmployeeLifecycleManagementInput,
-  EmployeeLifecycleManagementRecord,
-  HrLifecycleRoutePath,
-  HrWorkforceLifecycleAuditAction,
-  ListEmployeeLifecycleManagementQuery,
-  UpdateEmployeeLifecycleManagementInput,
-} from "./contract.ts";
-export { employeeLifecycleManagementExecutionSurface } from "./execution/index.ts";
-export { employeeLifecycleManagementManifest } from "./manifest.ts";
-export { employeeLifecycleManagementMetadata } from "./metadata.ts";
-export {
-  createEmployeeLifecycleManagement,
-  employeeLifecycleManagementFeatureId,
-  employeeLifecycleManagementRouteContracts,
-  getEmployeeLifecycleManagement,
-  hrLifecycleRoutePaths,
-  hrWorkforceLifecycleAuditActions,
-  hrWorkforceLifecycleReadPermission,
-  hrWorkforceLifecycleWritePermission,
-  listEmployeeLifecycleManagement,
-  updateEmployeeLifecycleManagement,
-} from "./server.ts";
-export { employeeLifecycleManagementFeatureScope } from "./shared/index.ts";
+export * from "./actions.ts";
+export * from "./contract.ts";
+export * from "./execution/index.ts";
+export * from "./feature-scope.ts";
+export * from "./identity.ts";
+export * from "./manifest.ts";
+export * from "./metadata.ts";
+export * from "./queries.ts";
+export * from "./registry/index.ts";
+export * from "./repository.ts";
+export * from "./server.ts";
+export * from "./shared/index.ts";

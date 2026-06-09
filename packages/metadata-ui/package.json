@@ -8,7 +8,9 @@
     ".": "./index.tsx",
     "./adapters": "./src/adapters/index.ts",
     "./components": "./src/components/index.ts",
+    "./compatibility": "./src/compatibility/index.ts",
     "./contracts": "./src/contracts/index.ts",
+    "./policy": "./src/policy/index.ts",
     "./registry": "./src/registry/index.ts",
     "./renderers": "./src/renderers/index.ts",
     "./package.json": "./package.json"
@@ -24,11 +26,14 @@
   ],
   "scripts": {
     "build": "tsc -p tsconfig.build.json",
+    "check:boundaries": "tsx scripts/check-boundaries.mts",
+    "check:public-api": "tsx scripts/check-public-api.mts",
     "lint": "biome check .",
     "format": "biome format --write .",
     "clean": "git clean -xdf .cache .turbo dist node_modules",
     "test": "tsx --test tests/index.test.ts",
-    "typecheck": "tsc --noEmit --emitDeclarationOnly false"
+    "typecheck": "tsc --noEmit --emitDeclarationOnly false",
+    "verify": "pnpm run typecheck && pnpm run lint && pnpm run build && pnpm run test && pnpm run check:boundaries && pnpm run check:public-api"
   },
   "dependencies": {
     "@repo/customization": "workspace:*",

@@ -5,7 +5,14 @@
   "type": "module",
   "exports": {
     ".": "./src/index.ts",
+    "./actions": "./src/actions.ts",
     "./contract": "./src/contract.ts",
+    "./feature-scope": "./src/feature-scope.ts",
+    "./identity": "./src/identity.ts",
+    "./repository": "./src/repository.ts",
+    "./queries": "./src/queries.ts",
+    "./schema": "./src/schema.ts",
+    "./registry": "./src/registry/index.ts",
     "./execution": "./src/execution/index.ts",
     "./manifest": "./src/manifest.ts",
     "./metadata": "./src/metadata.ts",
@@ -20,15 +27,18 @@
   "scripts": {
     "lint": "biome check .",
     "format": "biome format --write .",
+    "test": "tsx --conditions=react-server --test test/**/*.test.ts",
     "clean": "git clean -xdf .cache .turbo dist node_modules",
     "typecheck": "tsc --noEmit --emitDeclarationOnly false"
   },
   "dependencies": {
-    "server-only": "catalog:"
+    "server-only": "catalog:",
+    "zod": "catalog:"
   },
   "devDependencies": {
     "@repo/typescript-config": "workspace:*",
     "@types/node": "catalog:",
+    "tsx": "catalog:",
     "typescript": "catalog:"
   }
 }

@@ -17,6 +17,16 @@ import {
 
 let repositoryPath = "";
 
+const requireTargetId = (
+  result: { ok: true; targetId?: string } | { ok: false; error: string }
+): string => {
+  if (!(result.ok && result.targetId)) {
+    throw new Error("Expected mutation result to include targetId");
+  }
+
+  return result.targetId;
+};
+
 beforeEach(() => {
   repositoryPath = resolve(
     tmpdir(),
@@ -35,6 +45,44 @@ afterEach(() => {
 });
 
 test("persists profile fields and projects sensitive detail reads", () => {
+  const managerOne = createHrEmployeeRecordAction(
+    {
+      employeeNumber: "M100",
+      legalName: "Manager One",
+    },
+    {
+      canWrite: true,
+      organizationId: "org-1",
+      userId: "hr-admin",
+    }
+  );
+  const managerTwo = createHrEmployeeRecordAction(
+    {
+      employeeNumber: "M101",
+      legalName: "Manager Two",
+    },
+    {
+      canWrite: true,
+      organizationId: "org-1",
+      userId: "hr-admin",
+    }
+  );
+  const hrOwner = createHrEmployeeRecordAction(
+    {
+      employeeNumber: "H100",
+      legalName: "HR Owner",
+    },
+    {
+      canWrite: true,
+      organizationId: "org-1",
+      userId: "hr-admin",
+    }
+  );
+
+  assert.equal(managerOne.ok, true);
+  assert.equal(managerTwo.ok, true);
+  assert.equal(hrOwner.ok, true);
+
   const created = createHrEmployeeRecordAction(
     {
       employeeNumber: "E100",
@@ -53,9 +101,9 @@ test("persists profile fields and projects sensitive detail reads", () => {
       contractEndDate: new Date("2027-01-15T00:00:00.000Z"),
       currentDepartmentId: "dept-1",
       currentPositionId: "pos-1",
-      managerEmployeeId: "mgr-1",
-      matrixManagerEmployeeId: "mgr-2",
-      hrOwnerEmployeeId: "hr-1",
+      managerEmployeeId: requireTargetId(managerOne),
+      matrixManagerEmployeeId: requireTargetId(managerTwo),
+      hrOwnerEmployeeId: requireTargetId(hrOwner),
       personalEmail: "ari.private@example.com",
       identityDocumentType: "passport",
       identityNumber: "ID-123456",
@@ -124,7 +172,7 @@ test("persists profile fields and projects sensitive detail reads", () => {
   assert.equal(sensitive?.employee.personalEmail, "ari.private@example.com");
   assert.equal(sensitive?.employee.identityNumber, "ID-123456");
   assert.equal(sensitive?.employee.phoneNumber, "+66812345678");
-  assert.equal(sensitive?.employee.dateOfBirth, "1990-05-15T00:00:00.000Z");
+  assert.equal(sensitive?.employee.dateOfBirth, "1990-05-15");
 
   const updated = updateHrEmployeeRecordAction(
     {

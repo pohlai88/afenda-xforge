@@ -1,20 +1,24 @@
 export type {
   HrOrgAccessDecision,
   HrOrgAuditEvent,
+  HrOrgAuditEventProjection,
   HrOrgAuditQuery,
   HrOrgChartNodeProjection,
   HrOrgListQuery,
   HrOrgMutationResult,
   HrOrgOverviewProjection,
   HrOrgPolicyContext,
+  HrOrgPositionProjection,
   HrOrgPositionQuery,
   HrOrgPositionRecord,
   HrOrgReadContext,
+  HrOrgReportingRelationshipProjection,
   HrOrgReportingRelationshipQuery,
   HrOrgReportingRelationshipRecord,
   HrOrgReportingRelationshipType,
   HrOrgRepositoryEntityType,
   HrOrgScope,
+  HrOrgUnitProjection,
   HrOrgUnitQuery,
   HrOrgUnitRecord,
   HrOrgWriteContext,
@@ -74,20 +78,20 @@ export {
 } from "./contracts/index.ts";
 export type {
   HrOrgActionResult,
+  HrOrgAuditTrailListRow,
   HrOrgChartNode,
-  HrOrgNodeInput,
+  HrOrgHeadcountListRow,
   HrOrgPageModel,
   HrOrgPageModelInput,
+  HrOrgPositionListRow,
+  HrOrgReportingRelationshipListRow,
   HrOrgSearchParams,
+  HrOrgUnitListRow,
+  HrOrgVacancyListRow,
   UpsertHrOrgPositionInput,
   UpsertHrOrgReportingRelationshipInput,
   UpsertHrOrgUnitInput,
-} from "./hr.workforce.org.contract.ts";
-export {
-  hrOrgPositionSchema,
-  hrOrgReportingRelationshipSchema,
-  hrOrgUnitSchema,
-} from "./hr.workforce.org-form.shared.ts";
+} from "./contracts/org-model.contract.ts";
 export type {
   HrOrgStatus,
   HrOrgStatus as HrOrgUnitStatus,
@@ -97,3 +101,8 @@ export {
   hrOrgStatusSchema,
   hrOrgUnitTypeSchema,
 } from "./schema.ts";
+export {
+  hrOrgPositionSchema,
+  hrOrgReportingRelationshipSchema,
+  hrOrgUnitSchema,
+} from "./shared/form.shared.ts";

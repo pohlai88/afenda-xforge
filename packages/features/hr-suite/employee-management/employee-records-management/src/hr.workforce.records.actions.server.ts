@@ -116,7 +116,9 @@ export function rehireHrEmployeeAction(
   try {
     const parsed = hrRecordsRehireEmployeeSchema.parse(input);
     const record = hrRecordsStore.rehire(parsed, context);
-    return { ok: true, targetId: record.id };
+    return record
+      ? { ok: true, targetId: record.id }
+      : { ok: false, error: "Record not found" };
   } catch (error) {
     return toRecordsActionFailure(error);
   }

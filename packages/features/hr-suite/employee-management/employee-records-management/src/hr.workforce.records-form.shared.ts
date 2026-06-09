@@ -104,6 +104,7 @@ export const hrRecordsAssignmentSchema = z.object({
   currentDepartmentId: optionalTrimmedString,
   currentPositionId: optionalTrimmedString,
   managerEmployeeId: optionalTrimmedString,
+  workLocationCode: optionalTrimmedString,
   assignmentEffectiveFrom: z.coerce.date().optional(),
   assignmentReason: z.string().trim().max(2000).optional(),
   reason: z.string().trim().max(2000).optional(),

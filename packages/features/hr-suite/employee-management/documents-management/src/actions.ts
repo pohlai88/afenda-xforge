@@ -1,14 +1,17 @@
 import "server-only";
 
-import { randomUUID } from "node:crypto";
 import type {
   CreateDocumentsManagementInput,
   DocumentsManagementRecord,
   UpdateDocumentsManagementInput,
 } from "./contract.ts";
 import { runHrSuiteFeatureAction } from "./execution/action.ts";
-import { documentsManagementStore } from "./queries.ts";
-import type { HrSuiteFeatureContext } from "./shared/index.ts";
+import type { DocumentsManagementPolicyContext } from "./policy.ts";
+import {
+  createDocumentsManagementRecordId,
+  getDocumentsManagementRepositoryRecord,
+  upsertDocumentsManagementRepositoryRecord,
+} from "./repository.ts";
 
 const normalizeName = (value: string): string => {
   const trimmedValue = value.trim();
@@ -17,33 +20,36 @@ const normalizeName = (value: string): string => {
 
 export function createDocumentsManagementRecord(
   input: CreateDocumentsManagementInput,
-  _context?: HrSuiteFeatureContext
+  context?: DocumentsManagementPolicyContext
 ): DocumentsManagementRecord {
   return runHrSuiteFeatureAction(() => {
     const record: DocumentsManagementRecord = {
-      id: randomUUID(),
+      id: createDocumentsManagementRecordId(),
       name: normalizeName(input.name),
       status: "draft",
     };
 
-    documentsManagementStore.set(record.id, record);
+    upsertDocumentsManagementRepositoryRecord(record, context);
     return record;
-  });
+  }, context);
 }
 
 export function updateDocumentsManagementRecord(
   input: UpdateDocumentsManagementInput,
-  _context?: HrSuiteFeatureContext
+  context?: DocumentsManagementPolicyContext
 ): DocumentsManagementRecord {
   return runHrSuiteFeatureAction(() => {
-    const currentRecord = documentsManagementStore.get(input.id);
+    const currentRecord = getDocumentsManagementRepositoryRecord(
+      input.id,
+      context
+    );
     const nextRecord: DocumentsManagementRecord = {
       id: input.id,
       name: normalizeName(input.name ?? currentRecord?.name ?? "Unnamed"),
       status: input.status ?? currentRecord?.status ?? "draft",
     };
 
-    documentsManagementStore.set(nextRecord.id, nextRecord);
+    upsertDocumentsManagementRepositoryRecord(nextRecord, context);
     return nextRecord;
-  });
+  }, context);
 }

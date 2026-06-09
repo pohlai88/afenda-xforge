@@ -2,6 +2,7 @@ import type { InferInsertModel, InferSelectModel } from "drizzle-orm";
 import { relations } from "drizzle-orm";
 import {
   boolean,
+  foreignKey,
   index,
   integer,
   jsonb,
@@ -377,6 +378,129 @@ export const complianceWorkerProfiles = xforge.table(
       table.tenantId,
       table.companyId,
       table.employeeId
+    ),
+  ]
+);
+
+export const employeeRecordAssignmentHistory = xforge.table(
+  "employee_record_assignment_history",
+  {
+    id: uuid("id").defaultRandom().primaryKey(),
+    tenantId: uuid("tenant_id")
+      .notNull()
+      .references(() => tenants.id, { onDelete: "cascade" }),
+    companyId: uuid("company_id")
+      .notNull()
+      .references(() => companies.id, { onDelete: "cascade" }),
+    employeeId: text("employee_id").notNull(),
+    departmentId: text("department_id"),
+    positionId: text("position_id"),
+    workLocationCode: varchar("work_location_code", { length: 96 }),
+    managerEmployeeId: text("manager_employee_id"),
+    effectiveFrom: timestamp("effective_from", {
+      mode: "date",
+      withTimezone: true,
+    }).notNull(),
+    effectiveTo: timestamp("effective_to", {
+      mode: "date",
+      withTimezone: true,
+    }),
+    source: varchar("source", { length: 64 }).notNull(),
+    reason: text("reason"),
+    actorId: text("actor_id"),
+    createdAt: timestamp("created_at", {
+      mode: "date",
+      withTimezone: true,
+    })
+      .defaultNow()
+      .notNull(),
+    updatedAt: timestamp("updated_at", {
+      mode: "date",
+      withTimezone: true,
+    })
+      .defaultNow()
+      .notNull(),
+  },
+  (table) => [
+    index("employee_record_assignment_history_tenant_company_employee_idx").on(
+      table.tenantId,
+      table.companyId,
+      table.employeeId
+    ),
+    index(
+      "employee_record_assignment_history_tenant_company_department_idx"
+    ).on(table.tenantId, table.companyId, table.departmentId),
+    index("employee_record_assignment_history_tenant_company_manager_idx").on(
+      table.tenantId,
+      table.companyId,
+      table.managerEmployeeId
+    ),
+    index("employee_record_assignment_history_tenant_company_location_idx").on(
+      table.tenantId,
+      table.companyId,
+      table.workLocationCode
+    ),
+    index("employee_record_assignment_history_tenant_company_effective_idx").on(
+      table.tenantId,
+      table.companyId,
+      table.effectiveFrom
+    ),
+  ]
+);
+
+export const employeeRecordStatusHistory = xforge.table(
+  "employee_record_status_history",
+  {
+    id: uuid("id").defaultRandom().primaryKey(),
+    tenantId: uuid("tenant_id")
+      .notNull()
+      .references(() => tenants.id, { onDelete: "cascade" }),
+    companyId: uuid("company_id")
+      .notNull()
+      .references(() => companies.id, { onDelete: "cascade" }),
+    employeeId: text("employee_id").notNull(),
+    status: varchar("status", { length: 16 }).notNull(),
+    previousStatus: varchar("previous_status", { length: 16 }),
+    effectiveAt: timestamp("effective_at", {
+      mode: "date",
+      withTimezone: true,
+    }).notNull(),
+    source: varchar("source", { length: 64 }).notNull(),
+    reason: text("reason"),
+    actorId: text("actor_id"),
+    createdAt: timestamp("created_at", {
+      mode: "date",
+      withTimezone: true,
+    })
+      .defaultNow()
+      .notNull(),
+    updatedAt: timestamp("updated_at", {
+      mode: "date",
+      withTimezone: true,
+    })
+      .defaultNow()
+      .notNull(),
+  },
+  (table) => [
+    index("employee_record_status_history_tenant_company_employee_idx").on(
+      table.tenantId,
+      table.companyId,
+      table.employeeId
+    ),
+    index("employee_record_status_history_tenant_company_status_idx").on(
+      table.tenantId,
+      table.companyId,
+      table.status
+    ),
+    index("employee_record_status_history_tenant_company_effective_idx").on(
+      table.tenantId,
+      table.companyId,
+      table.effectiveAt
+    ),
+    index("employee_record_status_history_tenant_company_source_idx").on(
+      table.tenantId,
+      table.companyId,
+      table.source
     ),
   ]
 );
@@ -760,6 +884,262 @@ export const auditEvents = xforge.table(
   ]
 );
 
+export const hrOrgUnits = xforge.table(
+  "hr_org_units",
+  {
+    id: uuid("id").defaultRandom().primaryKey(),
+    tenantId: uuid("tenant_id")
+      .notNull()
+      .references(() => tenants.id, { onDelete: "cascade" }),
+    companyId: uuid("company_id")
+      .notNull()
+      .references(() => companies.id, { onDelete: "cascade" }),
+    code: varchar("code", { length: 96 }).notNull(),
+    name: text("name").notNull(),
+    unitType: varchar("unit_type", { length: 64 }).notNull(),
+    parentUnitId: uuid("parent_unit_id"),
+    managerEmployeeId: text("manager_employee_id"),
+    costCenterCode: varchar("cost_center_code", { length: 96 }),
+    locationCode: varchar("location_code", { length: 96 }),
+    legalEntityCode: varchar("legal_entity_code", { length: 96 }),
+    status: varchar("status", { length: 16 }).notNull().default("active"),
+    effectiveFrom: timestamp("effective_from", {
+      mode: "date",
+      withTimezone: true,
+    }).notNull(),
+    effectiveTo: timestamp("effective_to", {
+      mode: "date",
+      withTimezone: true,
+    }),
+    createdAt: timestamp("created_at", {
+      mode: "date",
+      withTimezone: true,
+    })
+      .defaultNow()
+      .notNull(),
+    updatedAt: timestamp("updated_at", {
+      mode: "date",
+      withTimezone: true,
+    })
+      .defaultNow()
+      .notNull(),
+  },
+  (table) => [
+    foreignKey({
+      columns: [table.parentUnitId],
+      foreignColumns: [table.id],
+      name: "hr_org_units_parent_unit_id_hr_org_units_id_fk",
+    }).onDelete("set null"),
+    index("hr_org_units_tenant_company_idx").on(
+      table.tenantId,
+      table.companyId
+    ),
+    index("hr_org_units_tenant_company_status_idx").on(
+      table.tenantId,
+      table.companyId,
+      table.status
+    ),
+    index("hr_org_units_tenant_company_type_idx").on(
+      table.tenantId,
+      table.companyId,
+      table.unitType
+    ),
+    index("hr_org_units_tenant_company_parent_idx").on(
+      table.tenantId,
+      table.companyId,
+      table.parentUnitId
+    ),
+    index("hr_org_units_tenant_company_location_idx").on(
+      table.tenantId,
+      table.companyId,
+      table.locationCode
+    ),
+    index("hr_org_units_tenant_company_legal_entity_idx").on(
+      table.tenantId,
+      table.companyId,
+      table.legalEntityCode
+    ),
+    uniqueIndex("hr_org_units_tenant_company_code_unique").on(
+      table.tenantId,
+      table.companyId,
+      table.code
+    ),
+  ]
+);
+
+export const hrOrgPositions = xforge.table(
+  "hr_org_positions",
+  {
+    id: uuid("id").defaultRandom().primaryKey(),
+    tenantId: uuid("tenant_id")
+      .notNull()
+      .references(() => tenants.id, { onDelete: "cascade" }),
+    companyId: uuid("company_id")
+      .notNull()
+      .references(() => companies.id, { onDelete: "cascade" }),
+    code: varchar("code", { length: 96 }).notNull(),
+    title: text("title").notNull(),
+    organizationUnitId: uuid("organization_unit_id")
+      .notNull()
+      .references(() => hrOrgUnits.id, { onDelete: "restrict" }),
+    managerEmployeeId: text("manager_employee_id"),
+    costCenterCode: varchar("cost_center_code", { length: 96 }),
+    locationCode: varchar("location_code", { length: 96 }),
+    status: varchar("status", { length: 16 }).notNull().default("active"),
+    effectiveFrom: timestamp("effective_from", {
+      mode: "date",
+      withTimezone: true,
+    }).notNull(),
+    effectiveTo: timestamp("effective_to", {
+      mode: "date",
+      withTimezone: true,
+    }),
+    createdAt: timestamp("created_at", {
+      mode: "date",
+      withTimezone: true,
+    })
+      .defaultNow()
+      .notNull(),
+    updatedAt: timestamp("updated_at", {
+      mode: "date",
+      withTimezone: true,
+    })
+      .defaultNow()
+      .notNull(),
+  },
+  (table) => [
+    index("hr_org_positions_tenant_company_idx").on(
+      table.tenantId,
+      table.companyId
+    ),
+    index("hr_org_positions_tenant_company_status_idx").on(
+      table.tenantId,
+      table.companyId,
+      table.status
+    ),
+    index("hr_org_positions_tenant_company_unit_idx").on(
+      table.tenantId,
+      table.companyId,
+      table.organizationUnitId
+    ),
+    index("hr_org_positions_tenant_company_location_idx").on(
+      table.tenantId,
+      table.companyId,
+      table.locationCode
+    ),
+    uniqueIndex("hr_org_positions_tenant_company_code_unique").on(
+      table.tenantId,
+      table.companyId,
+      table.code
+    ),
+  ]
+);
+
+export const hrOrgReportingRelationships = xforge.table(
+  "hr_org_reporting_relationships",
+  {
+    id: uuid("id").defaultRandom().primaryKey(),
+    tenantId: uuid("tenant_id")
+      .notNull()
+      .references(() => tenants.id, { onDelete: "cascade" }),
+    companyId: uuid("company_id")
+      .notNull()
+      .references(() => companies.id, { onDelete: "cascade" }),
+    employeeId: text("employee_id").notNull(),
+    managerEmployeeId: text("manager_employee_id").notNull(),
+    relationshipType: varchar("relationship_type", { length: 64 }).notNull(),
+    effectiveFrom: timestamp("effective_from", {
+      mode: "date",
+      withTimezone: true,
+    }).notNull(),
+    effectiveTo: timestamp("effective_to", {
+      mode: "date",
+      withTimezone: true,
+    }),
+    reason: text("reason"),
+    createdAt: timestamp("created_at", {
+      mode: "date",
+      withTimezone: true,
+    })
+      .defaultNow()
+      .notNull(),
+    updatedAt: timestamp("updated_at", {
+      mode: "date",
+      withTimezone: true,
+    })
+      .defaultNow()
+      .notNull(),
+  },
+  (table) => [
+    index("hr_org_reporting_relationships_tenant_company_idx").on(
+      table.tenantId,
+      table.companyId
+    ),
+    index("hr_org_reporting_relationships_tenant_company_employee_idx").on(
+      table.tenantId,
+      table.companyId,
+      table.employeeId
+    ),
+    index("hr_org_reporting_relationships_tenant_company_manager_idx").on(
+      table.tenantId,
+      table.companyId,
+      table.managerEmployeeId
+    ),
+    uniqueIndex(
+      "hr_org_reporting_relationships_tenant_company_identity_unique"
+    ).on(
+      table.tenantId,
+      table.companyId,
+      table.employeeId,
+      table.managerEmployeeId,
+      table.relationshipType,
+      table.effectiveFrom
+    ),
+  ]
+);
+
+export const hrOrgStructureAuditReferences = xforge.table(
+  "hr_org_structure_audit_references",
+  {
+    id: uuid("id").defaultRandom().primaryKey(),
+    tenantId: uuid("tenant_id")
+      .notNull()
+      .references(() => tenants.id, { onDelete: "cascade" }),
+    companyId: uuid("company_id")
+      .notNull()
+      .references(() => companies.id, { onDelete: "cascade" }),
+    auditEventId: uuid("audit_event_id")
+      .notNull()
+      .references(() => auditEvents.id, { onDelete: "cascade" }),
+    entityType: varchar("entity_type", { length: 64 }).notNull(),
+    entityId: text("entity_id").notNull(),
+    action: varchar("action", { length: 128 }).notNull(),
+    summary: text("summary").notNull(),
+    metadata: jsonb("metadata").$type<Record<string, unknown>>().notNull(),
+    createdAt: timestamp("created_at", {
+      mode: "date",
+      withTimezone: true,
+    })
+      .defaultNow()
+      .notNull(),
+  },
+  (table) => [
+    index("hr_org_structure_audit_refs_tenant_company_idx").on(
+      table.tenantId,
+      table.companyId
+    ),
+    index("hr_org_structure_audit_refs_tenant_entity_idx").on(
+      table.tenantId,
+      table.entityType,
+      table.entityId
+    ),
+    uniqueIndex("hr_org_structure_audit_refs_tenant_audit_event_unique").on(
+      table.tenantId,
+      table.auditEventId
+    ),
+  ]
+);
+
 export const tenantsRelations = relations(tenants, ({ many }) => ({
   companies: many(companies),
   complianceAlertStates: many(complianceAlertStates),
@@ -771,6 +1151,10 @@ export const tenantsRelations = relations(tenants, ({ many }) => ({
   complianceObligations: many(complianceObligations),
   complianceWorkerProfiles: many(complianceWorkerProfiles),
   customers: many(customers),
+  hrOrgPositions: many(hrOrgPositions),
+  hrOrgReportingRelationships: many(hrOrgReportingRelationships),
+  hrOrgStructureAuditReferences: many(hrOrgStructureAuditReferences),
+  hrOrgUnits: many(hrOrgUnits),
   memberships: many(tenantMemberships),
   webhookEndpoints: many(webhookEndpoints),
 }));
@@ -788,6 +1172,10 @@ export const companiesRelations = relations(companies, ({ one, many }) => ({
   complianceFilings: many(complianceFilings),
   complianceObligations: many(complianceObligations),
   complianceWorkerProfiles: many(complianceWorkerProfiles),
+  hrOrgPositions: many(hrOrgPositions),
+  hrOrgReportingRelationships: many(hrOrgReportingRelationships),
+  hrOrgStructureAuditReferences: many(hrOrgStructureAuditReferences),
+  hrOrgUnits: many(hrOrgUnits),
   grants: many(companyGrants),
   webhookEndpoints: many(webhookEndpoints),
 }));
@@ -891,6 +1279,34 @@ export const complianceWorkerProfilesRelations = relations(
   })
 );
 
+export const employeeRecordAssignmentHistoryRelations = relations(
+  employeeRecordAssignmentHistory,
+  ({ one }) => ({
+    tenant: one(tenants, {
+      fields: [employeeRecordAssignmentHistory.tenantId],
+      references: [tenants.id],
+    }),
+    company: one(companies, {
+      fields: [employeeRecordAssignmentHistory.companyId],
+      references: [companies.id],
+    }),
+  })
+);
+
+export const employeeRecordStatusHistoryRelations = relations(
+  employeeRecordStatusHistory,
+  ({ one }) => ({
+    tenant: one(tenants, {
+      fields: [employeeRecordStatusHistory.tenantId],
+      references: [tenants.id],
+    }),
+    company: one(companies, {
+      fields: [employeeRecordStatusHistory.companyId],
+      references: [companies.id],
+    }),
+  })
+);
+
 export const complianceEvidenceArtifactsRelations = relations(
   complianceEvidenceArtifacts,
   ({ one }) => ({
@@ -975,6 +1391,64 @@ export const complianceAuditReferencesRelations = relations(
   })
 );
 
+export const hrOrgUnitsRelations = relations(hrOrgUnits, ({ one }) => ({
+  tenant: one(tenants, {
+    fields: [hrOrgUnits.tenantId],
+    references: [tenants.id],
+  }),
+  company: one(companies, {
+    fields: [hrOrgUnits.companyId],
+    references: [companies.id],
+  }),
+}));
+
+export const hrOrgPositionsRelations = relations(hrOrgPositions, ({ one }) => ({
+  tenant: one(tenants, {
+    fields: [hrOrgPositions.tenantId],
+    references: [tenants.id],
+  }),
+  company: one(companies, {
+    fields: [hrOrgPositions.companyId],
+    references: [companies.id],
+  }),
+  organizationUnit: one(hrOrgUnits, {
+    fields: [hrOrgPositions.organizationUnitId],
+    references: [hrOrgUnits.id],
+  }),
+}));
+
+export const hrOrgReportingRelationshipsRelations = relations(
+  hrOrgReportingRelationships,
+  ({ one }) => ({
+    tenant: one(tenants, {
+      fields: [hrOrgReportingRelationships.tenantId],
+      references: [tenants.id],
+    }),
+    company: one(companies, {
+      fields: [hrOrgReportingRelationships.companyId],
+      references: [companies.id],
+    }),
+  })
+);
+
+export const hrOrgStructureAuditReferencesRelations = relations(
+  hrOrgStructureAuditReferences,
+  ({ one }) => ({
+    tenant: one(tenants, {
+      fields: [hrOrgStructureAuditReferences.tenantId],
+      references: [tenants.id],
+    }),
+    company: one(companies, {
+      fields: [hrOrgStructureAuditReferences.companyId],
+      references: [companies.id],
+    }),
+    auditEvent: one(auditEvents, {
+      fields: [hrOrgStructureAuditReferences.auditEventId],
+      references: [auditEvents.id],
+    }),
+  })
+);
+
 export const databaseSchema: Omit<
   typeof import("./schema.ts"),
   "databaseSchema"
@@ -1001,8 +1475,20 @@ export const databaseSchema: Omit<
   complianceObligationsRelations,
   complianceWorkerProfiles,
   complianceWorkerProfilesRelations,
+  employeeRecordAssignmentHistory,
+  employeeRecordAssignmentHistoryRelations,
+  employeeRecordStatusHistory,
+  employeeRecordStatusHistoryRelations,
   customers,
   customersRelations,
+  hrOrgPositions,
+  hrOrgPositionsRelations,
+  hrOrgReportingRelationships,
+  hrOrgReportingRelationshipsRelations,
+  hrOrgStructureAuditReferences,
+  hrOrgStructureAuditReferencesRelations,
+  hrOrgUnits,
+  hrOrgUnitsRelations,
   notificationInbox,
   notificationInboxRelations,
   tenantMemberships,
@@ -1029,6 +1515,18 @@ export type ComplianceWorkerProfile = InferSelectModel<
 >;
 export type NewComplianceWorkerProfile = InferInsertModel<
   typeof complianceWorkerProfiles
+>;
+export type EmployeeRecordAssignmentHistory = InferSelectModel<
+  typeof employeeRecordAssignmentHistory
+>;
+export type NewEmployeeRecordAssignmentHistory = InferInsertModel<
+  typeof employeeRecordAssignmentHistory
+>;
+export type EmployeeRecordStatusHistory = InferSelectModel<
+  typeof employeeRecordStatusHistory
+>;
+export type NewEmployeeRecordStatusHistory = InferInsertModel<
+  typeof employeeRecordStatusHistory
 >;
 export type ComplianceEvidenceArtifact = InferSelectModel<
   typeof complianceEvidenceArtifacts
@@ -1074,3 +1572,19 @@ export type WebhookEndpoint = InferSelectModel<typeof webhookEndpoints>;
 export type NewWebhookEndpoint = InferInsertModel<typeof webhookEndpoints>;
 export type AuditEvent = InferSelectModel<typeof auditEvents>;
 export type NewAuditEvent = InferInsertModel<typeof auditEvents>;
+export type HrOrgUnit = InferSelectModel<typeof hrOrgUnits>;
+export type NewHrOrgUnit = InferInsertModel<typeof hrOrgUnits>;
+export type HrOrgPosition = InferSelectModel<typeof hrOrgPositions>;
+export type NewHrOrgPosition = InferInsertModel<typeof hrOrgPositions>;
+export type HrOrgReportingRelationship = InferSelectModel<
+  typeof hrOrgReportingRelationships
+>;
+export type NewHrOrgReportingRelationship = InferInsertModel<
+  typeof hrOrgReportingRelationships
+>;
+export type HrOrgStructureAuditReference = InferSelectModel<
+  typeof hrOrgStructureAuditReferences
+>;
+export type NewHrOrgStructureAuditReference = InferInsertModel<
+  typeof hrOrgStructureAuditReferences
+>;
