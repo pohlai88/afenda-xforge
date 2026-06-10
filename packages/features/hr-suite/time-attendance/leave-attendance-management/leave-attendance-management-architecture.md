@@ -107,11 +107,11 @@
 
 | Acceptance Criteria | Evidence |
 | --- | --- |
-| AC-025 | Every leave, attendance, correction, approval, rejection, adjustment, and payroll integration action creates an audit event. | All 18 action modules emit `createLamMutationAuditEvent`; 30 catalog events reachable across attendance, leave config, balance, applications, corrections, payroll export, report export, and notifications. |
+| AC-025 | Every leave, attendance, correction, approval, rejection, adjustment, and payroll integration action creates an audit event. | All 19 action modules emit `createLamMutationAuditEvent`; 31 catalog events reachable across attendance, leave config, balance, applications, corrections, payroll export, report export, and notifications. |
 
 | Write-side audit behaviour | Evidence |
 | --- | --- |
-| Event catalog | 30 events in [`leaveAttendanceManagementAuditEvents`](./src/contracts/audit.contract.ts) grouped by attendance, leave config, balance, applications, integrations. |
+| Event catalog | 31 events in [`leaveAttendanceManagementAuditEvents`](./src/contracts/audit.contract.ts) grouped by attendance, leave config, balance, applications, integrations. |
 | High-risk classification | 14 events in [`leaveAttendanceManagementHighRiskAuditEvents`](./src/contracts/audit.contract.ts). |
 | Mutation coverage | Attendance upsert, corrections submit/approve/reject, leave types/rules/balances/applications/documents/decisions/lifecycle, entitlement calculation, carry-forward, payroll/report export, notification enqueue. |
 | Action map integrity | [`hrTimeAttendanceLamAuditActions`](./src/contracts/audit.contract.ts) references catalog strings (no phantom event ids). |
@@ -124,11 +124,12 @@
 | Single-record read | [`getLamAuditTrailRecordById`](./src/queries/audit.query.ts). |
 | API | `GET /api/hr/leave/audit-trail`, `GET /api/hr/leave/audit-trail/:auditEventId`. |
 | Dependencies | Seq 0 foundation + all prior write slices (mutations must exist before audit trail is meaningful). |
-| Tests | [`test/leave-attendance-management-audit-trail.test.ts`](./test/leave-attendance-management-audit-trail.test.ts). |
+| Tests | [`test/leave-attendance-management-audit-trail.test.ts`](./test/leave-attendance-management-audit-trail.test.ts) (HRM-LAM-030 read path), [`test/leave-attendance-management-audit-emission.test.ts`](./test/leave-attendance-management-audit-emission.test.ts) (AC-025 write-side emission), [`apps/api/test/hr-lam-audit-trail-route.test.ts`](../../../../apps/api/test/hr-lam-audit-trail-route.test.ts) (AC-025 HTTP mutation → audit-trail). |
 
 | Seq 21 review (2026-06-10) | Result |
 | --- | --- |
 | Write-side completeness | No un-audited production mutations — all domain actions write audit events. |
+| AC-025 test evidence | Domain emission matrix + HTTP end-to-end audit-trail retrieval for attendance, approval, adjustment, payroll export, and report export. |
 | Read-side gap closed | Audit list/get query + API routes added; `auditRead` capability now enforced on read path. |
 | Action map repair | Fixed phantom `hr.lam.notification.enqueue` and `hr.lam.attendance.day.regenerate` strings in `hrTimeAttendanceLamAuditActions`. |
 
@@ -136,8 +137,9 @@
 | --- | --- |
 | `pnpm --filter @repo/features-time-attendance-leave-attendance-management typecheck` | Green (2026-06-10) |
 | `pnpm --filter @repo/features-time-attendance-leave-attendance-management lint` | Green (2026-06-10) |
-| `pnpm --filter @repo/features-time-attendance-leave-attendance-management test` | Green — 182 pass, 2 skipped (DB integration when Postgres unavailable) |
+| `pnpm --filter @repo/features-time-attendance-leave-attendance-management test` | Green — 303 pass, 6 skipped (DB integration when Postgres unavailable) |
 | `pnpm --filter api typecheck` | Green (2026-06-10) |
+| `pnpm --filter api test` | Green — 103 pass (includes AC-025 HTTP audit-trail route tests) |
 
 ---
 
