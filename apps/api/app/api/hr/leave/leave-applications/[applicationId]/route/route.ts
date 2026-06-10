@@ -24,7 +24,7 @@ export async function POST(request: Request, context: RouteContext) {
       ...(parsedBody.body as RouteLamLeaveApplicationInput),
       applicationId,
     },
-    createLamWriteContext(request)
+    await createLamWriteContext(request)
   );
 
   return NextResponse.json(result, {

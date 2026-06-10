@@ -9,6 +9,7 @@ import {
   writeFileSync,
 } from "node:fs";
 import { dirname, resolve } from "node:path";
+import { writeAuditEventInTransaction } from "@repo/audit";
 import type { SQL } from "drizzle-orm";
 import { and, eq } from "drizzle-orm";
 import type {
@@ -24,20 +25,33 @@ import type {
   LamLeaveEntitlementRule,
   LamLeaveType,
 } from "./contracts/index.ts";
+import { mapLamAuditEventToCanonicalInput } from "./lam-canonical-audit.ts";
+import type {
+  LamAttendancePolicy,
+  LamCompanyAttendanceSettings,
+  LamHolidayCalendar,
+  LamLeaveEncashmentPolicy,
+  LamLeaveEncashmentRequest,
+  LamWorkCalendar,
+} from "./schema.ts";
 import {
   lamAttendanceCorrectionSchema,
+  lamAttendancePolicySchema,
   lamAttendanceRecordSchema,
   lamAuditEventSchema,
   lamCompanyAttendanceSettingsSchema,
-  type LamCompanyAttendanceSettings,
+  lamHolidayCalendarSchema,
   lamLeaveApplicationSchema,
   lamLeaveApprovalRouteSchema,
   lamLeaveBalanceSchema,
   lamLeaveBlackoutPeriodSchema,
   lamLeaveCarryForwardRuleSchema,
   lamLeaveDocumentSchema,
+  lamLeaveEncashmentPolicySchema,
+  lamLeaveEncashmentRequestSchema,
   lamLeaveEntitlementRuleSchema,
   lamLeaveTypeSchema,
+  lamWorkCalendarSchema,
 } from "./schema.ts";
 
 export type LamRepositoryScope = {
@@ -47,34 +61,44 @@ export type LamRepositoryScope = {
 
 export type LamRepositoryState = {
   attendanceCorrections: LamAttendanceCorrection[];
+  attendancePolicies: LamAttendancePolicy[];
   attendanceRecords: LamAttendanceRecord[];
   auditEvents: LamAuditEvent[];
   companyAttendanceSettings: LamCompanyAttendanceSettings[];
+  holidayCalendars: LamHolidayCalendar[];
   leaveApplications: LamLeaveApplication[];
   leaveApprovalRoutes: LamLeaveApprovalRoute[];
   leaveBalances: LamLeaveBalance[];
   leaveBlackoutPeriods: LamLeaveBlackoutPeriod[];
   leaveCarryForwardRules: LamLeaveCarryForwardRule[];
   leaveDocuments: LamLeaveDocument[];
+  leaveEncashmentPolicies: LamLeaveEncashmentPolicy[];
+  leaveEncashmentRequests: LamLeaveEncashmentRequest[];
   leaveEntitlementRules: LamLeaveEntitlementRule[];
   leaveTypes: LamLeaveType[];
+  workCalendars: LamWorkCalendar[];
 };
 
 type LamDatabaseModule = typeof import("@repo/database");
 
 const emptyState = (): LamRepositoryState => ({
   attendanceCorrections: [],
+  attendancePolicies: [],
   attendanceRecords: [],
   auditEvents: [],
   companyAttendanceSettings: [],
+  holidayCalendars: [],
   leaveApplications: [],
   leaveApprovalRoutes: [],
   leaveBalances: [],
   leaveBlackoutPeriods: [],
   leaveCarryForwardRules: [],
   leaveDocuments: [],
+  leaveEncashmentPolicies: [],
+  leaveEncashmentRequests: [],
   leaveEntitlementRules: [],
   leaveTypes: [],
+  workCalendars: [],
 });
 
 let repositoryFilePath: string =
@@ -97,10 +121,30 @@ const serializeRepositoryState = (state: LamRepositoryState): string =>
 const cloneState = (state: LamRepositoryState): LamRepositoryState =>
   structuredClone(state);
 
-const shouldUseDatabaseRepository = (scope?: LamRepositoryScope): boolean =>
+const isDatabaseRepositoryModeConfigured = (): boolean =>
   process.env.AFENDA_LEAVE_ATTENDANCE_MANAGEMENT_REPOSITORY_MODE !== "file" &&
-  Boolean(process.env.DATABASE_URL) &&
-  Boolean(scope?.tenantId);
+  Boolean(process.env.DATABASE_URL);
+
+const shouldUseDatabaseRepository = (scope?: LamRepositoryScope): boolean =>
+  isDatabaseRepositoryModeConfigured() && Boolean(scope?.tenantId);
+
+const LAM_AUDIT_PAYLOAD_METADATA_KEY = "__lamAuditPayload";
+
+type LamAuditDatabasePayload = {
+  actorId?: string | null;
+  summary?: string | null;
+  reason?: string | null;
+  before?: unknown;
+  after?: unknown;
+};
+
+const assertDatabaseRepositoryScope = (scope?: LamRepositoryScope): void => {
+  if (isDatabaseRepositoryModeConfigured() && !scope?.tenantId) {
+    throw new Error(
+      "tenantId is required when leave-attendance-management database repository mode is active"
+    );
+  }
+};
 
 const ensureRepositoryDirectory = (): void => {
   mkdirSync(dirname(repositoryFilePath), { recursive: true });
@@ -120,6 +164,9 @@ const readRepositoryStateFromDisk = (): LamRepositoryState => {
     attendanceCorrections: lamAttendanceCorrectionSchema
       .array()
       .parse(parsed.attendanceCorrections ?? []),
+    attendancePolicies: lamAttendancePolicySchema
+      .array()
+      .parse(parsed.attendancePolicies ?? []),
     attendanceRecords: lamAttendanceRecordSchema
       .array()
       .parse(parsed.attendanceRecords ?? []),
@@ -127,6 +174,9 @@ const readRepositoryStateFromDisk = (): LamRepositoryState => {
     companyAttendanceSettings: lamCompanyAttendanceSettingsSchema
       .array()
       .parse(parsed.companyAttendanceSettings ?? []),
+    holidayCalendars: lamHolidayCalendarSchema
+      .array()
+      .parse(parsed.holidayCalendars ?? []),
     leaveApplications: lamLeaveApplicationSchema
       .array()
       .parse(parsed.leaveApplications ?? []),
@@ -145,10 +195,19 @@ const readRepositoryStateFromDisk = (): LamRepositoryState => {
     leaveDocuments: lamLeaveDocumentSchema
       .array()
       .parse(parsed.leaveDocuments ?? []),
+    leaveEncashmentPolicies: lamLeaveEncashmentPolicySchema
+      .array()
+      .parse(parsed.leaveEncashmentPolicies ?? []),
+    leaveEncashmentRequests: lamLeaveEncashmentRequestSchema
+      .array()
+      .parse(parsed.leaveEncashmentRequests ?? []),
     leaveEntitlementRules: lamLeaveEntitlementRuleSchema
       .array()
       .parse(parsed.leaveEntitlementRules ?? []),
     leaveTypes: lamLeaveTypeSchema.array().parse(parsed.leaveTypes ?? []),
+    workCalendars: lamWorkCalendarSchema
+      .array()
+      .parse(parsed.workCalendars ?? []),
   };
 };
 
@@ -177,25 +236,40 @@ const scopeFilters = (
 
 const mapAuditReferenceToEvent = (row: {
   action: string;
+  actorId: string | null;
+  after: Record<string, unknown> | null;
+  before: Record<string, unknown> | null;
   companyId: string | null;
   createdAt: Date;
   entityId: string;
   entityType: string;
   id: string;
   metadata: Record<string, unknown> | null;
-}): LamAuditEvent =>
-  lamAuditEventSchema.parse({
+  reason: string | null;
+  summary: string | null;
+}): LamAuditEvent => {
+  const metadata = row.metadata ?? {};
+  const payload = metadata[LAM_AUDIT_PAYLOAD_METADATA_KEY] as
+    | LamAuditDatabasePayload
+    | undefined;
+  const publicMetadata = { ...metadata };
+  delete publicMetadata[LAM_AUDIT_PAYLOAD_METADATA_KEY];
+
+  return lamAuditEventSchema.parse({
     id: row.id,
     companyId: row.companyId,
-    actorId: null,
+    actorId: row.actorId ?? payload?.actorId ?? null,
     action: row.action,
     entityType: row.entityType,
     entityId: row.entityId,
-    summary: row.action,
-    reason: null,
-    metadata: row.metadata ?? {},
+    summary: row.summary ?? payload?.summary ?? row.action,
+    reason: row.reason ?? payload?.reason ?? null,
+    metadata: publicMetadata,
+    before: row.before ?? payload?.before,
+    after: row.after ?? payload?.after,
     createdAt: row.createdAt,
   });
+};
 
 const loadDatabaseRepository = async (
   scope: LamRepositoryScope
@@ -319,21 +393,21 @@ const loadDatabaseRepository = async (
     attendanceCorrections: lamAttendanceCorrectionSchema
       .array()
       .parse(attendanceCorrections),
+    attendancePolicies: [],
     attendanceRecords: lamAttendanceRecordSchema
       .array()
       .parse(attendanceRecords),
-    companyAttendanceSettings: lamCompanyAttendanceSettingsSchema
-      .array()
-      .parse(
-        companyAttendanceSettings.map((row) => ({
-          id: row.id,
-          companyId: row.companyId,
-          attendanceCorrectionsEnabled: row.attendanceCorrectionsEnabled,
-          updatedAt: row.updatedAt,
-          updatedBy: row.updatedBy,
-        }))
-      ),
+    companyAttendanceSettings: lamCompanyAttendanceSettingsSchema.array().parse(
+      companyAttendanceSettings.map((row) => ({
+        id: row.id,
+        companyId: row.companyId,
+        attendanceCorrectionsEnabled: row.attendanceCorrectionsEnabled,
+        updatedAt: row.updatedAt,
+        updatedBy: row.updatedBy,
+      }))
+    ),
     auditEvents: auditReferences.map(mapAuditReferenceToEvent),
+    holidayCalendars: [],
     leaveApplications: lamLeaveApplicationSchema
       .array()
       .parse(leaveApplications),
@@ -348,15 +422,23 @@ const loadDatabaseRepository = async (
     leaveCarryForwardRules: lamLeaveCarryForwardRuleSchema
       .array()
       .parse(leaveCarryForwardRules),
+    leaveEncashmentPolicies: [],
+    leaveEncashmentRequests: [],
     leaveEntitlementRules: lamLeaveEntitlementRuleSchema
       .array()
       .parse(leaveEntitlementRules),
     leaveTypes: lamLeaveTypeSchema.array().parse(leaveTypes),
+    workCalendars: [],
   };
 };
 
+type LamDatabaseClient = Pick<
+  LamDatabaseModule["database"],
+  "insert" | "select"
+>;
+
 const upsertRows = async <T extends { id: string }>(args: {
-  dbModule: LamDatabaseModule;
+  db: LamDatabaseClient;
   rows: readonly T[];
   table: unknown;
 }): Promise<void> => {
@@ -369,7 +451,7 @@ const upsertRows = async <T extends { id: string }>(args: {
   };
 
   for (const row of args.rows) {
-    await args.dbModule.database
+    await args.db
       .insert(args.table as never)
       .values(row as never)
       .onConflictDoUpdate({
@@ -378,6 +460,43 @@ const upsertRows = async <T extends { id: string }>(args: {
       });
   }
 };
+
+const toPersistedAuditRecord = (
+  event: LamAuditEvent,
+  auditEventId: string
+): {
+  id: string;
+  auditEventId: string;
+  action: string;
+  actorId: string | null;
+  entityType: string;
+  entityId: string;
+  companyId: string | null;
+  summary: string | null;
+  reason: string | null;
+  before: Record<string, unknown> | null;
+  after: Record<string, unknown> | null;
+  metadata: Record<string, unknown>;
+  createdAt: Date;
+} => ({
+  id: event.id,
+  auditEventId,
+  action: event.action,
+  actorId: event.actorId ?? null,
+  entityType: event.entityType,
+  entityId: event.entityId,
+  companyId: event.companyId ?? null,
+  summary: event.summary ?? null,
+  reason: event.reason ?? null,
+  before:
+    event.before === undefined
+      ? null
+      : (event.before as Record<string, unknown>),
+  after:
+    event.after === undefined ? null : (event.after as Record<string, unknown>),
+  metadata: event.metadata,
+  createdAt: event.createdAt,
+});
 
 const saveDatabaseRepository = async (
   state: LamRepositoryState,
@@ -398,19 +517,30 @@ const saveDatabaseRepository = async (
     tenantId,
   });
 
-  await dbModule.database.transaction(async () => {
+  await dbModule.database.transaction(async (tx) => {
+    const existingAuditReferences = await tx
+      .select({
+        auditEventId: dbModule.lamAuditReferences.auditEventId,
+        id: dbModule.lamAuditReferences.id,
+      })
+      .from(dbModule.lamAuditReferences)
+      .where(eq(dbModule.lamAuditReferences.tenantId, tenantId));
+    const canonicalAuditEventIds = new Map(
+      existingAuditReferences.map((row) => [row.id, row.auditEventId])
+    );
+
     await upsertRows({
-      dbModule,
+      db: tx,
       rows: state.attendanceCorrections.map(attachScope),
       table: dbModule.lamAttendanceCorrections,
     });
     await upsertRows({
-      dbModule,
+      db: tx,
       rows: state.attendanceRecords.map(attachScope),
       table: dbModule.lamAttendanceRecords,
     });
     await upsertRows({
-      dbModule,
+      db: tx,
       rows: state.companyAttendanceSettings.map((row) =>
         attachScope({
           ...row,
@@ -420,61 +550,65 @@ const saveDatabaseRepository = async (
       table: dbModule.lamCompanyAttendanceSettings,
     });
     await upsertRows({
-      dbModule,
+      db: tx,
       rows: state.leaveTypes.map(attachScope),
       table: dbModule.lamLeaveTypes,
     });
     await upsertRows({
-      dbModule,
+      db: tx,
       rows: state.leaveEntitlementRules.map(attachScope),
       table: dbModule.lamLeaveEntitlementRules,
     });
     await upsertRows({
-      dbModule,
+      db: tx,
       rows: state.leaveCarryForwardRules.map(attachScope),
       table: dbModule.lamLeaveCarryForwardRules,
     });
     await upsertRows({
-      dbModule,
+      db: tx,
       rows: state.leaveBalances.map(attachScope),
       table: dbModule.lamLeaveBalances,
     });
     await upsertRows({
-      dbModule,
+      db: tx,
       rows: state.leaveBlackoutPeriods.map(attachScope),
       table: dbModule.lamLeaveBlackoutPeriods,
     });
     await upsertRows({
-      dbModule,
+      db: tx,
       rows: state.leaveApprovalRoutes.map(attachScope),
       table: dbModule.lamLeaveApprovalRoutes,
     });
     await upsertRows({
-      dbModule,
+      db: tx,
       rows: state.leaveApplications.map(attachScope),
       table: dbModule.lamLeaveApplications,
     });
     await upsertRows({
-      dbModule,
+      db: tx,
       rows: state.leaveDocuments.map(attachScope),
       table: dbModule.lamLeaveDocuments,
     });
-    await upsertRows({
-      dbModule,
-      rows: state.auditEvents.map((event) =>
-        attachScope({
-          id: event.id,
-          auditEventId: null,
-          action: event.action,
-          entityType: event.entityType,
-          entityId: event.entityId,
-          companyId: event.companyId ?? null,
-          metadata: event.metadata,
-          createdAt: event.createdAt,
-        })
-      ),
-      table: dbModule.lamAuditReferences,
-    });
+
+    for (const event of state.auditEvents) {
+      let canonicalAuditEventId = canonicalAuditEventIds.get(event.id) ?? null;
+
+      if (!canonicalAuditEventId) {
+        const canonicalEvent = await writeAuditEventInTransaction(
+          tx,
+          mapLamAuditEventToCanonicalInput(event, scope)
+        );
+        canonicalAuditEventId = canonicalEvent.id;
+      }
+
+      await upsertRows({
+        db: tx,
+        rows: [
+          attachScope(toPersistedAuditRecord(event, canonicalAuditEventId)),
+        ],
+        table: dbModule.lamAuditReferences,
+      });
+    }
   });
 };
 
@@ -504,6 +638,8 @@ export const resetLamRepositoryForTesting = async (): Promise<void> => {
 export const loadLamRepository = async (
   scope?: LamRepositoryScope
 ): Promise<LamRepositoryState> => {
+  assertDatabaseRepositoryScope(scope);
+
   if (shouldUseDatabaseRepository(scope)) {
     return await loadDatabaseRepository(scope ?? {});
   }
@@ -519,6 +655,8 @@ export const saveLamRepository = async (
   nextState: LamRepositoryState,
   scope?: LamRepositoryScope
 ): Promise<void> => {
+  assertDatabaseRepositoryScope(scope);
+
   if (shouldUseDatabaseRepository(scope)) {
     await saveDatabaseRepository(nextState, scope ?? {});
     return;

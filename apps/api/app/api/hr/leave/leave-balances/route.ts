@@ -5,7 +5,7 @@ import { createLamReadContext, getQuery } from "../_lib/context.ts";
 export async function GET(request: Request) {
   const data = await listLamLeaveBalancesRecords(
     getQuery(request),
-    createLamReadContext(request)
+    await createLamReadContext(request)
   );
 
   return NextResponse.json(data);

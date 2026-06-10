@@ -16,7 +16,7 @@ export async function POST(request: Request) {
 
   const result = await createLamLeaveDocumentUploadSession(
     parsedBody.body as CreateLamLeaveDocumentUploadSessionInput,
-    createLamWriteContext(request)
+    await createLamWriteContext(request)
   );
 
   return NextResponse.json(result, {

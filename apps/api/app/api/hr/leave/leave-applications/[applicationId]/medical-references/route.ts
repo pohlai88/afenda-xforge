@@ -9,7 +9,7 @@ export async function GET(
   const { applicationId } = await context.params;
   const data = await getLamMedicalLeaveReferencesForApplication(
     applicationId,
-    createLamReadContext(request)
+    await createLamReadContext(request)
   );
 
   return NextResponse.json(data);

@@ -1,9 +1,15 @@
 import "server-only";
 
 import { requirePermission } from "@repo/permissions";
+import {
+  listRegisteredModuleConsoles,
+  type ModuleConsoleRegistration,
+} from "./module-console-registry.ts";
+import { listModuleConsoleOperatorAssignments } from "./module-console-operators.ts";
 import { systemAdminCapabilities } from "./contract.ts";
 import { createSystemAdminPermissionContext } from "./feature-scope.ts";
 import type {
+  ListModuleConsoleOperatorAssignmentsQuery,
   ListSystemAdminSectionsQuery,
   SystemAdminOverview,
   SystemAdminScope,
@@ -59,6 +65,15 @@ const systemAdminSections: readonly SystemAdminSection[] = [
     status: "deferred",
     title: "Health & Metrics",
   },
+  {
+    description:
+      "Registered module consoles and console operator assignments.",
+    domain: "module-consoles",
+    id: "system-admin.module-consoles",
+    requiredPermission: systemAdminCapabilities.moduleConsolesRead,
+    status: "ready",
+    title: "Module Consoles",
+  },
 ];
 
 export const listSystemAdminSections = (
@@ -92,3 +107,23 @@ export const readSystemAdminOverview = (
     ],
   };
 };
+
+export const listRegisteredModuleConsolesForSystemAdmin = (
+  context: SystemAdminScope
+): ModuleConsoleRegistration[] => {
+  requirePermission(
+    createSystemAdminPermissionContext(
+      context,
+      systemAdminCapabilities.moduleConsolesRead,
+      "system-admin.module-consoles"
+    ),
+    { allOf: [systemAdminCapabilities.moduleConsolesRead] }
+  );
+
+  return listRegisteredModuleConsoles();
+};
+
+export const listModuleConsoleOperatorAssignmentsForSystemAdmin = async (
+  query: ListModuleConsoleOperatorAssignmentsQuery,
+  context: SystemAdminScope
+) => listModuleConsoleOperatorAssignments(context, query);

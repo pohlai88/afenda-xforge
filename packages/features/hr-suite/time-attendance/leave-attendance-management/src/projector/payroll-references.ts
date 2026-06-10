@@ -5,6 +5,7 @@ import type {
 } from "../schema.ts";
 import { lamPayrollDeductionCategoryValues } from "../schema.ts";
 import { listAttendancePayrollReferences } from "./attendance-payroll-references.ts";
+import { listLeaveEncashmentPayrollReferences } from "./leave-encashment-payroll-references.ts";
 import type { ListPayrollReferenceFilters } from "./unpaid-leave-payroll-references.ts";
 import {
   listApprovedLeavePayrollReferences,
@@ -36,18 +37,24 @@ const resolveCategories = (
   return [deductionCategory];
 };
 
+const resolveReferenceSortDate = (reference: LamPayrollReference): number => {
+  if ("attendanceDate" in reference) {
+    return reference.attendanceDate.getTime();
+  }
+
+  if ("startDate" in reference) {
+    return reference.startDate.getTime();
+  }
+
+  return reference.payPeriodStart.getTime();
+};
+
 const comparePayrollReferences = (
   left: LamPayrollReference,
   right: LamPayrollReference
 ): number => {
-  const leftDate =
-    "attendanceDate" in left
-      ? left.attendanceDate.getTime()
-      : left.startDate.getTime();
-  const rightDate =
-    "attendanceDate" in right
-      ? right.attendanceDate.getTime()
-      : right.startDate.getTime();
+  const leftDate = resolveReferenceSortDate(left);
+  const rightDate = resolveReferenceSortDate(right);
 
   return (
     rightDate - leftDate ||
@@ -90,6 +97,19 @@ export const listPayrollReferences = (
       continue;
     }
 
+    if (category === "leave_encashment") {
+      references.push(
+        ...listLeaveEncashmentPayrollReferences(state, {
+          companyId: filters.companyId,
+          employeeId: filters.employeeId,
+          payPeriodStart: filters.payPeriodStart,
+          payPeriodEnd: filters.payPeriodEnd,
+          exportStatus: filters.exportStatus,
+        })
+      );
+      continue;
+    }
+
     if (ATTENDANCE_CATEGORIES.has(category)) {
       references.push(
         ...listAttendancePayrollReferences(state, {
@@ -113,10 +133,12 @@ export const collectPayrollReferenceExportIds = (
   referenceIds: string[];
   leaveApplicationIds: string[];
   attendanceRecordIds: string[];
+  encashmentRequestIds: string[];
 } => {
   const referenceIds: string[] = [];
   const leaveApplicationIds: string[] = [];
   const attendanceRecordIds: string[] = [];
+  const encashmentRequestIds: string[] = [];
 
   for (const reference of references) {
     referenceIds.push(reference.id);
@@ -126,12 +148,20 @@ export const collectPayrollReferenceExportIds = (
       continue;
     }
 
-    attendanceRecordIds.push(reference.attendanceRecordId);
+    if ("encashmentRequestId" in reference) {
+      encashmentRequestIds.push(reference.encashmentRequestId);
+      continue;
+    }
+
+    if ("attendanceRecordId" in reference) {
+      attendanceRecordIds.push(reference.attendanceRecordId);
+    }
   }
 
   return {
     referenceIds: [...new Set(referenceIds)],
     leaveApplicationIds: [...new Set(leaveApplicationIds)],
     attendanceRecordIds: [...new Set(attendanceRecordIds)],
+    encashmentRequestIds: [...new Set(encashmentRequestIds)],
   };
 };

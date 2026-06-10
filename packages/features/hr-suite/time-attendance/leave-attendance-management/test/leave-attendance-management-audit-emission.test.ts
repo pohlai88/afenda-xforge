@@ -206,7 +206,7 @@ afterEach(() => {
 test("AC-025 audit catalog and action map reference only registered event strings", () => {
   const catalog = Object.values(leaveAttendanceManagementAuditEvents);
   assert.equal(new Set(catalog).size, catalog.length);
-  assert.equal(catalog.length, 31);
+  assert.equal(catalog.length, 40);
 
   for (const event of leaveAttendanceManagementHighRiskAuditEvents) {
     assert.ok(catalog.includes(event));

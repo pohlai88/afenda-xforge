@@ -10,7 +10,7 @@ export async function GET(_request: Request, context: RouteContext) {
   const { routeId } = await context.params;
   const data = await getLamLeaveApprovalRouteById(
     routeId,
-    createLamReadContext(_request)
+    await createLamReadContext(_request)
   );
 
   if (!data) {

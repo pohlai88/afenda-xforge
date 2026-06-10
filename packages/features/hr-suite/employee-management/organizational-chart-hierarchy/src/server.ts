@@ -7,6 +7,7 @@ export {
 } from "./actions.ts";
 export { buildHrOrgPageModel } from "./page-model.server.ts";
 export {
+  getHrOrgUnitById,
   listHrOrgHeadcountWindow,
   listHrOrgPositionsWindow,
   listHrOrgReportingLinesWindow,

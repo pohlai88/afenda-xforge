@@ -74,7 +74,7 @@ test("foundation manifest covers all HRM-LAM requirements and acceptance criteri
 });
 
 test("schema validates core repository entity types and leave type records", () => {
-  assert.equal(lamRepositoryEntityTypeValues.length, 13);
+  assert.equal(lamRepositoryEntityTypeValues.length, 18);
 
   const leaveType = lamLeaveTypeSchema.parse({
     id: randomUUID(),

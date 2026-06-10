@@ -19,7 +19,7 @@ export async function POST(request: Request) {
 
   const result = await processLamLeaveBalanceCarryForward(
     body as ProcessLamLeaveBalanceCarryForwardInput,
-    createLamBalanceWriteContext(request)
+    await createLamBalanceWriteContext(request)
   );
 
   return NextResponse.json(result, {

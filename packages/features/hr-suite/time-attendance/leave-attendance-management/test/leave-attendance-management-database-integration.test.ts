@@ -1,8 +1,8 @@
 import assert from "node:assert/strict";
 import { randomUUID } from "node:crypto";
 import { after, before, test } from "node:test";
-import { upsertLamCompanyAttendanceSettings } from "../src/actions/company-attendance-settings.action.ts";
 import { upsertLamAttendanceRecord } from "../src/actions/attendance-records.action.ts";
+import { upsertLamCompanyAttendanceSettings } from "../src/actions/company-attendance-settings.action.ts";
 import { approveLamLeaveApplication } from "../src/actions/leave-application-decisions.action.ts";
 import { submitLamLeaveApplication } from "../src/actions/leave-applications.action.ts";
 import {
@@ -12,10 +12,15 @@ import {
 import { applyLamLeaveEntitlementCalculation } from "../src/actions/leave-entitlement-calculation.action.ts";
 import { upsertLamLeaveEntitlementRule } from "../src/actions/leave-entitlement-rules.action.ts";
 import { upsertLamLeaveType } from "../src/actions/leave-types.action.ts";
+import { leaveAttendanceManagementAuditEvents } from "../src/contracts/index.ts";
 import {
   getLamAttendanceRecordById,
   listLamAttendanceRecordsRecords,
 } from "../src/queries/attendance-records.query.ts";
+import {
+  getLamAuditTrailRecordById,
+  listLamAuditTrailRecords,
+} from "../src/queries/audit.query.ts";
 import { getLamLeaveApplicationById } from "../src/queries/leave-applications.query.ts";
 import { getLamMedicalLeaveReferencesForApplication } from "../src/queries/leave-documents.query.ts";
 import { listLamLeaveTypesRecords } from "../src/queries/leave-types.query.ts";
@@ -60,9 +65,36 @@ const requireDatabase = (t: { skip: (message?: string) => void }): void => {
   }
 };
 
-const createScope = () => {
-  const tenantId = `tenant-${randomUUID()}`;
-  const companyId = `company-${randomUUID()}`;
+const seedDatabaseScope = async (
+  tenantId: string,
+  companyId: string
+): Promise<void> => {
+  const { companies, database, tenants } = await import("@repo/database");
+
+  await database
+    .insert(tenants)
+    .values({
+      id: tenantId,
+      name: `LAM Integration Tenant ${tenantId.slice(0, 8)}`,
+      slug: `lam-itest-${tenantId}`,
+    })
+    .onConflictDoNothing();
+
+  await database
+    .insert(companies)
+    .values({
+      id: companyId,
+      tenantId,
+      name: "LAM Integration Company",
+      code: `LAM${companyId.replace(/-/g, "").slice(0, 8).toUpperCase()}`,
+    })
+    .onConflictDoNothing();
+};
+
+const createScope = async () => {
+  const tenantId = randomUUID();
+  const companyId = randomUUID();
+  await seedDatabaseScope(tenantId, companyId);
   const employeeId = `emp-${randomUUID().slice(0, 8)}`;
 
   const writeContext = {
@@ -104,7 +136,7 @@ const createScope = () => {
 test("database mode persists medical leave document metadata and reloads references", async (t) => {
   requireDatabase(t);
 
-  const scope = createScope();
+  const scope = await createScope();
   const medicalType = await upsertLamLeaveType(
     {
       companyId: scope.companyId,
@@ -215,7 +247,7 @@ test("database mode persists medical leave document metadata and reloads referen
 test("database mode persists approved unpaid leave payroll reference projection", async (t) => {
   requireDatabase(t);
 
-  const scope = createScope();
+  const scope = await createScope();
   const unpaidType = await upsertLamLeaveType(
     {
       companyId: scope.companyId,
@@ -285,7 +317,7 @@ test("database mode persists approved unpaid leave payroll reference projection"
 test("AC-006 database mode persists employee self-service leave submit as submitted", async (t) => {
   requireDatabase(t);
 
-  const scope = createScope();
+  const scope = await createScope();
   const unpaidType = await upsertLamLeaveType(
     {
       companyId: scope.companyId,
@@ -344,7 +376,7 @@ test("AC-006 database mode persists employee self-service leave submit as submit
 
 test("AC-001 database mode persists attendance record by employee and date", async (t) => {
   requireDatabase(t);
-  const scope = createScope();
+  const scope = await createScope();
   const attendanceReadContext = {
     ...scope.readContext,
     grantedCapabilities: [leaveAttendanceManagementCapabilities.attendanceRead],
@@ -395,7 +427,7 @@ test("AC-001 database mode persists attendance record by employee and date", asy
 
 test("AC-019 database mode persists company attendance settings disablement", async (t) => {
   requireDatabase(t);
-  const scope = createScope();
+  const scope = await createScope();
 
   const upsertResult = await upsertLamCompanyAttendanceSettings(
     {
@@ -406,7 +438,9 @@ test("AC-019 database mode persists company attendance settings disablement", as
   );
   assert.equal(upsertResult.ok, true);
   if (!upsertResult.ok) {
-    throw new Error("Expected company attendance settings persistence to succeed");
+    throw new Error(
+      "Expected company attendance settings persistence to succeed"
+    );
   }
 
   resetLamRepositoryCacheForTesting();
@@ -420,7 +454,7 @@ test("AC-019 database mode persists company attendance settings disablement", as
 
 test("AC-003 database mode persists leave type policyGroupId", async (t) => {
   requireDatabase(t);
-  const scope = createScope();
+  const scope = await createScope();
   const leaveTypesReadContext = {
     ...scope.readContext,
     grantedCapabilities: [leaveAttendanceManagementCapabilities.leaveTypesRead],
@@ -454,4 +488,72 @@ test("AC-003 database mode persists leave type policyGroupId", async (t) => {
     leaveTypesReadContext
   );
   assert.ok(listed.some((entry) => entry.id === created.targetId));
+});
+
+test("HRM-LAM-030 database mode preserves audit actorId summary and before/after payloads", async (t) => {
+  requireDatabase(t);
+
+  const scope = await createScope();
+  const auditReadContext = {
+    companyId: scope.companyId,
+    tenantId: scope.tenantId,
+    grantedCapabilities: [leaveAttendanceManagementCapabilities.auditRead],
+    canViewSensitive: true,
+  } as const;
+
+  const upsertResult = await upsertLamAttendanceRecord(
+    {
+      companyId: scope.companyId,
+      employeeId: scope.employeeId,
+      attendanceDate: new Date("2026-06-02"),
+      status: "present",
+    },
+    scope.writeContext
+  );
+  assert.equal(upsertResult.ok, true);
+  if (!upsertResult.ok) {
+    throw new Error("Expected attendance record persistence to succeed");
+  }
+
+  resetLamRepositoryCacheForTesting();
+
+  const auditEvents = await listLamAuditTrailRecords(
+    {
+      action: leaveAttendanceManagementAuditEvents.attendanceRecordUpserted,
+      entityId: upsertResult.targetId,
+    },
+    auditReadContext
+  );
+  assert.equal(auditEvents.length, 1);
+  const auditEvent = auditEvents[0];
+  assert.equal(auditEvent?.actorId, scope.employeeId);
+  assert.ok(auditEvent?.summary);
+  assert.notEqual(auditEvent?.after, undefined);
+
+  resetLamRepositoryCacheForTesting();
+
+  const reloaded = await getLamAuditTrailRecordById(
+    auditEvent?.id ?? "",
+    auditReadContext
+  );
+  assert.equal(reloaded?.actorId, scope.employeeId);
+  assert.equal(reloaded?.summary, auditEvent?.summary);
+  assert.notEqual(reloaded?.after, undefined);
+
+  const { database, lamAuditReferences } = await import("@repo/database");
+  const { eq } = await import("drizzle-orm");
+  const [reference] = await database
+    .select({ auditEventId: lamAuditReferences.auditEventId })
+    .from(lamAuditReferences)
+    .where(eq(lamAuditReferences.id, auditEvent?.id ?? ""));
+  assert.ok(reference?.auditEventId);
+});
+
+test("database mode rejects repository access without tenantId", async (t) => {
+  requireDatabase(t);
+
+  await assert.rejects(
+    () => loadLamRepository({ companyId: randomUUID() }),
+    /tenantId is required when leave-attendance-management database repository mode is active/
+  );
 });

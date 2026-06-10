@@ -362,6 +362,25 @@ If the package is a feature package:
 
 For system administration work, use `packages/features/system-admin/<capability>` and keep each capability a governed control-plane feature. Do not create `packages/system-admin` unless the architecture is explicitly changed to introduce a new foundation package.
 
+### Module Console pattern
+
+Module consoles are suite-level orchestration packages registered by System Admin:
+
+```txt
+packages/features/system-admin/control-plane   # parent registry + operator assignments
+packages/features/hr-suite/hr-console            # HR module console example
+```
+
+Rules:
+
+- Each module console publishes `moduleConsoleRegistration` from `/manifest` only.
+- `control-plane` owns operator assignment persistence and `system-admin.module-consoles.*` capabilities.
+- Module console packages own intra-console delegation and section registries.
+- Apps/API aggregate manifest registrations at runtime; control-plane must not import sibling feature internals.
+- Governance resolves per company in `unassigned_fallback` (SME: System Admin acts as implicit operator) or `operator_assigned` (assigned operator owns delegation and domain writes).
+
+Future consoles (Inventory, Finance) follow the same shape under their suite packages.
+
 ## Package Customization Rules
 
 Customization happens at the package boundary, not by breaking package boundaries.

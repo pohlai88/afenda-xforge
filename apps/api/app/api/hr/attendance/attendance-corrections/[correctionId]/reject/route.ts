@@ -1,7 +1,7 @@
 import type { RejectLamAttendanceCorrectionInput } from "@repo/features-time-attendance-leave-attendance-management/contract";
 import { rejectLamAttendanceCorrection } from "@repo/features-time-attendance-leave-attendance-management/server";
 import { NextResponse } from "next/server";
-import { createLamCorrectionApprovalContext } from "../../../_lib/context.ts";
+import { createLamCorrectionApprovalContextById } from "../../../_lib/context.ts";
 import { mapLamMutationHttpStatus } from "../../../_lib/mutation-response.ts";
 import { notifyLamAttendanceCorrectionEvent } from "../../../_lib/notify-lam-events.ts";
 
@@ -28,7 +28,7 @@ export async function POST(request: Request, context: RouteContext) {
       ...(body as RejectLamAttendanceCorrectionInput),
       correctionId,
     },
-    createLamCorrectionApprovalContext(request)
+    await createLamCorrectionApprovalContextById(request, correctionId)
   );
 
   if (result.ok) {

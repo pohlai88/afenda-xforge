@@ -4,18 +4,18 @@ import { rmSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { resolve } from "node:path";
 import { afterEach, beforeEach, test } from "node:test";
-import {
-  resolveLamAttendanceCorrectionsEnabled,
-} from "../src/shared/attendance-corrections-enabled.ts";
+import { submitLamAttendanceCorrection } from "../src/actions/attendance-corrections.action.ts";
+import { upsertLamAttendanceRecord } from "../src/actions/attendance-records.action.ts";
+import { upsertLamCompanyAttendanceSettings } from "../src/actions/company-attendance-settings.action.ts";
+import { getLamCompanyAttendanceSettings } from "../src/queries/company-attendance-settings.query.ts";
 import {
   resetLamRepositoryForTesting,
   setLamRepositoryPathForTesting,
 } from "../src/repository.ts";
-import { upsertLamCompanyAttendanceSettings } from "../src/actions/company-attendance-settings.action.ts";
-import { submitLamAttendanceCorrection } from "../src/actions/attendance-corrections.action.ts";
-import { upsertLamAttendanceRecord } from "../src/actions/attendance-records.action.ts";
-import { getLamCompanyAttendanceSettings } from "../src/queries/company-attendance-settings.query.ts";
-import { defaultLamAttendanceCorrectionsEnabled } from "../src/shared/attendance-corrections-enabled.ts";
+import {
+  defaultLamAttendanceCorrectionsEnabled,
+  resolveLamAttendanceCorrectionsEnabled,
+} from "../src/shared/attendance-corrections-enabled.ts";
 
 let currentRepositoryPath = "";
 

@@ -6,7 +6,7 @@ import { createLamReadContext, getQuery } from "../_lib/context.ts";
 export async function GET(request: Request) {
   const data = await listLamAuditTrailRecords(
     getQuery(request) as unknown as ListLamAuditTrailQuery,
-    createLamReadContext(request)
+    await createLamReadContext(request)
   );
 
   return NextResponse.json(data);

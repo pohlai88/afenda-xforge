@@ -10,7 +10,7 @@ export async function GET(_request: Request, context: RouteContext) {
   const { recordId } = await context.params;
   const data = await getLamAttendanceRecordById(
     recordId,
-    createLamReadContext(_request)
+    await createLamReadContext(_request)
   );
 
   if (!data) {

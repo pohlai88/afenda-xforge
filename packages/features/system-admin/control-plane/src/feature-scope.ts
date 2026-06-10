@@ -6,6 +6,7 @@ export type SystemAdminPermissionResource =
   | "system-admin.audit"
   | "system-admin.customization"
   | "system-admin.health"
+  | "system-admin.module-consoles"
   | "system-admin.tenant-settings"
   | "system-admin.users-access";
 

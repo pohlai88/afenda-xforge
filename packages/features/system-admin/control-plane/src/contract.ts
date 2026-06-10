@@ -6,7 +6,12 @@ import {
 } from "@repo/api";
 import {
   customizationGovernanceCommandSchema,
+  listModuleConsoleOperatorAssignmentsQuerySchema,
   listSystemAdminSectionsQuerySchema,
+  moduleConsoleOperatorAssignmentSchema,
+  moduleConsoleRegistrationSchema,
+  assignModuleConsoleOperatorCommandSchema,
+  revokeModuleConsoleOperatorCommandSchema,
   roleAssignmentCommandSchema,
   systemAdminMutationResultSchema,
   systemAdminOverviewSchema,
@@ -19,6 +24,8 @@ export const systemAdminCapabilities = {
   customizationPublish: "system-admin.customization.publish",
   customizationRead: "system-admin.customization.read",
   healthRead: "system-admin.health.read",
+  moduleConsolesAssign: "system-admin.module-consoles.assign",
+  moduleConsolesRead: "system-admin.module-consoles.read",
   overviewRead: "system-admin.overview.read",
   tenantSettingsRead: "system-admin.tenant-settings.read",
   tenantSettingsWrite: "system-admin.tenant-settings.write",
@@ -170,12 +177,140 @@ export const systemAdminPublishCustomizationRouteContract = defineRouteContract(
   }
 );
 
+export const systemAdminListModuleConsolesRouteContract = defineRouteContract({
+  audience: "client",
+  method: "GET",
+  operationId: "listRegisteredModuleConsoles",
+  path: "/api/system-admin/module-consoles",
+  success: {
+    description: "Registered module consoles",
+    openApiSchema: {
+      type: "array",
+      items: { $ref: "#/components/schemas/ModuleConsoleRegistration" },
+    },
+    schema: moduleConsoleRegistrationSchema.array(),
+    status: 200,
+  },
+  summary: "List registered module consoles",
+  tags: ["system-admin"],
+});
+
+export const systemAdminListModuleConsoleOperatorsRouteContract =
+  defineRouteContract({
+    audience: "client",
+    method: "GET",
+    operationId: "listModuleConsoleOperatorAssignments",
+    path: "/api/system-admin/module-consoles/operators",
+    request: {
+      query: {
+        openApiSchema: {
+          type: "object",
+          additionalProperties: false,
+          properties: {
+            companyId: { type: "string" },
+            consoleId: { type: "string" },
+          },
+        },
+        schema: listModuleConsoleOperatorAssignmentsQuerySchema,
+      },
+    },
+    success: {
+      description: "Module console operator assignments",
+      openApiSchema: {
+        type: "array",
+        items: {
+          $ref: "#/components/schemas/ModuleConsoleOperatorAssignment",
+        },
+      },
+      schema: moduleConsoleOperatorAssignmentSchema.array(),
+      status: 200,
+    },
+    summary: "List module console operator assignments",
+    tags: ["system-admin"],
+  });
+
+export const systemAdminAssignModuleConsoleOperatorRouteContract =
+  defineRouteContract({
+    audience: "client",
+    method: "POST",
+    operationId: "assignModuleConsoleOperator",
+    path: "/api/system-admin/module-consoles/operators",
+    request: {
+      body: {
+        openApiSchema: {
+          type: "object",
+          additionalProperties: false,
+          properties: {
+            capabilities: {
+              type: "array",
+              items: { type: "string" },
+            },
+            companyId: { type: "string" },
+            consoleId: { type: "string" },
+            operatorUserId: { type: "string" },
+            reason: { type: "string" },
+            validFrom: { type: "string" },
+            validTo: { type: "string" },
+          },
+          required: ["companyId", "consoleId", "operatorUserId", "reason"],
+        },
+        schema: assignModuleConsoleOperatorCommandSchema,
+      },
+    },
+    success: {
+      description: "Assigned module console operator",
+      openApiSchema: {
+        $ref: "#/components/schemas/ModuleConsoleOperatorAssignment",
+      },
+      schema: moduleConsoleOperatorAssignmentSchema,
+      status: 201,
+    },
+    summary: "Assign module console operator",
+    tags: ["system-admin"],
+  });
+
+export const systemAdminRevokeModuleConsoleOperatorRouteContract =
+  defineRouteContract({
+    audience: "client",
+    method: "POST",
+    operationId: "revokeModuleConsoleOperator",
+    path: "/api/system-admin/module-consoles/operators/revoke",
+    request: {
+      body: {
+        openApiSchema: {
+          type: "object",
+          additionalProperties: false,
+          properties: {
+            assignmentId: { type: "string" },
+            reason: { type: "string" },
+          },
+          required: ["assignmentId", "reason"],
+        },
+        schema: revokeModuleConsoleOperatorCommandSchema,
+      },
+    },
+    success: {
+      description: "Revoked module console operator",
+      openApiSchema: {
+        $ref: "#/components/schemas/ModuleConsoleOperatorAssignment",
+      },
+      schema: moduleConsoleOperatorAssignmentSchema,
+      status: 200,
+    },
+    summary: "Revoke module console operator",
+    tags: ["system-admin"],
+  });
+
 export const systemAdminRouteContracts = [
   systemAdminReadOverviewRouteContract,
   systemAdminListSectionsRouteContract,
   systemAdminUpdateTenantSettingRouteContract,
   systemAdminAssignRoleRouteContract,
   systemAdminPublishCustomizationRouteContract,
+  systemAdminListModuleConsolesRouteContract,
+  systemAdminListModuleConsoleOperatorsRouteContract,
+  systemAdminAssignModuleConsoleOperatorRouteContract,
+  systemAdminRevokeModuleConsoleOperatorRouteContract,
 ] as const;
 
 export const systemAdminOpenApiSchemas = {
@@ -225,6 +360,66 @@ export const systemAdminOpenApiSchemas = {
       "requiredPermission",
       "status",
       "title",
+    ],
+  },
+  ModuleConsoleRegistration: {
+    type: "object",
+    additionalProperties: false,
+    properties: {
+      apiBasePath: { type: "string" },
+      appBasePath: { type: "string" },
+      consoleId: { type: "string" },
+      domainWriteCapabilityPrefixes: {
+        type: "array",
+        items: { type: "string" },
+      },
+      operatorCapabilityPrefix: { type: "string" },
+      packageName: { type: "string" },
+      status: { type: "string", enum: ["ready", "deferred"] },
+      suite: { type: "string" },
+      title: { type: "string" },
+    },
+    required: [
+      "apiBasePath",
+      "appBasePath",
+      "consoleId",
+      "domainWriteCapabilityPrefixes",
+      "operatorCapabilityPrefix",
+      "packageName",
+      "status",
+      "suite",
+      "title",
+    ],
+  },
+  ModuleConsoleOperatorAssignment: {
+    type: "object",
+    additionalProperties: false,
+    properties: {
+      assignedBy: { type: "string" },
+      capabilities: {
+        type: "array",
+        items: { type: "string" },
+      },
+      companyId: { type: "string" },
+      consoleId: { type: "string" },
+      createdAt: { type: "string" },
+      id: { type: "string" },
+      operatorUserId: { type: "string" },
+      reason: { type: "string" },
+      revokedAt: { type: "string" },
+      tenantId: { type: "string" },
+      validFrom: { type: "string" },
+      validTo: { type: "string" },
+    },
+    required: [
+      "assignedBy",
+      "capabilities",
+      "companyId",
+      "consoleId",
+      "createdAt",
+      "id",
+      "operatorUserId",
+      "tenantId",
     ],
   },
 } as const;

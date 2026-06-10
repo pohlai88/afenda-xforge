@@ -75,6 +75,7 @@ const adminWriteHeaders = {
   "x-company-id": "company-001",
   "x-tenant-id": "tenant-001",
   "x-can-write-lam": "true",
+  "x-lam-capabilities": "hr.lam.attendance.write",
   "x-actor-id": "hr-admin",
 } as const;
 

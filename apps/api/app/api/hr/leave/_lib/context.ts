@@ -1,125 +1,98 @@
 import type {
+  LamLeaveApplication,
   LamPolicyCapability,
   LamReadContext,
   LamWriteContext,
 } from "@repo/features-time-attendance-leave-attendance-management/contract";
+import { getLamLeaveApplicationById } from "@repo/features-time-attendance-leave-attendance-management/server";
+import {
+  createLamOperationalReadContext,
+  createLamOperationalWriteContext,
+  mergeLamOperationalHeaders,
+  type LamOperationalWriteContext,
+} from "../../_lib/lam-governed-context.ts";
+import { enrichLamApprovalWriteContext } from "../../_lib/lam-approval-orchestration.ts";
 
-const header = (request: Request, name: string): string | undefined =>
-  request.headers.get(name)?.trim() || undefined;
+export {
+  createLamOperationalReadContext,
+  createLamOperationalWriteContext,
+} from "../../_lib/lam-governed-context.ts";
 
-const boolHeader = (request: Request, name: string): boolean | undefined => {
-  const value = header(request, name);
-  if (!value) {
-    return;
-  }
-
-  return value === "true" || value === "1";
-};
-
-const parseCapabilities = (
+export const createLamReadContext = (
   request: Request
-): LamPolicyCapability[] | undefined => {
-  const raw = header(request, "x-lam-capabilities");
-  if (!raw) {
-    return;
-  }
-
-  return raw
-    .split(",")
-    .map((value) => value.trim())
-    .filter(Boolean) as LamPolicyCapability[];
-};
-
-const parseTeamEmployeeIds = (request: Request): string[] | undefined => {
-  const raw = header(request, "x-lam-team-employee-ids");
-  if (!raw) {
-    return;
-  }
-
-  return raw
-    .split(",")
-    .map((value) => value.trim())
-    .filter(Boolean);
-};
-
-const parseResolvedStepApproverEmployeeIds = (
-  request: Request
-): string[] | undefined => {
-  const raw = header(request, "x-lam-resolved-step-approver-employee-ids");
-  if (!raw) {
-    return;
-  }
-
-  return raw
-    .split(",")
-    .map((value) => value.trim())
-    .filter(Boolean);
-};
-
-const parseResolvedHrFallbackApproverEmployeeIds = (
-  request: Request
-): string[] | undefined => {
-  const raw = header(
-    request,
-    "x-lam-resolved-hr-fallback-approver-employee-ids"
-  );
-  if (!raw) {
-    return;
-  }
-
-  return raw
-    .split(",")
-    .map((value) => value.trim())
-    .filter(Boolean);
-};
-
-export const createLamReadContext = (request: Request): LamReadContext => ({
-  canRead: boolHeader(request, "x-can-read-lam") ?? false,
-  canViewSensitive: boolHeader(request, "x-can-view-sensitive") ?? false,
-  companyId: header(request, "x-company-id"),
-  tenantId: header(request, "x-tenant-id"),
-  grantedCapabilities: parseCapabilities(request),
-  scopedEmployeeId: header(request, "x-lam-scoped-employee-id"),
-  teamEmployeeIds: parseTeamEmployeeIds(request),
-});
+): Promise<LamReadContext> => createLamOperationalReadContext(request);
 
 export const createLamWriteContext = (
   request: Request
-): LamWriteContext & {
-  actorId?: string;
-  canWrite?: boolean;
-  grantedCapabilities?: LamPolicyCapability[];
-} => ({
-  actorId: header(request, "x-actor-id") ?? "api",
-  canRead: boolHeader(request, "x-can-read-lam") ?? false,
-  canViewSensitive: boolHeader(request, "x-can-view-sensitive") ?? false,
-  canWrite: boolHeader(request, "x-can-write-lam") ?? false,
-  companyId: header(request, "x-company-id"),
-  tenantId: header(request, "x-tenant-id"),
-  grantedCapabilities: parseCapabilities(request),
-  scopedEmployeeId: header(request, "x-lam-scoped-employee-id"),
-  teamEmployeeIds: parseTeamEmployeeIds(request),
-  actorEmployeeId: header(request, "x-lam-actor-employee-id"),
-  resolvedStepApproverEmployeeIds:
-    parseResolvedStepApproverEmployeeIds(request),
-  hrFallbackDelegated: boolHeader(request, "x-lam-hr-fallback-delegated"),
-  resolvedHrFallbackApproverEmployeeIds:
-    parseResolvedHrFallbackApproverEmployeeIds(request),
-});
+): Promise<LamOperationalWriteContext> =>
+  createLamOperationalWriteContext(request);
 
-export const createLamApprovalContext = (
+export const createLamApprovalContext = async (
   request: Request
-): LamWriteContext & {
-  actorId?: string;
-  canWrite?: boolean;
-  grantedCapabilities?: LamPolicyCapability[];
-} => ({
-  ...createLamWriteContext(request),
-  grantedCapabilities: [
-    ...(parseCapabilities(request) ?? []),
-    "hr.lam.leave-applications.approve" as LamPolicyCapability,
-  ],
-});
+): Promise<
+  LamWriteContext & {
+    actorId?: string;
+    canWrite?: boolean;
+    grantedCapabilities?: LamPolicyCapability[];
+  }
+> => {
+  const writeContext = await createLamOperationalWriteContext(request);
+
+  return {
+    ...writeContext,
+    grantedCapabilities: [
+      ...new Set([
+        ...(writeContext.grantedCapabilities ?? []),
+        "hr.lam.leave-applications.approve" as LamPolicyCapability,
+      ]),
+    ],
+  };
+};
+
+export const createLamLeaveApplicationApprovalContext = async (
+  request: Request,
+  application: Pick<
+    LamLeaveApplication,
+    | "approvalRouteId"
+    | "companyId"
+    | "currentStepOrder"
+    | "employeeId"
+    | "status"
+  >
+): Promise<
+  LamWriteContext & {
+    actorId?: string;
+    canWrite?: boolean;
+    grantedCapabilities?: LamPolicyCapability[];
+  }
+> => {
+  const approvalContext = await createLamApprovalContext(request);
+
+  return enrichLamApprovalWriteContext(request, approvalContext, application);
+};
+
+export const createLamLeaveApplicationApprovalContextById = async (
+  request: Request,
+  applicationId: string
+): Promise<
+  LamWriteContext & {
+    actorId?: string;
+    canWrite?: boolean;
+    grantedCapabilities?: LamPolicyCapability[];
+  }
+> => {
+  const readContext = await createLamNotificationReadContext(request);
+  const application = await getLamLeaveApplicationById(
+    applicationId,
+    readContext
+  );
+
+  if (!application) {
+    return createLamApprovalContext(request);
+  }
+
+  return createLamLeaveApplicationApprovalContext(request, application);
+};
 
 export const bindLamEmployeeSubmitBody = <
   T extends { employeeId?: string | null },
@@ -127,7 +100,8 @@ export const bindLamEmployeeSubmitBody = <
   request: Request,
   body: T
 ): T => {
-  const scopedEmployeeId = header(request, "x-lam-scoped-employee-id");
+  const scopedEmployeeId =
+    request.headers.get("x-lam-scoped-employee-id")?.trim() || undefined;
   if (!scopedEmployeeId) {
     return body;
   }
@@ -138,11 +112,11 @@ export const bindLamEmployeeSubmitBody = <
   };
 };
 
-export const createLamEmployeeSubmitReadContext = (
+export const createLamEmployeeSubmitReadContext = async (
   request: Request
-): LamReadContext => {
-  const writeContext = createLamWriteContext(request);
-  const readContext = createLamReadContext(request);
+): Promise<LamReadContext> => {
+  const writeContext = await createLamOperationalWriteContext(request);
+  const readContext = await createLamOperationalReadContext(request);
 
   return {
     ...readContext,
@@ -164,14 +138,16 @@ export const createLamEmployeeSubmitReadContext = (
   };
 };
 
-export const createLamBalanceWriteContext = (
+export const createLamBalanceWriteContext = async (
   request: Request
-): LamWriteContext & {
-  actorId?: string;
-  canWrite?: boolean;
-  grantedCapabilities?: LamPolicyCapability[];
-} => {
-  const writeContext = createLamWriteContext(request);
+): Promise<
+  LamWriteContext & {
+    actorId?: string;
+    canWrite?: boolean;
+    grantedCapabilities?: LamPolicyCapability[];
+  }
+> => {
+  const writeContext = await createLamOperationalWriteContext(request);
   const grantedCapabilities = writeContext.grantedCapabilities ?? [];
 
   if (
@@ -190,43 +166,35 @@ export const createLamBalanceWriteContext = (
   return writeContext;
 };
 
-export const createLamPayrollReadContext = (request: Request): LamReadContext =>
-  createLamReadContext(request);
+export const createLamPayrollReadContext = (
+  request: Request
+): Promise<LamReadContext> => createLamOperationalReadContext(request);
 
 export const createLamPayrollExportContext = (
   request: Request
-): LamWriteContext & {
-  actorId?: string;
-  canWrite?: boolean;
-  grantedCapabilities?: LamPolicyCapability[];
-} => createLamWriteContext(request);
+): Promise<LamOperationalWriteContext> =>
+  createLamOperationalWriteContext(request);
 
-export const createLamNotificationReadContext = (
+export const createLamNotificationReadContext = async (
   request: Request
-): LamReadContext => {
-  const writeContext = createLamWriteContext(request);
-  const readContext = createLamReadContext(request);
+): Promise<LamReadContext> => {
+  const writeContext = await createLamOperationalWriteContext(request);
   const grantedCapabilities = [
     ...new Set([
-      ...(readContext.grantedCapabilities ?? []),
       ...(writeContext.grantedCapabilities ?? []),
       "hr.lam.leave-applications.read" as LamPolicyCapability,
     ]),
   ];
 
-  return {
-    ...readContext,
+  return mergeLamOperationalHeaders(request, {
     canRead: true,
-    canViewSensitive:
-      readContext.canViewSensitive || writeContext.canViewSensitive,
+    canViewSensitive: writeContext.canViewSensitive,
     grantedCapabilities,
-    scopedEmployeeId:
-      readContext.scopedEmployeeId ?? writeContext.scopedEmployeeId,
-    teamEmployeeIds:
-      readContext.teamEmployeeIds ?? writeContext.teamEmployeeIds,
-    companyId: readContext.companyId ?? writeContext.companyId,
-    tenantId: readContext.tenantId ?? writeContext.tenantId,
-  };
+    scopedEmployeeId: writeContext.scopedEmployeeId,
+    teamEmployeeIds: writeContext.teamEmployeeIds,
+    companyId: writeContext.companyId,
+    tenantId: writeContext.tenantId,
+  });
 };
 
 export const getQuery = (

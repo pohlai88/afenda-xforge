@@ -15,9 +15,9 @@ import {
   buildLamAuditMetadata,
   createLamMutationAuditEvent,
   normalizeLamMutationActorId,
-  requireStrictLamApprovalAccess,
   requireLamEmployeeMutationScope,
   requireLamLeaveApplicationsWriteAccess,
+  requireStrictLamApprovalAccess,
 } from "../execution.ts";
 import {
   findActiveLeaveTypeForApplication,

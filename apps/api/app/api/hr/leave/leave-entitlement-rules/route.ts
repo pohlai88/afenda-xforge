@@ -4,18 +4,18 @@ import {
   upsertLamLeaveEntitlementRule,
 } from "@repo/features-time-attendance-leave-attendance-management/server";
 import { NextResponse } from "next/server";
+import { createLamConfigWriteContext } from "../../_lib/lam-governed-context.ts";
 import { mapLamMutationHttpStatus } from "../_lib/mutation-response.ts";
 import { parseLamJsonBody } from "../_lib/parse-json-body.ts";
 import {
   createLamReadContext,
-  createLamWriteContext,
   getQuery,
 } from "../_lib/context.ts";
 
 export async function GET(request: Request) {
   const data = await listLamLeaveEntitlementRulesRecords(
     getQuery(request),
-    createLamReadContext(request)
+    await createLamReadContext(request)
   );
 
   return NextResponse.json(data);
@@ -39,7 +39,7 @@ export async function POST(request: Request) {
     body.id.length > 0;
   const result = await upsertLamLeaveEntitlementRule(
     body as UpsertLamLeaveEntitlementRuleInput,
-    createLamWriteContext(request)
+    await createLamConfigWriteContext(request)
   );
 
   return NextResponse.json(result, {

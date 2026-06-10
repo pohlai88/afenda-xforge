@@ -1,9 +1,9 @@
 import type { CalculateLamLeaveEntitlementInput } from "@repo/features-time-attendance-leave-attendance-management/contract";
 import { applyLamLeaveEntitlementCalculation } from "@repo/features-time-attendance-leave-attendance-management/server";
 import { NextResponse } from "next/server";
+import { createLamConfigWriteContext } from "../../../_lib/lam-governed-context.ts";
 import { mapLamMutationHttpStatus } from "../../_lib/mutation-response.ts";
 import { parseLamJsonBody } from "../../_lib/parse-json-body.ts";
-import { createLamWriteContext } from "../../_lib/context.ts";
 
 export async function POST(request: Request) {
   const parsedBody = await parseLamJsonBody(request);
@@ -16,7 +16,7 @@ export async function POST(request: Request) {
 
   const result = await applyLamLeaveEntitlementCalculation(
     parsedBody.body as CalculateLamLeaveEntitlementInput,
-    createLamWriteContext(request)
+    await createLamConfigWriteContext(request)
   );
 
   return NextResponse.json(result, {

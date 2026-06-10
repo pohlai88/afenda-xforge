@@ -1,12 +1,17 @@
 import "server-only";
 
+export type { LamMutationContext } from "./execution.ts";
+
 export {
   approveLamAttendanceCorrection,
   rejectLamAttendanceCorrection,
   submitLamAttendanceCorrection,
 } from "./actions/attendance-corrections.action.ts";
+export { upsertLamAttendancePolicy } from "./actions/attendance-policies.action.ts";
 export { upsertLamAttendanceRecord } from "./actions/attendance-records.action.ts";
 export { exportLamAttendanceSummary } from "./actions/attendance-summary.action.ts";
+export { upsertLamCompanyAttendanceSettings } from "./actions/company-attendance-settings.action.ts";
+export { upsertLamHolidayCalendar } from "./actions/holiday-calendars.action.ts";
 export {
   approveLamLeaveApplication,
   rejectLamLeaveApplication,
@@ -24,13 +29,14 @@ export {
 } from "./actions/leave-approval-routes.action.ts";
 export { adjustLamLeaveBalance } from "./actions/leave-balance-adjustment.action.ts";
 export { processLamLeaveBalanceCarryForward } from "./actions/leave-balance-carry-forward.action.ts";
-export { upsertLamCompanyAttendanceSettings } from "./actions/company-attendance-settings.action.ts";
 export { upsertLamLeaveBlackoutPeriod } from "./actions/leave-blackout-periods.action.ts";
 export { upsertLamLeaveCarryForwardRule } from "./actions/leave-carry-forward-rules.action.ts";
 export {
   confirmLamLeaveDocumentUpload,
   createLamLeaveDocumentUploadSession,
 } from "./actions/leave-documents.action.ts";
+export { upsertLamLeaveEncashmentPolicy } from "./actions/leave-encashment-policies.action.ts";
+export { processLamLeaveEncashment } from "./actions/process-leave-encashment.action.ts";
 export { applyLamLeaveEntitlementCalculation } from "./actions/leave-entitlement-calculation.action.ts";
 export { upsertLamLeaveEntitlementRule } from "./actions/leave-entitlement-rules.action.ts";
 export { exportLamLeaveReport } from "./actions/leave-report.action.ts";
@@ -40,3 +46,4 @@ export {
   recordLamNotificationEnqueued,
 } from "./actions/notifications.action.ts";
 export { exportLamPayrollReferences } from "./actions/payroll-references.action.ts";
+export { upsertLamWorkCalendar } from "./actions/work-calendars.action.ts";

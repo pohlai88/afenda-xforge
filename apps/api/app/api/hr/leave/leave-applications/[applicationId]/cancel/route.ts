@@ -28,7 +28,7 @@ export async function POST(request: Request, context: RouteContext) {
       ...body,
       applicationId,
     } as CancelLamLeaveApplicationInput,
-    createLamWriteContext(request)
+    await createLamWriteContext(request)
   );
 
   if (result.ok) {

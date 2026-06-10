@@ -13,7 +13,7 @@ export async function POST(request: Request) {
     );
   }
 
-  const context = createLamReadContext(request);
+  const context = await createLamReadContext(request);
   if (!context.canRead) {
     return NextResponse.json(
       { ok: false, error: "Read access denied for leave and attendance" },

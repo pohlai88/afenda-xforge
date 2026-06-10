@@ -142,6 +142,7 @@ export async function exportLamPayrollReferences(
         referenceIds: exportIds.referenceIds,
         leaveApplicationIds: exportIds.leaveApplicationIds,
         attendanceRecordIds: exportIds.attendanceRecordIds,
+        encashmentRequestIds: exportIds.encashmentRequestIds,
         deductionCategories,
       });
 
@@ -161,6 +162,7 @@ export async function exportLamPayrollReferences(
             referenceIds: batch.referenceIds,
             leaveApplicationIds: batch.leaveApplicationIds,
             attendanceRecordIds: batch.attendanceRecordIds,
+            encashmentRequestIds: batch.encashmentRequestIds,
             deductionCategories: batch.deductionCategories,
             employeeId: validInput.employeeId,
           }),
@@ -170,6 +172,7 @@ export async function exportLamPayrollReferences(
             referenceCount: batch.referenceCount,
             leaveApplicationIds: batch.leaveApplicationIds,
             attendanceRecordIds: batch.attendanceRecordIds,
+            encashmentRequestIds: batch.encashmentRequestIds,
             deductionCategories: batch.deductionCategories,
           },
         })

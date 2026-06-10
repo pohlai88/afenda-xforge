@@ -23,6 +23,10 @@ export {
   lamAttendanceStatusValues,
 } from "./schema.ts";
 export {
+  defaultLamAttendanceCorrectionsEnabled,
+  resolveLamAttendanceCorrectionsEnabled,
+} from "./shared/attendance-corrections-enabled.ts";
+export {
   lamAttendanceStatusAliases,
   lamAttendanceStatusLabels,
   normalizeAttendanceStatusInput,
@@ -32,6 +36,7 @@ export {
   lamLeaveBalanceFieldLabels,
   withComputedRemainingBalance,
 } from "./shared/balance.ts";
+export { lamCompanyAttendanceSettingsFieldLabels } from "./shared/company-attendance-settings.ts";
 export {
   lamEntitlementDimensionAliases,
   lamEntitlementScopeFieldLabels,
@@ -53,11 +58,6 @@ export {
   lamLeaveBlackoutPeriodFieldLabels,
   requiresLeaveApplicationEmployeeProfile,
 } from "./shared/leave-application-policy-validation.ts";
-export {
-  defaultLamAttendanceCorrectionsEnabled,
-  resolveLamAttendanceCorrectionsEnabled,
-} from "./shared/attendance-corrections-enabled.ts";
-export { lamCompanyAttendanceSettingsFieldLabels } from "./shared/company-attendance-settings.ts";
 export {
   bindEmployeeLeaveApplicationSubmitInput,
   lamLeaveApplicationSubmitFieldLabels,

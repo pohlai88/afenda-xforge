@@ -19,7 +19,7 @@ export async function POST(request: Request) {
 
   const result = await exportLamLeaveReport(
     body as ExportLamLeaveReportInput,
-    createLamWriteContext(request)
+    await createLamWriteContext(request)
   );
 
   return NextResponse.json(result, {

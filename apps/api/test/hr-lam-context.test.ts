@@ -24,8 +24,8 @@ const buildRequest = (headers: Record<string, string> = {}): Request =>
     headers,
   });
 
-test("createLamWriteContext parses approval workflow and HR fallback headers", () => {
-  const context = createLamWriteContext(
+test("createLamWriteContext parses approval workflow and HR fallback headers", async () => {
+  const context = await createLamWriteContext(
     buildRequest({
       "x-actor-id": "actor-001",
       "x-company-id": "company-001",
@@ -66,8 +66,8 @@ test("createLamWriteContext parses approval workflow and HR fallback headers", (
   ]);
 });
 
-test("createLamWriteContext treats hrFallbackDelegated false as explicit false", () => {
-  const context = createLamWriteContext(
+test("createLamWriteContext treats hrFallbackDelegated false as explicit false", async () => {
+  const context = await createLamWriteContext(
     buildRequest({
       "x-lam-hr-fallback-delegated": "false",
     })
@@ -76,8 +76,8 @@ test("createLamWriteContext treats hrFallbackDelegated false as explicit false",
   assert.equal(context.hrFallbackDelegated, false);
 });
 
-test("createLamWriteContext omits optional headers when absent", () => {
-  const context = createLamWriteContext(buildRequest());
+test("createLamWriteContext omits optional headers when absent", async () => {
+  const context = await createLamWriteContext(buildRequest());
 
   assert.equal(context.actorId, "api");
   assert.equal(context.canRead, false);
@@ -89,8 +89,8 @@ test("createLamWriteContext omits optional headers when absent", () => {
   assert.equal(context.grantedCapabilities, undefined);
 });
 
-test("createLamApprovalContext injects leave approve capability", () => {
-  const context = createLamApprovalContext(
+test("createLamApprovalContext injects leave approve capability", async () => {
+  const context = await createLamApprovalContext(
     buildRequest({
       "x-lam-capabilities": "hr.lam.leave-applications.read",
     })
@@ -102,8 +102,8 @@ test("createLamApprovalContext injects leave approve capability", () => {
   ]);
 });
 
-test("createLamApprovalContext preserves company and tenant scope for balance mutations", () => {
-  const context = createLamApprovalContext(
+test("createLamApprovalContext preserves company and tenant scope for balance mutations", async () => {
+  const context = await createLamApprovalContext(
     buildRequest({
       "x-company-id": "company-001",
       "x-tenant-id": "tenant-001",
@@ -121,8 +121,8 @@ test("createLamApprovalContext preserves company and tenant scope for balance mu
   );
 });
 
-test("createLamBalanceWriteContext injects leave balance write capability when write access is granted", () => {
-  const context = createLamBalanceWriteContext(
+test("createLamBalanceWriteContext injects leave balance write capability when write access is granted", async () => {
+  const context = await createLamBalanceWriteContext(
     buildRequest({
       "x-company-id": "company-001",
       "x-tenant-id": "tenant-001",
@@ -142,8 +142,8 @@ test("createLamBalanceWriteContext injects leave balance write capability when w
   );
 });
 
-test("createLamBalanceWriteContext does not inject balance write without write access", () => {
-  const context = createLamBalanceWriteContext(
+test("createLamBalanceWriteContext does not inject balance write without write access", async () => {
+  const context = await createLamBalanceWriteContext(
     buildRequest({
       "x-company-id": "company-001",
       "x-can-write-lam": "false",
@@ -154,8 +154,8 @@ test("createLamBalanceWriteContext does not inject balance write without write a
   assert.equal(context.grantedCapabilities, undefined);
 });
 
-test("createLamPayrollExportContext does not elevate generic write access to payroll export", () => {
-  const context = createLamPayrollExportContext(
+test("createLamPayrollExportContext does not elevate generic write access to payroll export", async () => {
+  const context = await createLamPayrollExportContext(
     buildRequest({
       "x-company-id": "company-001",
       "x-tenant-id": "tenant-001",
@@ -171,8 +171,8 @@ test("createLamPayrollExportContext does not elevate generic write access to pay
   );
 });
 
-test("createLamPayrollExportContext preserves explicit payroll reference capability", () => {
-  const context = createLamPayrollExportContext(
+test("createLamPayrollExportContext preserves explicit payroll reference capability", async () => {
+  const context = await createLamPayrollExportContext(
     buildRequest({
       "x-company-id": "company-001",
       "x-tenant-id": "tenant-001",
@@ -187,8 +187,8 @@ test("createLamPayrollExportContext preserves explicit payroll reference capabil
   );
 });
 
-test("createLamCorrectionApprovalContext does not auto-grant correction write capability", () => {
-  const context = createLamCorrectionApprovalContext(
+test("createLamCorrectionApprovalContext does not auto-grant correction write capability", async () => {
+  const context = await createLamCorrectionApprovalContext(
     buildRequest({
       "x-lam-capabilities": "hr.lam.attendance-corrections.read",
     })
@@ -199,8 +199,8 @@ test("createLamCorrectionApprovalContext does not auto-grant correction write ca
   ]);
 });
 
-test("createLamCorrectionWriteContext injects correction write when generic write is granted", () => {
-  const context = createLamCorrectionWriteContext(
+test("createLamCorrectionWriteContext injects correction write when generic write is granted", async () => {
+  const context = await createLamCorrectionWriteContext(
     buildRequest({
       "x-company-id": "company-001",
       "x-can-write-lam": "true",
@@ -230,8 +230,8 @@ test("bindLamEmployeeSubmitBody binds scoped employee without mutating input", (
   assert.notEqual(bound, body);
 });
 
-test("createLamEmployeeSubmitReadContext merges write capabilities and elevates read for leave-applications.read", () => {
-  const context = createLamEmployeeSubmitReadContext(
+test("createLamEmployeeSubmitReadContext merges write capabilities and elevates read for leave-applications.read", async () => {
+  const context = await createLamEmployeeSubmitReadContext(
     buildRequest({
       "x-can-read-lam": "false",
       "x-lam-scoped-employee-id": "emp-001",
@@ -248,8 +248,8 @@ test("createLamEmployeeSubmitReadContext merges write capabilities and elevates 
   ]);
 });
 
-test("createLamReadContext parses scoped employee and team headers", () => {
-  const context = createLamReadContext(
+test("createLamReadContext parses scoped employee and team headers", async () => {
+  const context = await createLamReadContext(
     buildRequest({
       "x-can-read-lam": "1",
       "x-can-view-sensitive": "true",
@@ -264,8 +264,8 @@ test("createLamReadContext parses scoped employee and team headers", () => {
   assert.deepEqual(context.teamEmployeeIds, ["emp-001", "emp-002"]);
 });
 
-test("createLamNotificationReadContext enables post-decision reads without x-can-read-lam", () => {
-  const context = createLamNotificationReadContext(
+test("createLamNotificationReadContext enables post-decision reads without x-can-read-lam", async () => {
+  const context = await createLamNotificationReadContext(
     buildRequest({
       "x-company-id": "company-001",
       "x-lam-capabilities": "hr.lam.leave-applications.approve",
@@ -282,8 +282,8 @@ test("createLamNotificationReadContext enables post-decision reads without x-can
   );
 });
 
-test("attendance createLamWriteContext matches leave approval header parsing", () => {
-  const leaveContext = createLamWriteContext(
+test("attendance createLamWriteContext matches leave approval header parsing", async () => {
+  const leaveContext = await createLamWriteContext(
     buildRequest({
       "x-lam-actor-employee-id": "mgr-001",
       "x-lam-resolved-step-approver-employee-ids": "mgr-001",
@@ -291,7 +291,7 @@ test("attendance createLamWriteContext matches leave approval header parsing", (
       "x-lam-resolved-hr-fallback-approver-employee-ids": "hr-001",
     })
   );
-  const attendanceContext = createAttendanceLamWriteContext(
+  const attendanceContext = await createAttendanceLamWriteContext(
     buildRequest({
       "x-lam-actor-employee-id": "mgr-001",
       "x-lam-resolved-step-approver-employee-ids": "mgr-001",
@@ -320,8 +320,8 @@ test("attendance createLamWriteContext matches leave approval header parsing", (
   );
 });
 
-test("attendance createLamReadContext parses attendance corrections enabled header", () => {
-  const context = createAttendanceLamReadContext(
+test("attendance createLamReadContext parses attendance corrections enabled header", async () => {
+  const context = await createAttendanceLamReadContext(
     buildRequest({
       "x-company-id": "company-001",
       "x-lam-attendance-corrections-enabled": "false",
@@ -331,7 +331,7 @@ test("attendance createLamReadContext parses attendance corrections enabled head
   assert.equal(context.attendanceCorrectionsEnabled, false);
 });
 
-test("attendance createLamReadContext matches leave read header parsing", () => {
+test("attendance createLamReadContext matches leave read header parsing", async () => {
   const headers = {
     "x-can-read-lam": "true",
     "x-lam-scoped-employee-id": "emp-001",
@@ -339,13 +339,13 @@ test("attendance createLamReadContext matches leave read header parsing", () => 
   };
 
   assert.deepEqual(
-    createAttendanceLamReadContext(buildRequest(headers)),
-    createLamReadContext(buildRequest(headers))
+    await createAttendanceLamReadContext(buildRequest(headers)),
+    await createLamReadContext(buildRequest(headers))
   );
 });
 
-test("createLamAttendanceExceptionsReadContext preserves explicit corrections read capability", () => {
-  const context = createLamAttendanceExceptionsReadContext(
+test("createLamAttendanceExceptionsReadContext preserves explicit corrections read capability", async () => {
+  const context = await createLamAttendanceExceptionsReadContext(
     buildRequest({
       "x-company-id": "company-001",
       "x-tenant-id": "tenant-001",

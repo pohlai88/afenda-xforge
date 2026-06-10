@@ -9,7 +9,7 @@ export async function GET(
   const { applicationId } = await context.params;
   const data = await getLamPayrollReferenceByApplicationId(
     applicationId,
-    createLamPayrollReadContext(request)
+    await createLamPayrollReadContext(request)
   );
 
   if (!data) {

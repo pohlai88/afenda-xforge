@@ -11,7 +11,7 @@ export async function GET(request: Request, context: RouteContext) {
 
   const data = await getLamAttendanceCorrectionById(
     correctionId,
-    createLamCorrectionsReadContext(request)
+    await createLamCorrectionsReadContext(request)
   );
 
   if (!data) {

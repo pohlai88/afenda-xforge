@@ -2,7 +2,9 @@ import "server-only";
 
 export {
   assignSystemAdminRole,
+  assignModuleConsoleOperatorForSystemAdmin,
   publishSystemAdminCustomization,
+  revokeModuleConsoleOperatorForSystemAdmin,
   updateTenantAdminSetting,
 } from "./actions.ts";
 export {
@@ -13,12 +15,29 @@ export {
 export { systemAdminControlPlaneFeatureManifest } from "./manifest.ts";
 export { systemAdminControlPlaneMetadata } from "./metadata.ts";
 export {
+  bootstrapModuleConsoleRegistry,
+  listRegisteredModuleConsoles,
+  resetModuleConsoleRegistryForTests,
+  type ModuleConsoleRegistration,
+} from "./module-console-registry.ts";
+export {
+  hasActiveModuleConsoleOperator,
+  type ModuleConsoleOperatorAssignment,
+} from "./module-console-operators.ts";
+export {
+  listModuleConsoleOperatorAssignmentsForSystemAdmin,
+  listRegisteredModuleConsolesForSystemAdmin,
   listSystemAdminSections,
   readSystemAdminOverview,
 } from "./queries.ts";
 export type {
+  AssignModuleConsoleOperatorCommand,
   CustomizationGovernanceCommand,
+  ListModuleConsoleOperatorAssignmentsQuery,
   ListSystemAdminSectionsQuery,
+  ModuleConsoleOperatorAssignmentView,
+  ModuleConsoleRegistrationView,
+  RevokeModuleConsoleOperatorCommand,
   RoleAssignmentCommand,
   SystemAdminCapability,
   SystemAdminDomain,

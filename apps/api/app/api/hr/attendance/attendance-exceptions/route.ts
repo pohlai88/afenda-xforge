@@ -8,7 +8,7 @@ import {
 export async function GET(request: Request) {
   const data = await listLamAttendanceExceptionsRecords(
     getQuery(request),
-    createLamAttendanceExceptionsReadContext(request)
+    await createLamAttendanceExceptionsReadContext(request)
   );
 
   return NextResponse.json(data);

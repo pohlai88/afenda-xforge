@@ -23,7 +23,7 @@ export async function POST(request: Request, context: RouteContext) {
       ...parsedBody.body,
       documentId,
     },
-    createLamWriteContext(request)
+    await createLamWriteContext(request)
   );
 
   return NextResponse.json(result, {

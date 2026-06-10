@@ -10,7 +10,7 @@ export async function GET(request: Request, context: RouteContext) {
   const { periodId } = await context.params;
   const period = await getLamLeaveBlackoutPeriodById(
     periodId,
-    createLamReadContext(request)
+    await createLamReadContext(request)
   );
 
   if (!period) {

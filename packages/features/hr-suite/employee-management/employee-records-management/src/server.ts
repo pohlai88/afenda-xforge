@@ -23,6 +23,20 @@ export {
   listHrEmployeeRecords,
 } from "./queries.server.ts";
 export {
+  deactivateEmployeeUserAccountLink,
+  listEmployeeUserAccountLinks,
+  upsertEmployeeUserAccountLink,
+} from "./actions/employee-user-link.action.ts";
+export type { EmployeeUserAccountLinkContext } from "./actions/employee-user-link.action.ts";
+export {
+  resolveAuthUserIdByEmployeeId,
+  resolveEmployeeIdByAuthUserId,
+  resetEmployeeUserAccountLinksForTests,
+  resetEmployeeUserAccountRepositoryPathForTesting,
+  seedEmployeeUserAccountLinkForTests,
+  setEmployeeUserAccountRepositoryPathForTesting,
+} from "./queries/employee-user-link.query.ts";
+export {
   buildHrEmployeeIntegrationChangeEvent,
   buildHrEmployeeIntegrationSnapshot,
 } from "./registry/integration.ts";

@@ -10,7 +10,7 @@ export async function GET(_request: Request, context: RouteContext) {
   const { leaveTypeId } = await context.params;
   const record = await getLamLeaveTypeById(
     leaveTypeId,
-    createLamReadContext(_request)
+    await createLamReadContext(_request)
   );
 
   if (!record) {

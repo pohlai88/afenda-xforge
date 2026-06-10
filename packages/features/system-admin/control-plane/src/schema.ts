@@ -7,6 +7,7 @@ export const systemAdminDomainSchema = z.enum([
   "customization-governance",
   "audit",
   "health-metrics",
+  "module-consoles",
 ]);
 
 export const systemAdminCapabilitySchema = z.enum([
@@ -19,6 +20,8 @@ export const systemAdminCapabilitySchema = z.enum([
   "system-admin.customization.publish",
   "system-admin.audit.read",
   "system-admin.health.read",
+  "system-admin.module-consoles.read",
+  "system-admin.module-consoles.assign",
 ]);
 
 export const systemAdminScopeSchema = z.object({
@@ -71,6 +74,53 @@ export const customizationGovernanceCommandSchema = z.object({
   reason: z.string().trim().min(1).max(240),
 });
 
+export const assignModuleConsoleOperatorCommandSchema = z.object({
+  capabilities: z.array(z.string().trim().min(1)).optional(),
+  companyId: z.string().trim().min(1),
+  consoleId: z.string().trim().min(1).max(64),
+  operatorUserId: z.string().trim().min(1),
+  reason: z.string().trim().min(1).max(240),
+  validFrom: z.string().trim().min(1).optional(),
+  validTo: z.string().trim().min(1).optional(),
+});
+
+export const revokeModuleConsoleOperatorCommandSchema = z.object({
+  assignmentId: z.string().trim().min(1),
+  reason: z.string().trim().min(1).max(240),
+});
+
+export const moduleConsoleRegistrationSchema = z.object({
+  apiBasePath: z.string().trim().min(1),
+  appBasePath: z.string().trim().min(1),
+  consoleId: z.string().trim().min(1).max(64),
+  domainWriteCapabilityPrefixes: z.array(z.string().trim().min(1)),
+  operatorCapabilityPrefix: z.string().trim().min(1),
+  packageName: z.string().trim().min(1),
+  status: z.enum(["ready", "deferred"]),
+  suite: z.string().trim().min(1),
+  title: z.string().trim().min(1),
+});
+
+export const moduleConsoleOperatorAssignmentSchema = z.object({
+  assignedBy: z.string().trim().min(1),
+  capabilities: z.array(z.string().trim().min(1)),
+  companyId: z.string().trim().min(1),
+  consoleId: z.string().trim().min(1),
+  createdAt: z.string().trim().min(1),
+  id: z.string().trim().min(1),
+  operatorUserId: z.string().trim().min(1),
+  reason: z.string().trim().min(1).optional(),
+  revokedAt: z.string().trim().min(1).optional(),
+  tenantId: z.string().trim().min(1),
+  validFrom: z.string().trim().min(1).optional(),
+  validTo: z.string().trim().min(1).optional(),
+});
+
+export const listModuleConsoleOperatorAssignmentsQuerySchema = z.object({
+  companyId: z.string().trim().min(1).optional(),
+  consoleId: z.string().trim().min(1).max(64).optional(),
+});
+
 export const systemAdminMutationResultSchema = z.object({
   id: z.string().trim().min(1),
   action: z.string().trim().min(1),
@@ -96,4 +146,19 @@ export type TenantAdminSettingUpdate = z.infer<
 export type RoleAssignmentCommand = z.infer<typeof roleAssignmentCommandSchema>;
 export type CustomizationGovernanceCommand = z.infer<
   typeof customizationGovernanceCommandSchema
+>;
+export type AssignModuleConsoleOperatorCommand = z.infer<
+  typeof assignModuleConsoleOperatorCommandSchema
+>;
+export type RevokeModuleConsoleOperatorCommand = z.infer<
+  typeof revokeModuleConsoleOperatorCommandSchema
+>;
+export type ModuleConsoleRegistrationView = z.infer<
+  typeof moduleConsoleRegistrationSchema
+>;
+export type ModuleConsoleOperatorAssignmentView = z.infer<
+  typeof moduleConsoleOperatorAssignmentSchema
+>;
+export type ListModuleConsoleOperatorAssignmentsQuery = z.infer<
+  typeof listModuleConsoleOperatorAssignmentsQuerySchema
 >;

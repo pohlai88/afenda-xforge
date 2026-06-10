@@ -67,6 +67,14 @@ export {
   hrRecordsWritePermission,
 } from "./records.contract.ts";
 export {
+  type EmployeeUserAccountLinkRecord,
+  employeeUserAccountLinkSchema,
+  listEmployeeUserAccountLinksQuerySchema,
+  type ListEmployeeUserAccountLinksQuery,
+  type UpsertEmployeeUserAccountLinkInput,
+  upsertEmployeeUserAccountLinkInputSchema,
+} from "./employee-user-link.schema.ts";
+export {
   buildHrEmployeeIntegrationChangeEvent,
   buildHrEmployeeIntegrationSnapshot,
   hrRecordsIntegrationEventSchema,

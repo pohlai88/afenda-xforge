@@ -79,16 +79,50 @@ const applyMigrationFile = async (sql, tag, filePath) => {
   success(`Applied ${tag}`);
 };
 
-const main = async () => {
-  const { env, envFile } = loadRootEnv(rootDirectory);
+const resolveDatabaseUrl = (rootDirectory, envFileEnv) => {
+  const fromProcess = process.env.DATABASE_URL?.trim();
 
-  if (!env.DATABASE_URL) {
-    throw new Error(`DATABASE_URL is missing from ${envFile}`);
+  if (fromProcess) {
+    return {
+      databaseUrl: fromProcess,
+      envFile: "process.env.DATABASE_URL",
+    };
   }
 
-  info(`Using root env file: ${envFile}`);
+  if (!envFileEnv.DATABASE_URL) {
+    throw new Error(`DATABASE_URL is missing from ${envFileEnv.envFile ?? "environment"}`);
+  }
 
-  const sql = postgres(env.DATABASE_URL, {
+  return {
+    databaseUrl: envFileEnv.DATABASE_URL,
+    envFile: envFileEnv.envFile,
+  };
+};
+
+const main = async () => {
+  let envFile = "process.env.DATABASE_URL";
+  let env = process.env;
+
+  try {
+    const loaded = loadRootEnv(rootDirectory);
+    env = loaded.env;
+    envFile = loaded.envFile;
+  } catch {
+    if (!process.env.DATABASE_URL?.trim()) {
+      throw new Error(
+        `Missing root environment file. Expected ${path.join(rootDirectory, ".env.local")} or ${path.join(rootDirectory, ".env")}, or set DATABASE_URL in the environment`
+      );
+    }
+  }
+
+  const { databaseUrl, envFile: resolvedEnvFile } = resolveDatabaseUrl(
+    rootDirectory,
+    { ...env, envFile }
+  );
+
+  info(`Using database URL from ${resolvedEnvFile}`);
+
+  const sql = postgres(databaseUrl, {
     prepare: false,
   });
 

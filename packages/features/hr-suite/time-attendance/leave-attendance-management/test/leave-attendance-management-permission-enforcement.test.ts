@@ -23,8 +23,8 @@ import { listLamAttendanceRecordsRecords } from "../src/queries/attendance-recor
 import { listLamAttendanceSummaryRecords } from "../src/queries/attendance-summary.query.ts";
 import { listLamAuditTrailRecords } from "../src/queries/audit.query.ts";
 import { listLamLeaveApplicationsRecords } from "../src/queries/leave-applications.query.ts";
-import { calculateLamLeaveEntitlement } from "../src/queries/leave-entitlement-calculation.query.ts";
 import { listLamLeaveBalancesRecords } from "../src/queries/leave-balances.query.ts";
+import { calculateLamLeaveEntitlement } from "../src/queries/leave-entitlement-calculation.query.ts";
 import { leaveAttendanceManagementCapabilities } from "../src/registry/capability.ts";
 import {
   lamPersonaCapabilityPresets,
@@ -226,7 +226,9 @@ test("resolveLamDataScope enforces self, team, and company modes", () => {
   assert.deepEqual(resolveLamDataScope(payrollContext), { mode: "company" });
   assert.deepEqual(resolveLamDataScope({}), { mode: "denied" });
   assert.deepEqual(resolveLamDataScope(auditorContext), { mode: "denied" });
-  assert.deepEqual(resolveLamReadDataScope(auditorContext), { mode: "company" });
+  assert.deepEqual(resolveLamReadDataScope(auditorContext), {
+    mode: "company",
+  });
 });
 
 test("resolveLamDataScope fails closed for capabilities without canRead or canWrite", () => {

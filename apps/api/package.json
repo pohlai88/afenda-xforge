@@ -5,7 +5,7 @@
     "dev": "next dev -p 3002",
     "build": "next build",
     "start": "next start",
-    "test": "tsx --conditions=react-server --test test/**/*.test.ts",
+    "test": "node --import ./test/_setup.ts --import tsx --conditions=react-server --test test/**/*.test.ts",
     "analyze": "ANALYZE=true npm run build",
     "clean": "git clean -xdf .cache .turbo dist node_modules",
     "lint": "biome check .",
@@ -26,8 +26,10 @@
     "@repo/features-time-attendance-leave-attendance-management": "workspace:*",
     "@repo/features-master-data-companies": "workspace:*",
     "@repo/features-master-data-customers": "workspace:*",
+    "@repo/features-hr-suite-hr-console": "workspace:*",
     "@repo/features-system-admin-control-plane": "workspace:*",
     "@repo/integrations-linear": "workspace:*",
+    "@repo/logger": "workspace:*",
     "@repo/integrations-workday": "workspace:*",
     "@repo/next-config": "workspace:*",
     "@repo/notifications": "workspace:*",
@@ -40,7 +42,8 @@
     "drizzle-orm": "catalog:",
     "next": "catalog:",
     "react": "catalog:",
-    "react-dom": "catalog:"
+    "react-dom": "catalog:",
+    "server-only": "catalog:"
   },
   "devDependencies": {
     "@repo/typescript-config": "workspace:*",

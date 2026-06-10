@@ -1,7 +1,7 @@
 import type { RejectLamLeaveApplicationInput } from "@repo/features-time-attendance-leave-attendance-management/contract";
 import { rejectLamLeaveApplication } from "@repo/features-time-attendance-leave-attendance-management/server";
 import { NextResponse } from "next/server";
-import { createLamApprovalContext } from "../../../_lib/context.ts";
+import { createLamLeaveApplicationApprovalContextById } from "../../../_lib/context.ts";
 import { mapLamMutationHttpStatus } from "../../../_lib/mutation-response.ts";
 import { notifyLamLeaveApplicationEvent } from "../../../_lib/notify-lam-events.ts";
 
@@ -28,7 +28,7 @@ export async function POST(request: Request, context: RouteContext) {
       ...body,
       applicationId,
     } as RejectLamLeaveApplicationInput,
-    createLamApprovalContext(request)
+    await createLamLeaveApplicationApprovalContextById(request, applicationId)
   );
 
   if (result.ok) {

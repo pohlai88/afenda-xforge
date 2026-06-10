@@ -4,9 +4,9 @@ import {
   upsertLamLeaveCarryForwardRule,
 } from "@repo/features-time-attendance-leave-attendance-management/server";
 import { NextResponse } from "next/server";
+import { createLamConfigWriteContext } from "../../_lib/lam-governed-context.ts";
 import {
   createLamReadContext,
-  createLamWriteContext,
   getQuery,
 } from "../_lib/context.ts";
 import { mapLamMutationHttpStatus } from "../_lib/mutation-response.ts";
@@ -14,7 +14,7 @@ import { mapLamMutationHttpStatus } from "../_lib/mutation-response.ts";
 export async function GET(request: Request) {
   const data = await listLamLeaveCarryForwardRulesRecords(
     getQuery(request),
-    createLamReadContext(request)
+    await createLamReadContext(request)
   );
 
   return NextResponse.json(data);
@@ -36,7 +36,7 @@ export async function POST(request: Request) {
   const isUpdate = typeof body.id === "string" && body.id.trim().length > 0;
   const result = await upsertLamLeaveCarryForwardRule(
     body as UpsertLamLeaveCarryForwardRuleInput,
-    createLamWriteContext(request)
+    await createLamConfigWriteContext(request)
   );
 
   return NextResponse.json(result, {

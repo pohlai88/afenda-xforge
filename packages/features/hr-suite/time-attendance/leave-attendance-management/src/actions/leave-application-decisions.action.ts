@@ -19,8 +19,8 @@ import {
   buildLamAuditMetadata,
   createLamMutationAuditEvent,
   normalizeLamMutationActorId,
-  requireStrictLamApprovalAccess,
   requireLamEmployeeMutationScope,
+  requireStrictLamApprovalAccess,
 } from "../execution.ts";
 import { resolveCurrentApprovalStep } from "../projector/approval-routing.ts";
 import {

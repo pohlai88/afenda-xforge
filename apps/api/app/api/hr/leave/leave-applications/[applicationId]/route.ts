@@ -9,7 +9,7 @@ export async function GET(
   const { applicationId } = await context.params;
   const data = await getLamLeaveApplicationById(
     applicationId,
-    createLamReadContext(request)
+    await createLamReadContext(request)
   );
 
   if (!data) {

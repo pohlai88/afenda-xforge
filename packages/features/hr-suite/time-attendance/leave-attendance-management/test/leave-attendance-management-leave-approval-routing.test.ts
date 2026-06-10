@@ -505,6 +505,52 @@ test("upsertLamLeaveApprovalRoute rejects named_approver without approverRef", a
   assert.match(result.error, /requires approverRef/);
 });
 
+test("upsertLamLeaveApprovalRoute soft-deactivates by setting active false while preserving steps", async () => {
+  const created = await upsertLamLeaveApprovalRoute(
+    {
+      companyId: "company-001",
+      code: "ROUTE-DEACTIVATE",
+      title: "Deactivate Me",
+      leaveTypeId,
+      steps: [
+        { order: 1, kind: "direct_manager", fallbackToHr: true },
+        { order: 2, kind: "hr_officer" },
+      ],
+      active: true,
+    },
+    writeContext
+  );
+  assert.equal(created.ok, true);
+  if (!created.ok) {
+    throw new Error("Expected route create to succeed");
+  }
+
+  const deactivated = await upsertLamLeaveApprovalRoute(
+    {
+      active: false,
+      code: "ROUTE-DEACTIVATE",
+      companyId: "company-001",
+      id: created.targetId,
+      leaveTypeId,
+      steps: [
+        { order: 1, kind: "direct_manager", fallbackToHr: true },
+        { order: 2, kind: "hr_officer" },
+      ],
+      title: "Deactivate Me",
+    },
+    writeContext
+  );
+  assert.equal(deactivated.ok, true);
+  if (!deactivated.ok) {
+    throw new Error("Expected route deactivate to succeed");
+  }
+
+  const stored = await getLamLeaveApprovalRouteById(created.targetId, readContext);
+  assert.equal(stored?.active, false);
+  assert.equal(stored?.steps.length, 2);
+  assert.equal(stored?.steps[1]?.kind, "hr_officer");
+});
+
 test("AC-010 submit without matching route remains submitted", async () => {
   const submit = await submitLamLeaveApplication(
     {

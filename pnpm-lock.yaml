@@ -293,6 +293,9 @@ importers:
       '@repo/features-employee-management-organizational-chart-hierarchy':
         specifier: workspace:*
         version: link:../../packages/features/hr-suite/employee-management/organizational-chart-hierarchy
+      '@repo/features-hr-suite-hr-console':
+        specifier: workspace:*
+        version: link:../../packages/features/hr-suite/hr-console
       '@repo/features-master-data-companies':
         specifier: workspace:*
         version: link:../../packages/features/master-data/companies
@@ -311,6 +314,9 @@ importers:
       '@repo/integrations-workday':
         specifier: workspace:*
         version: link:../../packages/integrations/workday
+      '@repo/logger':
+        specifier: workspace:*
+        version: link:../../packages/logger
       '@repo/next-config':
         specifier: workspace:*
         version: link:../../packages/next-config
@@ -347,6 +353,9 @@ importers:
       react-dom:
         specifier: 'catalog:'
         version: 19.2.7(react@19.2.7)
+      server-only:
+        specifier: 'catalog:'
+        version: 0.0.1
     devDependencies:
       '@repo/typescript-config':
         specifier: workspace:*
@@ -390,6 +399,9 @@ importers:
       '@repo/customization':
         specifier: workspace:*
         version: link:../../packages/customization
+      '@repo/errors':
+        specifier: workspace:*
+        version: link:../../packages/errors
       '@repo/events':
         specifier: workspace:*
         version: link:../../packages/events
@@ -399,12 +411,24 @@ importers:
       '@repo/features-employee-management-documents-management':
         specifier: workspace:*
         version: link:../../packages/features/hr-suite/employee-management/documents-management
+      '@repo/features-employee-management-employee-records-management':
+        specifier: workspace:*
+        version: link:../../packages/features/hr-suite/employee-management/employee-records-management
+      '@repo/features-hr-suite-hr-console':
+        specifier: workspace:*
+        version: link:../../packages/features/hr-suite/hr-console
       '@repo/features-master-data-companies':
         specifier: workspace:*
         version: link:../../packages/features/master-data/companies
       '@repo/features-master-data-customers':
         specifier: workspace:*
         version: link:../../packages/features/master-data/customers
+      '@repo/features-system-admin-control-plane':
+        specifier: workspace:*
+        version: link:../../packages/features/system-admin/control-plane
+      '@repo/features-time-attendance-leave-attendance-management':
+        specifier: workspace:*
+        version: link:../../packages/features/hr-suite/time-attendance/leave-attendance-management
       '@repo/health':
         specifier: workspace:*
         version: link:../../packages/health
@@ -1278,9 +1302,15 @@ importers:
 
   packages/features/hr-suite/employee-management/employee-records-management:
     dependencies:
+      '@repo/database':
+        specifier: workspace:*
+        version: link:../../../../database
       '@repo/search':
         specifier: workspace:*
         version: link:../../../../search
+      drizzle-orm:
+        specifier: 'catalog:'
+        version: 0.45.2(@opentelemetry/api@1.9.1)(@upstash/redis@1.38.0)(postgres@3.4.9)
       server-only:
         specifier: 'catalog:'
         version: 0.0.1
@@ -1372,6 +1402,49 @@ importers:
       '@repo/typescript-config':
         specifier: workspace:*
         version: link:../../../../typescript-config
+      '@types/node':
+        specifier: 'catalog:'
+        version: 25.9.2
+      tsx:
+        specifier: 'catalog:'
+        version: 4.22.4
+      typescript:
+        specifier: 'catalog:'
+        version: 5.9.3
+
+  packages/features/hr-suite/hr-console:
+    dependencies:
+      '@repo/api':
+        specifier: workspace:*
+        version: link:../../../api
+      '@repo/audit':
+        specifier: workspace:*
+        version: link:../../../audit
+      '@repo/database':
+        specifier: workspace:*
+        version: link:../../../database
+      '@repo/execution':
+        specifier: workspace:*
+        version: link:../../../execution
+      '@repo/metadata':
+        specifier: workspace:*
+        version: link:../../../metadata
+      '@repo/permissions':
+        specifier: workspace:*
+        version: link:../../../permissions
+      drizzle-orm:
+        specifier: 'catalog:'
+        version: 0.45.2(@opentelemetry/api@1.9.1)(@upstash/redis@1.38.0)(postgres@3.4.9)
+      server-only:
+        specifier: 'catalog:'
+        version: 0.0.1
+      zod:
+        specifier: 4.3.6
+        version: 4.3.6
+    devDependencies:
+      '@repo/typescript-config':
+        specifier: workspace:*
+        version: link:../../../typescript-config
       '@types/node':
         specifier: 'catalog:'
         version: 25.9.2
@@ -1784,6 +1857,9 @@ importers:
 
   packages/features/hr-suite/time-attendance/leave-attendance-management:
     dependencies:
+      '@repo/audit':
+        specifier: workspace:*
+        version: link:../../../../audit
       '@repo/database':
         specifier: workspace:*
         version: link:../../../../database

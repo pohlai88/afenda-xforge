@@ -5,11 +5,11 @@ import type {
   LamEntitlementCalculationResult,
 } from "../contracts/index.ts";
 import { calculateLamLeaveEntitlementInputSchema } from "../contracts/index.ts";
+import { canAccessLamEmployeeRecord } from "../policy.ts";
 import { projectLeaveEntitlementCalculation } from "../projector/entitlement.ts";
 import { loadLamRepository } from "../repository.ts";
 import type { LamReadContext } from "../schema.ts";
 import { lamEmployeeEntitlementProfileSchema } from "../schema.ts";
-import { canAccessLamEmployeeRecord } from "../policy.ts";
 import { filterByCompany, readContext } from "./shared.ts";
 
 const resolveLeaveTypeIds = (args: {

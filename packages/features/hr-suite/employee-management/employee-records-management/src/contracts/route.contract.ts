@@ -8,6 +8,8 @@ export const hrRecordsRouteContractSchema = z.object({
     detail: z.string().trim().min(1),
     rehire: z.string().trim().min(1),
     statusHistory: z.string().trim().min(1),
+    userAccounts: z.string().trim().min(1),
+    userAccountsDeactivate: z.string().trim().min(1),
   }),
 });
 
@@ -23,5 +25,7 @@ export const hrRecordsRouteContract = hrRecordsRouteContractSchema.parse({
     detail: "/hr/records/:employeeId",
     rehire: "/hr/records/:employeeId/rehire",
     statusHistory: "/hr/records/:employeeId/status-history",
+    userAccounts: "/hr/records/user-accounts",
+    userAccountsDeactivate: "/hr/records/user-accounts/deactivate",
   },
 });

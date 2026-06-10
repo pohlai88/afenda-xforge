@@ -9,7 +9,7 @@ export async function GET(
   const { ruleId } = await context.params;
   const data = await getLamLeaveCarryForwardRuleById(
     ruleId,
-    createLamReadContext(request)
+    await createLamReadContext(request)
   );
 
   if (!data) {

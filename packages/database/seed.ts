@@ -8,6 +8,7 @@ import {
   companies,
   companyGrants,
   customers,
+  employeeUserAccounts,
   tenantMemberships,
   tenants,
   webhookEndpoints,
@@ -61,6 +62,7 @@ export type SeedFoundationResult = {
 
 export type SeedDomainResult = {
   companyGrantId: string;
+  employeeUserAccountLinkId?: string;
   tenantMembershipId: string;
   userId: string;
 };
@@ -81,6 +83,7 @@ const foundationCustomer: CustomerSeed = {
 };
 
 const demoUserId = process.env.XFORGE_DEMO_USER_ID?.trim() ?? "";
+const demoEmployeeId = process.env.XFORGE_DEMO_EMPLOYEE_ID?.trim() ?? "emp-demo";
 const webhookEndpointsSeedJson =
   process.env.XFORGE_WEBHOOK_ENDPOINTS_JSON?.trim() ?? "";
 
@@ -93,6 +96,7 @@ const seedDatabaseClient = drizzle(seedClient, {
     companies,
     companyGrants,
     customers,
+    employeeUserAccounts,
     tenantMemberships,
     tenants,
     webhookEndpoints,
@@ -313,6 +317,45 @@ const upsertCompanyGrant = async (
   return grant;
 };
 
+const upsertEmployeeUserAccountLink = async (
+  tenantId: string,
+  companyId: string,
+  userId: string,
+  employeeId: string
+): Promise<{ id: string }> => {
+  const [link] = await seedDatabaseClient
+    .insert(employeeUserAccounts)
+    .values({
+      active: true,
+      companyId,
+      employeeId,
+      tenantId,
+      updatedAt: new Date(),
+      userId,
+    })
+    .onConflictDoUpdate({
+      target: [
+        employeeUserAccounts.tenantId,
+        employeeUserAccounts.companyId,
+        employeeUserAccounts.userId,
+      ],
+      set: {
+        active: true,
+        employeeId,
+        updatedAt: new Date(),
+      },
+    })
+    .returning({
+      id: employeeUserAccounts.id,
+    });
+
+  if (!link) {
+    throw new Error("failed to seed employee user account link");
+  }
+
+  return link;
+};
+
 export const seedWebhookEndpoints = async (
   foundation: SeedFoundationResult,
   seeds: WebhookEndpointSeed[] = parseWebhookEndpointSeeds()
@@ -387,9 +430,16 @@ export const seedDomainFixtures = (
       foundation.companyId,
       trimmedUserId
     );
+    const employeeLink = await upsertEmployeeUserAccountLink(
+      foundation.tenantId,
+      foundation.companyId,
+      trimmedUserId,
+      demoEmployeeId
+    );
 
     return {
       companyGrantId: grant.id,
+      employeeUserAccountLinkId: employeeLink.id,
       tenantMembershipId: membership.id,
       userId: trimmedUserId,
     };
@@ -422,6 +472,12 @@ const run = async (): Promise<void> => {
       messages.push(`user=${domain.userId}`);
       messages.push(`tenantMembership=${domain.tenantMembershipId}`);
       messages.push(`companyGrant=${domain.companyGrantId}`);
+      if (domain.employeeUserAccountLinkId) {
+        messages.push(
+          `employeeUserAccountLink=${domain.employeeUserAccountLinkId}`
+        );
+        messages.push(`employeeId=${demoEmployeeId}`);
+      }
     } else {
       messages.push(
         "domain fixtures skipped (set XFORGE_DEMO_USER_ID to enable)"

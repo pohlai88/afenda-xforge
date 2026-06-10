@@ -19,7 +19,7 @@ export async function POST(request: Request) {
 
   const result = await adjustLamLeaveBalance(
     body as AdjustLamLeaveBalanceInput,
-    createLamBalanceWriteContext(request)
+    await createLamBalanceWriteContext(request)
   );
 
   return NextResponse.json(result, {

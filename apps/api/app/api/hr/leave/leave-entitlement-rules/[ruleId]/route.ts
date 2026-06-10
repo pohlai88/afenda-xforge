@@ -10,7 +10,7 @@ export async function GET(_request: Request, context: RouteContext) {
   const { ruleId } = await context.params;
   const record = await getLamLeaveEntitlementRuleById(
     ruleId,
-    createLamReadContext(_request)
+    await createLamReadContext(_request)
   );
 
   if (!record) {

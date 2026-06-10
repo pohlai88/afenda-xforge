@@ -16,7 +16,7 @@ import { notifyLamAttendanceCorrectionEvent } from "../_lib/notify-lam-events.ts
 export async function GET(request: Request) {
   const data = await listLamAttendanceCorrectionsRecords(
     getQuery(request),
-    createLamCorrectionsReadContext(request)
+    await createLamCorrectionsReadContext(request)
   );
 
   return NextResponse.json(data);
@@ -41,7 +41,7 @@ export async function POST(request: Request) {
   );
   const result = await submitLamAttendanceCorrection(
     body,
-    createLamCorrectionWriteContext(request)
+    await createLamCorrectionWriteContext(request)
   );
 
   if (result.ok) {

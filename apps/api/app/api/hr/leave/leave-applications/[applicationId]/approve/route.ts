@@ -5,7 +5,7 @@ import {
 } from "@repo/features-time-attendance-leave-attendance-management/server";
 import { NextResponse } from "next/server";
 import {
-  createLamApprovalContext,
+  createLamLeaveApplicationApprovalContextById,
   createLamNotificationReadContext,
 } from "../../../_lib/context.ts";
 import { mapLamMutationHttpStatus } from "../../../_lib/mutation-response.ts";
@@ -34,13 +34,13 @@ export async function POST(request: Request, context: RouteContext) {
       ...body,
       applicationId,
     } as ApproveLamLeaveApplicationInput,
-    createLamApprovalContext(request)
+    await createLamLeaveApplicationApprovalContextById(request, applicationId)
   );
 
   if (result.ok) {
     const application = await getLamLeaveApplicationById(
       applicationId,
-      createLamNotificationReadContext(request)
+      await createLamNotificationReadContext(request)
     );
 
     if (application?.status === "approved") {

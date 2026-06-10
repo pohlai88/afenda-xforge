@@ -19,7 +19,7 @@ export async function POST(request: Request) {
 
   const result = await exportLamPayrollReferences(
     body as ExportLamPayrollReferencesInput,
-    createLamPayrollExportContext(request)
+    await createLamPayrollExportContext(request)
   );
 
   return NextResponse.json(result, {

@@ -16,7 +16,7 @@ import { parseLamJsonBody } from "../../leave/_lib/parse-json-body.ts";
 export async function GET(request: Request) {
   const data = await listLamAttendanceRecordsRecords(
     getQuery(request),
-    createLamReadContext(request)
+    await createLamReadContext(request)
   );
 
   return NextResponse.json(data);
@@ -40,7 +40,7 @@ export async function POST(request: Request) {
     body.id.length > 0;
   const result = await upsertLamAttendanceRecord(
     body as UpsertLamAttendanceRecordInput,
-    createLamWriteContext(request)
+    await createLamWriteContext(request)
   );
 
   return NextResponse.json(result, {

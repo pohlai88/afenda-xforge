@@ -8,7 +8,11 @@ import type {
 import { lamLeaveApplicationSensitiveFields } from "./contracts/index.ts";
 import { requireLamWriteAccess } from "./policy.ts";
 import { leaveAttendanceManagementCapabilities } from "./registry/capability.ts";
-import { createLamRecordId, loadLamRepository, mutateLamRepository } from "./repository.ts";
+import {
+  createLamRecordId,
+  loadLamRepository,
+  mutateLamRepository,
+} from "./repository.ts";
 import { resolveLamAttendanceCorrectionsEnabled } from "./shared/attendance-corrections-enabled.ts";
 
 export type LamMutationContext = {
@@ -94,6 +98,33 @@ export const requireLamLeaveEntitlementsWriteAccess = (
     context,
     leaveAttendanceManagementCapabilities.leaveEntitlementsWrite,
     "Leave entitlements write access denied"
+  );
+
+export const requireLamCalendarsWriteAccess = (
+  context?: LamMutationContext
+): LamMutationResult | null =>
+  requireLamCapabilityWriteAccess(
+    context,
+    leaveAttendanceManagementCapabilities.calendarsWrite,
+    "Calendar write access denied"
+  );
+
+export const requireLamAttendancePolicyWriteAccess = (
+  context?: LamMutationContext
+): LamMutationResult | null =>
+  requireLamCapabilityWriteAccess(
+    context,
+    leaveAttendanceManagementCapabilities.attendancePolicyWrite,
+    "Attendance policy write access denied"
+  );
+
+export const requireLamEncashmentWriteAccess = (
+  context?: LamMutationContext
+): LamMutationResult | null =>
+  requireLamCapabilityWriteAccess(
+    context,
+    leaveAttendanceManagementCapabilities.encashmentWrite,
+    "Leave encashment write access denied"
   );
 
 export const requireLamLeaveApplicationsWriteAccess = (

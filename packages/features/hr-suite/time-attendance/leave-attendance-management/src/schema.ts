@@ -52,6 +52,11 @@ export const lamRepositoryEntityTypeValues = [
   "leave_type",
   "leave_entitlement_rule",
   "leave_carry_forward_rule",
+  "work_calendar",
+  "holiday_calendar",
+  "attendance_policy",
+  "leave_encashment_policy",
+  "leave_encashment_request",
   "leave_blackout_period",
   "approval_route",
   "leave_balance",
@@ -335,6 +340,127 @@ export const lamLeaveCarryForwardRuleSchema = z.object({
   updatedAt: isoDateSchema,
 });
 
+export const lamWorkCalendarDayKindValues = [
+  "working_day",
+  "rest_day",
+  "off_day",
+] as const;
+
+export const lamWorkCalendarDayKindSchema = z.preprocess(
+  normalizeSnakeCaseEnumValue,
+  z.enum(lamWorkCalendarDayKindValues)
+);
+
+export const lamWorkCalendarWeekdayRulesSchema = z.object({
+  monday: lamWorkCalendarDayKindSchema,
+  tuesday: lamWorkCalendarDayKindSchema,
+  wednesday: lamWorkCalendarDayKindSchema,
+  thursday: lamWorkCalendarDayKindSchema,
+  friday: lamWorkCalendarDayKindSchema,
+  saturday: lamWorkCalendarDayKindSchema,
+  sunday: lamWorkCalendarDayKindSchema,
+});
+
+export const lamWorkCalendarSchema = z.object({
+  id: trimmedStringSchema,
+  companyId: optionalTrimmedStringSchema,
+  code: trimmedStringSchema,
+  title: trimmedStringSchema,
+  scope: lamEntitlementRuleScopeSchema.partial().optional(),
+  weekdayRules: lamWorkCalendarWeekdayRulesSchema,
+  effectiveFrom: isoDateSchema,
+  effectiveTo: optionalIsoDateSchema,
+  active: z.boolean(),
+  createdAt: isoDateSchema,
+  updatedAt: isoDateSchema,
+});
+
+export const lamHolidayKindValues = [
+  "public_holiday",
+  "company_holiday",
+  "regional_holiday",
+  "replacement_holiday",
+] as const;
+
+export const lamHolidayKindSchema = z.preprocess(
+  normalizeSnakeCaseEnumValue,
+  z.enum(lamHolidayKindValues)
+);
+
+export const lamHolidayCalendarEntrySchema = z.object({
+  date: isoDateSchema,
+  name: trimmedStringSchema,
+  kind: lamHolidayKindSchema,
+});
+
+export const lamHolidayCalendarSchema = z.object({
+  id: trimmedStringSchema,
+  companyId: optionalTrimmedStringSchema,
+  code: trimmedStringSchema,
+  title: trimmedStringSchema,
+  scope: lamEntitlementRuleScopeSchema.partial().optional(),
+  workCalendarId: optionalTrimmedStringSchema,
+  holidays: z.array(lamHolidayCalendarEntrySchema).default([]),
+  effectiveFrom: isoDateSchema,
+  effectiveTo: optionalIsoDateSchema,
+  active: z.boolean(),
+  createdAt: isoDateSchema,
+  updatedAt: isoDateSchema,
+});
+
+export const lamAttendancePolicySchema = z.object({
+  id: trimmedStringSchema,
+  companyId: optionalTrimmedStringSchema,
+  code: trimmedStringSchema,
+  title: trimmedStringSchema,
+  scope: lamEntitlementRuleScopeSchema.partial().optional(),
+  gracePeriodMinutes: z.number().int().nonnegative(),
+  latenessThresholdMinutes: z.number().int().nonnegative(),
+  earlyDepartureThresholdMinutes: z.number().int().nonnegative(),
+  absenceThresholdMinutes: z.number().int().nonnegative(),
+  workCalendarId: optionalTrimmedStringSchema,
+  effectiveFrom: isoDateSchema,
+  effectiveTo: optionalIsoDateSchema,
+  active: z.boolean(),
+  createdAt: isoDateSchema,
+  updatedAt: isoDateSchema,
+});
+
+export const lamLeaveEncashmentPolicySchema = z.object({
+  id: trimmedStringSchema,
+  companyId: optionalTrimmedStringSchema,
+  leaveTypeId: trimmedStringSchema,
+  code: trimmedStringSchema,
+  title: trimmedStringSchema,
+  scope: lamEntitlementRuleScopeSchema.partial().optional(),
+  maxEncashableDays: z.number().nonnegative(),
+  encashmentRatePercent: z.number().min(0).max(100),
+  minRemainingBalanceDays: z.number().nonnegative().nullable().optional(),
+  effectiveFrom: isoDateSchema,
+  effectiveTo: optionalIsoDateSchema,
+  active: z.boolean(),
+  createdAt: isoDateSchema,
+  updatedAt: isoDateSchema,
+});
+
+export const lamLeaveEncashmentRequestSchema = z.object({
+  id: trimmedStringSchema,
+  companyId: optionalTrimmedStringSchema,
+  employeeId: trimmedStringSchema,
+  leaveTypeId: trimmedStringSchema,
+  policyId: trimmedStringSchema,
+  policyCode: trimmedStringSchema,
+  encashmentDays: z.number().positive(),
+  encashmentRatePercent: z.number().min(0).max(100),
+  periodYear: z.number().int(),
+  payPeriodStart: isoDateSchema,
+  payPeriodEnd: isoDateSchema,
+  authorizedBy: trimmedStringSchema,
+  reason: trimmedStringSchema,
+  processedAt: isoDateSchema,
+  processedBy: optionalTrimmedStringSchema,
+});
+
 export const lamLeaveBalanceCarryForwardResultSchema = z.object({
   employeeId: trimmedStringSchema,
   companyId: trimmedStringSchema,
@@ -439,6 +565,7 @@ export const lamPayrollDeductionCategoryValues = [
   "absence",
   "lateness",
   "attendance_deduction",
+  "leave_encashment",
 ] as const;
 
 export const lamPayrollDeductionCategorySchema = z.preprocess(
@@ -488,6 +615,26 @@ export const lamApprovedLeavePayrollReferenceSchema = z.object({
   exportedAt: optionalIsoDateSchema,
 });
 
+export const lamLeaveEncashmentPayrollReferenceSchema = z.object({
+  id: trimmedStringSchema,
+  companyId: optionalTrimmedStringSchema,
+  employeeId: trimmedStringSchema,
+  encashmentRequestId: trimmedStringSchema,
+  leaveTypeId: trimmedStringSchema,
+  leaveTypeCode: trimmedStringSchema,
+  policyId: trimmedStringSchema,
+  policyCode: trimmedStringSchema,
+  encashmentDays: z.number().positive(),
+  encashmentRatePercent: z.number().min(0).max(100),
+  payPeriodStart: isoDateSchema,
+  payPeriodEnd: isoDateSchema,
+  processedAt: isoDateSchema,
+  deductionCategory: z.literal("leave_encashment"),
+  sourceReference: trimmedStringSchema,
+  exportBatchId: optionalTrimmedStringSchema,
+  exportedAt: optionalIsoDateSchema,
+});
+
 export const lamAttendancePayrollReferenceSchema = z.object({
   id: trimmedStringSchema,
   companyId: optionalTrimmedStringSchema,
@@ -504,6 +651,7 @@ export const lamAttendancePayrollReferenceSchema = z.object({
 export const lamPayrollReferenceSchema = z.union([
   lamUnpaidLeavePayrollReferenceSchema,
   lamApprovedLeavePayrollReferenceSchema,
+  lamLeaveEncashmentPayrollReferenceSchema,
   lamAttendancePayrollReferenceSchema,
 ]);
 
@@ -518,6 +666,7 @@ export const lamPayrollReferenceExportBatchSchema = z.object({
   referenceIds: z.array(trimmedStringSchema),
   leaveApplicationIds: z.array(trimmedStringSchema),
   attendanceRecordIds: z.array(trimmedStringSchema).default([]),
+  encashmentRequestIds: z.array(trimmedStringSchema).default([]),
   deductionCategories: z.array(lamPayrollDeductionCategorySchema).min(1),
 });
 
@@ -719,6 +868,25 @@ export type LamLeaveBalance = z.infer<typeof lamLeaveBalanceSchema>;
 export type LamLeaveCarryForwardRule = z.infer<
   typeof lamLeaveCarryForwardRuleSchema
 >;
+export type LamWorkCalendarDayKind = z.infer<
+  typeof lamWorkCalendarDayKindSchema
+>;
+export type LamWorkCalendarWeekdayRules = z.infer<
+  typeof lamWorkCalendarWeekdayRulesSchema
+>;
+export type LamWorkCalendar = z.infer<typeof lamWorkCalendarSchema>;
+export type LamHolidayKind = z.infer<typeof lamHolidayKindSchema>;
+export type LamHolidayCalendarEntry = z.infer<
+  typeof lamHolidayCalendarEntrySchema
+>;
+export type LamHolidayCalendar = z.infer<typeof lamHolidayCalendarSchema>;
+export type LamAttendancePolicy = z.infer<typeof lamAttendancePolicySchema>;
+export type LamLeaveEncashmentPolicy = z.infer<
+  typeof lamLeaveEncashmentPolicySchema
+>;
+export type LamLeaveEncashmentRequest = z.infer<
+  typeof lamLeaveEncashmentRequestSchema
+>;
 export type LamLeaveBalanceCarryForwardResult = z.infer<
   typeof lamLeaveBalanceCarryForwardResultSchema
 >;
@@ -732,6 +900,9 @@ export type LamUnpaidLeavePayrollReference = z.infer<
 >;
 export type LamApprovedLeavePayrollReference = z.infer<
   typeof lamApprovedLeavePayrollReferenceSchema
+>;
+export type LamLeaveEncashmentPayrollReference = z.infer<
+  typeof lamLeaveEncashmentPayrollReferenceSchema
 >;
 export type LamAttendancePayrollReference = z.infer<
   typeof lamAttendancePayrollReferenceSchema

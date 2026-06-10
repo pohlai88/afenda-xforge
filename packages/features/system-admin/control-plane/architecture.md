@@ -116,6 +116,20 @@ It must not permit:
 - audit suppression
 - deploy-time tenant patching
 
+## Module Console Registry
+
+System Admin registers module consoles from feature manifests (for example `@repo/features-hr-suite-hr-console/manifest`).
+
+Capabilities:
+
+- `system-admin.module-consoles.read` — registry and operator assignment read
+- `system-admin.module-consoles.assign` — assign/revoke console operators (always System Admin)
+
+Governance policy per company:
+
+- **`unassigned_fallback`** — no active operator; tenant admin/owner with module-console read acts as implicit full operator for delegation and domain writes (audited with `governanceMode: "unassigned_fallback"`).
+- **`operator_assigned`** — assigned operator owns delegation and domain writes; System Admin retains assignment authority and read-only console observation.
+
 ## Deferred UI
 
 The package intentionally does not create an app route yet. The admin shell remains deferred until the application-level system admin navigation and layout are finalized.

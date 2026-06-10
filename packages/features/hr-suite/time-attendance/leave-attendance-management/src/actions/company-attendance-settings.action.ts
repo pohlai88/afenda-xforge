@@ -63,7 +63,8 @@ export async function upsertLamCompanyAttendanceSettings(
   }
 
   try {
-    const validInput = upsertLamCompanyAttendanceSettingsInputSchema.parse(input);
+    const validInput =
+      upsertLamCompanyAttendanceSettingsInputSchema.parse(input);
     const parsedContext = lamWriteContextSchema.parse(context ?? {});
     const companyId = resolveScopedCompanyId({
       contextCompanyId: parsedContext.companyId,

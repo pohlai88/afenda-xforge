@@ -21,6 +21,12 @@ export const leaveAttendanceManagementCapabilityValueMap = {
   auditRead: "hr.lam.audit.read",
   reportsRead: "hr.lam.reports.read",
   reportsExport: "hr.lam.reports.export",
+  calendarsRead: "hr.lam.calendars.read",
+  calendarsWrite: "hr.lam.calendars.write",
+  attendancePolicyRead: "hr.lam.attendance-policy.read",
+  attendancePolicyWrite: "hr.lam.attendance-policy.write",
+  encashmentRead: "hr.lam.encashment.read",
+  encashmentWrite: "hr.lam.encashment.write",
 } as const;
 
 export const leaveAttendanceManagementCapabilityValues = Object.values(
@@ -82,6 +88,24 @@ export const leaveAttendanceManagementCapabilityMapSchema = z.object({
   ),
   reportsExport: z.literal(
     leaveAttendanceManagementCapabilityValueMap.reportsExport
+  ),
+  calendarsRead: z.literal(
+    leaveAttendanceManagementCapabilityValueMap.calendarsRead
+  ),
+  calendarsWrite: z.literal(
+    leaveAttendanceManagementCapabilityValueMap.calendarsWrite
+  ),
+  attendancePolicyRead: z.literal(
+    leaveAttendanceManagementCapabilityValueMap.attendancePolicyRead
+  ),
+  attendancePolicyWrite: z.literal(
+    leaveAttendanceManagementCapabilityValueMap.attendancePolicyWrite
+  ),
+  encashmentRead: z.literal(
+    leaveAttendanceManagementCapabilityValueMap.encashmentRead
+  ),
+  encashmentWrite: z.literal(
+    leaveAttendanceManagementCapabilityValueMap.encashmentWrite
   ),
 });
 

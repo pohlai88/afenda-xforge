@@ -14,7 +14,7 @@ export async function GET(request: Request, context: RouteContext) {
   const document = await getLamLeaveDocumentById(
     documentId,
 
-    createLamReadContext(request)
+    await createLamReadContext(request)
   );
 
   if (!document) {

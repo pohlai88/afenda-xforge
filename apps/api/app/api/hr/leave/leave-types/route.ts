@@ -4,18 +4,18 @@ import {
   upsertLamLeaveType,
 } from "@repo/features-time-attendance-leave-attendance-management/server";
 import { NextResponse } from "next/server";
+import { createLamConfigWriteContext } from "../../_lib/lam-governed-context.ts";
 import { mapLamMutationHttpStatus } from "../_lib/mutation-response.ts";
 import { parseLamJsonBody } from "../_lib/parse-json-body.ts";
 import {
   createLamReadContext,
-  createLamWriteContext,
   getQuery,
 } from "../_lib/context.ts";
 
 export async function GET(request: Request) {
   const data = await listLamLeaveTypesRecords(
     getQuery(request),
-    createLamReadContext(request)
+    await createLamReadContext(request)
   );
 
   return NextResponse.json(data);
@@ -37,7 +37,10 @@ export async function POST(request: Request) {
     "id" in body &&
     typeof body.id === "string" &&
     body.id.length > 0;
-  const result = await upsertLamLeaveType(body as UpsertLamLeaveTypeInput, createLamWriteContext(request));
+  const result = await upsertLamLeaveType(
+    body as UpsertLamLeaveTypeInput,
+    await createLamConfigWriteContext(request)
+  );
 
   return NextResponse.json(result, {
     status: mapLamMutationHttpStatus({ ...result, successStatus: isUpdate ? 200 : 201 }),

@@ -26,7 +26,9 @@
     "typecheck": "tsc --noEmit --emitDeclarationOnly false"
   },
   "dependencies": {
+    "@repo/database": "workspace:*",
     "@repo/search": "workspace:*",
+    "drizzle-orm": "catalog:",
     "server-only": "catalog:",
     "zod": "catalog:"
   },

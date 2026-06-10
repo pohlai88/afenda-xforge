@@ -1,0 +1,45 @@
+{
+  "name": "@repo/features-hr-suite-hr-console",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "exports": {
+    ".": "./src/index.ts",
+    "./contract": "./src/contract.ts",
+    "./execution": "./src/execution/index.ts",
+    "./manifest": "./src/manifest.ts",
+    "./metadata": "./src/metadata.ts",
+    "./schema": "./src/schema.ts",
+    "./server": "./src/server.ts",
+    "./package.json": "./package.json"
+  },
+  "files": [
+    "architecture.md",
+    "src",
+    "package.json"
+  ],
+  "scripts": {
+    "lint": "biome check .",
+    "format": "biome format --write .",
+    "clean": "git clean -xdf .cache .turbo dist node_modules",
+    "test": "node --conditions react-server --import tsx --test src/tests/*.test.ts",
+    "typecheck": "tsc --noEmit --emitDeclarationOnly false"
+  },
+  "dependencies": {
+    "@repo/api": "workspace:*",
+    "@repo/audit": "workspace:*",
+    "@repo/database": "workspace:*",
+    "@repo/execution": "workspace:*",
+    "@repo/metadata": "workspace:*",
+    "@repo/permissions": "workspace:*",
+    "drizzle-orm": "catalog:",
+    "server-only": "catalog:",
+    "zod": "catalog:"
+  },
+  "devDependencies": {
+    "@repo/typescript-config": "workspace:*",
+    "@types/node": "catalog:",
+    "tsx": "catalog:",
+    "typescript": "catalog:"
+  }
+}

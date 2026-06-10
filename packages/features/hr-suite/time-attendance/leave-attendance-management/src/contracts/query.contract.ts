@@ -269,6 +269,56 @@ export type ListLamLeaveCarryForwardRulesQuery = z.infer<
   typeof listLamLeaveCarryForwardRulesQuerySchema
 >;
 
+const lamScopedConfigListQuerySchema = z.object({
+  page: z.number().int().positive().optional(),
+  pageSize: z.number().int().positive().max(500).optional(),
+  search: z.string().trim().optional(),
+  companyId: optionalTrimmedStringSchema,
+  active: z.boolean().optional(),
+  countryCode: optionalTrimmedStringSchema,
+  legalEntityCode: optionalTrimmedStringSchema,
+  workLocationCode: optionalTrimmedStringSchema,
+  employmentType: optionalTrimmedStringSchema,
+  grade: optionalTrimmedStringSchema,
+  policyGroupId: optionalTrimmedStringSchema,
+  departmentId: optionalTrimmedStringSchema,
+  effectiveOn: z.coerce.date().optional(),
+});
+
+export const listLamWorkCalendarsQuerySchema =
+  lamScopedConfigListQuerySchema.extend({});
+
+export type ListLamWorkCalendarsQuery = z.infer<
+  typeof listLamWorkCalendarsQuerySchema
+>;
+
+export const listLamHolidayCalendarsQuerySchema =
+  lamScopedConfigListQuerySchema.extend({
+    workCalendarId: optionalTrimmedStringSchema,
+  });
+
+export type ListLamHolidayCalendarsQuery = z.infer<
+  typeof listLamHolidayCalendarsQuerySchema
+>;
+
+export const listLamAttendancePoliciesQuerySchema =
+  lamScopedConfigListQuerySchema.extend({
+    workCalendarId: optionalTrimmedStringSchema,
+  });
+
+export type ListLamAttendancePoliciesQuery = z.infer<
+  typeof listLamAttendancePoliciesQuerySchema
+>;
+
+export const listLamLeaveEncashmentPoliciesQuerySchema =
+  lamScopedConfigListQuerySchema.extend({
+    leaveTypeId: optionalTrimmedStringSchema,
+  });
+
+export type ListLamLeaveEncashmentPoliciesQuery = z.infer<
+  typeof listLamLeaveEncashmentPoliciesQuerySchema
+>;
+
 export const lamLeaveBalanceRouteContractSchema = z.object({
   method: z.enum(["GET", "POST"]),
   path: trimmedStringSchema,
@@ -319,6 +369,78 @@ export const lamLeaveCarryForwardRulesRouteContracts = [
     method: "GET",
     path: "/api/hr/leave/leave-carry-forward-rules/:ruleId",
     capability: "hr.lam.leave-entitlements.read",
+  },
+] as const satisfies readonly LamLeaveEntitlementRuleRouteContract[];
+
+export const lamWorkCalendarsRouteContracts = [
+  {
+    method: "GET",
+    path: "/api/hr/attendance/work-calendars",
+    capability: "hr.lam.calendars.read",
+  },
+  {
+    method: "POST",
+    path: "/api/hr/attendance/work-calendars",
+    capability: "hr.lam.calendars.write",
+  },
+  {
+    method: "GET",
+    path: "/api/hr/attendance/work-calendars/:calendarId",
+    capability: "hr.lam.calendars.read",
+  },
+] as const satisfies readonly LamLeaveEntitlementRuleRouteContract[];
+
+export const lamHolidayCalendarsRouteContracts = [
+  {
+    method: "GET",
+    path: "/api/hr/attendance/holiday-calendars",
+    capability: "hr.lam.calendars.read",
+  },
+  {
+    method: "POST",
+    path: "/api/hr/attendance/holiday-calendars",
+    capability: "hr.lam.calendars.write",
+  },
+  {
+    method: "GET",
+    path: "/api/hr/attendance/holiday-calendars/:calendarId",
+    capability: "hr.lam.calendars.read",
+  },
+] as const satisfies readonly LamLeaveEntitlementRuleRouteContract[];
+
+export const lamAttendancePoliciesRouteContracts = [
+  {
+    method: "GET",
+    path: "/api/hr/attendance/attendance-policies",
+    capability: "hr.lam.attendance-policy.read",
+  },
+  {
+    method: "POST",
+    path: "/api/hr/attendance/attendance-policies",
+    capability: "hr.lam.attendance-policy.write",
+  },
+  {
+    method: "GET",
+    path: "/api/hr/attendance/attendance-policies/:policyId",
+    capability: "hr.lam.attendance-policy.read",
+  },
+] as const satisfies readonly LamLeaveEntitlementRuleRouteContract[];
+
+export const lamLeaveEncashmentPoliciesRouteContracts = [
+  {
+    method: "GET",
+    path: "/api/hr/leave/leave-encashment-policies",
+    capability: "hr.lam.encashment.read",
+  },
+  {
+    method: "POST",
+    path: "/api/hr/leave/leave-encashment-policies",
+    capability: "hr.lam.encashment.write",
+  },
+  {
+    method: "GET",
+    path: "/api/hr/leave/leave-encashment-policies/:policyId",
+    capability: "hr.lam.encashment.read",
   },
 ] as const satisfies readonly LamLeaveEntitlementRuleRouteContract[];
 
@@ -674,6 +796,10 @@ export const lamRouteContracts = [
   ...lamLeaveEntitlementCalculationRouteContracts,
   ...lamLeaveBalancesRouteContracts,
   ...lamLeaveCarryForwardRulesRouteContracts,
+  ...lamWorkCalendarsRouteContracts,
+  ...lamHolidayCalendarsRouteContracts,
+  ...lamAttendancePoliciesRouteContracts,
+  ...lamLeaveEncashmentPoliciesRouteContracts,
   ...lamLeaveApplicationsRouteContracts,
   ...lamLeaveDocumentsRouteContracts,
   ...lamPayrollReferencesRouteContracts,

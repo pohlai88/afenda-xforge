@@ -17,9 +17,9 @@ import {
   buildLamAuditMetadata,
   createLamMutationAuditEvent,
   normalizeLamMutationActorId,
+  requireLamAttendanceCorrectionsEnabledForCompany,
   requireLamAttendanceCorrectionsWriteAccess,
   requireLamEmployeeMutationScope,
-  requireLamAttendanceCorrectionsEnabledForCompany,
   requireStrictLamCorrectionApprovalAccess,
 } from "../execution.ts";
 import {
@@ -396,10 +396,11 @@ export async function submitLamAttendanceCorrection(
       return scopeDenied;
     }
 
-    const enabledDenied = await requireLamAttendanceCorrectionsEnabledForCompany(
-      context,
-      companyId
-    );
+    const enabledDenied =
+      await requireLamAttendanceCorrectionsEnabledForCompany(
+        context,
+        companyId
+      );
     if (enabledDenied && !enabledDenied.ok) {
       return enabledDenied;
     }
@@ -556,10 +557,11 @@ export async function approveLamAttendanceCorrection(
       contextCompanyId: parsedContext.companyId,
       inputCompanyId: validInput.companyId,
     });
-    const enabledDenied = await requireLamAttendanceCorrectionsEnabledForCompany(
-      context,
-      companyId
-    );
+    const enabledDenied =
+      await requireLamAttendanceCorrectionsEnabledForCompany(
+        context,
+        companyId
+      );
     if (enabledDenied && !enabledDenied.ok) {
       return enabledDenied;
     }
@@ -631,10 +633,11 @@ export async function rejectLamAttendanceCorrection(
       contextCompanyId: parsedContext.companyId,
       inputCompanyId: validInput.companyId,
     });
-    const enabledDenied = await requireLamAttendanceCorrectionsEnabledForCompany(
-      context,
-      companyId
-    );
+    const enabledDenied =
+      await requireLamAttendanceCorrectionsEnabledForCompany(
+        context,
+        companyId
+      );
     if (enabledDenied && !enabledDenied.ok) {
       return enabledDenied;
     }

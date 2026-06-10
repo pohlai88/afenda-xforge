@@ -9,7 +9,7 @@ export async function GET(
   const { auditEventId } = await context.params;
   const record = await getLamAuditTrailRecordById(
     auditEventId,
-    createLamReadContext(request)
+    await createLamReadContext(request)
   );
 
   if (!record) {

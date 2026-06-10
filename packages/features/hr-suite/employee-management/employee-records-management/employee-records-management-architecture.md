@@ -553,11 +553,23 @@ Phase 5 implementation evidence:
 - `src/server.ts` and `src/index.ts` export the paginated directory helper so dependent code can consume the bulk-safe read surface directly.
 - `test/operational-hardening.test.ts` covers page parsing, bulk-window capping, window metadata, and paginated directory reads.
 
-Validation completed on 2026-06-09:
+### Employee auth-user registry (2026-06-11)
 
-- `pnpm --filter @repo/features-employee-management-employee-records-management typecheck`
+Objective: persist governed auth-user ↔ employee bindings for downstream LAM self-service scope resolution.
+
+Deliverables:
+
+- `employee_user_accounts` table in `packages/database/schema.ts` with migration `0025_employee_user_accounts.sql`
+- upsert/list/deactivate actions in `src/actions/employee-user-link.action.ts` with file-backed and DB repository modes
+- API routes `GET/POST /api/hr/records/user-accounts` and `POST /api/hr/records/user-accounts/deactivate`
+- HR Console section `/hr/console/employee-access` for operator-managed binding
+- database seed binds `XFORGE_DEMO_USER_ID` to `XFORGE_DEMO_EMPLOYEE_ID` when domain fixtures run
+
+Validation:
+
 - `pnpm --filter @repo/features-employee-management-employee-records-management test`
-- `pnpm exec biome check packages/features/hr-suite/employee-management/employee-records-management`
+- `apps/api/test/hr-records-user-accounts-route.test.ts`
+- `apps/api/test/hr-lam-operational-employee-scope.test.ts`
 
 ## Repair priorities
 

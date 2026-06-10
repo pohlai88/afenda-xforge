@@ -148,6 +148,34 @@
       "when": 1781056000000,
       "tag": "0021_lam_company_attendance_settings",
       "breakpoints": true
+    },
+    {
+      "idx": 22,
+      "version": "7",
+      "when": 1781057000000,
+      "tag": "0022_lam_audit_reference_fields",
+      "breakpoints": true
+    },
+    {
+      "idx": 23,
+      "version": "7",
+      "when": 1781058000000,
+      "tag": "0023_module_console_operator_assignments",
+      "breakpoints": true
+    },
+    {
+      "idx": 24,
+      "version": "7",
+      "when": 1781059000000,
+      "tag": "0024_hr_delegation_grants",
+      "breakpoints": true
+    },
+    {
+      "idx": 25,
+      "version": "7",
+      "when": 1781060000000,
+      "tag": "0025_employee_user_accounts",
+      "breakpoints": true
     }
   ]
 }

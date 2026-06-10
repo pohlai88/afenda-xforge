@@ -19,7 +19,7 @@ import { notifyLamLeaveApplicationEvent } from "../_lib/notify-lam-events.ts";
 export async function GET(request: Request) {
   const data = await listLamLeaveApplicationsRecords(
     getQuery(request),
-    createLamReadContext(request)
+    await createLamReadContext(request)
   );
 
   return NextResponse.json(data);
@@ -38,7 +38,7 @@ export async function POST(request: Request) {
     request,
     parsedBody.body as SubmitLamLeaveApplicationInput
   );
-  const writeContext = createLamWriteContext(request);
+  const writeContext = await createLamWriteContext(request);
   const result = await submitLamLeaveApplication(body, writeContext);
 
   if (!result.ok) {
@@ -49,7 +49,7 @@ export async function POST(request: Request) {
 
   const application = await getLamLeaveApplicationById(
     result.targetId,
-    createLamEmployeeSubmitReadContext(request)
+    await createLamEmployeeSubmitReadContext(request)
   );
 
   await notifyLamLeaveApplicationEvent({

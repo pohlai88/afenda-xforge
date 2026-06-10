@@ -8,11 +8,13 @@ import {
   lamAttendanceExceptionTypeSchema,
   lamAttendanceStatusSchema,
   lamEmployeeGenderSchema,
+  lamHolidayCalendarEntrySchema,
   lamLeaveApplicationStatusSchema,
   lamLeaveApprovalStepKindSchema,
   lamLeaveDocumentKindSchema,
   lamLeaveTypeKindSchema,
   lamPayrollDeductionCategorySchema,
+  lamWorkCalendarWeekdayRulesSchema,
   optionalTrimmedStringSchema,
   trimmedStringSchema,
 } from "../schema.ts";
@@ -503,6 +505,112 @@ export type ProcessLamLeaveBalanceCarryForwardInput = z.infer<
 >;
 export type UpsertLamLeaveCarryForwardRuleInput = z.infer<
   typeof upsertLamLeaveCarryForwardRuleInputSchema
+>;
+
+const lamScopedRuleScopeInputSchema = z
+  .object({
+    countryCode: optionalTrimmedStringSchema,
+    legalEntityCode: optionalTrimmedStringSchema,
+    workLocationCode: optionalTrimmedStringSchema,
+    employmentType: optionalTrimmedStringSchema,
+    grade: optionalTrimmedStringSchema,
+    policyGroupId: optionalTrimmedStringSchema,
+    departmentId: optionalTrimmedStringSchema,
+  })
+  .partial()
+  .optional();
+
+export const upsertLamWorkCalendarInputSchema = z.object({
+  id: optionalTrimmedStringSchema,
+  companyId: optionalTrimmedStringSchema,
+  code: trimmedStringSchema,
+  title: trimmedStringSchema,
+  scope: lamScopedRuleScopeInputSchema,
+  weekdayRules: lamWorkCalendarWeekdayRulesSchema,
+  effectiveFrom: z.coerce.date(),
+  effectiveTo: z.coerce.date().nullish(),
+  active: z.boolean().optional(),
+});
+
+export const upsertLamHolidayCalendarInputSchema = z.object({
+  id: optionalTrimmedStringSchema,
+  companyId: optionalTrimmedStringSchema,
+  code: trimmedStringSchema,
+  title: trimmedStringSchema,
+  scope: lamScopedRuleScopeInputSchema,
+  workCalendarId: optionalTrimmedStringSchema,
+  holidays: z.array(lamHolidayCalendarEntrySchema).optional(),
+  effectiveFrom: z.coerce.date(),
+  effectiveTo: z.coerce.date().nullish(),
+  active: z.boolean().optional(),
+});
+
+export const upsertLamAttendancePolicyInputSchema = z.object({
+  id: optionalTrimmedStringSchema,
+  companyId: optionalTrimmedStringSchema,
+  code: trimmedStringSchema,
+  title: trimmedStringSchema,
+  scope: lamScopedRuleScopeInputSchema,
+  gracePeriodMinutes: z.number().int().nonnegative(),
+  latenessThresholdMinutes: z.number().int().nonnegative(),
+  earlyDepartureThresholdMinutes: z.number().int().nonnegative(),
+  absenceThresholdMinutes: z.number().int().nonnegative(),
+  workCalendarId: optionalTrimmedStringSchema,
+  effectiveFrom: z.coerce.date(),
+  effectiveTo: z.coerce.date().nullish(),
+  active: z.boolean().optional(),
+});
+
+export const upsertLamLeaveEncashmentPolicyInputSchema = z.object({
+  id: optionalTrimmedStringSchema,
+  companyId: optionalTrimmedStringSchema,
+  leaveTypeId: trimmedStringSchema,
+  code: trimmedStringSchema,
+  title: trimmedStringSchema,
+  scope: lamScopedRuleScopeInputSchema,
+  maxEncashableDays: z.number().nonnegative(),
+  encashmentRatePercent: z.number().min(0).max(100),
+  minRemainingBalanceDays: z.number().nonnegative().nullish(),
+  effectiveFrom: z.coerce.date(),
+  effectiveTo: z.coerce.date().nullish(),
+  active: z.boolean().optional(),
+});
+
+export type UpsertLamWorkCalendarInput = z.infer<
+  typeof upsertLamWorkCalendarInputSchema
+>;
+export type UpsertLamHolidayCalendarInput = z.infer<
+  typeof upsertLamHolidayCalendarInputSchema
+>;
+export type UpsertLamAttendancePolicyInput = z.infer<
+  typeof upsertLamAttendancePolicyInputSchema
+>;
+export type UpsertLamLeaveEncashmentPolicyInput = z.infer<
+  typeof upsertLamLeaveEncashmentPolicyInputSchema
+>;
+
+export const processLamLeaveEncashmentInputSchema = z.object({
+  companyId: optionalTrimmedStringSchema,
+  employeeId: trimmedStringSchema,
+  leaveTypeId: trimmedStringSchema,
+  policyId: trimmedStringSchema,
+  periodYear: z.number().int(),
+  encashmentDays: z.number().positive(),
+  payPeriodStart: z.coerce.date(),
+  payPeriodEnd: z.coerce.date(),
+  authorizedBy: z
+    .string()
+    .trim()
+    .min(1, { message: "encashment authorization is required" }),
+  reason: z
+    .string()
+    .trim()
+    .min(1, { message: "encashment reason is required" }),
+  asOfDate: z.coerce.date().optional(),
+});
+
+export type ProcessLamLeaveEncashmentInput = z.infer<
+  typeof processLamLeaveEncashmentInputSchema
 >;
 
 export type LamLeaveBalanceCarryForwardMutationResult =

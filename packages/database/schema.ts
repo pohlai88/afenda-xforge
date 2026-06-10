@@ -416,6 +416,50 @@ export const complianceWorkerProfiles = xforge.table(
   ]
 );
 
+export const employeeUserAccounts = xforge.table(
+  "employee_user_accounts",
+  {
+    id: uuid("id").defaultRandom().primaryKey(),
+    tenantId: uuid("tenant_id")
+      .notNull()
+      .references(() => tenants.id, { onDelete: "cascade" }),
+    companyId: uuid("company_id")
+      .notNull()
+      .references(() => companies.id, { onDelete: "cascade" }),
+    userId: text("user_id").notNull(),
+    employeeId: text("employee_id").notNull(),
+    active: boolean("active").notNull().default(true),
+    createdAt: timestamp("created_at", {
+      mode: "date",
+      withTimezone: true,
+    })
+      .defaultNow()
+      .notNull(),
+    updatedAt: timestamp("updated_at", {
+      mode: "date",
+      withTimezone: true,
+    })
+      .defaultNow()
+      .notNull(),
+  },
+  (table) => [
+    index("employee_user_accounts_tenant_company_idx").on(
+      table.tenantId,
+      table.companyId
+    ),
+    uniqueIndex("employee_user_accounts_tenant_company_user_unique").on(
+      table.tenantId,
+      table.companyId,
+      table.userId
+    ),
+    uniqueIndex("employee_user_accounts_tenant_company_employee_unique").on(
+      table.tenantId,
+      table.companyId,
+      table.employeeId
+    ),
+  ]
+);
+
 export const employeeRecordAssignmentHistory = xforge.table(
   "employee_record_assignment_history",
   {
@@ -1251,10 +1295,17 @@ export const lamAuditReferences = xforge.table(
     companyId: uuid("company_id").references(() => companies.id, {
       onDelete: "cascade",
     }),
-    auditEventId: uuid("audit_event_id"),
+    auditEventId: uuid("audit_event_id").references(() => auditEvents.id, {
+      onDelete: "cascade",
+    }),
+    actorId: text("actor_id"),
     action: varchar("action", { length: 128 }).notNull(),
     entityType: varchar("entity_type", { length: 64 }).notNull(),
     entityId: text("entity_id").notNull(),
+    summary: text("summary"),
+    reason: text("reason"),
+    before: jsonb("before").$type<Record<string, unknown>>(),
+    after: jsonb("after").$type<Record<string, unknown>>(),
     metadata: jsonb("metadata").$type<Record<string, unknown>>(),
     createdAt: timestamp("created_at", {
       mode: "date",
@@ -1270,6 +1321,93 @@ export const lamAuditReferences = xforge.table(
       table.entityId
     ),
     index("lam_audit_refs_tenant_action_idx").on(table.tenantId, table.action),
+  ]
+);
+
+export const moduleConsoleOperatorAssignments = xforge.table(
+  "module_console_operator_assignments",
+  {
+    id: uuid("id").defaultRandom().primaryKey(),
+    tenantId: uuid("tenant_id")
+      .notNull()
+      .references(() => tenants.id, { onDelete: "cascade" }),
+    companyId: uuid("company_id")
+      .notNull()
+      .references(() => companies.id, { onDelete: "cascade" }),
+    consoleId: varchar("console_id", { length: 64 }).notNull(),
+    operatorUserId: text("operator_user_id").notNull(),
+    assignedBy: text("assigned_by").notNull(),
+    capabilities: jsonb("capabilities").$type<string[]>(),
+    validFrom: timestamp("valid_from", {
+      mode: "date",
+      withTimezone: true,
+    }),
+    validTo: timestamp("valid_to", {
+      mode: "date",
+      withTimezone: true,
+    }),
+    reason: text("reason"),
+    metadata: jsonb("metadata").$type<Record<string, unknown>>(),
+    createdAt: timestamp("created_at", {
+      mode: "date",
+      withTimezone: true,
+    })
+      .defaultNow()
+      .notNull(),
+    revokedAt: timestamp("revoked_at", {
+      mode: "date",
+      withTimezone: true,
+    }),
+  },
+  (table) => [
+    index("module_console_operator_assignments_tenant_console_idx").on(
+      table.tenantId,
+      table.consoleId,
+      table.companyId
+    ),
+  ]
+);
+
+export const hrDelegationGrants = xforge.table(
+  "hr_delegation_grants",
+  {
+    id: uuid("id").defaultRandom().primaryKey(),
+    tenantId: uuid("tenant_id")
+      .notNull()
+      .references(() => tenants.id, { onDelete: "cascade" }),
+    companyId: uuid("company_id")
+      .notNull()
+      .references(() => companies.id, { onDelete: "cascade" }),
+    grantorId: text("grantor_id").notNull(),
+    granteeId: text("grantee_id").notNull(),
+    capabilities: jsonb("capabilities").$type<string[]>().notNull(),
+    validFrom: timestamp("valid_from", {
+      mode: "date",
+      withTimezone: true,
+    }),
+    validTo: timestamp("valid_to", {
+      mode: "date",
+      withTimezone: true,
+    }),
+    reason: text("reason"),
+    metadata: jsonb("metadata").$type<Record<string, unknown>>(),
+    createdAt: timestamp("created_at", {
+      mode: "date",
+      withTimezone: true,
+    })
+      .defaultNow()
+      .notNull(),
+    revokedAt: timestamp("revoked_at", {
+      mode: "date",
+      withTimezone: true,
+    }),
+  },
+  (table) => [
+    index("hr_delegation_grants_tenant_company_grantee_idx").on(
+      table.tenantId,
+      table.companyId,
+      table.granteeId
+    ),
   ]
 );
 
@@ -1935,6 +2073,8 @@ export const tenantsRelations = relations(tenants, ({ many }) => ({
   hrOrgReportingRelationships: many(hrOrgReportingRelationships),
   hrOrgStructureAuditReferences: many(hrOrgStructureAuditReferences),
   hrOrgUnits: many(hrOrgUnits),
+  hrDelegationGrants: many(hrDelegationGrants),
+  moduleConsoleOperatorAssignments: many(moduleConsoleOperatorAssignments),
   memberships: many(tenantMemberships),
   webhookEndpoints: many(webhookEndpoints),
 }));
@@ -1976,6 +2116,8 @@ export const companiesRelations = relations(companies, ({ one, many }) => ({
   hrOrgReportingRelationships: many(hrOrgReportingRelationships),
   hrOrgStructureAuditReferences: many(hrOrgStructureAuditReferences),
   hrOrgUnits: many(hrOrgUnits),
+  hrDelegationGrants: many(hrDelegationGrants),
+  moduleConsoleOperatorAssignments: many(moduleConsoleOperatorAssignments),
   grants: many(companyGrants),
   webhookEndpoints: many(webhookEndpoints),
 }));
@@ -2292,6 +2434,38 @@ export const lamAuditReferencesRelations = relations(
       fields: [lamAuditReferences.companyId],
       references: [companies.id],
     }),
+    auditEvent: one(auditEvents, {
+      fields: [lamAuditReferences.auditEventId],
+      references: [auditEvents.id],
+    }),
+  })
+);
+
+export const moduleConsoleOperatorAssignmentsRelations = relations(
+  moduleConsoleOperatorAssignments,
+  ({ one }) => ({
+    tenant: one(tenants, {
+      fields: [moduleConsoleOperatorAssignments.tenantId],
+      references: [tenants.id],
+    }),
+    company: one(companies, {
+      fields: [moduleConsoleOperatorAssignments.companyId],
+      references: [companies.id],
+    }),
+  })
+);
+
+export const hrDelegationGrantsRelations = relations(
+  hrDelegationGrants,
+  ({ one }) => ({
+    tenant: one(tenants, {
+      fields: [hrDelegationGrants.tenantId],
+      references: [tenants.id],
+    }),
+    company: one(companies, {
+      fields: [hrDelegationGrants.companyId],
+      references: [companies.id],
+    }),
   })
 );
 
@@ -2467,6 +2641,7 @@ export const databaseSchema: Omit<
   employeeRecordAssignmentHistoryRelations,
   employeeRecordStatusHistory,
   employeeRecordStatusHistoryRelations,
+  employeeUserAccounts,
   customers,
   customersRelations,
   hrOffboardingCases,
@@ -2503,6 +2678,10 @@ export const databaseSchema: Omit<
   hrOrgStructureAuditReferencesRelations,
   hrOrgUnits,
   hrOrgUnitsRelations,
+  hrDelegationGrants,
+  hrDelegationGrantsRelations,
+  moduleConsoleOperatorAssignments,
+  moduleConsoleOperatorAssignmentsRelations,
   notificationInbox,
   notificationInboxRelations,
   tenantMemberships,
@@ -2660,3 +2839,11 @@ export type HrOrgStructureAuditReference = InferSelectModel<
 export type NewHrOrgStructureAuditReference = InferInsertModel<
   typeof hrOrgStructureAuditReferences
 >;
+export type ModuleConsoleOperatorAssignment = InferSelectModel<
+  typeof moduleConsoleOperatorAssignments
+>;
+export type NewModuleConsoleOperatorAssignment = InferInsertModel<
+  typeof moduleConsoleOperatorAssignments
+>;
+export type HrDelegationGrant = InferSelectModel<typeof hrDelegationGrants>;
+export type NewHrDelegationGrant = InferInsertModel<typeof hrDelegationGrants>;

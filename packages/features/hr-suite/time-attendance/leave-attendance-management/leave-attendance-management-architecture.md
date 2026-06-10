@@ -262,6 +262,9 @@
 | Read query filtering | Employee-scoped queries in leave applications, attendance records, balances, corrections, exceptions, documents, attendance summary, payroll references, **overdue approvals**, and **entitlement calculation preview**. |
 | Mutation scope checks | [`requireLamEmployeeMutationScope`](./src/shared/data-scope.ts) on submit leave, upsert attendance, corrections, documents, decisions, lifecycle, entitlement apply, and scoped exports. |
 | Context schema | `scopedEmployeeId`, `teamEmployeeIds` on [`lamReadContextSchema`](./src/schema.ts) / [`lamWriteContextSchema`](./src/schema.ts). |
+| Employee registry | Production self-service scope resolves `scopedEmployeeId` via [`resolveEmployeeIdByAuthUserId`](../../employee-management/employee-records-management/src/queries/employee-user-link.query.ts) (`employee_user_accounts` table / file store), then falls back to `user_metadata.employee_id` in [`apps/api/app/api/hr/_lib/lam-operational-employee-scope.ts`](../../../../../apps/api/app/api/hr/_lib/lam-operational-employee-scope.ts). |
+| Approval step auto-resolution | When `AFENDA_LAM_TRUST_ORCHESTRATION_HEADERS` is not `true`, [`createLamLeaveApplicationApprovalContextById`](../../../../../apps/api/app/api/hr/leave/_lib/context.ts) enriches write context via [`lam-approval-orchestration.ts`](../../../../../apps/api/app/api/hr/_lib/lam-approval-orchestration.ts) using org reporting lines (`direct_manager`, `department_head`), employee record (`managerEmployeeId`, `hrOwnerEmployeeId`), and named approver refs. |
+| Notification recipient auto-resolution | [`resolveLamNotificationRecipientsWithRegistry`](../../../../../apps/api/app/api/hr/_lib/lam-notification-orchestration.ts) resolves auth user IDs from `employee_user_accounts` via [`resolveAuthUserIdByEmployeeId`](../../employee-management/employee-records-management/src/queries/employee-user-link.query.ts) when orchestration headers/body omit explicit recipients. |
 | API headers | `x-lam-scoped-employee-id`, `x-lam-team-employee-ids` in [`apps/api/app/api/hr/leave/_lib/context.ts`](../../../../../apps/api/app/api/hr/leave/_lib/context.ts) and [`apps/api/app/api/hr/attendance/_lib/context.ts`](../../../../../apps/api/app/api/hr/attendance/_lib/context.ts). |
 | Tenant permissions | `member` role granted employee self-service LAM caps; `manager` role narrowed (no leave type/entitlement/balance write, no attendance write, no payroll references read). |
 | Dependencies | Seq 0 capability registry + all prior read/write slices. |
@@ -276,7 +279,7 @@
 | Overdue query scope repair | [`listLamOverdueApprovalNotifications`](./src/queries/overdue-approvals.query.ts) applies [`filterByEmployeeDataScope`](./src/shared/data-scope.ts) so manager team scope cannot read company-wide overdue queues. |
 | Entitlement scope repair | [`calculateLamLeaveEntitlement`](./src/queries/leave-entitlement-calculation.query.ts) enforces [`canAccessLamEmployeeRecord`](./src/policy.ts); [`applyLamLeaveEntitlementCalculation`](./src/actions/leave-entitlement-calculation.action.ts) enforces [`requireLamEmployeeMutationScope`](./src/shared/data-scope.ts). |
 | Test integrity | Permission tests assert `denied` scope, cross-employee read denial, distinct employee contexts, persona mutation denial, and sensitive read gate isolation. HTTP boundary in [`apps/api/test/hr-lam-unauthorized-access-route.test.ts`](../../../../../apps/api/test/hr-lam-unauthorized-access-route.test.ts). |
-| Deferred (Slice 13) | API approval context auto-grants (`createLamApprovalContext`, `createLamCorrectionApprovalContext`) remain orchestration concerns. |
+| Deferred (Slice 13) | API approval context enrichment (`createLamLeaveApplicationApprovalContextById`, [`lam-approval-orchestration.ts`](../../../../../apps/api/app/api/hr/_lib/lam-approval-orchestration.ts)) and notification registry resolution implemented; attendance correction approval context remains header/session scoped until org routing parity is required. |
 
 | Verification commands | Result |
 | --- | --- |
@@ -975,6 +978,17 @@
 | **HRM-LAM-028** | System shall notify employees and approvers of submitted, approved, rejected, cancelled, overdue, and returned leave or attendance requests.                                                                            |
 | **HRM-LAM-029** | System shall provide leave and attendance reports by employee, department, leave type, attendance status, manager, location, legal entity, and period.                                                                  |
 | **HRM-LAM-030** | System shall maintain audit trail for leave entitlement, leave application, approval, rejection, cancellation, adjustment, attendance correction, exception handling, and payroll integration.                          |
+
+### HR Console governance prerequisites (implemented)
+
+Requirements **HRM-LAM-031** through **HRM-LAM-034** are implemented via HR Console (`@repo/features-hr-suite-hr-console`) and governed LAM config context:
+
+| Req ID | Requirement | Console section |
+|--------|-------------|-----------------|
+| **HRM-LAM-031** | Holiday and work calendar configuration governed by HR Console operator or delegated HR managers. | `/hr/console/calendars` |
+| **HRM-LAM-032** | Company attendance policy configuration governed by HR Console operator or delegated HR managers. | `/hr/console/policy` |
+| **HRM-LAM-033** | Leave encashment policy configuration governed by HR Console operator or delegated HR managers. | `/hr/console/encashment` |
+| **HRM-LAM-034** | LAM domain mutations resolve effective capabilities from HR Console governance mode before write enforcement. | Console resolver → LAM context |
 
 ---
 

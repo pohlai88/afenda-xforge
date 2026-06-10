@@ -4,15 +4,13 @@ import {
   upsertLamCompanyAttendanceSettings,
 } from "@repo/features-time-attendance-leave-attendance-management/server";
 import { NextResponse } from "next/server";
+import { createLamConfigWriteContext } from "../../_lib/lam-governed-context.ts";
 import { mapLamMutationHttpStatus } from "../../leave/_lib/mutation-response.ts";
-import {
-  createLamReadContext,
-  createLamWriteContext,
-} from "../_lib/context.ts";
+import { createLamReadContext } from "../_lib/context.ts";
 
 export async function GET(request: Request) {
   const settings = await getLamCompanyAttendanceSettings(
-    createLamReadContext(request)
+    await createLamReadContext(request)
   );
 
   if (!settings) {
@@ -40,7 +38,7 @@ export async function POST(request: Request) {
 
   const result = await upsertLamCompanyAttendanceSettings(
     body as UpsertLamCompanyAttendanceSettingsInput,
-    createLamWriteContext(request)
+    await createLamConfigWriteContext(request)
   );
 
   return NextResponse.json(result, {

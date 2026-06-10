@@ -13,7 +13,7 @@ export async function GET(request: Request, context: RouteContext) {
   const { recordId } = await context.params;
   const data = await getLamAttendanceExceptionsForRecord(
     recordId,
-    createLamAttendanceExceptionsReadContext(request),
+    await createLamAttendanceExceptionsReadContext(request),
     getQuery(request)
   );
 

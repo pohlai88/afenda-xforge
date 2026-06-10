@@ -7,7 +7,7 @@ export async function GET(request: Request) {
   try {
     const data = await listLamAttendanceSummaryRecords(
       getQuery(request) as unknown as ListLamAttendanceSummaryQuery,
-      createLamReadContext(request)
+      await createLamReadContext(request)
     );
 
     return NextResponse.json(data);

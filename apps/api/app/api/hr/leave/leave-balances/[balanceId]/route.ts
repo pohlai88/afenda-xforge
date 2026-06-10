@@ -9,7 +9,7 @@ export async function GET(
   const { balanceId } = await context.params;
   const data = await getLamLeaveBalanceById(
     balanceId,
-    createLamReadContext(request)
+    await createLamReadContext(request)
   );
 
   if (!data) {

@@ -5,7 +5,7 @@ import { createLamPayrollReadContext, getQuery } from "../_lib/context.ts";
 export async function GET(request: Request) {
   const data = await listLamPayrollReferencesRecords(
     getQuery(request),
-    createLamPayrollReadContext(request)
+    await createLamPayrollReadContext(request)
   );
 
   return NextResponse.json(data);

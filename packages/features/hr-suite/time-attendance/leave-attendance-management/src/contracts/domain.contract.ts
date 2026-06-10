@@ -19,6 +19,10 @@ export const hrLamRoutePaths = {
   attendanceCorrections: "/hr/attendance/attendance-corrections",
   attendanceSettings: "/hr/attendance/attendance-settings",
   attendanceSummary: "/hr/attendance/attendance-summary",
+  workCalendars: "/hr/attendance/work-calendars",
+  holidayCalendars: "/hr/attendance/holiday-calendars",
+  attendancePolicies: "/hr/attendance/attendance-policies",
+  leaveEncashmentPolicies: "/hr/leave/leave-encashment-policies",
 } as const;
 
 export type HrLamRoutePath =
