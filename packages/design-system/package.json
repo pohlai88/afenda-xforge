@@ -11,7 +11,9 @@
     "./tokens": "./src/tokens/index.ts",
     "./tokens/*": "./src/tokens/*.ts",
     "./variants": "./src/variants/index.ts",
-    "./variants/*": "./src/variants/*.ts"
+    "./variants/*": "./src/variants/*.ts",
+    "./resolution": "./src/resolution/index.ts",
+    "./tenant-branding": "./src/tenant-branding/in-memory-store.ts"
   },
   "files": [
     "architecture-and-feature-requirement.md",
@@ -25,10 +27,9 @@
     "lint": "biome check .",
     "format": "biome format --write .",
     "clean": "git clean -xdf .cache .turbo dist node_modules",
-    "type2:css": "tsx scripts/generate-type2-css.mts",
-    "type2:css:check": "tsx scripts/generate-type2-css.mts --check",
-    "type2:css:compare": "tsx scripts/generate-type2-css.mts --compare",
-    "test": "node --import tsx --test src/tests/design-system.test.ts src/tests/token-contract.test.ts src/tests/type2-css.test.ts src/tests/variant-contract.test.ts src/tests/public-exports.test.ts",
+    "globals:css": "tsx scripts/generate-globals-css.mts",
+    "globals:css:check": "tsx scripts/generate-globals-css.mts --check",
+    "test": "node --import tsx --test src/tests/design-system.test.ts src/tests/token-contract.test.ts src/tests/globals-css.test.ts src/tests/variant-contract.test.ts src/tests/public-exports.test.ts src/tests/resolve-tenant-branding.test.ts",
     "typecheck": "tsc --noEmit --emitDeclarationOnly false"
   },
   "dependencies": {

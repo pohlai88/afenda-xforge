@@ -2,7 +2,7 @@ import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { composeRegistryGroups } from "@repo/ui";
-import type { ComposeComponentKind } from "@repo/ui/components/compose/compose.contract";
+import type { ComposeComponentKind } from "@repo/ui/components/compose";
 
 function toStoryExportName(name: string): string {
   return name

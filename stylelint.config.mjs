@@ -74,6 +74,5 @@ export default {
     "**/build/**",
     "**/.next/**",
     "**/storybook-static/**",
-    "**/packages/design-system/src/generated/**",
   ],
 };

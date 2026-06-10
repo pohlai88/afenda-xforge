@@ -16,16 +16,18 @@ type ButtonVariant =
 export type PrimitiveButtonShowcaseProps = {
   disabled?: boolean;
   label?: string;
+  onClick?: () => void;
   variant?: ButtonVariant;
 };
 
 export function PrimitiveButtonShowcase({
   disabled = false,
   label = "Save",
+  onClick,
   variant = "default",
 }: PrimitiveButtonShowcaseProps) {
   return (
-    <Button disabled={disabled} type="button" variant={variant}>
+    <Button disabled={disabled} onClick={onClick} type="button" variant={variant}>
       {label}
     </Button>
   );

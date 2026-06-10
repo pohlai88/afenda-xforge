@@ -15,6 +15,8 @@ import { customizationCapabilities } from "../domains/customization/contract.ts"
 import { customizationGovernanceCommandSchema } from "../domains/customization/schema.ts";
 import { tenantSettingsCapabilities } from "../domains/tenant-settings/contract.ts";
 import { tenantAdminSettingUpdateSchema } from "../domains/tenant-settings/schema.ts";
+import { setTenantBranding } from "@repo/design-system/tenant-branding";
+import { upsertTenantAdminSetting } from "../domains/tenant-settings/repository.server.ts";
 import { createSystemAdminPermissionContext } from "../feature-scope.ts";
 import type {
   CustomizationGovernanceCommand,
@@ -49,6 +51,7 @@ export type SystemAdminExecutionDependencies = {
   createExecutionPipeline?: typeof createExecutionPipeline;
   createId?: () => string;
   requirePermission?: typeof requirePermission;
+  upsertTenantAdminSetting?: typeof upsertTenantAdminSetting;
   writeAuditEvent?: typeof writeAuditEvent;
   writeAuditEventInTransaction?: typeof writeAuditEventInTransaction;
 };
@@ -78,6 +81,8 @@ export const createSystemAdminExecutionHandlers = (
   const persistAuditEvent = dependencies.writeAuditEvent ?? writeAuditEvent;
   const persistAuditEventInTransaction =
     dependencies.writeAuditEventInTransaction ?? writeAuditEventInTransaction;
+  const persistTenantAdminSetting =
+    dependencies.upsertTenantAdminSetting ?? upsertTenantAdminSetting;
 
   const writeSystemAdminAuditEvent = (
     event: Parameters<typeof writeAuditEvent>[0],
@@ -97,13 +102,28 @@ export const createSystemAdminExecutionHandlers = (
     const requestId = context.requestId ?? createId();
     const operationId = context.operationId ?? requestId;
     const pipeline = createPipeline<TInput, SystemAdminMutationResult>({
-      executeDomainOperation: ({
+      executeDomainOperation: async ({
         input,
         actor,
         tenant,
       }: ExecutionMutationContext<TInput>): Promise<
         ExecutionDomainResult<SystemAdminMutationResult>
       > => {
+        if (options.resource === "system-admin.tenant-settings") {
+          const settingUpdate = input as TenantAdminSettingUpdate;
+          const branding = await persistTenantAdminSetting(
+            tenant.tenantId,
+            settingUpdate
+          );
+
+          if (
+            settingUpdate.key === "theme-preset" ||
+            settingUpdate.key === "tenant-branding"
+          ) {
+            setTenantBranding(tenant.tenantId, branding);
+          }
+        }
+
         const result = buildMutationResult(
           options.action,
           tenant.tenantId,
@@ -111,7 +131,7 @@ export const createSystemAdminExecutionHandlers = (
           createId
         );
 
-        return Promise.resolve({
+        return {
           action: options.action,
           after: {
             command: input,
@@ -132,7 +152,7 @@ export const createSystemAdminExecutionHandlers = (
           surface: "control-plane",
           targetId: options.targetId,
           targetType: options.targetType,
-        });
+        };
       },
       operationId,
       permissionContext: () =>

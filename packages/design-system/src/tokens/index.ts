@@ -30,6 +30,10 @@ import {
   THEME_PRESETS as themePresetsValue,
 } from "./theme-preset-tokens";
 import {
+  ERP_VISUAL_LANE_IDS as erpVisualLaneIdsValue,
+  ERP_VISUAL_LANES as erpVisualLanesValue,
+} from "./visual-lane-tokens";
+import {
   FONT_FAMILY_TOKENS as fontFamilyTokensValue,
   FONT_FEATURE_TOKENS as fontFeatureTokensValue,
   TEXT_UTILITY_TOKENS as textUtilityTokensValue,
@@ -107,6 +111,10 @@ export const designSystemTokenGroups = {
     brandColorTokens: themeBrandColorTokensValue,
     presetNames: themePresetNamesValue,
     presets: themePresetsValue,
+  },
+  visualLanes: {
+    ids: erpVisualLaneIdsValue,
+    lanes: erpVisualLanesValue,
   },
 } as const;
 

@@ -1,8 +1,17 @@
 import type { EntityMetadata } from "@repo/metadata";
-import { EntityMetadataPanel, getEntityLabels } from "@repo/metadata-ui/components";
+import {
+  EntityMetadataPanel,
+  getEntityLabels,
+} from "@repo/metadata-ui/components";
+import { Badge } from "@repo/ui/components/badge";
 import type { ReactElement, ReactNode } from "react";
+import { AuthenticatedFeatureScope } from "../../_components/authenticated-feature-scope.tsx";
 import { DashboardGrid } from "../_components/dashboard-grid.tsx";
 import { KpiCard } from "../_components/kpi-card.tsx";
+
+const DASHBOARD_SHELL_FEATURE_ID = "system-admin.overview";
+const CUSTOMERS_FEATURE_ID = "master-data.customers";
+const COMPANIES_FEATURE_ID = "master-data.companies";
 
 export type DashboardSectionState =
   | {
@@ -97,14 +106,20 @@ export function DashboardView({
   const companyLabels = getEntityLabels(companies.metadata);
 
   return (
-    <section className="space-y-8">
-      <header className="rounded-[var(--radius-xl)] border border-border bg-card/95 p-8 shadow-sm">
+    <AuthenticatedFeatureScope
+      className="space-y-8"
+      featureId={DASHBOARD_SHELL_FEATURE_ID}
+    >
+      <header className="rounded-[var(--radius-xl)] border border-lane-active-border bg-card/95 p-8 shadow-sm">
         <div className="flex flex-col gap-6 lg:flex-row lg:items-start lg:justify-between">
           <div className="space-y-4">
             <div className="space-y-2">
-              <p className="text-muted-foreground text-sm uppercase tracking-[0.3em]">
-                XForge
-              </p>
+              <div className="flex flex-wrap items-center gap-3">
+                <p className="text-muted-foreground text-sm uppercase tracking-[0.3em]">
+                  XForge
+                </p>
+                <Badge variant="lane">Overview lane</Badge>
+              </div>
               <h1 className="font-semibold text-4xl tracking-tight">
                 Governed tenant dashboard
               </h1>
@@ -160,19 +175,23 @@ export function DashboardView({
       </header>
 
       <div className="grid gap-8">
-        {renderSection(
-          customerLabels.plural,
-          customers.metadata,
-          customers.state,
-          `Search ${customerLabels.plural.toLowerCase()}...`
-        )}
-        {renderSection(
-          companyLabels.plural,
-          companies.metadata,
-          companies.state,
-          `Search ${companyLabels.plural.toLowerCase()}...`
-        )}
+        <AuthenticatedFeatureScope featureId={CUSTOMERS_FEATURE_ID}>
+          {renderSection(
+            customerLabels.plural,
+            customers.metadata,
+            customers.state,
+            `Search ${customerLabels.plural.toLowerCase()}...`
+          )}
+        </AuthenticatedFeatureScope>
+        <AuthenticatedFeatureScope featureId={COMPANIES_FEATURE_ID}>
+          {renderSection(
+            companyLabels.plural,
+            companies.metadata,
+            companies.state,
+            `Search ${companyLabels.plural.toLowerCase()}...`
+          )}
+        </AuthenticatedFeatureScope>
       </div>
-    </section>
+    </AuthenticatedFeatureScope>
   );
 }

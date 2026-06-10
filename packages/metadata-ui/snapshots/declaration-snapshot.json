@@ -22,8 +22,9 @@
     "dist/src/adapters/ui-state-adapter.d.ts": "8239a5c7a2a1f51c85c1d145ed8067694eb5cc0102d76a60ba7eae532a330ba8",
     "dist/src/adapters/ui-table-cell-adapter.d.ts": "bb1e47288f20b9645209cc7fb54f271b9a805dc01bf8b124f2fbce03bb5ebb69",
     "dist/src/client.d.ts": "6f320fd6f44346e7cd147e67e98ca21c0f47ff27b5dc0ab94c0f3db7d9c69410",
-    "dist/src/compatibility/index.d.ts": "a4edd122b121de0c5476e2a065df98fc76071358ccba88d67d94d83231026914",
-    "dist/src/compatibility/metadata-ui-quality.d.ts": "33d3c0af996d644758382718823e6b07c489215213c7b1ce38138ff18614a108",
+    "dist/src/compatibility/compose-compatibility.d.ts": "c956bc94c7cb9638186d9c74e5b8f7fa6531b00686615916cbce352c2c17704a",
+    "dist/src/compatibility/index.d.ts": "ad66e81def7d375243acb042adbba5bed4c0346e2b5e2d7d133637fdce159c7c",
+    "dist/src/compatibility/metadata-ui-quality.d.ts": "37140307a3be5c040658a29eb64ac793d5e1fcf6199c7dd06737ecbabcc75a7b",
     "dist/src/components/activity-table.d.ts": "496aa58c6d0bba9a06386ff796b32a846829f1f5240c6f06de7aba26aa719209",
     "dist/src/components/compose-metadata-with-diagnostics.d.ts": "0cbd4f9229b9b84682cb7eb21cb46a36300005817041200ccee0d82a85cbdf71",
     "dist/src/components/index.d.ts": "be7b5a32a21dfaba3c0d7daa5e6f7d2248ea5c9c339811e6924d936662857194",
@@ -80,7 +81,7 @@
     "dist/src/registry/default-section-registry.d.ts": "2d146cc76f705078391630c28b76d2bd6b9a4abc03e9bbb2ee392b9f28f23139",
     "dist/src/registry/default-state-registry.d.ts": "351d530244d9f7ab751843c532715ededa5fa9350add6b9be770d67337719f51",
     "dist/src/registry/index.d.ts": "7c0e47b0b25e29b74651e4867100239656a2229c420b5c0275f168e3add5f6d3",
-    "dist/src/registry/metadata-ui-compatibility.d.ts": "f586412a05e20f8a01f7ce8f23bf91e464cec629c4b69b5320ece08b61f1941e",
+    "dist/src/registry/metadata-ui-compatibility.d.ts": "181eef07e4cbb29d7504775310dde7acffd9fb6ff98e615c46868326b82647aa",
     "dist/src/registry/registry-errors.d.ts": "f13fe43626a94a00c7bd68b2360e8f81580b34091643d7c5cd7bcd1f41de5b13",
     "dist/src/registry/renderer-version.d.ts": "867c02f69eed78ce37f3cc92c3859a65c88b9431bf305e2ee437daa26a226e7b",
     "dist/src/renderers/actions/action-confirmation.d.ts": "d61489e400ebe6c4e0113907a987701e16b1e4497afe1e051c5c70faf4776973",
@@ -125,13 +126,13 @@
     "dist/src/renderers/states/state-visual-icons.d.ts": "3b8525c3d5788c23ba88a093e6323c702d163e792af1b445a3c570e2a1ce55f1",
     "dist/src/renderers/states/state-visual-matrix.d.ts": "c6de685b84bfd99b3d9ade801f68f1ef59ed73107a34a4a94ce2525d88bfea80",
     "dist/src/renderers/states/table-loading-skeleton.d.ts": "7165c7a2f3dead7922f69e8f78da81c7ab4eae42c3fd955cf5701001a1caea9d",
-    "dist/src/server.d.ts": "f3da7c91c14277ed15d880c0bca99af25d7f7188c3c468f416a63b3fb01c915d",
+    "dist/src/server.d.ts": "a88376d868d19ffb509bdae5d9a1614b8627cbbb56c212588730ec8fef0420d2",
     "dist/src/visualization/content-length-visual-contract.d.ts": "2da0b3c569200f5d8b80792827be88be9f27066e3cea523c4f3252149eee9605",
     "dist/src/visualization/density-visual-contract.d.ts": "6576a01e09b4665c414831fd35581370c29baac5b4fe69e85998aed34138bad3",
     "dist/src/visualization/diagnostics-visual-contract.d.ts": "b54678ee600c0c9251cebd87825c61e55aa3b39b3184c7c31cbc5a199f204f76",
     "dist/src/visualization/layout-composition-contract.d.ts": "fb79187022df493f1abc4fde1f73d5ad2dffee3d11c74670e10a565c9f21b719",
     "dist/src/visualization/orbit-layout.d.ts": "0ee828deb2f866705f6518cb7289359656a8dab34b07ed73d51ceca3a44ff273",
     "dist/src/visualization/surface-visual-contract.d.ts": "edb45d7785219e2ac5213b981ba19f9efb8dfa3b4902b4addf5eb05ec8c91120",
-    "dist/src/visualization/visual-token-contract.d.ts": "83920f1306403a0f9aa87e0443de794fd95d100af1b28e8cb13ac4054004cda4"
+    "dist/src/visualization/visual-token-contract.d.ts": "853618d91d42b3bfcb875a03d4c7650dbf8f1f767eb30e4b33a414f1b4af7745"
   }
 }

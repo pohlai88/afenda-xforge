@@ -82,7 +82,8 @@
     "@repo/customization": "workspace:*",
     "@repo/metadata": "workspace:*",
     "@repo/ui": "workspace:*",
-    "react": "catalog:"
+    "react": "catalog:",
+    "server-only": "catalog:"
   },
   "devDependencies": {
     "@repo/typescript-config": "workspace:*",

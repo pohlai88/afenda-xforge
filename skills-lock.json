@@ -1,0 +1,35 @@
+{
+  "version": 1,
+  "skills": {
+    "css-architecture": {
+      "source": "aj-geddes/useful-ai-prompts",
+      "sourceType": "github",
+      "skillPath": "skills/css-architecture/SKILL.md",
+      "computedHash": "fff8e6fa098bc339ee3681fd786805610eb206d8173774ea8b22c00a26dc8114"
+    },
+    "frontend-tailwind-best-practices": {
+      "source": "sergiodxa/agent-skills",
+      "sourceType": "github",
+      "skillPath": "skills/frontend-tailwind-best-practices/SKILL.md",
+      "computedHash": "a8287f2d78ec0fd7b7f98be9683d32aa37b863759c67eddd411f0dfbcbe06099"
+    },
+    "tailwind-utility-classes": {
+      "source": "thebushidocollective/han",
+      "sourceType": "github",
+      "skillPath": "plugins/tools/tailwind/skills/tailwind-utility-classes/SKILL.md",
+      "computedHash": "2b68709709a1477a6194e0768a2bddabd8b92180840168d340935760f7005d86"
+    },
+    "tailwind-validator": {
+      "source": "shipshitdev/library",
+      "sourceType": "github",
+      "skillPath": "skills/tailwind-validator/SKILL.md",
+      "computedHash": "e7c0863d88612546a1ed74cb77a69cccd85f194a026a523230548b6c093462ad"
+    },
+    "tailwindcss-v4": {
+      "source": "fusengine/agents",
+      "sourceType": "github",
+      "skillPath": "plugins/tailwindcss/skills/tailwindcss-v4/SKILL.md",
+      "computedHash": "739ebba57ce8deff298bdef76e1058b19545e6fdf6e7f9058d5ceb4f7cc93414"
+    }
+  }
+}

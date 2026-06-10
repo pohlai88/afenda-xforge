@@ -63,7 +63,11 @@ export {
   systemAdminReadOverviewRouteContract,
 } from "./domains/overview/contract.ts";
 export { listSystemAdminSectionsQuerySchema } from "./domains/overview/schema.ts";
-export { systemAdminUpdateTenantSettingRouteContract } from "./domains/tenant-settings/contract.ts";
+export {
+  systemAdminReadTenantSettingsRouteContract,
+  systemAdminUpdateTenantSettingRouteContract,
+  tenantAdminSettingsReadSchema,
+} from "./domains/tenant-settings/contract.ts";
 export { roleAssignmentCommandSchema } from "./domains/access/schema.ts";
 export {
   customizationGovernanceCommandSchema,

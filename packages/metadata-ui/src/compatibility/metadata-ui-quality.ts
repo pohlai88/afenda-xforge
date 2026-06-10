@@ -1,5 +1,4 @@
-import type { MetadataUiCompatibilityReport } from "../registry/metadata-ui-compatibility";
-import { createMetadataUiCompatibilityReport } from "../registry/metadata-ui-compatibility";
+import type { MetadataUiCompatibilityReport } from "./compose-compatibility";
 
 export type MetadataUiQualityCategory =
   | "adapter-integration"
@@ -488,10 +487,10 @@ const createQualityMetrics = (
   ] as const;
 
 export function createMetadataUiQualityAssessment(
+  resolveCompatibilityReport: () => MetadataUiCompatibilityReport,
   signals: MetadataUiQualitySignals = {}
 ): MetadataUiQualityAssessment {
-  const compatibility =
-    signals.compatibility ?? createMetadataUiCompatibilityReport();
+  const compatibility = signals.compatibility ?? resolveCompatibilityReport();
   const verification = signals.verification ?? {};
   const metrics = createQualityMetrics(compatibility, verification, signals);
 

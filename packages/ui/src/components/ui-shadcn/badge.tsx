@@ -21,6 +21,8 @@ const badgeVariants = cva(
         invert: "bg-invert text-invert-foreground [a&]:hover:bg-invert/90",
         neutral:
           "bg-muted text-muted-foreground [a&]:hover:bg-muted/80 dark:text-foreground",
+        lane:
+          "border-lane-active-border bg-lane-active-muted text-lane-active-foreground [a&]:hover:bg-lane-active-muted/80",
         outline:
           "border-border bg-background text-foreground [a&]:hover:bg-accent [a&]:hover:text-accent-foreground dark:bg-input/30",
         // Surface badges (*-outline, *-light): use *-muted-foreground for text.

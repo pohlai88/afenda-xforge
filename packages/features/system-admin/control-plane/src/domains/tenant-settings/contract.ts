@@ -1,6 +1,19 @@
 import { defineRouteContract } from "@repo/api";
+import { tenantBrandingSettingsSchema } from "@repo/design-system/contracts/tenant-branding.contract";
+import { z } from "zod";
 import { systemAdminMutationResultSchema } from "../../schema.ts";
 import { tenantAdminSettingUpdateSchema } from "./schema.ts";
+
+export const tenantAdminSettingsReadSchema = z
+  .object({
+    tenantId: z.string().uuid(),
+    displayName: z.string().nullable(),
+    defaultLocale: z.string(),
+    defaultTimezone: z.string(),
+    customizationMode: z.string().nullable(),
+    branding: tenantBrandingSettingsSchema,
+  })
+  .strict();
 
 export const tenantSettingsCapabilities = {
   tenantSettingsRead: "system-admin.tenant-settings.read",
@@ -39,6 +52,25 @@ export const systemAdminUpdateTenantSettingRouteContract = defineRouteContract({
   tags: ["system-admin"],
 });
 
+export const systemAdminReadTenantSettingsRouteContract = defineRouteContract({
+  audience: "client",
+  method: "GET",
+  operationId: "readTenantAdminSettings",
+  path: "/api/system-admin/tenant-settings",
+  success: {
+    description: "Tenant admin settings snapshot",
+    openApiSchema: {
+      type: "object",
+      additionalProperties: false,
+    },
+    schema: tenantAdminSettingsReadSchema,
+    status: 200,
+  },
+  summary: "Read tenant admin settings",
+  tags: ["system-admin"],
+});
+
 export const tenantSettingsRouteContracts = [
+  systemAdminReadTenantSettingsRouteContract,
   systemAdminUpdateTenantSettingRouteContract,
 ] as const;

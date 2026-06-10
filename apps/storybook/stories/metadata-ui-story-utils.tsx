@@ -1,4 +1,4 @@
-import { createMetadataRenderContext } from "@repo/metadata-ui";
+import { createMetadataRenderContext } from "@repo/metadata-ui/contracts";
 import type { ReactNode } from "react";
 
 export const metadataUiStoryContext = createMetadataRenderContext(

@@ -1,9 +1,9 @@
 import type { EntityMetadata } from "@repo/metadata";
+import { createMetadataRenderContext } from "@repo/metadata-ui/contracts";
 import {
-  createMetadataRenderContext,
   EntityMetadataPanel,
   MetadataStateBoundary,
-} from "@repo/metadata-ui";
+} from "@repo/metadata-ui/components";
 import type { Meta, StoryObj } from "@storybook/react";
 
 import { MetadataUiStoryFrame } from "./metadata-ui-story-utils";

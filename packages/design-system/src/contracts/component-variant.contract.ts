@@ -26,6 +26,7 @@ export const BADGE_VARIANTS = defineRegistry([
   "secondary",
   "outline",
   "muted",
+  "lane",
   "success",
   "warning",
   "destructive",

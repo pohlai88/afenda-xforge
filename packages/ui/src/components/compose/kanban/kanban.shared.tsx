@@ -1,8 +1,11 @@
 "use client";
 
+import { GripVertical } from "lucide-react";
 import * as React from "react";
+
 import { cn } from "../../../lib/utils";
 import { Badge } from "../../ui-shadcn/badge";
+import { Button } from "../../ui-shadcn/button";
 import {
   Card,
   CardContent,
@@ -92,11 +95,11 @@ const demoBoard: Record<string, Task[]> = {
 function priorityTone(priority: Task["priority"]) {
   switch (priority) {
     case "High":
-      return "destructive";
+      return "destructive-light" as const;
     case "Medium":
-      return "secondary";
+      return "primary-light" as const;
     default:
-      return "outline";
+      return "warning-light" as const;
   }
 }
 
@@ -134,6 +137,101 @@ function Stage({
   );
 }
 
+type TaskCardProps = {
+  task: Task;
+  asHandle?: boolean;
+  isOverlay?: boolean;
+} & Omit<React.ComponentProps<typeof KanbanItem>, "value" | "children">;
+
+function TaskCard({
+  task,
+  asHandle = false,
+  isOverlay = false,
+  ...props
+}: TaskCardProps) {
+  const cardContent = (
+    <Card>
+      <CardContent className="space-y-2.5">
+        <div className="flex items-center justify-between gap-2">
+          <span className="line-clamp-1 text-sm font-medium">{task.title}</span>
+          <Badge
+            variant={priorityTone(task.priority)}
+            size="xs"
+            className="pointer-events-none shrink-0 capitalize"
+          >
+            {task.priority}
+          </Badge>
+        </div>
+        <div className="flex items-center justify-between text-xs text-muted-foreground">
+          <span className="line-clamp-1">{task.owner}</span>
+          <time className="whitespace-nowrap text-[10px] tabular-nums">
+            {task.due}
+          </time>
+        </div>
+      </CardContent>
+    </Card>
+  );
+
+  return (
+    <KanbanItem value={task.id} {...props}>
+      {asHandle && !isOverlay ? (
+        <KanbanItemHandle>{cardContent}</KanbanItemHandle>
+      ) : (
+        cardContent
+      )}
+    </KanbanItem>
+  );
+}
+
+function TaskColumn({
+  columnId,
+  tasks,
+  isOverlay = false,
+}: {
+  columnId: string;
+  tasks: Task[];
+  isOverlay?: boolean;
+}) {
+  return (
+    <KanbanColumn value={columnId}>
+      <Card className="mb-2.5">
+        <CardHeader className="flex flex-row items-center justify-between space-y-0">
+          <div className="flex items-center gap-2.5">
+            <span className="text-sm font-semibold">{columnId}</span>
+            <Badge variant="outline" size="xs">
+              {tasks.length}
+            </Badge>
+          </div>
+          <KanbanColumnHandle asChild>
+            <Button
+              size="icon-xs"
+              variant="ghost"
+              aria-label={`Reorder ${columnId} column`}
+            >
+              <GripVertical />
+            </Button>
+          </KanbanColumnHandle>
+        </CardHeader>
+        <CardContent>
+          <KanbanColumnContent
+            value={columnId}
+            className="flex flex-col gap-2.5"
+          >
+            {tasks.map((task) => (
+              <TaskCard
+                key={task.id}
+                task={task}
+                asHandle={!isOverlay}
+                isOverlay={isOverlay}
+              />
+            ))}
+          </KanbanColumnContent>
+        </CardContent>
+      </Card>
+    </KanbanColumn>
+  );
+}
+
 function PreviewKanban({ overlay = false }: { overlay?: boolean }) {
   const [board, setBoard] = React.useState(demoBoard);
 
@@ -143,65 +241,35 @@ function PreviewKanban({ overlay = false }: { overlay?: boolean }) {
       onValueChange={setBoard}
       getItemValue={(item) => item.id}
     >
-      <KanbanBoard>
+      <KanbanBoard className="grid auto-rows-fr gap-4 sm:grid-cols-3">
         {Object.entries(board).map(([columnId, items]) => (
-          <KanbanColumn key={columnId} value={columnId}>
-            <KanbanColumnHandle>
-              <span>{columnId}</span>
-              <Badge variant="secondary">{items.length}</Badge>
-            </KanbanColumnHandle>
-            <KanbanColumnContent value={columnId}>
-              {items.map((item) => (
-                <KanbanItem key={item.id} value={item.id}>
-                  <KanbanItemHandle>
-                    <div className="flex min-w-0 flex-1 flex-col gap-1">
-                      <span className="truncate font-medium">{item.title}</span>
-                      <span className="text-xs text-muted-foreground">
-                        {item.owner} · {item.due}
-                      </span>
-                    </div>
-                  </KanbanItemHandle>
-                  <div className="mt-3 flex items-center justify-between gap-2">
-                    <span className="text-xs text-muted-foreground">
-                      {item.owner}
-                    </span>
-                    <Badge variant={priorityTone(item.priority)}>
-                      {item.priority}
-                    </Badge>
-                  </div>
-                </KanbanItem>
-              ))}
-            </KanbanColumnContent>
-          </KanbanColumn>
+          <TaskColumn key={columnId} columnId={columnId} tasks={items} />
         ))}
       </KanbanBoard>
       {overlay ? (
-        <KanbanOverlay className="w-72">
-          {({ variant }) =>
-            variant === "column" ? (
-              <div className="rounded-xl border bg-background p-3 shadow-xl">
-                <div className="flex items-center justify-between gap-2">
-                  <div className="h-2 w-24 rounded-full bg-muted" />
-                  <div className="h-2 w-12 rounded-full bg-muted" />
-                </div>
-                <div className="mt-3 flex flex-col gap-2">
-                  <div className="h-3 w-4/5 rounded-full bg-muted" />
-                  <div className="h-3 w-2/3 rounded-full bg-muted" />
-                </div>
-              </div>
-            ) : (
-              <div className="rounded-xl border bg-background p-3 shadow-xl">
-                <div className="flex items-center justify-between gap-2">
-                  <div className="h-2 w-20 rounded-full bg-muted" />
-                  <div className="h-2 w-14 rounded-full bg-muted" />
-                </div>
-                <div className="mt-3 flex flex-col gap-2">
-                  <div className="h-3 w-5/6 rounded-full bg-muted" />
-                  <div className="h-3 w-1/2 rounded-full bg-muted" />
-                </div>
-              </div>
-            )
-          }
+        <KanbanOverlay>
+          {({ value, variant }) => {
+            if (variant === "column") {
+              const columnId = String(value);
+              return (
+                <TaskColumn
+                  columnId={columnId}
+                  tasks={board[columnId] ?? []}
+                  isOverlay
+                />
+              );
+            }
+
+            const task = Object.values(board)
+              .flat()
+              .find((item) => item.id === value);
+
+            if (!task) {
+              return null;
+            }
+
+            return <TaskCard task={task} isOverlay />;
+          }}
         </KanbanOverlay>
       ) : null}
     </Kanban>

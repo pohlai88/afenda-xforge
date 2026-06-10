@@ -2,6 +2,14 @@
 
 Use this file for package-local public API notes when the repo does not require a broader release-note system.
 
+## 2026-06-11 (MUI-008 / Enterprise AC #8)
+
+- Date: 2026-06-11
+- Change: Hardened client/server entry points: split compose-only compatibility into `compose-compatibility.ts`, kept registry-backed `createMetadataUiCompatibilityReport` on `@repo/metadata-ui/compatibility`, added `import "server-only"` to `@repo/metadata-ui/server`, and extended `check:client-server-boundaries` with transitive server-entry graph linting.
+- Public impact: `@repo/metadata-ui/server` now exports `createMetadataUiComposeCompatibilityReport` (compose validation only) instead of the registry-backed compatibility report; full compatibility and quality assessment remain on `@repo/metadata-ui/compatibility`. Storybook consumers should prefer explicit subpaths (`/contracts`, `/components`) over the root barrel.
+- Snapshot updated: Yes, `snapshots/declaration-snapshot.json`.
+- Follow-up: Run `pnpm --filter @repo/metadata-ui check:client-server-boundaries` when changing `src/server.ts`, compose compatibility, or server-safe module imports.
+
 ## 2026-06-09
 
 - Date: 2026-06-09

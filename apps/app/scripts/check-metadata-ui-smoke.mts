@@ -30,7 +30,10 @@ const documentSummaryListPath = fileURLToPath(
   )
 );
 const activityTablePath = fileURLToPath(
-  new URL("../app/(authenticated)/_components/activity-table.tsx", import.meta.url)
+  new URL(
+    "../app/(authenticated)/_components/activity-table.tsx",
+    import.meta.url
+  )
 );
 
 const dashboardPageSource = readFileSync(dashboardPagePath, "utf8");
@@ -59,8 +62,13 @@ assert.doesNotMatch(
 
 assert.match(
   dashboardViewSource,
-  /from\s+["']@repo\/metadata-ui(?:\/components)?["']/,
-  "dashboard view must consume metadata-ui through an explicit package subpath"
+  /from\s+["']@repo\/metadata-ui\/components["']/,
+  "dashboard view must consume metadata-ui through @repo/metadata-ui/components"
+);
+assert.doesNotMatch(
+  dashboardViewSource,
+  /from\s+["']@repo\/metadata-ui["']/,
+  "dashboard view must not import metadata-ui root barrel (MUI-008)"
 );
 assert.doesNotMatch(
   dashboardViewSource,
@@ -90,6 +98,11 @@ for (const [label, source] of [
     source,
     /from\s+["']@repo\/metadata-ui\/components["']/,
     `${label} must import metadata-ui components through explicit package subpath`
+  );
+  assert.doesNotMatch(
+    source,
+    /from\s+["']@repo\/metadata-ui["']/,
+    `${label} must not import metadata-ui root barrel (MUI-008)`
   );
   assert.match(
     source,

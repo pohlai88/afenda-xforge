@@ -1,6 +1,13 @@
+import {
+  cssVarMapToInlineStyle,
+  DEFAULT_TENANT_BRANDING_SETTINGS,
+  resolveActiveLaneCssVars,
+} from "@repo/design-system";
 import { DesignSystemProvider } from "@repo/ui/components/provider";
+import { Badge } from "@repo/ui/components/badge";
 import { fonts } from "@repo/ui/lib/fonts";
 import type { Preview } from "@storybook/react";
+import type { CSSProperties } from "react";
 
 import "./preview.css";
 
@@ -96,6 +103,19 @@ const preview: Preview = {
             ? "dark"
             : "light";
 
+      const activeFeatureId =
+        typeof context.parameters.activeFeatureId === "string"
+          ? context.parameters.activeFeatureId
+          : undefined;
+      const laneVars = activeFeatureId
+        ? resolveActiveLaneCssVars(
+            DEFAULT_TENANT_BRANDING_SETTINGS,
+            activeFeatureId,
+            theme === "dark" ? "dark" : "light"
+          )
+        : {};
+      const laneStyle = cssVarMapToInlineStyle(laneVars) as CSSProperties;
+
       return (
         <DesignSystemProvider
           attribute="class"
@@ -105,7 +125,18 @@ const preview: Preview = {
           forcedTheme={theme}
         >
           <div className={fonts}>
-            <div className="min-h-screen bg-background text-foreground">
+            <div
+              className="min-h-screen bg-background text-foreground"
+              style={laneStyle}
+            >
+              {activeFeatureId ? (
+                <div className="border-b border-lane-active-border bg-lane-active-muted px-4 py-2">
+                  <Badge variant="lane">
+                    Lane: {laneVars["--lane-active-id"] ?? "default"} (
+                    {activeFeatureId})
+                  </Badge>
+                </div>
+              ) : null}
               <Story />
             </div>
           </div>

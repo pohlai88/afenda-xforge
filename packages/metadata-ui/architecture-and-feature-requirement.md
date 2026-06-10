@@ -158,6 +158,32 @@ Metadata UI must specify **how metadata maps to visible, accessible, trustworthy
 | Visible states, copy tone, hierarchy, and interaction affordances for metadata surfaces | `@repo/metadata-ui` renderers (specified here) |
 | Brand theming and product visual direction | App / design system consumers |
 
+### Dual tenant theme + ERP visual lanes (design-system contract)
+
+Tenant branding uses **two independent layers** resolved by `@repo/design-system`:
+
+| Layer | Scope | CSS / Tailwind | Usage rule |
+| --- | --- | --- | --- |
+| **Theme preset** | Tenant-global brand | `--tenant-primary`, `--primary`, `--ring` | Primary CTAs, links, focus rings |
+| **ERP visual lane** | Per feature/module | `--lane-active-*`, `text-lane-active`, `bg-lane-active-muted` | Nav accents, module badges, chart series |
+| **Status tones** | Operational state | `success`, `warning`, `destructive`, `info` | Unchanged — not replaced by lanes |
+
+**Composition budget:** 90% neutral surfaces / 7% lane accent / 3% status tone.
+
+**Resolution precedence**
+
+- Lane ID: `moduleLaneOverrides[featureId]` → catalog default (`module-lane.catalog`) → `governance`
+- Lane colors: `laneColorOverrides.byFeature` → `byLane` → `ERP_VISUAL_LANES` defaults
+- Brand colors: `themePreset` → `THEME_PRESETS`
+
+**Runtime wiring**
+
+- Root layout injects tenant brand overrides via `TenantBrandingStyles` + `renderTenantBrandingStyleBlock`
+- Feature routes wrap content in `FeatureLaneScope` with `featureId` + `tenantId` for `--lane-active-*` inline vars
+- Metadata renderers consume lane accents through `LANE_ACCENT_TOKENS` in `visual-token-contract.ts` — never raw palette utilities
+
+Contracts: `@repo/design-system` (`visual-lane.contract`, `tenant-branding.contract`, `resolve-tenant-branding`).
+
 ---
 
 ## Visualization And Interaction Requirements
@@ -607,7 +633,7 @@ Extracting `diagnostics/`, `runtime/`, and `telemetry/` into top-level folders i
 | 5 | The package does not take ownership of metadata source contracts, customization contracts, or server-side permission authority. | **Implemented** — package-owned renderer contracts, `src/customization/` facade, UI-only governance hints, `check:authority-boundary` |
 | 6 | Invalid, partial, unsupported, or degraded metadata renders safe fallback UI without crashing the page. | **Implemented** — `InvalidState` for invalid contracts, `PartialState`/`DegradedState` section wrapping, unsupported renderer `ErrorState`, `check:fallback-runtime` |
 | 7 | Registry conflicts, public API drift, and declaration snapshot mismatches fail verification gates. | **Implemented** — `check:verification-governance`, `check:public-api`, `check:declaration-snapshot`, `check:generated`, `check:compatibility`, `check:renderer-registry`, `validate-manifest` |
-| 8 | Client/server entry points are enforced and server-only concerns do not enter the client bundle. |
+| 8 | Client/server entry points are enforced and server-only concerns do not enter the client bundle. | **Implemented** — `./server` / `./client` subpaths, `server-only` marker, transitive graph lint in `check:client-server-boundaries` |
 | 9 | Diagnostics expose correlation ID, renderer key, section kind, state, and fallback reason for every fallback path. |
 | 10 | Consumer fixture tests prove real external packages can import and render safely. |
 | 11 | Field renderers support controlled value binding for form integration. |
@@ -776,7 +802,7 @@ MUI-001 through MUI-018 are implemented. Enterprise AC #1–#7 and AC #8–#13 a
 - `Not started: MUI-015, MUI-016`
 - `Visualization: MUI-VIS-001 through MUI-VIS-012 implemented`
 - `P0 next slices: MUI-015, MUI-016`
-- `Feature status: production-capable for read-only/list/form surfaces; remaining gaps are layout contracts and bundle graph enforcement`
+- `Feature status: production-capable for read-only/list/form surfaces; remaining gaps are optional bundle-graph enforcement in app consumers importing the root barrel`
 
 ---
 

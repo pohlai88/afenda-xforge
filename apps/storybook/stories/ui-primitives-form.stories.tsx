@@ -2,31 +2,30 @@ import type { Meta, StoryObj } from "@storybook/react";
 
 import {
   PrimitiveInputShowcase,
+  type PrimitiveInputShowcaseProps,
   PrimitiveSelectionShowcase,
+  type PrimitiveSelectionShowcaseProps,
   PrimitiveTextareaShowcase,
 } from "./ui-primitives-showcases";
 
 const meta = {
   title: "UI/Primitives/Form",
-  component: PrimitiveInputShowcase,
   parameters: {
     layout: "centered",
     a11y: { test: "error" as const },
   },
   tags: ["autodocs"],
+} satisfies Meta;
+
+export default meta;
+
+export const Inputs: StoryObj<PrimitiveInputShowcaseProps> = {
   argTypes: {
     label: { control: "text", description: "Field label" },
     placeholder: { control: "text" },
     disabled: { control: "boolean" },
     value: { control: "text" },
   },
-} satisfies Meta<typeof PrimitiveInputShowcase>;
-
-export default meta;
-
-type Story = StoryObj<typeof meta>;
-
-export const Inputs: Story = {
   render: (args) => (
     <div className="grid w-full max-w-sm gap-4">
       <PrimitiveInputShowcase {...args} />
@@ -41,7 +40,7 @@ export const Inputs: Story = {
   },
 };
 
-export const SelectionControls: Story = {
+export const SelectionControls: StoryObj<PrimitiveSelectionShowcaseProps> = {
   render: (args) => <PrimitiveSelectionShowcase {...args} />,
   argTypes: {
     checkboxLabel: { control: "text" },

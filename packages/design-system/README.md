@@ -9,12 +9,12 @@ Published surface:
 - `src/contracts/index.ts`
 - `src/variants/*`
 - `src/variants/index.ts`
-- generated CSS artifacts under `src/generated/*` for cross-package serialization checks
+- generated CSS for `@repo/ui` via the globals adapter
 
 This package does not ship:
 - React components
 - theme providers
-- global CSS
+- runtime global CSS files
 - shadcn or Radix primitives
 - application or ERP logic
 
@@ -27,4 +27,4 @@ Enterprise vocabulary currently includes:
 - approved brand theme presets without React, Next.js, or CSS provider logic
 - component variant contracts consumed by `@repo/ui`
 
-Use `pnpm --filter @repo/design-system type2:css` to refresh `src/generated/type2.css`, `type2:css:check` in CI to enforce drift-free sync, and `type2:css:compare` to compare the generated artifact against `packages/ui/src/styles/globals.css`.
+Use `pnpm --filter @repo/design-system globals:css` to refresh `packages/ui/src/styles/globals.css`, and `globals:css:check` in CI to enforce drift-free sync.

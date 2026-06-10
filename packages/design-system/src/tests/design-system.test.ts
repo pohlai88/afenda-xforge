@@ -26,6 +26,7 @@ test("design system variants expose the supported values", () => {
     "secondary",
     "outline",
     "muted",
+    "lane",
     "success",
     "warning",
     "destructive",

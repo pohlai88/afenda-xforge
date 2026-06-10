@@ -112,7 +112,7 @@ This package already contains contracts, tokens, variants, generated CSS, script
 | Source-of-truth integration | Implemented for token ownership | [`src/tokens`](./src/tokens), [`src/variants`](./src/variants) |
 | Repository and persistence | Not applicable by design | [`package.json`](./package.json) |
 | Queries, projections, or read models | Not applicable by design | [`src/index.ts`](./src/index.ts) |
-| Actions, workflows, or mutations | Not applicable by design | [`src/adapters/type2-css.adapter.ts`](./src/adapters/type2-css.adapter.ts) |
+| Actions, workflows, or mutations | Not applicable by design | [`src/adapters/globals-css.adapter.ts`](./src/adapters/globals-css.adapter.ts) |
 | HTTP or API routes | Not applicable by design | [`package.json`](./package.json) |
 | Requirement coverage registry | Not implemented as a dedicated registry file | [`architecture-and-feature-requirement.md`](./architecture-and-feature-requirement.md) |
 | Verification tests | Implemented | [`src/tests/design-system.test.ts`](./src/tests/design-system.test.ts), [`src/tests/token-contract.test.ts`](./src/tests/token-contract.test.ts), [`src/tests/variant-contract.test.ts`](./src/tests/variant-contract.test.ts) |
@@ -133,7 +133,7 @@ This package already contains contracts, tokens, variants, generated CSS, script
 | DS-002 | Implemented | [`src/tokens`](./src/tokens), [`src/tests/token-contract.test.ts`](./src/tests/token-contract.test.ts) |
 | DS-003 | Implemented | [`src/variants`](./src/variants), [`src/tests/variant-contract.test.ts`](./src/tests/variant-contract.test.ts) |
 | DS-004 | Implemented | [`package.json`](./package.json) |
-| DS-005 | Implemented | [`scripts/generate-type2-css.mts`](./scripts/generate-type2-css.mts), [`src/generated/type2.css`](./src/generated/type2.css), [`src/tests/type2-css.test.ts`](./src/tests/type2-css.test.ts) |
+| DS-005 | Implemented | [`scripts/generate-globals-css.mts`](./scripts/generate-globals-css.mts), [`../ui/src/styles/globals.css`](../ui/src/styles/globals.css), [`src/tests/globals-css.test.ts`](./src/tests/globals-css.test.ts) |
 
 ---
 

@@ -1,10 +1,10 @@
 import { SignOut } from "@repo/auth/components/sign-out";
 import { resolveLayeredCustomizedEntityMetadata } from "@repo/customization/resolution";
 import { ForbiddenError } from "@repo/errors";
-import { MetadataStateBoundary } from "@repo/metadata-ui/components";
 import { companyMetadata } from "@repo/features-master-data-companies/metadata";
 import { customerMetadata } from "@repo/features-master-data-customers/metadata";
 import type { EntityMetadata } from "@repo/metadata";
+import { MetadataStateBoundary } from "@repo/metadata-ui/components";
 import Link from "next/link";
 import type { ReactElement } from "react";
 import type { DashboardEntityCustomizationLayers } from "./_customizations.ts";
@@ -73,6 +73,12 @@ export default async function DashboardPage(): Promise<ReactElement> {
               href="/audit"
             >
               Open audit
+            </Link>
+            <Link
+              className="inline-flex h-10 items-center justify-center rounded-md border border-border bg-background px-4 py-2 font-medium text-sm transition hover:bg-muted"
+              href="/admin/branding"
+            >
+              Tenant branding
             </Link>
             <Link
               className="inline-flex h-10 items-center justify-center rounded-md border border-border bg-background px-4 py-2 font-medium text-sm transition hover:bg-muted"

@@ -33,6 +33,7 @@
     "@repo/api": "workspace:*",
     "@repo/audit": "workspace:*",
     "@repo/customization": "workspace:*",
+    "@repo/design-system": "workspace:*",
     "@repo/database": "workspace:*",
     "drizzle-orm": "catalog:",
     "@repo/execution": "workspace:*",

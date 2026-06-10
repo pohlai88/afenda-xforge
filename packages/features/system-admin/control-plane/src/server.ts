@@ -20,6 +20,11 @@ export {
   readSystemAdminOverview,
   reviewSystemAdminCustomizationImport,
 } from "./queries.ts";
+export {
+  readTenantAdminSettingsForTenant,
+  readTenantBrandingForTenant,
+} from "./domains/tenant-settings/queries.ts";
+export type { TenantAdminSettingsSnapshot } from "./domains/tenant-settings/repository.server.ts";
 export type {
   SystemAdminWebhookEndpoint,
   SystemAdminWebhookEndpointServiceDependencies,

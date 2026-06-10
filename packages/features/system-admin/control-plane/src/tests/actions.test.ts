@@ -17,6 +17,10 @@ const mockAuditEventInTransaction = {} as Awaited<
 test("tenant settings mutation runs through execution pipeline and returns accepted result", async () => {
   const handlers = createSystemAdminExecutionHandlers({
     createId: () => "exec-id",
+    upsertTenantAdminSetting: async () => ({
+      themePreset: "xforge",
+      moduleLaneOverrides: {},
+    }),
     writeAuditEvent: async () => mockAuditEvent,
     writeAuditEventInTransaction: async () => mockAuditEventInTransaction,
   });

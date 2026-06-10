@@ -31,6 +31,7 @@
     "typecheck": "tsc --noEmit --emitDeclarationOnly false"
   },
   "dependencies": {
+    "@repo/design-system": "workspace:*",
     "@repo/metadata": "workspace:*",
     "@repo/metadata-ui": "workspace:*",
     "@repo/ui": "workspace:*",

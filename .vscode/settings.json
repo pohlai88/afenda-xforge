@@ -4,5 +4,19 @@
   "editor.codeActionsOnSave": {
     "source.organizeImports.biome": "explicit",
     "source.fixAll.biome": "explicit"
+  },
+  "[markdown]": {
+    "editor.formatOnSave": false,
+    "editor.codeActionsOnSave": {
+      "source.organizeImports.biome": "never",
+      "source.fixAll.biome": "never"
+    }
+  },
+  "[mdx]": {
+    "editor.formatOnSave": false,
+    "editor.codeActionsOnSave": {
+      "source.organizeImports.biome": "never",
+      "source.fixAll.biome": "never"
+    }
   }
 }

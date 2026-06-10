@@ -1,4 +1,12 @@
 export * from "./contracts";
+export * from "./resolution";
+export {
+  applyTenantAdminBrandingSetting,
+  clearTenantBrandingStore,
+  getTenantBranding,
+  setTenantBranding,
+  updateTenantBranding,
+} from "./tenant-branding/in-memory-store";
 export {
   type DesignSystemTokenGroups,
   designSystemTokenGroups,

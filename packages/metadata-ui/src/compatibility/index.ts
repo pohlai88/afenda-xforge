@@ -1,15 +1,30 @@
+export { createMetadataUiCompatibilityReport } from "../registry/metadata-ui-compatibility";
 export {
-  createMetadataUiCompatibilityReport,
+  createIssue,
+  createMetadataUiComposeCompatibilityReport,
   type MetadataUiCompatibilityArea,
   type MetadataUiCompatibilityIssue,
   type MetadataUiCompatibilityReport,
+  type MetadataUiComposeCompatibilityMap,
   metadataUiComposeCompatibilityMap,
-} from "../registry/metadata-ui-compatibility";
-export {
-  createMetadataUiQualityAssessment,
-  type MetadataUiQualityAssessment,
-  type MetadataUiQualityCategory,
-  type MetadataUiQualityMetric,
-  type MetadataUiQualitySignals,
-  type MetadataUiQualityVerification,
+} from "./compose-compatibility";
+export type {
+  MetadataUiQualityAssessment,
+  MetadataUiQualityCategory,
+  MetadataUiQualityMetric,
+  MetadataUiQualitySignals,
+  MetadataUiQualityVerification,
 } from "./metadata-ui-quality";
+
+import { createMetadataUiCompatibilityReport } from "../registry/metadata-ui-compatibility";
+import type {
+  MetadataUiQualityAssessment,
+  MetadataUiQualitySignals,
+} from "./metadata-ui-quality";
+import { createMetadataUiQualityAssessment as createQualityAssessment } from "./metadata-ui-quality";
+
+export function createMetadataUiQualityAssessment(
+  signals: MetadataUiQualitySignals = {}
+): MetadataUiQualityAssessment {
+  return createQualityAssessment(createMetadataUiCompatibilityReport, signals);
+}

@@ -147,7 +147,7 @@ async function main(): Promise<void> {
 
     if (existing !== fileContents) {
       console.error(
-        "ui-globals snapshot is out of date. Run `pnpm --filter @repo/design-system serialize:css`."
+        "ui-globals snapshot is out of date. Run `pnpm --filter @repo/design-system globals:css`."
       );
       process.exitCode = 1;
       return;

@@ -190,9 +190,9 @@ function checkAnimatedSurfaces(violations: string[]): void {
     readFileSync(activityTablePath, "utf8"),
     [
       {
-        pattern: /MetadataMotionSkeleton/,
+        pattern: /MetadataMotionSkeleton|MetadataTableLoadingSkeleton/,
         message:
-          "activity table loading rows must use MetadataMotionSkeleton (MUI-VIS-010)",
+          "activity table loading rows must use MetadataMotionSkeleton or MetadataTableLoadingSkeleton (MUI-VIS-010)",
       },
     ],
     violations

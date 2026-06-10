@@ -227,6 +227,37 @@ export const notificationInbox = xforge.table(
   ]
 );
 
+export const tenantSettings = xforge.table("tenant_settings", {
+  tenantId: uuid("tenant_id")
+    .primaryKey()
+    .references(() => tenants.id, { onDelete: "cascade" }),
+  displayName: text("display_name"),
+  defaultLocale: varchar("default_locale", { length: 16 })
+    .notNull()
+    .default("en"),
+  defaultTimezone: varchar("default_timezone", { length: 64 })
+    .notNull()
+    .default("UTC"),
+  customizationMode: varchar("customization_mode", { length: 32 }),
+  themePreset: varchar("theme_preset", { length: 32 }).notNull().default("xforge"),
+  branding: jsonb("branding")
+    .$type<Record<string, unknown>>()
+    .notNull()
+    .default({}),
+  createdAt: timestamp("created_at", {
+    mode: "date",
+    withTimezone: true,
+  })
+    .defaultNow()
+    .notNull(),
+  updatedAt: timestamp("updated_at", {
+    mode: "date",
+    withTimezone: true,
+  })
+    .defaultNow()
+    .notNull(),
+});
+
 export const webhookEndpoints = xforge.table(
   "webhook_endpoints",
   {
@@ -1369,7 +1400,7 @@ export const hrOrgStructureAuditReferences = xforge.table(
   ]
 );
 
-export const tenantsRelations = relations(tenants, ({ many }) => ({
+export const tenantsRelations = relations(tenants, ({ many, one }) => ({
   companies: many(companies),
   complianceAlertStates: many(complianceAlertStates),
   complianceAuditReferences: many(complianceAuditReferences),
@@ -1388,7 +1419,15 @@ export const tenantsRelations = relations(tenants, ({ many }) => ({
   offboardingAuditReferences: many(offboardingAuditReferences),
   offboardingCases: many(offboardingCases),
   memberships: many(tenantMemberships),
+  settings: one(tenantSettings),
   webhookEndpoints: many(webhookEndpoints),
+}));
+
+export const tenantSettingsRelations = relations(tenantSettings, ({ one }) => ({
+  tenant: one(tenants, {
+    fields: [tenantSettings.tenantId],
+    references: [tenants.id],
+  }),
 }));
 
 export const companiesRelations = relations(companies, ({ one, many }) => ({
@@ -1776,6 +1815,8 @@ export const databaseSchema: Omit<
   notificationInboxRelations,
   tenantMemberships,
   tenantMembershipsRelations,
+  tenantSettings,
+  tenantSettingsRelations,
   tenants,
   tenantsRelations,
   webhookEndpoints,
@@ -1859,6 +1900,8 @@ export type Customer = InferSelectModel<typeof customers>;
 export type NewCustomer = InferInsertModel<typeof customers>;
 export type TenantMembership = InferSelectModel<typeof tenantMemberships>;
 export type NewTenantMembership = InferInsertModel<typeof tenantMemberships>;
+export type TenantSettings = InferSelectModel<typeof tenantSettings>;
+export type NewTenantSettings = InferInsertModel<typeof tenantSettings>;
 export type CompanyGrant = InferSelectModel<typeof companyGrants>;
 export type NewCompanyGrant = InferInsertModel<typeof companyGrants>;
 export type NotificationInboxEntry = InferSelectModel<typeof notificationInbox>;

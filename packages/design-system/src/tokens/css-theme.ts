@@ -1,4 +1,10 @@
 import { THEME_PRESETS } from "../contracts/theme-preset.contract";
+import {
+  GLOBALS_CSS_ACTIVE_LANE_DECLARATIONS,
+  GLOBALS_CSS_LANE_DARK_DECLARATIONS,
+  GLOBALS_CSS_LANE_ROOT_DECLARATIONS,
+  laneThemeInlineDeclarations,
+} from "./lane-css-declarations";
 import { SURFACE_COLOR_TOKENS } from "./color-tokens";
 import { ANIMATION_TOKENS } from "./motion-tokens";
 import { RADIUS_TOKENS } from "./radius-tokens";
@@ -109,6 +115,8 @@ export const GLOBALS_CSS_ROOT_DECLARATIONS: readonly CssDeclaration[] = [
   ["--sidebar-accent-foreground", "var(--accent-foreground)"],
   ["--sidebar-border", "var(--border)"],
   ["--sidebar-ring", "var(--ring)"],
+  ...GLOBALS_CSS_LANE_ROOT_DECLARATIONS,
+  ...GLOBALS_CSS_ACTIVE_LANE_DECLARATIONS,
 ] as const;
 
 export const GLOBALS_CSS_DARK_DECLARATIONS: readonly CssDeclaration[] = [
@@ -190,6 +198,7 @@ export const GLOBALS_CSS_DARK_DECLARATIONS: readonly CssDeclaration[] = [
   ["--sidebar-accent-foreground", "var(--accent-foreground)"],
   ["--sidebar-border", "var(--border)"],
   ["--sidebar-ring", "var(--ring)"],
+  ...GLOBALS_CSS_LANE_DARK_DECLARATIONS,
 ] as const;
 
 export const GLOBALS_CSS_COMPACT_DENSITY_DECLARATIONS: readonly CssDeclaration[] =
@@ -284,6 +293,7 @@ export const GLOBALS_CSS_THEME_DECLARATIONS: readonly CssDeclaration[] = [
   ["--shadow-xs", "var(--elevation-xs)"],
   ["--shadow-sm", "var(--elevation-sm)"],
   ["--shadow-md", "var(--elevation-md)"],
+  ...laneThemeInlineDeclarations(),
 ] as const;
 
 export const GLOBALS_CSS_KEYFRAMES = {

@@ -21,7 +21,9 @@ import {
   THEME_PRESETS,
   validateFontPresetRegistry,
   validateThemePresetRegistry,
+  validateVisualLaneRegistry,
 } from "../contracts";
+import { ERP_VISUAL_LANE_IDS, ERP_VISUAL_LANES } from "../contracts/visual-lane.contract";
 
 const tokenGroups: Record<string, readonly unknown[]> = {
   animation: designSystemTokenGroups.motion.animations,
@@ -44,6 +46,8 @@ const tokenGroups: Record<string, readonly unknown[]> = {
   textUtilities: designSystemTokenGroups.typography.textUtilities,
   themeBrandColorTokens: designSystemTokenGroups.theme.brandColorTokens,
   themePresetNames: designSystemTokenGroups.theme.presetNames,
+  visualLaneIds: designSystemTokenGroups.visualLanes.ids,
+  visualLanes: designSystemTokenGroups.visualLanes.lanes,
 } as const;
 
 test("token groups are non-empty", () => {
@@ -113,4 +117,12 @@ test("theme preset registry is valid and aligned by name", () => {
     new Set(THEME_PRESETS.map((preset) => preset.name)).size,
     THEME_PRESETS.length
   );
+});
+
+test("visual lane registry is valid and aligned with token groups", () => {
+  validateVisualLaneRegistry();
+
+  assert.deepEqual(designSystemTokenGroups.visualLanes.ids, ERP_VISUAL_LANE_IDS);
+  assert.deepEqual(designSystemTokenGroups.visualLanes.lanes, ERP_VISUAL_LANES);
+  assert.equal(ERP_VISUAL_LANE_IDS.length, 7);
 });

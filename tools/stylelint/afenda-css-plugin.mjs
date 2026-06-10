@@ -18,6 +18,12 @@ const REQUIRED_THEME_INLINE_MAPPINGS = [
   "--color-success-muted-foreground: var(--success-muted-foreground)",
   "--color-warning-muted-foreground: var(--warning-muted-foreground)",
   "--color-destructive-muted-foreground: var(--destructive-muted-foreground)",
+  "--color-lane-active: var(--lane-active)",
+  "--color-lane-active-foreground: var(--lane-active-foreground)",
+  "--color-lane-active-muted: var(--lane-active-muted)",
+  "--color-lane-active-muted-foreground: var(--lane-active-muted-foreground)",
+  "--color-lane-active-border: var(--lane-active-border)",
+  "--color-lane-active-glow: var(--lane-active-glow)",
 ];
 
 function isGlobalsStylesheet(source) {

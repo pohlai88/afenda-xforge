@@ -1,4 +1,4 @@
-import type { MetadataDiagnostic } from "@repo/metadata-ui";
+import type { MetadataDiagnostic } from "@repo/metadata-ui/contracts";
 import {
   metadataUiGeneratedFieldFixtures,
   publicConsumerValues,

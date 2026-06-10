@@ -145,6 +145,69 @@ export function ActivityTable({
     return <span aria-hidden>{sortOrder === "asc" ? "↑" : "↓"}</span>;
   };
 
+  const renderTableContent = (): ReactElement => {
+    if (rows.length === 0) {
+      return (
+        <MetadataStateBoundary
+          emptyDescription={emptyDescription}
+          emptyTitle={emptyTitle}
+          state="empty"
+        />
+      );
+    }
+
+    if (pagedRows.length === 0) {
+      return (
+        <MetadataStateBoundary
+          emptyDescription="Try adjusting your search query."
+          emptyTitle="No matching records"
+          state="empty"
+        />
+      );
+    }
+
+    return (
+      <div className="overflow-x-auto">
+        <Table>
+          <TableCaption>
+            Page {page} of {totalPages}
+          </TableCaption>
+          <TableHeader>
+            <TableRow>
+              {columns.map((column) => (
+                <TableHead key={column.key}>
+                  <button
+                    className="inline-flex items-center gap-1 font-medium"
+                    onClick={(): void => toggleSort(column.key)}
+                    type="button"
+                  >
+                    {column.label}
+                    {renderSortIcon(column.key)}
+                  </button>
+                </TableHead>
+              ))}
+            </TableRow>
+          </TableHeader>
+          <TableBody>
+            {pagedRows.map((row) => (
+              <TableRow key={row.id}>
+                {columns.map((column) => {
+                  const value = row[column.key];
+                  return (
+                    <TableCell key={`${row.id}-${column.key}`}>
+                      {renderCell?.(column, value, row) ??
+                        formatCellValue(value)}
+                    </TableCell>
+                  );
+                })}
+              </TableRow>
+            ))}
+          </TableBody>
+        </Table>
+      </div>
+    );
+  };
+
   return (
     <div className="space-y-4">
       <Input
@@ -158,58 +221,7 @@ export function ActivityTable({
         value={query}
       />
 
-      {rows.length === 0 ? (
-        <MetadataStateBoundary
-          emptyDescription={emptyDescription}
-          emptyTitle={emptyTitle}
-          state="empty"
-        />
-      ) : pagedRows.length === 0 ? (
-        <MetadataStateBoundary
-          emptyDescription="Try adjusting your search query."
-          emptyTitle="No matching records"
-          state="empty"
-        />
-      ) : (
-        <div className="overflow-x-auto">
-          <Table>
-            <TableCaption>
-              Page {page} of {totalPages}
-            </TableCaption>
-            <TableHeader>
-              <TableRow>
-                {columns.map((column) => (
-                  <TableHead key={column.key}>
-                    <button
-                      className="inline-flex items-center gap-1 font-medium"
-                      onClick={(): void => toggleSort(column.key)}
-                      type="button"
-                    >
-                      {column.label}
-                      {renderSortIcon(column.key)}
-                    </button>
-                  </TableHead>
-                ))}
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {pagedRows.map((row) => (
-                <TableRow key={row.id}>
-                  {columns.map((column) => {
-                    const value = row[column.key];
-                    return (
-                      <TableCell key={`${row.id}-${column.key}`}>
-                        {renderCell?.(column, value, row) ??
-                          formatCellValue(value)}
-                      </TableCell>
-                    );
-                  })}
-                </TableRow>
-              ))}
-            </TableBody>
-          </Table>
-        </div>
-      )}
+      {renderTableContent()}
 
       {totalPages > 1 ? (
         <div className="flex items-center justify-end gap-2">

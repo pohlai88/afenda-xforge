@@ -2,6 +2,8 @@
 
 `src/styles/globals.css` is the package-local Tailwind v4 token sheet for `@repo/ui`.
 
+It is generated from `@repo/design-system` token contracts. Do not edit it manually — run `pnpm --filter @repo/design-system globals:css` instead.
+
 It owns:
 - `@import "tailwindcss"`
 - `@source` declarations for the UI source tree
@@ -12,6 +14,6 @@ It owns:
 - base layer defaults
 - utilities such as `control-density`, `row-density`, `text-tabular`, `font-rlig`, and `font-calt`
 - reduced-motion overrides
-- radius scale and animation token exports used by the design-system `type2.css` adapter
+- radius scale and animation token exports used by the design-system globals CSS adapter
 
 Keep this file focused on shared presentational tokens only.

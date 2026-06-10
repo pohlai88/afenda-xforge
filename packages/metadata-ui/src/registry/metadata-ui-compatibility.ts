@@ -1,94 +1,33 @@
-import type { ComposeRegistryGroupName } from "@repo/ui";
-import { getComposeRegistryGroup } from "@repo/ui";
+import type {
+  MetadataUiCompatibilityArea,
+  MetadataUiCompatibilityIssue,
+  MetadataUiCompatibilityReport,
+} from "../compatibility/compose-compatibility";
 
-import { metadataUiStateKeys } from "../adapters/state-renderers";
+export type {
+  MetadataUiCompatibilityArea,
+  MetadataUiCompatibilityIssue,
+  MetadataUiCompatibilityReport,
+  MetadataUiComposeCompatibilityMap,
+} from "../compatibility/compose-compatibility";
+export {
+  createIssue,
+  createMetadataUiComposeCompatibilityReport,
+  metadataUiComposeCompatibilityMap,
+} from "../compatibility/compose-compatibility";
+
+import {
+  createIssue,
+  createMetadataUiComposeCompatibilityReport,
+} from "../compatibility/compose-compatibility";
 import type { MetadataActionSurface } from "../contracts/action-renderer.contract";
 import type { MetadataFieldKind } from "../contracts/field-renderer.contract";
 import type { MetadataUiState } from "../contracts/render-context.contract";
 import type { MetadataSectionKind } from "../contracts/section-renderer.contract";
-import { generatedMetadataUiComposeCompatibilityMap } from "../generated/compatibility.generated";
 import { defaultActionRegistry } from "./default-action-registry.tsx";
 import { defaultFieldRegistry } from "./default-field-registry.tsx";
 import { defaultSectionRegistry } from "./default-section-registry.tsx";
 import { defaultStateRegistry } from "./default-state-registry.tsx";
-
-export type MetadataUiCompatibilityArea =
-  | "action"
-  | "field"
-  | "section"
-  | "state";
-
-export type MetadataUiCompatibilityIssue = {
-  area: MetadataUiCompatibilityArea;
-  composeGroup?: ComposeRegistryGroupName;
-  key: string;
-  message: string;
-};
-
-export type MetadataUiCompatibilityReport = {
-  checked: Record<MetadataUiCompatibilityArea, readonly string[]>;
-  issues: readonly MetadataUiCompatibilityIssue[];
-  ok: boolean;
-};
-
-export type MetadataUiComposeCompatibilityMap = {
-  action: Record<MetadataActionSurface, ComposeRegistryGroupName>;
-  field: Record<MetadataFieldKind, ComposeRegistryGroupName>;
-  section: Record<MetadataSectionKind, ComposeRegistryGroupName>;
-  state: Record<MetadataUiState, ComposeRegistryGroupName>;
-};
-
-export const metadataUiComposeCompatibilityMap: MetadataUiComposeCompatibilityMap =
-  {
-    action: generatedMetadataUiComposeCompatibilityMap.action,
-    field: generatedMetadataUiComposeCompatibilityMap.field,
-    section: generatedMetadataUiComposeCompatibilityMap.section,
-    state: generatedMetadataUiComposeCompatibilityMap.state,
-  } satisfies MetadataUiComposeCompatibilityMap;
-
-const getRecordKeys = (record: Record<string, unknown>): readonly string[] =>
-  Object.keys(record);
-
-function createIssue(
-  area: MetadataUiCompatibilityArea,
-  key: string,
-  message: string,
-  composeGroup?: ComposeRegistryGroupName
-): MetadataUiCompatibilityIssue {
-  return { area, composeGroup, key, message };
-}
-
-function checkComposeGroup(
-  area: MetadataUiCompatibilityArea,
-  key: string,
-  composeGroup: ComposeRegistryGroupName,
-  issues: MetadataUiCompatibilityIssue[]
-): void {
-  const registryGroup = getComposeRegistryGroup(composeGroup);
-
-  if (!registryGroup) {
-    issues.push(
-      createIssue(
-        area,
-        key,
-        `Compose group '${composeGroup}' is not registered.`,
-        composeGroup
-      )
-    );
-    return;
-  }
-
-  if (registryGroup.readiness !== "metadata-ready") {
-    issues.push(
-      createIssue(
-        area,
-        key,
-        `Compose group '${composeGroup}' is not metadata-ready.`,
-        composeGroup
-      )
-    );
-  }
-}
 
 function checkRegistryCoverage<TKey extends string>(
   area: MetadataUiCompatibilityArea,
@@ -105,74 +44,40 @@ function checkRegistryCoverage<TKey extends string>(
   }
 }
 
+/**
+ * Full compatibility report including default renderer registry coverage.
+ */
 export function createMetadataUiCompatibilityReport(): MetadataUiCompatibilityReport {
-  const issues: MetadataUiCompatibilityIssue[] = [];
-  const checked = {
-    action: getRecordKeys(
-      metadataUiComposeCompatibilityMap.action
-    ) as unknown as readonly MetadataActionSurface[],
-    field: getRecordKeys(
-      metadataUiComposeCompatibilityMap.field
-    ) as unknown as readonly MetadataFieldKind[],
-    section: getRecordKeys(
-      metadataUiComposeCompatibilityMap.section
-    ) as unknown as readonly MetadataSectionKind[],
-    state: [...metadataUiStateKeys],
-  };
+  const composeReport = createMetadataUiComposeCompatibilityReport();
+  const issues = [...composeReport.issues];
 
-  checkRegistryCoverage("field", defaultFieldRegistry, checked.field, issues);
+  checkRegistryCoverage(
+    "field",
+    defaultFieldRegistry,
+    composeReport.checked.field as readonly MetadataFieldKind[],
+    issues
+  );
   checkRegistryCoverage(
     "action",
     defaultActionRegistry,
-    checked.action,
+    composeReport.checked.action as readonly MetadataActionSurface[],
     issues
   );
   checkRegistryCoverage(
     "section",
     defaultSectionRegistry,
-    checked.section,
+    composeReport.checked.section as readonly MetadataSectionKind[],
     issues
   );
-  checkRegistryCoverage("state", defaultStateRegistry, checked.state, issues);
-
-  for (const key of checked.field) {
-    checkComposeGroup(
-      "field",
-      key,
-      metadataUiComposeCompatibilityMap.field[key],
-      issues
-    );
-  }
-
-  for (const key of checked.action) {
-    checkComposeGroup(
-      "action",
-      key,
-      metadataUiComposeCompatibilityMap.action[key],
-      issues
-    );
-  }
-
-  for (const key of checked.section) {
-    checkComposeGroup(
-      "section",
-      key,
-      metadataUiComposeCompatibilityMap.section[key],
-      issues
-    );
-  }
-
-  for (const key of checked.state) {
-    checkComposeGroup(
-      "state",
-      key,
-      metadataUiComposeCompatibilityMap.state[key],
-      issues
-    );
-  }
+  checkRegistryCoverage(
+    "state",
+    defaultStateRegistry,
+    composeReport.checked.state as readonly MetadataUiState[],
+    issues
+  );
 
   return {
-    checked,
+    checked: composeReport.checked,
     issues,
     ok: issues.length === 0,
   };

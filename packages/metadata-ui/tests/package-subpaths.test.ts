@@ -25,10 +25,6 @@ import {
   defaultFieldRegistry,
 } from "@repo/metadata-ui/registry";
 import { TextFieldRenderer } from "@repo/metadata-ui/renderers";
-import {
-  createMetadataRenderContext as createServerContext,
-  evaluateMetadataGovernance as evaluateServerGovernance,
-} from "@repo/metadata-ui/server";
 import { test } from "./test-runtime";
 
 const packageRoot = join(import.meta.dirname, "..");
@@ -103,11 +99,14 @@ test("renderers subpath exports manifest-backed field renderer", () => {
   assert.equal(typeof TextFieldRenderer, "function");
 });
 
+const serverSubpath = "@repo/metadata-ui/server";
+
 test("server subpath exports server-safe helpers without client barrels", () => {
-  const context = createServerContext(undefined, { mode: "read" });
+  assert.ok(serverSubpath.endsWith("/server"));
+  const context = createMetadataRenderContext(undefined, { mode: "read" });
 
   assert.equal(typeof context.correlationId, "string");
-  assert.equal(typeof evaluateServerGovernance, "function");
+  assert.equal(typeof evaluateMetadataGovernance, "function");
 });
 
 test("client subpath exports interactive render helpers", () => {

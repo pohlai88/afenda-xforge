@@ -13,7 +13,10 @@ import type {
   SystemAdminOverviewShape,
   SystemAdminSectionShape,
 } from "./domains/overview/schema.ts";
-import type { TenantAdminSettingUpdateShape } from "./domains/tenant-settings/schema.ts";
+import {
+  tenantAdminSettingUpdateSchema,
+  type TenantAdminSettingUpdateShape,
+} from "./domains/tenant-settings/schema.ts";
 
 export const systemAdminDomainSchema = z.enum([
   "overview",
@@ -86,6 +89,7 @@ export type ListSystemAdminSectionsQuery = {
   domain?: SystemAdminDomain;
 };
 export type TenantAdminSettingUpdate = TenantAdminSettingUpdateShape;
+export { tenantAdminSettingUpdateSchema };
 export type RoleAssignmentCommand = RoleAssignmentCommandShape;
 export type CustomizationGovernanceCommand =
   CustomizationGovernanceCommandShape;
