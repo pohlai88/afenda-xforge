@@ -47,6 +47,12 @@ const meta = {
   parameters: {
     layout: "fullscreen",
     a11y: { test: "error" as const },
+    docs: {
+      description: {
+        component:
+          "Reference table for compose registry groups in `@repo/ui`. Each row's **readiness** reflects metadata-facing maturity (stable, beta, experimental). **Roles** list `metadataRoles` consumed by manifest `composeGroup` bindings. Match a renderer's compose group to the corresponding gallery under UI / Compose.",
+      },
+    },
   },
   tags: ["autodocs"],
 } satisfies Meta<typeof ComposeRegistryTable>;

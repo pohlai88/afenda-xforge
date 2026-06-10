@@ -213,7 +213,8 @@ test("metadata table email cells expose focus-visible replacement", () => {
   ) as TestElement;
 
   assert.ok(element);
-  assert.equal(element.props.className, METADATA_INTERACTIVE_LINK_CLASS);
+  assert.match(String(element.props.className), /focus-visible:ring-\[3px\]/);
+  assert.match(String(element.props.className), /truncate/);
 });
 
 test("state panel disabled link actions remove keyboard focus without pointer-events-none", () => {

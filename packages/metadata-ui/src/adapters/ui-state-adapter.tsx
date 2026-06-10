@@ -1,5 +1,5 @@
 import type { ReactElement, ReactNode } from "react";
-
+import { composeMetadataWithDiagnostics } from "../components/compose-metadata-with-diagnostics";
 import type {
   MetadataRenderContext,
   MetadataUiState,
@@ -83,6 +83,10 @@ export function renderMetadataState({
       onRetry,
     });
 
+    if (!element) {
+      return { diagnostics, element: null };
+    }
+
     emitMetadataTelemetry(resolvedContext, "metadata.state.render.completed", {
       diagnostics,
       level: "info",
@@ -92,7 +96,14 @@ export function renderMetadataState({
       },
     });
 
-    return { diagnostics, element };
+    return {
+      diagnostics,
+      element: composeMetadataWithDiagnostics(
+        resolvedContext,
+        element,
+        diagnostics
+      ),
+    };
   } catch (error) {
     const rendererDiagnostic = createMetadataRendererErrorDiagnostic(
       "state",
@@ -116,11 +127,15 @@ export function renderMetadataState({
 
     return {
       diagnostics: nextDiagnostics,
-      element: (
+      element: composeMetadataWithDiagnostics(
+        resolvedContext,
         <ErrorState
+          context={resolvedContext}
+          correlationId={resolvedContext.correlationId}
           description={rendererDiagnostic.message}
           title="Failed to render metadata state"
-        />
+        />,
+        nextDiagnostics
       ),
     };
   }

@@ -3,6 +3,10 @@ import type { ReactElement, ReactNode } from "react";
 
 import type { MetadataFieldContract } from "../../contracts/field-renderer.contract";
 import type { MetadataRenderDensity } from "../../contracts/render-context.contract";
+import {
+  METADATA_FIELD_HELP_CLASS,
+  METADATA_FIELD_LABEL_CLASS,
+} from "../../visualization/content-length-visual-contract";
 import { resolveDensitySurfaceProps } from "../../visualization/density-visual-contract";
 import type { FieldVisualState } from "./field-visual-state";
 
@@ -29,8 +33,13 @@ export function MetadataFieldShell({
       orientation={orientation}
       {...resolveDensitySurfaceProps(density)}
     >
-      <FieldLabel htmlFor={visualState.controlId}>
-        {field.label}
+      <FieldLabel
+        className={METADATA_FIELD_LABEL_CLASS}
+        htmlFor={visualState.controlId}
+      >
+        <span className={METADATA_FIELD_LABEL_CLASS} title={field.label}>
+          {field.label}
+        </span>
         {field.required ? (
           <>
             <span aria-hidden="true"> *</span>
@@ -40,8 +49,13 @@ export function MetadataFieldShell({
       </FieldLabel>
       {children}
       {field.helpText && visualState.helpId ? (
-        <FieldDescription id={visualState.helpId}>
-          {field.helpText}
+        <FieldDescription
+          className={METADATA_FIELD_HELP_CLASS}
+          id={visualState.helpId}
+        >
+          <span className={METADATA_FIELD_HELP_CLASS} title={field.helpText}>
+            {field.helpText}
+          </span>
         </FieldDescription>
       ) : null}
       {visualState.hasError && visualState.errorId ? (

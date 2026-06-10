@@ -51,9 +51,19 @@ export const DestructiveAction: Story = {
   ),
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
+    const body = within(canvasElement.ownerDocument.body);
     const deleteButton = canvas.getByRole("button", { name: "Delete" });
+
     await userEvent.click(deleteButton);
-    await expect(deleteButton).toBeVisible();
+    await expect(
+      body.getByRole("alertdialog", { name: /confirm delete/i })
+    ).toBeVisible();
+    await expect(body.getByText("Delete this invoice?")).toBeVisible();
+
+    await userEvent.click(body.getByRole("button", { name: "Cancel" }));
+    await expect(
+      body.queryByRole("alertdialog", { name: /confirm delete/i })
+    ).not.toBeInTheDocument();
   },
 };
 
@@ -67,4 +77,12 @@ export const MenuAction: Story = {
       />
     </MetadataUiStoryFrame>
   ),
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    const moreButton = canvas.getByRole("button", { name: "More" });
+
+    await expect(moreButton).toHaveAttribute("aria-haspopup", "menu");
+    await userEvent.click(moreButton);
+    await expect(moreButton).toHaveFocus();
+  },
 };

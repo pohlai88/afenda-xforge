@@ -24,6 +24,7 @@ import {
   TooltipTrigger,
 } from "@repo/ui";
 import type { Meta, StoryObj } from "@storybook/react";
+import { expect, userEvent, within } from "storybook/test";
 
 const meta = {
   title: "UI/Primitives/Overlay",
@@ -54,6 +55,21 @@ export const OpenDialog: Story = {
       </DialogContent>
     </Dialog>
   ),
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    const body = within(canvasElement.ownerDocument.body);
+    const openButton = canvas.getByRole("button", { name: "Open dialog" });
+
+    await userEvent.click(openButton);
+    await expect(
+      body.getByRole("dialog", { name: "Confirm update" })
+    ).toBeVisible();
+
+    await userEvent.keyboard("{Escape}");
+    await expect(
+      body.queryByRole("dialog", { name: "Confirm update" })
+    ).not.toBeInTheDocument();
+  },
 };
 
 export const ConfirmAlertDialog: Story = {

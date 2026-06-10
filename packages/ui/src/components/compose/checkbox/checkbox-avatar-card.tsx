@@ -15,7 +15,10 @@ export function CheckboxAvatarCard() {
         <div className="grid gap-3">
           <div className="flex items-center gap-3 rounded-lg border border-border/70 p-3">
             <Avatar size="sm">
-              <AvatarImage src="https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=80&h=80&fit=crop&crop=faces" />
+              <AvatarImage
+                alt="Amelia Morgan"
+                src="https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=80&h=80&fit=crop&crop=faces"
+              />
               <AvatarFallback>AM</AvatarFallback>
             </Avatar>
             <div className="min-w-0 flex-1">
@@ -28,7 +31,10 @@ export function CheckboxAvatarCard() {
           </div>
           <div className="flex items-center gap-3 rounded-lg border border-border/70 p-3">
             <Avatar size="sm">
-              <AvatarImage src="https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=80&h=80&fit=crop&crop=faces" />
+              <AvatarImage
+                alt="Jordan Smith"
+                src="https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=80&h=80&fit=crop&crop=faces"
+              />
               <AvatarFallback>JS</AvatarFallback>
             </Avatar>
             <div className="min-w-0 flex-1">

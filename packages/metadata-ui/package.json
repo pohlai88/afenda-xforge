@@ -38,6 +38,10 @@
     "check:keyboard-focus": "tsx scripts/check-keyboard-focus.mts",
     "check:locale-formatting": "tsx scripts/check-locale-formatting.mts",
     "check:density-visual": "tsx scripts/check-density-visual.mts",
+    "check:content-length": "tsx scripts/check-content-length.mts",
+    "check:reduced-motion": "tsx scripts/check-reduced-motion.mts",
+    "check:surface-visual": "tsx scripts/check-surface-visual.mts",
+    "check:diagnostics-visual": "tsx scripts/check-diagnostics-visual.mts",
     "check:action-visual-states": "tsx scripts/check-action-visual-states.mts",
     "check:visual-states": "tsx scripts/check-visual-states.mts",
     "check:generated": "tsx scripts/generate.mts --check",
@@ -53,7 +57,7 @@
     "test:render": "vitest run tests/public-api-consumer.render.test.tsx",
     "typecheck": "tsc --noEmit --emitDeclarationOnly false",
     "update:declaration-snapshot": "tsx scripts/update-declaration-snapshot.mts",
-    "verify": "pnpm run generate && pnpm run typecheck && pnpm run lint && pnpm run build && pnpm run test && pnpm run check:boundaries && pnpm run check:public-api && pnpm run check:declaration-snapshot && pnpm run check:change-note && pnpm run check:telemetry-schema && pnpm run check:consumer-fixture && pnpm run check:generated && pnpm run check:compose-groups && pnpm run check:field-visual-tokens && pnpm run check:field-a11y && pnpm run check:keyboard-focus && pnpm run check:locale-formatting && pnpm run check:density-visual && pnpm run check:visual-states && pnpm run check:action-visual-states && pnpm run check:quality-score"
+    "verify": "pnpm run generate && pnpm run typecheck && pnpm run lint && pnpm run build && pnpm run test && pnpm run check:boundaries && pnpm run check:public-api && pnpm run check:declaration-snapshot && pnpm run check:change-note && pnpm run check:telemetry-schema && pnpm run check:consumer-fixture && pnpm run check:generated && pnpm run check:compose-groups && pnpm run check:field-visual-tokens && pnpm run check:field-a11y && pnpm run check:keyboard-focus && pnpm run check:locale-formatting && pnpm run check:density-visual && pnpm run check:content-length && pnpm run check:reduced-motion && pnpm run check:surface-visual && pnpm run check:diagnostics-visual && pnpm run check:visual-states && pnpm run check:action-visual-states && pnpm run check:quality-score"
   },
   "dependencies": {
     "@repo/customization": "workspace:*",

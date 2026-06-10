@@ -17,9 +17,18 @@ import { emitMetadataTelemetry } from "../adapters/telemetry";
 import type { MetadataDiagnostic } from "../contracts/diagnostics.contract";
 import type { MetadataRenderContext } from "../contracts/render-context.contract";
 import { createMetadataRenderContext } from "../contracts/render-context.defaults";
+import {
+  resolveSurfaceKindProps,
+  resolveSurfaceShellClassName,
+} from "../visualization/surface-visual-contract";
 import { ActivityTable } from "./activity-table";
+import { composeMetadataWithDiagnostics } from "./compose-metadata-with-diagnostics";
 import { renderMetadataTableCell } from "./metadata-cell-renderers";
+import { MetadataSurfaceRegion } from "./metadata-surface-region";
 import { MetadataToolbar } from "./metadata-toolbar";
+
+const cn = (...values: Array<string | false | null | undefined>): string =>
+  values.filter(Boolean).join(" ");
 
 type MetadataToolbarBadge = {
   label: string;
@@ -233,7 +242,11 @@ export function renderMetadataTableResult({
 
   return {
     diagnostics,
-    element,
+    element: composeMetadataWithDiagnostics(
+      resolvedContext,
+      element,
+      diagnostics
+    ),
   };
 }
 
@@ -325,7 +338,13 @@ export function renderMetadataPanelResult({
   });
 
   const element = (
-    <Card className="overflow-hidden border-border bg-card/95 shadow-sm">
+    <Card
+      className={cn(
+        "overflow-hidden border-border bg-card/95 shadow-sm",
+        resolveSurfaceShellClassName("list")
+      )}
+      {...resolveSurfaceKindProps("list")}
+    >
       <CardHeader className="gap-3 pb-4">
         <MetadataToolbar
           badges={
@@ -376,13 +395,18 @@ export function renderMetadataPanelResult({
             resolvedMetadata.description ??
             `Metadata-driven ${summary.labels.plural.toLowerCase()} surface with tenant-ready search, sorting, and state handling.`
           }
+          surfaceKind="list"
           title={title ?? resolvedMetadata.title ?? summary.labels.plural}
         />
       </CardHeader>
 
       <Separator />
 
-      <CardContent className="p-0">{tableResult.element}</CardContent>
+      <CardContent className="p-0">
+        <MetadataSurfaceRegion kind="list" region="primary">
+          {tableResult.element}
+        </MetadataSurfaceRegion>
+      </CardContent>
     </Card>
   );
 
@@ -400,7 +424,11 @@ export function renderMetadataPanelResult({
 
   return {
     diagnostics: tableResult.diagnostics,
-    element,
+    element: composeMetadataWithDiagnostics(
+      resolvedContext,
+      element,
+      tableResult.diagnostics
+    ),
   };
 }
 

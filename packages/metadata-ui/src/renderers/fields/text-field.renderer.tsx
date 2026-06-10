@@ -2,6 +2,7 @@ import { Badge, Input } from "@repo/ui";
 import type { ReactElement } from "react";
 
 import type { MetadataFieldRendererProps } from "../../contracts/field-renderer.contract";
+import { resolveMetadataDisplayValue } from "../../visualization/content-length-visual-contract";
 import {
   resolveFieldControlClassName,
   resolveFieldVisualState,
@@ -32,7 +33,9 @@ export function TextFieldRenderer(
           id={visualState.controlId}
           variant="secondary"
         >
-          {resolvedValue || field.placeholder || "—"}
+          {resolveMetadataDisplayValue(
+            resolvedValue.trim() ? resolvedValue : field.placeholder
+          )}
         </Badge>
       </MetadataFieldShell>
     );

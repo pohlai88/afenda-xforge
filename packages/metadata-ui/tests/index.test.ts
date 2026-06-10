@@ -1,3 +1,7 @@
+import "./diagnostics-visual-states.test.tsx";
+import "./surface-visual-states.test.tsx";
+import "./motion-visual-states.test.tsx";
+import "./content-length-visual-states.test.tsx";
 import "./density-visual-states.test.tsx";
 import "./field-visual-states.test.tsx";
 import "./field-a11y-states.test.tsx";

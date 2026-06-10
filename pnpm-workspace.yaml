@@ -36,6 +36,7 @@ catalog:
   "@t3-oss/env-nextjs": ^0.13.10
   "@turbo/gen": ^2.8.14
   "@storybook/addon-a11y": ^10.4.3
+  "@storybook/addon-docs": ^10.4.3
   "@storybook/react": ^10.4.3
   "@storybook/react-vite": ^10.4.3
   "@storybook/test-runner": ^0.24.4

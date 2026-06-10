@@ -1,8 +1,13 @@
+export { composeMetadataWithDiagnostics } from "./compose-metadata-with-diagnostics";
 export {
   renderMetadataStatus,
   renderMetadataTableCell,
   resolveStatusTone,
 } from "./metadata-cell-renderers";
+export {
+  MetadataDiagnosticsCorrelationFooter,
+  MetadataDiagnosticsPanel,
+} from "./metadata-diagnostics-panel";
 export {
   MetadataForm,
   type MetadataFormRenderResult,
@@ -14,6 +19,8 @@ export {
   type MetadataStateBoundaryRenderResult,
   renderMetadataStateBoundaryResult,
 } from "./metadata-state-boundary";
+export { MetadataSurface } from "./metadata-surface";
+export { MetadataSurfaceRegion } from "./metadata-surface-region";
 export {
   EntityMetadataPanel,
   EntityMetadataTable,

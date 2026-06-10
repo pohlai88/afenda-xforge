@@ -1,6 +1,7 @@
 import type { MetadataFieldContract } from "../contracts/field-renderer.contract";
 import type { MetadataRenderContext } from "../contracts/render-context.contract";
 import type { FieldVisualState } from "../renderers/fields/field-visual-state";
+import { resolveMetadataFormattedDisplayValue } from "../visualization/content-length-visual-contract";
 
 export type MetadataFormattingContext = Pick<
   MetadataRenderContext,
@@ -170,11 +171,17 @@ export function formatMetadataTableCellValue(
 
   switch (kind) {
     case "money":
-      return formatMetadataMoney(value, formatting, field);
+      return resolveMetadataFormattedDisplayValue(
+        formatMetadataMoney(value, formatting, field)
+      );
     case "number":
-      return formatMetadataNumber(value, formatting);
+      return resolveMetadataFormattedDisplayValue(
+        formatMetadataNumber(value, formatting)
+      );
     case "date":
-      return formatMetadataDate(value, formatting);
+      return resolveMetadataFormattedDisplayValue(
+        formatMetadataDate(value, formatting)
+      );
     default:
       return null;
   }

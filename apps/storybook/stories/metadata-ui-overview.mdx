@@ -1,0 +1,46 @@
+import { Meta } from "@storybook/addon-docs/blocks";
+
+<Meta title="Metadata UI/Overview" />
+
+# Metadata UI in Storybook
+
+This workspace documents the public `@repo/metadata-ui` rendering boundary: manifest-backed
+field, action, section, and state renderers composed into product surfaces.
+
+## Renderer families
+
+| Family | Manifest source | Storybook path |
+| --- | --- | --- |
+| Fields | `metadata-ui.manifest.ts` field kinds | **Metadata UI / Fields** |
+| Actions | action surfaces (`button`, `destructive`, `menu`) | **Metadata UI / Actions** |
+| Sections | section layout kinds | **Metadata UI / Sections** |
+| States | async / permission / validation states | **Metadata UI / States** |
+| Integration | form + table + state boundary | **Metadata UI / Smoke** |
+
+## Compose groups
+
+Each manifest renderer maps to a `composeGroup` in `@repo/ui`. Browse rendered patterns under:
+
+- **UI / Compose / Form** — data-entry and action galleries
+- **UI / Compose / Data** — data-display and visualization galleries
+- **UI / Compose / Navigation** — navigation galleries
+- **UI / Compose / Feedback** — feedback, interaction, and layout galleries
+- **UI / Compose Registry** — readiness, metadata roles, and pattern counts
+
+## Visualization gates (MUI-VIS)
+
+Functional visualization requirements live in
+`packages/metadata-ui/architecture-and-feature-requirement.md` (visualization gates:
+`MUI-VIS-001` through `MUI-VIS-012`). Storybook is the visual verification layer for:
+
+- **MUI-VIS-002** — field visual states (default, disabled, readonly, error, focus-visible)
+- **MUI-VIS-003** — distinct state renderer tones
+- **MUI-VIS-004** — action surface differentiation and destructive confirmation
+- **MUI-VIS-005** — label, control, and error associations
+
+Run `pnpm --filter storybook test:stories` to enforce axe gates on Metadata UI and promoted compose galleries.
+
+## Fixtures
+
+Generated fixtures from `@repo/metadata-ui/fixtures` align stories with manifest keys so visual review
+matches production registry resolution without importing private package internals.

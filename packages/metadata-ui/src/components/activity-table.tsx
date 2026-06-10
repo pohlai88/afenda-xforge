@@ -4,7 +4,6 @@ import type { DashboardTableRow, TableColumnMetadata } from "@repo/ui";
 import {
   Button,
   Input,
-  Skeleton,
   Table,
   TableBody,
   TableCaption,
@@ -31,10 +30,21 @@ import {
   METADATA_INTERACTIVE_ROW_CLASS,
 } from "../interaction/keyboard-focus-contract";
 import {
+  METADATA_TABLE_CELL_CONTENT_CLASS,
+  METADATA_TABLE_HEADER_LABEL_CLASS,
+  resolveMetadataDisplayValue,
+} from "../visualization/content-length-visual-contract";
+import {
   resolveDensitySurfaceProps,
   resolveFieldControlDensityClassName,
   resolveTableRowDensityClassName,
 } from "../visualization/density-visual-contract";
+import {
+  resolveSurfaceKindProps,
+  resolveSurfaceShellClassName,
+} from "../visualization/surface-visual-contract";
+import { MetadataMotionSkeleton } from "./metadata-motion-skeleton";
+import { MetadataSurfaceRegion } from "./metadata-surface-region";
 import { StatePanel } from "./state-panel";
 
 type SortOrder = "asc" | "desc" | null;
@@ -106,7 +116,7 @@ const formatCellValue = (
     return value ? "true" : "false";
   }
 
-  return String(value ?? "-");
+  return resolveMetadataDisplayValue(value);
 };
 
 const inferColumnKind = (key: string): TableColumnMetadata["kind"] => {
@@ -345,7 +355,7 @@ export function ActivityTable({
       >
         <div className="grid gap-3">
           {SKELETON_KEYS.map((key) => (
-            <Skeleton className="h-10 w-full" key={key} />
+            <MetadataMotionSkeleton className="h-10 w-full" key={key} />
           ))}
         </div>
       </StatePanel>
@@ -364,119 +374,151 @@ export function ActivityTable({
 
   return (
     <div
-      className={cn(surface === "contained" && "space-y-4", "w-full")}
+      className={cn(
+        surface === "contained" && "space-y-4",
+        "w-full",
+        surface !== "embedded" && resolveSurfaceShellClassName("list")
+      )}
       {...resolveDensitySurfaceProps(density)}
+      {...(surface === "embedded" ? {} : resolveSurfaceKindProps("list"))}
     >
-      {showSearch ? (
-        <div className="flex items-center gap-3">
-          <Input
-            aria-label={searchAriaLabel}
-            className={cn(
-              "max-w-sm",
-              resolveFieldControlDensityClassName(density)
-            )}
-            onChange={(event: ChangeEvent<HTMLInputElement>): void => {
-              setPage(1);
-              setQuery(event.target.value);
-            }}
-            placeholder={searchPlaceholder}
-            value={query}
-          />
-        </div>
-      ) : null}
+      <MetadataSurfaceRegion kind="list" region="primary">
+        {showSearch ? (
+          <MetadataSurfaceRegion kind="list" region="filters">
+            <div className="flex items-center gap-3">
+              <Input
+                aria-label={searchAriaLabel}
+                className={cn(
+                  "max-w-sm",
+                  resolveFieldControlDensityClassName(density)
+                )}
+                onChange={(event: ChangeEvent<HTMLInputElement>): void => {
+                  setPage(1);
+                  setQuery(event.target.value);
+                }}
+                placeholder={searchPlaceholder}
+                value={query}
+              />
+            </div>
+          </MetadataSurfaceRegion>
+        ) : null}
 
-      <div className="overflow-x-auto">
-        <Table>
-          <TableCaption>
-            Page {page} of {totalPages}
-          </TableCaption>
-          <TableHeader>
-            <TableRow>
-              {resolvedColumns.map((column) => (
-                <TableHead
-                  aria-sort={getAriaSort(column.key, sortColumn, sortOrder)}
-                  key={column.key}
-                >
-                  <Button
-                    aria-label={resolveSortLabel(column)}
-                    className="h-auto px-1 font-medium"
-                    onClick={(): void => handleSort(column.key)}
-                    size="sm"
-                    type="button"
-                    variant="ghost"
-                  >
-                    {column.label}
-                    {renderSortIcon(column.key)}
-                  </Button>
-                </TableHead>
-              ))}
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {pagedRows.map((row) => {
-              const rowIsInteractive = Boolean(onRowClick);
-              const activateRow = (): void => {
-                onRowClick?.(row);
-              };
-
-              return (
-                <TableRow
-                  className={cn(
-                    resolveTableRowDensityClassName(),
-                    rowIsInteractive && METADATA_INTERACTIVE_ROW_CLASS
-                  )}
-                  key={row.id}
-                  onClick={rowIsInteractive ? activateRow : undefined}
-                  onKeyDown={
-                    rowIsInteractive
-                      ? (event: KeyboardEvent<HTMLTableRowElement>): void => {
-                          handleKeyboardActivation(event, activateRow);
-                        }
-                      : undefined
-                  }
-                  role={rowIsInteractive ? "button" : undefined}
-                  tabIndex={rowIsInteractive ? 0 : undefined}
-                >
-                  {resolvedColumns.map((column) => {
-                    const value = row[column.key];
-                    const rendered = renderCell?.(column, value, row);
-
-                    return (
-                      <TableCell key={`${row.id}-${column.key}`}>
-                        {rendered ??
-                          formatCellValue(value, column, locale, timezone)}
-                      </TableCell>
-                    );
-                  })}
+        <MetadataSurfaceRegion kind="list" region="data-grid">
+          <div className="overflow-x-auto">
+            <Table>
+              <TableCaption>
+                Page {page} of {totalPages}
+              </TableCaption>
+              <TableHeader>
+                <TableRow>
+                  {resolvedColumns.map((column) => (
+                    <TableHead
+                      aria-sort={getAriaSort(column.key, sortColumn, sortOrder)}
+                      key={column.key}
+                    >
+                      <Button
+                        aria-label={resolveSortLabel(column)}
+                        className="h-auto max-w-[12rem] px-1 font-medium"
+                        onClick={(): void => handleSort(column.key)}
+                        size="sm"
+                        type="button"
+                        variant="ghost"
+                      >
+                        <span
+                          className={METADATA_TABLE_HEADER_LABEL_CLASS}
+                          title={column.label}
+                        >
+                          {column.label}
+                        </span>
+                        {renderSortIcon(column.key)}
+                      </Button>
+                    </TableHead>
+                  ))}
                 </TableRow>
-              );
-            })}
-          </TableBody>
-        </Table>
-      </div>
+              </TableHeader>
+              <TableBody>
+                {pagedRows.map((row) => {
+                  const rowIsInteractive = Boolean(onRowClick);
+                  const activateRow = (): void => {
+                    onRowClick?.(row);
+                  };
 
-      {totalPages > 1 ? (
-        <div className="flex items-center justify-end gap-2">
-          <Button
-            disabled={page === 1}
-            onClick={(): void => setPage((current) => current - 1)}
-            size="sm"
-            type="button"
-            variant="outline"
-          >
-            Previous
-          </Button>
-          <Button
-            disabled={page === totalPages}
-            onClick={(): void => setPage((current) => current + 1)}
-            size="sm"
-            type="button"
-            variant="outline"
-          >
-            Next
-          </Button>
-        </div>
-      ) : null}
+                  return (
+                    <TableRow
+                      className={cn(
+                        resolveTableRowDensityClassName(),
+                        rowIsInteractive && METADATA_INTERACTIVE_ROW_CLASS
+                      )}
+                      key={row.id}
+                      onClick={rowIsInteractive ? activateRow : undefined}
+                      onKeyDown={
+                        rowIsInteractive
+                          ? (
+                              event: KeyboardEvent<HTMLTableRowElement>
+                            ): void => {
+                              handleKeyboardActivation(event, activateRow);
+                            }
+                          : undefined
+                      }
+                      role={rowIsInteractive ? "button" : undefined}
+                      tabIndex={rowIsInteractive ? 0 : undefined}
+                    >
+                      {resolvedColumns.map((column) => {
+                        const value = row[column.key];
+                        const rendered = renderCell?.(column, value, row);
+                        const cellDisplayValue = formatCellValue(
+                          value,
+                          column,
+                          locale,
+                          timezone
+                        );
+
+                        return (
+                          <TableCell key={`${row.id}-${column.key}`}>
+                            {rendered ?? (
+                              <span
+                                className={METADATA_TABLE_CELL_CONTENT_CLASS}
+                                title={cellDisplayValue}
+                              >
+                                {cellDisplayValue}
+                              </span>
+                            )}
+                          </TableCell>
+                        );
+                      })}
+                    </TableRow>
+                  );
+                })}
+              </TableBody>
+            </Table>
+          </div>
+        </MetadataSurfaceRegion>
+
+        {totalPages > 1 ? (
+          <MetadataSurfaceRegion kind="list" region="pagination">
+            <div className="flex items-center justify-end gap-2">
+              <Button
+                disabled={page === 1}
+                onClick={(): void => setPage((current) => current - 1)}
+                size="sm"
+                type="button"
+                variant="outline"
+              >
+                Previous
+              </Button>
+              <Button
+                disabled={page === totalPages}
+                onClick={(): void => setPage((current) => current + 1)}
+                size="sm"
+                type="button"
+                variant="outline"
+              >
+                Next
+              </Button>
+            </div>
+          </MetadataSurfaceRegion>
+        ) : null}
+      </MetadataSurfaceRegion>
     </div>
   );
 }

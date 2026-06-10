@@ -14,6 +14,13 @@ import {
   resolveDensitySurfaceProps,
   resolveDensityVisualDefinition,
 } from "../visualization/density-visual-contract";
+import {
+  resolveSurfaceKindProps,
+  resolveSurfaceShellClassName,
+} from "../visualization/surface-visual-contract";
+
+const cn = (...values: Array<string | false | null | undefined>): string =>
+  values.filter(Boolean).join(" ");
 
 export type MetadataRenderableSection = MetadataSectionContract<
   EntityMetadata,
@@ -52,8 +59,12 @@ export function MetadataSectionStack<
 
   return (
     <div
-      className={densityVisual.stackSpacing}
+      className={cn(
+        densityVisual.stackSpacing,
+        resolveSurfaceShellClassName("detail")
+      )}
       {...resolveDensitySurfaceProps(resolvedContext.density)}
+      {...resolveSurfaceKindProps("detail")}
     >
       {sections.map((section) => {
         const renderedSection = renderMetadataSection({

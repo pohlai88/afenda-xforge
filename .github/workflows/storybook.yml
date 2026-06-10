@@ -48,3 +48,45 @@ jobs:
 
       - name: Build Storybook
         run: pnpm --filter storybook check:build
+
+      - name: Storybook scorecard
+        run: pnpm --filter storybook scorecard
+
+      - name: Install Playwright Chromium
+        run: pnpm --filter storybook pretest:browser
+
+      - name: Story interaction tests
+        run: pnpm --filter storybook test:stories
+
+  visual-regression:
+    name: Storybook visual regression
+    runs-on: ubuntu-latest
+    # Nightly-style gate; does not block PR merges on snapshot drift during iteration.
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Enable Corepack
+        run: corepack enable
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 10.0.0
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: pnpm
+
+      - name: Install
+        run: pnpm install --frozen-lockfile
+
+      - name: Install Playwright Chromium
+        run: pnpm --filter storybook pretest:browser
+
+      - name: Visual regression
+        run: pnpm --filter storybook test:visual

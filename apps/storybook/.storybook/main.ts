@@ -6,8 +6,11 @@ const storybookDirectory = dirname(fileURLToPath(import.meta.url));
 const monorepoRoot = join(storybookDirectory, "../../..");
 
 const config: StorybookConfig = {
-  stories: ["../stories/**/*.stories.@(ts|tsx)"],
-  addons: ["@storybook/addon-a11y"],
+  stories: [
+    "../stories/**/*.mdx",
+    "../stories/**/*.stories.@(ts|tsx)",
+  ],
+  addons: ["@storybook/addon-a11y", "@storybook/addon-docs"],
   framework: {
     name: "@storybook/react-vite",
     options: {},
@@ -16,9 +19,27 @@ const config: StorybookConfig = {
     disableTelemetry: true,
   },
   typescript: {
-    // Workspace packages are outside this app's TS project; keep docgen off to
-    // avoid scanning the full ui/metadata-ui graphs on every dev/build cycle.
-    reactDocgen: false,
+    reactDocgen: "react-docgen-typescript",
+    reactDocgenTypescriptOptions: {
+      tsconfigPath: "./tsconfig.json",
+      propFilter: (prop) => {
+        if (!prop.parent) {
+          return true;
+        }
+
+        const fileName = prop.parent.fileName.replace(/\\/g, "/");
+
+        if (/node_modules/.test(fileName)) {
+          return false;
+        }
+
+        if (/packages\/(ui|metadata-ui)/.test(fileName)) {
+          return false;
+        }
+
+        return /apps\/storybook\/stories/.test(fileName);
+      },
+    },
   },
   viteFinal: (config) => {
     config.optimizeDeps = {

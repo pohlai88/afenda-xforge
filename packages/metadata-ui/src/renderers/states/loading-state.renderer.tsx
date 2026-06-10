@@ -1,6 +1,6 @@
-import { Skeleton } from "@repo/ui";
 import type { ReactElement } from "react";
 
+import { MetadataMotionSkeleton } from "../../components/metadata-motion-skeleton";
 import type { MetadataStateRenderer } from "../../contracts/state-renderer.contract";
 import { MetadataStateShell } from "./metadata-state-shell";
 
@@ -20,9 +20,9 @@ export function LoadingState({
       title={title}
     >
       <div className="grid gap-2">
-        <Skeleton className="h-4 w-2/3" />
-        <Skeleton className="h-4 w-full" />
-        <Skeleton className="h-4 w-5/6" />
+        <MetadataMotionSkeleton className="h-4 w-2/3" />
+        <MetadataMotionSkeleton className="h-4 w-full" />
+        <MetadataMotionSkeleton className="h-4 w-5/6" />
       </div>
     </MetadataStateShell>
   );

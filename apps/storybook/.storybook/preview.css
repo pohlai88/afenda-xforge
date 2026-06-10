@@ -5,5 +5,3 @@
 @source "../../packages/ui/src/components/**/*.{ts,tsx}";
 @source "../../packages/ui/src/lib/**/*.{ts,tsx}";
 @source "../../packages/ui/src/index.ts";
-@source "../../packages/metadata-ui/**/*.{ts,tsx}";
-@source "../../packages/metadata-ui/index.tsx";

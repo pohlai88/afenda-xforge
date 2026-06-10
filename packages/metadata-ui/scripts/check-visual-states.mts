@@ -98,9 +98,11 @@ function collectRendererViolations(
 
   if (
     fileName === "loading-state.renderer.tsx" &&
-    !source.includes("Skeleton")
+    !source.includes("MetadataMotionSkeleton")
   ) {
-    violations.push(`${relativePath}: loading state must render Skeleton`);
+    violations.push(
+      `${relativePath}: loading state must render MetadataMotionSkeleton (MUI-VIS-003/MUI-VIS-010)`
+    );
   }
 
   return violations;

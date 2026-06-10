@@ -1,5 +1,5 @@
-import { Badge } from "@repo/ui/components/badge";
-import { Button } from "@repo/ui/components/button";
+import type { Meta, StoryObj } from "@storybook/react";
+
 import {
   Card,
   CardContent,
@@ -7,45 +7,60 @@ import {
   CardHeader,
   CardTitle,
 } from "@repo/ui/components/card";
+import { Button } from "@repo/ui/components/button";
 import { Input } from "@repo/ui/components/input";
 import { Label } from "@repo/ui/components/label";
-import type { Meta, StoryObj } from "@storybook/react";
+
+import {
+  PrimitiveBadgesMatrix,
+  PrimitiveButtonShowcase,
+  PrimitiveButtonsMatrix,
+} from "./ui-primitives-showcases";
 
 const meta = {
   title: "UI/Primitives/Actions",
+  component: PrimitiveButtonShowcase,
   parameters: {
     layout: "centered",
     a11y: { test: "error" as const },
   },
   tags: ["autodocs"],
-} satisfies Meta;
+  argTypes: {
+    variant: {
+      control: "select",
+      options: [
+        "default",
+        "secondary",
+        "outline",
+        "ghost",
+        "destructive",
+        "link",
+      ],
+      description: "Button visual variant",
+    },
+    disabled: { control: "boolean" },
+    label: { control: "text" },
+  },
+} satisfies Meta<typeof PrimitiveButtonShowcase>;
 
 export default meta;
 
 type Story = StoryObj<typeof meta>;
 
+export const ButtonDefault: Story = {
+  args: {
+    label: "Save",
+    variant: "default",
+    disabled: false,
+  },
+};
+
 export const Buttons: Story = {
-  render: () => (
-    <div className="flex flex-wrap items-center gap-3">
-      <Button>Default</Button>
-      <Button variant="secondary">Secondary</Button>
-      <Button variant="outline">Outline</Button>
-      <Button variant="ghost">Ghost</Button>
-      <Button variant="destructive">Destructive</Button>
-      <Button variant="link">Link</Button>
-    </div>
-  ),
+  render: () => <PrimitiveButtonsMatrix />,
 };
 
 export const Badges: Story = {
-  render: () => (
-    <div className="flex flex-wrap items-center gap-3">
-      <Badge>Default</Badge>
-      <Badge variant="secondary">Secondary</Badge>
-      <Badge variant="outline">Outline</Badge>
-      <Badge variant="destructive">Destructive</Badge>
-    </div>
-  ),
+  render: () => <PrimitiveBadgesMatrix />,
 };
 
 export const FormControls: Story = {

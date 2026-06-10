@@ -82,6 +82,38 @@ Use this file for package-local public API notes when the repo does not require 
 - Snapshot updated: Yes, `snapshots/declaration-snapshot.json`.
 - Follow-up: Run `pnpm --filter @repo/metadata-ui check:density-visual` when adding surfaces or modifying density-sensitive layout.
 
+## 2026-06-10 (MUI-VIS-009)
+
+- Date: 2026-06-10
+- Change: Implemented MUI-VIS-009 content-length visual contract end to end: shared empty display placeholder (`—`), truncation/clamp classes for table cells, headers, field labels/help, toolbar/form titles, long-content fixtures, and `check:content-length` with content-length tests.
+- Public impact: Long labels, values, and table cell content truncate or wrap safely; null/undefined/blank values render a consistent empty placeholder instead of breaking layout.
+- Snapshot updated: Yes, `snapshots/declaration-snapshot.json`.
+- Follow-up: Run `pnpm --filter @repo/metadata-ui check:content-length` when adding surfaces or display formatters.
+
+## 2026-06-10 (MUI-VIS-010)
+
+- Date: 2026-06-10
+- Change: Implemented MUI-VIS-010 reduced-motion visual contract end to end: `motion-visual-contract` token classes, `MetadataMotionSkeleton` wrapper, loader/spinner and destructive dialog motion wiring, and `check:reduced-motion` with motion safety tests.
+- Public impact: Metadata-ui animations honor `prefers-reduced-motion` via explicit `motion-reduce:*` classes; package-local lint forbids unsafe transition properties (`transition-all`, `transition-colors`, etc.).
+- Snapshot updated: Yes, `snapshots/declaration-snapshot.json`.
+- Follow-up: Run `pnpm --filter @repo/metadata-ui check:reduced-motion` when adding animated surfaces or custom transitions.
+
+## 2026-06-10 (MUI-VIS-011)
+
+- Date: 2026-06-10
+- Change: Implemented MUI-VIS-011 surface visual hierarchy end to end: `surface-visual-contract` matrix for all five surface kinds, `MetadataSurfaceRegion` + `MetadataSurface` renderer shell, hierarchy wiring in toolbar/form/panel/table/section stack/section renderer, and `check:surface-visual` with surface hierarchy tests.
+- Public impact: Metadata surfaces declare `data-surface-kind` and `data-surface-region` markers enforcing title → description → primary content → secondary actions. New exports: `MetadataSurface`, `MetadataSurfaceRegion`, optional `surfaceKind` on `MetadataToolbar`.
+- Snapshot updated: Yes, `snapshots/declaration-snapshot.json`.
+- Follow-up: Run `pnpm --filter @repo/metadata-ui check:surface-visual` when adding surfaces or changing layout hierarchy. Full layout/composition renderer pipelines remain MUI-015.
+
+## 2026-06-10 (MUI-VIS-012)
+
+- Date: 2026-06-10
+- Change: Implemented MUI-VIS-012 diagnostics visibility end to end: `diagnostics-visual-contract`, `MetadataDiagnosticsPanel`, `composeMetadataWithDiagnostics`, fallback correlation footers on `ErrorState`, orchestrator wiring in form/table/panel/state adapter, and `check:diagnostics-visual` with diagnostics visibility tests.
+- Public impact: When `diagnosticsEnabled` is true, metadata surfaces render a visually distinct diagnostics panel with correlation ID and UI-visible warning/error entries; fallback error surfaces expose dashed diagnostic styling and correlation footers.
+- Snapshot updated: Yes, `snapshots/declaration-snapshot.json`.
+- Follow-up: Run `pnpm --filter @repo/metadata-ui check:diagnostics-visual` when changing fallback or diagnostics surfacing behavior.
+
 ## Entry template
 
 - Date:

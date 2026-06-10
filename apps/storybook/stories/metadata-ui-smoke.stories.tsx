@@ -10,6 +10,7 @@ import {
   MetadataStateBoundary,
 } from "@repo/metadata-ui";
 import type { Meta, StoryObj } from "@storybook/react";
+import { expect, userEvent, within } from "storybook/test";
 
 const invoiceMetadata: EntityMetadata = {
   entity: "invoice",
@@ -189,4 +190,44 @@ export default meta;
 
 type Story = StoryObj<typeof meta>;
 
-export const Overview: Story = {};
+export const Overview: Story = {
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    const body = within(canvasElement.ownerDocument.body);
+
+    const search = canvas.getByRole("textbox", { name: /search invoices/i });
+    const customerSort = canvas.getByRole("button", {
+      name: /sort by customer/i,
+    });
+    const nextButton = canvas.getByRole("button", { name: "Next" });
+    const previousButton = canvas.getByRole("button", { name: "Previous" });
+    const customerHeader = customerSort.closest("th");
+
+    await expect(search).toBeVisible();
+    await expect(customerHeader).toHaveAttribute("aria-sort", "ascending");
+
+    await userEvent.click(nextButton);
+    await expect(canvas.getByText("Soylent")).toBeVisible();
+
+    await userEvent.click(previousButton);
+    await expect(canvas.getByText("Acme")).toBeVisible();
+
+    await userEvent.clear(search);
+    await userEvent.type(search, "Globex");
+    await expect(canvas.getByText("Globex")).toBeVisible();
+    await expect(canvas.queryByText("Acme")).not.toBeInTheDocument();
+
+    await userEvent.clear(search);
+    await userEvent.click(customerSort);
+    if (customerHeader) {
+      await expect(customerHeader).toHaveAttribute("aria-sort", "descending");
+    }
+
+    await userEvent.click(customerSort);
+    if (customerHeader) {
+      await expect(customerHeader).toHaveAttribute("aria-sort", "none");
+    }
+
+    await expect(body.getByRole("heading", { name: "Profile" })).toBeVisible();
+  },
+};

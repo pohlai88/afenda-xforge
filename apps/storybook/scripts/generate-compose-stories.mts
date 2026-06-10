@@ -1,6 +1,8 @@
 import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
+import { composeRegistryGroups } from "@repo/ui";
+import type { ComposeComponentKind } from "@repo/ui/components/compose/compose.contract";
 
 function toStoryExportName(name: string): string {
   return name
@@ -9,88 +11,90 @@ function toStoryExportName(name: string): string {
     .join("");
 }
 
-const galleries = [
-  "accordion",
-  "alert",
-  "alert-dialog",
-  "aspect-ratio",
-  "autocomplete",
-  "avatar",
-  "badge",
-  "breadcrumb",
-  "button",
-  "button-group",
-  "card",
-  "chart",
-  "checkbox",
-  "collapsible",
-  "combobox",
-  "command",
-  "data-grid",
-  "date-selector",
-  "dropdown-menu",
-  "empty",
-  "field",
-  "file-upload",
-  "filters",
-  "frame",
-  "input-group",
-  "kanban",
-  "line-chart",
-  "number-field",
-  "phone-input",
-  "rating",
-  "scrollspy",
-  "sheet",
-  "skeleton",
-  "sortable",
-  "spinner",
-  "statistic-card",
-  "stepper",
-  "tabs",
-  "timeline",
-  "tree",
+const categories: Array<{
+  file: string;
+  title: string;
+  kinds: readonly ComposeComponentKind[];
+}> = [
+  {
+    file: "ui-compose-form.stories.tsx",
+    title: "UI/Compose/Form",
+    kinds: ["data-entry", "action"],
+  },
+  {
+    file: "ui-compose-data.stories.tsx",
+    title: "UI/Compose/Data",
+    kinds: ["data-display", "visualization"],
+  },
+  {
+    file: "ui-compose-navigation.stories.tsx",
+    title: "UI/Compose/Navigation",
+    kinds: ["navigation"],
+  },
+  {
+    file: "ui-compose-feedback.stories.tsx",
+    title: "UI/Compose/Feedback",
+    kinds: ["feedback", "interaction", "layout"],
+  },
 ];
 
-const imports = galleries
-  .map((name) => {
-    const exportName = `${toStoryExportName(name)}ComposeGallery`;
-    return exportName;
-  })
-  .join(",\n  ");
+const storiesDir = path.resolve(
+  path.dirname(fileURLToPath(import.meta.url)),
+  "../stories"
+);
 
-const stories = galleries
-  .map((name) => {
-    const exportName = toStoryExportName(name);
-    const gallery = `${exportName}ComposeGallery`;
-    return `export const ${exportName}: Story = galleryStory(${gallery});`;
-  })
-  .join("\n");
+const legacyMonolith = path.join(storiesDir, "ui-compose-galleries.stories.tsx");
 
-const content = `import {
-  ${imports},
-} from "@repo/ui/components/compose/previews";
+/** Manifest-priority compose groups promoted to CI a11y gates after @repo/ui fixes. */
+const A11Y_ERROR_GROUPS = new Set([
+  "button",
+  "checkbox",
+  "field",
+  "dropdown-menu",
+  "card",
+  "tabs",
+  "empty",
+  "skeleton",
+]);
+
+function galleryImportPath(name: string, exportName: string): string {
+  return `import { ${exportName} } from "../../../packages/ui/src/components/compose/${name}/${name}-gallery";`;
+}
+
+function generateCategoryFile(
+  file: string,
+  title: string,
+  kinds: readonly ComposeComponentKind[]
+): void {
+  const groups = composeRegistryGroups.filter((group) =>
+    kinds.includes(group.kind)
+  );
+
+  const imports = groups
+    .map((group) => {
+      const exportName = `${toStoryExportName(group.name)}ComposeGallery`;
+      return galleryImportPath(group.name, exportName);
+    })
+    .join("\n");
+
+  const stories = groups
+    .map((group) => {
+      const exportName = toStoryExportName(group.name);
+      const a11yTier = A11Y_ERROR_GROUPS.has(group.name) ? "error" : "todo";
+      return `export const ${exportName}: Story = galleryStory(${exportName}ComposeGallery, "${a11yTier}");`;
+    })
+    .join("\n");
+
+  const content = `${imports}
 import type { Meta, StoryObj } from "@storybook/react";
-import type { ComponentType, ReactNode } from "react";
 
-function GalleryFrame({ children }: { children: ReactNode }) {
-  return <div className="mx-auto w-full max-w-6xl p-6 md:p-10">{children}</div>;
-}
-
-function galleryStory(Gallery: ComponentType) {
-  return {
-    render: () => (
-      <GalleryFrame>
-        <Gallery />
-      </GalleryFrame>
-    ),
-  };
-}
+import { galleryStory } from "./ui-compose-story-utils";
 
 const meta = {
-  title: "UI/Compose",
+  title: "${title}",
   parameters: {
     layout: "fullscreen",
+    a11y: { test: "todo" as const },
   },
   tags: ["autodocs"],
 } satisfies Meta;
@@ -102,9 +106,16 @@ type Story = StoryObj<typeof meta>;
 ${stories}
 `;
 
-const out = path.resolve(
-  path.dirname(fileURLToPath(import.meta.url)),
-  "../stories/ui-compose-galleries.stories.tsx"
-);
-fs.writeFileSync(out, content);
-console.log(`wrote ${out}`);
+  const out = path.join(storiesDir, file);
+  fs.writeFileSync(out, content);
+  console.log(`wrote ${out} (${groups.length} galleries)`);
+}
+
+for (const category of categories) {
+  generateCategoryFile(category.file, category.title, category.kinds);
+}
+
+if (fs.existsSync(legacyMonolith)) {
+  fs.unlinkSync(legacyMonolith);
+  console.log(`removed ${legacyMonolith}`);
+}

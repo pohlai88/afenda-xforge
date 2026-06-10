@@ -22,8 +22,8 @@ function Introduction() {
           <div className="font-medium text-muted-foreground text-sm">UI</div>
           <h2 className="mt-2 font-semibold text-xl">Compose + primitives</h2>
           <p className="mt-3 text-muted-foreground text-sm leading-6">
-            40 compose galleries, registry reference table, and categorized
-            shadcn primitive stories.
+            40 compose galleries split by Form, Data, Navigation, and Feedback,
+            plus registry reference and shadcn primitive stories.
           </p>
         </article>
         <article className="rounded-[calc(var(--radius)+0.5rem)] border bg-card p-5 shadow-sm">

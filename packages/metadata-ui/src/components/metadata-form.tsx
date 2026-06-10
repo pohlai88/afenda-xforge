@@ -6,10 +6,20 @@ import type { MetadataFieldContract } from "../contracts/field-renderer.contract
 import type { MetadataRenderContext } from "../contracts/render-context.contract";
 import { createMetadataRenderContext } from "../contracts/render-context.defaults";
 import {
+  METADATA_FORM_DESCRIPTION_CLASS,
+  METADATA_FORM_TITLE_CLASS,
+} from "../visualization/content-length-visual-contract";
+import {
   resolveDensitySurfaceProps,
   resolveDensityVisualDefinition,
 } from "../visualization/density-visual-contract";
+import {
+  resolveSurfaceKindProps,
+  resolveSurfaceShellClassName,
+} from "../visualization/surface-visual-contract";
+import { composeMetadataWithDiagnostics } from "./compose-metadata-with-diagnostics";
 import { renderMetadataStateBoundaryResult } from "./metadata-state-boundary";
+import { MetadataSurfaceRegion } from "./metadata-surface-region";
 
 const cn = (...values: Array<string | false | null | undefined>): string =>
   values.filter(Boolean).join(" ");
@@ -75,7 +85,11 @@ export function renderMetadataFormResult({
 
     return {
       diagnostics: stateResult.diagnostics,
-      element: stateResult.element as ReactElement,
+      element: composeMetadataWithDiagnostics(
+        resolvedContext,
+        stateResult.element as ReactElement,
+        stateResult.diagnostics
+      ),
     };
   }
 
@@ -96,42 +110,76 @@ export function renderMetadataFormResult({
       })
     ) ?? [];
 
+  const diagnostics = [...fieldResults, ...actionResults].flatMap(
+    (result) => result.diagnostics
+  );
+
   return {
-    diagnostics: [...fieldResults, ...actionResults].flatMap(
-      (result) => result.diagnostics
-    ),
-    element: (
+    diagnostics,
+    element: composeMetadataWithDiagnostics(
+      resolvedContext,
       <form
-        className={densityVisual.formSpacing}
+        className={cn(
+          densityVisual.formSpacing,
+          resolveSurfaceShellClassName("form")
+        )}
         {...resolveDensitySurfaceProps(resolvedContext.density)}
+        {...resolveSurfaceKindProps("form")}
       >
         {title || description ? (
           <header className={densityVisual.sectionSpacing}>
             {title ? (
-              <h2 className={densityVisual.formTitleClass}>{title}</h2>
+              <MetadataSurfaceRegion kind="form" region="title">
+                <h2
+                  className={cn(
+                    densityVisual.formTitleClass,
+                    METADATA_FORM_TITLE_CLASS
+                  )}
+                  title={title}
+                >
+                  {title}
+                </h2>
+              </MetadataSurfaceRegion>
             ) : null}
             {description ? (
-              <p className="max-w-2xl text-muted-foreground text-sm leading-6">
-                {description}
-              </p>
+              <MetadataSurfaceRegion kind="form" region="description">
+                <p
+                  className={cn(
+                    "max-w-2xl text-muted-foreground text-sm leading-6",
+                    METADATA_FORM_DESCRIPTION_CLASS
+                  )}
+                  title={description}
+                >
+                  {description}
+                </p>
+              </MetadataSurfaceRegion>
             ) : null}
           </header>
         ) : null}
 
-        <div className={cn("grid md:grid-cols-2", densityVisual.formGridGap)}>
-          {fieldResults.map((result, index) => (
-            <div key={fields[index]?.key}>{result.element}</div>
-          ))}
-        </div>
+        <MetadataSurfaceRegion kind="form" region="primary">
+          <MetadataSurfaceRegion kind="form" region="field-groups">
+            <div
+              className={cn("grid md:grid-cols-2", densityVisual.formGridGap)}
+            >
+              {fieldResults.map((result, index) => (
+                <div key={fields[index]?.key}>{result.element}</div>
+              ))}
+            </div>
+          </MetadataSurfaceRegion>
+        </MetadataSurfaceRegion>
 
         {actionResults.length > 0 ? (
-          <div className="flex flex-wrap items-center gap-2">
-            {actionResults.map((result, index) => (
-              <div key={actions?.[index]?.key}>{result.element}</div>
-            ))}
-          </div>
+          <MetadataSurfaceRegion kind="form" region="secondary-actions">
+            <div className="flex flex-wrap items-center gap-2">
+              {actionResults.map((result, index) => (
+                <div key={actions?.[index]?.key}>{result.element}</div>
+              ))}
+            </div>
+          </MetadataSurfaceRegion>
         ) : null}
-      </form>
+      </form>,
+      diagnostics
     ),
   };
 }

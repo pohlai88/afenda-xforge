@@ -19,6 +19,7 @@ import type {
   MetadataActionRendererProps,
   MetadataActionSurface,
 } from "../../contracts/action-renderer.contract";
+import { METADATA_DIALOG_MOTION_CLASS } from "../../interaction/motion-visual-contract";
 import {
   requiresActionConfirmation,
   resolveActionConfirmationCopy,
@@ -123,7 +124,10 @@ function renderConfirmedAction(props: BaseActionRendererProps): ReactElement {
       <AlertDialogTrigger asChild>
         {renderActionTrigger(props, surface, true)}
       </AlertDialogTrigger>
-      <AlertDialogContent data-action-confirmation={surface}>
+      <AlertDialogContent
+        className={METADATA_DIALOG_MOTION_CLASS}
+        data-action-confirmation={surface}
+      >
         <AlertDialogHeader>
           <AlertDialogTitle>{confirmation.title}</AlertDialogTitle>
           <AlertDialogDescription>

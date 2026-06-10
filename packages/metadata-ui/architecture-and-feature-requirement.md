@@ -240,7 +240,7 @@ Source: [`metadata-ui.manifest.ts`](./metadata-ui.manifest.ts), [`README.md`](./
 
 ### Surface kind visual hierarchy
 
-From [`surface.contract.ts`](./src/contracts/surface.contract.ts) — specified but not yet implemented (MUI-015 / MUI-VIS-011):
+From [`surface.contract.ts`](./src/contracts/surface.contract.ts) — implemented via `surface-visual-contract` and surface region markers (MUI-VIS-011):
 
 | Surface kind | Visual hierarchy | Primary user task |
 | --- | --- | --- |
@@ -277,10 +277,10 @@ From [`surface.contract.ts`](./src/contracts/surface.contract.ts) — specified 
 | MUI-VIS-006 | **Implemented** | [`keyboard-focus-contract.ts`](./src/interaction/keyboard-focus-contract.ts), [`activity-table.tsx`](./src/components/activity-table.tsx), [`metadata-cell-renderers.tsx`](./src/components/metadata-cell-renderers.tsx), [`state-panel.tsx`](./src/components/state-panel.tsx), field/action renderers via `@repo/ui`, [`scripts/check-keyboard-focus.mts`](./scripts/check-keyboard-focus.mts), [`tests/keyboard-focus-states.test.tsx`](./tests/keyboard-focus-states.test.tsx) |
 | **MUI-VIS-007** | **Implemented** | [`metadata-value-formatter.ts`](./src/formatting/metadata-value-formatter.ts), number/money/date field renderers, [`metadata-cell-renderers.tsx`](./src/components/metadata-cell-renderers.tsx), [`activity-table.tsx`](./src/components/activity-table.tsx), [`scripts/check-locale-formatting.mts`](./scripts/check-locale-formatting.mts), [`tests/locale-formatting.test.tsx`](./tests/locale-formatting.test.tsx) |
 | MUI-VIS-008 | **Implemented** | [`density-visual-contract.ts`](./src/visualization/density-visual-contract.ts), field renderers + [`metadata-field-shell.tsx`](./src/renderers/fields/metadata-field-shell.tsx), [`metadata-toolbar.tsx`](./src/components/metadata-toolbar.tsx), section/form/stack surfaces, [`activity-table.tsx`](./src/components/activity-table.tsx), [`scripts/check-density-visual.mts`](./scripts/check-density-visual.mts), [`tests/density-visual-states.test.tsx`](./tests/density-visual-states.test.tsx) |
-| MUI-VIS-009 | **Partial** | Table truncation exists; no systematic long-content fixtures |
-| MUI-VIS-010 | **Not started** | No `prefers-reduced-motion` audit |
-| MUI-VIS-011 | **Not started** | Surface contract types only |
-| MUI-VIS-012 | **Partial** | Diagnostics emitted; visual distinction when enabled not tested |
+| MUI-VIS-009 | **Implemented** | [`content-length-visual-contract.ts`](./src/visualization/content-length-visual-contract.ts), [`metadata-field-shell.tsx`](./src/renderers/fields/metadata-field-shell.tsx), [`metadata-toolbar.tsx`](./src/components/metadata-toolbar.tsx), [`metadata-form.tsx`](./src/components/metadata-form.tsx), [`activity-table.tsx`](./src/components/activity-table.tsx), [`metadata-cell-renderers.tsx`](./src/components/metadata-cell-renderers.tsx), [`scripts/check-content-length.mts`](./scripts/check-content-length.mts), [`tests/content-length-visual-states.test.tsx`](./tests/content-length-visual-states.test.tsx) |
+| MUI-VIS-010 | **Implemented** | [`motion-visual-contract.ts`](./src/interaction/motion-visual-contract.ts), [`metadata-motion-skeleton.tsx`](./src/components/metadata-motion-skeleton.tsx), [`state-visual-icons.tsx`](./src/renderers/states/state-visual-icons.tsx), [`loading-state.renderer.tsx`](./src/renderers/states/loading-state.renderer.tsx), [`activity-table.tsx`](./src/components/activity-table.tsx), [`base-action.renderer.tsx`](./src/renderers/actions/base-action.renderer.tsx), [`scripts/check-reduced-motion.mts`](./scripts/check-reduced-motion.mts), [`tests/motion-visual-states.test.tsx`](./tests/motion-visual-states.test.tsx) |
+| MUI-VIS-011 | **Implemented** | [`surface-visual-contract.ts`](./src/visualization/surface-visual-contract.ts), [`metadata-surface-region.tsx`](./src/components/metadata-surface-region.tsx), [`metadata-surface.tsx`](./src/components/metadata-surface.tsx), [`metadata-toolbar.tsx`](./src/components/metadata-toolbar.tsx), [`metadata-form.tsx`](./src/components/metadata-form.tsx), [`metadata-table.tsx`](./src/components/metadata-table.tsx), [`activity-table.tsx`](./src/components/activity-table.tsx), [`metadata-section-stack.tsx`](./src/components/metadata-section-stack.tsx), [`metadata-section.renderer.tsx`](./src/renderers/sections/metadata-section.renderer.tsx), [`scripts/check-surface-visual.mts`](./scripts/check-surface-visual.mts), [`tests/surface-visual-states.test.tsx`](./tests/surface-visual-states.test.tsx) |
+| MUI-VIS-012 | **Implemented** | [`diagnostics-visual-contract.ts`](./src/visualization/diagnostics-visual-contract.ts), [`metadata-diagnostics-panel.tsx`](./src/components/metadata-diagnostics-panel.tsx), [`compose-metadata-with-diagnostics.tsx`](./src/components/compose-metadata-with-diagnostics.tsx), [`error-state.renderer.tsx`](./src/renderers/states/error-state.renderer.tsx), [`fallbacks.tsx`](./src/adapters/fallbacks.tsx), [`metadata-form.tsx`](./src/components/metadata-form.tsx), [`metadata-table.tsx`](./src/components/metadata-table.tsx), [`ui-state-adapter.tsx`](./src/adapters/ui-state-adapter.tsx), [`scripts/check-diagnostics-visual.mts`](./scripts/check-diagnostics-visual.mts), [`tests/diagnostics-visual-states.test.tsx`](./tests/diagnostics-visual-states.test.tsx) |
 
 ### Visualization verification gates
 
@@ -297,6 +297,10 @@ pnpm --filter @repo/metadata-ui check:field-a11y      # field label/control/erro
 pnpm --filter @repo/metadata-ui check:keyboard-focus # keyboard/focus contract (MUI-VIS-006)
 pnpm --filter @repo/metadata-ui check:locale-formatting # Intl value formatting (MUI-VIS-007)
 pnpm --filter @repo/metadata-ui check:density-visual     # Density spacing/sizing (MUI-VIS-008)
+pnpm --filter @repo/metadata-ui check:content-length   # Long content + empty display (MUI-VIS-009)
+pnpm --filter @repo/metadata-ui check:diagnostics-visual # diagnostics panel visibility (MUI-VIS-012)
+pnpm --filter @repo/metadata-ui check:surface-visual    # surface hierarchy audit (MUI-VIS-011)
+pnpm --filter @repo/metadata-ui check:reduced-motion    # prefers-reduced-motion audit (MUI-VIS-010)
 # pnpm --filter @repo/metadata-ui check:a11y          # optional axe audit per renderer family
 
 # Storybook visual audit (`apps/storybook`) — renderer matrices, compose galleries, axe gates
@@ -382,7 +386,7 @@ Gaps identified from code audit against production metadata-driven UI expectatio
 | Table row/sort keyboard gaps | Raw sort buttons and mouse-only clickable rows broke keyboard operability. | [`activity-table.tsx`](./src/components/activity-table.tsx) | **Resolved** — `@repo/ui` Button sort controls + keyboard-activatable rows (MUI-VIS-006) |
 | Density and locale on context unused | Visual formatting and spacing ignore render context. | [`render-context.contract.ts`](./src/contracts/render-context.contract.ts) | **Partial** — locale/timezone value formatting (MUI-VIS-007); density (MUI-VIS-008 **resolved**); label i18n (MUI-016) |
 | Destructive confirm uses `window.confirm` | Not accessible, not themeable, breaks trustworthy-building pillar. | [`base-action.renderer.tsx`](./src/renderers/actions/base-action.renderer.tsx) | **Resolved** — AlertDialog confirmation (MUI-VIS-004) |
-| No visualization verification gates | Visual/a11y requirements not enforced in CI. | [`package.json`](./package.json) | `check:field-a11y`, `check:keyboard-focus`, `check:locale-formatting`, `check:density-visual` **implemented**; optional axe audit remains |
+| No visualization verification gates | Visual/a11y requirements not enforced in CI. | [`package.json`](./package.json) | `check:field-a11y`, `check:keyboard-focus`, `check:locale-formatting`, `check:density-visual`, `check:content-length`, `check:reduced-motion` **implemented**; optional axe audit remains |
 | No telemetry sink failure test | Resilience code exists but unverified. | [`adapters/telemetry.ts`](./src/adapters/telemetry.ts) | MUI-004 |
 | `check:renderer-registry` script missing | 9.5 gate documented but not in `package.json`. | [`package.json`](./package.json) | MUI-007 |
 
@@ -728,9 +732,8 @@ MUI-001, MUI-003, MUI-004, MUI-005, MUI-010, MUI-011 are implemented. MUI-002, M
 - `Implemented: MUI-001, MUI-003, MUI-004, MUI-005, MUI-010, MUI-011`
 - `Partial: MUI-002, MUI-006, MUI-007, MUI-009, MUI-012, MUI-017`
 - `Not started: MUI-008, MUI-013, MUI-014, MUI-015, MUI-016, MUI-018`
-- `Visualization: MUI-VIS-001, MUI-VIS-002, MUI-VIS-003, MUI-VIS-004, MUI-VIS-005, MUI-VIS-006, MUI-VIS-007, MUI-VIS-008 implemented; MUI-VIS-009, MUI-VIS-012 partial; MUI-VIS-010, MUI-VIS-011 not started`
+- `Visualization: MUI-VIS-001 through MUI-VIS-012 implemented`
 - `P0 next slices: MUI-013, MUI-014, MUI-018, MUI-012 (test runner integration)`
-- `P1 visualization slices: MUI-VIS-009 (long content), MUI-VIS-010 (reduced motion)`
 - `Feature status: production-capable for read-only/list surfaces; form and pipeline-complete status blocked on P0 gaps`
 
 ---

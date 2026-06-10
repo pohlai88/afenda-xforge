@@ -34,6 +34,8 @@ export const createMissingFieldRenderer = (
 ): MetadataFieldRenderer =>
   createFallbackRenderer<MetadataFieldRendererProps>((props, fallback) => (
     <ErrorState
+      context={props.context}
+      correlationId={fallback.correlationId}
       description={fallback.message}
       title={`Unsupported field: ${props.field.label}`}
     />
@@ -44,6 +46,8 @@ export const createMissingActionRenderer = (
 ): MetadataActionRenderer =>
   createFallbackRenderer<MetadataActionRendererProps>((props, fallback) => (
     <ErrorState
+      context={props.context}
+      correlationId={fallback.correlationId}
       description={fallback.message}
       title={`Unsupported action: ${props.action.label}`}
     />
@@ -54,6 +58,8 @@ export const createMissingSectionRenderer = (
 ): MetadataSectionRenderer =>
   createFallbackRenderer<MetadataSectionRendererProps>((props, fallback) => (
     <ErrorState
+      context={props.context}
+      correlationId={fallback.correlationId}
       description={fallback.message}
       title={`Unsupported section: ${props.section.title}`}
     />

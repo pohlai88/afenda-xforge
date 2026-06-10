@@ -150,7 +150,9 @@ test("state renderers expose matrix-backed visual treatments", () => {
             typeof candidate.type === "string"
               ? candidate.type
               : candidate.type?.name;
-          return typeName === "Skeleton";
+          return (
+            typeName === "MetadataMotionSkeleton" || typeName === "Skeleton"
+          );
         }),
         `${state} renderer should include skeleton pattern`
       );

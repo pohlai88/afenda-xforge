@@ -2,7 +2,11 @@ import assert from "node:assert/strict";
 import type { ReactElement, ReactNode } from "react";
 
 import { renderMetadataField } from "../src/adapters";
-import { MetadataForm, renderMetadataFormResult } from "../src/components";
+import {
+  MetadataDiagnosticsPanel,
+  MetadataForm,
+  renderMetadataFormResult,
+} from "../src/components";
 import type { MetadataFieldContract } from "../src/contracts";
 import type { MetadataRenderContext } from "../src/contracts/render-context.contract";
 import { createMetadataRenderContext } from "../src/contracts/render-context.defaults";
@@ -51,6 +55,12 @@ const collectElements = (
   }
 
   const element = node as TestElement;
+
+  if (element.type === MetadataDiagnosticsPanel) {
+    collectElements(MetadataDiagnosticsPanel(element.props), elements);
+    return elements;
+  }
+
   elements.push(element);
   collectElements(element.props.children, elements);
 
@@ -120,9 +130,11 @@ test("MetadataForm renders a form grid with all fields", () => {
     },
   }) as TestElement;
 
-  assert.equal(element.type, "form");
+  const elements = collectElements(element);
+  const form = elements.find((candidate) => candidate.type === "form");
 
-  const elements = collectElements(element.props.children);
+  assert.ok(form);
+
   const grid = elements.find(
     (candidate) =>
       candidate.type === "div" &&
@@ -139,6 +151,10 @@ test("MetadataForm renders a form grid with all fields", () => {
 
 test("renderMetadataFormResult surfaces diagnostics for governed field fallbacks", () => {
   const result = renderMetadataFormResult({
+    context: {
+      correlationId: "corr-governance",
+      diagnosticsEnabled: true,
+    },
     fields: [
       {
         key: "employeeStatus",
@@ -152,5 +168,14 @@ test("renderMetadataFormResult surfaces diagnostics for governed field fallbacks
 
   assert.equal(result.diagnostics.length > 0, true);
   assert.equal(result.diagnostics[0]?.code, "missing-permission");
-  assert.equal(result.element.type, "form");
+  assert.ok(
+    collectElements(result.element).some(
+      (element) => element.props?.["data-diagnostics-enabled"] === "true"
+    )
+  );
+  assert.ok(
+    collectElements(result.element).some(
+      (element) => element.props?.["data-diagnostics-panel"] === "true"
+    )
+  );
 });

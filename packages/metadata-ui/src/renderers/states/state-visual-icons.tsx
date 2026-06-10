@@ -1,5 +1,6 @@
 import type { ReactElement } from "react";
 
+import { METADATA_SPINNER_MOTION_CLASS } from "../../interaction/motion-visual-contract";
 import type { StateVisualIcon } from "./state-visual-matrix";
 
 type StateVisualIconProps = {
@@ -20,7 +21,7 @@ export function StateVisualIconGlyph({
       return (
         <svg
           aria-hidden="true"
-          className={`${mergedClassName} animate-spin`}
+          className={`${mergedClassName} ${METADATA_SPINNER_MOTION_CLASS}`}
           fill="none"
           viewBox="0 0 24 24"
           xmlns="http://www.w3.org/2000/svg"

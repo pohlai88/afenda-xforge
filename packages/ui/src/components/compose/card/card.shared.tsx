@@ -264,7 +264,7 @@ function PlanRow({
         <span className="font-medium">{label}</span>
         <span className="text-muted-foreground">{value}</span>
       </div>
-      <Progress value={progress} />
+      <Progress aria-label={`${label} progress`} value={progress} />
     </div>
   );
 }
@@ -278,9 +278,9 @@ function StatusPill({
 }) {
   const toneClassName =
     tone === "success"
-      ? "bg-success/10 text-success"
+      ? "bg-success-muted text-success-muted-foreground"
       : tone === "warning"
-        ? "bg-warning/10 text-warning"
+        ? "bg-warning-muted text-warning-muted-foreground"
         : "bg-muted text-muted-foreground";
 
   return (
@@ -409,7 +409,12 @@ export function renderCardPattern(name: CardPatternName) {
             <DropdownMenu>
               <DropdownMenuTrigger
                 render={
-                  <Button variant="ghost" size="icon" className="size-8">
+                  <Button
+                    aria-label="Card actions"
+                    className="size-8"
+                    size="icon"
+                    variant="ghost"
+                  >
                     <MoreHorizontal className="size-4" />
                   </Button>
                 }
@@ -663,7 +668,12 @@ export function renderCardPattern(name: CardPatternName) {
             <DropdownMenu>
               <DropdownMenuTrigger
                 render={
-                  <Button variant="ghost" size="icon" className="size-8">
+                  <Button
+                    aria-label="Metrics menu"
+                    className="size-8"
+                    size="icon"
+                    variant="ghost"
+                  >
                     <MoreHorizontal className="size-4" />
                   </Button>
                 }

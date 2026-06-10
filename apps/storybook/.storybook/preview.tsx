@@ -74,7 +74,10 @@ const preview: Preview = {
         order: [
           "Introduction",
           "UI",
-          ["UI", "Compose"],
+          ["UI", "Compose", "Form"],
+          ["UI", "Compose", "Data"],
+          ["UI", "Compose", "Navigation"],
+          ["UI", "Compose", "Feedback"],
           ["UI", "Compose Registry"],
           ["UI", "Primitives"],
           "Metadata UI",
