@@ -13,6 +13,7 @@ import {
   buildLamAuditMetadata,
   createLamMutationAuditEvent,
   normalizeLamMutationActorId,
+  requireLamEmployeeMutationScope,
   requireLamLeaveEntitlementsWriteAccess,
 } from "../execution.ts";
 import { calculateLamLeaveEntitlement } from "../queries/leave-entitlement-calculation.query.ts";
@@ -54,6 +55,14 @@ export async function applyLamLeaveEntitlementCalculation(
       throw new Error(
         "Company context is required for leave entitlement calculation"
       );
+    }
+
+    const scopeDenied = requireLamEmployeeMutationScope(
+      context,
+      validInput.employeeId
+    );
+    if (scopeDenied && !scopeDenied.ok) {
+      return { ok: false, error: scopeDenied.error };
     }
 
     const calculations = await calculateLamLeaveEntitlement(validInput, {

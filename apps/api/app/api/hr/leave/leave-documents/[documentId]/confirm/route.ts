@@ -2,6 +2,7 @@ import { confirmLamLeaveDocumentUpload } from "@repo/features-time-attendance-le
 import { NextResponse } from "next/server";
 import { createLamWriteContext } from "../../../_lib/context.ts";
 import { mapLamMutationHttpStatus } from "../../../_lib/mutation-response.ts";
+import { parseLamJsonBody } from "../../../_lib/parse-json-body.ts";
 
 type RouteContext = {
   params: Promise<{ documentId: string }>;
@@ -9,14 +10,17 @@ type RouteContext = {
 
 export async function POST(request: Request, context: RouteContext) {
   const { documentId } = await context.params;
-  const body = (await request.json().catch(() => ({}))) as Record<
-    string,
-    unknown
-  >;
+  const parsedBody = await parseLamJsonBody(request);
+  if (!parsedBody.ok) {
+    return NextResponse.json(
+      { ok: false, error: parsedBody.error },
+      { status: 400 }
+    );
+  }
 
   const result = await confirmLamLeaveDocumentUpload(
     {
-      ...body,
+      ...parsedBody.body,
       documentId,
     },
     createLamWriteContext(request)

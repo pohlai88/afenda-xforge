@@ -5,6 +5,8 @@ import {
 } from "@repo/features-time-attendance-leave-attendance-management/server";
 import type { SubmitLamLeaveApplicationInput } from "@repo/features-time-attendance-leave-attendance-management/contract";
 import { NextResponse } from "next/server";
+import { mapLamMutationHttpStatus } from "../_lib/mutation-response.ts";
+import { parseLamJsonBody } from "../_lib/parse-json-body.ts";
 import {
   bindLamEmployeeSubmitBody,
   createLamEmployeeSubmitReadContext,
@@ -12,7 +14,6 @@ import {
   createLamWriteContext,
   getQuery,
 } from "../_lib/context.ts";
-import { mapLamMutationHttpStatus } from "../_lib/mutation-response.ts";
 import { notifyLamLeaveApplicationEvent } from "../_lib/notify-lam-events.ts";
 
 export async function GET(request: Request) {
@@ -25,9 +26,17 @@ export async function GET(request: Request) {
 }
 
 export async function POST(request: Request) {
+  const parsedBody = await parseLamJsonBody(request);
+  if (!parsedBody.ok) {
+    return NextResponse.json(
+      { ok: false, error: parsedBody.error },
+      { status: 400 }
+    );
+  }
+
   const body = bindLamEmployeeSubmitBody(
     request,
-    (await request.json()) as SubmitLamLeaveApplicationInput
+    parsedBody.body as SubmitLamLeaveApplicationInput
   );
   const writeContext = createLamWriteContext(request);
   const result = await submitLamLeaveApplication(body, writeContext);

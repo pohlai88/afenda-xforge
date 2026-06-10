@@ -172,15 +172,16 @@
 | Audit metadata repair | `lamAttendanceSummaryExportBatchSchema` and export action now persist `attendanceStatus` / `leaveTypeId` in batch + `reportExported` metadata (parity with leave report export). |
 | Export filter test | Attendance summary export test asserts filtered export + audit metadata for `attendanceStatus`. |
 | Attendance status filter repair | [`listAttendanceSummaries`](./src/projector/attendance-summary.ts) excludes employees present only via approved leave when `attendanceStatus` is set. |
-| HTTP hardening | Report GET routes return 400 on invalid/missing period; export routes guard malformed JSON; repeated `employeeIds` query params joined in API context. |
+| HTTP hardening | Report GET routes return 400 on invalid/missing period; export routes guard malformed JSON; repeated `employeeIds` query params joined in API context; shared [`parseLamJsonBody`](../../../../../apps/api/app/api/hr/leave/_lib/parse-json-body.ts) guards all remaining leave/attendance POST routes. |
+| Entitlement HTTP tests | [`apps/api/test/hr-lam-entitlement-calculate-route.test.ts`](../../../../../apps/api/test/hr-lam-entitlement-calculate-route.test.ts) (AC-023 calculate scope + JSON guard sample). |
 
 | Verification commands | Result |
 | --- | --- |
 | `pnpm --filter @repo/features-time-attendance-leave-attendance-management typecheck` | Green (2026-06-10) |
 | `pnpm --filter @repo/features-time-attendance-leave-attendance-management lint` | Green (2026-06-10) |
-| `pnpm --filter @repo/features-time-attendance-leave-attendance-management test` | Green — 306 pass, 6 skipped (DB integration when Postgres unavailable) |
+| `pnpm --filter @repo/features-time-attendance-leave-attendance-management test` | Green — 310 pass, 6 skipped (DB integration when Postgres unavailable) |
 | `pnpm --filter api typecheck` | Green (2026-06-10) |
-| `pnpm --filter api test` | Green — 114 pass (includes AC-024 HTTP report route tests) |
+| `pnpm --filter api test` | Green — 123 pass (includes AC-024 HTTP report route tests) |
 
 ---
 
@@ -216,19 +217,22 @@
 | Recipient resolution | Orchestration passes `x-lam-employee-user-id`, `x-lam-approver-user-ids`, or `body.notification` with auth user ids (employeeId → userId mapping stays outside LAM). |
 | Overdue SLA | Default `DEFAULT_LAM_APPROVAL_OVERDUE_HOURS` (48h); configurable via query/action input. |
 | Dependencies | Seq 9–10 leave approval workflow + Seq 13 attendance corrections. |
-| Tests | [`test/leave-attendance-management-notifications.test.ts`](./test/leave-attendance-management-notifications.test.ts). |
+| Tests | [`test/leave-attendance-management-notifications.test.ts`](./test/leave-attendance-management-notifications.test.ts), [`apps/api/test/hr-lam-notifications-route.test.ts`](../../../../../apps/api/test/hr-lam-notifications-route.test.ts) (AC-028 HTTP submit/approve/overdue/correction + invalid JSON). |
 
 | Seq 19 review (2026-06-10) | Result |
 | --- | --- |
-| Production implementation | All 10 notification events implemented and wired post-commit — no production gaps. |
-| Test coverage repairs | Added correction rejected/overdue intent assertions, correction overdue query, `processLamOverdueApprovalNotifications` action, and recipient resolution edge cases (empty approvers, missing employee user id). |
+| Production implementation | All 10 notification events implemented and wired post-commit. |
+| Overdue query scope repair | [`listLamOverdueApprovalNotifications`](./src/queries/overdue-approvals.query.ts) now applies [`filterByEmployeeDataScope`](./src/shared/data-scope.ts) for manager/team isolation. |
+| HTTP boundary tests | [`apps/api/test/hr-lam-notifications-route.test.ts`](../../../../../apps/api/test/hr-lam-notifications-route.test.ts) covers leave submit/approve, overdue batch, correction submit/approve, and malformed JSON on overdue route. |
+| Test coverage repairs | Added correction rejected/overdue intent assertions, correction overdue query, `processLamOverdueApprovalNotifications` action, team-scope overdue filtering, and recipient resolution edge cases. |
 
 | Verification commands | Result |
 | --- | --- |
 | `pnpm --filter @repo/features-time-attendance-leave-attendance-management typecheck` | Green (2026-06-10) |
 | `pnpm --filter @repo/features-time-attendance-leave-attendance-management lint` | Green (2026-06-10) |
-| `pnpm --filter @repo/features-time-attendance-leave-attendance-management test` | Green — 182 pass, 2 skipped (DB integration when Postgres unavailable) |
+| `pnpm --filter @repo/features-time-attendance-leave-attendance-management test` | Green — 310 pass, 6 skipped (DB integration when Postgres unavailable) |
 | `pnpm --filter api typecheck` | Green (2026-06-10) |
+| `pnpm --filter api test` | Green — 123 pass (includes AC-028 HTTP notification route tests) |
 
 ---
 
@@ -255,8 +259,8 @@
 | Integration behaviour | Evidence |
 | --- | --- |
 | Scope precedence | `scopedEmployeeId` and `teamEmployeeIds` resolve before broad `canWrite` / export capabilities so employee/manager headers cannot be overridden by report export rights. Manager read queries fail closed without `teamEmployeeIds` when only manager-facing capabilities are granted ([`resolveLamReadDataScope`](./src/shared/data-scope.ts)). |
-| Read query filtering | Employee-scoped queries in leave applications, attendance records, balances, corrections, exceptions, documents, attendance summary, payroll references. |
-| Mutation scope checks | [`requireLamEmployeeMutationScope`](./src/shared/data-scope.ts) on submit leave, upsert attendance, corrections, documents, decisions, lifecycle, and scoped exports. |
+| Read query filtering | Employee-scoped queries in leave applications, attendance records, balances, corrections, exceptions, documents, attendance summary, payroll references, **overdue approvals**, and **entitlement calculation preview**. |
+| Mutation scope checks | [`requireLamEmployeeMutationScope`](./src/shared/data-scope.ts) on submit leave, upsert attendance, corrections, documents, decisions, lifecycle, entitlement apply, and scoped exports. |
 | Context schema | `scopedEmployeeId`, `teamEmployeeIds` on [`lamReadContextSchema`](./src/schema.ts) / [`lamWriteContextSchema`](./src/schema.ts). |
 | API headers | `x-lam-scoped-employee-id`, `x-lam-team-employee-ids` in [`apps/api/app/api/hr/leave/_lib/context.ts`](../../../../../apps/api/app/api/hr/leave/_lib/context.ts) and [`apps/api/app/api/hr/attendance/_lib/context.ts`](../../../../../apps/api/app/api/hr/attendance/_lib/context.ts). |
 | Tenant permissions | `member` role granted employee self-service LAM caps; `manager` role narrowed (no leave type/entitlement/balance write, no attendance write, no payroll references read). |
@@ -269,6 +273,8 @@
 | Query filter consistency | Attendance summary and payroll reference list queries normalized to [`filterByEmployeeDataScope`](./src/shared/data-scope.ts). |
 | Mutation scope fail-closed | [`resolveLamDataScope`](./src/shared/data-scope.ts) denies manager/operator capabilities without team ids or elevation (parity with read scope); auditor persona resolves to `denied` for mutation scope while retaining company read via [`resolveLamReadDataScope`](./src/shared/data-scope.ts). |
 | Granular HR config write separation | Managers cannot mutate leave types, entitlements, blackout/carry-forward rules, approval routes, or company attendance settings via generic `canWrite`; approve/reject/amend require [`requireStrictLamApprovalAccess`](./src/execution.ts). |
+| Overdue query scope repair | [`listLamOverdueApprovalNotifications`](./src/queries/overdue-approvals.query.ts) applies [`filterByEmployeeDataScope`](./src/shared/data-scope.ts) so manager team scope cannot read company-wide overdue queues. |
+| Entitlement scope repair | [`calculateLamLeaveEntitlement`](./src/queries/leave-entitlement-calculation.query.ts) enforces [`canAccessLamEmployeeRecord`](./src/policy.ts); [`applyLamLeaveEntitlementCalculation`](./src/actions/leave-entitlement-calculation.action.ts) enforces [`requireLamEmployeeMutationScope`](./src/shared/data-scope.ts). |
 | Test integrity | Permission tests assert `denied` scope, cross-employee read denial, distinct employee contexts, persona mutation denial, and sensitive read gate isolation. HTTP boundary in [`apps/api/test/hr-lam-unauthorized-access-route.test.ts`](../../../../../apps/api/test/hr-lam-unauthorized-access-route.test.ts). |
 | Deferred (Slice 13) | API approval context auto-grants (`createLamApprovalContext`, `createLamCorrectionApprovalContext`) remain orchestration concerns. |
 
@@ -276,9 +282,9 @@
 | --- | --- |
 | `pnpm --filter @repo/features-time-attendance-leave-attendance-management typecheck` | Green (2026-06-10) |
 | `pnpm --filter @repo/features-time-attendance-leave-attendance-management lint` | Green (2026-06-10) |
-| `pnpm --filter @repo/features-time-attendance-leave-attendance-management test` | Green — 306 pass, 6 skipped (DB integration when Postgres unavailable) |
+| `pnpm --filter @repo/features-time-attendance-leave-attendance-management test` | Green — 310 pass, 6 skipped (DB integration when Postgres unavailable) |
 | `pnpm --filter api typecheck` | Green (2026-06-10) |
-| `pnpm --filter api test` | Green — 114 pass |
+| `pnpm --filter api test` | Green — 123 pass |
 | `pnpm --filter api typecheck` | Green (2026-06-10) |
 
 ---

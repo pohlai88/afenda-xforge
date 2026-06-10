@@ -1,3 +1,4 @@
+import type { UpsertLamAttendanceRecordInput } from "@repo/features-time-attendance-leave-attendance-management/contract";
 import {
   listLamAttendanceRecordsRecords,
   upsertLamAttendanceRecord,
@@ -9,6 +10,7 @@ import {
   getQuery,
 } from "../_lib/context.ts";
 import { mapLamMutationHttpStatus } from "../_lib/mutation-response.ts";
+import { parseLamJsonBody } from "../../leave/_lib/parse-json-body.ts";
 
 // Context headers are populated by upstream auth middleware after actor authentication.
 export async function GET(request: Request) {
@@ -21,7 +23,15 @@ export async function GET(request: Request) {
 }
 
 export async function POST(request: Request) {
-  const body = await request.json();
+  const parsedBody = await parseLamJsonBody(request);
+  if (!parsedBody.ok) {
+    return NextResponse.json(
+      { ok: false, error: parsedBody.error },
+      { status: 400 }
+    );
+  }
+
+  const body = parsedBody.body;
   const isUpdate =
     typeof body === "object" &&
     body !== null &&
@@ -29,7 +39,7 @@ export async function POST(request: Request) {
     typeof body.id === "string" &&
     body.id.length > 0;
   const result = await upsertLamAttendanceRecord(
-    body,
+    body as UpsertLamAttendanceRecordInput,
     createLamWriteContext(request)
   );
 

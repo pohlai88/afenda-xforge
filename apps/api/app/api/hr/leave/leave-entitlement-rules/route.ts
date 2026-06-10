@@ -1,9 +1,11 @@
+import type { UpsertLamLeaveEntitlementRuleInput } from "@repo/features-time-attendance-leave-attendance-management/contract";
 import {
   listLamLeaveEntitlementRulesRecords,
   upsertLamLeaveEntitlementRule,
 } from "@repo/features-time-attendance-leave-attendance-management/server";
 import { NextResponse } from "next/server";
 import { mapLamMutationHttpStatus } from "../_lib/mutation-response.ts";
+import { parseLamJsonBody } from "../_lib/parse-json-body.ts";
 import {
   createLamReadContext,
   createLamWriteContext,
@@ -20,7 +22,15 @@ export async function GET(request: Request) {
 }
 
 export async function POST(request: Request) {
-  const body = await request.json();
+  const parsedBody = await parseLamJsonBody(request);
+  if (!parsedBody.ok) {
+    return NextResponse.json(
+      { ok: false, error: parsedBody.error },
+      { status: 400 }
+    );
+  }
+
+  const body = parsedBody.body;
   const isUpdate =
     typeof body === "object" &&
     body !== null &&
@@ -28,7 +38,7 @@ export async function POST(request: Request) {
     typeof body.id === "string" &&
     body.id.length > 0;
   const result = await upsertLamLeaveEntitlementRule(
-    body,
+    body as UpsertLamLeaveEntitlementRuleInput,
     createLamWriteContext(request)
   );
 

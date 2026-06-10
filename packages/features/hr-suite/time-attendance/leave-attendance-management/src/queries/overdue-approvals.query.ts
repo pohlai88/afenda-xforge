@@ -14,7 +14,7 @@ import {
 } from "../projector/notifications.ts";
 import { loadLamRepository } from "../repository.ts";
 import type { LamReadContext } from "../schema.ts";
-import { filterByCompany, readContext } from "./shared.ts";
+import { filterByCompany, filterByEmployeeDataScope, readContext } from "./shared.ts";
 
 const PENDING_LEAVE_STATUSES = ["submitted", "pending_approval"] as const;
 const PENDING_CORRECTION_STATUSES = ["submitted", "pending_approval"] as const;
@@ -41,9 +41,9 @@ export async function listLamOverdueApprovalNotifications(
   const cutoff = new Date(Date.now() - overdueAfterHours * 60 * 60 * 1000);
   const items: LamOverdueApprovalItem[] = [];
 
-  for (const application of filterByCompany(
-    state.leaveApplications,
-    ctx.companyId
+  for (const application of filterByEmployeeDataScope(
+    filterByCompany(state.leaveApplications, ctx.companyId),
+    context
   )) {
     if (
       !(
@@ -66,9 +66,9 @@ export async function listLamOverdueApprovalNotifications(
   }
 
   if (parsed.includeAttendanceCorrections ?? true) {
-    for (const correction of filterByCompany(
-      state.attendanceCorrections,
-      ctx.companyId
+    for (const correction of filterByEmployeeDataScope(
+      filterByCompany(state.attendanceCorrections, ctx.companyId),
+      context
     )) {
       if (
         !PENDING_CORRECTION_STATUSES.includes(

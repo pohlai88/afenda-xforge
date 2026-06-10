@@ -441,6 +441,148 @@ test("HRM-LAM-028 processLamOverdueApprovalNotifications writes audit batch", as
   assert.equal(processed.intents[0]?.kind, "overdue");
 });
 
+const managerOverdueContext = {
+  companyId: "company-001",
+  tenantId: "tenant-001",
+  actorEmployeeId: "mgr-001",
+  resolvedStepApproverEmployeeIds: ["mgr-001"],
+  teamEmployeeIds: ["emp-001"],
+  grantedCapabilities: [
+    leaveAttendanceManagementCapabilities.leaveApplicationsApprove,
+  ],
+  canRead: true,
+} as const;
+
+const backdateSubmittedAt = async (
+  entityType: "leave_application" | "attendance_correction",
+  targetId: string
+): Promise<void> => {
+  await mutateLamRepository((draft) => {
+    if (entityType === "leave_application") {
+      const application = draft.leaveApplications.find(
+        (entry) => entry.id === targetId
+      );
+      if (!application) {
+        throw new Error("Application not found");
+      }
+      draft.leaveApplications = upsertLamEntity(draft.leaveApplications, {
+        ...application,
+        submittedAt: new Date("2020-01-01T00:00:00.000Z"),
+      });
+      return;
+    }
+
+    const correction = draft.attendanceCorrections.find(
+      (entry) => entry.id === targetId
+    );
+    if (!correction) {
+      throw new Error("Correction not found");
+    }
+    draft.attendanceCorrections = upsertLamEntity(draft.attendanceCorrections, {
+      ...correction,
+      submittedAt: new Date("2020-01-01T00:00:00.000Z"),
+    });
+  }, writeContext);
+};
+
+test("HRM-LAM-028 overdue query scopes to manager team employee ids", async () => {
+  const teamSubmit = await submitLamLeaveApplication(
+    {
+      companyId: "company-001",
+      employeeId: "emp-001",
+      leaveTypeId: unpaidLeaveTypeId,
+      startDate: new Date("2026-08-01"),
+      endDate: new Date("2026-08-02"),
+      totalDays: 2,
+      reason: "Team overdue",
+    },
+    writeContext
+  );
+  assert.equal(teamSubmit.ok, true);
+  if (!teamSubmit.ok) {
+    throw new Error("Failed to submit team leave");
+  }
+
+  const outsideSubmit = await submitLamLeaveApplication(
+    {
+      companyId: "company-001",
+      employeeId: "emp-002",
+      leaveTypeId: unpaidLeaveTypeId,
+      startDate: new Date("2026-08-03"),
+      endDate: new Date("2026-08-04"),
+      totalDays: 2,
+      reason: "Outside team overdue",
+    },
+    writeContext
+  );
+  assert.equal(outsideSubmit.ok, true);
+  if (!outsideSubmit.ok) {
+    throw new Error("Failed to submit outside-team leave");
+  }
+
+  await backdateSubmittedAt("leave_application", teamSubmit.targetId);
+  await backdateSubmittedAt("leave_application", outsideSubmit.targetId);
+
+  const overdueItems = await listLamOverdueApprovalNotifications(
+    { companyId: "company-001", overdueAfterHours: 1 },
+    managerOverdueContext
+  );
+
+  assert.equal(overdueItems.length, 1);
+  assert.equal(overdueItems[0]?.intent.employeeId, "emp-001");
+});
+
+test("HRM-LAM-028 processLamOverdueApprovalNotifications scopes intents to manager team", async () => {
+  const teamSubmit = await submitLamLeaveApplication(
+    {
+      companyId: "company-001",
+      employeeId: "emp-001",
+      leaveTypeId: unpaidLeaveTypeId,
+      startDate: new Date("2026-08-05"),
+      endDate: new Date("2026-08-06"),
+      totalDays: 2,
+      reason: "Team process overdue",
+    },
+    writeContext
+  );
+  assert.equal(teamSubmit.ok, true);
+  if (!teamSubmit.ok) {
+    throw new Error("Failed to submit team leave");
+  }
+
+  const outsideSubmit = await submitLamLeaveApplication(
+    {
+      companyId: "company-001",
+      employeeId: "emp-002",
+      leaveTypeId: unpaidLeaveTypeId,
+      startDate: new Date("2026-08-07"),
+      endDate: new Date("2026-08-08"),
+      totalDays: 2,
+      reason: "Outside team process overdue",
+    },
+    writeContext
+  );
+  assert.equal(outsideSubmit.ok, true);
+  if (!outsideSubmit.ok) {
+    throw new Error("Failed to submit outside-team leave");
+  }
+
+  await backdateSubmittedAt("leave_application", teamSubmit.targetId);
+  await backdateSubmittedAt("leave_application", outsideSubmit.targetId);
+
+  const processed = await processLamOverdueApprovalNotifications(
+    { companyId: "company-001", overdueAfterHours: 1 },
+    managerOverdueContext
+  );
+  assert.equal(processed.ok, true);
+  if (!processed.ok) {
+    throw new Error("Failed to process overdue notifications");
+  }
+
+  assert.equal(processed.intents.length, 1);
+  assert.equal(processed.intents[0]?.employeeId, "emp-001");
+});
+
 test("HRM-LAM-028 recordLamNotificationEnqueued writes notification audit event", async () => {
   const intent = buildLamLeaveApplicationNotificationIntent({
     application: sampleApplication(),

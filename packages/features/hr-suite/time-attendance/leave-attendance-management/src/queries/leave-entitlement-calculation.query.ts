@@ -9,6 +9,7 @@ import { projectLeaveEntitlementCalculation } from "../projector/entitlement.ts"
 import { loadLamRepository } from "../repository.ts";
 import type { LamReadContext } from "../schema.ts";
 import { lamEmployeeEntitlementProfileSchema } from "../schema.ts";
+import { canAccessLamEmployeeRecord } from "../policy.ts";
 import { filterByCompany, readContext } from "./shared.ts";
 
 const resolveLeaveTypeIds = (args: {
@@ -37,6 +38,13 @@ export async function calculateLamLeaveEntitlement(
   const ctx = readContext(context);
 
   if (!ctx.canRead) {
+    return [];
+  }
+
+  if (
+    parsed.employeeId &&
+    !canAccessLamEmployeeRecord(context, parsed.employeeId)
+  ) {
     return [];
   }
 

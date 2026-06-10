@@ -23,6 +23,7 @@ import { listLamAttendanceRecordsRecords } from "../src/queries/attendance-recor
 import { listLamAttendanceSummaryRecords } from "../src/queries/attendance-summary.query.ts";
 import { listLamAuditTrailRecords } from "../src/queries/audit.query.ts";
 import { listLamLeaveApplicationsRecords } from "../src/queries/leave-applications.query.ts";
+import { calculateLamLeaveEntitlement } from "../src/queries/leave-entitlement-calculation.query.ts";
 import { listLamLeaveBalancesRecords } from "../src/queries/leave-balances.query.ts";
 import { leaveAttendanceManagementCapabilities } from "../src/registry/capability.ts";
 import {
@@ -651,4 +652,103 @@ test("AC-021 employee self-scope lists only own attendance summary", async () =>
     employeeSelfContext
   );
   assert.deepEqual(denied, []);
+});
+
+test("AC-023 employee self-scope cannot calculate entitlement for another employee", async () => {
+  await upsertLamLeaveEntitlementRule(
+    {
+      companyId: "company-001",
+      leaveTypeId: annualLeaveTypeId,
+      code: "AL-SCOPE-TEST",
+      title: "Annual Leave Scope Test",
+      scope: { countryCode: "MY" },
+      entitlementDays: 18,
+      accrualRule: "annual_grant",
+      effectiveFrom: new Date("2024-01-01"),
+      active: true,
+    },
+    writeContext
+  );
+
+  const denied = await calculateLamLeaveEntitlement(
+    {
+      companyId: "company-001",
+      employeeId: "emp-002",
+      hireDate: new Date("2020-01-15"),
+      countryCode: "MY",
+      grade: "G5",
+      leaveTypeId: annualLeaveTypeId,
+      asOfDate: new Date("2026-06-01"),
+      periodYear: 2026,
+    },
+    { ...employeeSelfContext, canRead: true }
+  );
+
+  assert.deepEqual(denied, []);
+});
+
+test("AC-023 manager team-scope can calculate entitlement for team member only", async () => {
+  await upsertLamLeaveEntitlementRule(
+    {
+      companyId: "company-001",
+      leaveTypeId: annualLeaveTypeId,
+      code: "AL-MGR-SCOPE",
+      title: "Annual Leave Manager Scope",
+      scope: { countryCode: "MY" },
+      entitlementDays: 18,
+      accrualRule: "annual_grant",
+      effectiveFrom: new Date("2024-01-01"),
+      active: true,
+    },
+    writeContext
+  );
+
+  const teamResult = await calculateLamLeaveEntitlement(
+    {
+      companyId: "company-001",
+      employeeId: "emp-001",
+      hireDate: new Date("2020-01-15"),
+      countryCode: "MY",
+      grade: "G5",
+      leaveTypeId: annualLeaveTypeId,
+      asOfDate: new Date("2026-06-01"),
+      periodYear: 2026,
+    },
+    { ...managerTeamContext, canRead: true }
+  );
+  assert.equal(teamResult.length, 1);
+
+  const denied = await calculateLamLeaveEntitlement(
+    {
+      companyId: "company-001",
+      employeeId: "emp-999",
+      hireDate: new Date("2020-01-15"),
+      countryCode: "MY",
+      grade: "G5",
+      leaveTypeId: annualLeaveTypeId,
+      asOfDate: new Date("2026-06-01"),
+      periodYear: 2026,
+    },
+    { ...managerTeamContext, canRead: true }
+  );
+  assert.deepEqual(denied, []);
+
+  const applyDenied = await applyLamLeaveEntitlementCalculation(
+    {
+      companyId: "company-001",
+      employeeId: "emp-999",
+      hireDate: new Date("2020-01-15"),
+      countryCode: "MY",
+      grade: "G5",
+      leaveTypeId: annualLeaveTypeId,
+      asOfDate: new Date("2026-06-01"),
+      periodYear: 2026,
+    },
+    {
+      companyId: "company-001",
+      grantedCapabilities: lamPersonaCapabilityPresets.manager,
+      teamEmployeeIds: ["emp-001"],
+    }
+  );
+  assert.equal(applyDenied.ok, false);
 });
