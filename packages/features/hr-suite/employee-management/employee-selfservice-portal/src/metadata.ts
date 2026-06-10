@@ -14,13 +14,13 @@ export type EmployeeSelfservicePortalMetadata = {
 export const employeeSelfservicePortalMetadata: EmployeeSelfservicePortalMetadata =
   {
     id: "hr-suite.employee-management.employee-selfservice-portal",
-    title: "Employee Selfservice Portal",
+    title: "Employee Self-Service Portal",
     description:
-      "Governed employee self-service portal metadata extracted from the legacy HR suite.",
+      "Governed employee self-service portal package metadata for actor-scoped self-service reads and requests.",
     domain: "employee-management",
     labels: {
-      singular: "Employee Selfservice Portal record",
-      plural: "Employee Selfservice Portal records",
+      singular: "Employee self-service portal record",
+      plural: "Employee self-service portal records",
     },
     source: "legacy-hr-suite",
     suite: "hr-suite",

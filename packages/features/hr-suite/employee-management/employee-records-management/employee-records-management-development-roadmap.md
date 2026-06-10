@@ -8,6 +8,57 @@ Employee Records Management is the HR suite source of truth for employee master 
 
 Phase 2 of the architecture plan is implemented through slices 3, 4, and 5. The evidence for temporal assignment modeling, status history, lifecycle invariants, and completeness projections is recorded in the architecture doc.
 
+## 10-Slice Delivery Plan
+
+This section is the working execution view of the roadmap. It summarizes current slice status, the next recommended build order, and the intended delivery outcome for each vertical increment.
+
+| Slice | Title | Status | Delivery outcome |
+| --- | --- | --- | --- |
+| 1 | Package Foundation And Durable Record Baseline | Implemented on 2026-06-09 | Durable scoped repository, baseline create/list/get flows, and request-scoped API reads/writes. |
+| 2 | Full Profile Persistence And Sensitive Read Policy | Implemented on 2026-06-09 | Full profile persistence with centralized sensitive-read and sensitive-write enforcement. |
+| 3 | Effective-Dated Assignment Facts And Projections | Implemented on 2026-06-09 | Assignment history as effective-dated facts with current/as-of projection support. |
+| 4 | Employment Status History And Lifecycle Invariants | Implemented on 2026-06-09 | Governed status transitions with ordered status-history reads and invalid-transition rejection. |
+| 5 | Archive Lifecycle | Implemented on 2026-06-09 | Archive as a governed lifecycle action with audit persistence and archive-aware directory behavior. |
+| 6 | Rehire Lifecycle And Employment Continuity | Planned | Rehire of archived or separated workers without breaking canonical employee continuity. |
+| 7 | Document References And Completeness Projections | Planned | Persisted document references plus derived completeness, incomplete-record, and overview projections. |
+| 8 | Audit Persistence And Mutation Orchestration | Planned | Centralized mutation orchestration and first-class audit persistence for every governed write path. |
+| 9 | Operational Read Models And Export-Safe Reads | Planned | Repository-backed, projection-oriented operational reads with filtering, pagination, and export-safe detail models. |
+| 10 | Registry, Manifest, And Cross-Domain Integration Contracts | Implemented on 2026-06-09 | Stable metadata, route, action, and downstream integration contracts for adjacent HR consumers. |
+
+## Current Execution Priority
+
+The package foundation and major lifecycle/history slices are already in place. The remaining work should be executed in this order:
+
+1. `Slice 6` to complete the core employee lifecycle with rehire continuity.
+2. `Slice 7` to add document-reference persistence and completeness-driven operational value.
+3. `Slice 8` to harden traceability and mutation consistency across all write paths.
+4. `Slice 9` to consolidate every operational read behind repository-backed projections and export-safe models.
+
+## Delivery Milestones
+
+- `Milestone A: Lifecycle completion`
+  Deliver `Slice 6` so archive and rehire form a complete canonical employee lifecycle.
+- `Milestone B: Profile completeness`
+  Deliver `Slice 7` so missing document state and completeness become measurable and queryable.
+- `Milestone C: Audit hardening`
+  Deliver `Slice 8` so every governed mutation produces a redacted, queryable audit event.
+- `Milestone D: Read-model consolidation`
+  Deliver `Slice 9` so directory, detail, history, completeness, and audit reads all use projection-safe query surfaces.
+
+## Slice Exit Rule
+
+Every slice should still be delivered as a full vertical increment:
+
+`database schema -> src/schema.ts -> contracts -> repository -> policy/execution -> actions -> queries -> projector -> API route -> tests -> architecture doc evidence`
+
+No slice should be marked implemented until:
+
+- code evidence exists in the package and, where needed, `packages/database` and `apps/api`
+- tests cover success, denial, isolation, sensitive redaction, and projection validity
+- the route or server/execution surface is callable
+- validation commands have been run and recorded
+- `employee-records-management-architecture.md` has been updated with exact implementation evidence
+
 ## Current Code Evidence
 
 Audit date: 2026-06-09.

@@ -1,10 +1,8 @@
 import assert from "node:assert/strict";
 import { readdirSync, readFileSync } from "node:fs";
 import { join } from "node:path";
-import { test } from "node:test";
-import { fileURLToPath } from "node:url";
 import type { ReactElement } from "react";
-
+import { resolveFromModule } from "../scripts/module-location.mts";
 import {
   createMetadataRenderContext,
   createMetadataUiCompatibilityReport,
@@ -17,13 +15,12 @@ import {
   resolveMetadataSectionRenderer,
   resolveMetadataStateRenderer,
 } from "../src";
+import { test } from "./test-runtime";
 
 type TestElement = ReactElement<any, any>;
 
-const srcRoot = fileURLToPath(new URL("../src", import.meta.url));
-const contractsRoot = fileURLToPath(
-  new URL("../src/contracts", import.meta.url)
-);
+const srcRoot = resolveFromModule(import.meta.url, "../src");
+const contractsRoot = resolveFromModule(import.meta.url, "../src/contracts");
 
 const getSourceFiles = (directory: string): string[] =>
   readdirSync(directory, { withFileTypes: true }).flatMap((entry) => {

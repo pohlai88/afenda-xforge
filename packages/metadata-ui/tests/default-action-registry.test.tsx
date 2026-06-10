@@ -1,5 +1,4 @@
 import assert from "node:assert/strict";
-import { test } from "node:test";
 
 import { resolveMetadataActionSurface } from "../src/contracts";
 import { defaultActionRegistry } from "../src/registry";
@@ -8,6 +7,7 @@ import {
   DestructiveActionRenderer,
   MenuActionRenderer,
 } from "../src/renderers/actions";
+import { test } from "./test-runtime";
 
 test("defaultActionRegistry resolves the concrete action renderers", () => {
   assert.equal(

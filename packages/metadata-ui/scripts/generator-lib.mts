@@ -1,13 +1,16 @@
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { dirname, resolve } from "node:path";
-import { fileURLToPath } from "node:url";
 import type {
   MetadataUiManifest,
   MetadataUiManifestEntry,
 } from "../metadata-ui.manifest.ts";
 import { metadataUiManifest } from "../metadata-ui.manifest.ts";
+import {
+  resolveFromModule,
+  resolveModuleFilename,
+} from "./module-location.mts";
 
-export const packageRoot = fileURLToPath(new URL("..", import.meta.url));
+export const packageRoot = resolveFromModule(import.meta.url, "..");
 export const generatedRoot = resolve(packageRoot, "src", "generated");
 export const readmePath = resolve(packageRoot, "README.md");
 export const generatedReadmeSectionMarkers = {
@@ -39,7 +42,7 @@ export function invariant(
 export function isEntrypoint(moduleUrl: string): boolean {
   const entry = process.argv[1];
 
-  return entry ? resolve(entry) === fileURLToPath(moduleUrl) : false;
+  return entry ? resolve(entry) === resolveModuleFilename(moduleUrl) : false;
 }
 
 export function getManifest(): MetadataUiManifest {

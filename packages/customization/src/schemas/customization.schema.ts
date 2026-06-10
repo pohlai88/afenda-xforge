@@ -26,6 +26,32 @@ const addDuplicateKeyIssues = (
   }
 };
 
+const addDuplicateValueIssues = (
+  values: readonly string[] | undefined,
+  context: z.RefinementCtx,
+  path: readonly (number | string)[],
+  label: string
+): void => {
+  if (!values) {
+    return;
+  }
+
+  const seen = new Set<string>();
+
+  for (const [index, value] of values.entries()) {
+    if (seen.has(value)) {
+      context.addIssue({
+        code: "custom",
+        message: `duplicate ${label} "${value}"`,
+        path: [...path, index],
+      });
+      return;
+    }
+
+    seen.add(value);
+  }
+};
+
 const addCustomizationIssue = (
   context: z.RefinementCtx,
   path: readonly (number | string)[],
@@ -44,11 +70,105 @@ type CustomizationSchemaRefinementInput = {
   companyId?: string;
   created?: unknown;
   published?: unknown;
-  rolledBack?: unknown;
+  rolledBack?: {
+    at?: unknown;
+    fromVersion?: number;
+  };
   scope: "company" | "tenant";
   status?: "archived" | "draft" | "published";
   updated?: unknown;
   version?: number;
+};
+
+const parseActorTimestamp = (value: unknown): number | undefined => {
+  if (!value || typeof value !== "object" || !("at" in value)) {
+    return;
+  }
+
+  const timestamp = Date.parse(String(value.at));
+
+  return Number.isNaN(timestamp) ? undefined : timestamp;
+};
+
+const addChronologyIssueIfEarlier = (
+  context: z.RefinementCtx,
+  path: readonly (number | string)[],
+  message: string,
+  currentTimestamp: number | undefined,
+  minimumTimestamp: number | undefined
+): void => {
+  if (
+    currentTimestamp !== undefined &&
+    minimumTimestamp !== undefined &&
+    currentTimestamp < minimumTimestamp
+  ) {
+    addCustomizationIssue(context, path, message);
+  }
+};
+
+const validateCustomizationLifecycleTimestamps = (
+  customization: CustomizationSchemaRefinementInput,
+  context: z.RefinementCtx
+): void => {
+  const createdAt = parseActorTimestamp(customization.created);
+  const updatedAt = parseActorTimestamp(customization.updated);
+  const publishedAt = parseActorTimestamp(customization.published);
+  const archivedAt = parseActorTimestamp(customization.archived);
+  const rolledBackAt = parseActorTimestamp(customization.rolledBack);
+
+  addChronologyIssueIfEarlier(
+    context,
+    ["updated", "at"],
+    "updated timestamp cannot be earlier than created timestamp",
+    updatedAt,
+    createdAt
+  );
+  addChronologyIssueIfEarlier(
+    context,
+    ["published", "at"],
+    "published timestamp cannot be earlier than created timestamp",
+    publishedAt,
+    createdAt
+  );
+  addChronologyIssueIfEarlier(
+    context,
+    ["archived", "at"],
+    "archived timestamp cannot be earlier than published timestamp",
+    archivedAt,
+    publishedAt
+  );
+  addChronologyIssueIfEarlier(
+    context,
+    ["archived", "at"],
+    "archived timestamp cannot be earlier than updated timestamp",
+    archivedAt,
+    updatedAt
+  );
+  addChronologyIssueIfEarlier(
+    context,
+    ["rolledBack", "at"],
+    "rollback timestamp cannot be earlier than published timestamp",
+    rolledBackAt,
+    publishedAt
+  );
+};
+
+const validateCustomizationRollbackVersion = (
+  customization: CustomizationSchemaRefinementInput,
+  context: z.RefinementCtx
+): void => {
+  if (
+    customization.rolledBack &&
+    customization.version !== undefined &&
+    customization.rolledBack.fromVersion !== undefined &&
+    customization.rolledBack.fromVersion >= customization.version
+  ) {
+    addCustomizationIssue(
+      context,
+      ["rolledBack", "fromVersion"],
+      "rollback fromVersion must be earlier than the published version"
+    );
+  }
 };
 
 const validateCustomizationScope = (
@@ -134,6 +254,9 @@ const validateCustomizationLifecycle = (
       "rollback metadata is only valid on published customization"
     );
   }
+
+  validateCustomizationLifecycleTimestamps(customization, context);
+  validateCustomizationRollbackVersion(customization, context);
 };
 
 export const customizationActorMetadataSchema = z
@@ -305,6 +428,26 @@ export const customizationSchema = z
       "table",
       "columns",
     ]);
+
+    for (const [sectionIndex, section] of (
+      customization.sections ?? []
+    ).entries()) {
+      addDuplicateValueIssues(
+        section.fieldKeys,
+        context,
+        ["sections", sectionIndex, "fieldKeys"],
+        "section field reference"
+      );
+    }
+
+    for (const [formIndex, form] of (customization.forms ?? []).entries()) {
+      addDuplicateValueIssues(
+        form.sectionKeys,
+        context,
+        ["forms", formIndex, "sectionKeys"],
+        "form section reference"
+      );
+    }
 
     for (const [tableIndex, table] of (customization.tables ?? []).entries()) {
       addDuplicateKeyIssues(table.columns, context, [

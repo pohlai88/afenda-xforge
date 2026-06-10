@@ -1,5 +1,4 @@
 import assert from "node:assert/strict";
-import { test } from "node:test";
 import type { ReactElement } from "react";
 
 import { createMetadataRenderContext } from "../src/contracts/render-context.defaults";
@@ -7,6 +6,7 @@ import {
   ButtonActionRenderer,
   MenuActionRenderer,
 } from "../src/renderers/actions";
+import { test } from "./test-runtime";
 
 type TestElement = ReactElement<any, any>;
 

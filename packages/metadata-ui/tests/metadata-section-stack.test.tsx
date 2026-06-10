@@ -1,9 +1,9 @@
 import assert from "node:assert/strict";
-import { test } from "node:test";
 import type { ReactElement, ReactNode } from "react";
 
 import { MetadataSectionStack } from "../src/components";
 import type { MetadataSectionContract } from "../src/contracts";
+import { test } from "./test-runtime";
 
 type TestElement = ReactElement<any, any>;
 

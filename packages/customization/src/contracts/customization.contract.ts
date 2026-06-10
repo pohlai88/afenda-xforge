@@ -25,6 +25,7 @@ export type CustomizationLifecycleContract = {
 };
 
 export const customizationValidationIssueCodes = [
+  "customization.invalid_contract",
   "customization.company_scope_not_allowed",
   "customization.entity_mismatch",
   "customization.entity_table_not_supported",

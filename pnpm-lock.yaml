@@ -287,6 +287,9 @@ importers:
       '@repo/features-employee-management-employee-records-management':
         specifier: workspace:*
         version: link:../../packages/features/hr-suite/employee-management/employee-records-management
+      '@repo/features-employee-management-employee-selfservice-portal':
+        specifier: workspace:*
+        version: link:../../packages/features/hr-suite/employee-management/employee-selfservice-portal
       '@repo/features-employee-management-organizational-chart-hierarchy':
         specifier: workspace:*
         version: link:../../packages/features/hr-suite/employee-management/organizational-chart-hierarchy
@@ -1291,9 +1294,15 @@ importers:
 
   packages/features/hr-suite/employee-management/employee-selfservice-portal:
     dependencies:
+      '@repo/features-employee-management-employee-records-management':
+        specifier: workspace:*
+        version: link:../employee-records-management
       server-only:
         specifier: 'catalog:'
         version: 0.0.1
+      zod:
+        specifier: 4.3.6
+        version: 4.3.6
     devDependencies:
       '@repo/typescript-config':
         specifier: workspace:*
@@ -1301,6 +1310,9 @@ importers:
       '@types/node':
         specifier: 'catalog:'
         version: 25.9.2
+      tsx:
+        specifier: 'catalog:'
+        version: 4.22.4
       typescript:
         specifier: 'catalog:'
         version: 5.9.3

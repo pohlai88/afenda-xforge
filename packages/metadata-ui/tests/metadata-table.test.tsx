@@ -1,5 +1,4 @@
 import assert from "node:assert/strict";
-import { test } from "node:test";
 import type { EntityMetadata } from "@repo/metadata";
 import type { ReactElement, ReactNode } from "react";
 import {
@@ -8,6 +7,7 @@ import {
   renderMetadataPanelResult,
   renderMetadataTableResult,
 } from "../index";
+import { test } from "./test-runtime";
 
 const metadata: EntityMetadata = {
   customization: {

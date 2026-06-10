@@ -1,5 +1,4 @@
 import assert from "node:assert/strict";
-import { test } from "node:test";
 import type { ReactElement } from "react";
 
 import {
@@ -11,6 +10,7 @@ import type { MetadataActionContract } from "../src/contracts/action-renderer.co
 import type { MetadataFieldContract } from "../src/contracts/field-renderer.contract";
 import type { MetadataRenderContext } from "../src/contracts/render-context.contract";
 import { createMetadataRenderContext } from "../src/contracts/render-context.defaults";
+import { test } from "./test-runtime";
 
 type TestElement = ReactElement<any, any>;
 

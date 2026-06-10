@@ -1,15 +1,16 @@
 import "server-only";
 
+import { canReadEmployeeSelfservicePortal } from "./policy.ts";
+import {
+  getEmployeeSelfservicePortalRepositoryRecordById,
+  listEmployeeSelfservicePortalRepositoryRecords,
+} from "./repository.ts";
 import type {
   EmployeeSelfservicePortalRecord,
   ListEmployeeSelfservicePortalQuery,
-} from "./contract.ts";
+} from "./schema.ts";
+import { listEmployeeSelfservicePortalQuerySchema } from "./schema.ts";
 import type { HrSuiteFeatureContext } from "./shared/index.ts";
-
-export const employeeSelfservicePortalStore = new Map<
-  string,
-  EmployeeSelfservicePortalRecord
->();
 
 const DEFAULT_PAGE_SIZE = 25;
 
@@ -30,13 +31,32 @@ const normalizeSearchTerm = (value: string | undefined): string =>
 
 export function listEmployeeSelfservicePortalRecords(
   query: ListEmployeeSelfservicePortalQuery = {},
-  _context?: HrSuiteFeatureContext
+  context?: HrSuiteFeatureContext
 ): readonly EmployeeSelfservicePortalRecord[] {
+  const parsedQuery = listEmployeeSelfservicePortalQuerySchema.parse(query);
   const searchTerm = normalizeSearchTerm(query.search);
-  const page = normalizePositiveInteger(query.page, 1);
-  const pageSize = normalizePositiveInteger(query.pageSize, DEFAULT_PAGE_SIZE);
+  const page = normalizePositiveInteger(parsedQuery.page, 1);
+  const pageSize = normalizePositiveInteger(
+    parsedQuery.pageSize,
+    DEFAULT_PAGE_SIZE
+  );
 
-  const filteredRecords = Array.from(employeeSelfservicePortalStore.values())
+  const filteredRecords = listEmployeeSelfservicePortalRepositoryRecords()
+    .filter((record) => canReadEmployeeSelfservicePortal(context, record))
+    .filter((record) => {
+      if (!parsedQuery.employeeId) {
+        return true;
+      }
+
+      return record.employeeId === parsedQuery.employeeId;
+    })
+    .filter((record) => {
+      if (!parsedQuery.status) {
+        return true;
+      }
+
+      return record.status === parsedQuery.status;
+    })
     .filter((record) => {
       if (searchTerm.length === 0) {
         return true;
@@ -44,12 +64,14 @@ export function listEmployeeSelfservicePortalRecords(
 
       return (
         record.id.toLowerCase().includes(searchTerm) ||
-        record.name.toLowerCase().includes(searchTerm) ||
+        record.employeeId.toLowerCase().includes(searchTerm) ||
+        record.employeeNumber.toLowerCase().includes(searchTerm) ||
+        record.displayName.toLowerCase().includes(searchTerm) ||
         record.status.toLowerCase().includes(searchTerm)
       );
     })
     .sort((leftRecord, rightRecord) =>
-      leftRecord.name.localeCompare(rightRecord.name)
+      leftRecord.displayName.localeCompare(rightRecord.displayName)
     );
 
   const startIndex = (page - 1) * pageSize;
@@ -58,7 +80,17 @@ export function listEmployeeSelfservicePortalRecords(
 
 export function getEmployeeSelfservicePortalRecord(
   id: string,
-  _context?: HrSuiteFeatureContext
+  context?: HrSuiteFeatureContext
 ): EmployeeSelfservicePortalRecord | null {
-  return employeeSelfservicePortalStore.get(id) ?? null;
+  const record = getEmployeeSelfservicePortalRepositoryRecordById(id);
+  if (!record) {
+    return null;
+  }
+
+  return canReadEmployeeSelfservicePortal(context, record) ? record : null;
 }
+
+export {
+  getEmployeeSelfservicePortalProfileUpdateRequestView,
+  listEmployeeSelfservicePortalProfileUpdateRequestViews,
+} from "./queries/profile-update-requests.query.ts";

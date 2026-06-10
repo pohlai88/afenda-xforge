@@ -1,5 +1,4 @@
 import assert from "node:assert/strict";
-import { test } from "node:test";
 
 import { defaultFieldRegistry } from "../src/registry";
 import {
@@ -12,6 +11,7 @@ import {
   TextareaFieldRenderer,
   TextFieldRenderer,
 } from "../src/renderers/fields";
+import { test } from "./test-runtime";
 
 test("defaultFieldRegistry resolves the concrete field renderers", () => {
   assert.equal(

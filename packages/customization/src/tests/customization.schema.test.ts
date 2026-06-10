@@ -227,3 +227,78 @@ test("customizationSchema accepts rollback metadata for rollback-ready versions"
 
   assert.equal(parsed.rolledBack?.fromVersion, 2);
 });
+
+test("customizationSchema rejects duplicate layout references", () => {
+  assert.throws(() => {
+    customizationSchema.parse({
+      ...validCustomization,
+      forms: [
+        {
+          key: "customer-form",
+          sectionKeys: ["general", "general"],
+        },
+      ],
+    });
+  }, /duplicate form section reference/);
+
+  assert.throws(() => {
+    customizationSchema.parse({
+      ...validCustomization,
+      sections: [
+        {
+          key: "general",
+          fieldKeys: ["name", "name"],
+        },
+      ],
+    });
+  }, /duplicate section field reference/);
+});
+
+test("customizationSchema enforces lifecycle chronology and rollback version ordering", () => {
+  assert.throws(() => {
+    customizationSchema.parse({
+      ...validCustomization,
+      baseMetadataFingerprint: "customer.records@2026-06-09",
+      created: {
+        at: "2026-06-09T02:00:00.000Z",
+        by: "admin-user",
+      },
+      updated: {
+        at: "2026-06-09T01:00:00.000Z",
+        by: "admin-user",
+      },
+      published: {
+        at: "2026-06-09T03:00:00.000Z",
+        by: "admin-user",
+      },
+      status: "published",
+      version: 2,
+    });
+  }, /updated timestamp cannot be earlier than created timestamp/);
+
+  assert.throws(() => {
+    customizationSchema.parse({
+      ...validCustomization,
+      baseMetadataFingerprint: "customer.records@2026-06-09",
+      created: {
+        at: "2026-06-09T00:00:00.000Z",
+        by: "admin-user",
+      },
+      updated: {
+        at: "2026-06-09T01:00:00.000Z",
+        by: "admin-user",
+      },
+      published: {
+        at: "2026-06-09T01:00:00.000Z",
+        by: "admin-user",
+      },
+      rolledBack: {
+        at: "2026-06-09T02:00:00.000Z",
+        by: "admin-user",
+        fromVersion: 2,
+      },
+      status: "published",
+      version: 2,
+    });
+  }, /rollback fromVersion must be earlier than the published version/);
+});

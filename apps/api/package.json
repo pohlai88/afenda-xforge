@@ -21,6 +21,7 @@
     "@repo/features-employee-management-compliance-regulatory-tracking": "workspace:*",
     "@repo/features-employee-management-employee-lifecycle-management": "workspace:*",
     "@repo/features-employee-management-employee-records-management": "workspace:*",
+    "@repo/features-employee-management-employee-selfservice-portal": "workspace:*",
     "@repo/features-employee-management-organizational-chart-hierarchy": "workspace:*",
     "@repo/features-master-data-companies": "workspace:*",
     "@repo/features-master-data-customers": "workspace:*",

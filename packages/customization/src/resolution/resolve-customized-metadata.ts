@@ -21,6 +21,7 @@ import type {
   CustomizationTableColumnOverrideContract,
   CustomizationTableOverrideContract,
 } from "../contracts/customization.contract.ts";
+import { assertCustomizationContract } from "../validation/assert-customization-contract.ts";
 import type { CustomizationMetadataValidationOptions } from "../validation/validate-customization-against-metadata.ts";
 import { assertCustomizationMatchesMetadata } from "../validation/validate-customization-against-metadata.ts";
 
@@ -188,12 +189,14 @@ const sanitizeSectionFieldKeys = (
     return sections;
   }
 
-  return sections.map((section) => ({
-    ...section,
-    fieldKeys: section.fieldKeys.filter((fieldKey) =>
-      visibleFieldKeys.has(fieldKey)
-    ),
-  }));
+  return sections
+    .map((section) => ({
+      ...section,
+      fieldKeys: section.fieldKeys.filter((fieldKey) =>
+        visibleFieldKeys.has(fieldKey)
+      ),
+    }))
+    .filter((section) => section.fieldKeys.length > 0);
 };
 
 const sanitizeFormReferences = (
@@ -226,12 +229,24 @@ export const resolveCustomizedMetadata = (
     return metadata;
   }
 
+  const normalizedCustomization =
+    options.validate === false
+      ? customization
+      : assertCustomizationContract(customization);
+
   if (options.validate !== false) {
-    assertCustomizationMatchesMetadata(customization, metadata, options);
+    assertCustomizationMatchesMetadata(
+      normalizedCustomization,
+      metadata,
+      options
+    );
   }
 
-  const fields = mergeFields(metadata.fields, customization.fields);
-  const sections = mergeSections(metadata.sections, customization.sections);
+  const fields = mergeFields(metadata.fields, normalizedCustomization.fields);
+  const sections = mergeSections(
+    metadata.sections,
+    normalizedCustomization.sections
+  );
   const visibleFieldKeys = fields
     ? new Set(fields.map((field) => field.key))
     : undefined;
@@ -243,25 +258,25 @@ export const resolveCustomizedMetadata = (
     ? new Set(sanitizedSections.map((section) => section.key))
     : undefined;
   const forms = sanitizeFormReferences(
-    mergeForms(metadata.forms, customization.forms),
+    mergeForms(metadata.forms, normalizedCustomization.forms),
     visibleFieldKeys,
     visibleSectionKeys
   );
 
   return {
     ...metadata,
-    actions: mergeActions(metadata.actions, customization.actions),
-    description: customization.description ?? metadata.description,
+    actions: mergeActions(metadata.actions, normalizedCustomization.actions),
+    description: normalizedCustomization.description ?? metadata.description,
     fields,
-    filters: mergeFilters(metadata.filters, customization.filters),
+    filters: mergeFilters(metadata.filters, normalizedCustomization.filters),
     forms,
     presentation: {
       ...metadata.presentation,
-      ...customization.presentation,
+      ...normalizedCustomization.presentation,
     },
     sections: sanitizedSections,
-    tables: mergeTables(metadata.tables, customization.tables),
-    title: customization.title ?? metadata.title,
+    tables: mergeTables(metadata.tables, normalizedCustomization.tables),
+    title: normalizedCustomization.title ?? metadata.title,
   };
 };
 
@@ -274,12 +289,24 @@ export const resolveCustomizedEntityMetadata = (
     return metadata;
   }
 
+  const normalizedCustomization =
+    options.validate === false
+      ? customization
+      : assertCustomizationContract(customization);
+
   if (options.validate !== false) {
-    assertCustomizationMatchesMetadata(customization, metadata, options);
+    assertCustomizationMatchesMetadata(
+      normalizedCustomization,
+      metadata,
+      options
+    );
   }
 
-  const fields = mergeFields(metadata.fields, customization.fields);
-  const sections = mergeSections(metadata.sections, customization.sections);
+  const fields = mergeFields(metadata.fields, normalizedCustomization.fields);
+  const sections = mergeSections(
+    metadata.sections,
+    normalizedCustomization.sections
+  );
   const visibleFieldKeys = fields
     ? new Set(fields.map((field) => field.key))
     : undefined;
@@ -291,21 +318,21 @@ export const resolveCustomizedEntityMetadata = (
     ? new Set(sanitizedSections.map((section) => section.key))
     : undefined;
   const forms = sanitizeFormReferences(
-    mergeForms(metadata.forms, customization.forms),
+    mergeForms(metadata.forms, normalizedCustomization.forms),
     visibleFieldKeys,
     visibleSectionKeys
   );
 
   return {
     ...metadata,
-    actions: mergeActions(metadata.actions, customization.actions),
-    description: customization.description ?? metadata.description,
+    actions: mergeActions(metadata.actions, normalizedCustomization.actions),
+    description: normalizedCustomization.description ?? metadata.description,
     fields,
-    filters: mergeFilters(metadata.filters, customization.filters),
+    filters: mergeFilters(metadata.filters, normalizedCustomization.filters),
     forms,
     presentation: {
       ...metadata.presentation,
-      ...customization.presentation,
+      ...normalizedCustomization.presentation,
     },
     sections: sanitizedSections,
     table: metadata.table
@@ -313,13 +340,14 @@ export const resolveCustomizedEntityMetadata = (
           ...metadata.table,
           columns: mergeEntityTableColumns(
             metadata.table.columns,
-            customization.table?.columns
+            normalizedCustomization.table?.columns
           ),
           defaultSort:
-            customization.table?.defaultSort ?? metadata.table.defaultSort,
-          title: customization.table?.title ?? metadata.table.title,
+            normalizedCustomization.table?.defaultSort ??
+            metadata.table.defaultSort,
+          title: normalizedCustomization.table?.title ?? metadata.table.title,
         }
       : undefined,
-    title: customization.title ?? metadata.title,
+    title: normalizedCustomization.title ?? metadata.title,
   };
 };

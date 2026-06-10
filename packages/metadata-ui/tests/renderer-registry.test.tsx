@@ -1,11 +1,11 @@
 import assert from "node:assert/strict";
-import { test } from "node:test";
 
 import {
   createRendererRegistry,
   MetadataRendererRegistryDuplicateError,
   MetadataRendererRegistryMissingError,
 } from "../src/registry";
+import { test } from "./test-runtime";
 
 test("createRendererRegistry resolves, registers, and guards duplicates", () => {
   const noopRenderer = (): null => null;

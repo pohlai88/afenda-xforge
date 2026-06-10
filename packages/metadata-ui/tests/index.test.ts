@@ -1,5 +1,6 @@
 import "./default-action-registry.test.tsx";
 import "./action-renderer-hardening.test.tsx";
+import "./diagnostics-and-fallbacks.test.tsx";
 import "./default-field-registry.test.tsx";
 import "./compatibility.test.tsx";
 import "./adapter-pipeline.test.tsx";

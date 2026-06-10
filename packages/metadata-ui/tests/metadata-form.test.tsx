@@ -1,5 +1,4 @@
 import assert from "node:assert/strict";
-import { test } from "node:test";
 import type { ReactElement, ReactNode } from "react";
 
 import { renderMetadataField } from "../src/adapters";
@@ -8,6 +7,7 @@ import type { MetadataFieldContract } from "../src/contracts";
 import type { MetadataRenderContext } from "../src/contracts/render-context.contract";
 import { createMetadataRenderContext } from "../src/contracts/render-context.defaults";
 import { defaultFieldRegistry } from "../src/registry";
+import { test } from "./test-runtime";
 
 const fields: readonly MetadataFieldContract[] = [
   {

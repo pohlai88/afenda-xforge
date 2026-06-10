@@ -1,8 +1,15 @@
 export type HrSuiteFeatureContext = {
   actorId?: string;
+  actorEmployeeId?: string;
+  canRead?: boolean;
+  canReadAll?: boolean;
+  canViewSensitive?: boolean;
+  canWrite?: boolean;
   companyId?: string;
+  organizationId?: string;
   requestId?: string;
   tenantId?: string;
+  userId?: string;
 };
 
 export const hrSuiteFeatureScope = {

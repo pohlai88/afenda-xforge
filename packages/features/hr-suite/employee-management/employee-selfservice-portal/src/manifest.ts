@@ -13,9 +13,9 @@ export type EmployeeSelfservicePortalManifest = {
 export const employeeSelfservicePortalManifest: EmployeeSelfservicePortalManifest =
   {
     id: "hr-suite.employee-management.employee-selfservice-portal",
-    title: "Employee Selfservice Portal",
+    title: "Employee Self-Service Portal",
     description:
-      "Governed package for the legacy HR Suite employee-selfservice-portal slice at afenda-erp/packages/features/hr-suite/src/employee-management/employee-selfservice-portal.",
+      "Governed package for employee self-service portal identity, scoped reads, and request-oriented execution surfaces.",
     domain: "employee-management",
     packageName:
       "@repo/features-employee-management-employee-selfservice-portal",

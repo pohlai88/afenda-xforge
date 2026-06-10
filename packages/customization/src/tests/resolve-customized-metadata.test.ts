@@ -13,7 +13,9 @@ import {
   resolveLayeredCustomizedMetadata,
   resolvePreviewCustomizationLayers,
   resolvePreviewCustomizedEntityMetadataResult,
+  resolvePreviewCustomizedMetadataResult,
   resolvePublishedCustomizedEntityMetadataResult,
+  resolvePublishedCustomizedMetadataResult,
 } from "../resolution/resolve-layered-customization.ts";
 import {
   assertCustomizationFixtureMatchesMetadata,
@@ -263,6 +265,56 @@ test("resolveCustomizedMetadata removes hidden field references from sections an
   assert.deepEqual(resolved.forms?.[0].fieldKeys, ["name"]);
 });
 
+test("resolveCustomizedMetadata prunes empty sections from form references", () => {
+  const resolved = resolveCustomizedMetadata(
+    {
+      ...customerMetadata,
+      fields: customerMetadata.fields?.map((field) =>
+        field.key === "name"
+          ? {
+              ...field,
+              customization: {
+                ...field.customization,
+                hidden: "allow-required",
+              },
+            }
+          : field
+      ),
+      forms: customerMetadata.forms?.map((form) => ({
+        ...form,
+        customization: {
+          ...form.customization,
+          sectionKeys: true,
+        },
+      })),
+    },
+    {
+      ...tenantCustomization,
+      fields: [
+        {
+          key: "name",
+          hidden: true,
+        },
+        {
+          key: "status",
+          hidden: true,
+        },
+      ],
+      forms: [
+        {
+          key: "customer-form",
+          sectionKeys: ["general"],
+        },
+      ],
+      sections: undefined,
+    }
+  );
+
+  assert.deepEqual(resolved.sections, []);
+  assert.deepEqual(resolved.forms?.[0].sectionKeys, []);
+  assert.deepEqual(resolved.forms?.[0].fieldKeys, []);
+});
+
 test("resolveCustomizedMetadata refuses mismatched feature overlays", () => {
   assert.throws(() => {
     resolveCustomizedMetadata(customerMetadata, {
@@ -277,6 +329,22 @@ test("resolveCustomizedMetadata refuses mismatched feature overlays", () => {
       entity: "supplier",
     });
   }, /entity/);
+});
+
+test("resolveCustomizedMetadata rejects malformed customization contracts before merge", () => {
+  assert.throws(() => {
+    resolveCustomizedMetadata(customerMetadata, {
+      ...tenantCustomization,
+      fields: [
+        {
+          key: "name",
+        },
+        {
+          key: "name",
+        },
+      ],
+    } as unknown as CustomizationContract);
+  }, /duplicate override key/);
 });
 
 test("resolveCustomizedEntityMetadata applies current entity metadata overrides", () => {
@@ -527,8 +595,11 @@ test("resolveLayeredCustomizedMetadata applies published tenant before company",
   };
   const publishedTenant: CustomizationContract = {
     ...tenantCustomization,
+    baseMetadataFingerprint: "customer.records@2026-06-09",
+    created: publishedAt,
     published: publishedAt,
     status: "published",
+    updated: publishedAt,
     version: 1,
   };
   const publishedCompany: CustomizationContract = {
@@ -539,7 +610,9 @@ test("resolveLayeredCustomizedMetadata applies published tenant before company",
         label: "Save company account",
       },
     ],
+    baseMetadataFingerprint: "customer.records@2026-06-09",
     companyId: "company-main",
+    created: publishedAt,
     fields: [
       {
         key: "name",
@@ -551,6 +624,7 @@ test("resolveLayeredCustomizedMetadata applies published tenant before company",
     scope: "company",
     status: "published",
     title: "Company Accounts",
+    updated: publishedAt,
     version: 1,
   };
 
@@ -617,6 +691,53 @@ test("resolveLayeredCustomizedEntityMetadata ignores drafts outside preview", ()
   assert.equal(previewResolved.title, "Draft Accounts");
 });
 
+test("resolveLayeredCustomizedMetadata rejects invalid layer scopes and tenant mismatches", () => {
+  const publishedLifecycle = {
+    baseMetadataFingerprint: "customer.records@2026-06-09",
+    created: {
+      at: "2026-06-09T00:00:00.000Z",
+      by: "admin-user",
+    },
+    published: {
+      at: "2026-06-09T00:00:00.000Z",
+      by: "admin-user",
+    },
+    status: "published" as const,
+    updated: {
+      at: "2026-06-09T00:00:00.000Z",
+      by: "admin-user",
+    },
+    version: 1,
+  };
+
+  assert.throws(() => {
+    resolveLayeredCustomizedMetadata(customerMetadata, {
+      tenant: {
+        ...tenantCustomization,
+        scope: "company",
+        companyId: "company-main",
+      },
+    });
+  }, /tenant customization layer received company scoped customization/);
+
+  assert.throws(() => {
+    resolveLayeredCustomizedMetadata(customerMetadata, {
+      company: {
+        ...tenantCustomization,
+        ...publishedLifecycle,
+        companyId: "company-main",
+        id: "customer.records.company-main",
+        scope: "company",
+        tenantId: "tenant-other",
+      },
+      tenant: {
+        ...tenantCustomization,
+        ...publishedLifecycle,
+      },
+    });
+  }, /must target the same tenant/);
+});
+
 test("resolvePreviewCustomizationLayers excludes archived customization", () => {
   const archivedTenant: CustomizationContract = {
     ...tenantCustomization,
@@ -640,6 +761,18 @@ test("resolvePreviewCustomizationLayers excludes archived customization", () => 
   assert.deepEqual(
     resolvePreviewCustomizationLayers({
       tenant: archivedTenant,
+    }),
+    []
+  );
+});
+
+test("resolvePreviewCustomizationLayers excludes customizations without explicit draft or published status", () => {
+  assert.deepEqual(
+    resolvePreviewCustomizationLayers({
+      tenant: {
+        ...tenantCustomization,
+        status: undefined,
+      } as unknown as CustomizationContract,
     }),
     []
   );
@@ -734,6 +867,25 @@ test("reviewCustomizationFixtureImport warns for stale draft imports and rejects
   assert.equal(strictReview.publishable, false);
 });
 
+test("resolvePublishedCustomizedMetadataResult fails closed for invalid layer contracts", () => {
+  const result = resolvePublishedCustomizedMetadataResult(customerMetadata, {
+    tenant: {
+      ...tenantCustomization,
+      status: "published",
+      version: 1,
+    },
+  });
+
+  assert.equal(result.status, "base_fallback");
+  assert.equal(result.metadata, customerMetadata);
+  assert.deepEqual(result.appliedCustomizations, []);
+  assert.ok(
+    result.diagnostics.some(
+      (issue) => issue.code === "customization.invalid_contract"
+    )
+  );
+});
+
 test("resolvePublishedCustomizedEntityMetadataResult fails closed for invalid published overlays", () => {
   const entityMetadata: EntityMetadata = {
     actions: customerMetadata.actions,
@@ -814,6 +966,34 @@ test("resolvePublishedCustomizedEntityMetadataResult fails closed for invalid pu
   );
 });
 
+test("resolvePreviewCustomizedMetadataResult fails closed for preview layer mismatches", () => {
+  const result = resolvePreviewCustomizedMetadataResult(customerMetadata, {
+    company: {
+      ...tenantCustomization,
+      companyId: "company-main",
+      id: "customer.records.company-main",
+      scope: "company",
+      status: "draft",
+      tenantId: "tenant-other",
+    },
+    tenant: {
+      ...tenantCustomization,
+      status: "draft",
+    },
+  });
+
+  assert.equal(result.status, "base_fallback");
+  assert.equal(result.metadata, customerMetadata);
+  assert.deepEqual(result.appliedCustomizations, []);
+  assert.ok(
+    result.diagnostics.some(
+      (issue) =>
+        issue.code === "customization.invalid_contract" &&
+        issue.message.includes("same tenant")
+    )
+  );
+});
+
 test("resolvePreviewCustomizedEntityMetadataResult surfaces preview warnings without failing closed", () => {
   const entityMetadata: EntityMetadata = {
     actions: customerMetadata.actions,
@@ -876,6 +1056,39 @@ test("resolvePreviewCustomizedEntityMetadataResult surfaces preview warnings wit
       (issue) =>
         issue.code === "customization.stale_metadata" &&
         issue.severity === "warning"
+    )
+  );
+});
+
+test("resolvePublishedCustomizedEntityMetadataResult fails closed for invalid layer contracts", () => {
+  const entityMetadata: EntityMetadata = {
+    actions: customerMetadata.actions,
+    customization: customerMetadata.customization,
+    entity: customerMetadata.entity,
+    fields: customerMetadata.fields,
+    id: customerMetadata.id,
+    labels: customerMetadata.labels,
+    sections: customerMetadata.sections,
+    title: customerMetadata.title,
+  };
+
+  const result = resolvePublishedCustomizedEntityMetadataResult(
+    entityMetadata,
+    {
+      company: {
+        ...tenantCustomization,
+        companyId: undefined,
+        scope: "company",
+        status: "published",
+      } as unknown as CustomizationContract,
+    }
+  );
+
+  assert.equal(result.status, "base_fallback");
+  assert.equal(result.metadata, entityMetadata);
+  assert.ok(
+    result.diagnostics.some(
+      (issue) => issue.code === "customization.invalid_contract"
     )
   );
 });

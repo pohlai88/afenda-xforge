@@ -24,6 +24,7 @@ import type {
 import { hrRecordsStore } from "./records-store.ts";
 
 type HrRecordsActionContext = {
+  canViewSensitive?: boolean;
   canWrite?: boolean;
   organizationId?: string;
   userId?: string;

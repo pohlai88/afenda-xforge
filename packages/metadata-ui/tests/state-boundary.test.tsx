@@ -1,11 +1,11 @@
 import assert from "node:assert/strict";
-import { test } from "node:test";
 import type { ReactElement } from "react";
 
 import {
   MetadataStateBoundary,
   renderMetadataStateBoundaryResult,
 } from "../src/components";
+import { test } from "./test-runtime";
 
 type TestElement = ReactElement<any, any>;
 
