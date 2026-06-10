@@ -1,12 +1,6 @@
-export type EmployeeLifecycleManagementPolicyContext = Readonly<{
-  actorId?: string;
-  canRead?: boolean;
-  canViewSensitive?: boolean;
-  canWrite?: boolean;
-  companyId?: string;
-  requestId?: string;
-  tenantId?: string;
-}>;
+import type { EmployeeLifecycleManagementPolicyContext } from "./contracts/index.ts";
+
+export type { EmployeeLifecycleManagementPolicyContext } from "./contracts/index.ts";
 
 const hasScopedIdentity = (
   context?: EmployeeLifecycleManagementPolicyContext

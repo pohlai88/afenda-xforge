@@ -4,7 +4,12 @@ import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { test } from "node:test";
 import {
-  createEmployeeLifecycleState,
+  resetEmployeeLifecycleRepositoryForTesting,
+  setEmployeeLifecycleRepositoryPathForTesting,
+  upsertEmployeeLifecycleState,
+} from "../src/repository.ts";
+import { createEmployeeLifecycleState } from "../src/schema.ts";
+import {
   getEmployeeLifecycleOverviewEntry,
   getEmployeeLifecycleOverviewSnapshot,
   listEmployeeLifecycleAuditTrailEntries,
@@ -12,12 +17,9 @@ import {
   listEmployeeLifecycleStageSummaries,
   listEmployeeLifecycleTaskEntries,
   recordEmployeeLifecycleExitNotice,
-  resetEmployeeLifecycleRepositoryForTesting,
-  setEmployeeLifecycleRepositoryPathForTesting,
   startEmployeeLifecycleResignation,
   transitionEmployeeLifecycleState,
-  upsertEmployeeLifecycleState,
-} from "../src/index.ts";
+} from "../src/server.ts";
 
 const repositoryScope = {
   companyId: "co-surface",

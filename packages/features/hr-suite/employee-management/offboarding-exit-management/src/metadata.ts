@@ -1,27 +1,38 @@
-export type OffboardingExitManagementMetadata = {
-  description: string;
-  domain: string;
-  id: string;
-  labels: {
-    plural: string;
-    singular: string;
-  };
-  source: "legacy-hr-suite";
-  suite: "hr-suite";
-  title: string;
-};
+import type { OffboardingExitManagementMetadata } from "./contracts/index.ts";
+import { offboardingExitManagementMetadataSchema } from "./contracts/index.ts";
+import {
+  offboardingExitManagementDomain,
+  offboardingExitManagementFeature,
+  offboardingExitManagementFeatureId,
+} from "./identity.ts";
 
 export const offboardingExitManagementMetadata: OffboardingExitManagementMetadata =
-  {
-    id: "hr-suite.employee-management.offboarding-exit-management",
-    title: "Offboarding Exit Management",
+  offboardingExitManagementMetadataSchema.parse({
+    id: offboardingExitManagementFeatureId,
+    title: "Offboarding & Exit Management",
     description:
-      "Governed metadata for the employee-management offboarding-exit-management feature extracted from the legacy HR suite.",
-    domain: "employee-management",
-    labels: {
-      singular: "Offboarding Exit Management record",
-      plural: "Offboarding Exit Management records",
-    },
-    source: "legacy-hr-suite",
-    suite: "hr-suite",
-  };
+      "Governed offboarding case orchestration for post-exit approvals, checklists, clearance, interviews, recovery references, settlement readiness, and closure audit history.",
+    domain: offboardingExitManagementDomain,
+    feature: offboardingExitManagementFeature,
+    category: "employee-management",
+    tags: [
+      "offboarding",
+      "exit-management",
+      "clearance",
+      "handover",
+      "asset-recovery",
+      "audit",
+    ],
+    keywords: [
+      "employee separation",
+      "exit checklist",
+      "access revocation",
+      "asset recovery",
+      "exit interview",
+      "final settlement readiness",
+    ],
+    icon: "door-open",
+    maturity: "managed",
+    visibility: "internal",
+    version: 1,
+  });

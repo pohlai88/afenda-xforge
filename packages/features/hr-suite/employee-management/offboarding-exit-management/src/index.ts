@@ -9,24 +9,50 @@ import "server-only";
 export type {
   CreateOffboardingExitManagementInput,
   HrOffboardingRoutePath,
+  HrSuiteFeatureContext,
+  HrSuiteFeatureScope,
   HrWorkforceOffboardingAuditAction,
+  ListOffboardingCasesQuery,
   ListOffboardingExitManagementQuery,
+  OffboardingCaseProjection,
+  OffboardingCaseRecord,
+  OffboardingExitManagementFeatureScope,
+  OffboardingExitManagementManifest,
+  OffboardingExitManagementMetadata,
   OffboardingExitManagementRecord,
+  OffboardingPolicyContext,
+  OffboardingReadContext,
+  OffboardingWriteContext,
+  OpenOffboardingCaseInput,
+  UpdateOffboardingCaseInput,
   UpdateOffboardingExitManagementInput,
 } from "./contract.ts";
-export { offboardingExitManagementExecutionSurface } from "./execution/index.ts";
+export {
+  createOffboardingExitManagementInputSchema,
+  hrOffboardingRoutePaths,
+  hrWorkforceOffboardingAuditActions,
+  hrWorkforceOffboardingReadPermission,
+  hrWorkforceOffboardingSensitiveReadPermission,
+  hrWorkforceOffboardingWritePermission,
+  offboardingCaseProjectionSchema,
+  offboardingCaseRecordSchema,
+  offboardingExitManagementFeatureId,
+  offboardingExitManagementRouteContracts,
+  offboardingExitManagementRoutePaths,
+  offboardingExitManagementWritePermission,
+  offboardingPolicyCapabilitySchema,
+  openOffboardingCaseInputSchema,
+  updateOffboardingCaseInputSchema,
+} from "./contract.ts";
 export { offboardingExitManagementManifest } from "./manifest.ts";
 export { offboardingExitManagementMetadata } from "./metadata.ts";
 export {
   createOffboardingExitManagement,
+  getOffboardingCaseById,
   getOffboardingExitManagement,
-  hrOffboardingRoutePaths,
-  hrWorkforceOffboardingAuditActions,
-  hrWorkforceOffboardingReadPermission,
-  hrWorkforceOffboardingWritePermission,
+  listOffboardingCases,
   listOffboardingExitManagement,
-  offboardingExitManagementFeatureId,
-  offboardingExitManagementRouteContracts,
+  openOffboardingCase,
+  updateOffboardingCase,
   updateOffboardingExitManagement,
 } from "./server.ts";
-export { offboardingExitManagementFeatureScope } from "./shared/index.ts";

@@ -1,5 +1,4 @@
-import type { EmployeeLifecycleManagementPolicyContext } from "@repo/features-employee-management-employee-lifecycle-management/policy";
-import type { EmployeeLifecycleRepositoryScope } from "@repo/features-employee-management-employee-lifecycle-management/repository";
+import type { EmployeeLifecycleManagementPolicyContext } from "@repo/features-employee-management-employee-lifecycle-management/contract";
 
 const header = (request: Request, name: string): string | undefined =>
   request.headers.get(name)?.trim() || undefined;
@@ -21,6 +20,11 @@ export type EmployeeLifecycleApiWriteContext =
     canWrite: boolean;
     actorId?: string;
   };
+
+type EmployeeLifecycleApiScope = Readonly<{
+  companyId?: string;
+  tenantId?: string;
+}>;
 
 export const createEmployeeLifecycleReadContext = (
   request: Request
@@ -44,7 +48,7 @@ export const createEmployeeLifecycleWriteContext = (
 
 export const createEmployeeLifecycleRepositoryScope = (
   context: EmployeeLifecycleManagementPolicyContext
-): EmployeeLifecycleRepositoryScope => ({
+): EmployeeLifecycleApiScope => ({
   companyId: context.companyId ?? undefined,
   tenantId: context.tenantId ?? undefined,
 });

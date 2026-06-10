@@ -7,8 +7,6 @@ import {
   employeeLifecycleManagementFeatureId,
   employeeLifecycleManagementFeatureLabel,
   employeeLifecycleManagementFeatureScope,
-  employeeLifecycleManagementManifest,
-  employeeLifecycleManagementMetadata,
   employeeLifecycleManagementReadPermission,
   employeeLifecycleManagementRequirementCoverage,
   employeeLifecycleManagementRouteContracts,
@@ -17,7 +15,9 @@ import {
   employeeLifecycleManagementWritePermission,
   hrLifecycleRoutePaths,
   hrWorkforceLifecycleReadPermission,
-} from "../src/index.ts";
+} from "../src/contract.ts";
+import { employeeLifecycleManagementManifest } from "../src/manifest.ts";
+import { employeeLifecycleManagementMetadata } from "../src/metadata.ts";
 
 test("exposes a coherent feature identity and scope", () => {
   assert.equal(

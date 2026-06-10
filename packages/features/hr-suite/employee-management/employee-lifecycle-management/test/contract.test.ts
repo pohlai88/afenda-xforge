@@ -4,7 +4,12 @@ import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { test } from "node:test";
 import {
-  createEmployeeLifecycleState,
+  resetEmployeeLifecycleRepositoryForTesting,
+  setEmployeeLifecycleRepositoryPathForTesting,
+  upsertEmployeeLifecycleState,
+} from "../src/repository.ts";
+import { createEmployeeLifecycleState } from "../src/schema.ts";
+import {
   getEmployeeLifecycleContractStatus,
   listEmployeeLifecycleContractReminderEntries,
   listEmployeeLifecycleContractReviewEntries,
@@ -12,11 +17,8 @@ import {
   recordEmployeeLifecycleContractReminder,
   recordEmployeeLifecycleContractReview,
   renewEmployeeLifecycleContract,
-  resetEmployeeLifecycleRepositoryForTesting,
-  setEmployeeLifecycleRepositoryPathForTesting,
   startEmployeeLifecycleContract,
-  upsertEmployeeLifecycleState,
-} from "../src/index.ts";
+} from "../src/server.ts";
 
 const repositoryScope = {
   companyId: "co-contract",

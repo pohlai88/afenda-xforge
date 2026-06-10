@@ -1,6 +1,11 @@
 import "server-only";
 
-export { createCompany, updateCompany } from "./actions.ts";
+export {
+  archiveCompany,
+  createCompany,
+  restoreCompany,
+  updateCompany,
+} from "./actions.ts";
 export {
   companyOpenApiSchemas,
   companyRouteContracts,
@@ -10,4 +15,4 @@ export {
   registerCompanyOpenApi,
   updateActiveCompanyRouteContract,
 } from "./contract.ts";
-export { getCompany, listCompanies } from "./queries.ts";
+export { getCompany, listCompanies, listCompanyHierarchy } from "./queries.ts";

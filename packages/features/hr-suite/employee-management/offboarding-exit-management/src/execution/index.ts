@@ -1,21 +1,23 @@
 import {
-  createOffboardingExitManagement,
-  getOffboardingExitManagement,
-  listOffboardingExitManagement,
-  updateOffboardingExitManagement,
+  getOffboardingCaseById,
+  listOffboardingCases,
+  openOffboardingCase,
+  updateOffboardingCase,
 } from "../server.ts";
 
+export { runOffboardingExitManagementAction } from "../execution.ts";
+
 export type OffboardingExitManagementExecutionSurface = {
-  create: typeof createOffboardingExitManagement;
-  getById: typeof getOffboardingExitManagement;
-  list: typeof listOffboardingExitManagement;
-  update: typeof updateOffboardingExitManagement;
+  getById: typeof getOffboardingCaseById;
+  list: typeof listOffboardingCases;
+  openCase: typeof openOffboardingCase;
+  updateCase: typeof updateOffboardingCase;
 };
 
 export const offboardingExitManagementExecutionSurface: OffboardingExitManagementExecutionSurface =
   {
-    create: createOffboardingExitManagement,
-    getById: getOffboardingExitManagement,
-    list: listOffboardingExitManagement,
-    update: updateOffboardingExitManagement,
+    getById: getOffboardingCaseById,
+    list: listOffboardingCases,
+    openCase: openOffboardingCase,
+    updateCase: updateOffboardingCase,
   };

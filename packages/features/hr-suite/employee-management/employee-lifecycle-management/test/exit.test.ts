@@ -4,21 +4,23 @@ import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { test } from "node:test";
 import {
+  resetEmployeeLifecycleRepositoryForTesting,
+  setEmployeeLifecycleRepositoryPathForTesting,
+  upsertEmployeeLifecycleState,
+} from "../src/repository.ts";
+import { createEmployeeLifecycleState } from "../src/schema.ts";
+import {
   archiveEmployeeLifecycleExit,
-  createEmployeeLifecycleState,
   getEmployeeLifecycleExitStatus,
   listEmployeeLifecycleExitEntries,
   listEmployeeLifecycleExitStatuses,
   recordEmployeeLifecycleExitNotice,
-  resetEmployeeLifecycleRepositoryForTesting,
-  setEmployeeLifecycleRepositoryPathForTesting,
   startEmployeeLifecycleContract,
   startEmployeeLifecycleResignation,
   startEmployeeLifecycleRetirement,
   startEmployeeLifecycleTermination,
   triggerEmployeeLifecycleOffboarding,
-  upsertEmployeeLifecycleState,
-} from "../src/index.ts";
+} from "../src/server.ts";
 
 const repositoryScope = {
   companyId: "co-exit",

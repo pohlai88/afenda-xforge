@@ -20,7 +20,19 @@ type TenantSeed = {
 
 type CompanySeed = {
   code: string;
+  countryCode?: string;
+  currencyCode?: string;
+  description?: string;
+  email?: string;
+  establishedOn?: Date;
+  isGroup?: boolean;
   name: string;
+  parentCompanyId?: string;
+  phone?: string;
+  registrationNumber?: string;
+  status?: string;
+  taxId?: string;
+  website?: string;
 };
 
 type CustomerSeed = {
@@ -178,13 +190,27 @@ const upsertCompany = async (
     .insert(companies)
     .values({
       ...seed,
+      isGroup: seed.isGroup ?? false,
+      status: seed.status?.trim() || "active",
       tenantId,
     })
     .onConflictDoUpdate({
       target: [companies.tenantId, companies.code],
       set: {
+        countryCode: seed.countryCode?.trim() || null,
+        currencyCode: seed.currencyCode?.trim() || null,
+        description: seed.description?.trim() || null,
+        email: seed.email?.trim().toLowerCase() || null,
+        establishedOn: seed.establishedOn ?? null,
+        isGroup: seed.isGroup ?? false,
         name: seed.name,
+        parentCompanyId: seed.parentCompanyId?.trim() || null,
+        phone: seed.phone?.trim() || null,
+        registrationNumber: seed.registrationNumber?.trim() || null,
+        status: seed.status?.trim() || "active",
+        taxId: seed.taxId?.trim() || null,
         updatedAt: new Date(),
+        website: seed.website?.trim() || null,
       },
     })
     .returning();

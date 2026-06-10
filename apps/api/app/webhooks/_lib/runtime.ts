@@ -405,6 +405,12 @@ const executeInboundDomainWebhook = async (
         operationId: message.envelope.operationId,
         requestId: message.envelope.requestId,
         tenantId: message.envelope.tenantId,
+        trustedSystem: createTrustedTenantContext({
+          actorType: "integration",
+          channel: "webhook",
+          reason: "webhook company sync",
+          tenantId: message.envelope.tenantId,
+        }),
         userId: systemActorId,
       });
       return;

@@ -24,6 +24,12 @@ export {
   hrWorkforceLifecycleSensitiveReadPermission,
   hrWorkforceLifecycleWritePermission,
 } from "./permission.contract.ts";
+export type { EmployeeLifecycleManagementPolicyContext } from "./policy.contract.ts";
+export {
+  employeeLifecyclePolicyContextSchema,
+  employeeLifecycleReadAccessContextSchema,
+  employeeLifecycleWriteAccessContextSchema,
+} from "./policy.contract.ts";
 export type {
   EmployeeLifecycleManagementRouteContract,
   EmployeeLifecycleManagementRoutePath,

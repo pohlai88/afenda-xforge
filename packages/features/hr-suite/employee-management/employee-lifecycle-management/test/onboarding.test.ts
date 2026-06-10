@@ -4,13 +4,15 @@ import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { test } from "node:test";
 import {
+  resetEmployeeLifecycleRepositoryForTesting,
+  setEmployeeLifecycleRepositoryPathForTesting,
+} from "../src/repository.ts";
+import {
   activateEmployeeLifecycleOnboarding,
   completeEmployeeLifecycleOnboardingTask,
   getEmployeeLifecycleOnboardingStatus,
-  resetEmployeeLifecycleRepositoryForTesting,
-  setEmployeeLifecycleRepositoryPathForTesting,
   startEmployeeLifecycleOnboarding,
-} from "../src/index.ts";
+} from "../src/server.ts";
 
 test("starts onboarding, tracks checklist completion, and activates the worker", () => {
   const repositoryFilePath = join(

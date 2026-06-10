@@ -1,16 +1,16 @@
 import assert from "node:assert/strict";
 import { test } from "node:test";
+import { employeeLifecycleManagementAuditEvents } from "../src/contract.ts";
 import {
   applyEmployeeLifecycleTransition,
   createEmployeeLifecycleState,
   EmployeeLifecycleTransitionError,
-  employeeLifecycleManagementAuditEvents,
   employeeLifecycleStageValues,
   employeeLifecycleStateSchema,
   getEmployeeLifecycleAllowedTransitionTargets,
   getEmployeeLifecycleStateFromHistory,
   isEmployeeLifecycleStateConsistent,
-} from "../src/index.ts";
+} from "../src/schema.ts";
 
 test("defines the canonical lifecycle stage catalog", () => {
   assert.deepEqual(employeeLifecycleStageValues, [

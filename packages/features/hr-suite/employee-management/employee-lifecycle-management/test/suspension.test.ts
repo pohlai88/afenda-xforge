@@ -4,19 +4,21 @@ import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { test } from "node:test";
 import {
-  createEmployeeLifecycleState,
+  resetEmployeeLifecycleRepositoryForTesting,
+  setEmployeeLifecycleRepositoryPathForTesting,
+  upsertEmployeeLifecycleState,
+} from "../src/repository.ts";
+import { createEmployeeLifecycleState } from "../src/schema.ts";
+import {
   getEmployeeLifecycleSuspensionStatus,
   listEmployeeLifecycleSuspensionEntries,
   listEmployeeLifecycleSuspensionStatuses,
   releaseEmployeeLifecycleSuspension,
-  resetEmployeeLifecycleRepositoryForTesting,
   resolveEmployeeLifecycleHold,
-  setEmployeeLifecycleRepositoryPathForTesting,
   startEmployeeLifecycleContract,
   startEmployeeLifecycleHold,
   startEmployeeLifecycleSuspension,
-  upsertEmployeeLifecycleState,
-} from "../src/index.ts";
+} from "../src/server.ts";
 
 const repositoryScope = {
   companyId: "co-suspension",

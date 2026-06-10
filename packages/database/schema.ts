@@ -47,6 +47,28 @@ export const companies = xforge.table(
       .references(() => tenants.id, { onDelete: "cascade" }),
     name: text("name").notNull(),
     code: varchar("code", { length: 64 }).notNull(),
+    status: varchar("status", { length: 16 }).notNull().default("active"),
+    parentCompanyId: uuid("parent_company_id"),
+    isGroup: boolean("is_group").notNull().default(false),
+    countryCode: varchar("country_code", { length: 2 }),
+    currencyCode: varchar("currency_code", { length: 3 }),
+    taxId: varchar("tax_id", { length: 64 }),
+    registrationNumber: varchar("registration_number", { length: 64 }),
+    email: text("email"),
+    phone: varchar("phone", { length: 64 }),
+    website: text("website"),
+    description: text("description"),
+    establishedOn: timestamp("established_on", {
+      mode: "date",
+      withTimezone: true,
+    }),
+    createdBy: text("created_by"),
+    updatedBy: text("updated_by"),
+    deletedAt: timestamp("deleted_at", {
+      mode: "date",
+      withTimezone: true,
+    }),
+    version: integer("version").notNull().default(1),
     createdAt: timestamp("created_at", {
       mode: "date",
       withTimezone: true,
@@ -61,7 +83,18 @@ export const companies = xforge.table(
       .notNull(),
   },
   (table) => [
+    foreignKey({
+      columns: [table.parentCompanyId],
+      foreignColumns: [table.id],
+      name: "companies_parent_company_id_companies_id_fk",
+    }).onDelete("set null"),
     index("companies_tenant_id_idx").on(table.tenantId),
+    index("companies_tenant_status_idx").on(table.tenantId, table.status),
+    index("companies_tenant_parent_idx").on(
+      table.tenantId,
+      table.parentCompanyId
+    ),
+    index("companies_tenant_name_idx").on(table.tenantId, table.name),
     uniqueIndex("companies_tenant_code_unique").on(table.tenantId, table.code),
   ]
 );
@@ -502,6 +535,97 @@ export const employeeRecordStatusHistory = xforge.table(
       table.companyId,
       table.source
     ),
+  ]
+);
+
+export const hrOffboardingCases = xforge.table(
+  "hr_offboarding_cases",
+  {
+    id: uuid("id").defaultRandom().primaryKey(),
+    tenantId: uuid("tenant_id")
+      .notNull()
+      .references(() => tenants.id, { onDelete: "cascade" }),
+    companyId: uuid("company_id")
+      .notNull()
+      .references(() => companies.id, { onDelete: "cascade" }),
+    employeeId: text("employee_id").notNull(),
+    caseNumber: varchar("case_number", { length: 96 }).notNull(),
+    caseTitle: text("case_title").notNull(),
+    status: varchar("status", { length: 32 }).notNull(),
+    exitType: varchar("exit_type", { length: 64 }).notNull(),
+    lifecycleSourceFeatureId: varchar("lifecycle_source_feature_id", {
+      length: 160,
+    }).notNull(),
+    lifecycleSourceEventId: text("lifecycle_source_event_id").notNull(),
+    lifecycleTriggerSnapshot: jsonb("lifecycle_trigger_snapshot")
+      .$type<Record<string, unknown>>()
+      .notNull(),
+    effectiveSeparationDate: timestamp("effective_separation_date", {
+      mode: "date",
+      withTimezone: true,
+    }),
+    lastWorkingDate: timestamp("last_working_date", {
+      mode: "date",
+      withTimezone: true,
+    }),
+    noticeStartDate: timestamp("notice_start_date", {
+      mode: "date",
+      withTimezone: true,
+    }),
+    noticeEndDate: timestamp("notice_end_date", {
+      mode: "date",
+      withTimezone: true,
+    }),
+    coordinatorActorId: text("coordinator_actor_id"),
+    requestedByActorId: text("requested_by_actor_id"),
+    reasonSummary: text("reason_summary"),
+    rehireEligibility: varchar("rehire_eligibility", { length: 32 }),
+    createdAt: timestamp("created_at", {
+      mode: "date",
+      withTimezone: true,
+    })
+      .defaultNow()
+      .notNull(),
+    updatedAt: timestamp("updated_at", {
+      mode: "date",
+      withTimezone: true,
+    })
+      .defaultNow()
+      .notNull(),
+  },
+  (table) => [
+    index("hr_offboarding_cases_tenant_company_idx").on(
+      table.tenantId,
+      table.companyId
+    ),
+    index("hr_offboarding_cases_tenant_company_employee_idx").on(
+      table.tenantId,
+      table.companyId,
+      table.employeeId
+    ),
+    index("hr_offboarding_cases_tenant_company_status_idx").on(
+      table.tenantId,
+      table.companyId,
+      table.status
+    ),
+    index("hr_offboarding_cases_tenant_company_exit_type_idx").on(
+      table.tenantId,
+      table.companyId,
+      table.exitType
+    ),
+    index("hr_offboarding_cases_tenant_company_last_working_idx").on(
+      table.tenantId,
+      table.companyId,
+      table.lastWorkingDate
+    ),
+    uniqueIndex("hr_offboarding_cases_tenant_company_case_number_unique").on(
+      table.tenantId,
+      table.companyId,
+      table.caseNumber
+    ),
+    uniqueIndex(
+      "hr_offboarding_cases_tenant_company_lifecycle_event_unique"
+    ).on(table.tenantId, table.companyId, table.lifecycleSourceEventId),
   ]
 );
 
@@ -1151,6 +1275,7 @@ export const tenantsRelations = relations(tenants, ({ many }) => ({
   complianceObligations: many(complianceObligations),
   complianceWorkerProfiles: many(complianceWorkerProfiles),
   customers: many(customers),
+  hrOffboardingCases: many(hrOffboardingCases),
   hrOrgPositions: many(hrOrgPositions),
   hrOrgReportingRelationships: many(hrOrgReportingRelationships),
   hrOrgStructureAuditReferences: many(hrOrgStructureAuditReferences),
@@ -1164,6 +1289,14 @@ export const companiesRelations = relations(companies, ({ one, many }) => ({
     fields: [companies.tenantId],
     references: [tenants.id],
   }),
+  parent: one(companies, {
+    fields: [companies.parentCompanyId],
+    references: [companies.id],
+    relationName: "companyHierarchy",
+  }),
+  children: many(companies, {
+    relationName: "companyHierarchy",
+  }),
   complianceAlertStates: many(complianceAlertStates),
   complianceAuditReferences: many(complianceAuditReferences),
   complianceCorrectiveActions: many(complianceCorrectiveActions),
@@ -1172,6 +1305,7 @@ export const companiesRelations = relations(companies, ({ one, many }) => ({
   complianceFilings: many(complianceFilings),
   complianceObligations: many(complianceObligations),
   complianceWorkerProfiles: many(complianceWorkerProfiles),
+  hrOffboardingCases: many(hrOffboardingCases),
   hrOrgPositions: many(hrOrgPositions),
   hrOrgReportingRelationships: many(hrOrgReportingRelationships),
   hrOrgStructureAuditReferences: many(hrOrgStructureAuditReferences),
@@ -1302,6 +1436,20 @@ export const employeeRecordStatusHistoryRelations = relations(
     }),
     company: one(companies, {
       fields: [employeeRecordStatusHistory.companyId],
+      references: [companies.id],
+    }),
+  })
+);
+
+export const hrOffboardingCasesRelations = relations(
+  hrOffboardingCases,
+  ({ one }) => ({
+    tenant: one(tenants, {
+      fields: [hrOffboardingCases.tenantId],
+      references: [tenants.id],
+    }),
+    company: one(companies, {
+      fields: [hrOffboardingCases.companyId],
       references: [companies.id],
     }),
   })
@@ -1481,6 +1629,8 @@ export const databaseSchema: Omit<
   employeeRecordStatusHistoryRelations,
   customers,
   customersRelations,
+  hrOffboardingCases,
+  hrOffboardingCasesRelations,
   hrOrgPositions,
   hrOrgPositionsRelations,
   hrOrgReportingRelationships,
@@ -1528,6 +1678,8 @@ export type EmployeeRecordStatusHistory = InferSelectModel<
 export type NewEmployeeRecordStatusHistory = InferInsertModel<
   typeof employeeRecordStatusHistory
 >;
+export type HrOffboardingCase = InferSelectModel<typeof hrOffboardingCases>;
+export type NewHrOffboardingCase = InferInsertModel<typeof hrOffboardingCases>;
 export type ComplianceEvidenceArtifact = InferSelectModel<
   typeof complianceEvidenceArtifacts
 >;

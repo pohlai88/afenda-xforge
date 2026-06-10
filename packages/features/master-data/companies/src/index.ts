@@ -5,15 +5,18 @@ import "server-only";
 
 export type {
   Company,
+  CompanyHierarchyNode,
+  CompanyLifecycleBody,
   CompanyList,
   CreateCompanyBody,
   ListCompaniesQuery,
   UpdateActiveCompanyBody,
+  UpdateCompanyBody,
 } from "./contract.ts";
-export { companyExecutionSurface } from "./execution/index.ts";
 export { companyFeatureManifest } from "./manifest.ts";
 export { companyMetadata } from "./metadata.ts";
 export {
+  archiveCompany,
   companyOpenApiSchemas,
   companyRouteContracts,
   createCompany,
@@ -22,8 +25,9 @@ export {
   getCompany,
   listCompanies,
   listCompaniesRouteContract,
+  listCompanyHierarchy,
   registerCompanyOpenApi,
+  restoreCompany,
   updateActiveCompanyRouteContract,
   updateCompany,
 } from "./server.ts";
-export { companyFeatureScope } from "./shared/index.ts";

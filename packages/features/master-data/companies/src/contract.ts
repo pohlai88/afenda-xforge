@@ -4,45 +4,82 @@ import {
   addSchemasToOpenApi,
   defineRouteContract,
 } from "@repo/api";
-import type { PaginatedList } from "@repo/shared";
-import { z } from "zod";
+import {
+  companyListSchema,
+  companySchema,
+  createCompanyBodySchema,
+  listCompaniesQuerySchema,
+  updateActiveCompanyBodySchema,
+} from "./schema.ts";
 
-export const companySchema = z.object({
-  id: z.string(),
-  code: z.string(),
-  name: z.string(),
-});
+export type {
+  Company,
+  CompanyHierarchyNode,
+  CompanyLifecycleBody,
+  CompanyList,
+  CreateCompanyBody,
+  GetCompanyQuery,
+  ListCompaniesQuery,
+  UpdateActiveCompanyBody,
+  UpdateCompanyBody,
+} from "./schema.ts";
+export {
+  companyEstablishedOnSchema,
+  companyHierarchyNodeSchema,
+  companyHierarchySchema,
+  companyLifecycleBodySchema,
+  companyListSchema,
+  companySchema,
+  companyStatusSchema,
+  createCompanyBodySchema,
+  getCompanyQuerySchema,
+  listCompaniesQuerySchema,
+  updateActiveCompanyBodySchema,
+  updateCompanyBodySchema,
+} from "./schema.ts";
 
-export const listCompaniesQuerySchema = z.object({
-  page: z.coerce.number().int().min(1).default(1),
-  pageSize: z.coerce.number().int().min(1).max(100).default(25),
-  search: z.string().trim().min(1).optional(),
-});
+const companyOpenApiProperties = {
+  code: { type: "string" },
+  countryCode: { type: "string" },
+  currencyCode: { type: "string" },
+  description: { type: "string" },
+  email: { type: "string", format: "email" },
+  establishedOn: { type: "string", format: "date" },
+  id: { type: "string" },
+  isGroup: { type: "boolean" },
+  name: { type: "string" },
+  parentCompanyId: { type: "string" },
+  phone: { type: "string" },
+  registrationNumber: { type: "string" },
+  status: {
+    type: "string",
+    enum: ["active", "inactive"],
+  },
+  taxId: { type: "string" },
+  website: { type: "string", format: "uri" },
+} as const;
 
-export const companyListSchema = z.object({
-  items: z.array(companySchema),
-  page: z.number().int().min(1),
-  pageSize: z.number().int().min(1),
-  total: z.number().int().min(0),
-});
-
-export const createCompanyBodySchema = z.object({
-  code: z.string().trim().min(1).max(64),
-  name: z.string().trim().min(1).max(120),
-});
-
-export const updateActiveCompanyBodySchema = z.object({
-  code: z.string().trim().min(1).max(64),
-  name: z.string().trim().min(1).max(120),
-});
-
-export type Company = z.infer<typeof companySchema>;
-export type CompanyList = PaginatedList<Company>;
-export type CreateCompanyBody = z.infer<typeof createCompanyBodySchema>;
-export type ListCompaniesQuery = z.infer<typeof listCompaniesQuerySchema>;
-export type UpdateActiveCompanyBody = z.infer<
-  typeof updateActiveCompanyBodySchema
->;
+const companyBodyOpenApiSchema = {
+  type: "object",
+  additionalProperties: false,
+  properties: {
+    code: companyOpenApiProperties.code,
+    countryCode: companyOpenApiProperties.countryCode,
+    currencyCode: companyOpenApiProperties.currencyCode,
+    description: companyOpenApiProperties.description,
+    email: companyOpenApiProperties.email,
+    establishedOn: companyOpenApiProperties.establishedOn,
+    isGroup: companyOpenApiProperties.isGroup,
+    name: companyOpenApiProperties.name,
+    parentCompanyId: companyOpenApiProperties.parentCompanyId,
+    phone: companyOpenApiProperties.phone,
+    registrationNumber: companyOpenApiProperties.registrationNumber,
+    status: companyOpenApiProperties.status,
+    taxId: companyOpenApiProperties.taxId,
+    website: companyOpenApiProperties.website,
+  },
+  required: ["code", "name"],
+} as const;
 
 export const listCompaniesRouteContract = defineRouteContract({
   audience: "client",
@@ -58,7 +95,10 @@ export const listCompaniesRouteContract = defineRouteContract({
         properties: {
           page: { type: "number", minimum: 1, default: 1 },
           pageSize: { type: "number", minimum: 1, maximum: 100, default: 25 },
+          parentCompanyId: { type: "string" },
+          rootOnly: { type: "boolean" },
           search: { type: "string" },
+          status: companyOpenApiProperties.status,
         },
       },
     },
@@ -96,15 +136,7 @@ export const createCompanyRouteContract = defineRouteContract({
   request: {
     body: {
       schema: createCompanyBodySchema,
-      openApiSchema: {
-        type: "object",
-        additionalProperties: false,
-        properties: {
-          code: { type: "string" },
-          name: { type: "string" },
-        },
-        required: ["code", "name"],
-      },
+      openApiSchema: companyBodyOpenApiSchema,
     },
   },
   success: {
@@ -144,15 +176,7 @@ export const updateActiveCompanyRouteContract = defineRouteContract({
   request: {
     body: {
       schema: updateActiveCompanyBodySchema,
-      openApiSchema: {
-        type: "object",
-        additionalProperties: false,
-        properties: {
-          code: { type: "string" },
-          name: { type: "string" },
-        },
-        required: ["code", "name"],
-      },
+      openApiSchema: companyBodyOpenApiSchema,
     },
   },
   success: {
@@ -178,12 +202,8 @@ export const companyOpenApiSchemas = {
   Company: {
     type: "object",
     additionalProperties: false,
-    properties: {
-      id: { type: "string" },
-      code: { type: "string" },
-      name: { type: "string" },
-    },
-    required: ["id", "code", "name"],
+    properties: companyOpenApiProperties,
+    required: ["id", "code", "name", "status", "isGroup"],
   },
 } as const;
 

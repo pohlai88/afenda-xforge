@@ -2,6 +2,7 @@ import "server-only";
 
 import type { EmployeeLifecycleTransitionRequest } from "./contracts/transition.contract.ts";
 import { employeeLifecycleTransitionRequestSchema } from "./contracts/transition.contract.ts";
+import { runEmployeeLifecycleManagementAction } from "./execution/index.ts";
 import type {
   EmployeeLifecycleRepositoryScope,
   EmployeeLifecycleRepositoryState,
@@ -10,7 +11,6 @@ import {
   findEmployeeLifecycleStateByEmployeeId,
   mutateEmployeeLifecycleRepository,
 } from "./repository.ts";
-import { runEmployeeLifecycleManagementAction } from "./execution/index.ts";
 import type {
   EmployeeLifecycleContractReadModel,
   EmployeeLifecycleContractReminderInput,

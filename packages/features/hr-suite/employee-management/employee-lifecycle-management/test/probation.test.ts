@@ -4,18 +4,20 @@ import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { test } from "node:test";
 import {
+  resetEmployeeLifecycleRepositoryForTesting,
+  setEmployeeLifecycleRepositoryPathForTesting,
+  upsertEmployeeLifecycleState,
+} from "../src/repository.ts";
+import { createEmployeeLifecycleState } from "../src/schema.ts";
+import {
   approveEmployeeLifecycleProbationConfirmation,
-  createEmployeeLifecycleState,
   extendEmployeeLifecycleProbation,
   getEmployeeLifecycleProbationStatus,
   listEmployeeLifecycleProbationReviews,
   listEmployeeLifecycleProbationStatuses,
   recordEmployeeLifecycleProbationReview,
-  resetEmployeeLifecycleRepositoryForTesting,
-  setEmployeeLifecycleRepositoryPathForTesting,
   startEmployeeLifecycleProbation,
-  upsertEmployeeLifecycleState,
-} from "../src/index.ts";
+} from "../src/server.ts";
 
 const repositoryScope = {
   companyId: "co-probation",

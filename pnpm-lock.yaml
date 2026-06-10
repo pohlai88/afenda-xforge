@@ -287,6 +287,9 @@ importers:
       '@repo/features-employee-management-employee-records-management':
         specifier: workspace:*
         version: link:../../packages/features/hr-suite/employee-management/employee-records-management
+      '@repo/features-employee-management-offboarding-exit-management':
+        specifier: workspace:*
+        version: link:../../packages/features/hr-suite/employee-management/offboarding-exit-management
       '@repo/features-employee-management-organizational-chart-hierarchy':
         specifier: workspace:*
         version: link:../../packages/features/hr-suite/employee-management/organizational-chart-hierarchy
@@ -1307,9 +1310,18 @@ importers:
 
   packages/features/hr-suite/employee-management/offboarding-exit-management:
     dependencies:
+      '@repo/database':
+        specifier: workspace:*
+        version: link:../../../../database
+      drizzle-orm:
+        specifier: 'catalog:'
+        version: 0.45.2(@opentelemetry/api@1.9.1)(@upstash/redis@1.38.0)(postgres@3.4.9)
       server-only:
         specifier: 'catalog:'
         version: 0.0.1
+      zod:
+        specifier: 4.3.6
+        version: 4.3.6
     devDependencies:
       '@repo/typescript-config':
         specifier: workspace:*
@@ -1317,6 +1329,9 @@ importers:
       '@types/node':
         specifier: 'catalog:'
         version: 25.9.2
+      tsx:
+        specifier: 'catalog:'
+        version: 4.22.4
       typescript:
         specifier: 'catalog:'
         version: 5.9.3
@@ -1830,6 +1845,9 @@ importers:
       '@repo/audit':
         specifier: workspace:*
         version: link:../../../audit
+      '@repo/auth':
+        specifier: workspace:*
+        version: link:../../../auth
       '@repo/database':
         specifier: workspace:*
         version: link:../../../database
@@ -1867,6 +1885,9 @@ importers:
       '@types/node':
         specifier: 'catalog:'
         version: 25.9.2
+      tsx:
+        specifier: 'catalog:'
+        version: 4.22.4
       typescript:
         specifier: 'catalog:'
         version: 5.9.3

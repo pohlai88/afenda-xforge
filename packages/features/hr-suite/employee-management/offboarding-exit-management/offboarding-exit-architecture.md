@@ -123,3 +123,86 @@
 |  22 | Sensitive exit information is hidden from unauthorized users.                                                      |
 |  23 | Overdue offboarding tasks generate alerts.                                                                         |
 |  24 | Every offboarding action creates an audit event.                                                                   |
+
+---
+
+## Implementation Boundary Note
+
+The architecture intent above is broader than the current in-repo ownership boundaries. The implemented feature direction follows the neighboring HR package evidence:
+
+- `employee-lifecycle-management` owns resignation, termination, retirement, notice-period tracking, last-working-date tracking, and the offboarding trigger handoff.
+- `employee-records-management` owns employee master data and employment-status history.
+- `documents-management` owns document metadata and file/storage references.
+- `organizational-chart-hierarchy` owns org structure and vacancy/headcount reference data.
+
+Offboarding & Exit Management therefore begins from a lifecycle handoff reference instead of becoming a second write owner for exit initiation or employee-status transitions.
+
+## Codebase Mapping
+
+The package now has the slice-2 offboarding case baseline in place. It has a durable repository contract, scoped case persistence, and the first API route family, but it is still early in the full offboarding workflow roadmap.
+
+| Area | Code location | Current behavior |
+| --- | --- | --- |
+| Feature identity | [`src/identity.ts`](src/identity.ts), [`src/feature-scope.ts`](src/feature-scope.ts), [`src/shared/index.ts`](src/shared/index.ts) | Declares stable feature identity, package scope, and compatibility feature-scope exports. |
+| Domain schema | [`src/schema.ts`](src/schema.ts) | Defines canonical case, task, approval, checklist, interview, clearance, asset/access reference, audit, and scoped read/write context schemas with `zod`. |
+| Public contracts | [`src/contracts/*`](src/contracts) | Groups domain, command, query, projection, permission, policy, route, audit, action, bounded-context, metadata, manifest, and integration contracts. |
+| Public barrels | [`src/contract.ts`](src/contract.ts), [`src/index.ts`](src/index.ts) | Re-exports the canonical contract surface and preserves compatibility aliases for the legacy create/list/get/update names. |
+| Manifest and metadata | [`src/metadata.ts`](src/metadata.ts), [`src/manifest.ts`](src/manifest.ts) | Publishes validated package metadata and a bounded-context-aware manifest. |
+| Execution compatibility | [`src/execution.ts`](src/execution.ts), [`src/execution/index.ts`](src/execution/index.ts), [`src/execution/action.ts`](src/execution/action.ts) | Provides the async top-level execution helper and compatibility wrappers for the existing execution subpath. |
+| Repository and policy | [`src/repository.ts`](src/repository.ts), [`src/policy.ts`](src/policy.ts) | Adds a file-backed test repository, a database-backed scoped repository path when `DATABASE_URL` and tenant/company scope exist, and basic scoped read/write enforcement. |
+| Write actions | [`src/actions.ts`](src/actions.ts) | Opens and updates canonical offboarding cases through the scoped repository, preserves lifecycle trigger snapshots, and blocks duplicate lifecycle-event cases per tenant/company scope. |
+| Query surface | [`src/queries.ts`](src/queries.ts), [`src/queries/index.ts`](src/queries/index.ts), [`src/queries/cases.query.ts`](src/queries/cases.query.ts), [`src/projector/case.ts`](src/projector/case.ts), [`src/server.ts`](src/server.ts) | Lists and gets scoped offboarding cases through repository-backed query functions and a thin case projector. |
+| Database schema | [`packages/database/schema.ts`](../../../../database/schema.ts), [`packages/database/drizzle/0009_parallel_snowbird.sql`](../../../../database/drizzle/0009_parallel_snowbird.sql) | Adds the first `hr_offboarding_cases` table with tenant/company scope, lifecycle trigger snapshot persistence, snapshot dates, and lookup indexes. |
+| API routes | [`apps/api/app/api/hr/offboarding/_lib/context.ts`](../../../../../apps/api/app/api/hr/offboarding/_lib/context.ts), [`apps/api/app/api/hr/offboarding/route.ts`](../../../../../apps/api/app/api/hr/offboarding/route.ts), [`apps/api/app/api/hr/offboarding/[caseId]/route.ts`](../../../../../apps/api/app/api/hr/offboarding/[caseId]/route.ts) | Exposes `GET /api/hr/offboarding`, `POST /api/hr/offboarding`, and `GET /api/hr/offboarding/[caseId]` through thin scoped request-context builders and package server calls. |
+| Tests | [`test/public-api.test.ts`](test/public-api.test.ts), [`test/offboarding-case-baseline.test.ts`](test/offboarding-case-baseline.test.ts) | Validates the public contract surface plus create/list/get/update, denied read, denied write, and cross-company isolation for the case baseline. |
+
+## Slice 1 Implementation Evidence
+
+Slice 1 is implemented as package foundation and contract alignment on 2026-06-10.
+
+Evidence:
+
+- [`package.json`](package.json) now exports `./schema`, includes a package `test` script, and declares the `tsx` and `zod` dependencies required by the canonical foundation.
+- [`src/schema.ts`](src/schema.ts) defines the slice-1 offboarding case, task, approval, checklist, interview, clearance, asset/access reference, audit, and context schemas.
+- [`src/contracts/index.ts`](src/contracts/index.ts) and the grouped [`src/contracts/*`](src/contracts) files expose versioned contract surfaces for commands, queries, projections, permissions, policy, routes, audit, action, bounded context, metadata, manifest, and integration references.
+- [`src/identity.ts`](src/identity.ts), [`src/feature-scope.ts`](src/feature-scope.ts), [`src/metadata.ts`](src/metadata.ts), and [`src/manifest.ts`](src/manifest.ts) provide the canonical feature identity and validated declarative package metadata.
+- [`src/contract.ts`](src/contract.ts), [`src/index.ts`](src/index.ts), [`src/shared/index.ts`](src/shared/index.ts), and [`src/execution/index.ts`](src/execution/index.ts) now act as explicit compatibility barrels rather than placeholder-only surfaces.
+- [`src/actions.ts`](src/actions.ts), [`src/queries.ts`](src/queries.ts), and [`src/server.ts`](src/server.ts) continue to expose the existing callable surface while using the canonical offboarding case contracts introduced in slice 1.
+- [`test/public-api.test.ts`](test/public-api.test.ts) proves that the manifest, metadata, route helpers, schema parsing, and compatibility create/get/list/update flow all work against the slice-1 case model.
+
+Validation completed on 2026-06-10:
+
+- `corepack pnpm --filter @repo/features-employee-management-offboarding-exit-management typecheck`
+- `corepack pnpm --filter @repo/features-employee-management-offboarding-exit-management lint`
+- `corepack pnpm --filter @repo/features-employee-management-offboarding-exit-management test`
+
+## Slice 2 Implementation Evidence
+
+Slice 2 is implemented as the offboarding case baseline and scoped repository on 2026-06-10.
+
+Evidence:
+
+- [`src/schema.ts`](src/schema.ts) now requires tenant/company scope on durable case records, adds case-level snapshot dates, and defines scoped read/write context flags used by the case baseline.
+- [`src/policy.ts`](src/policy.ts) implements tenant/company scope resolution, scope matching, and the slice-2 read/write access checks used by case actions and queries.
+- [`src/repository.ts`](src/repository.ts) adds the first offboarding repository with file-backed test persistence, `DATABASE_URL`-driven database mode, deterministic id generation, and reset hooks for package tests.
+- [`src/actions.ts`](src/actions.ts), [`src/queries.ts`](src/queries.ts), [`src/queries/index.ts`](src/queries/index.ts), [`src/queries/cases.query.ts`](src/queries/cases.query.ts), [`src/projector.ts`](src/projector.ts), and [`src/projector/case.ts`](src/projector/case.ts) replace the in-memory `Map` with the scoped repository and the first case projector/query split.
+- [`packages/database/schema.ts`](../../../../database/schema.ts) and [`packages/database/drizzle/0009_parallel_snowbird.sql`](../../../../database/drizzle/0009_parallel_snowbird.sql) add the `hr_offboarding_cases` table and generated migration for the slice-2 case baseline.
+- [`apps/api/app/api/hr/offboarding/_lib/context.ts`](../../../../../apps/api/app/api/hr/offboarding/_lib/context.ts), [`apps/api/app/api/hr/offboarding/route.ts`](../../../../../apps/api/app/api/hr/offboarding/route.ts), and [`apps/api/app/api/hr/offboarding/[caseId]/route.ts`](../../../../../apps/api/app/api/hr/offboarding/[caseId]/route.ts) add the first API route family for list/create/detail access.
+- [`test/public-api.test.ts`](test/public-api.test.ts) and [`test/offboarding-case-baseline.test.ts`](test/offboarding-case-baseline.test.ts) prove the compatibility public surface, repository-backed case lifecycle, denied read, denied write, and cross-company isolation.
+
+Validation completed on 2026-06-10:
+
+- `corepack pnpm --filter @repo/features-employee-management-offboarding-exit-management typecheck`
+- `corepack pnpm --filter @repo/features-employee-management-offboarding-exit-management lint`
+- `corepack pnpm --filter @repo/features-employee-management-offboarding-exit-management test`
+- `corepack pnpm --filter @repo/database typecheck`
+- `corepack pnpm --filter @repo/database lint`
+- `corepack pnpm --filter @repo/database db:generate`
+- `corepack pnpm --filter api typecheck`
+
+## Remaining Gaps After Slice 2
+
+- No audit-event persistence or audit query surface exists yet; slice 2 only enforces scoped case access and storage.
+- No checklist task, approval, handover, exit interview, asset/access, clearance, or settlement records are persisted yet beyond the contract layer.
+- Sensitive-field runtime redaction is still not enforced yet, even though the contract layer defines the policies for later slices.
+- Package tests validate the file-backed repository mode; the database path is typechecked and migration-generated but still lacks an integration test against a live scoped database.

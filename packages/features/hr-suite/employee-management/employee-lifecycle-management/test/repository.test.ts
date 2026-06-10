@@ -4,9 +4,7 @@ import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { test } from "node:test";
 import {
-  applyEmployeeLifecycleTransition,
   createEmployeeLifecycleRepositoryId,
-  createEmployeeLifecycleState,
   findEmployeeLifecycleStateByEmployeeId,
   loadEmployeeLifecycleRepository,
   mutateEmployeeLifecycleRepository,
@@ -15,7 +13,11 @@ import {
   saveEmployeeLifecycleRepository,
   setEmployeeLifecycleRepositoryPathForTesting,
   upsertEmployeeLifecycleState,
-} from "../src/index.ts";
+} from "../src/repository.ts";
+import {
+  applyEmployeeLifecycleTransition,
+  createEmployeeLifecycleState,
+} from "../src/schema.ts";
 
 test("persists lifecycle states with scope-aware file storage", () => {
   const repositoryFilePath = join(

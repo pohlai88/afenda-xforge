@@ -1,8 +1,8 @@
+import { employeeLifecycleTransitionRequestSchema } from "@repo/features-employee-management-employee-lifecycle-management/contract";
 import {
-  employeeLifecycleTransitionRequestSchema,
+  getEmployeeLifecycleOverviewEntry,
   transitionEmployeeLifecycleState,
-} from "@repo/features-employee-management-employee-lifecycle-management";
-import { getEmployeeLifecycleOverviewEntry } from "@repo/features-employee-management-employee-lifecycle-management/server";
+} from "@repo/features-employee-management-employee-lifecycle-management/server";
 import { NextResponse } from "next/server";
 import {
   createEmployeeLifecycleReadContext,
