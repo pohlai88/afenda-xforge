@@ -43,25 +43,44 @@ export type DocumentsManagementApiWriteContext =
 export const createDocumentsManagementReadContext = (
   request: Request
 ): DocumentsManagementApiReadContext => ({
+  actorEmployeeId: header(request, "x-actor-employee-id"),
   actorId: header(request, "x-actor-id"),
+  canAdminRetention:
+    boolHeader(request, "x-can-admin-retention-documents") ?? false,
+  canDownload: boolHeader(request, "x-can-download-documents") ?? false,
   canRead: boolHeader(request, "x-can-read-documents") ?? true,
+  canReadAudit: boolHeader(request, "x-can-read-document-audit") ?? false,
+  canSelfAcknowledge:
+    boolHeader(request, "x-can-self-acknowledge-documents") ?? false,
   canViewSensitive:
     boolHeader(request, "x-can-view-sensitive-documents") ?? false,
   companyId: header(request, "x-company-id"),
+  organizationId: header(request, "x-organization-id"),
+  requestId: header(request, "x-request-id"),
   tenantId: header(request, "x-tenant-id"),
+  userId: header(request, "x-user-id"),
 });
 
 export const createDocumentsManagementWriteContext = (
   request: Request
 ): DocumentsManagementApiWriteContext => ({
   actorId: header(request, "x-actor-id"),
+  actorEmployeeId: header(request, "x-actor-employee-id"),
+  canAdminRetention:
+    boolHeader(request, "x-can-admin-retention-documents") ?? false,
+  canDownload: boolHeader(request, "x-can-download-documents") ?? false,
   canRead: boolHeader(request, "x-can-read-documents") ?? true,
+  canReadAudit: boolHeader(request, "x-can-read-document-audit") ?? false,
+  canSelfAcknowledge:
+    boolHeader(request, "x-can-self-acknowledge-documents") ?? false,
   canViewSensitive:
     boolHeader(request, "x-can-view-sensitive-documents") ?? false,
   canWrite: boolHeader(request, "x-can-write-documents") ?? false,
   companyId: header(request, "x-company-id"),
+  organizationId: header(request, "x-organization-id"),
   requestId: header(request, "x-request-id"),
   tenantId: header(request, "x-tenant-id"),
+  userId: header(request, "x-user-id"),
 });
 
 export const getDocumentsManagementQuery = (
@@ -76,7 +95,11 @@ export const getDocumentsManagementQuery = (
       continue;
     }
 
-    if (key === "mandatory" || key === "verified") {
+    if (
+      key === "mandatory" ||
+      key === "verified" ||
+      key === "requiresAttention"
+    ) {
       rawQuery[key] = parseBooleanQueryValue(value);
       continue;
     }

@@ -1,11 +1,13 @@
-export type MetadataUiManifestKind = "action" | "field" | "section";
+import type { ComposeRegistryGroupName } from "@repo/ui";
+
+export type MetadataUiManifestKind = "action" | "field" | "section" | "state";
 
 export type MetadataUiManifestEntry = {
   kind: MetadataUiManifestKind;
   registryKey: string;
   rendererExport: string;
   rendererPath: string;
-  composeGroup: string;
+  composeGroup: ComposeRegistryGroupName;
   title: string;
   description?: string;
   contractKind?: string;
@@ -359,6 +361,126 @@ export const metadataUiManifest = {
       rendererPath: "../renderers/sections/metadata-section.renderer",
       smokeTest: true,
       title: "Workflow section renderer",
+    },
+    {
+      composeGroup: "skeleton",
+      contractKind: "loading",
+      fixture: false,
+      kind: "state",
+      publicExport: true,
+      registryKey: "loading",
+      rendererExport: "LoadingStateRenderer",
+      rendererPath: "../renderers/states/loading-state.renderer",
+      smokeTest: true,
+      title: "Loading state renderer",
+    },
+    {
+      composeGroup: "empty",
+      contractKind: "empty",
+      fixture: false,
+      kind: "state",
+      publicExport: true,
+      registryKey: "empty",
+      rendererExport: "EmptyStateRenderer",
+      rendererPath: "../renderers/states/empty-state.renderer",
+      smokeTest: true,
+      title: "Empty state renderer",
+    },
+    {
+      composeGroup: "alert",
+      contractKind: "error",
+      fixture: false,
+      kind: "state",
+      publicExport: true,
+      registryKey: "error",
+      rendererExport: "ErrorStateRenderer",
+      rendererPath: "../renderers/states/error-state.renderer",
+      smokeTest: true,
+      title: "Error state renderer",
+    },
+    {
+      composeGroup: "alert",
+      contractKind: "forbidden",
+      fixture: false,
+      kind: "state",
+      publicExport: true,
+      registryKey: "forbidden",
+      rendererExport: "ForbiddenStateRenderer",
+      rendererPath: "../renderers/states/forbidden-state.renderer",
+      smokeTest: true,
+      title: "Forbidden state renderer",
+    },
+    {
+      composeGroup: "frame",
+      contractKind: "ready",
+      fixture: false,
+      kind: "state",
+      publicExport: true,
+      registryKey: "ready",
+      rendererExport: "ReadyStateRenderer",
+      rendererPath: "../renderers/states/ready-state.renderer",
+      smokeTest: true,
+      title: "Ready state renderer",
+    },
+    {
+      composeGroup: "alert",
+      contractKind: "invalid",
+      fixture: false,
+      kind: "state",
+      publicExport: true,
+      registryKey: "invalid",
+      rendererExport: "InvalidStateRenderer",
+      rendererPath: "../renderers/states/invalid-state.renderer",
+      smokeTest: true,
+      title: "Invalid state renderer",
+    },
+    {
+      composeGroup: "alert",
+      contractKind: "degraded",
+      fixture: false,
+      kind: "state",
+      publicExport: true,
+      registryKey: "degraded",
+      rendererExport: "DegradedStateRenderer",
+      rendererPath: "../renderers/states/degraded-state.renderer",
+      smokeTest: true,
+      title: "Degraded state renderer",
+    },
+    {
+      composeGroup: "frame",
+      contractKind: "partial",
+      fixture: false,
+      kind: "state",
+      publicExport: true,
+      registryKey: "partial",
+      rendererExport: "PartialStateRenderer",
+      rendererPath: "../renderers/states/partial-state.renderer",
+      smokeTest: true,
+      title: "Partial state renderer",
+    },
+    {
+      composeGroup: "frame",
+      contractKind: "readonly",
+      fixture: false,
+      kind: "state",
+      publicExport: true,
+      registryKey: "readonly",
+      rendererExport: "ReadonlyStateRenderer",
+      rendererPath: "../renderers/states/readonly-state.renderer",
+      smokeTest: true,
+      title: "Readonly state renderer",
+    },
+    {
+      composeGroup: "alert",
+      contractKind: "maintenance",
+      fixture: false,
+      kind: "state",
+      publicExport: true,
+      registryKey: "maintenance",
+      rendererExport: "MaintenanceStateRenderer",
+      rendererPath: "../renderers/states/maintenance-state.renderer",
+      smokeTest: true,
+      title: "Maintenance state renderer",
     },
   ],
 } as const satisfies MetadataUiManifest;

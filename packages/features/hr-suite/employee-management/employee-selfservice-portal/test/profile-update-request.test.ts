@@ -5,6 +5,8 @@ import { tmpdir } from "node:os";
 import { resolve } from "node:path";
 import { afterEach, beforeEach, test } from "node:test";
 import { createHrEmployeeRecordAction } from "../../employee-records-management/src/actions.server.ts";
+import { updateHrEmployeeRecord } from "../../employee-records-management/src/actions.ts";
+import { buildHrEmployeeRecordDetailPageModel } from "../../employee-records-management/src/detail-page-model.server.ts";
 import { getHrEmployeeRecord } from "../../employee-records-management/src/queries.server.ts";
 import {
   resetHrEmployeeRecordsRepositoryForTesting,
@@ -25,6 +27,10 @@ import {
   resetEmployeeSelfservicePortalRepositoryForTesting,
   setEmployeeSelfservicePortalRepositoryPathForTesting,
 } from "../src/repository.ts";
+import {
+  configureEmployeeSelfservicePortalEmployeeRecordsIntegration,
+  resetEmployeeSelfservicePortalEmployeeRecordsIntegrationForTesting,
+} from "../src/server.ts";
 
 let portalRepositoryPath = "";
 let recordsRepositoryPath = "";
@@ -42,6 +48,32 @@ beforeEach(() => {
   resetEmployeeSelfservicePortalRepositoryForTesting();
   setHrEmployeeRecordsRepositoryPathForTesting(recordsRepositoryPath);
   resetHrEmployeeRecordsRepositoryForTesting();
+  configureEmployeeSelfservicePortalEmployeeRecordsIntegration({
+    applyApprovedProfileUpdate: async (input) =>
+      updateHrEmployeeRecord(
+        {
+          employeeId: input.employeeId,
+          ...input.requestedChanges,
+          approvalReference: input.approvalReference,
+          reason: input.reason,
+        },
+        {
+          canViewSensitive: true,
+          canWrite: true,
+          organizationId: input.organizationId,
+          userId: input.userId,
+        }
+      ),
+    getProfileSource: (input) => {
+      const detailPageModel = buildHrEmployeeRecordDetailPageModel(input);
+
+      if (!detailPageModel) {
+        return null;
+      }
+
+      return detailPageModel.employee;
+    },
+  });
 });
 
 afterEach(() => {
@@ -56,6 +88,8 @@ afterEach(() => {
   } catch {
     // Best-effort cleanup for records repository artifacts.
   }
+
+  resetEmployeeSelfservicePortalEmployeeRecordsIntegrationForTesting();
 });
 
 const createPortalRecordForEmployee = (
@@ -119,6 +153,7 @@ test("submits self-service profile update requests for self only", () => {
 
   assert.equal(request.status, "pending_hr_review");
   assert.equal(request.requiresSensitiveApproval, true);
+  assert.equal(request.reason, "Moved home");
 
   const selfList = listEmployeeSelfservicePortalProfileUpdateRequestViews(
     {},
@@ -132,6 +167,18 @@ test("submits self-service profile update requests for self only", () => {
 
   assert.equal(selfList.length, 1);
   assert.equal(selfList[0]?.id, request.id);
+  assert.equal(selfList[0]?.status, "pending_hr_review");
+  assert.equal(selfList[0]?.reason, "Moved home");
+
+  const unchangedRecord = getHrEmployeeRecord(employeeId, {
+    canRead: true,
+    canViewSensitive: true,
+    organizationId: "org-1",
+  });
+
+  assert.ok(unchangedRecord);
+  assert.notEqual(unchangedRecord.phoneNumber, "0811111111");
+  assert.notEqual(unchangedRecord.mailingAddress, "123 Example Street");
 
   assert.throws(
     () =>
@@ -150,6 +197,60 @@ test("submits self-service profile update requests for self only", () => {
       ),
     /submission denied/i
   );
+});
+
+test("flags permitted non-sensitive profile updates without sensitive approval", () => {
+  const created = createHrEmployeeRecordAction(
+    {
+      employeeNumber: "E206",
+      legalName: "Permitted Update",
+      email: "permitted.update@example.com",
+      preferredName: "Original Name",
+      emergencyContactName: "Initial Contact",
+    },
+    {
+      canViewSensitive: true,
+      canWrite: true,
+      organizationId: "org-1",
+      userId: "hr-admin",
+    }
+  );
+
+  assert.equal(created.ok, true);
+  assert.ok(created.targetId);
+  const employeeId = created.targetId;
+  createPortalRecordForEmployee(employeeId, "E206");
+
+  const submitted = submitEmployeeSelfservicePortalProfileUpdateRequest(
+    {
+      employeeId,
+      requestedChanges: {
+        emergencyContactName: "Updated Contact",
+        preferredName: "Updated Name",
+      },
+    },
+    {
+      actorEmployeeId: employeeId,
+      actorId: "actor-6",
+      canWrite: true,
+      companyId: "company-1",
+      tenantId: "tenant-1",
+      userId: "employee-user",
+    }
+  );
+
+  assert.equal(submitted.status, "pending_hr_review");
+  assert.equal(submitted.requiresSensitiveApproval, false);
+
+  const unchangedRecord = getHrEmployeeRecord(employeeId, {
+    canRead: true,
+    canViewSensitive: true,
+    organizationId: "org-1",
+  });
+
+  assert.ok(unchangedRecord);
+  assert.equal(unchangedRecord.preferredName, "Original Name");
+  assert.equal(unchangedRecord.emergencyContactName, "Initial Contact");
 });
 
 test("approves profile update requests and applies changes to employee records", async () => {

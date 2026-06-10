@@ -90,7 +90,15 @@ export function getEmployeeSelfservicePortalRecord(
   return canReadEmployeeSelfservicePortal(context, record) ? record : null;
 }
 
+export { listEmployeeSelfservicePortalAuditTrailEvents } from "./queries/audit.query.ts";
+export { listEmployeeSelfservicePortalLeaveApplications } from "./queries/leave-applications.query.ts";
+export { listEmployeeSelfservicePortalLeaveBalances } from "./queries/leave-balances.query.ts";
+export { listEmployeeSelfservicePortalManagerApprovalInbox } from "./queries/manager-approval-inbox.query.ts";
+export { listEmployeeSelfservicePortalNotifications } from "./queries/notifications.query.ts";
 export {
   getEmployeeSelfservicePortalProfileUpdateRequestView,
   listEmployeeSelfservicePortalProfileUpdateRequestViews,
 } from "./queries/profile-update-requests.query.ts";
+export { listEmployeeSelfservicePortalRequestStatuses } from "./queries/request-status.query.ts";
+export { listEmployeeSelfservicePortalResources } from "./queries/resources.query.ts";
+export { listEmployeeSelfservicePortalTasks } from "./queries/tasks.query.ts";

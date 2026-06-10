@@ -19,8 +19,7 @@
     "./package.json": "./package.json"
   },
   "files": [
-    "architecture.md",
-    "dod.md",
+    "architecture-and-feature-requirement.md",
     "index.ts",
     "package.json",
     "src"

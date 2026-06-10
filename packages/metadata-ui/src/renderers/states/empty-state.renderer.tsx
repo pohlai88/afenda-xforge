@@ -1,14 +1,51 @@
 import type { ReactElement } from "react";
-import { StatePanel } from "../../components/state-panel";
+
+import type { MetadataStateRenderer } from "../../contracts/state-renderer.contract";
+import { MetadataStateShell } from "./metadata-state-shell";
+import { resolveStateVisualDefinition } from "./state-visual-matrix";
 
 type EmptyStateProps = {
+  actionLabel?: string;
   description?: string;
+  onAction?: () => void;
   title?: string;
 };
 
 export function EmptyState({
-  description = "There is nothing to show yet.",
-  title = "No records available",
+  actionLabel,
+  description,
+  onAction,
+  title,
 }: EmptyStateProps): ReactElement {
-  return <StatePanel description={description} title={title} tone="neutral" />;
+  const definition = resolveStateVisualDefinition("empty");
+
+  return (
+    <MetadataStateShell
+      action={
+        onAction
+          ? {
+              label: actionLabel ?? definition.actionLabel ?? "Create record",
+              onClick: onAction,
+            }
+          : undefined
+      }
+      description={description}
+      stateKind="empty"
+      title={title}
+    />
+  );
 }
+
+export const EmptyStateRenderer: MetadataStateRenderer = ({
+  actionLabel,
+  emptyDescription,
+  emptyTitle,
+  onAction,
+}) => (
+  <EmptyState
+    actionLabel={actionLabel}
+    description={emptyDescription}
+    onAction={onAction}
+    title={emptyTitle}
+  />
+);

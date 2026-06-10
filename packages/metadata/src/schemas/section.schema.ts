@@ -3,6 +3,7 @@ import { metadataSectionCustomizationSchema } from "./customization-policy.schem
 
 export const metadataSectionSchema = z
   .object({
+    id: z.string().trim().min(1).optional(),
     key: z.string().trim().min(1),
     label: z.string().trim().min(1),
     customization: metadataSectionCustomizationSchema.optional(),

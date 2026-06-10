@@ -6,6 +6,7 @@ import { metadataFieldCustomizationSchema } from "./customization-policy.schema.
 export const metadataFieldSchema = z
   .object({
     customization: metadataFieldCustomizationSchema.optional(),
+    id: z.string().trim().min(1).optional(),
     key: z.string().trim().min(1),
     label: z.string().trim().min(1),
     kind: z.enum(metadataFieldKinds),

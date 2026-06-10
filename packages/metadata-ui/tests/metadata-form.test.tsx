@@ -91,9 +91,22 @@ test("renderMetadataField returns the rendered field primitive", () => {
     value: true,
   }).element as TestElement;
 
-  assert.equal(textField.type, "div");
-  assert.equal(selectField.type, "div");
-  assert.equal(checkboxField.type, "label");
+  assert.equal(
+    typeof textField.type === "string" ? textField.type : textField.type.name,
+    "MetadataFieldShell"
+  );
+  assert.equal(
+    typeof selectField.type === "string"
+      ? selectField.type
+      : selectField.type.name,
+    "MetadataFieldShell"
+  );
+  assert.equal(
+    typeof checkboxField.type === "string"
+      ? checkboxField.type
+      : checkboxField.type.name,
+    "MetadataFieldShell"
+  );
 });
 
 test("MetadataForm renders a form grid with all fields", () => {
@@ -114,7 +127,9 @@ test("MetadataForm renders a form grid with all fields", () => {
     (candidate) =>
       candidate.type === "div" &&
       typeof candidate.props.className === "string" &&
-      candidate.props.className.includes("grid gap-4")
+      candidate.props.className.includes("grid") &&
+      candidate.props.className.includes("md:grid-cols-2") &&
+      candidate.props.className.includes("gap-4")
   ) as TestElement | undefined;
 
   assert.ok(grid);

@@ -1,5 +1,21 @@
 import type { EntityMetadata } from "@repo/metadata";
 import { systemAdminCapabilities } from "./contract.ts";
+import {
+  systemAdminAccessAction,
+  systemAdminAccessFilterOption,
+} from "./domains/access/metadata.ts";
+import { systemAdminAuditFilterOption } from "./domains/audit/metadata.ts";
+import {
+  systemAdminCustomizationAction,
+  systemAdminCustomizationFilterOption,
+} from "./domains/customization/metadata.ts";
+import { systemAdminIntegrationsFilterOption } from "./domains/integrations/metadata.ts";
+import { systemAdminOperationsFilterOption } from "./domains/operations/metadata.ts";
+import { systemAdminOverviewFilterOption } from "./domains/overview/metadata.ts";
+import {
+  systemAdminTenantSettingsAction,
+  systemAdminTenantSettingsFilterOption,
+} from "./domains/tenant-settings/metadata.ts";
 
 export const systemAdminControlPlaneMetadata: EntityMetadata = {
   id: "system-admin.control-plane",
@@ -53,24 +69,15 @@ export const systemAdminControlPlaneMetadata: EntityMetadata = {
   ],
   actions: [
     {
-      key: "tenant-setting-update",
-      label: "Update tenant setting",
-      kind: "update",
-      placement: "primary",
+      ...systemAdminTenantSettingsAction,
       permissionHint: systemAdminCapabilities.tenantSettingsWrite,
     },
     {
-      key: "role-assign",
-      label: "Assign role",
-      kind: "update",
-      placement: "overflow",
+      ...systemAdminAccessAction,
       permissionHint: systemAdminCapabilities.usersAccessWrite,
     },
     {
-      key: "customization-publish",
-      label: "Publish customization",
-      kind: "approve",
-      placement: "primary",
+      ...systemAdminCustomizationAction,
       permissionHint: systemAdminCapabilities.customizationPublish,
     },
   ],
@@ -82,12 +89,13 @@ export const systemAdminControlPlaneMetadata: EntityMetadata = {
       kind: "status",
       operator: "equals",
       options: [
-        { label: "Overview", value: "overview" },
-        { label: "Tenant Settings", value: "tenant-settings" },
-        { label: "Users & Access", value: "users-access" },
-        { label: "Customization", value: "customization-governance" },
-        { label: "Audit", value: "audit" },
-        { label: "Health & Metrics", value: "health-metrics" },
+        systemAdminOverviewFilterOption,
+        systemAdminTenantSettingsFilterOption,
+        systemAdminAccessFilterOption,
+        systemAdminCustomizationFilterOption,
+        systemAdminAuditFilterOption,
+        systemAdminOperationsFilterOption,
+        systemAdminIntegrationsFilterOption,
       ],
     },
   ],

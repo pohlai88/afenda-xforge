@@ -157,3 +157,54 @@ test("updates records within the active scope", () => {
   assert.equal(updated.status, "active");
   assert.equal(updated.mobileAccessEnabled, false);
 });
+
+test("requires authenticated manager scope for elevated portal reads", () => {
+  const created = createEmployeeSelfservicePortalRecord(
+    {
+      employeeId: "emp-004",
+      employeeNumber: "E004",
+      displayName: "Managed Worker",
+    },
+    {
+      canWrite: true,
+      tenantId: "tenant-1",
+      companyId: "company-1",
+      userId: "hr-admin",
+    }
+  );
+
+  const unauthenticatedElevatedRead = getEmployeeSelfservicePortalRecord(
+    created.id,
+    {
+      canRead: true,
+      canReadAll: true,
+      tenantId: "tenant-1",
+      companyId: "company-1",
+    }
+  );
+
+  assert.equal(unauthenticatedElevatedRead, null);
+
+  const unauthenticatedElevatedList = listEmployeeSelfservicePortalRecords(
+    {},
+    {
+      canRead: true,
+      canReadAll: true,
+      tenantId: "tenant-1",
+      companyId: "company-1",
+    }
+  );
+
+  assert.equal(unauthenticatedElevatedList.length, 0);
+
+  const managerScopedRead = getEmployeeSelfservicePortalRecord(created.id, {
+    canRead: true,
+    canReadAll: true,
+    tenantId: "tenant-1",
+    companyId: "company-1",
+    userId: "manager-user",
+  });
+
+  assert.ok(managerScopedRead);
+  assert.equal(managerScopedRead.employeeId, "emp-004");
+});

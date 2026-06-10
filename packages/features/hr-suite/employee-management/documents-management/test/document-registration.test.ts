@@ -6,19 +6,25 @@ import { afterEach, beforeEach, test } from "node:test";
 import {
   resetDocumentsManagementRepositoryForTesting,
   setDocumentsManagementRepositoryPathForTesting,
-} from "../src/repository.ts";
+} from "../src/repository.testing.ts";
+import {
+  resetDocumentsManagementAuditWriterForTesting,
+  setDocumentsManagementAuditWriterForTesting,
+} from "../src/audit.ts";
 import {
   getDocumentsManagementDocument,
   listDocumentsManagementDocumentAuditTrail,
   registerDocumentsManagementDocument,
   updateDocumentsManagementDocument,
 } from "../src/server.ts";
+import { createNoopAuditWriter } from "@repo/audit";
 
 let sandboxDirectory: string;
 
 const registrationContext = {
   actorId: "actor-1",
   canRead: true,
+  canReadAudit: true,
   canViewSensitive: false,
   canWrite: true,
   companyId: "company-a",
@@ -31,14 +37,16 @@ beforeEach(() => {
 
   setDocumentsManagementRepositoryPathForTesting(repositoryPath);
   resetDocumentsManagementRepositoryForTesting();
+  setDocumentsManagementAuditWriterForTesting(createNoopAuditWriter());
 });
 
 afterEach(() => {
+  resetDocumentsManagementAuditWriterForTesting();
   rmSync(sandboxDirectory, { recursive: true, force: true });
 });
 
-test("registers document metadata and records an audit event", () => {
-  const createdDocument = registerDocumentsManagementDocument(
+test("registers document metadata and records an audit event", async () => {
+  const createdDocument = await registerDocumentsManagementDocument(
     {
       description: "Employee policy acknowledgment",
       documentCategory: "policy",
@@ -87,8 +95,8 @@ test("registers document metadata and records an audit event", () => {
   );
 });
 
-test("updates document metadata and appends a second audit event", () => {
-  const createdDocument = registerDocumentsManagementDocument(
+test("updates document metadata and appends a second audit event", async () => {
+  const createdDocument = await registerDocumentsManagementDocument(
     {
       documentCategory: "identity",
       documentType: "passport",
@@ -105,7 +113,7 @@ test("updates document metadata and appends a second audit event", () => {
     }
   );
 
-  const updatedDocument = updateDocumentsManagementDocument(
+  const updatedDocument = await updateDocumentsManagementDocument(
     {
       id: createdDocument.id,
       rejectionReason: null,

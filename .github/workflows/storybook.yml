@@ -1,0 +1,50 @@
+name: Storybook
+
+on:
+  pull_request:
+    paths:
+      - "apps/storybook/**"
+      - "packages/ui/**"
+      - "packages/metadata-ui/**"
+      - "pnpm-lock.yaml"
+      - "pnpm-workspace.yaml"
+      - ".github/workflows/storybook.yml"
+  push:
+    branches:
+      - main
+    paths:
+      - "apps/storybook/**"
+      - "packages/ui/**"
+      - "packages/metadata-ui/**"
+      - "pnpm-lock.yaml"
+      - "pnpm-workspace.yaml"
+      - ".github/workflows/storybook.yml"
+
+jobs:
+  build:
+    name: Build Storybook
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Enable Corepack
+        run: corepack enable
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 10.0.0
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: pnpm
+
+      - name: Install
+        run: pnpm install --frozen-lockfile
+
+      - name: Build Storybook
+        run: pnpm --filter storybook check:build

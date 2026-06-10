@@ -16,7 +16,8 @@
   },
   "files": [
     "src",
-    "package.json"
+    "package.json",
+    "architecture-and-feature-requirement.md"
   ],
   "scripts": {
     "lint": "biome check .",
@@ -26,6 +27,7 @@
     "typecheck": "tsc --noEmit --emitDeclarationOnly false"
   },
   "dependencies": {
+    "@repo/features-employee-management-employee-lifecycle-management": "workspace:*",
     "@repo/search": "workspace:*",
     "server-only": "catalog:",
     "zod": "catalog:"

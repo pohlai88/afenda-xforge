@@ -1,4 +1,7 @@
-import { getDocumentsManagementDocumentSummary } from "@repo/features-employee-management-documents-management/server";
+import {
+  getDocumentsManagementDocumentSummary,
+  recordDocumentsManagementDocumentAccess,
+} from "@repo/features-employee-management-documents-management/server";
 import { NextResponse } from "next/server";
 
 import { createDocumentsManagementReadContext } from "../_lib/context.ts";
@@ -23,6 +26,17 @@ export async function GET(
     return NextResponse.json(
       { ok: false, error: "Document not found" },
       { status: 404 }
+    );
+  }
+
+  const readContext = createDocumentsManagementReadContext(request);
+  if (readContext.canViewSensitive) {
+    await recordDocumentsManagementDocumentAccess(
+      {
+        action: "read_sensitive",
+        documentId,
+      },
+      readContext
     );
   }
 

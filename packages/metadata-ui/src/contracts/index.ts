@@ -76,6 +76,11 @@ export type {
   MetadataSectionRow,
 } from "./section-renderer.contract";
 export type {
+  MetadataStateKind,
+  MetadataStateRenderer,
+  MetadataStateRendererProps,
+} from "./state-renderer.contract";
+export type {
   MetadataSurfaceContract,
   MetadataSurfaceKind,
   MetadataSurfaceRenderer,

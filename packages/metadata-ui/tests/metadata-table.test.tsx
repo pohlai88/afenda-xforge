@@ -237,13 +237,15 @@ test("renderMetadataTableResult emits render telemetry with the threaded context
   assert.equal(result.diagnostics.length, 0);
 });
 
-test("renderMetadataPanelResult surfaces unsupported column diagnostics", () => {
+test("renderMetadataPanelResult formats money columns with locale context", () => {
   const telemetry = createTelemetrySink();
 
   const result = renderMetadataPanelResult({
     context: {
+      locale: "en",
       routeId: "tests/metadata-panel",
       telemetry: telemetry.sink,
+      timezone: "UTC",
     },
     metadata: {
       ...metadata,
@@ -262,17 +264,25 @@ test("renderMetadataPanelResult surfaces unsupported column diagnostics", () => 
   });
 
   assert.equal((result.element.type as { name?: string }).name, "Card");
-  assert.equal(result.diagnostics.length, 1);
-  assert.equal(result.diagnostics[0]?.code, "missing-renderer");
-  assert.deepEqual(
-    telemetry.events.map((event) => event.name),
-    [
-      "metadata.table.render.started",
-      "metadata.table.render.completed",
-      "metadata.panel.render.started",
-      "metadata.panel.render.completed",
-    ]
-  );
+  assert.equal(result.diagnostics.length, 0);
+
+  const table = collectElements(result.element).find(
+    (candidate) =>
+      (candidate.type as { name?: string }).name === "ActivityTable"
+  ) as TestElement | undefined;
+
+  assert.ok(table);
+  assert.equal(table?.props.locale, "en");
+  assert.equal(table?.props.timezone, "UTC");
+
+  const moneyCell = table?.props.renderCell(
+    { key: "total", kind: "money", label: "Total" },
+    1200.5,
+    { id: "row-1", total: 1200.5 }
+  ) as TestElement;
+
+  assert.equal(moneyCell.props["data-locale-formatted"], "money");
+  assert.match(String(moneyCell.props.children), /\$/);
 });
 
 test("EntityMetadataPanel accepts layered customization input", () => {

@@ -785,6 +785,235 @@ export const complianceAuditReferences = xforge.table(
   ]
 );
 
+export const offboardingCases = xforge.table(
+  "offboarding_cases",
+  {
+    id: uuid("id").defaultRandom().primaryKey(),
+    tenantId: uuid("tenant_id")
+      .notNull()
+      .references(() => tenants.id, { onDelete: "cascade" }),
+    companyId: uuid("company_id").references(() => companies.id, {
+      onDelete: "cascade",
+    }),
+    employeeId: text("employee_id").notNull(),
+    lifecycleExitReference: text("lifecycle_exit_reference"),
+    exitType: varchar("exit_type", { length: 64 }).notNull(),
+    status: varchar("status", { length: 32 }).notNull(),
+    reason: text("reason").notNull(),
+    reasonDetails: text("reason_details"),
+    effectiveSeparationDate: timestamp("effective_separation_date", {
+      mode: "date",
+      withTimezone: true,
+    }).notNull(),
+    noticeStartDate: timestamp("notice_start_date", {
+      mode: "date",
+      withTimezone: true,
+    }),
+    noticeEndDate: timestamp("notice_end_date", {
+      mode: "date",
+      withTimezone: true,
+    }),
+    requiredNoticeDays: integer("required_notice_days"),
+    waivedNotice: boolean("waived_notice").notNull().default(false),
+    waivedNoticeReason: text("waived_notice_reason"),
+    lastWorkingDate: timestamp("last_working_date", {
+      mode: "date",
+      withTimezone: true,
+    }),
+    initiatedBy: text("initiated_by"),
+    initiationSource: varchar("initiation_source", { length: 32 }).notNull(),
+    legalEntityCode: varchar("legal_entity_code", { length: 96 }),
+    departmentId: text("department_id"),
+    managerEmployeeId: text("manager_employee_id"),
+    workLocationCode: varchar("work_location_code", { length: 96 }),
+    policyReference: text("policy_reference"),
+    riskLevel: varchar("risk_level", { length: 32 }).notNull(),
+    legalReviewRequired: boolean("legal_review_required")
+      .notNull()
+      .default(false),
+    createdAt: timestamp("created_at", {
+      mode: "date",
+      withTimezone: true,
+    })
+      .defaultNow()
+      .notNull(),
+    updatedAt: timestamp("updated_at", {
+      mode: "date",
+      withTimezone: true,
+    })
+      .defaultNow()
+      .notNull(),
+  },
+  (table) => [
+    index("offboarding_cases_tenant_company_employee_idx").on(
+      table.tenantId,
+      table.companyId,
+      table.employeeId
+    ),
+    index("offboarding_cases_tenant_company_status_idx").on(
+      table.tenantId,
+      table.companyId,
+      table.status
+    ),
+    index("offboarding_cases_tenant_company_exit_type_idx").on(
+      table.tenantId,
+      table.companyId,
+      table.exitType
+    ),
+    index("offboarding_cases_tenant_company_effective_idx").on(
+      table.tenantId,
+      table.companyId,
+      table.effectiveSeparationDate
+    ),
+  ]
+);
+
+export const offboardingApprovalSteps = xforge.table(
+  "offboarding_approval_steps",
+  {
+    id: uuid("id").defaultRandom().primaryKey(),
+    tenantId: uuid("tenant_id")
+      .notNull()
+      .references(() => tenants.id, { onDelete: "cascade" }),
+    companyId: uuid("company_id").references(() => companies.id, {
+      onDelete: "cascade",
+    }),
+    caseId: uuid("case_id")
+      .notNull()
+      .references(() => offboardingCases.id, { onDelete: "cascade" }),
+    employeeId: text("employee_id").notNull(),
+    exitType: varchar("exit_type", { length: 64 }).notNull(),
+    legalEntityCode: varchar("legal_entity_code", { length: 96 }),
+    departmentId: text("department_id"),
+    riskLevel: varchar("risk_level", { length: 32 }).notNull(),
+    legalReviewRequired: boolean("legal_review_required")
+      .notNull()
+      .default(false),
+    stepCode: varchar("step_code", { length: 96 }).notNull(),
+    stepLabel: text("step_label").notNull(),
+    sequence: integer("sequence").notNull(),
+    required: boolean("required").notNull().default(true),
+    status: varchar("status", { length: 32 }).notNull(),
+    routeToType: varchar("route_to_type", { length: 32 }).notNull(),
+    routeToId: text("route_to_id").notNull(),
+    routeToLabel: text("route_to_label"),
+    escalationTargetType: varchar("escalation_target_type", { length: 32 }),
+    escalationTargetId: text("escalation_target_id"),
+    escalationTargetLabel: text("escalation_target_label"),
+    submittedAt: timestamp("submitted_at", {
+      mode: "date",
+      withTimezone: true,
+    }),
+    submittedBy: text("submitted_by"),
+    approvedAt: timestamp("approved_at", {
+      mode: "date",
+      withTimezone: true,
+    }),
+    approvedBy: text("approved_by"),
+    rejectedAt: timestamp("rejected_at", {
+      mode: "date",
+      withTimezone: true,
+    }),
+    rejectedBy: text("rejected_by"),
+    rejectionReason: text("rejection_reason"),
+    decisionNotes: text("decision_notes"),
+    reopenedAt: timestamp("reopened_at", {
+      mode: "date",
+      withTimezone: true,
+    }),
+    reopenedBy: text("reopened_by"),
+    reopenedReason: text("reopened_reason"),
+    escalatedAt: timestamp("escalated_at", {
+      mode: "date",
+      withTimezone: true,
+    }),
+    escalatedBy: text("escalated_by"),
+    escalationReason: text("escalation_reason"),
+    createdAt: timestamp("created_at", {
+      mode: "date",
+      withTimezone: true,
+    })
+      .defaultNow()
+      .notNull(),
+    updatedAt: timestamp("updated_at", {
+      mode: "date",
+      withTimezone: true,
+    })
+      .defaultNow()
+      .notNull(),
+  },
+  (table) => [
+    index("offboarding_approval_steps_tenant_case_idx").on(
+      table.tenantId,
+      table.caseId
+    ),
+    index("offboarding_approval_steps_tenant_company_status_idx").on(
+      table.tenantId,
+      table.companyId,
+      table.status
+    ),
+    index("offboarding_approval_steps_tenant_company_employee_idx").on(
+      table.tenantId,
+      table.companyId,
+      table.employeeId
+    ),
+    index("offboarding_approval_steps_tenant_company_route_idx").on(
+      table.tenantId,
+      table.companyId,
+      table.routeToId
+    ),
+    uniqueIndex("offboarding_approval_steps_tenant_case_step_sequence_uidx").on(
+      table.tenantId,
+      table.caseId,
+      table.stepCode,
+      table.sequence
+    ),
+  ]
+);
+
+export const offboardingAuditReferences = xforge.table(
+  "offboarding_audit_references",
+  {
+    id: uuid("id").defaultRandom().primaryKey(),
+    tenantId: uuid("tenant_id")
+      .notNull()
+      .references(() => tenants.id, { onDelete: "cascade" }),
+    companyId: uuid("company_id").references(() => companies.id, {
+      onDelete: "cascade",
+    }),
+    actorId: text("actor_id"),
+    action: varchar("action", { length: 128 }).notNull(),
+    entityType: varchar("entity_type", { length: 64 }).notNull(),
+    entityId: text("entity_id").notNull(),
+    summary: text("summary"),
+    reason: text("reason"),
+    sensitive: boolean("sensitive").notNull().default(false),
+    metadata: jsonb("metadata").$type<Record<string, unknown>>(),
+    createdAt: timestamp("created_at", {
+      mode: "date",
+      withTimezone: true,
+    })
+      .defaultNow()
+      .notNull(),
+  },
+  (table) => [
+    index("offboarding_audit_refs_tenant_entity_idx").on(
+      table.tenantId,
+      table.entityType,
+      table.entityId
+    ),
+    index("offboarding_audit_refs_tenant_action_idx").on(
+      table.tenantId,
+      table.action
+    ),
+    index("offboarding_audit_refs_tenant_company_created_idx").on(
+      table.tenantId,
+      table.companyId,
+      table.createdAt
+    ),
+  ]
+);
+
 export const auditEvents = xforge.table(
   "audit_events",
   {
@@ -1155,6 +1384,9 @@ export const tenantsRelations = relations(tenants, ({ many }) => ({
   hrOrgReportingRelationships: many(hrOrgReportingRelationships),
   hrOrgStructureAuditReferences: many(hrOrgStructureAuditReferences),
   hrOrgUnits: many(hrOrgUnits),
+  offboardingApprovalSteps: many(offboardingApprovalSteps),
+  offboardingAuditReferences: many(offboardingAuditReferences),
+  offboardingCases: many(offboardingCases),
   memberships: many(tenantMemberships),
   webhookEndpoints: many(webhookEndpoints),
 }));
@@ -1176,6 +1408,9 @@ export const companiesRelations = relations(companies, ({ one, many }) => ({
   hrOrgReportingRelationships: many(hrOrgReportingRelationships),
   hrOrgStructureAuditReferences: many(hrOrgStructureAuditReferences),
   hrOrgUnits: many(hrOrgUnits),
+  offboardingApprovalSteps: many(offboardingApprovalSteps),
+  offboardingAuditReferences: many(offboardingAuditReferences),
+  offboardingCases: many(offboardingCases),
   grants: many(companyGrants),
   webhookEndpoints: many(webhookEndpoints),
 }));
@@ -1391,6 +1626,48 @@ export const complianceAuditReferencesRelations = relations(
   })
 );
 
+export const offboardingCasesRelations = relations(
+  offboardingCases,
+  ({ one }) => ({
+    tenant: one(tenants, {
+      fields: [offboardingCases.tenantId],
+      references: [tenants.id],
+    }),
+    company: one(companies, {
+      fields: [offboardingCases.companyId],
+      references: [companies.id],
+    }),
+  })
+);
+
+export const offboardingApprovalStepsRelations = relations(
+  offboardingApprovalSteps,
+  ({ one }) => ({
+    tenant: one(tenants, {
+      fields: [offboardingApprovalSteps.tenantId],
+      references: [tenants.id],
+    }),
+    company: one(companies, {
+      fields: [offboardingApprovalSteps.companyId],
+      references: [companies.id],
+    }),
+  })
+);
+
+export const offboardingAuditReferencesRelations = relations(
+  offboardingAuditReferences,
+  ({ one }) => ({
+    tenant: one(tenants, {
+      fields: [offboardingAuditReferences.tenantId],
+      references: [tenants.id],
+    }),
+    company: one(companies, {
+      fields: [offboardingAuditReferences.companyId],
+      references: [companies.id],
+    }),
+  })
+);
+
 export const hrOrgUnitsRelations = relations(hrOrgUnits, ({ one }) => ({
   tenant: one(tenants, {
     fields: [hrOrgUnits.tenantId],
@@ -1489,6 +1766,12 @@ export const databaseSchema: Omit<
   hrOrgStructureAuditReferencesRelations,
   hrOrgUnits,
   hrOrgUnitsRelations,
+  offboardingApprovalSteps,
+  offboardingApprovalStepsRelations,
+  offboardingAuditReferences,
+  offboardingAuditReferencesRelations,
+  offboardingCases,
+  offboardingCasesRelations,
   notificationInbox,
   notificationInboxRelations,
   tenantMemberships,
@@ -1557,6 +1840,20 @@ export type ComplianceAuditReference = InferSelectModel<
 >;
 export type NewComplianceAuditReference = InferInsertModel<
   typeof complianceAuditReferences
+>;
+export type OffboardingCase = InferSelectModel<typeof offboardingCases>;
+export type NewOffboardingCase = InferInsertModel<typeof offboardingCases>;
+export type OffboardingApprovalStep = InferSelectModel<
+  typeof offboardingApprovalSteps
+>;
+export type NewOffboardingApprovalStep = InferInsertModel<
+  typeof offboardingApprovalSteps
+>;
+export type OffboardingAuditReference = InferSelectModel<
+  typeof offboardingAuditReferences
+>;
+export type NewOffboardingAuditReference = InferInsertModel<
+  typeof offboardingAuditReferences
 >;
 export type Customer = InferSelectModel<typeof customers>;
 export type NewCustomer = InferInsertModel<typeof customers>;

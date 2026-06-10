@@ -6,7 +6,9 @@ import {
   getEmployeeSelfservicePortalProfile,
   getEmployeeSelfservicePortalProfileUpdateRequestView,
   listEmployeeSelfservicePortal,
+  listEmployeeSelfservicePortalAuditTrailEvents,
   listEmployeeSelfservicePortalProfileUpdateRequestViews,
+  recordEmployeeSelfservicePortalAuditEvent,
   rejectEmployeeSelfservicePortalProfileUpdateRequest,
   submitEmployeeSelfservicePortalProfileUpdateRequest,
   updateEmployeeSelfservicePortal,
@@ -14,6 +16,7 @@ import {
 
 export type EmployeeSelfservicePortalExecutionSurface = {
   approveProfileUpdateRequest: typeof approveEmployeeSelfservicePortalProfileUpdateRequest;
+  listAuditTrailEvents: typeof listEmployeeSelfservicePortalAuditTrailEvents;
   buildProfilePageModel: typeof buildEmployeeSelfservicePortalProfilePageModel;
   create: typeof createEmployeeSelfservicePortal;
   getById: typeof getEmployeeSelfservicePortal;
@@ -21,6 +24,7 @@ export type EmployeeSelfservicePortalExecutionSurface = {
   getProfileUpdateRequestById: typeof getEmployeeSelfservicePortalProfileUpdateRequestView;
   list: typeof listEmployeeSelfservicePortal;
   listProfileUpdateRequests: typeof listEmployeeSelfservicePortalProfileUpdateRequestViews;
+  recordAuditEvent: typeof recordEmployeeSelfservicePortalAuditEvent;
   rejectProfileUpdateRequest: typeof rejectEmployeeSelfservicePortalProfileUpdateRequest;
   submitProfileUpdateRequest: typeof submitEmployeeSelfservicePortalProfileUpdateRequest;
   update: typeof updateEmployeeSelfservicePortal;
@@ -30,6 +34,7 @@ export const employeeSelfservicePortalExecutionSurface: EmployeeSelfservicePorta
   {
     approveProfileUpdateRequest:
       approveEmployeeSelfservicePortalProfileUpdateRequest,
+    listAuditTrailEvents: listEmployeeSelfservicePortalAuditTrailEvents,
     buildProfilePageModel: buildEmployeeSelfservicePortalProfilePageModel,
     create: createEmployeeSelfservicePortal,
     getById: getEmployeeSelfservicePortal,
@@ -39,6 +44,7 @@ export const employeeSelfservicePortalExecutionSurface: EmployeeSelfservicePorta
     list: listEmployeeSelfservicePortal,
     listProfileUpdateRequests:
       listEmployeeSelfservicePortalProfileUpdateRequestViews,
+    recordAuditEvent: recordEmployeeSelfservicePortalAuditEvent,
     rejectProfileUpdateRequest:
       rejectEmployeeSelfservicePortalProfileUpdateRequest,
     submitProfileUpdateRequest:

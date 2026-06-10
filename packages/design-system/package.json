@@ -14,7 +14,7 @@
     "./variants/*": "./src/variants/*.ts"
   },
   "files": [
-    "architecture.md",
+    "architecture-and-feature-requirement.md",
     "README.md",
     "src",
     "package.json",

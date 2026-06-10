@@ -112,6 +112,18 @@ export {
   FormLabel,
   FormMessage,
 } from "./ui-shadcn/form";
+export {
+  Field,
+  FieldContent,
+  FieldDescription,
+  FieldError,
+  FieldGroup,
+  FieldLabel,
+  FieldLegend,
+  FieldSeparator,
+  FieldSet,
+  FieldTitle,
+} from "./ui-shadcn/field";
 export { Input } from "./ui-shadcn/input";
 export {
   Kanban,
@@ -126,6 +138,11 @@ export {
 export { Kbd, KbdGroup } from "./ui-shadcn/kbd";
 export { Label } from "./ui-shadcn/label";
 export { ModeToggle } from "./ui-shadcn/mode-toggle";
+export {
+  NativeSelect,
+  NativeSelectOptGroup,
+  NativeSelectOption,
+} from "./ui-shadcn/native-select";
 export {
   Popover,
   PopoverAnchor,
@@ -174,6 +191,7 @@ export {
   SidebarTrigger,
 } from "./ui-shadcn/sidebar";
 export { Skeleton } from "./ui-shadcn/skeleton";
+export { Switch } from "./ui-shadcn/switch";
 export { Toaster, toast } from "./ui-shadcn/sonner";
 export {
   Table,

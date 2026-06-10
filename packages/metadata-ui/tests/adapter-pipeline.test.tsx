@@ -117,12 +117,12 @@ test("renderMetadataField supports governance fallback matrix for permission den
     {
       effect: "disable" as const,
       fallback: "disable" as const,
-      expectedElement: "div",
+      expectedElement: "MetadataFieldShell",
     },
     {
       effect: "readonly" as const,
       fallback: "readonly" as const,
-      expectedElement: "div",
+      expectedElement: "MetadataFieldShell",
     },
     {
       effect: "hide" as const,

@@ -1,4 +1,4 @@
-import { buildHrEmployeeRecordDetailPageModel } from "@repo/features-employee-management-employee-records-management/server";
+import { getEmployeeSelfservicePortalProfileSource } from "../employee-records.integration.ts";
 import { canReadEmployeeSelfservicePortal } from "../policy.ts";
 import { projectEmployeeSelfservicePortalProfile } from "../projector/profile.ts";
 import { getEmployeeSelfservicePortalRepositoryRecordByEmployeeId } from "../repository.ts";
@@ -55,36 +55,34 @@ export function getEmployeeSelfservicePortalProfile(
     return null;
   }
 
-  const detailPageModel = buildHrEmployeeRecordDetailPageModel({
+  const profileSource = getEmployeeSelfservicePortalProfileSource({
     canViewSensitive: context.canViewSensitive ?? false,
     employeeId: targetEmployeeId,
     organizationId: context.organizationId,
   });
 
-  if (!detailPageModel) {
+  if (!profileSource) {
     return null;
   }
 
-  const projectedRecord = detailPageModel.employee;
-
   return projectEmployeeSelfservicePortalProfile(
     {
-      countryCode: projectedRecord.countryCode,
-      departmentName: projectedRecord.departmentName,
-      displayName: projectedRecord.displayName,
-      email: projectedRecord.email,
+      countryCode: profileSource.countryCode,
+      departmentName: profileSource.departmentName,
+      displayName: profileSource.displayName,
+      email: profileSource.email,
       employeeId: targetEmployeeId,
-      employeeNumber: projectedRecord.employeeNumber,
-      employmentStatus: projectedRecord.employmentStatus,
-      employmentType: projectedRecord.employmentType,
-      languagePreference: projectedRecord.languagePreference,
-      legalName: projectedRecord.legalName,
-      managerEmployeeId: projectedRecord.managerEmployeeId,
-      personalEmail: projectedRecord.personalEmail,
-      phoneNumber: projectedRecord.phoneNumber,
-      positionTitle: projectedRecord.positionTitle,
-      preferredName: projectedRecord.preferredName,
-      workLocationCode: projectedRecord.workLocationCode,
+      employeeNumber: profileSource.employeeNumber,
+      employmentStatus: profileSource.employmentStatus,
+      employmentType: profileSource.employmentType,
+      languagePreference: profileSource.languagePreference,
+      legalName: profileSource.legalName,
+      managerEmployeeId: profileSource.managerEmployeeId,
+      personalEmail: profileSource.personalEmail,
+      phoneNumber: profileSource.phoneNumber,
+      positionTitle: profileSource.positionTitle,
+      preferredName: profileSource.preferredName,
+      workLocationCode: profileSource.workLocationCode,
     },
     actorEmployeeId,
     context.canViewSensitive ?? false,

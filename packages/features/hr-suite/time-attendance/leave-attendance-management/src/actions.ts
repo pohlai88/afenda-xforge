@@ -7,7 +7,7 @@ import type {
   UpdateLeaveAttendanceManagementInput,
 } from "./contract.ts";
 import { runHrSuiteFeatureAction } from "./execution/action.ts";
-import { leaveAttendanceManagementStore } from "./queries.ts";
+import { leaveAttendanceManagementStore } from "./repository.ts";
 import type { HrSuiteFeatureContext } from "./shared/index.ts";
 
 const normalizeName = (value: string): string => {

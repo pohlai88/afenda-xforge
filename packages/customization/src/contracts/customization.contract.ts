@@ -27,15 +27,22 @@ export type CustomizationLifecycleContract = {
 export const customizationValidationIssueCodes = [
   "customization.invalid_contract",
   "customization.company_scope_not_allowed",
+  "customization.duplicate_target",
   "customization.entity_mismatch",
   "customization.entity_table_not_supported",
   "customization.feature_mismatch",
   "customization.hidden_required_field",
   "customization.hidden_system_field",
   "customization.invalid_default_sort",
+  "customization.node_key_drift",
+  "customization.node_removed",
+  "customization.node_renamed",
+  "customization.node_shape_drift",
   "customization.override_not_allowed",
   "customization.stale_metadata",
+  "customization.tenant_scope_not_allowed",
   "customization.unknown_key",
+  "customization.unknown_node_id",
   "customization.unknown_reference",
   "customization.unsafe_action",
 ] as const;
@@ -56,8 +63,13 @@ export type CustomizationValidationIssue = {
   code: CustomizationValidationIssueCode;
   hint?: string;
   message: string;
+  metadataNodeId?: MetadataId;
+  metadataNodeKey?: string;
   path: readonly (number | string)[];
   severity: CustomizationValidationSeverity;
+  surface?: string;
+  targetNodeId?: MetadataId;
+  targetNodeKey?: string;
 };
 
 export type CustomizationValidationResult = {
@@ -89,6 +101,7 @@ export type CustomizationPresentationContract = {
 export type CustomizationFieldOverrideContract = {
   description?: string;
   hidden?: boolean;
+  id?: MetadataId;
   key: string;
   label?: string;
   order?: number;
@@ -100,12 +113,14 @@ export type CustomizationSectionOverrideContract = {
   description?: string;
   fieldKeys?: readonly string[];
   hidden?: boolean;
+  id?: MetadataId;
   key: string;
   label?: string;
 };
 
 export type CustomizationFormOverrideContract = {
   hidden?: boolean;
+  id?: MetadataId;
   key: string;
   label?: string;
   layout?: "grid" | "inline" | "stack";
@@ -116,6 +131,7 @@ export type CustomizationTableColumnOverrideContract = {
   align?: "center" | "end" | "start";
   field?: string;
   hidden?: boolean;
+  id?: MetadataId;
   key: string;
   label?: string;
   order?: number;
@@ -125,6 +141,7 @@ export type CustomizationTableColumnOverrideContract = {
 export type CustomizationTableOverrideContract = {
   columns?: readonly CustomizationTableColumnOverrideContract[];
   hidden?: boolean;
+  id?: MetadataId;
   key: string;
   title?: string;
 };
@@ -137,12 +154,14 @@ export type CustomizationEntityTableOverrideContract = {
 
 export type CustomizationFilterOverrideContract = {
   hidden?: boolean;
+  id?: MetadataId;
   key: string;
   label?: string;
 };
 
 export type CustomizationActionOverrideContract = {
   hidden?: boolean;
+  id?: MetadataId;
   key: string;
   label?: string;
   placement?: "overflow" | "primary" | "row" | "secondary";
@@ -301,9 +320,28 @@ export type CustomizationAuditDescriptor = {
   version?: number;
 };
 
+export type CustomizationFixtureMetadataNodeSnapshotContract = {
+  fingerprint: string;
+  metadataNodeId?: MetadataId;
+  metadataNodeKey: string;
+  parentMetadataNodeId?: MetadataId;
+  parentMetadataNodeKey?: string;
+  path: readonly (number | string)[];
+  surface:
+    | "action"
+    | "entity-table-column"
+    | "field"
+    | "filter"
+    | "form"
+    | "section"
+    | "table"
+    | "table-column";
+};
+
 export type CustomizationFixtureContract = {
   exportedAt: string;
   exportedBy: string;
-  schemaVersion: 1;
+  metadataSnapshot?: readonly CustomizationFixtureMetadataNodeSnapshotContract[];
+  schemaVersion: 1 | 2;
   customization: CustomizationContract;
 };

@@ -180,6 +180,7 @@ const meta = {
   component: MetadataUiSmokeStory,
   parameters: {
     layout: "fullscreen",
+    a11y: { test: "error" as const },
   },
   tags: ["autodocs"],
 } satisfies Meta<typeof MetadataUiSmokeStory>;

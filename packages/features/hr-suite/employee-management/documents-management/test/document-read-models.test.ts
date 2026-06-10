@@ -6,7 +6,11 @@ import { afterEach, beforeEach, test } from "node:test";
 import {
   resetDocumentsManagementRepositoryForTesting,
   setDocumentsManagementRepositoryPathForTesting,
-} from "../src/repository.ts";
+} from "../src/repository.testing.ts";
+import {
+  resetDocumentsManagementAuditWriterForTesting,
+  setDocumentsManagementAuditWriterForTesting,
+} from "../src/audit.ts";
 import {
   archiveDocumentsManagementDocument,
   getDocumentsManagementDocumentSummary,
@@ -16,6 +20,7 @@ import {
   registerDocumentsManagementDocument,
   verifyDocumentsManagementDocument,
 } from "../src/server.ts";
+import { createNoopAuditWriter } from "@repo/audit";
 
 let sandboxDirectory: string;
 
@@ -39,14 +44,16 @@ beforeEach(() => {
 
   setDocumentsManagementRepositoryPathForTesting(repositoryPath);
   resetDocumentsManagementRepositoryForTesting();
+  setDocumentsManagementAuditWriterForTesting(createNoopAuditWriter());
 });
 
 afterEach(() => {
+  resetDocumentsManagementAuditWriterForTesting();
   rmSync(sandboxDirectory, { recursive: true, force: true });
 });
 
-test("lists document summaries with search and paging", () => {
-  const alphaDocument = registerDocumentsManagementDocument(
+test("lists document summaries with search and paging", async () => {
+  const alphaDocument = await registerDocumentsManagementDocument(
     {
       documentCategory: "identity",
       documentType: "passport",
@@ -55,7 +62,7 @@ test("lists document summaries with search and paging", () => {
     },
     readContext
   );
-  registerDocumentsManagementDocument(
+  await registerDocumentsManagementDocument(
     {
       documentCategory: "identity",
       documentType: "nric",
@@ -64,7 +71,7 @@ test("lists document summaries with search and paging", () => {
     },
     readContext
   );
-  registerDocumentsManagementDocument(
+  await registerDocumentsManagementDocument(
     {
       documentCategory: "qualification",
       documentType: "degree_certificate",
@@ -102,8 +109,8 @@ test("lists document summaries with search and paging", () => {
   assert.equal(summary?.currentVersionNumber, 1);
 });
 
-test("projects readiness and expiring document views", () => {
-  const verifiedSeed = registerDocumentsManagementDocument(
+test("projects readiness and expiring document views", async () => {
+  const verifiedSeed = await registerDocumentsManagementDocument(
     {
       documentCategory: "identity",
       documentType: "passport",
@@ -113,7 +120,7 @@ test("projects readiness and expiring document views", () => {
     },
     readContext
   );
-  verifyDocumentsManagementDocument(
+  await verifyDocumentsManagementDocument(
     {
       id: verifiedSeed.id,
       verifiedAt: new Date("2026-06-09T00:00:00.000Z"),
@@ -121,7 +128,7 @@ test("projects readiness and expiring document views", () => {
     readContext
   );
 
-  registerDocumentsManagementDocument(
+  await registerDocumentsManagementDocument(
     {
       documentCategory: "policy",
       documentType: "employee_handbook_acknowledgment",
@@ -133,7 +140,7 @@ test("projects readiness and expiring document views", () => {
     readContext
   );
 
-  const archivedSeed = registerDocumentsManagementDocument(
+  const archivedSeed = await registerDocumentsManagementDocument(
     {
       documentCategory: "qualification",
       documentType: "degree_certificate",
@@ -142,7 +149,7 @@ test("projects readiness and expiring document views", () => {
     },
     readContext
   );
-  archiveDocumentsManagementDocument(
+  await archiveDocumentsManagementDocument(
     {
       archivedAt: new Date("2026-06-09T00:00:00.000Z"),
       id: archivedSeed.id,
@@ -150,7 +157,7 @@ test("projects readiness and expiring document views", () => {
     readContext
   );
 
-  registerDocumentsManagementDocument(
+  await registerDocumentsManagementDocument(
     {
       documentCategory: "identity",
       documentType: "passport",
@@ -160,7 +167,7 @@ test("projects readiness and expiring document views", () => {
     },
     readContext
   );
-  registerDocumentsManagementDocument(
+  await registerDocumentsManagementDocument(
     {
       documentCategory: "identity",
       documentType: "passport",
@@ -170,7 +177,7 @@ test("projects readiness and expiring document views", () => {
     },
     readContext
   );
-  registerDocumentsManagementDocument(
+  await registerDocumentsManagementDocument(
     {
       documentCategory: "identity",
       documentType: "passport",

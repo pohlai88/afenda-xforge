@@ -6,7 +6,11 @@ import { afterEach, beforeEach, test } from "node:test";
 import {
   resetDocumentsManagementRepositoryForTesting,
   setDocumentsManagementRepositoryPathForTesting,
-} from "../src/repository.ts";
+} from "../src/repository.testing.ts";
+import {
+  resetDocumentsManagementAuditWriterForTesting,
+  setDocumentsManagementAuditWriterForTesting,
+} from "../src/audit.ts";
 import {
   archiveDocumentsManagementDocument,
   expireDocumentsManagementDocument,
@@ -18,12 +22,14 @@ import {
   updateDocumentsManagementDocumentRetention,
   verifyDocumentsManagementDocument,
 } from "../src/server.ts";
+import { createNoopAuditWriter } from "@repo/audit";
 
 let sandboxDirectory: string;
 
 const lifecycleContext = {
   actorId: "actor-2",
   canRead: true,
+  canReadAudit: true,
   canViewSensitive: true,
   canWrite: true,
   companyId: "company-a",
@@ -36,14 +42,16 @@ beforeEach(() => {
 
   setDocumentsManagementRepositoryPathForTesting(repositoryPath);
   resetDocumentsManagementRepositoryForTesting();
+  setDocumentsManagementAuditWriterForTesting(createNoopAuditWriter());
 });
 
 afterEach(() => {
+  resetDocumentsManagementAuditWriterForTesting();
   rmSync(sandboxDirectory, { recursive: true, force: true });
 });
 
-test("lifecycle transitions persist verification, expiry, archive, and retention state", () => {
-  const verifiedDocumentSeed = registerDocumentsManagementDocument(
+test("lifecycle transitions persist verification, expiry, archive, and retention state", async () => {
+  const verifiedDocumentSeed = await registerDocumentsManagementDocument(
     {
       documentCategory: "identity",
       documentType: "passport",
@@ -54,7 +62,7 @@ test("lifecycle transitions persist verification, expiry, archive, and retention
     },
     lifecycleContext
   );
-  const verifiedDocument = verifyDocumentsManagementDocument(
+  const verifiedDocument = await verifyDocumentsManagementDocument(
     {
       id: verifiedDocumentSeed.id,
       renewalDueAt: new Date("2026-12-01T00:00:00.000Z"),
@@ -85,7 +93,7 @@ test("lifecycle transitions persist verification, expiry, archive, and retention
   );
   assert.equal(verifiedAuditTrail[1]?.action, "verify");
 
-  const rejectedDocumentSeed = registerDocumentsManagementDocument(
+  const rejectedDocumentSeed = await registerDocumentsManagementDocument(
     {
       documentCategory: "policy",
       documentType: "employee_handbook_acknowledgment",
@@ -94,7 +102,7 @@ test("lifecycle transitions persist verification, expiry, archive, and retention
     },
     lifecycleContext
   );
-  const rejectedDocument = rejectDocumentsManagementDocument(
+  const rejectedDocument = await rejectDocumentsManagementDocument(
     {
       id: rejectedDocumentSeed.id,
       rejectionReason: "Missing signature",
@@ -115,7 +123,7 @@ test("lifecycle transitions persist verification, expiry, archive, and retention
   );
   assert.equal(rejectedAuditTrail[1]?.action, "reject");
 
-  const expiredDocumentSeed = registerDocumentsManagementDocument(
+  const expiredDocumentSeed = await registerDocumentsManagementDocument(
     {
       documentCategory: "qualification",
       documentType: "degree_certificate",
@@ -125,7 +133,7 @@ test("lifecycle transitions persist verification, expiry, archive, and retention
     },
     lifecycleContext
   );
-  const expiredDocument = expireDocumentsManagementDocument(
+  const expiredDocument = await expireDocumentsManagementDocument(
     {
       id: expiredDocumentSeed.id,
       renewalDueAt: new Date("2026-07-01T00:00:00.000Z"),
@@ -145,7 +153,7 @@ test("lifecycle transitions persist verification, expiry, archive, and retention
   );
   assert.equal(expiredAuditTrail[1]?.action, "expire");
 
-  const archivedDocumentSeed = registerDocumentsManagementDocument(
+  const archivedDocumentSeed = await registerDocumentsManagementDocument(
     {
       documentCategory: "employment",
       documentType: "employment_contract",
@@ -154,7 +162,7 @@ test("lifecycle transitions persist verification, expiry, archive, and retention
     },
     lifecycleContext
   );
-  const archivedDocument = archiveDocumentsManagementDocument(
+  const archivedDocument = await archiveDocumentsManagementDocument(
     {
       archivedAt: new Date("2026-06-09T00:00:00.000Z"),
       id: archivedDocumentSeed.id,
@@ -173,7 +181,7 @@ test("lifecycle transitions persist verification, expiry, archive, and retention
   );
   assert.equal(archivedAuditTrail[1]?.action, "archive");
 
-  const retentionDocumentSeed = registerDocumentsManagementDocument(
+  const retentionDocumentSeed = await registerDocumentsManagementDocument(
     {
       documentCategory: "compliance",
       documentType: "regulatory_form",
@@ -188,7 +196,7 @@ test("lifecycle transitions persist verification, expiry, archive, and retention
     },
     lifecycleContext
   );
-  const retentionDocument = updateDocumentsManagementDocumentRetention(
+  const retentionDocument = await updateDocumentsManagementDocumentRetention(
     {
       id: retentionDocumentSeed.id,
       retention: {

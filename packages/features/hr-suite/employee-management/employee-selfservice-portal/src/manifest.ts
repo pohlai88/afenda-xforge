@@ -1,10 +1,12 @@
 import { employeeSelfservicePortalRouteContracts } from "./contract.ts";
+import { employeeSelfservicePortalRequirementCoverage } from "./registry/requirement-coverage.ts";
 
 export type EmployeeSelfservicePortalManifest = {
   description: string;
   domain: string;
   id: string;
   packageName: string;
+  requirementCoverage: typeof employeeSelfservicePortalRequirementCoverage;
   routeContracts: typeof employeeSelfservicePortalRouteContracts;
   suite: "hr-suite";
   title: string;
@@ -19,6 +21,7 @@ export const employeeSelfservicePortalManifest: EmployeeSelfservicePortalManifes
     domain: "employee-management",
     packageName:
       "@repo/features-employee-management-employee-selfservice-portal",
+    requirementCoverage: employeeSelfservicePortalRequirementCoverage,
     routeContracts: employeeSelfservicePortalRouteContracts,
     suite: "hr-suite",
   };

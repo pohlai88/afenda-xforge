@@ -11,6 +11,7 @@ test("metadataFieldSchema parses a valid field contract", () => {
       order: true,
       placeholder: true,
     },
+    id: "customer.records.fields.status",
     key: "status",
     label: "Status",
     kind: "select",
@@ -24,6 +25,7 @@ test("metadataFieldSchema parses a valid field contract", () => {
   assert.equal(field.kind, "select");
   assert.equal(field.customization?.hidden, "allow");
   assert.equal(field.required, true);
+  assert.equal(field.id, "customer.records.fields.status");
   assert.equal(field.key, "status");
 });
 

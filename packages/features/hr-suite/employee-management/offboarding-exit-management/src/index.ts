@@ -1,32 +1,130 @@
-/**
- * Server-only public door for the feature package.
- *
- * This package exposes the governed offboarding contracts and surfaces
- * extracted from the legacy HR suite module.
- */
 import "server-only";
 
+export {
+  approveOffboardingApprovalStep,
+  escalateOffboardingApprovalStep,
+  openOffboardingCase,
+  recordOffboardingAuditEvent,
+  rejectOffboardingApprovalStep,
+  reopenOffboardingApprovalStep,
+  submitOffboardingApprovalStep,
+  updateOffboardingCase,
+  upsertOffboardingApprovalStep,
+} from "./actions.ts";
 export type {
-  CreateOffboardingExitManagementInput,
+  ApproveOffboardingApprovalStepInput,
+  EscalateOffboardingApprovalStepInput,
   HrOffboardingRoutePath,
-  HrWorkforceOffboardingAuditAction,
-  ListOffboardingExitManagementQuery,
-  OffboardingExitManagementRecord,
-  UpdateOffboardingExitManagementInput,
+  ListOffboardingApprovalBlockersQuery,
+  ListOffboardingApprovalStepsQuery,
+  ListOffboardingAuditTrailQuery,
+  ListOffboardingCasesQuery,
+  OffboardingApprovalBlockerProjection,
+  OffboardingApprovalBlockerStatus,
+  OffboardingApprovalProjection,
+  OffboardingApprovalRouteTargetType,
+  OffboardingApprovalStatus,
+  OffboardingApprovalStepRecord,
+  OffboardingAuditEvent,
+  OffboardingAuditTrailProjection,
+  OffboardingCaseProjection,
+  OffboardingCaseRecord,
+  OffboardingCaseStatus,
+  OffboardingExitManagementAcceptanceCode,
+  OffboardingExitManagementAuditEvent,
+  OffboardingExitManagementBoundedContext,
+  OffboardingExitManagementCapability,
+  OffboardingExitManagementCapabilityGroup,
+  OffboardingExitManagementFeatureScope,
+  OffboardingExitManagementManifest,
+  OffboardingExitManagementMetadata,
+  OffboardingExitManagementOwnershipBoundary,
+  OffboardingExitManagementRequirementCode,
+  OffboardingExitType,
+  OffboardingFoundationSnapshot,
+  OffboardingMutationResult,
+  OffboardingReadContext,
+  OffboardingRepositoryEntityType,
+  OffboardingRepositoryState,
+  OffboardingRiskLevel,
+  OffboardingWriteContext,
+  OpenOffboardingCaseInput,
+  RecordOffboardingAuditEventInput,
+  RejectOffboardingApprovalStepInput,
+  ReopenOffboardingApprovalStepInput,
+  SubmitOffboardingApprovalStepInput,
+  UpdateOffboardingCaseInput,
+  UpsertOffboardingApprovalStepInput,
 } from "./contract.ts";
-export { offboardingExitManagementExecutionSurface } from "./execution/index.ts";
+export {
+  approveOffboardingApprovalStepInputSchema,
+  escalateOffboardingApprovalStepInputSchema,
+  hrOffboardingRoutePaths,
+  hrWorkforceOffboardingReadPermission,
+  hrWorkforceOffboardingSensitiveReadPermission,
+  hrWorkforceOffboardingWritePermission,
+  listOffboardingApprovalBlockersQuerySchema,
+  listOffboardingApprovalStepsQuerySchema,
+  listOffboardingAuditTrailQuerySchema,
+  listOffboardingCasesQuerySchema,
+  offboardingApprovalBlockerProjectionSchema,
+  offboardingApprovalProjectionSchema,
+  offboardingAuditTrailProjectionSchema,
+  offboardingCaseProjectionSchema,
+  offboardingExitManagementAcceptanceCoverage,
+  offboardingExitManagementAudit,
+  offboardingExitManagementAuditEventCatalog,
+  offboardingExitManagementAuditEvents,
+  offboardingExitManagementBoundedContext,
+  offboardingExitManagementCapabilities,
+  offboardingExitManagementCapabilityCatalog,
+  offboardingExitManagementCapabilityGroups,
+  offboardingExitManagementCapabilityValueMap,
+  offboardingExitManagementFeatureId,
+  offboardingExitManagementFeatureScope,
+  offboardingExitManagementPermissions,
+  offboardingExitManagementRequirementCoverage,
+  offboardingExitManagementRouteContracts,
+  offboardingExitManagementRoutePaths,
+  offboardingFoundationSnapshotSchema,
+  openOffboardingCaseInputSchema,
+  recordOffboardingAuditEventInputSchema,
+  rejectOffboardingApprovalStepInputSchema,
+  reopenOffboardingApprovalStepInputSchema,
+  submitOffboardingApprovalStepInputSchema,
+  updateOffboardingCaseInputSchema,
+  upsertOffboardingApprovalStepInputSchema,
+} from "./contract.ts";
+export type { OffboardingExitManagementExecutionContext } from "./execution/index.ts";
+export {
+  buildOffboardingAuditMetadata,
+  createOffboardingAuditEvent,
+} from "./execution/index.ts";
 export { offboardingExitManagementManifest } from "./manifest.ts";
 export { offboardingExitManagementMetadata } from "./metadata.ts";
 export {
-  createOffboardingExitManagement,
-  getOffboardingExitManagement,
-  hrOffboardingRoutePaths,
-  hrWorkforceOffboardingAuditActions,
-  hrWorkforceOffboardingReadPermission,
-  hrWorkforceOffboardingWritePermission,
-  listOffboardingExitManagement,
-  offboardingExitManagementFeatureId,
-  offboardingExitManagementRouteContracts,
-  updateOffboardingExitManagement,
-} from "./server.ts";
-export { offboardingExitManagementFeatureScope } from "./shared/index.ts";
+  canReadOffboardingExitManagement,
+  canViewOffboardingExitManagementSensitiveData,
+  canWriteOffboardingExitManagement,
+} from "./policy.ts";
+export {
+  projectOffboardingApproval,
+  projectOffboardingApprovalBlockers,
+  projectOffboardingApprovalRecords,
+  projectOffboardingAuditTrailEntries,
+  projectOffboardingCase,
+  projectOffboardingCaseRecords,
+  projectOffboardingFoundationSnapshot,
+} from "./projector.ts";
+export {
+  getOffboardingApprovalById,
+  getOffboardingCaseById,
+  getOffboardingFoundationSnapshot,
+  listOffboardingApprovalBlockers,
+  listOffboardingApprovalRecords,
+  listOffboardingAuditTrailRecords,
+  listOffboardingCaseRecords,
+} from "./queries.ts";
+export {
+  offboardingExitManagementExecutionSurface,
+} from "./shared/index.ts";

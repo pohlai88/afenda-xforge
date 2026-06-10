@@ -10,6 +10,10 @@ import type {
   MetadataSectionMetadata,
   MetadataSectionRow,
 } from "../contracts/section-renderer.contract";
+import {
+  resolveDensitySurfaceProps,
+  resolveDensityVisualDefinition,
+} from "../visualization/density-visual-contract";
 
 export type MetadataRenderableSection = MetadataSectionContract<
   EntityMetadata,
@@ -44,9 +48,13 @@ export function MetadataSectionStack<
   const resolvedContext = createMetadataRenderContext(context, {
     mode: "read",
   });
+  const densityVisual = resolveDensityVisualDefinition(resolvedContext.density);
 
   return (
-    <div className="space-y-6">
+    <div
+      className={densityVisual.stackSpacing}
+      {...resolveDensitySurfaceProps(resolvedContext.density)}
+    >
       {sections.map((section) => {
         const renderedSection = renderMetadataSection({
           children: resolveSectionContent?.({

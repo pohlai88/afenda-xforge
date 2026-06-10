@@ -9,9 +9,13 @@ import {
   verifyDocumentsManagementDocument,
 } from "@repo/features-employee-management-documents-management/server";
 import {
+  resetDocumentsManagementAuditWriterForTesting,
+  restoreDocumentsManagementDatabaseAuditWriter,
+} from "../../../packages/features/hr-suite/employee-management/documents-management/src/audit.ts";
+import {
   resetDocumentsManagementRepositoryForTesting,
   setDocumentsManagementRepositoryPathForTesting,
-} from "../../../packages/features/hr-suite/employee-management/documents-management/src/repository.ts";
+} from "../../../packages/features/hr-suite/employee-management/documents-management/src/repository.testing.ts";
 import {
   resetDocumentsManagementBlobClientForTesting,
   resetDocumentsManagementStorageProviderForTesting,
@@ -32,12 +36,14 @@ let sandboxDirectory: string;
 let blobContents: Map<string, { contentType: string; payload: Uint8Array }>;
 
 const baseHeaders = {
+  "x-can-download-documents": "true",
   "x-can-read-documents": "true",
   "x-company-id": "company-a",
   "x-tenant-id": "tenant-a",
 };
 
 const deniedHeaders = {
+  "x-can-download-documents": "false",
   "x-can-read-documents": "false",
   "x-company-id": "company-a",
   "x-tenant-id": "tenant-a",
@@ -60,6 +66,7 @@ beforeEach(() => {
   blobContents = new Map();
 
   setDocumentsManagementStorageProviderForTesting("blob");
+  resetDocumentsManagementAuditWriterForTesting();
   setDocumentsManagementRepositoryPathForTesting(repositoryPath);
   resetDocumentsManagementRepositoryForTesting();
   setDocumentsManagementBlobClientForTesting({
@@ -132,13 +139,14 @@ beforeEach(() => {
 });
 
 afterEach(() => {
+  restoreDocumentsManagementDatabaseAuditWriter();
   resetDocumentsManagementBlobClientForTesting();
   resetDocumentsManagementStorageProviderForTesting();
   rmSync(sandboxDirectory, { recursive: true, force: true });
 });
 
 test("serves document list, detail, readiness, and expiring routes", async () => {
-  const alphaDocument = registerDocumentsManagementDocument(
+  const alphaDocument = await registerDocumentsManagementDocument(
     {
       documentCategory: "identity",
       documentType: "passport",
@@ -152,7 +160,7 @@ test("serves document list, detail, readiness, and expiring routes", async () =>
       tenantId: "tenant-a",
     }
   );
-  registerDocumentsManagementDocument(
+  await registerDocumentsManagementDocument(
     {
       documentCategory: "identity",
       documentType: "nric",
@@ -166,7 +174,7 @@ test("serves document list, detail, readiness, and expiring routes", async () =>
       tenantId: "tenant-a",
     }
   );
-  const verifiedSeed = registerDocumentsManagementDocument(
+  const verifiedSeed = await registerDocumentsManagementDocument(
     {
       documentCategory: "policy",
       documentType: "employee_handbook_acknowledgment",
@@ -181,7 +189,7 @@ test("serves document list, detail, readiness, and expiring routes", async () =>
       tenantId: "tenant-a",
     }
   );
-  verifyDocumentsManagementDocument(
+  await verifyDocumentsManagementDocument(
     {
       id: verifiedSeed.id,
       verifiedAt: new Date("2026-06-09T00:00:00.000Z"),
@@ -193,7 +201,7 @@ test("serves document list, detail, readiness, and expiring routes", async () =>
       tenantId: "tenant-a",
     }
   );
-  registerDocumentsManagementDocument(
+  await registerDocumentsManagementDocument(
     {
       documentCategory: "identity",
       documentType: "passport",
@@ -208,7 +216,7 @@ test("serves document list, detail, readiness, and expiring routes", async () =>
       tenantId: "tenant-a",
     }
   );
-  registerDocumentsManagementDocument(
+  await registerDocumentsManagementDocument(
     {
       documentCategory: "identity",
       documentType: "passport",
@@ -223,7 +231,7 @@ test("serves document list, detail, readiness, and expiring routes", async () =>
       tenantId: "tenant-a",
     }
   );
-  registerDocumentsManagementDocument(
+  await registerDocumentsManagementDocument(
     {
       documentCategory: "identity",
       documentType: "passport",
@@ -570,7 +578,7 @@ test("surfaces blob storage failures as service-unavailable responses", async ()
     ok: false,
   });
 
-  const registeredDocument = registerDocumentsManagementDocument(
+  const registeredDocument = await registerDocumentsManagementDocument(
     {
       documentCategory: "identity",
       documentType: "passport",

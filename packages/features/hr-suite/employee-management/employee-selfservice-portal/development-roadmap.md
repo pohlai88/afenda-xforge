@@ -80,7 +80,7 @@ Files to inspect/change:
 - `src/metadata.ts`
 - `src/manifest.ts`
 - `test/**/*.test.ts`
-- `employee-selfservice-portal-architecture.md`
+- `architecture-and-feature-requirement.md`
 
 Acceptance criteria:
 
@@ -442,7 +442,7 @@ Files to inspect/change:
 - `src/contract.ts`
 - `apps/api/app/api/hr/employee-selfservice-portal/*`
 - `test/audit-and-integration.test.ts`
-- `employee-selfservice-portal-architecture.md`
+- `architecture-and-feature-requirement.md`
 
 Acceptance criteria:
 
@@ -473,7 +473,7 @@ Each slice should not be marked implemented until:
 - tests cover success, denial, actor scoping, masking, and projection validity
 - the route or execution surface is callable
 - package validation commands have been run and recorded
-- `employee-selfservice-portal-architecture.md` is updated with exact implementation evidence
+- `architecture-and-feature-requirement.md` is updated with exact implementation evidence
 
 Recommended validation commands:
 

@@ -3,6 +3,7 @@ import { metadataFormCustomizationSchema } from "./customization-policy.schema.t
 
 export const metadataFormSchema = z
   .object({
+    id: z.string().trim().min(1).optional(),
     key: z.string().trim().min(1),
     label: z.string().trim().min(1),
     customization: metadataFormCustomizationSchema.optional(),

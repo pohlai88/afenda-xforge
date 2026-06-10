@@ -14,6 +14,10 @@ export const employeeLifecycleManagementRoutePaths = {
   tasks: "/hr/lifecycle/tasks",
   auditTrail: "/hr/lifecycle/audit-trail",
   transitions: "/hr/lifecycle/transitions",
+  automation: "/hr/lifecycle/automation",
+  notifications: "/hr/lifecycle/notifications",
+  integration: (employeeId: string): `/hr/lifecycle/integration/${string}` =>
+    `/hr/lifecycle/integration/${employeeId}`,
 } as const;
 
 export type EmployeeLifecycleManagementRoutePath =
@@ -24,7 +28,10 @@ export type EmployeeLifecycleManagementRoutePath =
   | (typeof employeeLifecycleManagementRoutePaths)["tasks"]
   | (typeof employeeLifecycleManagementRoutePaths)["auditTrail"]
   | (typeof employeeLifecycleManagementRoutePaths)["transitions"]
-  | ReturnType<typeof employeeLifecycleManagementRoutePaths.detail>;
+  | (typeof employeeLifecycleManagementRoutePaths)["automation"]
+  | (typeof employeeLifecycleManagementRoutePaths)["notifications"]
+  | ReturnType<typeof employeeLifecycleManagementRoutePaths.detail>
+  | ReturnType<typeof employeeLifecycleManagementRoutePaths.integration>;
 
 export type EmployeeLifecycleManagementRouteContract = {
   method: "GET" | "POST" | "PATCH";
@@ -40,6 +47,9 @@ export type EmployeeLifecycleManagementRouteContractSet = {
   auditTrail: EmployeeLifecycleManagementRouteContract;
   tasks: EmployeeLifecycleManagementRouteContract;
   transitions: EmployeeLifecycleManagementRouteContract;
+  automation: EmployeeLifecycleManagementRouteContract;
+  notifications: EmployeeLifecycleManagementRouteContract;
+  integration: EmployeeLifecycleManagementRouteContract;
 };
 
 export const employeeLifecycleManagementRouteContracts: EmployeeLifecycleManagementRouteContractSet =
@@ -79,6 +89,24 @@ export const employeeLifecycleManagementRouteContracts: EmployeeLifecycleManagem
       path: "/api/hr/lifecycle/transitions",
       version: employeeLifecycleManagementRouteContractVersion,
       capability: employeeLifecycleManagementCapabilities.transitionsWrite,
+    },
+    automation: {
+      method: "POST",
+      path: "/api/hr/lifecycle/automation/run",
+      version: employeeLifecycleManagementRouteContractVersion,
+      capability: employeeLifecycleManagementCapabilities.workflowWrite,
+    },
+    notifications: {
+      method: "GET",
+      path: "/api/hr/lifecycle/notifications",
+      version: employeeLifecycleManagementRouteContractVersion,
+      capability: employeeLifecycleManagementCapabilities.workflowRead,
+    },
+    integration: {
+      method: "GET",
+      path: "/api/hr/lifecycle/integration/[employeeId]",
+      version: employeeLifecycleManagementRouteContractVersion,
+      capability: employeeLifecycleManagementCapabilities.workflowRead,
     },
   };
 

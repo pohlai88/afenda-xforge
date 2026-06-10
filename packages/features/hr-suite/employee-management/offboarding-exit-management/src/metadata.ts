@@ -1,27 +1,40 @@
-export type OffboardingExitManagementMetadata = {
-  description: string;
-  domain: string;
-  id: string;
-  labels: {
-    plural: string;
-    singular: string;
-  };
-  source: "legacy-hr-suite";
-  suite: "hr-suite";
-  title: string;
-};
+import type { OffboardingExitManagementMetadata } from "./contracts/index.ts";
+import { offboardingExitManagementFeatureScope } from "./feature-scope.ts";
+import { offboardingExitManagementFeatureId } from "./identity.ts";
 
 export const offboardingExitManagementMetadata: OffboardingExitManagementMetadata =
   {
-    id: "hr-suite.employee-management.offboarding-exit-management",
+    id: offboardingExitManagementFeatureId,
     title: "Offboarding Exit Management",
     description:
-      "Governed metadata for the employee-management offboarding-exit-management feature extracted from the legacy HR suite.",
-    domain: "employee-management",
+      "Governed package foundation for orchestrating employee exit processes, clearance references, audit history, and post-employment closure.",
+    domain: offboardingExitManagementFeatureScope.domain,
     labels: {
-      singular: "Offboarding Exit Management record",
-      plural: "Offboarding Exit Management records",
+      singular: "Offboarding case",
+      plural: "Offboarding cases",
     },
-    source: "legacy-hr-suite",
-    suite: "hr-suite",
+    source: offboardingExitManagementFeatureScope.source,
+    suite: offboardingExitManagementFeatureScope.suite,
+    tags: [
+      "offboarding",
+      "exit",
+      "clearance",
+      "handover",
+      "asset-recovery",
+      "access-revocation",
+      "audit",
+    ],
+    keywords: [
+      "resignation",
+      "termination",
+      "retirement",
+      "notice period",
+      "exit interview",
+      "final settlement readiness",
+      "rehire eligibility",
+    ],
+    icon: "log-out",
+    maturity: "managed",
+    visibility: "internal",
+    version: 1,
   };

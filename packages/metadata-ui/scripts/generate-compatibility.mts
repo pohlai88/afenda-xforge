@@ -26,12 +26,14 @@ function renderCompatibilityFile(): string {
 
 import type { MetadataActionSurface } from "../contracts/action-renderer.contract";
 import type { MetadataFieldKind } from "../contracts/field-renderer.contract";
+import type { MetadataStateKind } from "../contracts/state-renderer.contract";
 import type { MetadataSectionKind } from "../contracts/section-renderer.contract";
 
 export type MetadataUiGeneratedComposeCompatibilityMap = {
   action: Record<MetadataActionSurface, ComposeRegistryGroupName>;
   field: Record<MetadataFieldKind, ComposeRegistryGroupName>;
   section: Record<MetadataSectionKind, ComposeRegistryGroupName>;
+  state: Record<MetadataStateKind, ComposeRegistryGroupName>;
 };
 
 export const generatedMetadataUiComposeCompatibilityMap = {
@@ -43,6 +45,9 @@ ${renderMapEntries(grouped.field)}
   },
   section: {
 ${renderMapEntries(grouped.section)}
+  },
+  state: {
+${renderMapEntries(grouped.state)}
   },
 } satisfies MetadataUiGeneratedComposeCompatibilityMap;
 `;

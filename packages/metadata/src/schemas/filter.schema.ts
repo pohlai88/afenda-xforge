@@ -12,6 +12,7 @@ export const metadataFilterOptionSchema = z
 export const metadataFilterSchema = z
   .object({
     customization: metadataFilterCustomizationSchema.optional(),
+    id: z.string().trim().min(1).optional(),
     key: z.string().trim().min(1),
     label: z.string().trim().min(1),
     field: z.string().trim().min(1),

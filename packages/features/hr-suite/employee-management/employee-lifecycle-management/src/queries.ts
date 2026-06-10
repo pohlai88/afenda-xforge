@@ -144,7 +144,8 @@ export function listEmployeeLifecycleProbationStatuses(
 
 export function getEmployeeLifecycleContractStatus(
   employeeId: string,
-  scope?: EmployeeLifecycleRepositoryScope
+  scope?: EmployeeLifecycleRepositoryScope,
+  referenceNow?: Date
 ): EmployeeLifecycleContractReadModel | null {
   const state = findEmployeeLifecycleStateByEmployeeId(employeeId, scope);
   if (!state) {
@@ -152,6 +153,7 @@ export function getEmployeeLifecycleContractStatus(
   }
 
   return buildEmployeeLifecycleContractReadModel({
+    now: referenceNow,
     state,
     record: findEmployeeLifecycleContractRecordByEmployeeId(employeeId, scope),
   });

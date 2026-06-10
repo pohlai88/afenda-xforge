@@ -302,6 +302,7 @@ export const customizationFieldOverrideSchema = z
   .object({
     description: z.string().trim().min(1).optional(),
     hidden: z.boolean().optional(),
+    id: metadataIdSchema.optional(),
     key: z.string().trim().min(1),
     label: z.string().trim().min(1).optional(),
     order: z.number().finite().optional(),
@@ -317,6 +318,7 @@ export const customizationSectionOverrideSchema = z
     description: z.string().trim().min(1).optional(),
     fieldKeys: z.array(z.string().trim().min(1)).readonly().optional(),
     hidden: z.boolean().optional(),
+    id: metadataIdSchema.optional(),
     key: z.string().trim().min(1),
     label: z.string().trim().min(1).optional(),
   })
@@ -325,6 +327,7 @@ export const customizationSectionOverrideSchema = z
 export const customizationFormOverrideSchema = z
   .object({
     hidden: z.boolean().optional(),
+    id: metadataIdSchema.optional(),
     key: z.string().trim().min(1),
     label: z.string().trim().min(1).optional(),
     layout: z.enum(["grid", "inline", "stack"]).optional(),
@@ -337,6 +340,7 @@ export const customizationTableColumnOverrideSchema = z
     align: z.enum(["center", "end", "start"]).optional(),
     field: z.string().trim().min(1).optional(),
     hidden: z.boolean().optional(),
+    id: metadataIdSchema.optional(),
     key: z.string().trim().min(1),
     label: z.string().trim().min(1).optional(),
     order: z.number().finite().optional(),
@@ -351,6 +355,7 @@ export const customizationTableOverrideSchema = z
       .readonly()
       .optional(),
     hidden: z.boolean().optional(),
+    id: metadataIdSchema.optional(),
     key: z.string().trim().min(1),
     title: z.string().trim().min(1).optional(),
   })
@@ -370,6 +375,7 @@ export const customizationEntityTableOverrideSchema = z
 export const customizationFilterOverrideSchema = z
   .object({
     hidden: z.boolean().optional(),
+    id: metadataIdSchema.optional(),
     key: z.string().trim().min(1),
     label: z.string().trim().min(1).optional(),
   })
@@ -378,6 +384,7 @@ export const customizationFilterOverrideSchema = z
 export const customizationActionOverrideSchema = z
   .object({
     hidden: z.boolean().optional(),
+    id: metadataIdSchema.optional(),
     key: z.string().trim().min(1),
     label: z.string().trim().min(1).optional(),
     placement: z.enum(["overflow", "primary", "row", "secondary"]).optional(),
@@ -462,7 +469,34 @@ export const customizationFixtureSchema = z
   .object({
     exportedAt: z.string().trim().datetime({ offset: true }),
     exportedBy: z.string().trim().min(1),
-    schemaVersion: z.literal(1),
+    metadataSnapshot: z
+      .array(
+        z
+          .object({
+            fingerprint: z.string().trim().min(1),
+            metadataNodeId: metadataIdSchema.optional(),
+            metadataNodeKey: z.string().trim().min(1),
+            parentMetadataNodeId: metadataIdSchema.optional(),
+            parentMetadataNodeKey: z.string().trim().min(1).optional(),
+            path: z
+              .array(z.union([z.string().trim().min(1), z.number().int()]))
+              .readonly(),
+            surface: z.enum([
+              "action",
+              "entity-table-column",
+              "field",
+              "filter",
+              "form",
+              "section",
+              "table",
+              "table-column",
+            ]),
+          })
+          .strict()
+      )
+      .readonly()
+      .optional(),
+    schemaVersion: z.union([z.literal(1), z.literal(2)]),
     customization: customizationSchema,
   })
   .strict();

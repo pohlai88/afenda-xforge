@@ -7,6 +7,7 @@ import type {
 import type { MetadataFieldContract } from "./field.contract.ts";
 import type { MetadataFilterContract } from "./filter.contract.ts";
 import type { MetadataFormContract } from "./form.contract.ts";
+import type { MetadataNodeId } from "./id.contract.ts";
 import type { MetadataPermissionHint } from "./permission-hint.contract.ts";
 import type { MetadataPresentationContract } from "./presentation.contract.ts";
 import type { MetadataSectionContract } from "./section.contract.ts";
@@ -19,6 +20,7 @@ export type EntityMetadataTableColumn = {
   customization?: MetadataTableColumnCustomizationPolicy;
   description?: string;
   field?: string;
+  id?: MetadataNodeId;
   key: string;
   label: string;
   kind?: EntityMetadataColumnKind;
@@ -36,6 +38,7 @@ export type EntityTableMetadata = {
   columns: readonly EntityMetadataTableColumn[];
   customization?: MetadataEntityTableCustomizationPolicy;
   defaultSort: string;
+  id?: MetadataNodeId;
   title?: string;
 };
 

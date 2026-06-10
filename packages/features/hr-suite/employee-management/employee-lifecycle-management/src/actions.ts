@@ -1064,6 +1064,13 @@ export function recordEmployeeLifecycleDemotion(
   return recordEmployeeLifecycleMovementWithKind("demotion", input, scope);
 }
 
+export function recordEmployeeLifecycleGradeChange(
+  input: Omit<EmployeeLifecycleMovementInput, "movementKind">,
+  scope?: EmployeeLifecycleRepositoryScope
+): EmployeeLifecycleMovementReadModel {
+  return recordEmployeeLifecycleMovementWithKind("grade_change", input, scope);
+}
+
 export function recordEmployeeLifecycleJobChange(
   input: Omit<EmployeeLifecycleMovementInput, "movementKind">,
   scope?: EmployeeLifecycleRepositoryScope
@@ -1120,6 +1127,7 @@ export const employeeLifecycleMovementActionCatalog = {
   promote: "recordEmployeeLifecyclePromotion",
   transfer: "recordEmployeeLifecycleTransfer",
   demote: "recordEmployeeLifecycleDemotion",
+  gradeChange: "recordEmployeeLifecycleGradeChange",
   jobChange: "recordEmployeeLifecycleJobChange",
   departmentChange: "recordEmployeeLifecycleDepartmentChange",
   locationChange: "recordEmployeeLifecycleLocationChange",
@@ -1653,7 +1661,11 @@ const buildExitReadModel = (
 const startEmployeeLifecycleExit = (
   input: Omit<EmployeeLifecycleExitStartInput, "exitKind">,
   scope: EmployeeLifecycleRepositoryScope | undefined,
-  exitKind: "resignation" | "termination" | "retirement"
+  exitKind:
+    | "resignation"
+    | "termination"
+    | "retirement"
+    | "contract_expiry"
 ): EmployeeLifecycleExitReadModel => {
   const parsedInput = employeeLifecycleExitStartInputSchema.parse({
     ...input,
@@ -1730,6 +1742,13 @@ export function startEmployeeLifecycleRetirement(
   scope?: EmployeeLifecycleRepositoryScope
 ): EmployeeLifecycleExitReadModel {
   return startEmployeeLifecycleExit(input, scope, "retirement");
+}
+
+export function startEmployeeLifecycleContractEnd(
+  input: Omit<EmployeeLifecycleExitStartInput, "exitKind">,
+  scope?: EmployeeLifecycleRepositoryScope
+): EmployeeLifecycleExitReadModel {
+  return startEmployeeLifecycleExit(input, scope, "contract_expiry");
 }
 
 export function recordEmployeeLifecycleExitNotice(
@@ -1978,6 +1997,7 @@ export const employeeLifecycleExitActionCatalog = {
   startResignation: "startEmployeeLifecycleResignation",
   startTermination: "startEmployeeLifecycleTermination",
   startRetirement: "startEmployeeLifecycleRetirement",
+  startContractEnd: "startEmployeeLifecycleContractEnd",
   recordNotice: "recordEmployeeLifecycleExitNotice",
   triggerOffboarding: "triggerEmployeeLifecycleOffboarding",
   archive: "archiveEmployeeLifecycleExit",

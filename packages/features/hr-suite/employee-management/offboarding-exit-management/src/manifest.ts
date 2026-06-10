@@ -1,24 +1,39 @@
-import { offboardingExitManagementRouteContracts } from "./contract.ts";
-
-export type OffboardingExitManagementManifest = {
-  description: string;
-  domain: string;
-  id: string;
-  packageName: string;
-  routeContracts: typeof offboardingExitManagementRouteContracts;
-  suite: "hr-suite";
-  title: string;
-};
+import type { OffboardingExitManagementManifest } from "./contracts/index.ts";
+import {
+  offboardingExitManagementPermissions,
+  offboardingExitManagementRouteContracts,
+} from "./contracts/index.ts";
+import { offboardingExitManagementFeatureScope } from "./feature-scope.ts";
+import {
+  offboardingExitManagementFeatureId,
+  offboardingExitManagementFeatureLabel,
+} from "./identity.ts";
+import {
+  offboardingExitManagementAcceptanceCoverage,
+  offboardingExitManagementBoundedContext,
+  offboardingExitManagementCapabilityCatalog,
+  offboardingExitManagementCapabilityGroups,
+  offboardingExitManagementRequirementCoverage,
+} from "./registry/index.ts";
 
 export const offboardingExitManagementManifest: OffboardingExitManagementManifest =
   {
-    id: "hr-suite.employee-management.offboarding-exit-management",
-    title: "Offboarding Exit Management",
+    id: offboardingExitManagementFeatureId,
+    title: offboardingExitManagementFeatureLabel,
     description:
-      "Governed package for the legacy HR Suite offboarding-exit-management slice at afenda-erp/packages/features/hr-suite/src/employee-management/offboarding-exit-management.",
-    domain: "employee-management",
-    packageName:
-      "@repo/features-employee-management-offboarding-exit-management",
+      "Governed package foundation for offboarding exit management aligned to the HR suite architecture and ownership boundaries.",
+    domain: offboardingExitManagementFeatureScope.domain,
+    suite: offboardingExitManagementFeatureScope.suite,
+    source: offboardingExitManagementFeatureScope.source,
+    packageName: offboardingExitManagementFeatureScope.packageName,
+    version: 1,
+    lifecycle: "active",
+    stability: "alpha",
+    boundedContext: offboardingExitManagementBoundedContext,
+    capabilities: offboardingExitManagementCapabilityCatalog,
+    capabilityGroups: offboardingExitManagementCapabilityGroups,
+    permissions: offboardingExitManagementPermissions,
     routeContracts: offboardingExitManagementRouteContracts,
-    suite: "hr-suite",
+    requirementCoverage: offboardingExitManagementRequirementCoverage,
+    acceptanceCoverage: offboardingExitManagementAcceptanceCoverage,
   };

@@ -135,4 +135,14 @@ See `examples/metadata-boundary.example.tsx` for a package-local fixture that co
 | section | `table` | `MetadataTableSectionRenderer` | `data-grid` |
 | section | `timeline` | `MetadataSectionRenderer` | `timeline` |
 | section | `workflow` | `MetadataSectionRenderer` | `stepper` |
+| state | `degraded` | `DegradedStateRenderer` | `alert` |
+| state | `empty` | `EmptyStateRenderer` | `empty` |
+| state | `error` | `ErrorStateRenderer` | `alert` |
+| state | `forbidden` | `ForbiddenStateRenderer` | `alert` |
+| state | `invalid` | `InvalidStateRenderer` | `alert` |
+| state | `loading` | `LoadingStateRenderer` | `skeleton` |
+| state | `maintenance` | `MaintenanceStateRenderer` | `alert` |
+| state | `partial` | `PartialStateRenderer` | `frame` |
+| state | `readonly` | `ReadonlyStateRenderer` | `frame` |
+| state | `ready` | `ReadyStateRenderer` | `frame` |
 <!-- metadata-ui-generated-renderer-catalog:end -->

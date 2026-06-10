@@ -6,7 +6,11 @@ import { afterEach, beforeEach, test } from "node:test";
 import {
   resetDocumentsManagementRepositoryForTesting,
   setDocumentsManagementRepositoryPathForTesting,
-} from "../src/repository.ts";
+} from "../src/repository.testing.ts";
+import {
+  resetDocumentsManagementAuditWriterForTesting,
+  setDocumentsManagementAuditWriterForTesting,
+} from "../src/audit.ts";
 import {
   getDocumentsManagementDocument,
   getDocumentsManagementDocumentLatestVersion,
@@ -15,6 +19,7 @@ import {
   registerDocumentsManagementDocument,
   updateDocumentsManagementDocument,
 } from "../src/server.ts";
+import { createNoopAuditWriter } from "@repo/audit";
 
 let sandboxDirectory: string;
 
@@ -33,14 +38,16 @@ beforeEach(() => {
 
   setDocumentsManagementRepositoryPathForTesting(repositoryPath);
   resetDocumentsManagementRepositoryForTesting();
+  setDocumentsManagementAuditWriterForTesting(createNoopAuditWriter());
 });
 
 afterEach(() => {
+  resetDocumentsManagementAuditWriterForTesting();
   rmSync(sandboxDirectory, { recursive: true, force: true });
 });
 
-test("registering and replacing a document preserves version history", () => {
-  const createdDocument = registerDocumentsManagementDocument(
+test("registering and replacing a document preserves version history", async () => {
+  const createdDocument = await registerDocumentsManagementDocument(
     {
       documentCategory: "policy",
       documentType: "employee_handbook_acknowledgment",
@@ -68,7 +75,7 @@ test("registering and replacing a document preserves version history", () => {
   assert.equal(firstVersion?.isLatest, true);
   assert.equal(firstVersion?.sourceNotes, "Initial source notes");
 
-  const updatedDocument = updateDocumentsManagementDocument(
+  const updatedDocument = await updateDocumentsManagementDocument(
     {
       id: createdDocument.id,
       reference: {

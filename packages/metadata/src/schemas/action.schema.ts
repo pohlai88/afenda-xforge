@@ -6,6 +6,7 @@ import { metadataActionCustomizationSchema } from "./customization-policy.schema
 export const metadataActionSchema = z
   .object({
     customization: metadataActionCustomizationSchema.optional(),
+    id: z.string().trim().min(1).optional(),
     key: z.string().trim().min(1),
     label: z.string().trim().min(1),
     kind: z.enum(metadataActionKinds),

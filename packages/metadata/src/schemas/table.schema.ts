@@ -8,6 +8,7 @@ import {
 export const metadataTableColumnSchema = z
   .object({
     customization: metadataTableColumnCustomizationSchema.optional(),
+    id: z.string().trim().min(1).optional(),
     key: z.string().trim().min(1),
     label: z.string().trim().min(1),
     field: z.string().trim().min(1),
@@ -21,6 +22,7 @@ export const metadataTableColumnSchema = z
 export const metadataEntityTableColumnSchema = z
   .object({
     customization: metadataTableColumnCustomizationSchema.optional(),
+    id: z.string().trim().min(1).optional(),
     key: z.string().trim().min(1),
     label: z.string().trim().min(1),
     field: z.string().trim().min(1).optional(),
@@ -36,6 +38,7 @@ export const metadataEntityTableColumnSchema = z
 export const metadataTableSchema = z
   .object({
     customization: metadataTableCustomizationSchema.optional(),
+    id: z.string().trim().min(1).optional(),
     key: z.string().trim().min(1),
     title: z.string().trim().min(1),
     columns: z.array(metadataTableColumnSchema).readonly(),
@@ -57,6 +60,7 @@ export const metadataEntityTableSchema = z
     customization: metadataEntityTableCustomizationSchema.optional(),
     defaultSort: z.string().trim().min(1),
     columns: z.array(metadataEntityTableColumnSchema).readonly(),
+    id: z.string().trim().min(1).optional(),
     title: z.string().trim().min(1).optional(),
   })
   .strict();

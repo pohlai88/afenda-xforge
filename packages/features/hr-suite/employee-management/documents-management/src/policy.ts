@@ -1,18 +1,27 @@
 import type {
+  DocumentsManagementAcknowledgment,
   DocumentsManagementDocument,
+  DocumentsManagementDocumentObligation,
   DocumentsManagementDocumentSummary,
   DocumentsManagementDocumentVersion,
   DocumentsManagementRecord,
 } from "./contracts/index.ts";
 
 export type DocumentsManagementPolicyContext = {
+  actorEmployeeId?: string;
   actorId?: string;
+  canAdminRetention?: boolean;
+  canDownload?: boolean;
   canRead?: boolean;
+  canReadAudit?: boolean;
+  canSelfAcknowledge?: boolean;
   canViewSensitive?: boolean;
   canWrite?: boolean;
   companyId?: string;
+  organizationId?: string;
   requestId?: string;
   tenantId?: string;
+  userId?: string;
 };
 
 const hasTenantScope = (context?: DocumentsManagementPolicyContext): boolean =>
@@ -36,10 +45,40 @@ export function canViewDocumentsManagementSensitiveData(
   return hasTenantScope(context) && Boolean(context?.canViewSensitive);
 }
 
+export function canDownloadDocumentsManagement(
+  context?: DocumentsManagementPolicyContext
+): boolean {
+  return canReadDocumentsManagement(context) && Boolean(context?.canDownload);
+}
+
+export function canReadDocumentsManagementAudit(
+  context?: DocumentsManagementPolicyContext
+): boolean {
+  return canReadDocumentsManagement(context) && Boolean(context?.canReadAudit);
+}
+
+export function canExecuteDocumentsManagementRetention(
+  context?: DocumentsManagementPolicyContext
+): boolean {
+  return canWriteDocumentsManagement(context) && Boolean(context?.canAdminRetention);
+}
+
+export function canSelfAcknowledgeDocumentsManagement(
+  context: DocumentsManagementPolicyContext | undefined,
+  obligation: DocumentsManagementDocumentObligation
+): boolean {
+  return Boolean(
+    canReadDocumentsManagement(context) &&
+      context?.canSelfAcknowledge &&
+      context.actorEmployeeId &&
+      context.actorEmployeeId === obligation.employeeId
+  );
+}
+
 export function normalizeDocumentsManagementActorId(
   context?: DocumentsManagementPolicyContext
 ): string {
-  return context?.actorId?.trim() || "system";
+  return context?.actorId?.trim() || context?.userId?.trim() || "system";
 }
 
 export function buildDocumentsManagementAuditMetadata(
@@ -58,6 +97,28 @@ export function requireDocumentsManagementWriteAccess(
   }
 }
 
+export function requireDocumentsManagementRetentionAccess(
+  context?: DocumentsManagementPolicyContext
+): void {
+  if (!canExecuteDocumentsManagementRetention(context)) {
+    throw new Error("Retention execution access denied for documents management");
+  }
+}
+
+export function redactDocumentsManagementAcknowledgment(
+  acknowledgment: DocumentsManagementAcknowledgment | null | undefined,
+  canViewSensitive: boolean
+): DocumentsManagementAcknowledgment | null | undefined {
+  if (!acknowledgment || canViewSensitive) {
+    return acknowledgment;
+  }
+
+  return {
+    ...acknowledgment,
+    note: null,
+  };
+}
+
 export function redactDocumentsManagementDocument(
   document: DocumentsManagementDocument,
   canViewSensitive: boolean
@@ -68,12 +129,10 @@ export function redactDocumentsManagementDocument(
 
   return {
     ...document,
-    acknowledgment: document.acknowledgment
-      ? {
-          ...document.acknowledgment,
-          note: null,
-        }
-      : document.acknowledgment,
+    acknowledgment: redactDocumentsManagementAcknowledgment(
+      document.acknowledgment,
+      false
+    ),
     rejectionReason: null,
     reference: {
       ...document.reference,
@@ -100,6 +159,20 @@ export function redactDocumentsManagementDocumentVersion(
   return {
     ...version,
     sourceNotes: null,
+  };
+}
+
+export function redactDocumentsManagementDocumentObligation(
+  obligation: DocumentsManagementDocumentObligation,
+  canViewSensitive: boolean
+): DocumentsManagementDocumentObligation {
+  if (canViewSensitive) {
+    return obligation;
+  }
+
+  return {
+    ...obligation,
+    description: null,
   };
 }
 

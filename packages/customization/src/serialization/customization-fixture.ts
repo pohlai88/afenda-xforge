@@ -6,6 +6,10 @@ import type {
   CustomizationImportMode,
   CustomizationImportReviewContract,
 } from "../contracts/customization.contract.ts";
+import {
+  createCustomizationFixtureMetadataSnapshot,
+  reviewCustomizationFixtureMetadataSnapshot,
+} from "../internal/customization-fixture-snapshot.ts";
 import { customizationFixtureSchema } from "../schemas/customization.schema.ts";
 import type { CustomizationMetadataValidationOptions } from "../validation/validate-customization-against-metadata.ts";
 import {
@@ -17,18 +21,41 @@ export type CreateCustomizationFixtureInput = {
   customization: CustomizationContract;
   exportedAt: string;
   exportedBy: string;
+  metadata?: CustomizableMetadata;
 };
 
 type CustomizableMetadata = EntityMetadata | MetadataFeatureContract;
+
+const toStableJsonValue = (value: unknown): unknown => {
+  if (Array.isArray(value)) {
+    return value.map((entry) => toStableJsonValue(entry));
+  }
+
+  if (value && typeof value === "object") {
+    return Object.fromEntries(
+      Object.entries(value)
+        .sort(([leftKey], [rightKey]) => leftKey.localeCompare(rightKey))
+        .map(([key, entryValue]) => [key, toStableJsonValue(entryValue)])
+    );
+  }
+
+  return value;
+};
 
 export const createCustomizationFixture = (
   input: CreateCustomizationFixtureInput
 ): CustomizationFixtureContract =>
   customizationFixtureSchema.parse({
+    customization: input.customization,
     exportedAt: input.exportedAt,
     exportedBy: input.exportedBy,
-    schemaVersion: 1,
-    customization: input.customization,
+    metadataSnapshot: input.metadata
+      ? createCustomizationFixtureMetadataSnapshot(
+          input.customization,
+          input.metadata
+        )
+      : undefined,
+    schemaVersion: input.metadata ? 2 : 1,
   });
 
 export const parseCustomizationFixture = (
@@ -38,7 +65,11 @@ export const parseCustomizationFixture = (
 export const serializeCustomizationFixture = (
   fixture: CustomizationFixtureContract
 ): string =>
-  `${JSON.stringify(customizationFixtureSchema.parse(fixture), null, 2)}\n`;
+  `${JSON.stringify(
+    toStableJsonValue(customizationFixtureSchema.parse(fixture)),
+    null,
+    2
+  )}\n`;
 
 export const deserializeCustomizationFixture = (
   serialized: string
@@ -90,14 +121,20 @@ export const reviewCustomizationFixtureImport = ({
       validationMode: mode === "strict" ? "import-strict" : "import-draft",
     }
   );
+  const snapshotIssues = reviewCustomizationFixtureMetadataSnapshot(
+    fixture,
+    metadata,
+    mode
+  );
+  const issues = [...validation.issues, ...snapshotIssues];
 
   return {
     customization: fixture.customization,
-    issues: validation.issues,
+    issues,
     mode,
-    publishable: mode === "strict" && validation.valid,
-    requiresReview:
-      mode === "draft-with-warnings" || validation.issues.length > 0,
-    valid: validation.valid,
+    publishable:
+      mode === "strict" && issues.every((issue) => issue.severity !== "error"),
+    requiresReview: mode === "draft-with-warnings" || issues.length > 0,
+    valid: issues.every((issue) => issue.severity !== "error"),
   };
 };

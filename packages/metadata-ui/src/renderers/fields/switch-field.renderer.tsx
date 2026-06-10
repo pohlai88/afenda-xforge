@@ -1,32 +1,32 @@
+import { Switch } from "@repo/ui";
 import type { ReactElement } from "react";
 
 import type { MetadataFieldRendererProps } from "../../contracts/field-renderer.contract";
+import { resolveFieldVisualState } from "./field-visual-state";
+import { MetadataFieldShell } from "./metadata-field-shell";
 
-export function SwitchFieldRenderer({
-  field,
-  value,
-  disabled,
-}: MetadataFieldRendererProps): ReactElement {
+export function SwitchFieldRenderer(
+  props: MetadataFieldRendererProps
+): ReactElement {
+  const { context, field, value } = props;
+  const visualState = resolveFieldVisualState(props);
+  const isLocked = visualState.isDisabled || visualState.isReadOnly;
+
   return (
-    <label className="flex items-center justify-between gap-4 rounded-md border border-border p-3">
-      <span className="grid gap-1">
-        <span className="font-medium text-sm">{field.label}</span>
-        {field.helpText ? (
-          <span className="text-muted-foreground text-xs">
-            {field.helpText}
-          </span>
-        ) : null}
-      </span>
-      <input
-        aria-checked={Boolean(value)}
-        aria-label={field.label}
+    <MetadataFieldShell
+      density={context.density}
+      field={field}
+      orientation="horizontal"
+      visualState={visualState}
+    >
+      <Switch
+        aria-describedby={visualState.describedBy}
+        aria-invalid={visualState.hasError || undefined}
         defaultChecked={Boolean(value)}
-        disabled={disabled ?? field.disabled ?? field.readOnly}
-        id={field.key}
+        disabled={isLocked || undefined}
+        id={visualState.controlId}
         name={field.key}
-        role="switch"
-        type="checkbox"
       />
-    </label>
+    </MetadataFieldShell>
   );
 }

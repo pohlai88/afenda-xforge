@@ -5,7 +5,14 @@ import type { MetadataActionContract } from "../contracts/action-renderer.contra
 import type { MetadataFieldContract } from "../contracts/field-renderer.contract";
 import type { MetadataRenderContext } from "../contracts/render-context.contract";
 import { createMetadataRenderContext } from "../contracts/render-context.defaults";
+import {
+  resolveDensitySurfaceProps,
+  resolveDensityVisualDefinition,
+} from "../visualization/density-visual-contract";
 import { renderMetadataStateBoundaryResult } from "./metadata-state-boundary";
+
+const cn = (...values: Array<string | false | null | undefined>): string =>
+  values.filter(Boolean).join(" ");
 
 export type MetadataFormProps = {
   actions?: readonly MetadataActionContract[];
@@ -51,6 +58,7 @@ export function renderMetadataFormResult({
     mode: "create",
     state,
   });
+  const densityVisual = resolveDensityVisualDefinition(resolvedContext.density);
 
   if (state !== "ready") {
     const stateResult = renderMetadataStateBoundaryResult({
@@ -93,10 +101,15 @@ export function renderMetadataFormResult({
       (result) => result.diagnostics
     ),
     element: (
-      <form className="space-y-6">
+      <form
+        className={densityVisual.formSpacing}
+        {...resolveDensitySurfaceProps(resolvedContext.density)}
+      >
         {title || description ? (
-          <header className="space-y-2">
-            {title ? <h3 className="font-semibold text-xl">{title}</h3> : null}
+          <header className={densityVisual.sectionSpacing}>
+            {title ? (
+              <h2 className={densityVisual.formTitleClass}>{title}</h2>
+            ) : null}
             {description ? (
               <p className="max-w-2xl text-muted-foreground text-sm leading-6">
                 {description}
@@ -105,7 +118,7 @@ export function renderMetadataFormResult({
           </header>
         ) : null}
 
-        <div className="grid gap-4 md:grid-cols-2">
+        <div className={cn("grid md:grid-cols-2", densityVisual.formGridGap)}>
           {fieldResults.map((result, index) => (
             <div key={fields[index]?.key}>{result.element}</div>
           ))}

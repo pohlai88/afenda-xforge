@@ -21,6 +21,7 @@ export const employeeLifecycleManagementAuditEvents = {
   contractRenewed: "hr.employee-lifecycle.contract.renewed",
   contractReviewRecorded: "hr.employee-lifecycle.contract.review.recorded",
   contractReminderRecorded: "hr.employee-lifecycle.contract.reminder.recorded",
+  contractExpiryStarted: "hr.employee-lifecycle.exit.contract-expiry.started",
   suspensionStarted: "hr.employee-lifecycle.suspension.started",
   suspensionReleased: "hr.employee-lifecycle.suspension.released",
   suspensionResolved: "hr.employee-lifecycle.suspension.resolved",
@@ -29,7 +30,11 @@ export const employeeLifecycleManagementAuditEvents = {
   retirementStarted: "hr.employee-lifecycle.exit.retirement.started",
   exitNoticeRecorded: "hr.employee-lifecycle.exit.notice.recorded",
   exitOffboardingTriggered: "hr.employee-lifecycle.exit.offboarding.triggered",
+  exitOffboardingHandoffRequested:
+    "hr.employee-lifecycle.exit.offboarding.handoff.requested",
   exitArchived: "hr.employee-lifecycle.exit.archived",
+  integrationChanged: "hr.employee-lifecycle.integration.changed.v1",
+  notificationEnqueued: "hr.employee-lifecycle.notification.enqueued",
 } as const;
 
 export type EmployeeLifecycleManagementAuditEvent =
@@ -42,7 +47,9 @@ export type EmployeeLifecycleManagementAuditEventGroup =
   | "movement"
   | "contract"
   | "suspension"
-  | "exit";
+  | "exit"
+  | "integration"
+  | "notification";
 
 export const employeeLifecycleManagementStateAuditEventCatalog: readonly EmployeeLifecycleManagementAuditEvent[] =
   [
@@ -79,6 +86,7 @@ export const employeeLifecycleManagementContractAuditEventCatalog: readonly Empl
     employeeLifecycleManagementAuditEvents.contractRenewed,
     employeeLifecycleManagementAuditEvents.contractReviewRecorded,
     employeeLifecycleManagementAuditEvents.contractReminderRecorded,
+    employeeLifecycleManagementAuditEvents.contractExpiryStarted,
   ] as const;
 
 export const employeeLifecycleManagementSuspensionAuditEventCatalog: readonly EmployeeLifecycleManagementAuditEvent[] =
@@ -93,10 +101,18 @@ export const employeeLifecycleManagementExitAuditEventCatalog: readonly Employee
     employeeLifecycleManagementAuditEvents.resignationStarted,
     employeeLifecycleManagementAuditEvents.terminationStarted,
     employeeLifecycleManagementAuditEvents.retirementStarted,
+    employeeLifecycleManagementAuditEvents.contractExpiryStarted,
     employeeLifecycleManagementAuditEvents.exitNoticeRecorded,
     employeeLifecycleManagementAuditEvents.exitOffboardingTriggered,
+    employeeLifecycleManagementAuditEvents.exitOffboardingHandoffRequested,
     employeeLifecycleManagementAuditEvents.exitArchived,
   ] as const;
+
+export const employeeLifecycleManagementIntegrationAuditEventCatalog: readonly EmployeeLifecycleManagementAuditEvent[] =
+  [employeeLifecycleManagementAuditEvents.integrationChanged] as const;
+
+export const employeeLifecycleManagementNotificationAuditEventCatalog: readonly EmployeeLifecycleManagementAuditEvent[] =
+  [employeeLifecycleManagementAuditEvents.notificationEnqueued] as const;
 
 export const employeeLifecycleManagementAuditEventGroups: Readonly<
   Record<
@@ -111,6 +127,8 @@ export const employeeLifecycleManagementAuditEventGroups: Readonly<
   contract: employeeLifecycleManagementContractAuditEventCatalog,
   suspension: employeeLifecycleManagementSuspensionAuditEventCatalog,
   exit: employeeLifecycleManagementExitAuditEventCatalog,
+  integration: employeeLifecycleManagementIntegrationAuditEventCatalog,
+  notification: employeeLifecycleManagementNotificationAuditEventCatalog,
 } as const;
 
 export const employeeLifecycleManagementAuditEventCatalog: readonly EmployeeLifecycleManagementAuditEvent[] =
@@ -122,6 +140,8 @@ export const employeeLifecycleManagementAuditEventCatalog: readonly EmployeeLife
     ...employeeLifecycleManagementContractAuditEventCatalog,
     ...employeeLifecycleManagementSuspensionAuditEventCatalog,
     ...employeeLifecycleManagementExitAuditEventCatalog,
+    ...employeeLifecycleManagementIntegrationAuditEventCatalog,
+    ...employeeLifecycleManagementNotificationAuditEventCatalog,
   ] as const;
 
 export const employeeLifecycleManagementAudit = {

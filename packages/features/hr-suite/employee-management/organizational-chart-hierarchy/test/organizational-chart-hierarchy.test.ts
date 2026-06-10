@@ -39,8 +39,8 @@ import {
 import {
   loadHrOrgRepository,
   mutateHrOrgRepository,
-  resetHrOrgRepositoryForTesting,
 } from "../src/repository.ts";
+import { resetHrOrgRepositoryForTesting } from "../src/repository.testing.ts";
 import { upsertHrOrgUnitAction } from "../src/server.ts";
 import { hrOrgStore } from "../src/store.ts";
 

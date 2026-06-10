@@ -109,6 +109,23 @@ export const documentsManagementAcknowledgmentMethodValues = [
   "wet_signature",
 ] as const;
 
+export const documentsManagementObligationTypeValues = [
+  "document",
+  "policy_acknowledgment",
+] as const;
+
+export const documentsManagementObligationStatusValues = [
+  "pending",
+  "satisfied",
+  "expired",
+  "waived",
+] as const;
+
+export const documentsManagementAcknowledgmentStatusValues = [
+  "pending",
+  "acknowledged",
+] as const;
+
 export const documentsManagementDocumentCategorySchema = z.preprocess(
   normalizeSnakeCaseEnumValue,
   z.enum(documentsManagementDocumentCategoryValues)
@@ -144,6 +161,21 @@ export const documentsManagementAcknowledgmentMethodSchema = z.preprocess(
   z.enum(documentsManagementAcknowledgmentMethodValues)
 );
 
+export const documentsManagementObligationTypeSchema = z.preprocess(
+  normalizeSnakeCaseEnumValue,
+  z.enum(documentsManagementObligationTypeValues)
+);
+
+export const documentsManagementObligationStatusSchema = z.preprocess(
+  normalizeSnakeCaseEnumValue,
+  z.enum(documentsManagementObligationStatusValues)
+);
+
+export const documentsManagementAcknowledgmentStatusSchema = z.preprocess(
+  normalizeSnakeCaseEnumValue,
+  z.enum(documentsManagementAcknowledgmentStatusValues)
+);
+
 export const documentsManagementDocumentReferenceSchema = z.object({
   contentType: optionalTrimmedStringSchema,
   fileName: optionalTrimmedStringSchema,
@@ -163,32 +195,60 @@ export const documentsManagementRetentionSchema = z.object({
 
 export const documentsManagementDocumentVersionSchema = z.object({
   contentType: optionalTrimmedStringSchema,
-  id: trimmedStringSchema,
+  createdAt: isoDateSchema,
   documentId: trimmedStringSchema,
   fileName: optionalTrimmedStringSchema,
+  id: trimmedStringSchema,
+  isLatest: z.boolean(),
+  previousVersionId: optionalTrimmedStringSchema,
+  replacedByVersionId: optionalTrimmedStringSchema,
   sizeBytes: z.number().int().nonnegative().nullish(),
-  versionNumber: z.number().int().positive(),
-  state: documentsManagementDocumentVersionStateSchema,
-  storagePath: optionalTrimmedStringSchema,
   sourceDocumentId: optionalTrimmedStringSchema,
   sourceDocumentNumber: optionalTrimmedStringSchema,
   sourceNotes: z.string().trim().nullable().optional(),
-  previousVersionId: optionalTrimmedStringSchema,
-  replacedByVersionId: optionalTrimmedStringSchema,
-  isLatest: z.boolean(),
-  createdAt: isoDateSchema,
+  state: documentsManagementDocumentVersionStateSchema,
+  storagePath: optionalTrimmedStringSchema,
   updatedAt: isoDateSchema,
+  versionNumber: z.number().int().positive(),
 });
 
 export const documentsManagementAcknowledgmentSchema = z.object({
-  id: trimmedStringSchema,
-  documentId: trimmedStringSchema,
-  policyId: trimmedStringSchema,
-  policyVersion: trimmedStringSchema,
-  acknowledgedBy: trimmedStringSchema,
   acknowledgmentMethod: documentsManagementAcknowledgmentMethodSchema,
   acknowledgedAt: isoDateSchema,
+  acknowledgedBy: trimmedStringSchema,
+  documentId: optionalTrimmedStringSchema,
+  id: trimmedStringSchema,
   note: z.string().trim().nullable().optional(),
+  obligationId: optionalTrimmedStringSchema,
+  policyId: trimmedStringSchema,
+  policyVersion: trimmedStringSchema,
+});
+
+export const documentsManagementDocumentObligationSchema = z.object({
+  acknowledgmentId: optionalTrimmedStringSchema,
+  companyId: optionalTrimmedStringSchema,
+  createdAt: isoDateSchema,
+  description: z.string().trim().nullable().optional(),
+  documentCategory: documentsManagementDocumentCategorySchema,
+  documentType: documentsManagementDocumentTypeSchema,
+  dueAt: optionalIsoDateSchema,
+  employeeId: trimmedStringSchema,
+  evidenceDocumentId: optionalTrimmedStringSchema,
+  expiresAt: optionalIsoDateSchema,
+  fulfilledAt: optionalIsoDateSchema,
+  id: trimmedStringSchema,
+  jurisdictionCode: optionalTrimmedStringSchema,
+  legalEntityCode: optionalTrimmedStringSchema,
+  mandatory: z.boolean(),
+  obligationType: documentsManagementObligationTypeSchema,
+  policyId: optionalTrimmedStringSchema,
+  policyVersion: optionalTrimmedStringSchema,
+  retention: documentsManagementRetentionSchema.optional(),
+  source: optionalTrimmedStringSchema,
+  status: documentsManagementObligationStatusSchema,
+  title: trimmedStringSchema,
+  updatedAt: isoDateSchema,
+  waivedAt: optionalIsoDateSchema,
 });
 
 export const documentsManagementAuditActionValues = [
@@ -198,6 +258,10 @@ export const documentsManagementAuditActionValues = [
   "reject",
   "expire",
   "archive",
+  "acknowledge",
+  "anonymize",
+  "delete",
+  "retain",
 ] as const;
 
 export const documentsManagementAuditActionSchema = z.enum(
@@ -205,141 +269,150 @@ export const documentsManagementAuditActionSchema = z.enum(
 );
 
 export const documentsManagementAuditEventSchema = z.object({
-  id: trimmedStringSchema,
-  companyId: optionalTrimmedStringSchema,
-  tenantId: optionalTrimmedStringSchema,
-  actorId: trimmedStringSchema,
   action: documentsManagementAuditActionSchema,
-  documentId: trimmedStringSchema,
-  employeeId: trimmedStringSchema,
-  documentCategory: documentsManagementDocumentCategorySchema,
-  documentType: documentsManagementDocumentTypeSchema,
-  status: documentsManagementDocumentStatusSchema,
-  title: trimmedStringSchema,
-  summary: trimmedStringSchema,
-  metadata: z.record(z.string(), z.unknown()).default({}),
+  actorId: trimmedStringSchema,
+  companyId: optionalTrimmedStringSchema,
   createdAt: isoDateSchema,
+  documentCategory: documentsManagementDocumentCategorySchema,
+  documentId: trimmedStringSchema,
+  documentType: documentsManagementDocumentTypeSchema,
+  employeeId: trimmedStringSchema,
+  id: trimmedStringSchema,
+  metadata: z.record(z.string(), z.unknown()).default({}),
+  status: documentsManagementDocumentStatusSchema,
+  summary: trimmedStringSchema,
+  tenantId: optionalTrimmedStringSchema,
+  title: trimmedStringSchema,
 });
 
 export const documentsManagementDocumentSchema = z.object({
-  id: trimmedStringSchema,
+  acknowledgment: documentsManagementAcknowledgmentSchema.nullish(),
+  anonymizedAt: optionalIsoDateSchema,
+  archivedAt: optionalIsoDateSchema,
   companyId: optionalTrimmedStringSchema,
-  employeeId: trimmedStringSchema,
-  legalEntityCode: optionalTrimmedStringSchema,
-  documentCategory: documentsManagementDocumentCategorySchema,
-  documentType: documentsManagementDocumentTypeSchema,
-  title: trimmedStringSchema,
-  description: z.string().trim().nullable().optional(),
-  status: documentsManagementDocumentStatusSchema,
-  visibility: documentsManagementDocumentVisibilitySchema,
-  mandatory: z.boolean(),
+  createdAt: isoDateSchema,
   currentVersionId: optionalTrimmedStringSchema,
   currentVersionNumber: z.number().int().positive().nullable().optional(),
-  versionCount: z.number().int().nonnegative(),
-  reference: documentsManagementDocumentReferenceSchema,
-  issuedAt: optionalIsoDateSchema,
+  deletedAt: optionalIsoDateSchema,
+  deletedReason: z.string().trim().nullable().optional(),
+  description: z.string().trim().nullable().optional(),
+  documentCategory: documentsManagementDocumentCategorySchema,
+  documentType: documentsManagementDocumentTypeSchema,
+  employeeId: trimmedStringSchema,
   expiresAt: optionalIsoDateSchema,
-  renewalDueAt: optionalIsoDateSchema,
-  verifiedAt: optionalIsoDateSchema,
+  id: trimmedStringSchema,
+  issuedAt: optionalIsoDateSchema,
+  jurisdictionCode: optionalTrimmedStringSchema,
+  legalEntityCode: optionalTrimmedStringSchema,
+  mandatory: z.boolean(),
+  reference: documentsManagementDocumentReferenceSchema,
   rejectedAt: optionalIsoDateSchema,
   rejectionReason: z.string().trim().nullable().optional(),
-  archivedAt: optionalIsoDateSchema,
   retention: documentsManagementRetentionSchema,
-  acknowledgment: documentsManagementAcknowledgmentSchema.nullish(),
-  createdAt: isoDateSchema,
+  renewalDueAt: optionalIsoDateSchema,
+  status: documentsManagementDocumentStatusSchema,
+  title: trimmedStringSchema,
   updatedAt: isoDateSchema,
+  uploadedAt: optionalIsoDateSchema,
+  verifiedAt: optionalIsoDateSchema,
+  versionCount: z.number().int().nonnegative(),
+  visibility: documentsManagementDocumentVisibilitySchema,
 });
 
 export const documentsManagementDocumentSummarySchema = z.object({
-  id: trimmedStringSchema,
+  acknowledgmentStatus: documentsManagementAcknowledgmentStatusSchema
+    .nullish()
+    .default(null),
   companyId: optionalTrimmedStringSchema,
-  employeeId: trimmedStringSchema,
+  currentVersionNumber: z.number().int().positive().nullable().optional(),
   documentCategory: documentsManagementDocumentCategorySchema,
   documentType: documentsManagementDocumentTypeSchema,
-  title: trimmedStringSchema,
-  status: documentsManagementDocumentStatusSchema,
-  visibility: documentsManagementDocumentVisibilitySchema,
-  mandatory: z.boolean(),
-  currentVersionNumber: z.number().int().positive().nullable().optional(),
+  employeeId: trimmedStringSchema,
   expiresAt: optionalIsoDateSchema,
-  renewalDueAt: optionalIsoDateSchema,
+  id: trimmedStringSchema,
   issuedAt: optionalIsoDateSchema,
+  jurisdictionCode: optionalTrimmedStringSchema,
+  mandatory: z.boolean(),
+  renewalDueAt: optionalIsoDateSchema,
+  status: documentsManagementDocumentStatusSchema,
+  title: trimmedStringSchema,
   updatedAt: isoDateSchema,
+  uploadedAt: optionalIsoDateSchema,
+  visibility: documentsManagementDocumentVisibilitySchema,
 });
 
 const listQueryBaseSchema = z.object({
-  page: z.number().int().positive().optional(),
-  pageSize: z.number().int().positive().max(500).optional(),
-  search: z.string().trim().optional(),
   companyId: z.string().trim().min(1).optional(),
   employeeId: z.string().trim().min(1).optional(),
   legalEntityCode: z.string().trim().min(1).optional(),
+  page: z.number().int().positive().optional(),
+  pageSize: z.number().int().positive().max(500).optional(),
+  search: z.string().trim().optional(),
 });
 
 export const documentsManagementDocumentQuerySchema =
   listQueryBaseSchema.extend({
+    acknowledgmentStatus:
+      documentsManagementAcknowledgmentStatusSchema.optional(),
     documentCategory: documentsManagementDocumentCategorySchema.optional(),
     documentType: documentsManagementDocumentTypeSchema.optional(),
-    status: documentsManagementDocumentStatusSchema.optional(),
-    visibility: documentsManagementDocumentVisibilitySchema.optional(),
-    mandatory: z.boolean().optional(),
-    verified: z.boolean().optional(),
-    expiresBefore: optionalIsoDateSchema,
     expiresAfter: optionalIsoDateSchema,
-    issuedBefore: optionalIsoDateSchema,
+    expiresBefore: optionalIsoDateSchema,
     issuedAfter: optionalIsoDateSchema,
+    issuedBefore: optionalIsoDateSchema,
+    jurisdictionCode: z.string().trim().min(1).optional(),
+    mandatory: z.boolean().optional(),
+    obligationStatus: documentsManagementObligationStatusSchema.optional(),
+    requiresAttention: z.boolean().optional(),
+    status: documentsManagementDocumentStatusSchema.optional(),
+    uploadedAtAfter: optionalIsoDateSchema,
+    uploadedAtBefore: optionalIsoDateSchema,
+    verified: z.boolean().optional(),
+    visibility: documentsManagementDocumentVisibilitySchema.optional(),
   });
 
 export const documentsManagementReadContextSchema = z.object({
+  actorEmployeeId: z.string().trim().min(1).optional(),
+  actorId: z.string().trim().min(1).optional(),
+  canAdminRetention: z.boolean().optional(),
+  canDownload: z.boolean().optional(),
   canRead: z.boolean().optional(),
-  companyId: z.string().trim().min(1).optional(),
+  canReadAudit: z.boolean().optional(),
+  canSelfAcknowledge: z.boolean().optional(),
   canViewSensitive: z.boolean().optional(),
+  companyId: z.string().trim().min(1).optional(),
   grantedCapabilities: z.array(trimmedStringSchema).optional(),
+  organizationId: z.string().trim().min(1).optional(),
+  requestId: z.string().trim().min(1).optional(),
+  tenantId: z.string().trim().min(1).optional(),
+  userId: z.string().trim().min(1).optional(),
 });
 
 export const documentsManagementWriteContextSchema = z.object({
+  actorEmployeeId: z.string().trim().min(1).optional(),
   actorId: z.string().trim().min(1).optional(),
+  canAdminRetention: z.boolean().optional(),
+  canDownload: z.boolean().optional(),
   canRead: z.boolean().optional(),
+  canReadAudit: z.boolean().optional(),
+  canSelfAcknowledge: z.boolean().optional(),
+  canViewSensitive: z.boolean().optional(),
+  canWrite: z.boolean().optional(),
   companyId: z.string().trim().min(1).optional(),
   organizationId: z.string().trim().min(1).optional(),
   requestId: z.string().trim().min(1).optional(),
   tenantId: z.string().trim().min(1).optional(),
-  canWrite: z.boolean().optional(),
-  canViewSensitive: z.boolean().optional(),
+  userId: z.string().trim().min(1).optional(),
 });
 
-export type DocumentsManagementDocumentCategory = z.infer<
-  typeof documentsManagementDocumentCategorySchema
->;
-export type DocumentsManagementDocumentType = z.infer<
-  typeof documentsManagementDocumentTypeSchema
->;
-export type DocumentsManagementDocumentStatus = z.infer<
-  typeof documentsManagementDocumentStatusSchema
->;
-export type DocumentsManagementDocumentVisibility = z.infer<
-  typeof documentsManagementDocumentVisibilitySchema
->;
-export type DocumentsManagementDocumentVersionState = z.infer<
-  typeof documentsManagementDocumentVersionStateSchema
->;
-export type DocumentsManagementRetentionAction = z.infer<
-  typeof documentsManagementRetentionActionSchema
+export type DocumentsManagementAcknowledgment = z.infer<
+  typeof documentsManagementAcknowledgmentSchema
 >;
 export type DocumentsManagementAcknowledgmentMethod = z.infer<
   typeof documentsManagementAcknowledgmentMethodSchema
 >;
-export type DocumentsManagementDocumentReference = z.infer<
-  typeof documentsManagementDocumentReferenceSchema
->;
-export type DocumentsManagementRetention = z.infer<
-  typeof documentsManagementRetentionSchema
->;
-export type DocumentsManagementDocumentVersion = z.infer<
-  typeof documentsManagementDocumentVersionSchema
->;
-export type DocumentsManagementAcknowledgment = z.infer<
-  typeof documentsManagementAcknowledgmentSchema
+export type DocumentsManagementAcknowledgmentStatus = z.infer<
+  typeof documentsManagementAcknowledgmentStatusSchema
 >;
 export type DocumentsManagementAuditAction = z.infer<
   typeof documentsManagementAuditActionSchema
@@ -350,14 +423,50 @@ export type DocumentsManagementAuditEvent = z.infer<
 export type DocumentsManagementDocument = z.infer<
   typeof documentsManagementDocumentSchema
 >;
-export type DocumentsManagementDocumentSummary = z.infer<
-  typeof documentsManagementDocumentSummarySchema
+export type DocumentsManagementDocumentCategory = z.infer<
+  typeof documentsManagementDocumentCategorySchema
+>;
+export type DocumentsManagementDocumentObligation = z.infer<
+  typeof documentsManagementDocumentObligationSchema
 >;
 export type DocumentsManagementDocumentQuery = z.infer<
   typeof documentsManagementDocumentQuerySchema
 >;
+export type DocumentsManagementDocumentReference = z.infer<
+  typeof documentsManagementDocumentReferenceSchema
+>;
+export type DocumentsManagementDocumentStatus = z.infer<
+  typeof documentsManagementDocumentStatusSchema
+>;
+export type DocumentsManagementDocumentSummary = z.infer<
+  typeof documentsManagementDocumentSummarySchema
+>;
+export type DocumentsManagementDocumentType = z.infer<
+  typeof documentsManagementDocumentTypeSchema
+>;
+export type DocumentsManagementDocumentVersion = z.infer<
+  typeof documentsManagementDocumentVersionSchema
+>;
+export type DocumentsManagementDocumentVersionState = z.infer<
+  typeof documentsManagementDocumentVersionStateSchema
+>;
+export type DocumentsManagementDocumentVisibility = z.infer<
+  typeof documentsManagementDocumentVisibilitySchema
+>;
+export type DocumentsManagementObligationStatus = z.infer<
+  typeof documentsManagementObligationStatusSchema
+>;
+export type DocumentsManagementObligationType = z.infer<
+  typeof documentsManagementObligationTypeSchema
+>;
 export type DocumentsManagementReadContext = z.infer<
   typeof documentsManagementReadContextSchema
+>;
+export type DocumentsManagementRetention = z.infer<
+  typeof documentsManagementRetentionSchema
+>;
+export type DocumentsManagementRetentionAction = z.infer<
+  typeof documentsManagementRetentionActionSchema
 >;
 export type DocumentsManagementWriteContext = z.infer<
   typeof documentsManagementWriteContextSchema

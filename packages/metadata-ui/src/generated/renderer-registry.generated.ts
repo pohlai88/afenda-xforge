@@ -3,3 +3,4 @@
 export { generatedActionRendererRegistrations } from "./action-renderer-registry.generated";
 export { generatedFieldRendererRegistrations } from "./field-renderer-registry.generated";
 export { generatedSectionRendererRegistrations } from "./section-renderer-registry.generated";
+export { generatedStateRendererRegistrations } from "./state-renderer-registry.generated";

@@ -1,6 +1,8 @@
+import { DesignSystemProvider } from "@repo/ui/components/provider";
+import { fonts } from "@repo/ui/lib/fonts";
 import type { Preview } from "@storybook/react";
 
-import "../../../packages/ui/src/styles/globals.css";
+import "@repo/ui/styles/globals.css";
 import "./preview.css";
 
 const preview: Preview = {
@@ -24,24 +26,82 @@ const preview: Preview = {
   parameters: {
     controls: {
       expanded: true,
+      matchers: {
+        color: /(background|color)$/i,
+        date: /Date$/i,
+      },
+    },
+    layout: "centered",
+    backgrounds: {
+      default: "surface",
+      values: [
+        { name: "surface", value: "var(--background)" },
+        { name: "card", value: "var(--card)" },
+        { name: "dark", value: "oklch(0.205 0.018 264)" },
+      ],
+    },
+    viewport: {
+      viewports: {
+        mobile: {
+          name: "Mobile",
+          styles: { width: "375px", height: "667px" },
+          type: "mobile",
+        },
+        tablet: {
+          name: "Tablet",
+          styles: { width: "768px", height: "1024px" },
+          type: "tablet",
+        },
+        desktop: {
+          name: "Desktop",
+          styles: { width: "1440px", height: "900px" },
+          type: "desktop",
+        },
+      },
+    },
+    a11y: {
+      context: "#storybook-root",
+      config: {
+        rules: [
+          { id: "color-contrast", enabled: true },
+          { id: "label", enabled: true },
+        ],
+      },
+      test: "todo",
     },
     options: {
-      storySort: { order: ["Introduction"] },
+      storySort: {
+        order: [
+          "Introduction",
+          "UI",
+          ["UI", "Compose"],
+          ["UI", "Compose Registry"],
+          ["UI", "Primitives"],
+          "Metadata UI",
+        ],
+      },
     },
   },
   decorators: [
-    (Story, context) => (
-      <div
-        className={[
-          "min-h-screen bg-background text-foreground",
-          context.globals.theme === "dark" ? "dark" : "",
-        ]
-          .filter(Boolean)
-          .join(" ")}
-      >
-        <Story />
-      </div>
-    ),
+    (Story, context) => {
+      const theme = context.globals.theme === "dark" ? "dark" : "light";
+
+      return (
+        <DesignSystemProvider
+          attribute="class"
+          defaultTheme={theme}
+          disableTransitionOnChange
+          enableSystem={false}
+          forcedTheme={theme}
+        >
+          <div className={fonts}>
+            <div className="min-h-screen bg-background text-foreground">
+              <Story />
+            </div>
+          </div>
+        </DesignSystemProvider>
+      );
+    },
   ],
 };
 

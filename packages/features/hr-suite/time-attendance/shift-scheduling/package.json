@@ -15,7 +15,8 @@
   },
   "files": [
     "src",
-    "package.json"
+    "package.json",
+    "architecture-and-feature-requirement.md"
   ],
   "scripts": {
     "lint": "biome check .",

@@ -22,12 +22,14 @@ const manifestKindOrder = {
   action: 0,
   field: 1,
   section: 2,
+  state: 3,
 } as const satisfies Record<MetadataUiManifestEntry["kind"], number>;
 
 export type MetadataUiManifestEntriesByKind = {
   action: readonly MetadataUiManifestEntry[];
   field: readonly MetadataUiManifestEntry[];
   section: readonly MetadataUiManifestEntry[];
+  state: readonly MetadataUiManifestEntry[];
 };
 
 export function invariant(
@@ -71,6 +73,7 @@ export function groupManifestEntries(
     action: entries.filter((entry) => entry.kind === "action"),
     field: entries.filter((entry) => entry.kind === "field"),
     section: entries.filter((entry) => entry.kind === "section"),
+    state: entries.filter((entry) => entry.kind === "state"),
   };
 }
 

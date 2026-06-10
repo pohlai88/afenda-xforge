@@ -171,7 +171,7 @@ function getPackageKind(filePath) {
 
 function checkRequiredDesignSystemScaffold() {
   const requiredFiles = [
-    "architecture.md",
+    "architecture-and-feature-requirement.md",
     "src/index.ts",
     "src/tokens/index.ts",
     "src/contracts/index.ts",

@@ -24,16 +24,18 @@
   },
   "files": [
     "src",
-    "package.json"
+    "package.json",
+    "architecture-and-feature-requirement.md"
   ],
   "scripts": {
     "lint": "pnpm exec biome check .",
     "format": "pnpm exec biome format --write .",
-    "test": "tsx --conditions=react-server --test test/**/*.test.ts",
+    "test": "tsx --conditions=react-server --test --test-concurrency=1 test/**/*.test.ts",
     "clean": "git clean -xdf .cache .turbo dist node_modules",
     "typecheck": "tsc --noEmit --emitDeclarationOnly false"
   },
   "dependencies": {
+    "@repo/features-employee-management-offboarding-exit-management": "workspace:*",
     "server-only": "catalog:",
     "zod": "catalog:"
   },

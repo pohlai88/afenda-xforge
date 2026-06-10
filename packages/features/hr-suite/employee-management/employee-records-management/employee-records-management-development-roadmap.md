@@ -57,7 +57,7 @@ No slice should be marked implemented until:
 - tests cover success, denial, isolation, sensitive redaction, and projection validity
 - the route or server/execution surface is callable
 - validation commands have been run and recorded
-- `employee-records-management-architecture.md` has been updated with exact implementation evidence
+- `architecture-and-feature-requirement.md` has been updated with exact implementation evidence
 
 ## Current Code Evidence
 
@@ -202,7 +202,7 @@ Files to inspect/change:
 - `apps/api/app/api/hr/records/_lib/context.ts`
 - `apps/api/app/api/hr/records/route.ts`
 - `test/employee-records-management.test.ts`
-- `employee-records-management-architecture.md`
+- `architecture-and-feature-requirement.md`
 
 Acceptance criteria:
 
@@ -270,7 +270,7 @@ Files to inspect/change:
 - `src/detail-page-model.server.ts`
 - `apps/api/app/api/hr/records/[employeeId]/route.ts`
 - `test/profile-sensitive-read.test.ts`
-- `employee-records-management-architecture.md`
+- `architecture-and-feature-requirement.md`
 
 Acceptance criteria:
 
@@ -332,7 +332,7 @@ Files to inspect/change:
 - `src/assignments-list.surface.ts`
 - `apps/api/app/api/hr/records/[employeeId]/assignments/route.ts`
 - `test/assignment-history.test.ts`
-- `employee-records-management-architecture.md`
+- `architecture-and-feature-requirement.md`
 
 Status: implemented on 2026-06-09.
 
@@ -395,7 +395,7 @@ Files to inspect/change:
 - `src/status-history-list.surface.ts`
 - `apps/api/app/api/hr/records/[employeeId]/status-history/route.ts`
 - `test/status-history.test.ts`
-- `employee-records-management-architecture.md`
+- `architecture-and-feature-requirement.md`
 
 Acceptance criteria:
 
@@ -465,7 +465,7 @@ Files to inspect/change:
 - `src/page-model.server.ts`
 - `apps/api/app/api/hr/records/[employeeId]/archive/route.ts`
 - `test/archive-lifecycle.test.ts`
-- `employee-records-management-architecture.md`
+- `architecture-and-feature-requirement.md`
 
 Acceptance criteria:
 
@@ -527,7 +527,7 @@ Files to inspect/change:
 - `src/detail-page-model.server.ts`
 - `apps/api/app/api/hr/records/[employeeId]/rehire/route.ts`
 - `test/rehire-lifecycle.test.ts`
-- `employee-records-management-architecture.md`
+- `architecture-and-feature-requirement.md`
 
 Acceptance criteria:
 
@@ -577,7 +577,7 @@ Files to inspect/change:
 - `src/overview.shared.ts`
 - `apps/api/app/api/hr/records/[employeeId]/document-references/route.ts`
 - `test/document-references-completeness.test.ts`
-- `employee-records-management-architecture.md`
+- `architecture-and-feature-requirement.md`
 
 Acceptance criteria:
 
@@ -621,7 +621,7 @@ Files to inspect/change:
 - `src/audit-trail-list.surface.ts`
 - `apps/api/app/api/hr/records/audit-trail/route.ts`
 - `test/audit-persistence.test.ts`
-- `employee-records-management-architecture.md`
+- `architecture-and-feature-requirement.md`
 
 Acceptance criteria:
 
@@ -675,7 +675,7 @@ Files to inspect/change:
 - `src/detail-page-model.server.ts`
 - `apps/api/app/api/hr/records/*`
 - `test/operational-read-models.test.ts`
-- `employee-records-management-architecture.md`
+- `architecture-and-feature-requirement.md`
 
 Acceptance criteria:
 
@@ -729,7 +729,7 @@ Files to inspect/change:
 - `packages/features/hr-suite/employee-management/compliance-regulatory-tracking/src/*` only if a consumer contract test is added
 - `apps/api/app/api/hr/records/integration/*` only if HTTP integration endpoints are required
 - `test/integration-contracts.test.ts`
-- `employee-records-management-architecture.md`
+- `architecture-and-feature-requirement.md`
 
 Acceptance criteria:
 
@@ -779,7 +779,7 @@ pnpm --filter api typecheck
 
 ## Documentation Update Rule
 
-After each slice is implemented and validated, update `employee-records-management-architecture.md` with:
+After each slice is implemented and validated, update `architecture-and-feature-requirement.md` with:
 
 - implemented status for that slice only
 - exact code evidence paths

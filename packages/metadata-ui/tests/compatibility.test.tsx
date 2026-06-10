@@ -86,6 +86,19 @@ test("metadata renderer resolvers resolve every supported default key", () => {
   }
 });
 
+test("every manifest renderer maps to a metadata-ready compose group (MUI-VIS-001)", () => {
+  for (const [area, composeMap] of Object.entries(
+    metadataUiComposeCompatibilityMap
+  )) {
+    for (const [key, composeGroup] of Object.entries(composeMap)) {
+      assert.ok(
+        composeGroup.length > 0,
+        `${area}:${key} must declare a composeGroup`
+      );
+    }
+  }
+});
+
 test("metadata renderer resolvers fall back for unknown runtime keys", () => {
   const context = createMetadataRenderContext(undefined, { mode: "read" });
 

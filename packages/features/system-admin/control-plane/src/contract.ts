@@ -1,182 +1,79 @@
 import type { OpenApiDocument } from "@repo/api";
+import { addRouteContractsToOpenApi, addSchemasToOpenApi } from "@repo/api";
 import {
-  addRouteContractsToOpenApi,
-  addSchemasToOpenApi,
-  defineRouteContract,
-} from "@repo/api";
+  accessCapabilities,
+  accessRouteContracts,
+} from "./domains/access/contract.ts";
 import {
-  customizationGovernanceCommandSchema,
-  listSystemAdminSectionsQuerySchema,
-  roleAssignmentCommandSchema,
-  systemAdminMutationResultSchema,
-  systemAdminOverviewSchema,
-  systemAdminSectionSchema,
-  tenantAdminSettingUpdateSchema,
-} from "./schema.ts";
+  auditCapabilities,
+  auditRouteContracts,
+} from "./domains/audit/contract.ts";
+import {
+  customizationCapabilities,
+  customizationRouteContracts,
+} from "./domains/customization/contract.ts";
+import {
+  integrationCapabilities,
+  integrationsRouteContracts,
+} from "./domains/integrations/contract.ts";
+import {
+  operationsCapabilities,
+  operationsRouteContracts,
+} from "./domains/operations/contract.ts";
+import {
+  overviewCapabilities,
+  overviewRouteContracts,
+} from "./domains/overview/contract.ts";
+import {
+  tenantSettingsCapabilities,
+  tenantSettingsRouteContracts,
+} from "./domains/tenant-settings/contract.ts";
 
 export const systemAdminCapabilities = {
-  auditRead: "system-admin.audit.read",
-  customizationPublish: "system-admin.customization.publish",
-  customizationRead: "system-admin.customization.read",
-  healthRead: "system-admin.health.read",
-  overviewRead: "system-admin.overview.read",
-  tenantSettingsRead: "system-admin.tenant-settings.read",
-  tenantSettingsWrite: "system-admin.tenant-settings.write",
-  usersAccessRead: "system-admin.users-access.read",
-  usersAccessWrite: "system-admin.users-access.write",
+  ...auditCapabilities,
+  ...customizationCapabilities,
+  ...integrationCapabilities,
+  ...operationsCapabilities,
+  ...overviewCapabilities,
+  ...tenantSettingsCapabilities,
+  ...accessCapabilities,
 } as const;
 
-export const systemAdminReadOverviewRouteContract = defineRouteContract({
-  audience: "client",
-  method: "GET",
-  operationId: "readSystemAdminOverview",
-  path: "/api/system-admin/overview",
-  success: {
-    description: "System admin overview",
-    openApiSchema: {
-      $ref: "#/components/schemas/SystemAdminOverview",
-    },
-    schema: systemAdminOverviewSchema,
-    status: 200,
-  },
-  summary: "Read system admin overview",
-  tags: ["system-admin"],
-});
-
-export const systemAdminListSectionsRouteContract = defineRouteContract({
-  audience: "client",
-  method: "GET",
-  operationId: "listSystemAdminSections",
-  path: "/api/system-admin/sections",
-  request: {
-    query: {
-      openApiSchema: {
-        type: "object",
-        additionalProperties: false,
-        properties: {
-          domain: { type: "string" },
-        },
-      },
-      schema: listSystemAdminSectionsQuerySchema,
-    },
-  },
-  success: {
-    description: "System admin sections",
-    openApiSchema: {
-      type: "array",
-      items: { $ref: "#/components/schemas/SystemAdminSection" },
-    },
-    schema: systemAdminSectionSchema.array(),
-    status: 200,
-  },
-  summary: "List system admin sections",
-  tags: ["system-admin"],
-});
-
-export const systemAdminUpdateTenantSettingRouteContract = defineRouteContract({
-  audience: "client",
-  method: "POST",
-  operationId: "updateTenantAdminSetting",
-  path: "/api/system-admin/tenant-settings",
-  request: {
-    body: {
-      openApiSchema: {
-        type: "object",
-        additionalProperties: false,
-        properties: {
-          key: { type: "string" },
-          reason: { type: "string" },
-          value: { type: "string" },
-        },
-        required: ["key", "reason", "value"],
-      },
-      schema: tenantAdminSettingUpdateSchema,
-    },
-  },
-  success: {
-    description: "Accepted tenant setting update",
-    openApiSchema: {
-      $ref: "#/components/schemas/SystemAdminMutationResult",
-    },
-    schema: systemAdminMutationResultSchema,
-    status: 202,
-  },
-  summary: "Update governed tenant admin setting",
-  tags: ["system-admin"],
-});
-
-export const systemAdminAssignRoleRouteContract = defineRouteContract({
-  audience: "client",
-  method: "POST",
-  operationId: "assignSystemAdminRole",
-  path: "/api/system-admin/users/roles",
-  request: {
-    body: {
-      openApiSchema: {
-        type: "object",
-        additionalProperties: false,
-        properties: {
-          reason: { type: "string" },
-          roleKey: { type: "string" },
-          targetUserId: { type: "string" },
-        },
-        required: ["reason", "roleKey", "targetUserId"],
-      },
-      schema: roleAssignmentCommandSchema,
-    },
-  },
-  success: {
-    description: "Accepted role assignment",
-    openApiSchema: {
-      $ref: "#/components/schemas/SystemAdminMutationResult",
-    },
-    schema: systemAdminMutationResultSchema,
-    status: 202,
-  },
-  summary: "Assign governed tenant role",
-  tags: ["system-admin"],
-});
-
-export const systemAdminPublishCustomizationRouteContract = defineRouteContract(
-  {
-    audience: "client",
-    method: "POST",
-    operationId: "publishSystemAdminCustomization",
-    path: "/api/system-admin/customizations/publish",
-    request: {
-      body: {
-        openApiSchema: {
-          type: "object",
-          additionalProperties: false,
-          properties: {
-            customizationId: { type: "string" },
-            reason: { type: "string" },
-          },
-          required: ["customizationId", "reason"],
-        },
-        schema: customizationGovernanceCommandSchema,
-      },
-    },
-    success: {
-      description: "Accepted customization publication",
-      openApiSchema: {
-        $ref: "#/components/schemas/SystemAdminMutationResult",
-      },
-      schema: systemAdminMutationResultSchema,
-      status: 202,
-    },
-    summary: "Publish governed customization",
-    tags: ["system-admin"],
-  }
-);
-
 export const systemAdminRouteContracts = [
-  systemAdminReadOverviewRouteContract,
-  systemAdminListSectionsRouteContract,
-  systemAdminUpdateTenantSettingRouteContract,
-  systemAdminAssignRoleRouteContract,
-  systemAdminPublishCustomizationRouteContract,
+  ...overviewRouteContracts,
+  ...tenantSettingsRouteContracts,
+  ...accessRouteContracts,
+  ...customizationRouteContracts,
+  ...auditRouteContracts,
+  ...operationsRouteContracts,
+  ...integrationsRouteContracts,
 ] as const;
+
+export { systemAdminAssignRoleRouteContract } from "./domains/access/contract.ts";
+export {
+  systemAdminPublishCustomizationRouteContract,
+  systemAdminReviewCustomizationRouteContract,
+} from "./domains/customization/contract.ts";
+export {
+  systemAdminListWebhookEndpointsRouteContract,
+  systemAdminUpsertWebhookEndpointRouteContract,
+} from "./domains/integrations/contract.ts";
+export {
+  systemAdminListSectionsRouteContract,
+  systemAdminReadOverviewRouteContract,
+} from "./domains/overview/contract.ts";
+export { listSystemAdminSectionsQuerySchema } from "./domains/overview/schema.ts";
+export { systemAdminUpdateTenantSettingRouteContract } from "./domains/tenant-settings/contract.ts";
+export { roleAssignmentCommandSchema } from "./domains/access/schema.ts";
+export {
+  customizationGovernanceCommandSchema,
+  systemAdminCustomizationReviewRequestSchema,
+} from "./domains/customization/schema.ts";
+export {
+  systemAdminWebhookEndpointSchema,
+  upsertSystemAdminWebhookEndpointInputSchema,
+} from "./domains/integrations/contract.ts";
+export { tenantAdminSettingUpdateSchema } from "./domains/tenant-settings/schema.ts";
 
 export const systemAdminOpenApiSchemas = {
   SystemAdminMutationResult: {
@@ -206,6 +103,196 @@ export const systemAdminOpenApiSchemas = {
       },
     },
     required: ["sections", "tenantId", "warnings"],
+  },
+  SystemAdminCustomizationReviewCategory: {
+    type: "string",
+    enum: [
+      "identity",
+      "layering",
+      "policy",
+      "reference",
+      "schema",
+      "scope",
+      "surface",
+    ],
+  },
+  SystemAdminCustomizationReviewReason: {
+    type: "string",
+    enum: [
+      "duplicate-target",
+      "metadata-version-drift",
+      "node-removed",
+      "node-renamed",
+      "node-shape-drift",
+    ],
+  },
+  SystemAdminCustomizationReviewItem: {
+    type: "object",
+    additionalProperties: false,
+    properties: {
+      category: {
+        $ref: "#/components/schemas/SystemAdminCustomizationReviewCategory",
+      },
+      code: { type: "string" },
+      hint: { type: "string" },
+      message: { type: "string" },
+      metadataNodeId: { type: "string" },
+      metadataNodeKey: { type: "string" },
+      path: {
+        type: "array",
+        items: {
+          oneOf: [{ type: "string" }, { type: "integer" }],
+        },
+      },
+      reason: {
+        $ref: "#/components/schemas/SystemAdminCustomizationReviewReason",
+      },
+      severity: { type: "string", enum: ["error", "warning"] },
+      surface: { type: "string" },
+      targetNodeId: { type: "string" },
+      targetNodeKey: { type: "string" },
+    },
+    required: ["category", "code", "message", "path", "severity"],
+  },
+  SystemAdminCustomizationReviewSummary: {
+    type: "object",
+    additionalProperties: false,
+    properties: {
+      blockedCount: { type: "integer" },
+      byCategory: {
+        type: "object",
+        additionalProperties: false,
+        properties: {
+          identity: { type: "integer" },
+          layering: { type: "integer" },
+          policy: { type: "integer" },
+          reference: { type: "integer" },
+          schema: { type: "integer" },
+          scope: { type: "integer" },
+          surface: { type: "integer" },
+        },
+        required: [
+          "identity",
+          "layering",
+          "policy",
+          "reference",
+          "schema",
+          "scope",
+          "surface",
+        ],
+      },
+      reviewCount: { type: "integer" },
+      totalCount: { type: "integer" },
+    },
+    required: ["blockedCount", "byCategory", "reviewCount", "totalCount"],
+  },
+  SystemAdminCustomizationReview: {
+    type: "object",
+    additionalProperties: false,
+    properties: {
+      customizationId: { type: "string" },
+      items: {
+        type: "array",
+        items: {
+          $ref: "#/components/schemas/SystemAdminCustomizationReviewItem",
+        },
+      },
+      mode: {
+        type: "string",
+        enum: ["draft-with-warnings", "strict"],
+      },
+      publishable: { type: "boolean" },
+      requiresReview: { type: "boolean" },
+      status: {
+        type: "string",
+        enum: ["blocked", "review", "valid"],
+      },
+      summary: {
+        $ref: "#/components/schemas/SystemAdminCustomizationReviewSummary",
+      },
+      tenantId: { type: "string" },
+      valid: { type: "boolean" },
+      warnings: {
+        type: "array",
+        items: { type: "string" },
+      },
+    },
+    required: [
+      "customizationId",
+      "items",
+      "mode",
+      "publishable",
+      "requiresReview",
+      "status",
+      "summary",
+      "tenantId",
+      "valid",
+      "warnings",
+    ],
+  },
+  SystemAdminCustomizationReviewRequest: {
+    type: "object",
+    additionalProperties: false,
+    properties: {
+      fixture: {
+        type: "object",
+      },
+      metadata: {
+        oneOf: [{ type: "object" }, { type: "object" }],
+      },
+      mode: {
+        type: "string",
+        enum: ["draft-with-warnings", "strict"],
+      },
+    },
+    required: ["fixture", "metadata", "mode"],
+  },
+  SystemAdminWebhookEndpoint: {
+    type: "object",
+    additionalProperties: false,
+    properties: {
+      applicationId: { type: "string" },
+      applicationName: { type: "string" },
+      companyId: { type: "string" },
+      endpointId: { type: "string" },
+      eventOwner: { type: "string" },
+      id: { type: "string" },
+      provider: { type: "string" },
+      schemaVersion: { type: "string" },
+      status: { type: "string" },
+      tenantId: { type: "string" },
+    },
+    required: [
+      "endpointId",
+      "eventOwner",
+      "id",
+      "provider",
+      "schemaVersion",
+      "status",
+      "tenantId",
+    ],
+  },
+  UpsertSystemAdminWebhookEndpointInput: {
+    type: "object",
+    additionalProperties: false,
+    properties: {
+      applicationId: { type: "string" },
+      applicationName: { type: "string" },
+      companyId: { type: "string" },
+      endpointId: { type: "string" },
+      eventOwner: { type: "string" },
+      provider: { type: "string" },
+      schemaVersion: { type: "string" },
+      secret: { type: "string" },
+      status: { type: "string" },
+    },
+    required: [
+      "endpointId",
+      "eventOwner",
+      "provider",
+      "schemaVersion",
+      "secret",
+    ],
   },
   SystemAdminSection: {
     type: "object",

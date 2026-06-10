@@ -11,7 +11,14 @@ export type {
   HrLamRoutePath,
   HrTimeAttendanceLamAuditAction,
   HrTimeLamAuditAction,
+  LeaveAttendanceManagementLeaveApplicationRecord,
+  LeaveAttendanceManagementLeaveApplicationStatus,
+  LeaveAttendanceManagementLeaveBalanceRecord,
+  LeaveAttendanceManagementLeaveUnit,
   LeaveAttendanceManagementRecord,
+  LeaveAttendanceManagementStatus,
+  ListLeaveAttendanceManagementLeaveApplicationsQuery,
+  ListLeaveAttendanceManagementLeaveBalancesQuery,
   ListLeaveAttendanceManagementQuery,
   UpdateLeaveAttendanceManagementInput,
 } from "./contract.ts";
@@ -31,6 +38,12 @@ export {
   leaveAttendanceManagementFeatureId,
   leaveAttendanceManagementRouteContracts,
   listLeaveAttendanceManagement,
+  listLeaveAttendanceManagementLeaveApplications,
+  listLeaveAttendanceManagementLeaveBalances,
+  resetLeaveAttendanceManagementStoresForTesting,
   updateLeaveAttendanceManagement,
+  upsertLeaveAttendanceManagementLeaveApplicationRecord,
+  upsertLeaveAttendanceManagementLeaveBalanceRecord,
+  upsertLeaveAttendanceManagementRecord,
 } from "./server.ts";
 export { leaveAttendanceManagementFeatureScope } from "./shared/index.ts";

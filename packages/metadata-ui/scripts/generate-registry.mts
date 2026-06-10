@@ -102,10 +102,33 @@ ${renderRegistrationLines(entries)}
 `;
 }
 
+function renderStateRegistryFile(
+  entries: readonly MetadataUiManifestEntry[]
+): string {
+  const rendererImports = renderRendererImports(entries);
+
+  return `${renderGeneratedHeader("scripts/generate-registry.mts")}import type { MetadataRendererRegistration } from "../contracts/registry.contract";
+import type {
+  MetadataStateKind,
+  MetadataStateRenderer,
+} from "../contracts/state-renderer.contract";
+${rendererImports ? `\n${rendererImports}` : ""}
+
+type StateRegistration = MetadataRendererRegistration<MetadataStateRenderer> & {
+  key: MetadataStateKind;
+};
+
+export const generatedStateRendererRegistrations = [
+${renderRegistrationLines(entries)}
+] satisfies readonly StateRegistration[];
+`;
+}
+
 function renderRegistryAggregatorFile(): string {
   return `${renderGeneratedHeader("scripts/generate-registry.mts")}export { generatedActionRendererRegistrations } from "./action-renderer-registry.generated";
 export { generatedFieldRendererRegistrations } from "./field-renderer-registry.generated";
 export { generatedSectionRendererRegistrations } from "./section-renderer-registry.generated";
+export { generatedStateRendererRegistrations } from "./state-renderer-registry.generated";
 `;
 }
 
@@ -127,6 +150,11 @@ export function generateRegistry(check = false): boolean[] {
     writeGeneratedOutput(
       "src/generated/section-renderer-registry.generated.ts",
       renderSectionRegistryFile(grouped.section),
+      check
+    ),
+    writeGeneratedOutput(
+      "src/generated/state-renderer-registry.generated.ts",
+      renderStateRegistryFile(grouped.state),
       check
     ),
     writeGeneratedOutput(

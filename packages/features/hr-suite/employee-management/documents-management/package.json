@@ -7,25 +7,29 @@
     ".": "./src/index.ts",
     "./contract": "./src/contract.ts",
     "./contracts": "./src/contracts/index.ts",
-    "./execution": "./src/execution/index.ts",
+    "./execution": "./src/execution.ts",
     "./manifest": "./src/manifest.ts",
     "./metadata": "./src/metadata.ts",
+    "./schema": "./src/schema.ts",
     "./shared": "./src/shared/index.ts",
     "./server": "./src/server.ts",
     "./package.json": "./package.json"
   },
   "files": [
     "src",
-    "package.json"
+    "package.json",
+    "architecture-and-feature-requirement.md"
   ],
   "scripts": {
     "lint": "pnpm exec biome check .",
     "format": "pnpm exec biome format --write .",
-    "test": "tsx --conditions=react-server --test test/**/*.test.ts",
+    "test": "tsx --conditions=react-server --test --test-concurrency=1 test/**/*.test.ts",
     "clean": "git clean -xdf .cache .turbo dist node_modules",
     "typecheck": "tsc --noEmit --emitDeclarationOnly false"
   },
   "dependencies": {
+    "@repo/audit": "workspace:*",
+    "@repo/jurisdictions-vn": "workspace:*",
     "server-only": "catalog:",
     "zod": "catalog:"
   },

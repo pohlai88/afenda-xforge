@@ -1,27 +1,46 @@
 import "server-only";
 
 import type {
+  DocumentsManagementAlertReadyProjection,
   DocumentsManagementDocument,
   DocumentsManagementDocumentExpiringProjection,
+  DocumentsManagementDocumentObligation,
+  DocumentsManagementDocumentObligationProjection,
   DocumentsManagementDocumentReadinessProjection,
   DocumentsManagementDocumentSummaryProjection,
+  DocumentsManagementDownstreamReadinessProjection,
+  DocumentsManagementMissingRequirementProjection,
+  DocumentsManagementPolicyAcknowledgmentSummaryProjection,
   DocumentsManagementRecord,
+  DocumentsManagementRetentionCandidateProjection,
   ListDocumentsManagementQuery,
+  ListDocumentsManagementRetentionCandidatesQuery,
 } from "./contracts/index.ts";
-import { listDocumentsManagementQuerySchema } from "./contracts/index.ts";
+import {
+  listDocumentsManagementQuerySchema,
+  listDocumentsManagementRetentionCandidatesQuerySchema,
+} from "./contracts/index.ts";
 import type { DocumentsManagementPolicyContext } from "./policy.ts";
 import {
   canReadDocumentsManagement,
+  redactDocumentsManagementDocumentObligation,
   redactDocumentsManagementRecord,
 } from "./policy.ts";
 import {
+  projectDocumentsManagementAlertReady,
   projectDocumentsManagementDocumentExpiring,
+  projectDocumentsManagementDocumentObligation,
   projectDocumentsManagementDocumentReadiness,
   projectDocumentsManagementDocumentSummary,
+  projectDocumentsManagementDownstreamReadiness,
+  projectDocumentsManagementMissingRequirement,
+  projectDocumentsManagementPolicyAcknowledgmentSummary,
+  projectDocumentsManagementRetentionCandidate,
 } from "./projector.ts";
 import {
   getDocumentsManagementRepositoryDocument,
   getDocumentsManagementRepositoryRecord,
+  listDocumentsManagementRepositoryDocumentObligations,
   listDocumentsManagementRepositoryDocuments,
   listDocumentsManagementRepositoryRecords,
 } from "./repository.ts";
@@ -72,15 +91,7 @@ const matchesOptionalDateAfter = (
     : false);
 
 const matchesDocumentSearchTerm = (
-  document: {
-    documentCategory: string;
-    documentType: string;
-    employeeId: string;
-    legalEntityCode?: string | null;
-    status: string;
-    title: string;
-    visibility: string;
-  },
+  document: DocumentsManagementDocument,
   searchTerm: string
 ): boolean => {
   if (searchTerm.length === 0) {
@@ -90,6 +101,7 @@ const matchesDocumentSearchTerm = (
   return (
     document.employeeId.toLowerCase().includes(searchTerm) ||
     document.legalEntityCode?.toLowerCase().includes(searchTerm) ||
+    document.jurisdictionCode?.toLowerCase().includes(searchTerm) ||
     document.documentCategory.toLowerCase().includes(searchTerm) ||
     document.documentType.toLowerCase().includes(searchTerm) ||
     document.status.toLowerCase().includes(searchTerm) ||
@@ -98,22 +110,10 @@ const matchesDocumentSearchTerm = (
   );
 };
 
-const matchesDocumentStatusFilters = (
-  document: {
-    documentCategory: string;
-    documentType: string;
-    employeeId: string;
-    expiresAt?: Date | null;
-    issuedAt?: Date | null;
-    legalEntityCode?: string | null;
-    mandatory: boolean;
-    status: string;
-    title: string;
-    visibility: string;
-    verifiedAt?: Date | null;
-    companyId?: string | null;
-  },
-  query: ListDocumentsManagementQuery
+const matchesDocumentsManagementDocumentQuery = (
+  document: DocumentsManagementDocument,
+  query: ListDocumentsManagementQuery,
+  searchTerm: string
 ): boolean => {
   if (!matchesOptionalString(query.companyId, document.companyId)) {
     return false;
@@ -124,6 +124,10 @@ const matchesDocumentStatusFilters = (
   }
 
   if (!matchesOptionalString(query.legalEntityCode, document.legalEntityCode)) {
+    return false;
+  }
+
+  if (!matchesOptionalString(query.jurisdictionCode, document.jurisdictionCode)) {
     return false;
   }
 
@@ -157,42 +161,115 @@ const matchesDocumentStatusFilters = (
     }
   }
 
-  return true;
+  if (
+    !matchesOptionalDateBefore(document.expiresAt, query.expiresBefore) ||
+    !matchesOptionalDateAfter(document.expiresAt, query.expiresAfter) ||
+    !matchesOptionalDateBefore(document.issuedAt, query.issuedBefore) ||
+    !matchesOptionalDateAfter(document.issuedAt, query.issuedAfter) ||
+    !matchesOptionalDateBefore(document.uploadedAt, query.uploadedAtBefore) ||
+    !matchesOptionalDateAfter(document.uploadedAt, query.uploadedAtAfter)
+  ) {
+    return false;
+  }
+
+  return matchesDocumentSearchTerm(document, searchTerm);
 };
 
-const matchesDocumentDateFilters = (
-  document: {
-    expiresAt?: Date | null;
-    issuedAt?: Date | null;
-  },
-  query: ListDocumentsManagementQuery
-): boolean =>
-  matchesOptionalDateBefore(document.expiresAt, query.expiresBefore) &&
-  matchesOptionalDateAfter(document.expiresAt, query.expiresAfter) &&
-  matchesOptionalDateBefore(document.issuedAt, query.issuedBefore) &&
-  matchesOptionalDateAfter(document.issuedAt, query.issuedAfter);
+const matchesObligationSearchTerm = (
+  obligation: DocumentsManagementDocumentObligation,
+  searchTerm: string
+): boolean => {
+  if (searchTerm.length === 0) {
+    return true;
+  }
 
-const matchesDocumentsManagementDocumentQuery = (
-  document: {
-    companyId?: string | null;
-    documentCategory: string;
-    documentType: string;
-    employeeId: string;
-    expiresAt?: Date | null;
-    issuedAt?: Date | null;
-    legalEntityCode?: string | null;
-    mandatory: boolean;
-    status: string;
-    title: string;
-    visibility: string;
-    verifiedAt?: Date | null;
-  },
+  return (
+    obligation.employeeId.toLowerCase().includes(searchTerm) ||
+    (obligation.legalEntityCode?.toLowerCase().includes(searchTerm) ?? false) ||
+    (obligation.jurisdictionCode?.toLowerCase().includes(searchTerm) ??
+      false) ||
+    obligation.documentCategory.toLowerCase().includes(searchTerm) ||
+    obligation.documentType.toLowerCase().includes(searchTerm) ||
+    obligation.title.toLowerCase().includes(searchTerm) ||
+    (obligation.policyId?.toLowerCase().includes(searchTerm) ?? false) ||
+    (obligation.policyVersion?.toLowerCase().includes(searchTerm) ?? false)
+  );
+};
+
+const matchesDocumentsManagementObligationQuery = (
+  obligation: DocumentsManagementDocumentObligation,
   query: ListDocumentsManagementQuery,
   searchTerm: string
-): boolean =>
-  matchesDocumentStatusFilters(document, query) &&
-  matchesDocumentDateFilters(document, query) &&
-  matchesDocumentSearchTerm(document, searchTerm);
+): boolean => {
+  if (!matchesOptionalString(query.companyId, obligation.companyId)) {
+    return false;
+  }
+
+  if (!matchesOptionalString(query.employeeId, obligation.employeeId)) {
+    return false;
+  }
+
+  if (!matchesOptionalString(query.legalEntityCode, obligation.legalEntityCode)) {
+    return false;
+  }
+
+  if (!matchesOptionalString(query.jurisdictionCode, obligation.jurisdictionCode)) {
+    return false;
+  }
+
+  if (
+    !matchesOptionalString(query.documentCategory, obligation.documentCategory)
+  ) {
+    return false;
+  }
+
+  if (!matchesOptionalString(query.documentType, obligation.documentType)) {
+    return false;
+  }
+
+  if (!matchesOptionalBoolean(query.mandatory, obligation.mandatory)) {
+    return false;
+  }
+
+  if (
+    query.obligationStatus &&
+    obligation.status !== query.obligationStatus
+  ) {
+    return false;
+  }
+
+  if (query.acknowledgmentStatus) {
+    const acknowledgmentStatus =
+      obligation.status === "satisfied" ? "acknowledged" : "pending";
+
+    if (acknowledgmentStatus !== query.acknowledgmentStatus) {
+      return false;
+    }
+  }
+
+  if (
+    !matchesOptionalDateBefore(obligation.expiresAt, query.expiresBefore) ||
+    !matchesOptionalDateAfter(obligation.expiresAt, query.expiresAfter)
+  ) {
+    return false;
+  }
+
+  if (query.requiresAttention !== undefined) {
+    const requiresAttention = obligation.status !== "satisfied";
+    if (requiresAttention !== query.requiresAttention) {
+      return false;
+    }
+  }
+
+  return matchesObligationSearchTerm(obligation, searchTerm);
+};
+
+const paginate = <T>(items: readonly T[], query: ListDocumentsManagementQuery) => {
+  const page = normalizePositiveInteger(query.page, 1);
+  const pageSize = normalizePositiveInteger(query.pageSize, DEFAULT_PAGE_SIZE);
+  const startIndex = (page - 1) * pageSize;
+  return items.slice(startIndex, startIndex + pageSize);
+};
 
 export function listDocumentsManagementRecords(
   query: ListDocumentsManagementQuery = {},
@@ -259,11 +336,6 @@ export function listDocumentsManagementDocumentSummaries(
 
   const parsedQuery = listDocumentsManagementQuerySchema.parse(query);
   const searchTerm = normalizeSearchTerm(parsedQuery.search);
-  const page = normalizePositiveInteger(parsedQuery.page, 1);
-  const pageSize = normalizePositiveInteger(
-    parsedQuery.pageSize,
-    DEFAULT_PAGE_SIZE
-  );
   const filteredDocuments = listDocumentsManagementRepositoryDocuments(context)
     .filter((document) =>
       matchesDocumentsManagementDocumentQuery(document, parsedQuery, searchTerm)
@@ -275,10 +347,9 @@ export function listDocumentsManagementDocumentSummaries(
         rightDocument.updatedAt.getTime() - leftDocument.updatedAt.getTime()
     );
 
-  const startIndex = (page - 1) * pageSize;
-  return filteredDocuments
-    .slice(startIndex, startIndex + pageSize)
-    .map((document) => projectDocumentsManagementDocumentSummary(document));
+  return paginate(filteredDocuments, parsedQuery).map((document) =>
+    projectDocumentsManagementDocumentSummary(document)
+  );
 }
 
 export function getDocumentsManagementDocumentSummary(
@@ -294,6 +365,103 @@ export function getDocumentsManagementDocumentSummary(
   return document ? projectDocumentsManagementDocumentSummary(document) : null;
 }
 
+export function listDocumentsManagementDocumentObligations(
+  query: ListDocumentsManagementQuery = {},
+  context?: DocumentsManagementPolicyContext
+): readonly DocumentsManagementDocumentObligationProjection[] {
+  if (!canReadDocumentsManagement(context)) {
+    return [];
+  }
+
+  const parsedQuery = listDocumentsManagementQuerySchema.parse(query);
+  const searchTerm = normalizeSearchTerm(parsedQuery.search);
+
+  return paginate(
+    listDocumentsManagementRepositoryDocumentObligations(context)
+      .filter((obligation) =>
+        matchesDocumentsManagementObligationQuery(
+          obligation,
+          parsedQuery,
+          searchTerm
+        )
+      )
+      .map((obligation) =>
+        redactDocumentsManagementDocumentObligation(
+          obligation,
+          Boolean(context?.canViewSensitive)
+        )
+      )
+      .sort(
+        (left, right) =>
+          left.employeeId.localeCompare(right.employeeId) ||
+          left.title.localeCompare(right.title)
+      ),
+    parsedQuery
+  ).map((obligation) => projectDocumentsManagementDocumentObligation(obligation));
+}
+
+export function listDocumentsManagementPolicyAcknowledgmentSummaries(
+  query: ListDocumentsManagementQuery = {},
+  context?: DocumentsManagementPolicyContext
+): readonly DocumentsManagementPolicyAcknowledgmentSummaryProjection[] {
+  if (!canReadDocumentsManagement(context)) {
+    return [];
+  }
+
+  const parsedQuery = listDocumentsManagementQuerySchema.parse(query);
+  const searchTerm = normalizeSearchTerm(parsedQuery.search);
+
+  return paginate(
+    listDocumentsManagementRepositoryDocumentObligations(context)
+      .filter((obligation) => obligation.obligationType === "policy_acknowledgment")
+      .filter((obligation) =>
+        matchesDocumentsManagementObligationQuery(
+          obligation,
+          parsedQuery,
+          searchTerm
+        )
+      )
+      .sort(
+        (left, right) =>
+          left.employeeId.localeCompare(right.employeeId) ||
+          left.title.localeCompare(right.title)
+      ),
+    parsedQuery
+  ).map((obligation) =>
+    projectDocumentsManagementPolicyAcknowledgmentSummary(obligation)
+  );
+}
+
+export function listDocumentsManagementMissingRequirementSummaries(
+  query: ListDocumentsManagementQuery = {},
+  context?: DocumentsManagementPolicyContext
+): readonly DocumentsManagementMissingRequirementProjection[] {
+  if (!canReadDocumentsManagement(context)) {
+    return [];
+  }
+
+  const parsedQuery = listDocumentsManagementQuerySchema.parse(query);
+  const searchTerm = normalizeSearchTerm(parsedQuery.search);
+
+  return paginate(
+    listDocumentsManagementRepositoryDocumentObligations(context)
+      .filter((obligation) => obligation.status !== "satisfied")
+      .filter((obligation) =>
+        matchesDocumentsManagementObligationQuery(
+          obligation,
+          parsedQuery,
+          searchTerm
+        )
+      )
+      .sort(
+        (left, right) =>
+          left.employeeId.localeCompare(right.employeeId) ||
+          left.title.localeCompare(right.title)
+      ),
+    parsedQuery
+  ).map((obligation) => projectDocumentsManagementMissingRequirement(obligation));
+}
+
 export function listDocumentsManagementDocumentReadinessSummaries(
   query: ListDocumentsManagementQuery = {},
   context?: DocumentsManagementPolicyContext
@@ -304,20 +472,12 @@ export function listDocumentsManagementDocumentReadinessSummaries(
 
   const parsedQuery = listDocumentsManagementQuerySchema.parse(query);
   const searchTerm = normalizeSearchTerm(parsedQuery.search);
-  const page = normalizePositiveInteger(parsedQuery.page, 1);
-  const pageSize = normalizePositiveInteger(
-    parsedQuery.pageSize,
-    DEFAULT_PAGE_SIZE
-  );
   const groupedDocuments = new Map<string, DocumentsManagementDocument[]>();
+  const groupedObligations = new Map<string, DocumentsManagementDocumentObligation[]>();
 
   for (const document of listDocumentsManagementRepositoryDocuments(context)) {
     if (
-      !matchesDocumentsManagementDocumentQuery(
-        document,
-        parsedQuery,
-        searchTerm
-      )
+      !matchesDocumentsManagementDocumentQuery(document, parsedQuery, searchTerm)
     ) {
       continue;
     }
@@ -331,16 +491,55 @@ export function listDocumentsManagementDocumentReadinessSummaries(
     groupedDocuments.set(document.employeeId, [document]);
   }
 
-  const readinessSummaries = Array.from(groupedDocuments.entries())
-    .map(([employeeId, documents]) =>
-      projectDocumentsManagementDocumentReadiness(employeeId, documents)
+  for (const obligation of listDocumentsManagementRepositoryDocumentObligations(
+    context
+  )) {
+    if (
+      !matchesDocumentsManagementObligationQuery(
+        obligation,
+        parsedQuery,
+        searchTerm
+      )
+    ) {
+      continue;
+    }
+
+    const existingObligations = groupedObligations.get(obligation.employeeId);
+    if (existingObligations) {
+      existingObligations.push(obligation);
+      continue;
+    }
+
+    groupedObligations.set(obligation.employeeId, [obligation]);
+  }
+
+  const employeeIds = new Set([
+    ...groupedDocuments.keys(),
+    ...groupedObligations.keys(),
+  ]);
+
+  const readinessSummaries = Array.from(employeeIds)
+    .map((employeeId) =>
+      projectDocumentsManagementDocumentReadiness(
+        employeeId,
+        groupedDocuments.get(employeeId) ?? [],
+        groupedObligations.get(employeeId) ?? []
+      )
     )
     .sort((leftSummary, rightSummary) =>
       leftSummary.employeeId.localeCompare(rightSummary.employeeId)
     );
 
-  const startIndex = (page - 1) * pageSize;
-  return readinessSummaries.slice(startIndex, startIndex + pageSize);
+  return paginate(readinessSummaries, parsedQuery);
+}
+
+export function listDocumentsManagementDownstreamReadinessSummaries(
+  query: ListDocumentsManagementQuery = {},
+  context?: DocumentsManagementPolicyContext
+): readonly DocumentsManagementDownstreamReadinessProjection[] {
+  return listDocumentsManagementDocumentReadinessSummaries(query, context).map(
+    (projection) => projectDocumentsManagementDownstreamReadiness(projection)
+  );
 }
 
 export function listDocumentsManagementExpiringDocuments(
@@ -353,11 +552,6 @@ export function listDocumentsManagementExpiringDocuments(
 
   const parsedQuery = listDocumentsManagementQuerySchema.parse(query);
   const searchTerm = normalizeSearchTerm(parsedQuery.search);
-  const page = normalizePositiveInteger(parsedQuery.page, 1);
-  const pageSize = normalizePositiveInteger(
-    parsedQuery.pageSize,
-    DEFAULT_PAGE_SIZE
-  );
   const currentTime = new Date();
   const fallbackExpiresBefore = new Date(
     currentTime.getTime() + 30 * 24 * 60 * 60 * 1000
@@ -390,10 +584,90 @@ export function listDocumentsManagementExpiringDocuments(
         leftDocument.title.localeCompare(rightDocument.title)
     );
 
+  return paginate(filteredDocuments, parsedQuery).map((document) =>
+    projectDocumentsManagementDocumentExpiring(document, currentTime)
+  );
+}
+
+export function listDocumentsManagementAlertReadyRecords(
+  query: ListDocumentsManagementQuery = {},
+  context?: DocumentsManagementPolicyContext
+): readonly DocumentsManagementAlertReadyProjection[] {
+  if (!canReadDocumentsManagement(context)) {
+    return [];
+  }
+
+  const parsedQuery = listDocumentsManagementQuerySchema.parse(query);
+  const searchTerm = normalizeSearchTerm(parsedQuery.search);
+
+  return paginate(
+    listDocumentsManagementRepositoryDocumentObligations(context)
+      .filter((obligation) => obligation.status !== "satisfied")
+      .filter((obligation) =>
+        matchesDocumentsManagementObligationQuery(
+          obligation,
+          parsedQuery,
+          searchTerm
+        )
+      ),
+    parsedQuery
+  ).map((obligation) => projectDocumentsManagementAlertReady(obligation));
+}
+
+export function listDocumentsManagementRetentionCandidates(
+  query: ListDocumentsManagementRetentionCandidatesQuery = {},
+  context?: DocumentsManagementPolicyContext
+): readonly DocumentsManagementRetentionCandidateProjection[] {
+  if (!canReadDocumentsManagement(context)) {
+    return [];
+  }
+
+  const parsedQuery =
+    listDocumentsManagementRetentionCandidatesQuerySchema.parse(query);
+  const currentTime = new Date();
+  const page = normalizePositiveInteger(parsedQuery.page, 1);
+  const pageSize = normalizePositiveInteger(
+    parsedQuery.pageSize,
+    DEFAULT_PAGE_SIZE
+  );
+
+  const candidates = listDocumentsManagementRepositoryDocuments(context)
+    .filter((document) => !document.deletedAt)
+    .filter((document) =>
+      parsedQuery.action
+        ? document.retention.action === parsedQuery.action
+        : true
+    )
+    .map((document) => {
+      const anchorDate =
+        document.archivedAt ??
+        document.expiresAt ??
+        document.uploadedAt ??
+        document.createdAt;
+      const days = document.retention.retentionPeriodDays ?? 0;
+      const retentionDueAt = new Date(
+        anchorDate.getTime() + days * 24 * 60 * 60 * 1000
+      );
+
+      return {
+        document,
+        retentionDueAt,
+      };
+    })
+    .filter((candidate) => candidate.retentionDueAt.getTime() <= currentTime.getTime())
+    .sort(
+      (left, right) =>
+        left.retentionDueAt.getTime() - right.retentionDueAt.getTime() ||
+        left.document.title.localeCompare(right.document.title)
+    );
+
   const startIndex = (page - 1) * pageSize;
-  return filteredDocuments
+  return candidates
     .slice(startIndex, startIndex + pageSize)
-    .map((document) =>
-      projectDocumentsManagementDocumentExpiring(document, currentTime)
+    .map((candidate) =>
+      projectDocumentsManagementRetentionCandidate(
+        candidate.document,
+        candidate.retentionDueAt
+      )
     );
 }

@@ -1,4 +1,8 @@
-import { getDocumentsManagementDocument } from "@repo/features-employee-management-documents-management/server";
+import {
+  getDocumentsManagementDocument,
+  recordDocumentsManagementDocumentAccess,
+} from "@repo/features-employee-management-documents-management/server";
+import { canDownloadDocumentsManagement } from "@repo/features-employee-management-documents-management";
 
 import { createDocumentsManagementReadContext } from "../../_lib/context.ts";
 import {
@@ -30,10 +34,16 @@ export async function GET(
   context: RouteContext
 ): Promise<Response> {
   const { documentId } = await context.params;
-  const document = getDocumentsManagementDocument(
-    documentId,
-    createDocumentsManagementReadContext(request)
-  );
+  const readContext = createDocumentsManagementReadContext(request);
+
+  if (!canDownloadDocumentsManagement(readContext)) {
+    return Response.json(
+      { ok: false, error: "Document download access denied" },
+      { status: 403 }
+    );
+  }
+
+  const document = getDocumentsManagementDocument(documentId, readContext);
 
   if (!document?.reference.storagePath) {
     return Response.json(
@@ -84,6 +94,14 @@ export async function GET(
   if (typeof blob.blob.size === "number") {
     headers.set("Content-Length", String(blob.blob.size));
   }
+
+  await recordDocumentsManagementDocumentAccess(
+    {
+      action: "download",
+      documentId,
+    },
+    readContext
+  );
 
   return new Response(blob.stream, {
     headers,

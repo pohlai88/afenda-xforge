@@ -170,6 +170,7 @@ export async function POST(request: Request): Promise<Response> {
       expiresAt: optionalFormValue(formData, "expiresAt"),
       fileName: optionalFormValue(formData, "fileName"),
       issuedAt: optionalFormValue(formData, "issuedAt"),
+      jurisdictionCode: optionalFormValue(formData, "jurisdictionCode"),
       legalEntityCode: optionalFormValue(formData, "legalEntityCode"),
       mandatory: optionalBooleanFormValue(formData, "mandatory"),
       renewalDueAt: optionalFormValue(formData, "renewalDueAt"),
@@ -211,7 +212,7 @@ export async function POST(request: Request): Promise<Response> {
       );
     }
 
-    const createdDocument = registerDocumentsManagementDocument(
+    const createdDocument = await registerDocumentsManagementDocument(
       registerDocumentsManagementDocumentInputSchema.parse({
         description: parsedForm.description,
         documentCategory: parsedForm.documentCategory,
@@ -219,6 +220,7 @@ export async function POST(request: Request): Promise<Response> {
         employeeId: parsedForm.employeeId,
         expiresAt: parsedForm.expiresAt,
         issuedAt: parsedForm.issuedAt,
+        jurisdictionCode: parsedForm.jurisdictionCode,
         legalEntityCode: parsedForm.legalEntityCode,
         mandatory: parsedForm.mandatory,
         reference: {

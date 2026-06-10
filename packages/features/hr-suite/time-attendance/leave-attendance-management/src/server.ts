@@ -17,5 +17,13 @@ export {
 } from "./contract.ts";
 export {
   getLeaveAttendanceManagementRecord as getLeaveAttendanceManagement,
+  listLeaveAttendanceManagementLeaveApplications,
+  listLeaveAttendanceManagementLeaveBalances,
   listLeaveAttendanceManagementRecords as listLeaveAttendanceManagement,
 } from "./queries.ts";
+export {
+  resetLeaveAttendanceManagementStoresForTesting,
+  upsertLeaveAttendanceManagementLeaveApplicationRecord,
+  upsertLeaveAttendanceManagementLeaveBalanceRecord,
+  upsertLeaveAttendanceManagementRecord,
+} from "./repository.ts";

@@ -15,8 +15,7 @@
     "./package.json": "./package.json"
   },
   "files": [
-    "architecture.md",
-    "dod.md",
+    "architecture-and-feature-requirement.md",
     "index.ts",
     "server.ts",
     "src",
@@ -33,6 +32,7 @@
   "dependencies": {
     "@repo/api": "workspace:*",
     "@repo/audit": "workspace:*",
+    "@repo/customization": "workspace:*",
     "@repo/database": "workspace:*",
     "drizzle-orm": "catalog:",
     "@repo/execution": "workspace:*",

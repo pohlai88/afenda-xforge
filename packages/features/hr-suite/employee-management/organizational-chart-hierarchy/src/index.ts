@@ -159,11 +159,5 @@ export {
   organizationalChartHierarchyRiskClassification,
 } from "./registry/index.ts";
 export {
-  createHrOrgRecordId,
-  emptyHrOrgRepositoryState,
-  loadHrOrgRepository,
-  mutateHrOrgRepository,
-  resetHrOrgRepositoryForTesting,
-  saveHrOrgRepository,
-} from "./repository.ts";
-export { hrOrgFeatureScope } from "./shared/index.ts";
+  hrOrgFeatureScope,
+} from "./shared/index.ts";

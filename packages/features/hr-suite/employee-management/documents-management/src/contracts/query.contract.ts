@@ -3,8 +3,9 @@ import { z } from "zod";
 import {
   documentsManagementAuditActionSchema,
   documentsManagementDocumentQuerySchema,
+  documentsManagementRetentionActionSchema,
   trimmedStringSchema,
-} from "../schema.ts";
+} from "./schema.ts";
 
 export type ListDocumentsManagementQuery = z.infer<
   typeof documentsManagementDocumentQuerySchema
@@ -39,6 +40,19 @@ export type ListDocumentsManagementDocumentVersionsQuery = {
 export const listDocumentsManagementDocumentVersionsQuerySchema: z.ZodType<ListDocumentsManagementDocumentVersionsQuery> =
   z.object({
     documentId: trimmedStringSchema,
+    page: z.number().int().positive().optional(),
+    pageSize: z.number().int().positive().max(500).optional(),
+  });
+
+export type ListDocumentsManagementRetentionCandidatesQuery = {
+  action?: z.infer<typeof documentsManagementRetentionActionSchema>;
+  page?: number;
+  pageSize?: number;
+};
+
+export const listDocumentsManagementRetentionCandidatesQuerySchema: z.ZodType<ListDocumentsManagementRetentionCandidatesQuery> =
+  z.object({
+    action: documentsManagementRetentionActionSchema.optional(),
     page: z.number().int().positive().optional(),
     pageSize: z.number().int().positive().max(500).optional(),
   });

@@ -122,16 +122,14 @@ function renderDeniedField(
     governance.decision.effect === "disable" ||
     governance.decision.effect === "readonly"
   ) {
+    const isReadonlyEffect = governance.decision.effect === "readonly";
+
     try {
       return {
         diagnostics,
         element: renderResolvedField(
-          createGovernedFieldContext(
-            context,
-            field,
-            governance.decision.effect === "readonly"
-          ),
-          true
+          createGovernedFieldContext(context, field, isReadonlyEffect),
+          !isReadonlyEffect
         ),
       };
     } catch (error) {
@@ -202,7 +200,12 @@ export function renderMetadataField({
       value,
     });
 
-  if (!governance.allowed || field.visible === false) {
+  if (
+    field.visible === false ||
+    !governance.allowed ||
+    governance.decision.effect === "disable" ||
+    governance.decision.effect === "readonly"
+  ) {
     return renderDeniedField(
       context,
       field,
@@ -213,9 +216,10 @@ export function renderMetadataField({
   }
 
   try {
+    const isReadOnly = context.readonly || field.readOnly === true;
     const element = renderResolvedField(
-      createGovernedFieldContext(context, field),
-      governance.disabled
+      createGovernedFieldContext(context, field, isReadOnly),
+      !isReadOnly && (disabled === true || field.disabled === true)
     );
 
     emitMetadataTelemetry(context, "metadata.field.render.completed", {

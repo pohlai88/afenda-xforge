@@ -11,7 +11,7 @@ C:\JackProject\afenda-bolt\afenda-Xforge\packages\features\hr-suite\employee-man
 Architecture reference:
 
 ```text
-C:\JackProject\afenda-bolt\afenda-Xforge\packages\features\hr-suite\employee-management\compliance-regulatory-tracking\compliance-regulatory-tracking-architecture.md
+C:\JackProject\afenda-bolt\afenda-Xforge\packages\features\hr-suite\employee-management\compliance-regulatory-tracking\architecture-and-feature-requirement.md
 ```
 
 ## Starter Prompt

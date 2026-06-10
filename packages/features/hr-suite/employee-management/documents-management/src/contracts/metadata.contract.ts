@@ -1,6 +1,6 @@
 import { z } from "zod";
 
-import { trimmedStringSchema } from "../schema.ts";
+import { trimmedStringSchema } from "./schema.ts";
 
 export type DocumentsManagementMetadata = {
   description: string;

@@ -13,8 +13,28 @@ import {
   TableHeader,
   TableRow,
 } from "@repo/ui";
-import type { ChangeEvent, ReactElement, ReactNode } from "react";
+import type {
+  ChangeEvent,
+  KeyboardEvent,
+  ReactElement,
+  ReactNode,
+} from "react";
 import { useDeferredValue, useEffect, useMemo, useState } from "react";
+import type { MetadataRenderDensity } from "../contracts/render-context.contract";
+import {
+  coerceDateValue,
+  coerceNumericValue,
+  formatMetadataTableCellValue,
+} from "../formatting/metadata-value-formatter";
+import {
+  handleKeyboardActivation,
+  METADATA_INTERACTIVE_ROW_CLASS,
+} from "../interaction/keyboard-focus-contract";
+import {
+  resolveDensitySurfaceProps,
+  resolveFieldControlDensityClassName,
+  resolveTableRowDensityClassName,
+} from "../visualization/density-visual-contract";
 import { StatePanel } from "./state-panel";
 
 type SortOrder = "asc" | "desc" | null;
@@ -31,11 +51,13 @@ type ActivityTableProps = {
   columns?: readonly TableColumnMetadata[];
   defaultSortColumn?: string;
   defaultSortOrder?: Exclude<SortOrder, null>;
+  density?: MetadataRenderDensity;
   emptyDescription?: string;
   emptyTitle?: string;
   error?: string | null;
   forbidden?: boolean;
   loading?: boolean;
+  locale?: string;
   onRetry?: () => void;
   onRowClick?: (row: DashboardTableRow) => void;
   pageSize?: number;
@@ -49,14 +71,35 @@ type ActivityTableProps = {
   searchPlaceholder?: string;
   showSearch?: boolean;
   surface?: "contained" | "embedded";
+  timezone?: string;
 };
 
 const cn = (...values: Array<string | false | null | undefined>): string =>
   values.filter(Boolean).join(" ");
 
-const formatCellValue = (value: DashboardTableRow[string]): string => {
+const formatCellValue = (
+  value: DashboardTableRow[string],
+  column?: TableColumnMetadata,
+  locale = "en",
+  timezone = "UTC"
+): string => {
+  const formattedValue = column
+    ? formatMetadataTableCellValue(value, column.kind, {
+        locale,
+        timezone,
+      })
+    : null;
+
+  if (formattedValue !== null) {
+    return formattedValue;
+  }
+
   if (value instanceof Date) {
-    return value.toLocaleString();
+    return new Intl.DateTimeFormat(locale, {
+      dateStyle: "medium",
+      timeStyle: "short",
+      timeZone: timezone,
+    }).format(value);
   }
 
   if (typeof value === "boolean") {
@@ -80,8 +123,27 @@ const inferColumnKind = (key: string): TableColumnMetadata["kind"] => {
 
 const compareValues = (
   left: DashboardTableRow[string],
-  right: DashboardTableRow[string]
+  right: DashboardTableRow[string],
+  column?: TableColumnMetadata
 ): number => {
+  if (column?.kind === "money") {
+    const leftNumber = coerceNumericValue(left);
+    const rightNumber = coerceNumericValue(right);
+
+    if (leftNumber !== undefined && rightNumber !== undefined) {
+      return leftNumber - rightNumber;
+    }
+  }
+
+  if (column?.kind === "date") {
+    const leftDate = coerceDateValue(left);
+    const rightDate = coerceDateValue(right);
+
+    if (leftDate && rightDate) {
+      return leftDate.getTime() - rightDate.getTime();
+    }
+  }
+
   if (left instanceof Date && right instanceof Date) {
     return left.getTime() - right.getTime();
   }
@@ -90,7 +152,9 @@ const compareValues = (
     return left - right;
   }
 
-  return formatCellValue(left).localeCompare(formatCellValue(right));
+  return formatCellValue(left, column).localeCompare(
+    formatCellValue(right, column)
+  );
 };
 
 const normalizeColumns = (
@@ -131,11 +195,13 @@ export function ActivityTable({
   columns,
   defaultSortColumn,
   defaultSortOrder = "asc",
+  density = "default",
   emptyDescription = "There is no activity to display yet.",
   emptyTitle = "No activity found",
   error,
   forbidden = false,
   loading = false,
+  locale = "en",
   onRetry,
   onRowClick,
   pageSize = 10,
@@ -145,6 +211,7 @@ export function ActivityTable({
   searchPlaceholder = "Search records...",
   showSearch = true,
   surface = "contained",
+  timezone = "UTC",
 }: ActivityTableProps): ReactElement {
   const resolvedColumns = useMemo(
     () => normalizeColumns(columns, rows),
@@ -171,10 +238,12 @@ export function ActivityTable({
 
     return rows.filter((row) =>
       resolvedColumns.some((column) =>
-        formatCellValue(row[column.key]).toLowerCase().includes(normalizedQuery)
+        formatCellValue(row[column.key], column, locale, timezone)
+          .toLowerCase()
+          .includes(normalizedQuery)
       )
     );
-  }, [deferredQuery, resolvedColumns, rows]);
+  }, [deferredQuery, locale, resolvedColumns, rows, timezone]);
 
   const sortedRows = useMemo(() => {
     if (!(sortColumn && sortOrder)) {
@@ -182,10 +251,11 @@ export function ActivityTable({
     }
 
     return [...filteredRows].sort((left, right) => {
-      const result = compareValues(left[sortColumn], right[sortColumn]);
+      const column = resolvedColumns.find((entry) => entry.key === sortColumn);
+      const result = compareValues(left[sortColumn], right[sortColumn], column);
       return sortOrder === "asc" ? result : result * -1;
     });
-  }, [filteredRows, sortColumn, sortOrder]);
+  }, [filteredRows, resolvedColumns, sortColumn, sortOrder]);
 
   const totalPages = Math.max(1, Math.ceil(sortedRows.length / pageSize));
 
@@ -228,6 +298,14 @@ export function ActivityTable({
     }
 
     return <span aria-hidden>{sortOrder === "asc" ? "↑" : "↓"}</span>;
+  };
+
+  const resolveSortLabel = (column: TableColumnMetadata): string => {
+    if (sortColumn !== column.key || !sortOrder) {
+      return `Sort by ${column.label}`;
+    }
+
+    return `Sort by ${column.label}, currently ${sortOrder === "asc" ? "ascending" : "descending"}`;
   };
 
   if (forbidden) {
@@ -285,12 +363,18 @@ export function ActivityTable({
   }
 
   return (
-    <div className={cn(surface === "contained" && "space-y-4", "w-full")}>
+    <div
+      className={cn(surface === "contained" && "space-y-4", "w-full")}
+      {...resolveDensitySurfaceProps(density)}
+    >
       {showSearch ? (
         <div className="flex items-center gap-3">
           <Input
             aria-label={searchAriaLabel}
-            className="max-w-sm"
+            className={cn(
+              "max-w-sm",
+              resolveFieldControlDensityClassName(density)
+            )}
             onChange={(event: ChangeEvent<HTMLInputElement>): void => {
               setPage(1);
               setQuery(event.target.value);
@@ -313,37 +397,60 @@ export function ActivityTable({
                   aria-sort={getAriaSort(column.key, sortColumn, sortOrder)}
                   key={column.key}
                 >
-                  <button
-                    className="inline-flex items-center gap-1 font-medium"
+                  <Button
+                    aria-label={resolveSortLabel(column)}
+                    className="h-auto px-1 font-medium"
                     onClick={(): void => handleSort(column.key)}
+                    size="sm"
                     type="button"
+                    variant="ghost"
                   >
                     {column.label}
                     {renderSortIcon(column.key)}
-                  </button>
+                  </Button>
                 </TableHead>
               ))}
             </TableRow>
           </TableHeader>
           <TableBody>
-            {pagedRows.map((row) => (
-              <TableRow
-                className={cn(onRowClick && "cursor-pointer hover:bg-muted/50")}
-                key={row.id}
-                onClick={onRowClick ? (): void => onRowClick(row) : undefined}
-              >
-                {resolvedColumns.map((column) => {
-                  const value = row[column.key];
-                  const rendered = renderCell?.(column, value, row);
+            {pagedRows.map((row) => {
+              const rowIsInteractive = Boolean(onRowClick);
+              const activateRow = (): void => {
+                onRowClick?.(row);
+              };
 
-                  return (
-                    <TableCell key={`${row.id}-${column.key}`}>
-                      {rendered ?? formatCellValue(value)}
-                    </TableCell>
-                  );
-                })}
-              </TableRow>
-            ))}
+              return (
+                <TableRow
+                  className={cn(
+                    resolveTableRowDensityClassName(),
+                    rowIsInteractive && METADATA_INTERACTIVE_ROW_CLASS
+                  )}
+                  key={row.id}
+                  onClick={rowIsInteractive ? activateRow : undefined}
+                  onKeyDown={
+                    rowIsInteractive
+                      ? (event: KeyboardEvent<HTMLTableRowElement>): void => {
+                          handleKeyboardActivation(event, activateRow);
+                        }
+                      : undefined
+                  }
+                  role={rowIsInteractive ? "button" : undefined}
+                  tabIndex={rowIsInteractive ? 0 : undefined}
+                >
+                  {resolvedColumns.map((column) => {
+                    const value = row[column.key];
+                    const rendered = renderCell?.(column, value, row);
+
+                    return (
+                      <TableCell key={`${row.id}-${column.key}`}>
+                        {rendered ??
+                          formatCellValue(value, column, locale, timezone)}
+                      </TableCell>
+                    );
+                  })}
+                </TableRow>
+              );
+            })}
           </TableBody>
         </Table>
       </div>

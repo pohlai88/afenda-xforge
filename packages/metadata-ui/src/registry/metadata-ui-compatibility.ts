@@ -10,6 +10,7 @@ import { generatedMetadataUiComposeCompatibilityMap } from "../generated/compati
 import { defaultActionRegistry } from "./default-action-registry.tsx";
 import { defaultFieldRegistry } from "./default-field-registry.tsx";
 import { defaultSectionRegistry } from "./default-section-registry.tsx";
+import { defaultStateRegistry } from "./default-state-registry.tsx";
 
 export type MetadataUiCompatibilityArea =
   | "action"
@@ -42,18 +43,7 @@ export const metadataUiComposeCompatibilityMap: MetadataUiComposeCompatibilityMa
     action: generatedMetadataUiComposeCompatibilityMap.action,
     field: generatedMetadataUiComposeCompatibilityMap.field,
     section: generatedMetadataUiComposeCompatibilityMap.section,
-    state: {
-      degraded: "alert",
-      empty: "empty",
-      error: "alert",
-      forbidden: "alert",
-      invalid: "alert",
-      loading: "skeleton",
-      maintenance: "alert",
-      partial: "frame",
-      ready: "frame",
-      readonly: "frame",
-    },
+    state: generatedMetadataUiComposeCompatibilityMap.state,
   } satisfies MetadataUiComposeCompatibilityMap;
 
 const getRecordKeys = (record: Record<string, unknown>): readonly string[] =>
@@ -143,6 +133,7 @@ export function createMetadataUiCompatibilityReport(): MetadataUiCompatibilityRe
     checked.section,
     issues
   );
+  checkRegistryCoverage("state", defaultStateRegistry, checked.state, issues);
 
   for (const key of checked.field) {
     checkComposeGroup(

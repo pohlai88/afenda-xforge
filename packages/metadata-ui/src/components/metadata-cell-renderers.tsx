@@ -1,6 +1,9 @@
 import type { TableColumnMetadata } from "@repo/ui";
 import type { ReactElement } from "react";
 
+import type { MetadataRenderContext } from "../contracts/render-context.contract";
+import { formatMetadataTableCellValue } from "../formatting/metadata-value-formatter";
+import { METADATA_INTERACTIVE_LINK_CLASS } from "../interaction/keyboard-focus-contract";
 import type { StatusBadgeTone } from "./status-badge";
 import { StatusBadge } from "./status-badge";
 
@@ -29,7 +32,8 @@ export const renderMetadataStatus = (
 
 export function renderMetadataTableCell(
   column: TableColumnMetadata,
-  value: unknown
+  value: unknown,
+  context: Pick<MetadataRenderContext, "locale" | "timezone">
 ): ReactElement | null {
   if (column.kind === "status" && typeof value === "string") {
     return renderMetadataStatus(value);
@@ -37,12 +41,23 @@ export function renderMetadataTableCell(
 
   if (column.kind === "email" && typeof value === "string" && value) {
     return (
-      <a
-        className="font-medium text-foreground underline-offset-4 hover:underline"
-        href={`mailto:${value}`}
-      >
+      <a className={METADATA_INTERACTIVE_LINK_CLASS} href={`mailto:${value}`}>
         {value}
       </a>
+    );
+  }
+
+  const formattedValue = formatMetadataTableCellValue(
+    value,
+    column.kind,
+    context
+  );
+
+  if (formattedValue !== null) {
+    return (
+      <span className="tabular-nums" data-locale-formatted={column.kind}>
+        {formattedValue}
+      </span>
     );
   }
 

@@ -55,6 +55,7 @@ const customerMetadata: MetadataFeatureContract = {
         label: true,
         order: true,
       },
+      id: "customer.records.fields.name",
       key: "name",
       label: "Name",
       kind: "text",
@@ -64,6 +65,7 @@ const customerMetadata: MetadataFeatureContract = {
       customization: {
         hidden: "allow-required",
       },
+      id: "customer.records.fields.status",
       key: "status",
       label: "Status",
       kind: "select",
@@ -76,6 +78,7 @@ const customerMetadata: MetadataFeatureContract = {
         fieldKeys: true,
         label: true,
       },
+      id: "customer.records.sections.general",
       key: "general",
       label: "General",
       fieldKeys: ["name", "status"],
@@ -87,6 +90,7 @@ const customerMetadata: MetadataFeatureContract = {
       customization: {
         layout: true,
       },
+      id: "customer.records.forms.customer-form",
       key: "customer-form",
       label: "Customer form",
       fieldKeys: ["name", "status"],
@@ -99,6 +103,7 @@ const customerMetadata: MetadataFeatureContract = {
         columns: true,
         title: true,
       },
+      id: "customer.records.tables.customer-table",
       key: "customer-table",
       title: "Customers",
       columns: [
@@ -107,6 +112,7 @@ const customerMetadata: MetadataFeatureContract = {
             label: true,
             width: true,
           },
+          id: "customer.records.tables.customer-table.columns.name",
           key: "name",
           label: "Name",
           field: "name",
@@ -117,6 +123,7 @@ const customerMetadata: MetadataFeatureContract = {
           customization: {
             hidden: true,
           },
+          id: "customer.records.tables.customer-table.columns.status",
           key: "status",
           label: "Status",
           field: "status",
@@ -140,6 +147,7 @@ const customerMetadata: MetadataFeatureContract = {
         placement: true,
         safe: true,
       },
+      id: "customer.records.actions.save",
       key: "save",
       label: "Save",
       kind: "update",
@@ -246,6 +254,58 @@ test("resolveCustomizedMetadata applies governed tenant overrides", () => {
   assert.equal(resolved.actions?.[0].label, "Save account");
   assert.equal(resolved.actions?.[0].placement, "secondary");
   assert.deepEqual(customerMetadata, originalMetadata);
+});
+
+test("resolveCustomizedMetadata keeps equal-order field overrides deterministic", () => {
+  const resolved = resolveCustomizedMetadata(
+    customerMetadata,
+    {
+      ...tenantCustomization,
+      actions: undefined,
+      fields: [
+        {
+          id: "customer.records.fields.status",
+          key: "status",
+          order: 1,
+        },
+        {
+          id: "customer.records.fields.name",
+          key: "name",
+          order: 1,
+        },
+      ],
+      forms: undefined,
+      sections: undefined,
+      tables: undefined,
+    },
+    {
+      validate: false,
+    }
+  );
+
+  assert.deepEqual(
+    resolved.fields?.map((field) => field.key),
+    ["name", "status"]
+  );
+});
+
+test("resolveCustomizedMetadata matches overrides by stable metadata node id", () => {
+  const resolved = resolveCustomizedMetadata(customerMetadata, {
+    ...tenantCustomization,
+    fields: [
+      {
+        id: "customer.records.fields.name",
+        key: "legacy-name-key",
+        label: "Canonical Account Name",
+      },
+    ],
+    sections: undefined,
+    forms: undefined,
+    tables: undefined,
+    actions: undefined,
+  });
+
+  assert.equal(resolved.fields?.[0].label, "Canonical Account Name");
 });
 
 test("resolveCustomizedMetadata removes hidden field references from sections and forms", () => {
@@ -533,6 +593,93 @@ test("validateCustomizationAgainstMetadata denies policy-less sensitive override
   );
 });
 
+test("validateCustomizationAgainstMetadata distinguishes unknown ids, key drift, and tenant scope policy errors", () => {
+  const result = validateCustomizationAgainstMetadata(
+    {
+      ...tenantCustomization,
+      fields: [
+        {
+          id: "customer.records.fields.name",
+          key: "legacy-name-key",
+          label: "Canonical Account Name",
+        },
+        {
+          id: "customer.records.fields.missing",
+          key: "name",
+          label: "Broken override",
+        },
+      ],
+      actions: undefined,
+      sections: undefined,
+      tables: undefined,
+    },
+    {
+      ...customerMetadata,
+      customization: {
+        ...customerMetadata.customization,
+        scopes: ["company"],
+      },
+    }
+  );
+
+  assert.equal(result.valid, false);
+  assert.ok(
+    result.issues.some(
+      (issue) =>
+        issue.code === "customization.node_renamed" &&
+        issue.metadataNodeId === "customer.records.fields.name" &&
+        issue.targetNodeKey === "legacy-name-key"
+    )
+  );
+  assert.ok(
+    result.issues.some(
+      (issue) =>
+        issue.code === "customization.node_removed" &&
+        issue.targetNodeId === "customer.records.fields.missing"
+    )
+  );
+  assert.ok(
+    result.issues.some(
+      (issue) => issue.code === "customization.tenant_scope_not_allowed"
+    )
+  );
+});
+
+test("validateCustomizationAgainstMetadata rejects duplicate canonical targets", () => {
+  const result = validateCustomizationAgainstMetadata(
+    {
+      ...tenantCustomization,
+      actions: undefined,
+      fields: [
+        {
+          id: "customer.records.fields.name",
+          key: "name",
+          label: "Customer Name",
+        },
+        {
+          id: "customer.records.fields.name",
+          key: "legacy-name-key",
+          description: "Duplicate canonical target",
+        },
+      ],
+      filters: undefined,
+      forms: undefined,
+      sections: undefined,
+      tables: undefined,
+    },
+    customerMetadata
+  );
+
+  assert.equal(result.valid, false);
+  assert.ok(
+    result.issues.some(
+      (issue) =>
+        issue.code === "customization.duplicate_target" &&
+        issue.metadataNodeId === "customer.records.fields.name"
+    )
+  );
+});
+
 test("validateCustomizationAgainstMetadata rejects unsupported table surfaces", () => {
   const noTableMetadata: EntityMetadata = {
     actions: customerMetadata.actions,
@@ -783,13 +930,18 @@ test("customization fixtures serialize deterministically", () => {
     customization: tenantCustomization,
     exportedAt: "2026-06-09T00:00:00.000Z",
     exportedBy: "admin-user",
+    metadata: customerMetadata,
   });
   const serialized = serializeCustomizationFixture(fixture);
   const deserialized = deserializeCustomizationFixture(serialized);
 
-  assert.equal(deserialized.schemaVersion, 1);
+  assert.equal(deserialized.schemaVersion, 2);
   assert.deepEqual(deserialized, fixture);
   assert.ok(serialized.endsWith("\n"));
+  assert.ok(
+    serialized.indexOf('"customization"') < serialized.indexOf('"exportedAt"')
+  );
+  assert.ok((deserialized.metadataSnapshot?.length ?? 0) > 0);
 });
 
 test("customization fixtures reuse metadata-aware validation", () => {
@@ -835,6 +987,7 @@ test("reviewCustomizationFixtureImport warns for stale draft imports and rejects
     },
     exportedAt: "2026-06-09T00:00:00.000Z",
     exportedBy: "admin-user",
+    metadata: customerMetadata,
   });
 
   const draftReview = reviewCustomizationFixtureImport({
@@ -865,6 +1018,74 @@ test("reviewCustomizationFixtureImport warns for stale draft imports and rejects
   );
   assert.equal(strictReview.valid, false);
   assert.equal(strictReview.publishable, false);
+});
+
+test("fixture snapshots report renamed and changed nodes", () => {
+  const fixture = createCustomizationFixture({
+    customization: tenantCustomization,
+    exportedAt: "2026-06-09T00:00:00.000Z",
+    exportedBy: "admin-user",
+    metadata: customerMetadata,
+  });
+
+  const review = reviewCustomizationFixtureImport({
+    fixture,
+    metadata: {
+      ...customerMetadata,
+      fields: customerMetadata.fields?.map((field) =>
+        field.key === "name"
+          ? {
+              ...field,
+              kind: "select",
+              key: "account-name",
+            }
+          : field
+      ),
+    },
+    mode: "draft-with-warnings",
+  });
+
+  assert.ok(
+    review.issues.some(
+      (issue) =>
+        issue.code === "customization.node_renamed" &&
+        issue.metadataNodeKey === "account-name"
+    )
+  );
+  assert.ok(
+    review.issues.some(
+      (issue) =>
+        issue.code === "customization.node_shape_drift" &&
+        issue.surface === "field"
+    )
+  );
+});
+
+test("reviewCustomizationFixtureImport detects removed nodes from fixture snapshots", () => {
+  const fixture = createCustomizationFixture({
+    customization: tenantCustomization,
+    exportedAt: "2026-06-09T00:00:00.000Z",
+    exportedBy: "admin-user",
+    metadata: customerMetadata,
+  });
+
+  const review = reviewCustomizationFixtureImport({
+    fixture,
+    metadata: {
+      ...customerMetadata,
+      fields: customerMetadata.fields?.filter((field) => field.key !== "name"),
+    },
+    mode: "strict",
+  });
+
+  assert.equal(review.valid, false);
+  assert.ok(
+    review.issues.some(
+      (issue) =>
+        issue.code === "customization.node_removed" &&
+        issue.targetNodeKey === "name"
+    )
+  );
 });
 
 test("resolvePublishedCustomizedMetadataResult fails closed for invalid layer contracts", () => {

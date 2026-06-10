@@ -7,6 +7,7 @@ export { createRendererRegistry } from "./create-renderer-registry.ts";
 export { defaultActionRegistry } from "./default-action-registry.tsx";
 export { defaultFieldRegistry } from "./default-field-registry.tsx";
 export { defaultSectionRegistry } from "./default-section-registry.tsx";
+export { defaultStateRegistry } from "./default-state-registry.tsx";
 export {
   createMetadataUiCompatibilityReport,
   type MetadataUiCompatibilityArea,

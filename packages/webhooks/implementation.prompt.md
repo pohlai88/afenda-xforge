@@ -12,14 +12,14 @@ Before writing code, read these files in order:
 AGENTS.md
 skills/reference/architecture.md
 skills/reference/packages.md
-packages/webhooks/architecture.md
+packages/webhooks/architecture-and-feature-requirement.md
 packages/webhooks/package.json
 packages/webhooks/index.ts
 packages/webhooks/keys.ts
 packages/webhooks/lib/svix.ts
 ```
 
-Treat `packages/webhooks/architecture.md` as the package-level source of truth. If existing code conflicts with the architecture document, update the code to match the document. Do not weaken tenant, permission, audit, execution, or package-boundary rules to make implementation easier.
+Treat `packages/webhooks/architecture-and-feature-requirement.md` as the package-level source of truth. If existing code conflicts with the architecture document, update the code to match the document. Do not weaken tenant, permission, audit, execution, or package-boundary rules to make implementation easier.
 
 ## Objective
 
@@ -87,7 +87,7 @@ Expected package shape:
 
 ```txt
 packages/webhooks/
-├── architecture.md
+├── architecture-and-feature-requirement.md
 ├── implementation.prompt.md
 ├── README.md
 ├── package.json
@@ -319,4 +319,4 @@ After each slice, report:
 - remaining architecture gaps
 - any assumptions made
 
-Keep the implementation aligned with `packages/webhooks/architecture.md`. If unsure whether a behavior belongs in `@repo/webhooks`, default to a contract-only implementation and keep business execution outside this package.
+Keep the implementation aligned with `packages/webhooks/architecture-and-feature-requirement.md`. If unsure whether a behavior belongs in `@repo/webhooks`, default to a contract-only implementation and keep business execution outside this package.

@@ -8,7 +8,7 @@ The target package owns governed organizational structure facts and derived oper
 
 ## Reference Inputs
 
-- Architecture: `organizational-chart-hierarchy-architecture.md`
+- Architecture: `architecture-and-feature-requirement.md`
 - HR suite advice: `../../implemenation-advice.md`
 - Implementation reference: `../compliance-regulatory-tracking/src`
 

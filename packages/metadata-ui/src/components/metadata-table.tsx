@@ -34,7 +34,13 @@ type MetadataToolbarBadge = {
     | "warning";
 };
 
-const supportedTableCellKinds = new Set(["email", "status", "text"]);
+const supportedTableCellKinds = new Set([
+  "date",
+  "email",
+  "money",
+  "status",
+  "text",
+]);
 
 const resolveMetadataSurfaceKey = (metadata: EntityMetadata): string =>
   metadata.id ?? metadata.entity;
@@ -184,18 +190,22 @@ export function renderMetadataTableResult({
       defaultSortColumn={
         defaultSortColumn ?? resolvedMetadata.table?.defaultSort
       }
+      density={resolvedContext.density}
       emptyDescription={emptyDescription}
       emptyTitle={emptyTitle}
       error={error}
       forbidden={forbidden}
       loading={loading}
+      locale={resolvedContext.locale}
       onRetry={onRetry}
       onRowClick={onRowClick}
       pageSize={pageSize}
       renderCell={(
         column: TableColumnMetadata,
         value: unknown
-      ): ReactElement | null => renderMetadataTableCell(column, value)}
+      ): ReactElement | null =>
+        renderMetadataTableCell(column, value, resolvedContext)
+      }
       rows={rows}
       searchAriaLabel={`Search ${labels.plural.toLowerCase()}`}
       searchPlaceholder={
@@ -203,6 +213,7 @@ export function renderMetadataTableResult({
       }
       showSearch={showSearch}
       surface={surface}
+      timezone={resolvedContext.timezone}
     />
   );
 

@@ -15,7 +15,8 @@
   },
   "files": [
     "src",
-    "package.json"
+    "package.json",
+    "architecture-and-feature-requirement.md"
   ],
   "scripts": {
     "lint": "biome check .",
@@ -25,7 +26,8 @@
     "typecheck": "tsc --noEmit --emitDeclarationOnly false"
   },
   "dependencies": {
-    "@repo/features-employee-management-employee-records-management": "workspace:*",
+    "@repo/audit": "workspace:*",
+    "@repo/features-time-attendance-leave-attendance-management": "workspace:*",
     "server-only": "catalog:",
     "zod": "catalog:"
   },

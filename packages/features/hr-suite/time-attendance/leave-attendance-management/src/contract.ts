@@ -1,26 +1,27 @@
-export type LeaveAttendanceManagementStatus = "draft" | "active" | "archived";
-
-export type LeaveAttendanceManagementRecord = {
-  id: string;
-  name: string;
-  status: LeaveAttendanceManagementStatus;
-};
-
-export type ListLeaveAttendanceManagementQuery = {
-  page?: number;
-  pageSize?: number;
-  search?: string;
-};
-
-export type CreateLeaveAttendanceManagementInput = {
-  name: string;
-};
-
-export type UpdateLeaveAttendanceManagementInput = {
-  id: string;
-  name?: string;
-  status?: LeaveAttendanceManagementStatus;
-};
+export {
+  type CreateLeaveAttendanceManagementInput,
+  createLeaveAttendanceManagementInputSchema,
+  type LeaveAttendanceManagementLeaveApplicationRecord,
+  type LeaveAttendanceManagementLeaveApplicationStatus,
+  type LeaveAttendanceManagementLeaveBalanceRecord,
+  type LeaveAttendanceManagementLeaveUnit,
+  type LeaveAttendanceManagementRecord,
+  type LeaveAttendanceManagementStatus,
+  type ListLeaveAttendanceManagementLeaveApplicationsQuery,
+  type ListLeaveAttendanceManagementLeaveBalancesQuery,
+  type ListLeaveAttendanceManagementQuery,
+  leaveAttendanceManagementLeaveApplicationRecordSchema,
+  leaveAttendanceManagementLeaveApplicationStatusSchema,
+  leaveAttendanceManagementLeaveBalanceRecordSchema,
+  leaveAttendanceManagementLeaveUnitSchema,
+  leaveAttendanceManagementRecordSchema,
+  leaveAttendanceManagementStatusSchema,
+  listLeaveAttendanceManagementLeaveApplicationsQuerySchema,
+  listLeaveAttendanceManagementLeaveBalancesQuerySchema,
+  listLeaveAttendanceManagementQuerySchema,
+  type UpdateLeaveAttendanceManagementInput,
+  updateLeaveAttendanceManagementInputSchema,
+} from "./schema.ts";
 
 export const hrTimeLamReadPermission = {
   module: "hr",
@@ -106,7 +107,18 @@ export const hrTimeAttendanceLamAuditActions = {
 export type HrTimeAttendanceLamAuditAction =
   (typeof hrTimeAttendanceLamAuditActions)[keyof typeof hrTimeAttendanceLamAuditActions][keyof (typeof hrTimeAttendanceLamAuditActions)[keyof typeof hrTimeAttendanceLamAuditActions]];
 
-export const leaveAttendanceManagementRouteContracts = [] as const;
+export const leaveAttendanceManagementRouteContracts = [
+  {
+    method: "GET",
+    path: `${hrLamRoutePaths.leave}/balances`,
+    purpose: "List scoped employee leave balance records.",
+  },
+  {
+    method: "GET",
+    path: `${hrLamRoutePaths.leave}/applications`,
+    purpose: "List scoped employee leave application history records.",
+  },
+] as const;
 
 export const leaveAttendanceManagementFeatureId =
   "hr-suite.time-attendance.leave-attendance-management" as const;

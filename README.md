@@ -16,6 +16,7 @@ XForge is a governance-first ERP monorepo for building tenant-scoped business sy
 - [Framework adoption](./skills/reference/framework.md)
 - [Architecture](./skills/reference/architecture.md)
 - [Packages](./skills/reference/packages.md)
+- [Package Architecture And Feature Requirement Coverage](./docs/runtime/17-package-architecture-and-feature-requirement-coverage.md)
 - [Customization](./skills/reference/customization.md)
 - [Setup](./skills/reference/setup.md)
 

@@ -21,6 +21,11 @@ Forbidden ownership:
 - business logic and runtime authority
 - feature-package orchestration
 
+Visual review:
+
+- Run `pnpm --filter storybook dev` for the local Storybook workspace
+- Compose galleries and primitives live under `UI` in Storybook; build with `pnpm --filter storybook build`
+
 Source layout:
 
 - `src/components/ui-shadcn/*` for primitives and shared variants

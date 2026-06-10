@@ -1,14 +1,47 @@
 import type { ReactElement } from "react";
-import { StatePanel } from "../../components/state-panel";
+
+import type { MetadataStateRenderer } from "../../contracts/state-renderer.contract";
+import { MetadataStateShell } from "./metadata-state-shell";
+import { resolveStateVisualDefinition } from "./state-visual-matrix";
 
 type ForbiddenStateProps = {
   description?: string;
+  onAction?: () => void;
   title?: string;
 };
 
 export function ForbiddenState({
-  description = "You do not have permission to view this surface.",
-  title = "Access restricted",
+  description,
+  onAction,
+  title,
 }: ForbiddenStateProps): ReactElement {
-  return <StatePanel description={description} title={title} tone="warning" />;
+  const definition = resolveStateVisualDefinition("forbidden");
+
+  return (
+    <MetadataStateShell
+      action={
+        onAction
+          ? {
+              label: definition.actionLabel ?? "Go back",
+              onClick: onAction,
+            }
+          : undefined
+      }
+      description={description}
+      stateKind="forbidden"
+      title={title}
+    />
+  );
 }
+
+export const ForbiddenStateRenderer: MetadataStateRenderer = ({
+  forbiddenDescription,
+  forbiddenTitle,
+  onAction,
+}) => (
+  <ForbiddenState
+    description={forbiddenDescription}
+    onAction={onAction}
+    title={forbiddenTitle}
+  />
+);

@@ -11,6 +11,7 @@ export {
   buildHrEmployeeRecordDetailPageModel,
   buildHrEmployeeRecordExportPageModel,
 } from "./detail-page-model.server.ts";
+export { getHrEmployeeLifecycleSummary } from "./lifecycle-summary.server.ts";
 export { buildHrRecordsPageModel } from "./page-model.server.ts";
 export { listHrEmployeeAssignments } from "./queries/assignments.query.ts";
 export {

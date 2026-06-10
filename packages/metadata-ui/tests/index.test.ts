@@ -1,3 +1,10 @@
+import "./density-visual-states.test.tsx";
+import "./field-visual-states.test.tsx";
+import "./field-a11y-states.test.tsx";
+import "./keyboard-focus-states.test.tsx";
+import "./locale-formatting.test.tsx";
+import "./state-visual-states.test.tsx";
+import "./action-visual-states.test.tsx";
 import "./default-action-registry.test.tsx";
 import "./action-renderer-hardening.test.tsx";
 import "./diagnostics-and-fallbacks.test.tsx";

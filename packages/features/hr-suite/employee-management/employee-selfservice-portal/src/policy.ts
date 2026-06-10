@@ -1,14 +1,76 @@
+import { getEmployeeSelfservicePortalProfileSource } from "./employee-records.integration.ts";
 import type {
   EmployeeSelfservicePortalProfileUpdateRequest,
   EmployeeSelfservicePortalRecord,
 } from "./schema.ts";
 import type { HrSuiteFeatureContext } from "./shared/index.ts";
 
+const hasScopedPortalAccess = (
+  context: HrSuiteFeatureContext | undefined
+): boolean =>
+  Boolean(context?.canRead && context.tenantId && context.companyId);
+
+const hasAuthenticatedElevatedPortalAccess = (
+  context: HrSuiteFeatureContext | undefined
+): boolean =>
+  Boolean(
+    hasScopedPortalAccess(context) && context?.canReadAll && context.userId
+  );
+
+const hasManagerApprovalInboxAccess = (
+  context: HrSuiteFeatureContext | undefined
+): context is HrSuiteFeatureContext &
+  Required<
+    Pick<
+      HrSuiteFeatureContext,
+      | "actorEmployeeId"
+      | "canRead"
+      | "canReadAll"
+      | "companyId"
+      | "organizationId"
+      | "tenantId"
+      | "userId"
+    >
+  > =>
+  Boolean(
+    hasAuthenticatedElevatedPortalAccess(context) &&
+      context?.actorEmployeeId &&
+      context.organizationId
+  );
+
+const isScopedRequest = (
+  context: HrSuiteFeatureContext,
+  request: EmployeeSelfservicePortalProfileUpdateRequest
+): boolean =>
+  context.tenantId === request.tenantId &&
+  context.companyId === request.companyId;
+
+export function isEmployeeSelfservicePortalManagerForEmployee(
+  context: HrSuiteFeatureContext | undefined,
+  employeeId: string
+): boolean {
+  if (!hasManagerApprovalInboxAccess(context)) {
+    return false;
+  }
+
+  const profileSource = getEmployeeSelfservicePortalProfileSource({
+    canViewSensitive: false,
+    employeeId,
+    organizationId: context.organizationId,
+  });
+
+  if (!profileSource?.managerEmployeeId) {
+    return false;
+  }
+
+  return profileSource.managerEmployeeId === context.actorEmployeeId;
+}
+
 export function canReadEmployeeSelfservicePortal(
   context: HrSuiteFeatureContext | undefined,
   record: EmployeeSelfservicePortalRecord
 ): boolean {
-  if (!context?.canRead) {
+  if (!(hasScopedPortalAccess(context) && context)) {
     return false;
   }
 
@@ -19,7 +81,7 @@ export function canReadEmployeeSelfservicePortal(
     return false;
   }
 
-  if (context.canReadAll) {
+  if (hasAuthenticatedElevatedPortalAccess(context)) {
     return true;
   }
 
@@ -47,21 +109,28 @@ export function canReadEmployeeSelfservicePortalProfileUpdateRequest(
   context: HrSuiteFeatureContext | undefined,
   request: EmployeeSelfservicePortalProfileUpdateRequest
 ): boolean {
+  if (!(hasScopedPortalAccess(context) && context)) {
+    return false;
+  }
+
   if (
-    !(
-      context?.canRead &&
-      context.tenantId === request.tenantId &&
-      context.companyId === request.companyId
-    )
+    context.tenantId !== request.tenantId ||
+    context.companyId !== request.companyId
   ) {
     return false;
   }
 
-  if (context.canReadAll) {
+  if (hasAuthenticatedElevatedPortalAccess(context)) {
     return true;
   }
 
   return context.actorEmployeeId === request.employeeId;
+}
+
+export function canReadEmployeeSelfservicePortalManagerApprovalInbox(
+  context: HrSuiteFeatureContext | undefined
+): boolean {
+  return hasManagerApprovalInboxAccess(context);
 }
 
 export function canReviewEmployeeSelfservicePortalProfileUpdateRequest(
@@ -79,10 +148,7 @@ export function canReviewEmployeeSelfservicePortalProfileUpdateRequest(
     return false;
   }
 
-  if (
-    context.tenantId !== request.tenantId ||
-    context.companyId !== request.companyId
-  ) {
+  if (!isScopedRequest(context, request)) {
     return false;
   }
 
@@ -90,5 +156,11 @@ export function canReviewEmployeeSelfservicePortalProfileUpdateRequest(
     return false;
   }
 
-  return true;
+  if (
+    isEmployeeSelfservicePortalManagerForEmployee(context, request.employeeId)
+  ) {
+    return true;
+  }
+
+  return !context.actorEmployeeId;
 }

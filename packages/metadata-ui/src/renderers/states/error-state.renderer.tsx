@@ -1,5 +1,8 @@
 import type { ReactElement } from "react";
-import { StatePanel } from "../../components/state-panel";
+
+import type { MetadataStateRenderer } from "../../contracts/state-renderer.contract";
+import { MetadataStateShell } from "./metadata-state-shell";
+import { resolveStateVisualDefinition } from "./state-visual-matrix";
 
 type ErrorStateProps = {
   description?: string;
@@ -8,23 +11,30 @@ type ErrorStateProps = {
 };
 
 export function ErrorState({
-  description = "The metadata surface could not be rendered.",
+  description,
   onRetry,
-  title = "Unable to load records",
+  title,
 }: ErrorStateProps): ReactElement {
+  const definition = resolveStateVisualDefinition("error");
+
   return (
-    <StatePanel
+    <MetadataStateShell
       action={
         onRetry
           ? {
-              label: "Retry",
+              label: definition.actionLabel ?? "Retry",
               onClick: onRetry,
             }
           : undefined
       }
       description={description}
+      stateKind="error"
       title={title}
-      tone="danger"
     />
   );
 }
+
+export const ErrorStateRenderer: MetadataStateRenderer = ({
+  error,
+  onRetry,
+}) => <ErrorState description={error} onRetry={onRetry} />;

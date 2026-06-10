@@ -4,6 +4,11 @@ import { rmSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { resolve } from "node:path";
 import { afterEach, beforeEach, test } from "node:test";
+import {
+  getEmployeeLifecycleOnboardingStatus,
+  resetEmployeeLifecycleRepositoryForTesting,
+  setEmployeeLifecycleRepositoryPathForTesting,
+} from "../../employee-lifecycle-management/src/index.ts";
 import { upsertComplianceWorkerProfileInputSchema } from "../../compliance-regulatory-tracking/src/index.ts";
 import { hrRecordsFeatureManifestSchema } from "../src/contracts/manifest.contract.ts";
 import { hrRecordsFeatureScope } from "../src/feature-scope.ts";
@@ -25,6 +30,7 @@ import {
 import { createHrEmployeeRecord, getHrEmployeeRecord } from "../src/server.ts";
 
 let repositoryPath = "";
+let lifecycleRepositoryPath = "";
 
 const requireTargetId = (
   result: { ok: true; targetId?: string } | { ok: false; error: string }
@@ -41,13 +47,25 @@ beforeEach(() => {
     tmpdir(),
     `afenda-employee-records-integration-${randomUUID()}.json`
   );
+  lifecycleRepositoryPath = resolve(
+    tmpdir(),
+    `afenda-employee-lifecycle-integration-${randomUUID()}.json`
+  );
   setHrEmployeeRecordsRepositoryPathForTesting(repositoryPath);
   resetHrEmployeeRecordsRepositoryForTesting();
+  setEmployeeLifecycleRepositoryPathForTesting(lifecycleRepositoryPath);
+  resetEmployeeLifecycleRepositoryForTesting();
 });
 
 afterEach(() => {
   try {
     rmSync(repositoryPath, { force: true });
+  } catch {
+    // Best-effort cleanup for repository test artifacts.
+  }
+
+  try {
+    rmSync(lifecycleRepositoryPath, { force: true });
   } catch {
     // Best-effort cleanup for repository test artifacts.
   }
@@ -160,6 +178,12 @@ test("builds downstream-safe integration snapshots and versioned change events",
   assert.equal(
     changeEvent.snapshot.reference.displayName,
     "Integration Worker"
+  );
+  assert.equal(
+    getEmployeeLifecycleOnboardingStatus(workerId, {
+      companyId: "org-1",
+    })?.workflowStatus,
+    "in_progress"
   );
 
   assert.doesNotThrow(() =>

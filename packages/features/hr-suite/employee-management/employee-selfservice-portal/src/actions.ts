@@ -1,12 +1,14 @@
 import "server-only";
 
-import { updateHrEmployeeRecord } from "@repo/features-employee-management-employee-records-management/server";
+import { recordEmployeeSelfservicePortalAuditEvent } from "./audit.ts";
+import { applyEmployeeSelfservicePortalApprovedProfileUpdate } from "./employee-records.integration.ts";
 import { runHrSuiteFeatureAction } from "./execution/action.ts";
 import {
   canReviewEmployeeSelfservicePortalProfileUpdateRequest,
   canSubmitEmployeeSelfservicePortalProfileUpdateRequest,
   canWriteEmployeeSelfservicePortal,
 } from "./policy.ts";
+import { employeeSelfservicePortalAuditActions } from "./registry/audit.ts";
 import {
   createEmployeeSelfservicePortalProfileUpdateRequestId,
   createEmployeeSelfservicePortalRecordId,
@@ -247,6 +249,27 @@ export function submitEmployeeSelfservicePortalProfileUpdateRequest(
       profileUpdateRequests: [...snapshot.profileUpdateRequests, request],
     }));
 
+    recordEmployeeSelfservicePortalAuditEvent({
+      action:
+        employeeSelfservicePortalAuditActions.profileUpdateRequestSubmitted,
+      after: {
+        id: request.id,
+        requestType: request.requestType,
+        requiresSensitiveApproval: request.requiresSensitiveApproval,
+        status: request.status,
+      },
+      context,
+      employeeId: request.employeeId,
+      metadata: {
+        changedFields: Object.keys(request.requestedChanges),
+        requestType: request.requestType,
+      },
+      summary: `Submitted profile update request ${request.id}`,
+      targetDisplayName: request.requestType,
+      targetId: request.id,
+      targetType: "profile_update_request",
+    });
+
     return request;
   });
 }
@@ -302,22 +325,16 @@ export function approveEmployeeSelfservicePortalProfileUpdateRequest(
       );
     }
 
-    const result = await updateHrEmployeeRecord(
-      {
-        employeeId: currentRequest.employeeId,
-        ...currentRequest.requestedChanges,
-        approvalReference: parsedInput.approvalReference ?? currentRequest.id,
-        reason:
-          parsedInput.reason ??
-          "Approved employee self-service profile update request",
-      },
-      {
-        canViewSensitive: true,
-        canWrite: true,
-        organizationId: context?.organizationId,
-        userId: context?.userId,
-      }
-    );
+    const result = await applyEmployeeSelfservicePortalApprovedProfileUpdate({
+      approvalReference: parsedInput.approvalReference ?? currentRequest.id,
+      employeeId: currentRequest.employeeId,
+      organizationId: context?.organizationId ?? "",
+      reason:
+        parsedInput.reason ??
+        "Approved employee self-service profile update request",
+      requestedChanges: currentRequest.requestedChanges,
+      userId: context?.userId,
+    });
 
     if (!result.ok) {
       throw new Error(result.error);
@@ -339,6 +356,31 @@ export function approveEmployeeSelfservicePortalProfileUpdateRequest(
         request.id === approvedRequest.id ? approvedRequest : request
       ),
     }));
+
+    recordEmployeeSelfservicePortalAuditEvent({
+      action:
+        employeeSelfservicePortalAuditActions.profileUpdateRequestApproved,
+      after: {
+        approvalReference: approvedRequest.approvalReference,
+        id: approvedRequest.id,
+        reviewedByUserId: approvedRequest.reviewedByUserId,
+        status: approvedRequest.status,
+      },
+      before: {
+        id: currentRequest.id,
+        status: currentRequest.status,
+      },
+      context,
+      employeeId: approvedRequest.employeeId,
+      metadata: {
+        approvalReference: approvedRequest.approvalReference,
+        requestType: approvedRequest.requestType,
+      },
+      summary: `Approved profile update request ${approvedRequest.id}`,
+      targetDisplayName: approvedRequest.requestType,
+      targetId: approvedRequest.id,
+      targetType: "profile_update_request",
+    });
 
     return approvedRequest;
   });
@@ -396,6 +438,31 @@ export function rejectEmployeeSelfservicePortalProfileUpdateRequest(
         request.id === rejectedRequest.id ? rejectedRequest : request
       ),
     }));
+
+    recordEmployeeSelfservicePortalAuditEvent({
+      action:
+        employeeSelfservicePortalAuditActions.profileUpdateRequestRejected,
+      after: {
+        id: rejectedRequest.id,
+        rejectionReason: rejectedRequest.rejectionReason,
+        reviewedByUserId: rejectedRequest.reviewedByUserId,
+        status: rejectedRequest.status,
+      },
+      before: {
+        id: currentRequest.id,
+        status: currentRequest.status,
+      },
+      context,
+      employeeId: rejectedRequest.employeeId,
+      metadata: {
+        requestType: rejectedRequest.requestType,
+      },
+      reason: rejectedRequest.rejectionReason ?? undefined,
+      summary: `Rejected profile update request ${rejectedRequest.id}`,
+      targetDisplayName: rejectedRequest.requestType,
+      targetId: rejectedRequest.id,
+      targetType: "profile_update_request",
+    });
 
     return rejectedRequest;
   });

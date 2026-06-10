@@ -27,7 +27,7 @@ Audit date: 2026-06-09.
 | Versioning and replacement | `src/registration.ts`, `src/repository.ts`, `src/server.ts`, `test/document-versioning.test.ts` | Creates durable version records, resolves latest versions, preserves replacement history, and keeps superseded versions queryable. |
 | Shared context | `src/shared/index.ts` | Defines a minimal feature context and package scope metadata. |
 | Manifest and metadata | `src/manifest.ts`, `src/metadata.ts` | Declare the feature identity and legacy source label. |
-| Architecture doc | `documents-management-architecture.md` | States the feature scope, includes/excludes, requirement statement, functional requirements, and acceptance criteria. |
+| Architecture doc | `architecture-and-feature-requirement.md` | States the feature scope, includes/excludes, requirement statement, functional requirements, and acceptance criteria. |
 
 ## Slice 1 Status
 
@@ -35,7 +35,7 @@ Status: implemented on 2026-06-09.
 
 Slice 1 did not require runtime code changes. The work for this slice is the documented boundary and ownership audit, now captured in:
 
-- `documents-management-architecture.md`
+- `architecture-and-feature-requirement.md`
 - `development-roadmap.md`
 
 Evidence recorded:
@@ -211,7 +211,7 @@ Slice 10 hardened the Documents Management implementation in:
 - `apps/api/package.json`
 - `apps/api/test/hr-documents-routes.test.ts`
 - `development-roadmap.md`
-- `documents-management-architecture.md`
+- `architecture-and-feature-requirement.md`
 
 Evidence recorded:
 

@@ -1,6 +1,9 @@
 import assert from "node:assert/strict";
 import test from "node:test";
-import { systemAdminCapabilities } from "../contract.ts";
+import {
+  systemAdminCapabilities,
+  systemAdminReviewCustomizationRouteContract,
+} from "../contract.ts";
 import { systemAdminControlPlaneMetadata } from "../metadata.ts";
 
 test("system admin metadata is declarative and permission hinted", () => {
@@ -24,4 +27,12 @@ test("system admin capability keys are stable", () => {
     systemAdminCapabilities.usersAccessWrite,
     "system-admin.users-access.write"
   );
+});
+
+test("system admin exposes customization review route contract", () => {
+  assert.equal(
+    systemAdminReviewCustomizationRouteContract.path,
+    "/api/system-admin/customizations/review"
+  );
+  assert.equal(systemAdminReviewCustomizationRouteContract.method, "POST");
 });

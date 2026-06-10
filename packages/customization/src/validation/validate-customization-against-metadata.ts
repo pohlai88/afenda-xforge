@@ -12,6 +12,10 @@ import type {
   CustomizationValidationMode,
   CustomizationValidationResult,
 } from "../contracts/customization.contract.ts";
+import {
+  buildMetadataNodeIndex,
+  resolveMetadataNodeTarget,
+} from "../internal/metadata-node-resolution.ts";
 
 export type CustomizationMetadataValidationOptions = {
   allowStaleMetadataFingerprint?: boolean;
@@ -24,6 +28,7 @@ export type CustomizationMetadataValidationOptions = {
 type CustomizableMetadata = EntityMetadata | MetadataFeatureContract;
 
 type Keyed = {
+  id?: string;
   key: string;
 };
 
@@ -54,6 +59,15 @@ type OverridePolicyContext = {
   path: readonly (number | string)[];
 };
 
+type IssueMetadata = Pick<
+  CustomizationValidationIssue,
+  | "metadataNodeId"
+  | "metadataNodeKey"
+  | "surface"
+  | "targetNodeId"
+  | "targetNodeKey"
+>;
+
 const defaultPolicyHint =
   "Declare the override in metadata customization policy before publishing this customization.";
 
@@ -63,11 +77,13 @@ const addIssue = (
   message: string,
   path: readonly (number | string)[],
   severity: CustomizationValidationIssue["severity"] = "error",
-  hint?: string
+  hint?: string,
+  metadata: Partial<IssueMetadata> = {}
 ): void => {
   issues.push({
     code,
     hint,
+    ...metadata,
     message,
     path,
     severity,
@@ -76,6 +92,133 @@ const addIssue = (
 
 const keyedSet = (items: readonly Keyed[] | undefined): Set<string> =>
   new Set((items ?? []).map((item) => item.key));
+
+const resolveOverrideTarget = <MetadataNode extends Keyed>(
+  issues: CustomizationValidationIssue[],
+  override: Keyed,
+  index: ReturnType<typeof buildMetadataNodeIndex<MetadataNode>>,
+  path: readonly (number | string)[],
+  surface: string,
+  label: string,
+  emitDriftWarning = true
+): MetadataNode | undefined => {
+  const resolvedTarget = resolveMetadataNodeTarget(override, index);
+
+  if (!resolvedTarget) {
+    if (override.id) {
+      addIssue(
+        issues,
+        "customization.node_removed",
+        `${label} override id "${override.id}" does not exist in metadata`,
+        [...path, "id"],
+        "error",
+        "Rebind the customization to a live metadata node id before publishing.",
+        {
+          surface,
+          targetNodeId: override.id,
+          targetNodeKey: override.key,
+        }
+      );
+      return;
+    }
+
+    addIssue(
+      issues,
+      "customization.unknown_key",
+      `${label} override key "${override.key}" does not exist in metadata`,
+      [...path, "key"],
+      "error",
+      "Update the customization to target an existing metadata key.",
+      {
+        surface,
+        targetNodeKey: override.key,
+      }
+    );
+    return;
+  }
+
+  if (emitDriftWarning && resolvedTarget.driftedKey) {
+    addIssue(
+      issues,
+      "customization.node_renamed",
+      `${label} override key "${override.key}" is stale; metadata now uses "${resolvedTarget.metadataNode.key}"`,
+      [...path, "key"],
+      "warning",
+      "Refresh the customization payload so it uses the current canonical metadata key before publishing.",
+      {
+        metadataNodeId: resolvedTarget.canonicalId,
+        metadataNodeKey: resolvedTarget.metadataNode.key,
+        surface,
+        targetNodeId: override.id,
+        targetNodeKey: override.key,
+      }
+    );
+  }
+
+  return resolvedTarget.metadataNode;
+};
+
+const validateDuplicateTargets = <
+  Override extends Keyed,
+  MetadataNode extends Keyed,
+>(
+  issues: CustomizationValidationIssue[],
+  overrides: readonly Override[] | undefined,
+  index: ReturnType<typeof buildMetadataNodeIndex<MetadataNode>>,
+  path: readonly (number | string)[],
+  surface: string,
+  label: string
+): void => {
+  if (!overrides) {
+    return;
+  }
+
+  const firstOccurrenceByCanonicalId = new Map<
+    string,
+    {
+      index: number;
+      metadataNode: MetadataNode;
+      override: Override;
+    }
+  >();
+
+  for (const [overrideIndex, override] of overrides.entries()) {
+    const resolvedTarget = resolveMetadataNodeTarget(override, index);
+
+    if (!resolvedTarget) {
+      continue;
+    }
+
+    const previous = firstOccurrenceByCanonicalId.get(
+      resolvedTarget.canonicalId
+    );
+
+    if (!previous) {
+      firstOccurrenceByCanonicalId.set(resolvedTarget.canonicalId, {
+        index: overrideIndex,
+        metadataNode: resolvedTarget.metadataNode,
+        override,
+      });
+      continue;
+    }
+
+    addIssue(
+      issues,
+      "customization.duplicate_target",
+      `${label} overrides target the same metadata node "${resolvedTarget.metadataNode.key}"`,
+      [...path, overrideIndex],
+      "error",
+      "Merge the duplicate override entries so each metadata node is customized only once per surface.",
+      {
+        metadataNodeId: resolvedTarget.canonicalId,
+        metadataNodeKey: resolvedTarget.metadataNode.key,
+        surface,
+        targetNodeId: override.id,
+        targetNodeKey: override.key,
+      }
+    );
+  }
+};
 
 const getValidationMode = (
   options: CustomizationMetadataValidationOptions
@@ -108,27 +251,6 @@ const getMetadataKeySets = (
   sectionKeys: keyedSet(metadata.sections),
   tableKeys: keyedSet(getFeatureTables(metadata)),
 });
-
-const requireKnownKeys = (
-  issues: CustomizationValidationIssue[],
-  overrides: readonly Keyed[] | undefined,
-  allowedKeys: Set<string>,
-  path: readonly (number | string)[],
-  label: string
-): void => {
-  for (const [index, override] of (overrides ?? []).entries()) {
-    if (!allowedKeys.has(override.key)) {
-      addIssue(
-        issues,
-        "customization.unknown_key",
-        `${label} override key "${override.key}" does not exist in metadata`,
-        [...path, index, "key"],
-        "error",
-        "Update the customization to target an existing metadata key."
-      );
-    }
-  }
-};
 
 const requireKnownReferences = (
   issues: CustomizationValidationIssue[],
@@ -239,7 +361,7 @@ const validateIdentityAndScope = (
   if (customization.scope === "tenant" && !isTenantScopeAllowed(metadata)) {
     addIssue(
       issues,
-      "customization.company_scope_not_allowed",
+      "customization.tenant_scope_not_allowed",
       "tenant-scoped customization is not allowed for this metadata",
       ["scope"],
       "error",
@@ -286,51 +408,137 @@ const validateMetadataFingerprint = (
 const validateTopLevelKeys = (
   issues: CustomizationValidationIssue[],
   customization: CustomizationContract,
-  keySets: MetadataKeySets,
+  metadata: CustomizableMetadata,
   options: CustomizationMetadataValidationOptions
 ): void => {
-  requireKnownKeys(
+  const fieldIndex = buildMetadataNodeIndex(metadata.fields);
+  const sectionIndex = buildMetadataNodeIndex(metadata.sections);
+  const formIndex = buildMetadataNodeIndex(metadata.forms);
+  const filterIndex = buildMetadataNodeIndex(metadata.filters);
+  const actionIndex = buildMetadataNodeIndex(metadata.actions);
+  const tableIndex = buildMetadataNodeIndex(getFeatureTables(metadata));
+
+  for (const [index, override] of (customization.fields ?? []).entries()) {
+    resolveOverrideTarget(
+      issues,
+      override,
+      fieldIndex,
+      ["fields", index],
+      "field",
+      "field"
+    );
+  }
+
+  validateDuplicateTargets(
     issues,
     customization.fields,
-    keySets.fieldKeys,
+    fieldIndex,
     ["fields"],
+    "field",
     "field"
   );
-  requireKnownKeys(
+
+  for (const [index, override] of (customization.sections ?? []).entries()) {
+    resolveOverrideTarget(
+      issues,
+      override,
+      sectionIndex,
+      ["sections", index],
+      "section",
+      "section"
+    );
+  }
+
+  validateDuplicateTargets(
     issues,
     customization.sections,
-    keySets.sectionKeys,
+    sectionIndex,
     ["sections"],
+    "section",
     "section"
   );
-  requireKnownKeys(
+
+  for (const [index, override] of (customization.forms ?? []).entries()) {
+    resolveOverrideTarget(
+      issues,
+      override,
+      formIndex,
+      ["forms", index],
+      "form",
+      "form"
+    );
+  }
+
+  validateDuplicateTargets(
     issues,
     customization.forms,
-    keySets.formKeys,
+    formIndex,
     ["forms"],
+    "form",
     "form"
   );
-  requireKnownKeys(
+
+  for (const [index, override] of (customization.filters ?? []).entries()) {
+    resolveOverrideTarget(
+      issues,
+      override,
+      filterIndex,
+      ["filters", index],
+      "filter",
+      "filter"
+    );
+  }
+
+  validateDuplicateTargets(
     issues,
     customization.filters,
-    keySets.filterKeys,
+    filterIndex,
     ["filters"],
+    "filter",
     "filter"
   );
-  requireKnownKeys(
+
+  for (const [index, override] of (customization.actions ?? []).entries()) {
+    resolveOverrideTarget(
+      issues,
+      override,
+      actionIndex,
+      ["actions", index],
+      "action",
+      "action"
+    );
+  }
+
+  validateDuplicateTargets(
     issues,
     customization.actions,
-    keySets.actionKeys,
+    actionIndex,
     ["actions"],
+    "action",
     "action"
   );
 
-  if (options.rejectUnsupportedMetadataSurfaces || keySets.tableKeys.size > 0) {
-    requireKnownKeys(
+  if (
+    options.rejectUnsupportedMetadataSurfaces ||
+    getFeatureTables(metadata).length > 0
+  ) {
+    for (const [index, override] of (customization.tables ?? []).entries()) {
+      resolveOverrideTarget(
+        issues,
+        override,
+        tableIndex,
+        ["tables", index],
+        "table",
+        "table"
+      );
+    }
+
+    validateDuplicateTargets(
       issues,
       customization.tables,
-      keySets.tableKeys,
+      tableIndex,
       ["tables"],
+      "table",
       "table"
     );
   }
@@ -341,12 +549,18 @@ const validateFieldPolicies = (
   customization: CustomizationContract,
   metadata: CustomizableMetadata
 ): void => {
-  const metadataFieldsByKey = new Map(
-    (metadata.fields ?? []).map((field) => [field.key, field])
-  );
+  const metadataFieldIndex = buildMetadataNodeIndex(metadata.fields);
 
   for (const [index, fieldOverride] of (customization.fields ?? []).entries()) {
-    const metadataField = metadataFieldsByKey.get(fieldOverride.key);
+    const metadataField = resolveOverrideTarget(
+      issues,
+      fieldOverride,
+      metadataFieldIndex,
+      ["fields", index],
+      "field",
+      "field",
+      false
+    );
 
     if (!metadataField) {
       continue;
@@ -448,14 +662,20 @@ const validateSectionPolicies = (
   customization: CustomizationContract,
   metadata: CustomizableMetadata
 ): void => {
-  const sectionsByKey = new Map(
-    (metadata.sections ?? []).map((section) => [section.key, section])
-  );
+  const sectionIndex = buildMetadataNodeIndex(metadata.sections);
 
   for (const [index, sectionOverride] of (
     customization.sections ?? []
   ).entries()) {
-    const section = sectionsByKey.get(sectionOverride.key);
+    const section = resolveOverrideTarget(
+      issues,
+      sectionOverride,
+      sectionIndex,
+      ["sections", index],
+      "section",
+      "section",
+      false
+    );
 
     if (!section) {
       continue;
@@ -502,12 +722,18 @@ const validateFormPolicies = (
   customization: CustomizationContract,
   metadata: CustomizableMetadata
 ): void => {
-  const formsByKey = new Map(
-    (metadata.forms ?? []).map((form) => [form.key, form])
-  );
+  const formIndex = buildMetadataNodeIndex(metadata.forms);
 
   for (const [index, formOverride] of (customization.forms ?? []).entries()) {
-    const form = formsByKey.get(formOverride.key);
+    const form = resolveOverrideTarget(
+      issues,
+      formOverride,
+      formIndex,
+      ["forms", index],
+      "form",
+      "form",
+      false
+    );
 
     if (!form) {
       continue;
@@ -545,14 +771,20 @@ const validateFilterPolicies = (
   customization: CustomizationContract,
   metadata: CustomizableMetadata
 ): void => {
-  const filtersByKey = new Map(
-    (metadata.filters ?? []).map((filter) => [filter.key, filter])
-  );
+  const filterIndex = buildMetadataNodeIndex(metadata.filters);
 
   for (const [index, filterOverride] of (
     customization.filters ?? []
   ).entries()) {
-    const filter = filtersByKey.get(filterOverride.key);
+    const filter = resolveOverrideTarget(
+      issues,
+      filterOverride,
+      filterIndex,
+      ["filters", index],
+      "filter",
+      "filter",
+      false
+    );
 
     if (!filter) {
       continue;
@@ -642,22 +874,29 @@ const validateFeatureTableColumnPolicies = (
   metadataTable: MetadataTableContract,
   fieldKeys: Set<string>
 ): void => {
-  const metadataColumnsByKey = new Map(
-    metadataTable.columns.map((column) => [column.key, column])
-  );
+  const metadataColumnIndex = buildMetadataNodeIndex(metadataTable.columns);
 
-  requireKnownKeys(
+  validateDuplicateTargets(
     issues,
     tableOverride.columns,
-    keyedSet(metadataTable.columns),
+    metadataColumnIndex,
     ["tables", tableIndex, "columns"],
+    "table-column",
     "table column"
   );
 
   for (const [columnIndex, columnOverride] of (
     tableOverride.columns ?? []
   ).entries()) {
-    const metadataColumn = metadataColumnsByKey.get(columnOverride.key);
+    const metadataColumn = resolveOverrideTarget(
+      issues,
+      columnOverride,
+      metadataColumnIndex,
+      ["tables", tableIndex, "columns", columnIndex],
+      "table-column",
+      "table column",
+      false
+    );
 
     if (!metadataColumn) {
       continue;
@@ -710,14 +949,26 @@ const validateFeatureTables = (
   metadata: CustomizableMetadata,
   fieldKeys: Set<string>
 ): void => {
-  const metadataTablesByKey = new Map(
-    getFeatureTables(metadata).map((table) => [table.key, table])
-  );
+  const featureTables = getFeatureTables(metadata);
+
+  if (featureTables.length === 0) {
+    return;
+  }
+
+  const metadataTableIndex = buildMetadataNodeIndex(featureTables);
 
   for (const [tableIndex, tableOverride] of (
     customization.tables ?? []
   ).entries()) {
-    const metadataTable = metadataTablesByKey.get(tableOverride.key);
+    const metadataTable = resolveOverrideTarget(
+      issues,
+      tableOverride,
+      metadataTableIndex,
+      ["tables", tableIndex],
+      "table",
+      "table",
+      false
+    );
 
     if (!metadataTable) {
       continue;
@@ -798,22 +1049,29 @@ const validateEntityTableColumnPolicies = (
   customization: CustomizationContract,
   fieldKeys: Set<string>
 ): void => {
-  requireKnownKeys(
+  const metadataColumnIndex = buildMetadataNodeIndex(columns);
+
+  validateDuplicateTargets(
     issues,
     customization.table?.columns,
-    keyedSet(columns),
+    metadataColumnIndex,
     ["table", "columns"],
+    "entity-table-column",
     "entity table column"
-  );
-
-  const metadataColumnsByKey = new Map(
-    columns.map((column) => [column.key, column])
   );
 
   for (const [columnIndex, columnOverride] of (
     customization.table?.columns ?? []
   ).entries()) {
-    const metadataColumn = metadataColumnsByKey.get(columnOverride.key);
+    const metadataColumn = resolveOverrideTarget(
+      issues,
+      columnOverride,
+      metadataColumnIndex,
+      ["table", "columns", columnIndex],
+      "entity-table-column",
+      "entity table column",
+      false
+    );
 
     if (!metadataColumn) {
       continue;
@@ -958,14 +1216,20 @@ const validateActionPolicies = (
   customization: CustomizationContract,
   metadata: CustomizableMetadata
 ): void => {
-  const actionsByKey = new Map(
-    (metadata.actions ?? []).map((action) => [action.key, action])
-  );
+  const actionIndex = buildMetadataNodeIndex(metadata.actions);
 
   for (const [index, actionOverride] of (
     customization.actions ?? []
   ).entries()) {
-    const metadataAction = actionsByKey.get(actionOverride.key);
+    const metadataAction = resolveOverrideTarget(
+      issues,
+      actionOverride,
+      actionIndex,
+      ["actions", index],
+      "action",
+      "action",
+      false
+    );
 
     if (!metadataAction) {
       continue;
@@ -1013,7 +1277,7 @@ export const validateCustomizationAgainstMetadata = (
 
   validateIdentityAndScope(issues, customization, metadata, options);
   validateMetadataFingerprint(issues, customization, options);
-  validateTopLevelKeys(issues, customization, keySets, options);
+  validateTopLevelKeys(issues, customization, metadata, options);
   validateFieldPolicies(issues, customization, metadata);
   validateSectionPolicies(issues, customization, metadata);
   validateFormPolicies(issues, customization, metadata);

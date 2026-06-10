@@ -3,6 +3,13 @@ import type { ComponentProps, ReactElement } from "react";
 import { renderMetadataAction } from "../adapters";
 import type { MetadataActionContract } from "../contracts/action-renderer.contract";
 import type { MetadataRenderContext } from "../contracts/render-context.contract";
+import {
+  resolveDensitySurfaceProps,
+  resolveDensityVisualDefinition,
+} from "../visualization/density-visual-contract";
+
+const cn = (...values: Array<string | false | null | undefined>): string =>
+  values.filter(Boolean).join(" ");
 
 type MetadataToolbarBadge = {
   label: string;
@@ -41,9 +48,17 @@ export function MetadataToolbar({
   onAction,
   title,
 }: MetadataToolbarProps): ReactElement {
+  const densityVisual = resolveDensityVisualDefinition(context.density);
+
   return (
-    <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
-      <div className="space-y-2">
+    <div
+      className={cn(
+        "flex flex-col lg:flex-row lg:items-start lg:justify-between",
+        densityVisual.toolbarGap
+      )}
+      {...resolveDensitySurfaceProps(context.density)}
+    >
+      <div className={densityVisual.toolbarInnerSpacing}>
         {eyebrow ? (
           <p className="text-muted-foreground text-sm uppercase tracking-[0.3em]">
             {eyebrow}
@@ -51,7 +66,7 @@ export function MetadataToolbar({
         ) : null}
 
         <div className="space-y-1">
-          <h2 className="font-semibold text-2xl tracking-tight">{title}</h2>
+          <h2 className={densityVisual.toolbarTitleClass}>{title}</h2>
           {description ? (
             <p className="max-w-3xl text-muted-foreground text-sm leading-6">
               {description}

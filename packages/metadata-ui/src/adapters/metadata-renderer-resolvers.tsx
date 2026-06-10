@@ -12,9 +12,14 @@ import type {
   MetadataSectionKind,
   MetadataSectionRenderer,
 } from "../contracts/section-renderer.contract";
+import type {
+  MetadataStateKind,
+  MetadataStateRenderer,
+} from "../contracts/state-renderer.contract";
 import { defaultActionRegistry } from "../registry/default-action-registry";
 import { defaultFieldRegistry } from "../registry/default-field-registry";
 import { defaultSectionRegistry } from "../registry/default-section-registry";
+import { defaultStateRegistry } from "../registry/default-state-registry";
 import type {
   MetadataRendererDiagnostic,
   MetadataRendererResolutionKind,
@@ -30,11 +35,7 @@ import {
   createMissingSectionRenderer,
   resolveActionSurface,
 } from "./fallbacks.tsx";
-import type { MetadataStateRenderer } from "./state-renderers.tsx";
-import {
-  createMissingStateRenderer,
-  stateRenderers,
-} from "./state-renderers.tsx";
+import { createMissingStateRenderer } from "./state-renderers.tsx";
 
 export type MetadataRendererResolution<TRenderer> = {
   diagnostic?: MetadataRendererDiagnostic;
@@ -115,13 +116,14 @@ export function resolveMetadataSectionRenderer(
 }
 
 export function resolveMetadataStateRenderer(
-  state: MetadataUiState | string | undefined
+  state: MetadataUiState | string | undefined,
+  registry = defaultStateRegistry
 ): MetadataRendererResolution<MetadataStateRenderer> {
   const rendererKey = state ?? "ready";
-  const renderer = stateRenderers[rendererKey];
+  const registration = registry.resolve(rendererKey as MetadataStateKind);
 
-  if (renderer) {
-    return { renderer };
+  if (registration) {
+    return { renderer: registration.renderer };
   }
 
   const diagnostic = createMissingRendererDiagnostic(
@@ -152,4 +154,4 @@ export function createMetadataRendererErrorDiagnostic(
 export type {
   MetadataStateRenderer,
   MetadataStateRendererProps,
-} from "./state-renderers.tsx";
+} from "../contracts/state-renderer.contract";

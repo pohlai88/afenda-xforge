@@ -35,7 +35,7 @@
     "./package.json": "./package.json"
   },
   "files": [
-    "architecture.md",
+    "architecture-and-feature-requirement.md",
     "package.json",
     "src"
   ],

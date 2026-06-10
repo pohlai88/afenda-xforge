@@ -1732,6 +1732,7 @@ export const employeeLifecycleMovementKindValues = [
   "promotion",
   "transfer",
   "demotion",
+  "grade_change",
   "job_change",
   "department_change",
   "location_change",
@@ -2850,6 +2851,7 @@ export function applyEmployeeLifecycleContractReminder(
 
 export function buildEmployeeLifecycleContractReadModel(
   input: Readonly<{
+    now?: Date | number;
     state: EmployeeLifecycleState | null;
     record?: EmployeeLifecycleContractRecord | null;
   }>
@@ -2859,7 +2861,8 @@ export function buildEmployeeLifecycleContractReadModel(
   }
 
   const record = employeeLifecycleContractRecordSchema.parse(input.record);
-  const now = Date.now();
+  const now =
+    input.now instanceof Date ? input.now.getTime() : (input.now ?? Date.now());
   const isExpired = record.expiryAt.getTime() <= now;
   const lastReviewAt =
     record.lastReviewAt?.getTime() ?? Number.NEGATIVE_INFINITY;
@@ -3459,6 +3462,7 @@ export const employeeLifecycleExitKindValues = [
   "resignation",
   "termination",
   "retirement",
+  "contract_expiry",
 ] as const;
 
 export type EmployeeLifecycleExitKindValue =
@@ -3478,6 +3482,7 @@ export const employeeLifecycleExitEventKindValues = [
   "resignation_started",
   "termination_started",
   "retirement_started",
+  "contract_expiry_started",
   "notice_recorded",
   "offboarding_triggered",
   "archived",
@@ -4069,13 +4074,21 @@ const getEmployeeLifecycleExitEntryEventId = (
 
 const getEmployeeLifecycleExitStartedEvent = (
   exitKind: EmployeeLifecycleExitKindValue
-): "resignation_started" | "termination_started" | "retirement_started" => {
+):
+  | "resignation_started"
+  | "termination_started"
+  | "retirement_started"
+  | "contract_expiry_started" => {
   if (exitKind === "resignation") {
     return "resignation_started";
   }
 
   if (exitKind === "termination") {
     return "termination_started";
+  }
+
+  if (exitKind === "contract_expiry") {
+    return "contract_expiry_started";
   }
 
   return "retirement_started";

@@ -168,6 +168,21 @@ test("customizationSchema rejects duplicate override keys", () => {
   });
 });
 
+test("customizationSchema still allows additive id migration fields", () => {
+  const parsed = customizationSchema.parse({
+    ...validCustomization,
+    fields: [
+      {
+        id: "customer.records.fields.name",
+        key: "name",
+        label: "Customer Name",
+      },
+    ],
+  });
+
+  assert.equal(parsed.fields?.[0].id, "customer.records.fields.name");
+});
+
 test("customizationSchema enforces lifecycle actor metadata", () => {
   assert.throws(() => {
     customizationSchema.parse({

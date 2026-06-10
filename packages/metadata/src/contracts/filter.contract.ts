@@ -1,4 +1,5 @@
 import type { MetadataFilterCustomizationPolicy } from "./customization-policy.contract.ts";
+import type { MetadataNodeId } from "./id.contract.ts";
 
 export type MetadataFilterKind =
   | "boolean"
@@ -33,6 +34,7 @@ export type MetadataFilterContract = {
   customization?: MetadataFilterCustomizationPolicy;
   description?: string;
   field: string;
+  id?: MetadataNodeId;
   kind: MetadataFilterKind;
   key: string;
   label: string;

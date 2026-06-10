@@ -1,18 +1,30 @@
 import "server-only";
 
 export {
-  createOffboardingExitManagementRecord as createOffboardingExitManagement,
-  updateOffboardingExitManagementRecord as updateOffboardingExitManagement,
+  approveOffboardingApprovalStep,
+  escalateOffboardingApprovalStep,
+  openOffboardingCase,
+  recordOffboardingAuditEvent,
+  rejectOffboardingApprovalStep,
+  reopenOffboardingApprovalStep,
+  submitOffboardingApprovalStep,
+  updateOffboardingCase,
+  upsertOffboardingApprovalStep,
 } from "./actions.ts";
 export {
   hrOffboardingRoutePaths,
-  hrWorkforceOffboardingAuditActions,
   hrWorkforceOffboardingReadPermission,
+  hrWorkforceOffboardingSensitiveReadPermission,
   hrWorkforceOffboardingWritePermission,
   offboardingExitManagementFeatureId,
   offboardingExitManagementRouteContracts,
 } from "./contract.ts";
 export {
-  getOffboardingExitManagementRecord as getOffboardingExitManagement,
-  listOffboardingExitManagementRecords as listOffboardingExitManagement,
+  getOffboardingApprovalById,
+  getOffboardingCaseById,
+  getOffboardingFoundationSnapshot,
+  listOffboardingApprovalBlockers,
+  listOffboardingApprovalRecords,
+  listOffboardingAuditTrailRecords,
+  listOffboardingCaseRecords,
 } from "./queries.ts";

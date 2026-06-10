@@ -11,16 +11,18 @@ import type {
   MetadataTableContract,
 } from "@repo/metadata";
 
+import type { CustomizationContract } from "../contracts/customization.contract.ts";
+import { getCanonicalMetadataNodeId } from "../internal/metadata-node-resolution.ts";
 import type {
-  CustomizationActionOverrideContract,
-  CustomizationContract,
-  CustomizationFieldOverrideContract,
-  CustomizationFilterOverrideContract,
-  CustomizationFormOverrideContract,
-  CustomizationSectionOverrideContract,
-  CustomizationTableColumnOverrideContract,
-  CustomizationTableOverrideContract,
-} from "../contracts/customization.contract.ts";
+  NormalizedActionOverride,
+  NormalizedFieldOverride,
+  NormalizedFilterOverride,
+  NormalizedFormOverride,
+  NormalizedSectionOverride,
+  NormalizedTableColumnOverride,
+  NormalizedTableOverride,
+} from "../internal/normalized-customization.ts";
+import { normalizeCustomizationAgainstMetadata } from "../internal/normalized-customization.ts";
 import { assertCustomizationContract } from "../validation/assert-customization-contract.ts";
 import type { CustomizationMetadataValidationOptions } from "../validation/validate-customization-against-metadata.ts";
 import { assertCustomizationMatchesMetadata } from "../validation/validate-customization-against-metadata.ts";
@@ -33,15 +35,17 @@ export type ResolveCustomizationOptions =
 type EntityTableColumn = EntityTableMetadata["columns"][number];
 
 type Keyed = {
+  id?: string;
   key: string;
 };
 
-type OrderedOverride = Keyed & {
+type CanonicalOverride = {
+  canonicalId: string;
   hidden?: boolean;
   order?: number;
 };
 
-const mergeByKey = <Item extends Keyed, Override extends OrderedOverride>(
+const mergeByKey = <Item extends Keyed, Override extends CanonicalOverride>(
   items: readonly Item[] | undefined,
   overrides: readonly Override[] | undefined,
   mergeItem: (item: Item, override: Override) => Item
@@ -54,16 +58,19 @@ const mergeByKey = <Item extends Keyed, Override extends OrderedOverride>(
     return items;
   }
 
-  const overrideByKey = new Map(
-    overrides.map((override) => [override.key, override])
-  );
+  const overrideByCanonicalId = new Map<string, Override>();
   const originalIndexByKey = new Map(
-    items.map((item, index) => [item.key, index])
+    items.map((item, index) => [getCanonicalMetadataNodeId(item), index])
   );
+
+  for (const override of overrides) {
+    overrideByCanonicalId.set(override.canonicalId, override);
+  }
 
   return items
     .flatMap((item) => {
-      const override = overrideByKey.get(item.key);
+      const canonicalId = getCanonicalMetadataNodeId(item);
+      const override = overrideByCanonicalId.get(canonicalId);
 
       if (override?.hidden) {
         return [];
@@ -72,31 +79,37 @@ const mergeByKey = <Item extends Keyed, Override extends OrderedOverride>(
       return [override ? mergeItem(item, override) : item];
     })
     .sort((left, right) => {
-      const leftOrder = overrideByKey.get(left.key)?.order;
-      const rightOrder = overrideByKey.get(right.key)?.order;
+      const leftCanonicalId = getCanonicalMetadataNodeId(left);
+      const rightCanonicalId = getCanonicalMetadataNodeId(right);
+      const leftOrder = overrideByCanonicalId.get(leftCanonicalId)?.order;
+      const rightOrder = overrideByCanonicalId.get(rightCanonicalId)?.order;
 
-      if (typeof leftOrder === "number" && typeof rightOrder === "number") {
+      if (
+        typeof leftOrder === "number" &&
+        typeof rightOrder === "number" &&
+        leftOrder !== rightOrder
+      ) {
         return leftOrder - rightOrder;
       }
 
-      if (typeof leftOrder === "number") {
+      if (typeof leftOrder === "number" && typeof rightOrder !== "number") {
         return -1;
       }
 
-      if (typeof rightOrder === "number") {
+      if (typeof rightOrder === "number" && typeof leftOrder !== "number") {
         return 1;
       }
 
       return (
-        (originalIndexByKey.get(left.key) ?? 0) -
-        (originalIndexByKey.get(right.key) ?? 0)
+        (originalIndexByKey.get(leftCanonicalId) ?? 0) -
+        (originalIndexByKey.get(rightCanonicalId) ?? 0)
       );
     });
 };
 
 const mergeFields = (
   fields: readonly MetadataFieldContract[] | undefined,
-  overrides: readonly CustomizationFieldOverrideContract[] | undefined
+  overrides: readonly NormalizedFieldOverride[] | undefined
 ): readonly MetadataFieldContract[] | undefined =>
   mergeByKey(fields, overrides, (field, override) => ({
     ...field,
@@ -107,7 +120,7 @@ const mergeFields = (
 
 const mergeSections = (
   sections: readonly MetadataSectionContract[] | undefined,
-  overrides: readonly CustomizationSectionOverrideContract[] | undefined
+  overrides: readonly NormalizedSectionOverride[] | undefined
 ): readonly MetadataSectionContract[] | undefined =>
   mergeByKey(sections, overrides, (section, override) => ({
     ...section,
@@ -119,7 +132,7 @@ const mergeSections = (
 
 const mergeForms = (
   forms: readonly MetadataFormContract[] | undefined,
-  overrides: readonly CustomizationFormOverrideContract[] | undefined
+  overrides: readonly NormalizedFormOverride[] | undefined
 ): readonly MetadataFormContract[] | undefined =>
   mergeByKey(forms, overrides, (form, override) => ({
     ...form,
@@ -130,7 +143,7 @@ const mergeForms = (
 
 const mergeTableColumns = (
   columns: readonly MetadataTableColumn[],
-  overrides: readonly CustomizationTableColumnOverrideContract[] | undefined
+  overrides: readonly NormalizedTableColumnOverride[] | undefined
 ): readonly MetadataTableColumn[] =>
   mergeByKey(columns, overrides, (column, override) => ({
     ...column,
@@ -142,7 +155,7 @@ const mergeTableColumns = (
 
 const mergeEntityTableColumns = (
   columns: readonly EntityTableColumn[],
-  overrides: readonly CustomizationTableColumnOverrideContract[] | undefined
+  overrides: readonly NormalizedTableColumnOverride[] | undefined
 ): readonly EntityTableColumn[] =>
   mergeByKey(columns, overrides, (column, override) => ({
     ...column,
@@ -154,7 +167,7 @@ const mergeEntityTableColumns = (
 
 const mergeTables = (
   tables: readonly MetadataTableContract[] | undefined,
-  overrides: readonly CustomizationTableOverrideContract[] | undefined
+  overrides: readonly NormalizedTableOverride[] | undefined
 ): readonly MetadataTableContract[] | undefined =>
   mergeByKey(tables, overrides, (table, override) => ({
     ...table,
@@ -164,7 +177,7 @@ const mergeTables = (
 
 const mergeFilters = (
   filters: readonly MetadataFilterContract[] | undefined,
-  overrides: readonly CustomizationFilterOverrideContract[] | undefined
+  overrides: readonly NormalizedFilterOverride[] | undefined
 ): readonly MetadataFilterContract[] | undefined =>
   mergeByKey(filters, overrides, (filter, override) => ({
     ...filter,
@@ -173,7 +186,7 @@ const mergeFilters = (
 
 const mergeActions = (
   actions: readonly MetadataActionContract[] | undefined,
-  overrides: readonly CustomizationActionOverrideContract[] | undefined
+  overrides: readonly NormalizedActionOverride[] | undefined
 ): readonly MetadataActionContract[] | undefined =>
   mergeByKey(actions, overrides, (action, override) => ({
     ...action,
@@ -229,10 +242,12 @@ export const resolveCustomizedMetadata = (
     return metadata;
   }
 
-  const normalizedCustomization =
+  const normalizedCustomization = normalizeCustomizationAgainstMetadata(
     options.validate === false
       ? customization
-      : assertCustomizationContract(customization);
+      : assertCustomizationContract(customization),
+    metadata
+  );
 
   if (options.validate !== false) {
     assertCustomizationMatchesMetadata(
@@ -289,10 +304,12 @@ export const resolveCustomizedEntityMetadata = (
     return metadata;
   }
 
-  const normalizedCustomization =
+  const normalizedCustomization = normalizeCustomizationAgainstMetadata(
     options.validate === false
       ? customization
-      : assertCustomizationContract(customization);
+      : assertCustomizationContract(customization),
+    metadata
+  );
 
   if (options.validate !== false) {
     assertCustomizationMatchesMetadata(
