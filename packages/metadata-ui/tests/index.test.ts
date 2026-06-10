@@ -1,5 +1,6 @@
 import "./authority-boundary.test.ts";
 import "./fallback-runtime.test.tsx";
+import "./verification-governance.test.ts";
 import "./renderer-version.test.ts";
 import "./renderer-version-resolution.test.tsx";
 import "./label-i18n-and-section-completeness.test.tsx";

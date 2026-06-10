@@ -131,6 +131,7 @@
     "dist/src/visualization/diagnostics-visual-contract.d.ts": "b54678ee600c0c9251cebd87825c61e55aa3b39b3184c7c31cbc5a199f204f76",
     "dist/src/visualization/layout-composition-contract.d.ts": "fb79187022df493f1abc4fde1f73d5ad2dffee3d11c74670e10a565c9f21b719",
     "dist/src/visualization/orbit-layout.d.ts": "0ee828deb2f866705f6518cb7289359656a8dab34b07ed73d51ceca3a44ff273",
-    "dist/src/visualization/surface-visual-contract.d.ts": "edb45d7785219e2ac5213b981ba19f9efb8dfa3b4902b4addf5eb05ec8c91120"
+    "dist/src/visualization/surface-visual-contract.d.ts": "edb45d7785219e2ac5213b981ba19f9efb8dfa3b4902b4addf5eb05ec8c91120",
+    "dist/src/visualization/visual-token-contract.d.ts": "83920f1306403a0f9aa87e0443de794fd95d100af1b28e8cb13ac4054004cda4"
   }
 }

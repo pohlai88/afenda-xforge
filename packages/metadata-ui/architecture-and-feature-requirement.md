@@ -286,7 +286,7 @@ From [`surface.contract.ts`](./src/contracts/surface.contract.ts) — implemente
 | MUI-VIS-012 | **Implemented** | [`diagnostics-visual-contract.ts`](./src/visualization/diagnostics-visual-contract.ts), [`metadata-diagnostics-panel.tsx`](./src/components/metadata-diagnostics-panel.tsx), [`compose-metadata-with-diagnostics.tsx`](./src/components/compose-metadata-with-diagnostics.tsx), [`error-state.renderer.tsx`](./src/renderers/states/error-state.renderer.tsx), [`fallbacks.tsx`](./src/adapters/fallbacks.tsx), [`metadata-form.tsx`](./src/components/metadata-form.tsx), [`metadata-table.tsx`](./src/components/metadata-table.tsx), [`ui-state-adapter.tsx`](./src/adapters/ui-state-adapter.tsx), [`scripts/check-diagnostics-visual.mts`](./scripts/check-diagnostics-visual.mts), [`tests/diagnostics-visual-states.test.tsx`](./tests/diagnostics-visual-states.test.tsx) |
 | MUI-VIS-013 | **Implemented** | [`layout-composition-contract.ts`](./src/visualization/layout-composition-contract.ts), [`orbit-layout.ts`](./src/visualization/orbit-layout.ts), [`scripts/check-layout-composition-visual.mts`](./scripts/check-layout-composition-visual.mts), [`tests/orbit-layout.test.ts`](./tests/orbit-layout.test.ts), Storybook [`metadata-orbit-layout.tsx`](../apps/storybook/stories/metadata-orbit-layout.tsx), [`scripts/check-intro-layout.mts`](../apps/storybook/scripts/check-intro-layout.mts) |
 | MUI-VIS-014 | **Implemented** | [`visual-token-contract.ts`](./src/visualization/visual-token-contract.ts), [`scripts/visual-token-rules.mts`](./scripts/visual-token-rules.mts), [`scripts/check-renderer-visual-tokens.mts`](./scripts/check-renderer-visual-tokens.mts), [`scripts/check-field-visual-tokens.mts`](./scripts/check-field-visual-tokens.mts) |
-| MUI-VIS-015 | **Implemented** | [`storybook-visual-token-contract.ts`](../apps/storybook/stories/storybook-visual-token-contract.ts), [`scripts/check-storybook-visual-tokens.mts`](../apps/storybook/scripts/check-storybook-visual-tokens.mts), [`scripts/check-intro-layout.mts`](../apps/storybook/scripts/check-intro-layout.mts), [`scripts/check-theme-css.mts`](../apps/storybook/scripts/check-theme-css.mts), root [`stylelint.config.mjs`](../stylelint.config.mjs) |
+| MUI-VIS-015 | **Implemented** | [`storybook-visual-token-contract.ts`](../apps/storybook/stories/storybook-visual-token-contract.ts), [`scripts/check-storybook-visual-tokens.mts`](../apps/storybook/scripts/check-storybook-visual-tokens.mts), [`scripts/check-intro-layout.mts`](../apps/storybook/scripts/check-intro-layout.mts), [`scripts/check-theme-css.mts`](../apps/storybook/scripts/check-theme-css.mts), root [`stylelint.config.mjs`](../stylelint.config.mjs), [`tools/stylelint/afenda-css-plugin.mjs`](../tools/stylelint/afenda-css-plugin.mjs), [`tools/stylelint/afenda-css-plugin.test.mjs`](../tools/stylelint/afenda-css-plugin.test.mjs) |
 
 ### Visualization verification gates
 
@@ -314,14 +314,34 @@ pnpm --filter @repo/metadata-ui check:renderer-visual-tokens   # package-wide se
 # Storybook visual audit (`apps/storybook`) — renderer matrices, compose galleries, axe gates
 pnpm --filter storybook dev
 pnpm --filter storybook test:stories
-pnpm --filter storybook check:theme-css    # CI-blocking CSS/token pipeline gate
-pnpm --filter storybook check:stylelint    # scoped CSS entry lint (globals.css + preview.css)
+pnpm --filter storybook check:theme-css    # cross-file theme integration (preview.tsx + badge TSX)
+pnpm --filter storybook check:stylelint    # Tailwind v4 + shadcn CSS architecture (dreamsicle + afenda rules)
+pnpm run test:stylelint                      # unit tests for afenda Stylelint plugin rules
 pnpm --filter storybook check:intro-layout # intro orbit layout + CSS utility gate (MUI-VIS-013)
 pnpm --filter storybook check:storybook-visual-tokens # story className hygiene (MUI-VIS-015)
 pnpm --filter storybook test:visual:intro  # PR-blocking intro story screenshots
 pnpm --filter storybook test:visual   # full golden screenshots; baselines in tests/visual/__screenshots__
 # Hosted Storybook: https://pohlai88.github.io/afenda-xforge/ (GH Pages, storybook-pages.yml)
 ```
+
+### Stylelint rule map (MUI-VIS-015 CSS)
+
+CSS structural invariants for Tailwind v4 + shadcn live in [`stylelint.config.mjs`](../stylelint.config.mjs) and [`tools/stylelint/afenda-css-plugin.mjs`](../tools/stylelint/afenda-css-plugin.mjs). Cross-file Storybook integration checks remain in [`check-theme-css.mts`](../apps/storybook/scripts/check-theme-css.mts).
+
+| tailwind-v4-shadcn / tailwind-design-system rule | Stylelint rule | Gate |
+| --- | --- | --- |
+| Never put `:root` / `.dark` inside `@layer base` | `afenda/no-root-in-layer-base` | `lint:stylelint` |
+| Never use `.dark { @theme { } }` | `afenda/no-dark-nested-theme` | `lint:stylelint` |
+| Never double-wrap tokens as `hsl(var(--*))` | `afenda/no-hsl-var-wrap` | `lint:stylelint` |
+| Step 2: `@theme inline` maps utilities via `var(--token)` | `afenda/theme-inline-uses-var`, `afenda/require-theme-inline`, `afenda/require-theme-inline-mappings` | `lint:stylelint` |
+| Step 1: `:root` / `.dark` at stylesheet root with OKLCH tokens | `afenda/require-top-level-root-dark`, `afenda/token-sources-use-oklch-or-var` | `lint:stylelint` |
+| v4 dark mode: `@custom-variant dark (&:where(.dark, .dark *))` | `afenda/require-custom-variant-dark` | `lint:stylelint` |
+| Step 4: Storybook extends globals — no duplicate `@import tailwindcss` | `afenda/preview-css-pipeline`, `afenda/tailwind-import-only-in-globals` | `lint:stylelint` |
+| Register non-standard CSS as `@utility`, not arbitrary TSX utilities | `afenda/utility-uses-declarations` | `lint:stylelint` |
+| preview.tsx imports only preview.css (not globals directly) | — | `check:theme-css` |
+| Badge outline/light variants use `*-muted-foreground` on surfaces | — | `check:theme-css` |
+| No legacy `@screen` / `@variants` / `@responsive` | `at-rule-disallowed-list` | `lint:stylelint` |
+| No raw hex / rgb / hsl in CSS declarations | `color-no-hex`, `function-disallowed-list` | `lint:stylelint` |
 
 Manual review checklist (from `frontend-design-review` + `web-design-guidelines`):
 
@@ -586,7 +606,7 @@ Extracting `diagnostics/`, `runtime/`, and `telemetry/` into top-level folders i
 | 4 | Diagnostics, compatibility, and generated registry checks exist to prevent drift in the public rendering surface. |
 | 5 | The package does not take ownership of metadata source contracts, customization contracts, or server-side permission authority. | **Implemented** — package-owned renderer contracts, `src/customization/` facade, UI-only governance hints, `check:authority-boundary` |
 | 6 | Invalid, partial, unsupported, or degraded metadata renders safe fallback UI without crashing the page. | **Implemented** — `InvalidState` for invalid contracts, `PartialState`/`DegradedState` section wrapping, unsupported renderer `ErrorState`, `check:fallback-runtime` |
-| 7 | Registry conflicts, public API drift, and declaration snapshot mismatches fail verification gates. |
+| 7 | Registry conflicts, public API drift, and declaration snapshot mismatches fail verification gates. | **Implemented** — `check:verification-governance`, `check:public-api`, `check:declaration-snapshot`, `check:generated`, `check:compatibility`, `check:renderer-registry`, `validate-manifest` |
 | 8 | Client/server entry points are enforced and server-only concerns do not enter the client bundle. |
 | 9 | Diagnostics expose correlation ID, renderer key, section kind, state, and fallback reason for every fallback path. |
 | 10 | Consumer fixture tests prove real external packages can import and render safely. |
@@ -659,6 +679,7 @@ pnpm --filter @repo/metadata-ui check:consumer-fixture    # includes vitest cons
 | `check:compatibility` | Yes | Runtime compatibility report (Enterprise AC #4) |
 | `check:renderer-registry` | Yes | Generated drift + compose-groups + registry parity tests |
 | `check:diagnostic-coverage` | Yes | Diagnostic code + governance + telemetry resilience tests |
+| `check:verification-governance` | Yes | Enterprise AC #7 — registry/public API/snapshot gate wiring |
 | `check:change-note` | Yes | In `verify`, not in 9.5 gate list |
 | `check:quality-score` | Yes | In `verify`, threshold 90 |
 
@@ -733,7 +754,7 @@ layout orchestration (until MUI-015 is implemented)
 
 **Last audited:** 2026-06-10
 
-MUI-001 through MUI-018 are implemented. Enterprise AC #1–#6 and AC #8–#13 are implemented; AC #7 and AC #9–#10 remain tracked through diagnostics and verification gates.
+MUI-001 through MUI-018 are implemented. Enterprise AC #1–#7 and AC #8–#13 are implemented; AC #9–#10 remain tracked through diagnostics and verification gates.
 
 | Area | Status | Evidence |
 | --- | --- | --- |
@@ -746,7 +767,7 @@ MUI-001 through MUI-018 are implemented. Enterprise AC #1–#6 and AC #8–#13 a
 | Field value binding | Implemented | [`field-value-binding.ts`](./src/renderers/fields/field-value-binding.ts) |
 | Layout/composition pipeline | Implemented | [`ui-layout-adapter.tsx`](./src/adapters/ui-layout-adapter.tsx), [`ui-composition-adapter.tsx`](./src/adapters/ui-composition-adapter.tsx) |
 | Client/server entry points | Implemented | [`package.json`](./package.json), [`check-client-server-boundaries.mts`](./scripts/check-client-server-boundaries.mts) |
-| Verification gates | **Implemented** | `check:compatibility`, `check:renderer-registry`, `check:diagnostic-coverage`, declaration snapshot, generated drift |
+| Verification gates | **Implemented** | `check:verification-governance`, `check:compatibility`, `check:renderer-registry`, `check:public-api`, `check:declaration-snapshot`, `check:generated`, `validate-manifest` |
 
 ### Planning Mark
 

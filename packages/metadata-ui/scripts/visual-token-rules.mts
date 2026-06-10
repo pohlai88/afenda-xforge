@@ -34,7 +34,8 @@ export const forbiddenVisualTokenPatterns: VisualTokenRule[] = [
     message: "raw button element — use @repo/ui Button",
   },
   {
-    pattern: /(?:bg|border|text|ring|fill|stroke)-(gray|slate|zinc|neutral|stone)-/,
+    pattern:
+      /(?:bg|border|text|ring|fill|stroke)-(gray|slate|zinc|neutral|stone)-/,
     message: "non-token palette utility — use semantic design tokens",
   },
 ];
@@ -53,7 +54,10 @@ export function isExemptVisualTokenFile(relativePath: string): boolean {
     return true;
   }
 
-  if (relativePath.endsWith("/index.ts") || relativePath.endsWith("\\index.ts")) {
+  if (
+    relativePath.endsWith("/index.ts") ||
+    relativePath.endsWith("\\index.ts")
+  ) {
     return true;
   }
 

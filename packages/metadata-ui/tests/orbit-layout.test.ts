@@ -61,9 +61,7 @@ describe("resolveOrbitNodePinStyle", () => {
   });
 
   it("rounds offsets to two decimal places as whole-pixel calc strings", () => {
-    const style = resolveOrbitNodePinStyle(
-      resolveOrbitNodePosition(1, 8, 270)
-    );
+    const style = resolveOrbitNodePinStyle(resolveOrbitNodePosition(1, 8, 270));
 
     expect(style.left).toMatch(/^calc\(50% \+ -?\d+(?:\.\d+)?px\)$/);
     expect(style.top).toMatch(/^calc\(50% \+ -?\d+(?:\.\d+)?px\)$/);

@@ -1,3 +1,4 @@
+import { THEME_PRESETS } from "../contracts/theme-preset.contract";
 import { SURFACE_COLOR_TOKENS } from "./color-tokens";
 import { ANIMATION_TOKENS } from "./motion-tokens";
 import { RADIUS_TOKENS } from "./radius-tokens";
@@ -5,23 +6,42 @@ import { FONT_FEATURE_TOKENS, TEXT_UTILITY_TOKENS } from "./typography-tokens";
 
 export type CssDeclaration = readonly [name: string, value: string];
 
-export const TYPE2_CSS_SOURCE_GLOBS = [
+const XFORGE_PRESET = THEME_PRESETS.find((preset) => preset.name === "xforge");
+
+if (!XFORGE_PRESET) {
+  throw new Error("xforge theme preset is required for globals CSS generation");
+}
+
+function tenantBrandVar(tenantName: string, fallback: string): string {
+  return `var(${tenantName}, ${fallback})`;
+}
+
+export const GLOBALS_CSS_SOURCE_GLOBS = [
   "../components/**/*.{ts,tsx}",
   "../lib/**/*.{ts,tsx}",
   "../index.ts",
 ] as const;
 
-export const TYPE2_CSS_ROOT_DECLARATIONS: readonly CssDeclaration[] = [
-  ["--brand-primary", "var(--tenant-primary, oklch(0.54 0.122 198))"],
+export const GLOBALS_CSS_ROOT_DECLARATIONS: readonly CssDeclaration[] = [
+  [
+    "--brand-primary",
+    tenantBrandVar("--tenant-primary", XFORGE_PRESET.brand.light.primary),
+  ],
   [
     "--brand-primary-foreground",
-    `var(
-    --tenant-primary-foreground,
-    oklch(0.985 0.004 258)
-  )`,
+    tenantBrandVar(
+      "--tenant-primary-foreground",
+      XFORGE_PRESET.brand.light["primary-foreground"]
+    ),
   ],
-  ["--brand-secondary", "var(--tenant-secondary, oklch(0.55 0.074 154))"],
-  ["--brand-accent", "var(--tenant-accent, oklch(0.71 0.112 82))"],
+  [
+    "--brand-secondary",
+    tenantBrandVar("--tenant-secondary", XFORGE_PRESET.brand.light.secondary),
+  ],
+  [
+    "--brand-accent",
+    tenantBrandVar("--tenant-accent", XFORGE_PRESET.brand.light.accent),
+  ],
   ["--background", "oklch(0.982 0.004 255)"],
   ["--foreground", "oklch(0.205 0.018 264)"],
   ["--card", "oklch(0.998 0.002 255)"],
@@ -91,17 +111,26 @@ export const TYPE2_CSS_ROOT_DECLARATIONS: readonly CssDeclaration[] = [
   ["--sidebar-ring", "var(--ring)"],
 ] as const;
 
-export const TYPE2_CSS_DARK_DECLARATIONS: readonly CssDeclaration[] = [
-  ["--brand-primary", "var(--tenant-primary, oklch(0.72 0.112 198))"],
+export const GLOBALS_CSS_DARK_DECLARATIONS: readonly CssDeclaration[] = [
+  [
+    "--brand-primary",
+    tenantBrandVar("--tenant-primary", XFORGE_PRESET.brand.dark.primary),
+  ],
   [
     "--brand-primary-foreground",
-    `var(
-    --tenant-primary-foreground,
-    oklch(0.174 0.014 264)
-  )`,
+    tenantBrandVar(
+      "--tenant-primary-foreground",
+      XFORGE_PRESET.brand.dark["primary-foreground"]
+    ),
   ],
-  ["--brand-secondary", "var(--tenant-secondary, oklch(0.76 0.105 154))"],
-  ["--brand-accent", "var(--tenant-accent, oklch(0.82 0.116 82))"],
+  [
+    "--brand-secondary",
+    tenantBrandVar("--tenant-secondary", XFORGE_PRESET.brand.dark.secondary),
+  ],
+  [
+    "--brand-accent",
+    tenantBrandVar("--tenant-accent", XFORGE_PRESET.brand.dark.accent),
+  ],
   ["--background", "oklch(0.17 0.014 264)"],
   ["--foreground", "oklch(0.958 0.005 258)"],
   ["--card", "oklch(0.205 0.016 264)"],
@@ -163,20 +192,20 @@ export const TYPE2_CSS_DARK_DECLARATIONS: readonly CssDeclaration[] = [
   ["--sidebar-ring", "var(--ring)"],
 ] as const;
 
-export const TYPE2_CSS_COMPACT_DENSITY_DECLARATIONS: readonly CssDeclaration[] =
+export const GLOBALS_CSS_COMPACT_DENSITY_DECLARATIONS: readonly CssDeclaration[] =
   [
     ["--density-control-height", "2rem"],
     ["--density-table-row-height", "2.375rem"],
     ["--radius-control", "0.375rem"],
   ] as const;
 
-export const TYPE2_CSS_COMFORTABLE_DENSITY_DECLARATIONS: readonly CssDeclaration[] =
+export const GLOBALS_CSS_COMFORTABLE_DENSITY_DECLARATIONS: readonly CssDeclaration[] =
   [
     ["--density-control-height", "2.75rem"],
     ["--density-table-row-height", "3.25rem"],
   ] as const;
 
-export const TYPE2_CSS_THEME_DECLARATIONS: readonly CssDeclaration[] = [
+export const GLOBALS_CSS_THEME_DECLARATIONS: readonly CssDeclaration[] = [
   ["--color-background", "var(--background)"],
   ["--color-foreground", "var(--foreground)"],
   ["--font-sans", "ui-sans-serif, system-ui, sans-serif"],
@@ -257,7 +286,7 @@ export const TYPE2_CSS_THEME_DECLARATIONS: readonly CssDeclaration[] = [
   ["--shadow-md", "var(--elevation-md)"],
 ] as const;
 
-export const TYPE2_CSS_KEYFRAMES = {
+export const GLOBALS_CSS_KEYFRAMES = {
   shimmer: [
     "0% {",
     "  background-position: -200% 0;",
@@ -269,7 +298,7 @@ export const TYPE2_CSS_KEYFRAMES = {
   ] as const,
 } as const;
 
-export const TYPE2_CSS_UTILITIES = [
+export const GLOBALS_CSS_UTILITIES = [
   ["text-tabular", "font-variant-numeric: tabular-nums;"],
   ["font-rlig", 'font-feature-settings: "rlig";'],
   ["font-calt", 'font-feature-settings: "calt";'],
@@ -277,7 +306,7 @@ export const TYPE2_CSS_UTILITIES = [
   ["row-density", "min-height: var(--density-table-row-height);"],
 ] as const;
 
-export function validateType2CssTokens(): void {
+export function validateGlobalsCssTokens(): void {
   if (
     SURFACE_COLOR_TOKENS.length !== 4 ||
     !SURFACE_COLOR_TOKENS.includes("surface") ||
@@ -289,6 +318,6 @@ export function validateType2CssTokens(): void {
     !FONT_FEATURE_TOKENS.includes("calt") ||
     !TEXT_UTILITY_TOKENS.includes("text-tabular")
   ) {
-    throw new Error("type2 CSS tokens do not match the design-system contract");
+    throw new Error("globals CSS tokens do not match the design-system contract");
   }
 }

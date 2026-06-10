@@ -1,9 +1,7 @@
 import { readdirSync, readFileSync } from "node:fs";
 import { join, relative } from "node:path";
 import { isEntrypoint, packageRoot } from "./generator-lib.mts";
-import {
-  collectVisualTokenViolations,
-} from "./visual-token-rules.mts";
+import { collectVisualTokenViolations } from "./visual-token-rules.mts";
 
 const fieldRendererRoot = join(packageRoot, "src", "renderers", "fields");
 const sharedFieldModules = new Set([

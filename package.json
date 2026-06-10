@@ -39,11 +39,14 @@
     "knip": "knip",
     "knip:fix": "knip --fix",
     "knip:deps": "knip --production --dependencies",
-    "lint": "pnpm lint:doctor && pnpm lint:biome && pnpm lint:architecture && pnpm lint:ui-boundaries",
+    "lint": "pnpm lint:doctor && pnpm lint:biome && pnpm lint:stylelint && pnpm lint:architecture && pnpm lint:ui-boundaries",
     "lint:architecture": "node tools/check-architecture-boundaries.mjs",
     "lint:ui-boundaries": "node tools/check-ui-package-boundaries.mjs",
     "lint:biome": "biome check .",
     "lint:biome:ci": "biome ci .",
+    "lint:stylelint": "pnpm run test:stylelint && stylelint \"packages/ui/src/styles/**/*.css\" \"apps/storybook/.storybook/**/*.css\"",
+    "lint:stylelint:fix": "stylelint \"packages/ui/src/styles/**/*.css\" \"apps/storybook/.storybook/**/*.css\" --fix",
+    "test:stylelint": "node --test tools/stylelint/afenda-css-plugin.test.mjs",
     "lint:doctor": "ultracite doctor",
     "lint:fix": "biome check --write .",
     "format": "biome format --write .",
@@ -63,6 +66,9 @@
     "knip": "catalog:",
     "turbo": "catalog:",
     "typescript": "catalog:",
-    "ultracite": "catalog:"
+    "ultracite": "catalog:",
+    "stylelint": "catalog:",
+    "stylelint-config-standard": "catalog:",
+    "@dreamsicle.io/stylelint-config-tailwindcss": "catalog:"
   }
 }

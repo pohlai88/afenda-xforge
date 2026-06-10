@@ -178,8 +178,7 @@ export function checkLayoutRendererSurfaces(): void {
     const relativePath = relative(packageRoot, filePath);
 
     if (
-      !source.includes("@repo/ui") &&
-      !source.includes("MetadataSurfaceRegion")
+      !(source.includes("@repo/ui") || source.includes("MetadataSurfaceRegion"))
     ) {
       violations.push(
         `${relativePath}: layout renderer must compose @repo/ui or MetadataSurfaceRegion (MUI-VIS-013)`

@@ -3,6 +3,7 @@ import { join, relative } from "node:path";
 import { checkComposeGroups } from "./check-compose-groups.mts";
 import { generate } from "./generate.mts";
 import { isEntrypoint, packageRoot } from "./generator-lib.mts";
+import { validateManifestEntries } from "./validate-manifest.mts";
 
 const rendererSmokeTestPath = join(
   packageRoot,
@@ -17,6 +18,7 @@ const manifestExportsTestPath = join(
 );
 
 export function checkRendererRegistry(): void {
+  validateManifestEntries();
   generate(true);
   checkComposeGroups();
 
@@ -47,5 +49,5 @@ export function checkRendererRegistry(): void {
 
 if (isEntrypoint(import.meta.url)) {
   checkRendererRegistry();
-  console.log("Enterprise AC #4 renderer registry verification passed.");
+  console.log("Enterprise AC #4/#7 renderer registry verification passed.");
 }

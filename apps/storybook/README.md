@@ -35,14 +35,15 @@ pnpm --filter storybook test:visual:update
 pnpm --filter storybook test:visual:intro:update
 pnpm --filter storybook generate:compose-stories
 pnpm --filter storybook scorecard
+pnpm run lint:stylelint
 ```
 
 ## Automation
 
 | Script | Purpose |
 | --- | --- |
-| `check:theme-css` | Validates Storybook CSS imports globals.css and shadcn v4 token mappings (CI-blocking) |
-| `check:stylelint` | Scoped Stylelint on `globals.css` + `preview.css` (Tailwind v4 at-rules, no raw rgb/hsl) |
+| `check:theme-css` | Cross-file theme integration gate (preview.tsx import boundary + Badge surface contrast) |
+| `check:stylelint` | Tailwind v4 + shadcn CSS architecture lint (`@dreamsicle.io/stylelint-config-tailwindcss` + afenda token rules on `globals.css` + `preview.css`) |
 | `check:intro-layout` | Orbit stage structure, overflow, and CSS utility gate (MUI-VIS-013) |
 | `check:storybook-visual-tokens` | Story className hygiene — semantic tokens, no `bg-size-[`, lucide imports (MUI-VIS-015) |
 | `check:build` | Static production build (CI gate for compile/bundle health) |
@@ -80,7 +81,7 @@ $env:A11Y_AUDIT_PREFIX="UI/Compose"; tsx scripts/audit-story-a11y.mts
 ## Configuration highlights
 
 - Tailwind v4 token pipeline: `.storybook/preview.css` imports `@repo/ui/styles/globals.css` (single CSS entry; `preview.tsx` imports only `preview.css`)
-- `check:theme-css` CI gate validates the four-step shadcn/Tailwind v4 token architecture
+- `check:stylelint` CI gate validates the four-step shadcn/Tailwind v4 token architecture via Stylelint (`@dreamsicle.io/stylelint-config-tailwindcss` + [`tools/stylelint/afenda-css-plugin.mjs`](../../tools/stylelint/afenda-css-plugin.mjs))
 - `@storybook/addon-a11y` for axe-powered accessibility review in the UI
 - `@storybook/addon-docs` for MDX overview pages and autodocs
 - Scoped `react-docgen-typescript` on story wrapper components in `apps/storybook/stories`

@@ -186,6 +186,14 @@ Use this file for package-local public API notes when the repo does not require 
 - Snapshot updated: Yes, `snapshots/declaration-snapshot.json`.
 - Follow-up: Run `pnpm --filter @repo/metadata-ui check:fallback-runtime` when changing adapter fallback paths, section completeness, or state renderers.
 
+## 2026-06-10 (Enterprise AC #7 / MUI-010 / MUI-011)
+
+- Date: 2026-06-10
+- Change: Hardened verification governance for registry conflicts, public API drift, and declaration snapshot mismatches: added `check:verification-governance`, tied `check:public-api` to declaration snapshot coverage, enforced manifest validation in `check:renderer-registry`, and added `tests/verification-governance.test.ts`.
+- Public impact: Public export or declaration changes must refresh `snapshots/declaration-snapshot.json` and pass `pnpm verify`. Duplicate manifest/registry keys fail generation and registry gates.
+- Snapshot updated: Yes, `snapshots/declaration-snapshot.json` (public API gate wiring only).
+- Follow-up: Run `pnpm --filter @repo/metadata-ui check:verification-governance` when changing package exports, manifest inventory, generated outputs, or declaration snapshots.
+
 ## Entry template
 
 - Date:

@@ -8,7 +8,7 @@
     "build:pages": "storybook build",
     "check": "pnpm run typecheck && pnpm run check:theme-css && pnpm run check:stylelint && pnpm run check:intro-layout && pnpm run check:storybook-visual-tokens && pnpm run check:build",
     "check:theme-css": "tsx scripts/check-theme-css.mts",
-    "check:stylelint": "stylelint \"../../packages/ui/src/styles/globals.css\" \".storybook/preview.css\"",
+    "check:stylelint": "pnpm --dir ../.. run lint:stylelint",
     "check:intro-layout": "tsx scripts/check-intro-layout.mts",
     "check:storybook-visual-tokens": "tsx scripts/check-storybook-visual-tokens.mts",
     "check:build": "storybook build --quiet",
@@ -53,8 +53,6 @@
     "playwright": "1.60.0",
     "tailwindcss": "catalog:",
     "tw-animate-css": "catalog:",
-    "typescript": "catalog:",
-    "stylelint": "catalog:",
-    "stylelint-config-standard": "catalog:"
+    "typescript": "catalog:"
   }
 }

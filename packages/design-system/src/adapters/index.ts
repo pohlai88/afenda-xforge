@@ -1,4 +1,4 @@
 export {
-  compareType2Css,
-  renderType2Css,
-} from "./type2-css.adapter";
+  compareGlobalsCss,
+  renderGlobalsCss,
+} from "./globals-css.adapter";
