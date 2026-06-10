@@ -57,6 +57,9 @@ const approveContext = {
   actorId: "mgr-001",
   companyId: "company-001",
   tenantId: "tenant-001",
+  actorEmployeeId: "mgr-001",
+  resolvedStepApproverEmployeeIds: ["mgr-001"],
+  teamEmployeeIds: ["emp-001"],
   grantedCapabilities: [
     leaveAttendanceManagementCapabilities.leaveApplicationsApprove,
   ],
@@ -331,6 +334,31 @@ test("HRM-LAM-025 attendance summary filters by attendanceStatus and leaveTypeId
   );
   assert.equal(leaveTypeFiltered.length, 1);
   assert.equal(leaveTypeFiltered[0]?.leaveTakenDays, 3);
+});
+
+test("AC-024 attendance summary list filters by employeeIds for orchestration-resolved org scope", async () => {
+  await upsertRecord("present", new Date("2026-06-02"));
+  await upsertLamAttendanceRecord(
+    {
+      companyId: "company-001",
+      employeeId: "emp-002",
+      attendanceDate: new Date("2026-06-02"),
+      status: "absent",
+    },
+    writeContext
+  );
+
+  const scoped = await listLamAttendanceSummaryRecords(
+    {
+      periodStart,
+      periodEnd,
+      employeeIds: ["emp-002"],
+    },
+    reportsReadContext
+  );
+  assert.equal(scoped.length, 1);
+  assert.equal(scoped[0]?.employeeId, "emp-002");
+  assert.equal(scoped[0]?.absentDays, 1);
 });
 
 test("listLamAttendanceSummaryRecords fails closed without reportsRead", async () => {

@@ -13,7 +13,7 @@ import {
   buildLamAuditMetadata,
   createLamMutationAuditEvent,
   normalizeLamMutationActorId,
-  requireLamMutationAccess,
+  requireLamLeaveEntitlementsWriteAccess,
 } from "../execution.ts";
 import { calculateLamLeaveEntitlement } from "../queries/leave-entitlement-calculation.query.ts";
 import {
@@ -38,7 +38,7 @@ export async function applyLamLeaveEntitlementCalculation(
   input: CalculateLamLeaveEntitlementInput,
   context?: LamMutationContext
 ): Promise<LamEntitlementCalculationMutationResult> {
-  const denied = requireLamMutationAccess(context);
+  const denied = requireLamLeaveEntitlementsWriteAccess(context);
   if (denied && !denied.ok) {
     return { ok: false, error: denied.error };
   }

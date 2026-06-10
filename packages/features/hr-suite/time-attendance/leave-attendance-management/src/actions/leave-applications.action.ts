@@ -14,7 +14,7 @@ import {
   createLamMutationAuditEvent,
   normalizeLamMutationActorId,
   requireLamEmployeeMutationScope,
-  requireLamMutationAccess,
+  requireLamLeaveApplicationsWriteAccess,
 } from "../execution.ts";
 import {
   resolveCurrentApprovalStep,
@@ -383,7 +383,7 @@ export async function submitLamLeaveApplication(
   input: SubmitLamLeaveApplicationInput,
   context?: LamMutationContext
 ): Promise<LamMutationResult> {
-  const denied = requireLamMutationAccess(context);
+  const denied = requireLamLeaveApplicationsWriteAccess(context);
   if (denied && !denied.ok) {
     return denied;
   }

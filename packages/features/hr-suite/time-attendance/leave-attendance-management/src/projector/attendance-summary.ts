@@ -197,10 +197,17 @@ export const listAttendanceSummaries = (
     filters
   );
 
-  const employeeIds = new Set<string>([
-    ...attendanceRecords.map((entry) => entry.employeeId),
-    ...leaveApplications.map((entry) => entry.employeeId),
-  ]);
+  const attendanceEmployeeIds = attendanceRecords.map(
+    (entry) => entry.employeeId
+  );
+  const employeeIds = new Set<string>(
+    filters.attendanceStatus
+      ? attendanceEmployeeIds
+      : [
+          ...attendanceEmployeeIds,
+          ...leaveApplications.map((entry) => entry.employeeId),
+        ]
+  );
 
   return [...employeeIds]
     .sort((left, right) => left.localeCompare(right))

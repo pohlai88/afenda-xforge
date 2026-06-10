@@ -112,6 +112,42 @@ export const resolveLamDataScope = (context: unknown): LamDataScope => {
     return { mode: "team", employeeIds: normalized.teamEmployeeIds };
   }
 
+  const hasHrAdminElevation =
+    normalized.canWrite ||
+    hasAnyCapability(normalized, lamHrAdminWriteCapabilities);
+
+  const hasPayrollOperatorElevation = hasCapability(
+    normalized,
+    leaveAttendanceManagementCapabilities.payrollReferencesRead
+  );
+
+  const hasCompanyReadElevation =
+    normalized.canRead &&
+    hasAnyCapability(normalized, lamCompanyWideReadCapabilities);
+
+  const hasOperatorElevation =
+    hasCompanyReadElevation || hasPayrollOperatorElevation;
+
+  if (
+    hasCapability(
+      normalized,
+      leaveAttendanceManagementCapabilities.reportsRead
+    ) &&
+    !hasHrAdminElevation &&
+    !hasOperatorElevation &&
+    !(normalized.teamEmployeeIds && normalized.teamEmployeeIds.length > 0)
+  ) {
+    return { mode: "denied" };
+  }
+
+  if (
+    hasAnyCapability(normalized, lamManagerReadRestrictionCapabilities) &&
+    !hasHrAdminElevation &&
+    !hasOperatorElevation
+  ) {
+    return { mode: "denied" };
+  }
+
   return resolveCompanyWideDataScope(normalized);
 };
 

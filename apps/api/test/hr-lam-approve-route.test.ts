@@ -55,6 +55,7 @@ const approvalHeaders = {
   "x-can-write-lam": "true",
   "x-lam-actor-employee-id": "mgr-001",
   "x-lam-resolved-step-approver-employee-ids": "mgr-001",
+  "x-lam-team-employee-ids": "emp-001",
   "x-lam-capabilities": "hr.lam.leave-applications.approve",
 } as const;
 

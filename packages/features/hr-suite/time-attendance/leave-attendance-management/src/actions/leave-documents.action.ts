@@ -17,7 +17,7 @@ import {
   createLamMutationAuditEvent,
   normalizeLamMutationActorId,
   requireLamEmployeeMutationScope,
-  requireLamMutationAccess,
+  requireLamLeaveApplicationsWriteAccess,
 } from "../execution.ts";
 import { sanitizeLeaveDocumentFileName } from "../projector/application-policy.ts";
 import { assertLeaveDocumentSourceReference } from "../projector/medical-leave-references.ts";
@@ -75,7 +75,7 @@ export async function createLamLeaveDocumentUploadSession(
   input: CreateLamLeaveDocumentUploadSessionInput,
   context?: LamMutationContext
 ): Promise<LamLeaveDocumentUploadSessionResult> {
-  const denied = requireLamMutationAccess(context);
+  const denied = requireLamLeaveApplicationsWriteAccess(context);
   if (denied && !denied.ok) {
     return denied;
   }
@@ -171,7 +171,7 @@ export async function confirmLamLeaveDocumentUpload(
   input: ConfirmLamLeaveDocumentUploadInput,
   context?: LamMutationContext
 ): Promise<LamMutationResult> {
-  const denied = requireLamMutationAccess(context);
+  const denied = requireLamLeaveApplicationsWriteAccess(context);
   if (denied && !denied.ok) {
     return denied;
   }

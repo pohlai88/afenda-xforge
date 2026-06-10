@@ -57,6 +57,9 @@ const approveContext = {
   actorId: "mgr-001",
   companyId: "company-001",
   tenantId: "tenant-001",
+  actorEmployeeId: "mgr-001",
+  resolvedStepApproverEmployeeIds: ["mgr-001"],
+  teamEmployeeIds: ["emp-001"],
   grantedCapabilities: [
     leaveAttendanceManagementCapabilities.leaveApplicationsApprove,
   ],
@@ -345,6 +348,42 @@ test("HRM-LAM-029 getLamLeaveReportForEmployee returns employee-scoped entry", a
   assert.ok(entry);
   assert.equal(entry.employeeId, "emp-001");
   assert.equal(entry.totalDays, 3);
+});
+
+test("AC-024 leave report list filters by employeeIds for orchestration-resolved org scope", async () => {
+  await submitAndApprove({
+    leaveTypeId: annualLeaveTypeId,
+    startDate: new Date("2026-06-10"),
+    endDate: new Date("2026-06-12"),
+    totalDays: 3,
+    reason: "Annual leave emp-001",
+  });
+
+  const submitEmpTwo = await submitLamLeaveApplication(
+    {
+      ...employeeProfile,
+      employeeId: "emp-002",
+      leaveTypeId: unpaidLeaveTypeId,
+      startDate: new Date("2026-06-15"),
+      endDate: new Date("2026-06-16"),
+      totalDays: 2,
+      reason: "Unpaid leave emp-002",
+    },
+    writeContext
+  );
+  assert.equal(submitEmpTwo.ok, true);
+
+  const scoped = await listLamLeaveReportRecords(
+    {
+      periodStart,
+      periodEnd,
+      employeeIds: ["emp-001"],
+    },
+    reportsReadContext
+  );
+  assert.equal(scoped.length, 1);
+  assert.equal(scoped[0]?.employeeId, "emp-001");
+  assert.equal(scoped[0]?.totalApplications, 1);
 });
 
 test("HRM-LAM-029 listLamLeaveReportRecords fails closed without reportsRead", async () => {

@@ -19,7 +19,7 @@ import {
   buildLamAuditMetadata,
   createLamMutationAuditEvent,
   normalizeLamMutationActorId,
-  requireLamApprovalAccess,
+  requireStrictLamApprovalAccess,
   requireLamEmployeeMutationScope,
 } from "../execution.ts";
 import { resolveCurrentApprovalStep } from "../projector/approval-routing.ts";
@@ -228,7 +228,7 @@ export async function approveLamLeaveApplication(
   input: ApproveLamLeaveApplicationInput,
   context?: LamMutationContext
 ): Promise<LamMutationResult> {
-  const denied = requireLamApprovalAccess(context);
+  const denied = requireStrictLamApprovalAccess(context);
   if (denied && !denied.ok) {
     return denied;
   }
@@ -296,7 +296,7 @@ export async function rejectLamLeaveApplication(
   input: RejectLamLeaveApplicationInput,
   context?: LamMutationContext
 ): Promise<LamMutationResult> {
-  const denied = requireLamApprovalAccess(context);
+  const denied = requireStrictLamApprovalAccess(context);
   if (denied && !denied.ok) {
     return denied;
   }
@@ -459,7 +459,7 @@ export async function returnLamLeaveApplication(
   input: ReturnLamLeaveApplicationInput,
   context?: LamMutationContext
 ): Promise<LamMutationResult> {
-  const denied = requireLamApprovalAccess(context);
+  const denied = requireStrictLamApprovalAccess(context);
   if (denied && !denied.ok) {
     return denied;
   }
@@ -524,7 +524,7 @@ export async function requestLamLeaveApplicationClarification(
   input: RequestLamLeaveApplicationClarificationInput,
   context?: LamMutationContext
 ): Promise<LamMutationResult> {
-  const denied = requireLamApprovalAccess(context);
+  const denied = requireStrictLamApprovalAccess(context);
   if (denied && !denied.ok) {
     return denied;
   }

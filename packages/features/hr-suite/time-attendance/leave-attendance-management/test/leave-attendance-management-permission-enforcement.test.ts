@@ -224,7 +224,8 @@ test("resolveLamDataScope enforces self, team, and company modes", () => {
   assert.deepEqual(resolveLamDataScope(writeContext), { mode: "company" });
   assert.deepEqual(resolveLamDataScope(payrollContext), { mode: "company" });
   assert.deepEqual(resolveLamDataScope({}), { mode: "denied" });
-  assert.deepEqual(resolveLamDataScope(auditorContext), { mode: "company" });
+  assert.deepEqual(resolveLamDataScope(auditorContext), { mode: "denied" });
+  assert.deepEqual(resolveLamReadDataScope(auditorContext), { mode: "company" });
 });
 
 test("resolveLamDataScope fails closed for capabilities without canRead or canWrite", () => {
@@ -311,6 +312,14 @@ test("AC-023 resolveLamReadDataScope denies manager capabilities without team em
     { mode: "denied" }
   );
 
+  assert.deepEqual(
+    resolveLamDataScope({
+      companyId: "company-001",
+      grantedCapabilities: lamPersonaCapabilityPresets.manager,
+    }),
+    { mode: "denied" }
+  );
+
   assert.deepEqual(resolveLamReadDataScope(managerTeamContext), {
     mode: "team",
     employeeIds: ["emp-001", "emp-002"],
@@ -320,6 +329,29 @@ test("AC-023 resolveLamReadDataScope denies manager capabilities without team em
     mode: "team",
     employeeIds: ["emp-001", "emp-002"],
   });
+});
+
+test("AC-023 manager persona cannot upsert leave types without HR config write capability", async () => {
+  const result = await upsertLamLeaveType(
+    {
+      companyId: "company-001",
+      code: "MGR-DENIED",
+      name: "Manager Denied Leave",
+      kind: "annual",
+      paid: true,
+      requiresDocument: false,
+      active: true,
+    },
+    {
+      companyId: "company-001",
+      grantedCapabilities: lamPersonaCapabilityPresets.manager,
+    }
+  );
+
+  assert.equal(result.ok, false);
+  if (!result.ok) {
+    assert.match(result.error, /Leave types write access denied/i);
+  }
 });
 
 test("AC-022 manager team-scope can read team leave applications for leave calendar view", async () => {

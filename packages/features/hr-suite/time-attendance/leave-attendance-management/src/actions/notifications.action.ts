@@ -15,7 +15,7 @@ import {
   buildLamAuditMetadata,
   createLamMutationAuditEvent,
   normalizeLamMutationActorId,
-  requireLamMutationAccess,
+  requireLamOverdueNotificationAccess,
 } from "../execution.ts";
 import { listLamOverdueApprovalNotifications } from "../queries/overdue-approvals.query.ts";
 import { mutateLamRepository } from "../repository.ts";
@@ -57,7 +57,7 @@ export async function recordLamNotificationEnqueued(
   input: RecordLamNotificationEnqueuedInput,
   context?: LamMutationContext
 ): Promise<LamMutationResult> {
-  const denied = requireLamMutationAccess(context);
+  const denied = requireLamOverdueNotificationAccess(context);
   if (denied && !denied.ok) {
     return { ok: false, error: denied.error ?? "Write access denied" };
   }
@@ -119,7 +119,7 @@ export async function processLamOverdueApprovalNotifications(
       intents: readonly LamNotificationIntent[];
     }
 > {
-  const denied = requireLamMutationAccess(context);
+  const denied = requireLamOverdueNotificationAccess(context);
   if (denied && !denied.ok) {
     return { ok: false, error: denied.error ?? "Write access denied" };
   }

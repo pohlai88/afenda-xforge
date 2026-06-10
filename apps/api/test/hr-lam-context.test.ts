@@ -371,3 +371,13 @@ test("leave getQuery coerces numeric pagination and periodYear query params", ()
   assert.equal(query.pageSize, 25);
   assert.equal(query.periodYear, 2026);
 });
+
+test("leave getQuery joins repeated employeeIds query params", () => {
+  const query = getQuery(
+    new Request(
+      "http://localhost/api/hr/leave/leave-report?employeeIds=emp-001&employeeIds=emp-002"
+    )
+  );
+
+  assert.equal(query.employeeIds, "emp-001,emp-002");
+});

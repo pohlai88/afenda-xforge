@@ -13,7 +13,7 @@ import {
   buildLamAuditMetadata,
   createLamMutationAuditEvent,
   normalizeLamMutationActorId,
-  requireLamMutationAccess,
+  requireLamLeaveTypesWriteAccess,
 } from "../execution.ts";
 import {
   createLamRecordId,
@@ -77,7 +77,7 @@ export async function upsertLamLeaveType(
   input: UpsertLamLeaveTypeInput,
   context?: LamMutationContext
 ): Promise<LamMutationResult> {
-  const denied = requireLamMutationAccess(context);
+  const denied = requireLamLeaveTypesWriteAccess(context);
   if (denied) {
     return denied;
   }

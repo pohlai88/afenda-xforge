@@ -13,7 +13,7 @@ import {
   buildLamAuditMetadata,
   createLamMutationAuditEvent,
   normalizeLamMutationActorId,
-  requireLamMutationAccess,
+  requireLamAttendanceWriteAccess,
 } from "../execution.ts";
 import {
   createLamRecordId,
@@ -57,7 +57,7 @@ export async function upsertLamCompanyAttendanceSettings(
   input: UpsertLamCompanyAttendanceSettingsInput,
   context?: LamMutationContext
 ): Promise<LamMutationResult> {
-  const denied = requireLamMutationAccess(context);
+  const denied = requireLamAttendanceWriteAccess(context);
   if (denied && !denied.ok) {
     return denied;
   }

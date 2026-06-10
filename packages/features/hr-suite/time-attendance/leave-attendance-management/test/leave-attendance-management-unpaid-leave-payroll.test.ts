@@ -41,6 +41,9 @@ const approveContext = {
   companyId: "company-001",
   tenantId: "tenant-001",
   canWrite: false,
+  actorEmployeeId: "mgr-001",
+  resolvedStepApproverEmployeeIds: ["mgr-001"],
+  teamEmployeeIds: ["emp-001"],
   grantedCapabilities: [
     leaveAttendanceManagementCapabilities.leaveApplicationsApprove,
   ],

@@ -15,7 +15,7 @@ import {
   buildLamAuditMetadata,
   createLamMutationAuditEvent,
   normalizeLamMutationActorId,
-  requireLamMutationAccess,
+  requireLamLeaveEntitlementsWriteAccess,
 } from "../execution.ts";
 import {
   resolveCurrentApprovalStep,
@@ -109,7 +109,7 @@ export async function upsertLamLeaveApprovalRoute(
   input: UpsertLamLeaveApprovalRouteInput,
   context?: LamMutationContext
 ): Promise<LamMutationResult> {
-  const denied = requireLamMutationAccess(context);
+  const denied = requireLamLeaveEntitlementsWriteAccess(context);
   if (denied && !denied.ok) {
     return denied;
   }
@@ -224,7 +224,7 @@ export async function routeLamLeaveApplication(
   input: RouteLamLeaveApplicationInput,
   context?: LamMutationContext
 ): Promise<LamMutationResult> {
-  const denied = requireLamMutationAccess(context);
+  const denied = requireLamLeaveEntitlementsWriteAccess(context);
   if (denied && !denied.ok) {
     return denied;
   }

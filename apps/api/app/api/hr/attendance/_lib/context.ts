@@ -241,6 +241,13 @@ export const getQuery = (
       continue;
     }
 
+    if (key === "employeeIds") {
+      const existing = query[key];
+      query[key] =
+        typeof existing === "string" ? `${existing},${value}` : value;
+      continue;
+    }
+
     query[key] = value;
   }
 

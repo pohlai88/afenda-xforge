@@ -55,6 +55,56 @@ export const requireLamMutationAccess = (
   return null;
 };
 
+export const requireLamCapabilityWriteAccess = (
+  context: LamMutationContext | undefined,
+  capability: LamPolicyCapability,
+  errorMessage: string
+): LamMutationResult | null => {
+  if (!context) {
+    return denyLamMutation();
+  }
+
+  if (context.canWrite) {
+    return null;
+  }
+
+  if (context.grantedCapabilities?.includes(capability)) {
+    return null;
+  }
+
+  return {
+    ok: false,
+    error: errorMessage,
+  };
+};
+
+export const requireLamLeaveTypesWriteAccess = (
+  context?: LamMutationContext
+): LamMutationResult | null =>
+  requireLamCapabilityWriteAccess(
+    context,
+    leaveAttendanceManagementCapabilities.leaveTypesWrite,
+    "Leave types write access denied"
+  );
+
+export const requireLamLeaveEntitlementsWriteAccess = (
+  context?: LamMutationContext
+): LamMutationResult | null =>
+  requireLamCapabilityWriteAccess(
+    context,
+    leaveAttendanceManagementCapabilities.leaveEntitlementsWrite,
+    "Leave entitlements write access denied"
+  );
+
+export const requireLamLeaveApplicationsWriteAccess = (
+  context?: LamMutationContext
+): LamMutationResult | null =>
+  requireLamCapabilityWriteAccess(
+    context,
+    leaveAttendanceManagementCapabilities.leaveApplicationsWrite,
+    "Leave applications write access denied"
+  );
+
 export const requireLamBalanceWriteAccess = (
   context?: LamMutationContext
 ): LamMutationResult | null => {
@@ -118,6 +168,32 @@ export const requireStrictLamApprovalAccess = (
   return {
     ok: false,
     error: "Approval access denied for leave applications",
+  };
+};
+
+export const requireLamOverdueNotificationAccess = (
+  context?: LamMutationContext
+): LamMutationResult | null => {
+  if (!context) {
+    return denyLamMutation();
+  }
+
+  if (context.canWrite) {
+    return null;
+  }
+
+  const hasApproveCapability =
+    context.grantedCapabilities?.includes(
+      leaveAttendanceManagementCapabilities.leaveApplicationsApprove
+    ) ?? false;
+
+  if (hasApproveCapability) {
+    return null;
+  }
+
+  return {
+    ok: false,
+    error: "Overdue notification processing access denied",
   };
 };
 

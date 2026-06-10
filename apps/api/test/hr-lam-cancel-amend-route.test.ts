@@ -64,6 +64,7 @@ const approvalHeaders = {
   "x-can-write-lam": "true",
   "x-lam-actor-employee-id": "mgr-001",
   "x-lam-resolved-step-approver-employee-ids": "mgr-001",
+  "x-lam-team-employee-ids": "emp-001",
   "x-lam-capabilities": "hr.lam.leave-applications.approve",
 };
 
@@ -207,6 +208,7 @@ test("AC-014 cancel route reverses used balance for approved application", async
       grantedCapabilities: ["hr.lam.leave-applications.approve"],
       actorEmployeeId: "mgr-001",
       resolvedStepApproverEmployeeIds: ["mgr-001"],
+      teamEmployeeIds: ["emp-001"],
     }
   );
   assert.equal(approved.ok, true);
@@ -244,6 +246,7 @@ test("AC-014 amend route adjusts used balance through HTTP boundary", async () =
       grantedCapabilities: ["hr.lam.leave-applications.approve"],
       actorEmployeeId: "mgr-001",
       resolvedStepApproverEmployeeIds: ["mgr-001"],
+      teamEmployeeIds: ["emp-001"],
     }
   );
   assert.equal(approved.ok, true);

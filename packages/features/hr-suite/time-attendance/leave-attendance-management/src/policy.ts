@@ -82,12 +82,9 @@ export function canReadLamAttendanceCorrections(context: unknown): boolean {
     return false;
   }
 
-  return (
-    Boolean(normalized.canRead) ||
-    hasCapability(
-      normalized,
-      leaveAttendanceManagementCapabilities.attendanceCorrectionsRead
-    )
+  return hasCapability(
+    normalized,
+    leaveAttendanceManagementCapabilities.attendanceCorrectionsRead
   );
 }
 

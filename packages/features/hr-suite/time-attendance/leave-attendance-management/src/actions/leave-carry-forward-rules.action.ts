@@ -13,7 +13,7 @@ import {
   buildLamAuditMetadata,
   createLamMutationAuditEvent,
   normalizeLamMutationActorId,
-  requireLamMutationAccess,
+  requireLamLeaveEntitlementsWriteAccess,
 } from "../execution.ts";
 import {
   createLamRecordId,
@@ -90,7 +90,7 @@ export async function upsertLamLeaveCarryForwardRule(
   input: UpsertLamLeaveCarryForwardRuleInput,
   context?: LamMutationContext
 ): Promise<LamMutationResult> {
-  const denied = requireLamMutationAccess(context);
+  const denied = requireLamLeaveEntitlementsWriteAccess(context);
   if (denied && !denied.ok) {
     return denied;
   }

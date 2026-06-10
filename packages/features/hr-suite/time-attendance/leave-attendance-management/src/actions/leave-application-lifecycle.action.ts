@@ -15,10 +15,9 @@ import {
   buildLamAuditMetadata,
   createLamMutationAuditEvent,
   normalizeLamMutationActorId,
-  requireLamApprovalAccess,
-  requireLamEmployeeMutationScope,
-  requireLamMutationAccess,
   requireStrictLamApprovalAccess,
+  requireLamEmployeeMutationScope,
+  requireLamLeaveApplicationsWriteAccess,
 } from "../execution.ts";
 import {
   findActiveLeaveTypeForApplication,
@@ -88,7 +87,7 @@ const requireCancelAccess = (
     return requireStrictLamApprovalAccess(context);
   }
 
-  return requireLamMutationAccess(context);
+  return requireLamLeaveApplicationsWriteAccess(context);
 };
 
 export async function cancelLamLeaveApplication(
@@ -210,7 +209,7 @@ export async function amendLamLeaveApplication(
   input: AmendLamLeaveApplicationInput,
   context?: LamMutationContext
 ): Promise<LamMutationResult> {
-  const denied = requireLamApprovalAccess(context);
+  const denied = requireStrictLamApprovalAccess(context);
   if (denied && !denied.ok) {
     return denied;
   }

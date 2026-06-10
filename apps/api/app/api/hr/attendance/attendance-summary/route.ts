@@ -4,10 +4,17 @@ import { NextResponse } from "next/server";
 import { createLamReadContext, getQuery } from "../_lib/context.ts";
 
 export async function GET(request: Request) {
-  const data = await listLamAttendanceSummaryRecords(
-    getQuery(request) as unknown as ListLamAttendanceSummaryQuery,
-    createLamReadContext(request)
-  );
+  try {
+    const data = await listLamAttendanceSummaryRecords(
+      getQuery(request) as unknown as ListLamAttendanceSummaryQuery,
+      createLamReadContext(request)
+    );
 
-  return NextResponse.json(data);
+    return NextResponse.json(data);
+  } catch {
+    return NextResponse.json(
+      { ok: false, error: "Invalid query parameters" },
+      { status: 400 }
+    );
+  }
 }
