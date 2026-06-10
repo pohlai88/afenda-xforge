@@ -1,49 +1,42 @@
 import "server-only";
 
-import { randomUUID } from "node:crypto";
-import type {
-  CreateLeaveAttendanceManagementInput,
-  LeaveAttendanceManagementRecord,
-  UpdateLeaveAttendanceManagementInput,
-} from "./contract.ts";
-import { runHrSuiteFeatureAction } from "./execution/action.ts";
-import { leaveAttendanceManagementStore } from "./queries.ts";
-import type { HrSuiteFeatureContext } from "./shared/index.ts";
-
-const normalizeName = (value: string): string => {
-  const trimmedValue = value.trim();
-  return trimmedValue.length > 0 ? trimmedValue : "Unnamed";
-};
-
-export function createLeaveAttendanceManagementRecord(
-  input: CreateLeaveAttendanceManagementInput,
-  _context?: HrSuiteFeatureContext
-): LeaveAttendanceManagementRecord {
-  return runHrSuiteFeatureAction(() => {
-    const record: LeaveAttendanceManagementRecord = {
-      id: randomUUID(),
-      name: normalizeName(input.name),
-      status: "draft",
-    };
-
-    leaveAttendanceManagementStore.set(record.id, record);
-    return record;
-  });
-}
-
-export function updateLeaveAttendanceManagementRecord(
-  input: UpdateLeaveAttendanceManagementInput,
-  _context?: HrSuiteFeatureContext
-): LeaveAttendanceManagementRecord {
-  return runHrSuiteFeatureAction(() => {
-    const currentRecord = leaveAttendanceManagementStore.get(input.id);
-    const nextRecord: LeaveAttendanceManagementRecord = {
-      id: input.id,
-      name: normalizeName(input.name ?? currentRecord?.name ?? "Unnamed"),
-      status: input.status ?? currentRecord?.status ?? "draft",
-    };
-
-    leaveAttendanceManagementStore.set(nextRecord.id, nextRecord);
-    return nextRecord;
-  });
-}
+export {
+  approveLamAttendanceCorrection,
+  rejectLamAttendanceCorrection,
+  submitLamAttendanceCorrection,
+} from "./actions/attendance-corrections.action.ts";
+export { upsertLamAttendanceRecord } from "./actions/attendance-records.action.ts";
+export { exportLamAttendanceSummary } from "./actions/attendance-summary.action.ts";
+export {
+  approveLamLeaveApplication,
+  rejectLamLeaveApplication,
+  requestLamLeaveApplicationClarification,
+  returnLamLeaveApplication,
+} from "./actions/leave-application-decisions.action.ts";
+export {
+  amendLamLeaveApplication,
+  cancelLamLeaveApplication,
+} from "./actions/leave-application-lifecycle.action.ts";
+export { submitLamLeaveApplication } from "./actions/leave-applications.action.ts";
+export {
+  routeLamLeaveApplication,
+  upsertLamLeaveApprovalRoute,
+} from "./actions/leave-approval-routes.action.ts";
+export { adjustLamLeaveBalance } from "./actions/leave-balance-adjustment.action.ts";
+export { processLamLeaveBalanceCarryForward } from "./actions/leave-balance-carry-forward.action.ts";
+export { upsertLamCompanyAttendanceSettings } from "./actions/company-attendance-settings.action.ts";
+export { upsertLamLeaveBlackoutPeriod } from "./actions/leave-blackout-periods.action.ts";
+export { upsertLamLeaveCarryForwardRule } from "./actions/leave-carry-forward-rules.action.ts";
+export {
+  confirmLamLeaveDocumentUpload,
+  createLamLeaveDocumentUploadSession,
+} from "./actions/leave-documents.action.ts";
+export { applyLamLeaveEntitlementCalculation } from "./actions/leave-entitlement-calculation.action.ts";
+export { upsertLamLeaveEntitlementRule } from "./actions/leave-entitlement-rules.action.ts";
+export { exportLamLeaveReport } from "./actions/leave-report.action.ts";
+export { upsertLamLeaveType } from "./actions/leave-types.action.ts";
+export {
+  processLamOverdueApprovalNotifications,
+  recordLamNotificationEnqueued,
+} from "./actions/notifications.action.ts";
+export { exportLamPayrollReferences } from "./actions/payroll-references.action.ts";

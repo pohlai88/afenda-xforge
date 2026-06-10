@@ -1,4 +1,14 @@
 import "server-only";
 
-export const runHrSuiteFeatureAction = <T>(operation: () => T): T =>
-  operation();
+import type { LamMutationContext } from "../execution.ts";
+
+export {
+  buildLamAuditMetadata,
+  createLamMutationAuditEvent,
+  denyLamMutation,
+  normalizeLamMutationActorId,
+  recordLamMutationAuditEvent,
+  requireLamMutationAccess,
+} from "../execution.ts";
+
+export type LamExecutionContext = LamMutationContext;

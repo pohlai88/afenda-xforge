@@ -71,6 +71,83 @@
       "when": 1781044094287,
       "tag": "0009_parallel_snowbird",
       "breakpoints": true
+    },
+    {
+      "idx": 10,
+      "version": "7",
+      "when": 1781045000000,
+      "tag": "0010_lam_foundation",
+      "breakpoints": true
+    },
+    {
+      "idx": 11,
+      "version": "7",
+      "when": 1781046000000,
+      "tag": "0011_lam_carry_forward_rules",
+      "breakpoints": true
+    },
+    {
+      "idx": 12,
+      "version": "7",
+      "when": 1781047000000,
+      "tag": "0012_lam_leave_documents",
+      "breakpoints": true
+    },
+    {
+      "idx": 13,
+      "version": "7",
+      "when": 1781048000000,
+      "tag": "0013_lam_leave_application_validation",
+      "breakpoints": true
+    },
+    {
+      "idx": 14,
+      "version": "7",
+      "when": 1781049000000,
+      "tag": "0014_lam_approval_workflow",
+      "breakpoints": true
+    },
+    {
+      "idx": 15,
+      "version": "7",
+      "when": 1781050000000,
+      "tag": "0015_lam_leave_application_lifecycle",
+      "breakpoints": true
+    },
+    {
+      "idx": 16,
+      "version": "7",
+      "when": 1781051000000,
+      "tag": "0016_lam_attendance_corrections",
+      "breakpoints": true
+    },
+    {
+      "idx": 17,
+      "version": "7",
+      "when": 1781052000000,
+      "tag": "0017_lam_medical_leave_references",
+      "breakpoints": true
+    },
+    {
+      "idx": 18,
+      "version": "7",
+      "when": 1781053000000,
+      "tag": "0018_lam_attendance_correction_pending_unique",
+      "breakpoints": true
+    },
+    {
+      "idx": 20,
+      "version": "7",
+      "when": 1781055000000,
+      "tag": "0020_lam_leave_type_policy_group_unique",
+      "breakpoints": true
+    },
+    {
+      "idx": 21,
+      "version": "7",
+      "when": 1781056000000,
+      "tag": "0021_lam_company_attendance_settings",
+      "breakpoints": true
     }
   ]
 }

@@ -6,9 +6,10 @@
   "exports": {
     ".": "./src/index.ts",
     "./contract": "./src/contract.ts",
-    "./execution": "./src/execution/index.ts",
+    "./execution": "./src/execution/action.ts",
     "./manifest": "./src/manifest.ts",
     "./metadata": "./src/metadata.ts",
+    "./schema": "./src/schema.ts",
     "./shared": "./src/shared/index.ts",
     "./server": "./src/server.ts",
     "./package.json": "./package.json"
@@ -20,15 +21,21 @@
   "scripts": {
     "lint": "biome check .",
     "format": "biome format --write .",
+    "test": "tsx --conditions=react-server --test test/**/*.test.ts",
     "clean": "git clean -xdf .cache .turbo dist node_modules",
     "typecheck": "tsc --noEmit --emitDeclarationOnly false"
   },
   "dependencies": {
-    "server-only": "catalog:"
+    "@repo/database": "workspace:*",
+    "@repo/permissions": "workspace:*",
+    "drizzle-orm": "catalog:",
+    "server-only": "catalog:",
+    "zod": "catalog:"
   },
   "devDependencies": {
     "@repo/typescript-config": "workspace:*",
     "@types/node": "catalog:",
+    "tsx": "catalog:",
     "typescript": "catalog:"
   }
 }

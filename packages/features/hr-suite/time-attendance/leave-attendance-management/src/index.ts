@@ -7,20 +7,25 @@
 import "server-only";
 
 export type {
-  CreateLeaveAttendanceManagementInput,
   HrLamRoutePath,
   HrTimeAttendanceLamAuditAction,
   HrTimeLamAuditAction,
-  LeaveAttendanceManagementRecord,
-  ListLeaveAttendanceManagementQuery,
-  UpdateLeaveAttendanceManagementInput,
+  LamMutationResult,
+  LamPolicyContext,
 } from "./contract.ts";
-export { leaveAttendanceManagementExecutionSurface } from "./execution/index.ts";
 export { leaveAttendanceManagementManifest } from "./manifest.ts";
 export { leaveAttendanceManagementMetadata } from "./metadata.ts";
 export {
-  createLeaveAttendanceManagement,
-  getLeaveAttendanceManagement,
+  canReadLeaveAttendanceManagement,
+  canWriteLeaveAttendanceManagement,
+} from "./policy.ts";
+export {
+  leaveAttendanceManagementAcceptanceCoverage,
+  leaveAttendanceManagementRequirementCoverage,
+} from "./registry/requirement-coverage.ts";
+export {
+  getLamLeaveEntitlementRuleById,
+  getLamLeaveTypeById,
   hrLamRoutePaths,
   hrTimeAttendanceLamAuditActions,
   hrTimeLamAttendanceReadPermission,
@@ -28,9 +33,14 @@ export {
   hrTimeLamAuditActions,
   hrTimeLamReadPermission,
   hrTimeLamWritePermission,
+  lamLeaveEntitlementRulesRouteContracts,
+  lamLeaveTypesRouteContracts,
+  lamRouteContracts,
   leaveAttendanceManagementFeatureId,
   leaveAttendanceManagementRouteContracts,
-  listLeaveAttendanceManagement,
-  updateLeaveAttendanceManagement,
+  listLamLeaveEntitlementRulesRecords,
+  listLamLeaveTypesRecords,
+  upsertLamLeaveEntitlementRule,
+  upsertLamLeaveType,
 } from "./server.ts";
 export { leaveAttendanceManagementFeatureScope } from "./shared/index.ts";

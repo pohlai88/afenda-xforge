@@ -1,0 +1,1 @@
+CREATE UNIQUE INDEX "lam_attendance_corrections_pending_record_exception_unique" ON "xforge"."lam_attendance_corrections" ("attendance_record_id","exception_type") WHERE "status" IN ('submitted', 'pending_approval');

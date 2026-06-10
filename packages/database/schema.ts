@@ -2,6 +2,7 @@ import type { InferInsertModel, InferSelectModel } from "drizzle-orm";
 import { relations } from "drizzle-orm";
 import {
   boolean,
+  date,
   foreignKey,
   index,
   integer,
@@ -626,6 +627,649 @@ export const hrOffboardingCases = xforge.table(
     uniqueIndex(
       "hr_offboarding_cases_tenant_company_lifecycle_event_unique"
     ).on(table.tenantId, table.companyId, table.lifecycleSourceEventId),
+  ]
+);
+
+export const lamAttendanceRecords = xforge.table(
+  "lam_attendance_records",
+  {
+    id: uuid("id").defaultRandom().primaryKey(),
+    tenantId: uuid("tenant_id")
+      .notNull()
+      .references(() => tenants.id, { onDelete: "cascade" }),
+    companyId: uuid("company_id").references(() => companies.id, {
+      onDelete: "cascade",
+    }),
+    employeeId: text("employee_id").notNull(),
+    attendanceDate: date("attendance_date", { mode: "date" }).notNull(),
+    status: varchar("status", { length: 32 }).notNull(),
+    workCalendarId: text("work_calendar_id"),
+    clockInAt: timestamp("clock_in_at", {
+      mode: "date",
+      withTimezone: true,
+    }),
+    clockOutAt: timestamp("clock_out_at", {
+      mode: "date",
+      withTimezone: true,
+    }),
+    notes: text("notes"),
+    createdAt: timestamp("created_at", {
+      mode: "date",
+      withTimezone: true,
+    })
+      .defaultNow()
+      .notNull(),
+    updatedAt: timestamp("updated_at", {
+      mode: "date",
+      withTimezone: true,
+    })
+      .defaultNow()
+      .notNull(),
+  },
+  (table) => [
+    index("lam_attendance_records_tenant_company_employee_idx").on(
+      table.tenantId,
+      table.companyId,
+      table.employeeId
+    ),
+    index("lam_attendance_records_tenant_company_status_idx").on(
+      table.tenantId,
+      table.companyId,
+      table.status
+    ),
+    uniqueIndex(
+      "lam_attendance_records_tenant_company_employee_date_unique"
+    ).on(
+      table.tenantId,
+      table.companyId,
+      table.employeeId,
+      table.attendanceDate
+    ),
+  ]
+);
+
+export const lamAttendanceCorrections = xforge.table(
+  "lam_attendance_corrections",
+  {
+    id: uuid("id").defaultRandom().primaryKey(),
+    tenantId: uuid("tenant_id")
+      .notNull()
+      .references(() => tenants.id, { onDelete: "cascade" }),
+    companyId: uuid("company_id").references(() => companies.id, {
+      onDelete: "cascade",
+    }),
+    employeeId: text("employee_id").notNull(),
+    attendanceRecordId: uuid("attendance_record_id")
+      .notNull()
+      .references(() => lamAttendanceRecords.id, { onDelete: "cascade" }),
+    exceptionType: varchar("exception_type", { length: 32 }).notNull(),
+    requestedStatus: varchar("requested_status", { length: 32 }).notNull(),
+    requestedClockInAt: timestamp("requested_clock_in_at", {
+      mode: "date",
+      withTimezone: true,
+    }),
+    requestedClockOutAt: timestamp("requested_clock_out_at", {
+      mode: "date",
+      withTimezone: true,
+    }),
+    reason: text("reason").notNull(),
+    status: varchar("status", { length: 32 }).notNull(),
+    approvalRouteId: uuid("approval_route_id").references(
+      () => lamLeaveApprovalRoutes.id,
+      { onDelete: "set null" }
+    ),
+    currentStepOrder: integer("current_step_order"),
+    approvedBy: text("approved_by"),
+    approvedAt: timestamp("approved_at", {
+      mode: "date",
+      withTimezone: true,
+    }),
+    rejectionReason: text("rejection_reason"),
+    submittedAt: timestamp("submitted_at", {
+      mode: "date",
+      withTimezone: true,
+    }).notNull(),
+    createdAt: timestamp("created_at", {
+      mode: "date",
+      withTimezone: true,
+    })
+      .defaultNow()
+      .notNull(),
+    updatedAt: timestamp("updated_at", {
+      mode: "date",
+      withTimezone: true,
+    })
+      .defaultNow()
+      .notNull(),
+  },
+  (table) => [
+    index("lam_attendance_corrections_tenant_company_employee_idx").on(
+      table.tenantId,
+      table.companyId,
+      table.employeeId
+    ),
+    index("lam_attendance_corrections_tenant_company_status_idx").on(
+      table.tenantId,
+      table.companyId,
+      table.status
+    ),
+    index("lam_attendance_corrections_record_exception_idx").on(
+      table.attendanceRecordId,
+      table.exceptionType
+    ),
+  ]
+);
+
+export const lamCompanyAttendanceSettings = xforge.table(
+  "lam_company_attendance_settings",
+  {
+    id: uuid("id").defaultRandom().primaryKey(),
+    tenantId: uuid("tenant_id")
+      .notNull()
+      .references(() => tenants.id, { onDelete: "cascade" }),
+    companyId: uuid("company_id").references(() => companies.id, {
+      onDelete: "cascade",
+    }),
+    attendanceCorrectionsEnabled: boolean("attendance_corrections_enabled")
+      .notNull()
+      .default(true),
+    updatedBy: text("updated_by"),
+    updatedAt: timestamp("updated_at", {
+      mode: "date",
+      withTimezone: true,
+    })
+      .defaultNow()
+      .notNull(),
+  },
+  (table) => [
+    uniqueIndex("lam_company_attendance_settings_tenant_company_unique").on(
+      table.tenantId,
+      table.companyId
+    ),
+  ]
+);
+
+export const lamLeaveTypes = xforge.table(
+  "lam_leave_types",
+  {
+    id: uuid("id").defaultRandom().primaryKey(),
+    tenantId: uuid("tenant_id")
+      .notNull()
+      .references(() => tenants.id, { onDelete: "cascade" }),
+    companyId: uuid("company_id").references(() => companies.id, {
+      onDelete: "cascade",
+    }),
+    code: varchar("code", { length: 64 }).notNull(),
+    name: text("name").notNull(),
+    kind: varchar("kind", { length: 64 }).notNull(),
+    policyGroupId: text("policy_group_id"),
+    active: boolean("active").notNull().default(true),
+    requiresDocument: boolean("requires_document").notNull().default(false),
+    paid: boolean("paid").notNull().default(true),
+    minNoticeDays: integer("min_notice_days"),
+    maxConsecutiveDays: integer("max_consecutive_days"),
+    eligibilityTenureMonthsMin: integer("eligibility_tenure_months_min"),
+    eligibilityGender: varchar("eligibility_gender", { length: 16 }),
+    createdAt: timestamp("created_at", {
+      mode: "date",
+      withTimezone: true,
+    })
+      .defaultNow()
+      .notNull(),
+    updatedAt: timestamp("updated_at", {
+      mode: "date",
+      withTimezone: true,
+    })
+      .defaultNow()
+      .notNull(),
+  },
+  (table) => [
+    index("lam_leave_types_tenant_company_idx").on(
+      table.tenantId,
+      table.companyId
+    ),
+    index("lam_leave_types_tenant_company_policy_group_idx").on(
+      table.tenantId,
+      table.companyId,
+      table.policyGroupId
+    ),
+    uniqueIndex("lam_leave_types_tenant_company_code_policy_group_unique").on(
+      table.tenantId,
+      table.companyId,
+      table.code,
+      table.policyGroupId
+    ),
+  ]
+);
+
+export const lamLeaveEntitlementRules = xforge.table(
+  "lam_leave_entitlement_rules",
+  {
+    id: uuid("id").defaultRandom().primaryKey(),
+    tenantId: uuid("tenant_id")
+      .notNull()
+      .references(() => tenants.id, { onDelete: "cascade" }),
+    companyId: uuid("company_id").references(() => companies.id, {
+      onDelete: "cascade",
+    }),
+    leaveTypeId: text("leave_type_id").notNull(),
+    code: varchar("code", { length: 64 }).notNull(),
+    title: text("title").notNull(),
+    scope: jsonb("scope").$type<Record<string, unknown>>(),
+    entitlementDays: integer("entitlement_days").notNull(),
+    accrualRule: text("accrual_rule"),
+    tenureMonthsMin: integer("tenure_months_min"),
+    tenureMonthsMax: integer("tenure_months_max"),
+    effectiveFrom: timestamp("effective_from", {
+      mode: "date",
+      withTimezone: true,
+    }).notNull(),
+    effectiveTo: timestamp("effective_to", {
+      mode: "date",
+      withTimezone: true,
+    }),
+    active: boolean("active").notNull().default(true),
+    createdAt: timestamp("created_at", {
+      mode: "date",
+      withTimezone: true,
+    })
+      .defaultNow()
+      .notNull(),
+    updatedAt: timestamp("updated_at", {
+      mode: "date",
+      withTimezone: true,
+    })
+      .defaultNow()
+      .notNull(),
+  },
+  (table) => [
+    index("lam_leave_entitlement_rules_tenant_company_idx").on(
+      table.tenantId,
+      table.companyId
+    ),
+    uniqueIndex("lam_leave_entitlement_rules_tenant_company_code_unique").on(
+      table.tenantId,
+      table.companyId,
+      table.code
+    ),
+    index("lam_leave_entitlement_rules_leave_type_idx").on(table.leaveTypeId),
+  ]
+);
+
+export const lamLeaveCarryForwardRules = xforge.table(
+  "lam_leave_carry_forward_rules",
+  {
+    id: uuid("id").defaultRandom().primaryKey(),
+    tenantId: uuid("tenant_id")
+      .notNull()
+      .references(() => tenants.id, { onDelete: "cascade" }),
+    companyId: uuid("company_id").references(() => companies.id, {
+      onDelete: "cascade",
+    }),
+    leaveTypeId: text("leave_type_id").notNull(),
+    code: varchar("code", { length: 64 }).notNull(),
+    title: text("title").notNull(),
+    scope: jsonb("scope").$type<Record<string, unknown>>(),
+    maxCarryForwardDays: integer("max_carry_forward_days").notNull(),
+    forfeitUnused: boolean("forfeit_unused").notNull().default(true),
+    effectiveFrom: timestamp("effective_from", {
+      mode: "date",
+      withTimezone: true,
+    }).notNull(),
+    effectiveTo: timestamp("effective_to", {
+      mode: "date",
+      withTimezone: true,
+    }),
+    active: boolean("active").notNull().default(true),
+    createdAt: timestamp("created_at", {
+      mode: "date",
+      withTimezone: true,
+    })
+      .defaultNow()
+      .notNull(),
+    updatedAt: timestamp("updated_at", {
+      mode: "date",
+      withTimezone: true,
+    })
+      .defaultNow()
+      .notNull(),
+  },
+  (table) => [
+    index("lam_leave_carry_forward_rules_tenant_company_idx").on(
+      table.tenantId,
+      table.companyId
+    ),
+    uniqueIndex(
+      "lam_leave_carry_forward_rules_tenant_company_code_unique"
+    ).on(table.tenantId, table.companyId, table.code),
+    index("lam_leave_carry_forward_rules_leave_type_idx").on(
+      table.leaveTypeId
+    ),
+  ]
+);
+
+export const lamLeaveBlackoutPeriods = xforge.table(
+  "lam_leave_blackout_periods",
+  {
+    id: uuid("id").defaultRandom().primaryKey(),
+    tenantId: uuid("tenant_id")
+      .notNull()
+      .references(() => tenants.id, { onDelete: "cascade" }),
+    companyId: uuid("company_id").references(() => companies.id, {
+      onDelete: "cascade",
+    }),
+    leaveTypeId: text("leave_type_id"),
+    code: varchar("code", { length: 64 }).notNull(),
+    title: text("title").notNull(),
+    scope: jsonb("scope").$type<Record<string, unknown>>(),
+    startDate: timestamp("start_date", {
+      mode: "date",
+      withTimezone: true,
+    }).notNull(),
+    endDate: timestamp("end_date", {
+      mode: "date",
+      withTimezone: true,
+    }).notNull(),
+    reason: text("reason").notNull(),
+    active: boolean("active").notNull().default(true),
+    createdAt: timestamp("created_at", {
+      mode: "date",
+      withTimezone: true,
+    })
+      .defaultNow()
+      .notNull(),
+    updatedAt: timestamp("updated_at", {
+      mode: "date",
+      withTimezone: true,
+    })
+      .defaultNow()
+      .notNull(),
+  },
+  (table) => [
+    index("lam_leave_blackout_periods_tenant_company_idx").on(
+      table.tenantId,
+      table.companyId
+    ),
+    uniqueIndex("lam_leave_blackout_periods_tenant_company_code_unique").on(
+      table.tenantId,
+      table.companyId,
+      table.code
+    ),
+    index("lam_leave_blackout_periods_leave_type_idx").on(table.leaveTypeId),
+  ]
+);
+
+export const lamLeaveApprovalRoutes = xforge.table(
+  "lam_leave_approval_routes",
+  {
+    id: uuid("id").defaultRandom().primaryKey(),
+    tenantId: uuid("tenant_id")
+      .notNull()
+      .references(() => tenants.id, { onDelete: "cascade" }),
+    companyId: uuid("company_id").references(() => companies.id, {
+      onDelete: "cascade",
+    }),
+    code: varchar("code", { length: 64 }).notNull(),
+    title: text("title").notNull(),
+    leaveTypeId: text("leave_type_id"),
+    scope: jsonb("scope").$type<Record<string, unknown>>(),
+    minDurationDays: integer("min_duration_days"),
+    maxDurationDays: integer("max_duration_days"),
+    steps: jsonb("steps").$type<Record<string, unknown>[]>().notNull(),
+    active: boolean("active").notNull().default(true),
+    createdAt: timestamp("created_at", {
+      mode: "date",
+      withTimezone: true,
+    })
+      .defaultNow()
+      .notNull(),
+    updatedAt: timestamp("updated_at", {
+      mode: "date",
+      withTimezone: true,
+    })
+      .defaultNow()
+      .notNull(),
+  },
+  (table) => [
+    index("lam_leave_approval_routes_tenant_company_idx").on(
+      table.tenantId,
+      table.companyId
+    ),
+    uniqueIndex("lam_leave_approval_routes_tenant_company_code_unique").on(
+      table.tenantId,
+      table.companyId,
+      table.code
+    ),
+    index("lam_leave_approval_routes_leave_type_idx").on(table.leaveTypeId),
+  ]
+);
+
+export const lamLeaveBalances = xforge.table(
+  "lam_leave_balances",
+  {
+    id: uuid("id").defaultRandom().primaryKey(),
+    tenantId: uuid("tenant_id")
+      .notNull()
+      .references(() => tenants.id, { onDelete: "cascade" }),
+    companyId: uuid("company_id").references(() => companies.id, {
+      onDelete: "cascade",
+    }),
+    employeeId: text("employee_id").notNull(),
+    leaveTypeId: text("leave_type_id").notNull(),
+    periodYear: integer("period_year").notNull(),
+    openingBalance: integer("opening_balance").notNull().default(0),
+    earned: integer("earned").notNull().default(0),
+    used: integer("used").notNull().default(0),
+    pending: integer("pending").notNull().default(0),
+    adjusted: integer("adjusted").notNull().default(0),
+    forfeited: integer("forfeited").notNull().default(0),
+    carriedForward: integer("carried_forward").notNull().default(0),
+    remaining: integer("remaining").notNull().default(0),
+    updatedAt: timestamp("updated_at", {
+      mode: "date",
+      withTimezone: true,
+    })
+      .defaultNow()
+      .notNull(),
+  },
+  (table) => [
+    index("lam_leave_balances_tenant_company_employee_idx").on(
+      table.tenantId,
+      table.companyId,
+      table.employeeId
+    ),
+    uniqueIndex(
+      "lam_leave_balances_tenant_company_employee_type_year_unique"
+    ).on(
+      table.tenantId,
+      table.companyId,
+      table.employeeId,
+      table.leaveTypeId,
+      table.periodYear
+    ),
+  ]
+);
+
+export const lamLeaveApplications = xforge.table(
+  "lam_leave_applications",
+  {
+    id: uuid("id").defaultRandom().primaryKey(),
+    tenantId: uuid("tenant_id")
+      .notNull()
+      .references(() => tenants.id, { onDelete: "cascade" }),
+    companyId: uuid("company_id").references(() => companies.id, {
+      onDelete: "cascade",
+    }),
+    employeeId: text("employee_id").notNull(),
+    leaveTypeId: text("leave_type_id").notNull(),
+    status: varchar("status", { length: 32 }).notNull(),
+    startDate: timestamp("start_date", {
+      mode: "date",
+      withTimezone: true,
+    }).notNull(),
+    endDate: timestamp("end_date", {
+      mode: "date",
+      withTimezone: true,
+    }).notNull(),
+    totalDays: integer("total_days").notNull(),
+    reason: text("reason"),
+    supportingDocumentId: text("supporting_document_id"),
+    approvalRouteId: text("approval_route_id"),
+    currentStepOrder: integer("current_step_order"),
+    approvedBy: text("approved_by"),
+    rejectionReason: text("rejection_reason"),
+    returnedAt: timestamp("returned_at", {
+      mode: "date",
+      withTimezone: true,
+    }),
+    returnedReason: text("returned_reason"),
+    cancellationReason: text("cancellation_reason"),
+    submittedAt: timestamp("submitted_at", {
+      mode: "date",
+      withTimezone: true,
+    }),
+    approvedAt: timestamp("approved_at", {
+      mode: "date",
+      withTimezone: true,
+    }),
+    cancelledAt: timestamp("cancelled_at", {
+      mode: "date",
+      withTimezone: true,
+    }),
+    createdAt: timestamp("created_at", {
+      mode: "date",
+      withTimezone: true,
+    })
+      .defaultNow()
+      .notNull(),
+    updatedAt: timestamp("updated_at", {
+      mode: "date",
+      withTimezone: true,
+    })
+      .defaultNow()
+      .notNull(),
+  },
+  (table) => [
+    index("lam_leave_applications_tenant_company_employee_idx").on(
+      table.tenantId,
+      table.companyId,
+      table.employeeId
+    ),
+    index("lam_leave_applications_tenant_company_status_idx").on(
+      table.tenantId,
+      table.companyId,
+      table.status
+    ),
+  ]
+);
+
+export const lamLeaveDocuments = xforge.table(
+  "lam_leave_documents",
+  {
+    id: uuid("id").defaultRandom().primaryKey(),
+    tenantId: uuid("tenant_id")
+      .notNull()
+      .references(() => tenants.id, { onDelete: "cascade" }),
+    companyId: uuid("company_id").references(() => companies.id, {
+      onDelete: "cascade",
+    }),
+    employeeId: text("employee_id").notNull(),
+    storageKey: text("storage_key").notNull(),
+    fileName: text("file_name").notNull(),
+    contentType: varchar("content_type", { length: 128 }).notNull(),
+    status: varchar("status", { length: 32 }).notNull(),
+    referenceNumber: text("reference_number"),
+    documentKind: varchar("document_kind", { length: 64 })
+      .notNull()
+      .default("supporting_document"),
+    panelClinicId: text("panel_clinic_id"),
+    panelClinicName: text("panel_clinic_name"),
+    issuedAt: timestamp("issued_at", {
+      mode: "date",
+      withTimezone: true,
+    }),
+    expiresAt: timestamp("expires_at", {
+      mode: "date",
+      withTimezone: true,
+    }),
+    hospitalizationAdmissionDate: timestamp("hospitalization_admission_date", {
+      mode: "date",
+      withTimezone: true,
+    }),
+    hospitalizationDischargeDate: timestamp("hospitalization_discharge_date", {
+      mode: "date",
+      withTimezone: true,
+    }),
+    sourceDocumentId: text("source_document_id"),
+    leaveApplicationId: text("leave_application_id"),
+    uploadedAt: timestamp("uploaded_at", {
+      mode: "date",
+      withTimezone: true,
+    }),
+    createdAt: timestamp("created_at", {
+      mode: "date",
+      withTimezone: true,
+    })
+      .defaultNow()
+      .notNull(),
+    updatedAt: timestamp("updated_at", {
+      mode: "date",
+      withTimezone: true,
+    })
+      .defaultNow()
+      .notNull(),
+  },
+  (table) => [
+    index("lam_leave_documents_tenant_company_employee_idx").on(
+      table.tenantId,
+      table.companyId,
+      table.employeeId
+    ),
+    index("lam_leave_documents_tenant_company_status_idx").on(
+      table.tenantId,
+      table.companyId,
+      table.status
+    ),
+    index("lam_leave_documents_leave_application_idx").on(
+      table.leaveApplicationId
+    ),
+    index("lam_leave_documents_document_kind_idx").on(
+      table.tenantId,
+      table.companyId,
+      table.documentKind
+    ),
+  ]
+);
+
+export const lamAuditReferences = xforge.table(
+  "lam_audit_references",
+  {
+    id: uuid("id").defaultRandom().primaryKey(),
+    tenantId: uuid("tenant_id")
+      .notNull()
+      .references(() => tenants.id, { onDelete: "cascade" }),
+    companyId: uuid("company_id").references(() => companies.id, {
+      onDelete: "cascade",
+    }),
+    auditEventId: uuid("audit_event_id"),
+    action: varchar("action", { length: 128 }).notNull(),
+    entityType: varchar("entity_type", { length: 64 }).notNull(),
+    entityId: text("entity_id").notNull(),
+    metadata: jsonb("metadata").$type<Record<string, unknown>>(),
+    createdAt: timestamp("created_at", {
+      mode: "date",
+      withTimezone: true,
+    })
+      .defaultNow()
+      .notNull(),
+  },
+  (table) => [
+    index("lam_audit_refs_tenant_entity_idx").on(
+      table.tenantId,
+      table.entityType,
+      table.entityId
+    ),
+    index("lam_audit_refs_tenant_action_idx").on(table.tenantId, table.action),
   ]
 );
 
@@ -1276,6 +1920,17 @@ export const tenantsRelations = relations(tenants, ({ many }) => ({
   complianceWorkerProfiles: many(complianceWorkerProfiles),
   customers: many(customers),
   hrOffboardingCases: many(hrOffboardingCases),
+  lamAttendanceRecords: many(lamAttendanceRecords),
+  lamAttendanceCorrections: many(lamAttendanceCorrections),
+  lamAuditReferences: many(lamAuditReferences),
+  lamLeaveApplications: many(lamLeaveApplications),
+  lamLeaveApprovalRoutes: many(lamLeaveApprovalRoutes),
+  lamLeaveBalances: many(lamLeaveBalances),
+  lamLeaveBlackoutPeriods: many(lamLeaveBlackoutPeriods),
+  lamLeaveCarryForwardRules: many(lamLeaveCarryForwardRules),
+  lamLeaveDocuments: many(lamLeaveDocuments),
+  lamLeaveEntitlementRules: many(lamLeaveEntitlementRules),
+  lamLeaveTypes: many(lamLeaveTypes),
   hrOrgPositions: many(hrOrgPositions),
   hrOrgReportingRelationships: many(hrOrgReportingRelationships),
   hrOrgStructureAuditReferences: many(hrOrgStructureAuditReferences),
@@ -1306,6 +1961,17 @@ export const companiesRelations = relations(companies, ({ one, many }) => ({
   complianceObligations: many(complianceObligations),
   complianceWorkerProfiles: many(complianceWorkerProfiles),
   hrOffboardingCases: many(hrOffboardingCases),
+  lamAttendanceRecords: many(lamAttendanceRecords),
+  lamAttendanceCorrections: many(lamAttendanceCorrections),
+  lamAuditReferences: many(lamAuditReferences),
+  lamLeaveApplications: many(lamLeaveApplications),
+  lamLeaveApprovalRoutes: many(lamLeaveApprovalRoutes),
+  lamLeaveBalances: many(lamLeaveBalances),
+  lamLeaveBlackoutPeriods: many(lamLeaveBlackoutPeriods),
+  lamLeaveCarryForwardRules: many(lamLeaveCarryForwardRules),
+  lamLeaveDocuments: many(lamLeaveDocuments),
+  lamLeaveEntitlementRules: many(lamLeaveEntitlementRules),
+  lamLeaveTypes: many(lamLeaveTypes),
   hrOrgPositions: many(hrOrgPositions),
   hrOrgReportingRelationships: many(hrOrgReportingRelationships),
   hrOrgStructureAuditReferences: many(hrOrgStructureAuditReferences),
@@ -1450,6 +2116,180 @@ export const hrOffboardingCasesRelations = relations(
     }),
     company: one(companies, {
       fields: [hrOffboardingCases.companyId],
+      references: [companies.id],
+    }),
+  })
+);
+
+export const lamAttendanceRecordsRelations = relations(
+  lamAttendanceRecords,
+  ({ one, many }) => ({
+    tenant: one(tenants, {
+      fields: [lamAttendanceRecords.tenantId],
+      references: [tenants.id],
+    }),
+    company: one(companies, {
+      fields: [lamAttendanceRecords.companyId],
+      references: [companies.id],
+    }),
+    corrections: many(lamAttendanceCorrections),
+  })
+);
+
+export const lamAttendanceCorrectionsRelations = relations(
+  lamAttendanceCorrections,
+  ({ one }) => ({
+    tenant: one(tenants, {
+      fields: [lamAttendanceCorrections.tenantId],
+      references: [tenants.id],
+    }),
+    company: one(companies, {
+      fields: [lamAttendanceCorrections.companyId],
+      references: [companies.id],
+    }),
+    attendanceRecord: one(lamAttendanceRecords, {
+      fields: [lamAttendanceCorrections.attendanceRecordId],
+      references: [lamAttendanceRecords.id],
+    }),
+    approvalRoute: one(lamLeaveApprovalRoutes, {
+      fields: [lamAttendanceCorrections.approvalRouteId],
+      references: [lamLeaveApprovalRoutes.id],
+    }),
+  })
+);
+
+export const lamCompanyAttendanceSettingsRelations = relations(
+  lamCompanyAttendanceSettings,
+  ({ one }) => ({
+    tenant: one(tenants, {
+      fields: [lamCompanyAttendanceSettings.tenantId],
+      references: [tenants.id],
+    }),
+    company: one(companies, {
+      fields: [lamCompanyAttendanceSettings.companyId],
+      references: [companies.id],
+    }),
+  })
+);
+
+export const lamLeaveTypesRelations = relations(lamLeaveTypes, ({ one }) => ({
+  tenant: one(tenants, {
+    fields: [lamLeaveTypes.tenantId],
+    references: [tenants.id],
+  }),
+  company: one(companies, {
+    fields: [lamLeaveTypes.companyId],
+    references: [companies.id],
+  }),
+}));
+
+export const lamLeaveEntitlementRulesRelations = relations(
+  lamLeaveEntitlementRules,
+  ({ one }) => ({
+    tenant: one(tenants, {
+      fields: [lamLeaveEntitlementRules.tenantId],
+      references: [tenants.id],
+    }),
+    company: one(companies, {
+      fields: [lamLeaveEntitlementRules.companyId],
+      references: [companies.id],
+    }),
+  })
+);
+
+export const lamLeaveCarryForwardRulesRelations = relations(
+  lamLeaveCarryForwardRules,
+  ({ one }) => ({
+    tenant: one(tenants, {
+      fields: [lamLeaveCarryForwardRules.tenantId],
+      references: [tenants.id],
+    }),
+    company: one(companies, {
+      fields: [lamLeaveCarryForwardRules.companyId],
+      references: [companies.id],
+    }),
+  })
+);
+
+export const lamLeaveBlackoutPeriodsRelations = relations(
+  lamLeaveBlackoutPeriods,
+  ({ one }) => ({
+    tenant: one(tenants, {
+      fields: [lamLeaveBlackoutPeriods.tenantId],
+      references: [tenants.id],
+    }),
+    company: one(companies, {
+      fields: [lamLeaveBlackoutPeriods.companyId],
+      references: [companies.id],
+    }),
+  })
+);
+
+export const lamLeaveApprovalRoutesRelations = relations(
+  lamLeaveApprovalRoutes,
+  ({ one }) => ({
+    tenant: one(tenants, {
+      fields: [lamLeaveApprovalRoutes.tenantId],
+      references: [tenants.id],
+    }),
+    company: one(companies, {
+      fields: [lamLeaveApprovalRoutes.companyId],
+      references: [companies.id],
+    }),
+  })
+);
+
+export const lamLeaveBalancesRelations = relations(
+  lamLeaveBalances,
+  ({ one }) => ({
+    tenant: one(tenants, {
+      fields: [lamLeaveBalances.tenantId],
+      references: [tenants.id],
+    }),
+    company: one(companies, {
+      fields: [lamLeaveBalances.companyId],
+      references: [companies.id],
+    }),
+  })
+);
+
+export const lamLeaveApplicationsRelations = relations(
+  lamLeaveApplications,
+  ({ one }) => ({
+    tenant: one(tenants, {
+      fields: [lamLeaveApplications.tenantId],
+      references: [tenants.id],
+    }),
+    company: one(companies, {
+      fields: [lamLeaveApplications.companyId],
+      references: [companies.id],
+    }),
+  })
+);
+
+export const lamLeaveDocumentsRelations = relations(
+  lamLeaveDocuments,
+  ({ one }) => ({
+    tenant: one(tenants, {
+      fields: [lamLeaveDocuments.tenantId],
+      references: [tenants.id],
+    }),
+    company: one(companies, {
+      fields: [lamLeaveDocuments.companyId],
+      references: [companies.id],
+    }),
+  })
+);
+
+export const lamAuditReferencesRelations = relations(
+  lamAuditReferences,
+  ({ one }) => ({
+    tenant: one(tenants, {
+      fields: [lamAuditReferences.tenantId],
+      references: [tenants.id],
+    }),
+    company: one(companies, {
+      fields: [lamAuditReferences.companyId],
       references: [companies.id],
     }),
   })
@@ -1631,6 +2471,30 @@ export const databaseSchema: Omit<
   customersRelations,
   hrOffboardingCases,
   hrOffboardingCasesRelations,
+  lamAttendanceRecords,
+  lamAttendanceRecordsRelations,
+  lamAttendanceCorrections,
+  lamAttendanceCorrectionsRelations,
+  lamCompanyAttendanceSettings,
+  lamCompanyAttendanceSettingsRelations,
+  lamAuditReferences,
+  lamAuditReferencesRelations,
+  lamLeaveApplications,
+  lamLeaveApplicationsRelations,
+  lamLeaveApprovalRoutes,
+  lamLeaveApprovalRoutesRelations,
+  lamLeaveBalances,
+  lamLeaveBalancesRelations,
+  lamLeaveBlackoutPeriods,
+  lamLeaveBlackoutPeriodsRelations,
+  lamLeaveCarryForwardRules,
+  lamLeaveCarryForwardRulesRelations,
+  lamLeaveDocuments,
+  lamLeaveDocumentsRelations,
+  lamLeaveEntitlementRules,
+  lamLeaveEntitlementRulesRelations,
+  lamLeaveTypes,
+  lamLeaveTypesRelations,
   hrOrgPositions,
   hrOrgPositionsRelations,
   hrOrgReportingRelationships,
@@ -1680,6 +2544,62 @@ export type NewEmployeeRecordStatusHistory = InferInsertModel<
 >;
 export type HrOffboardingCase = InferSelectModel<typeof hrOffboardingCases>;
 export type NewHrOffboardingCase = InferInsertModel<typeof hrOffboardingCases>;
+export type LamAttendanceRecordRow = InferSelectModel<
+  typeof lamAttendanceRecords
+>;
+export type NewLamAttendanceRecordRow = InferInsertModel<
+  typeof lamAttendanceRecords
+>;
+export type LamAttendanceCorrectionRow = InferSelectModel<
+  typeof lamAttendanceCorrections
+>;
+export type NewLamAttendanceCorrectionRow = InferInsertModel<
+  typeof lamAttendanceCorrections
+>;
+export type LamCompanyAttendanceSettingsRow = InferSelectModel<
+  typeof lamCompanyAttendanceSettings
+>;
+export type NewLamCompanyAttendanceSettingsRow = InferInsertModel<
+  typeof lamCompanyAttendanceSettings
+>;
+export type LamLeaveTypeRow = InferSelectModel<typeof lamLeaveTypes>;
+export type NewLamLeaveTypeRow = InferInsertModel<typeof lamLeaveTypes>;
+export type LamLeaveEntitlementRuleRow = InferSelectModel<
+  typeof lamLeaveEntitlementRules
+>;
+export type NewLamLeaveEntitlementRuleRow = InferInsertModel<
+  typeof lamLeaveEntitlementRules
+>;
+export type LamLeaveCarryForwardRuleRow = InferSelectModel<
+  typeof lamLeaveCarryForwardRules
+>;
+export type NewLamLeaveCarryForwardRuleRow = InferInsertModel<
+  typeof lamLeaveCarryForwardRules
+>;
+export type LamLeaveBalanceRow = InferSelectModel<typeof lamLeaveBalances>;
+export type NewLamLeaveBalanceRow = InferInsertModel<typeof lamLeaveBalances>;
+export type LamLeaveBlackoutPeriodRow = InferSelectModel<
+  typeof lamLeaveBlackoutPeriods
+>;
+export type NewLamLeaveBlackoutPeriodRow = InferInsertModel<
+  typeof lamLeaveBlackoutPeriods
+>;
+export type LamLeaveApprovalRouteRow = InferSelectModel<
+  typeof lamLeaveApprovalRoutes
+>;
+export type NewLamLeaveApprovalRouteRow = InferInsertModel<
+  typeof lamLeaveApprovalRoutes
+>;
+export type LamLeaveApplicationRow = InferSelectModel<
+  typeof lamLeaveApplications
+>;
+export type NewLamLeaveApplicationRow = InferInsertModel<
+  typeof lamLeaveApplications
+>;
+export type LamLeaveDocumentRow = InferSelectModel<typeof lamLeaveDocuments>;
+export type NewLamLeaveDocumentRow = InferInsertModel<typeof lamLeaveDocuments>;
+export type LamAuditReference = InferSelectModel<typeof lamAuditReferences>;
+export type NewLamAuditReference = InferInsertModel<typeof lamAuditReferences>;
 export type ComplianceEvidenceArtifact = InferSelectModel<
   typeof complianceEvidenceArtifacts
 >;
