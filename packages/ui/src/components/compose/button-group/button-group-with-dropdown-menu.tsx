@@ -18,7 +18,7 @@ export function ButtonGroupWithDropdownMenu() {
       <DropdownMenu>
         <DropdownMenuTrigger
           render={
-            <Button variant="outline" size="icon">
+            <Button variant="outline" size="icon" aria-label="More update options">
               <IconPlaceholder
                 lucide="ChevronDownIcon"
                 tabler="IconChevronDown"

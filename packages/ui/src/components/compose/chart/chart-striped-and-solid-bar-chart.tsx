@@ -5,7 +5,6 @@
 
 import type { CSSProperties } from "react";
 import { Bar, BarChart, XAxis } from "recharts";
-import { Badge } from "../../ui-shadcn/badge";
 import type { ChartConfig } from "./chart.shared";
 import {
   Card,
@@ -16,6 +15,7 @@ import {
   ChartContainer,
   ChartTooltip,
   ChartTooltipContent,
+  ChartTrendBadge,
 } from "./chart.shared";
 import { IconPlaceholder } from "./icon-placeholder";
 
@@ -45,7 +45,7 @@ export default function ChartBarPattern() {
       <CardHeader>
         <CardTitle>
           User Acquisition
-          <Badge variant="destructive-light" className="ml-2">
+          <ChartTrendBadge tone="destructive" className="ml-2">
             <IconPlaceholder
               lucide="TrendingDownIcon"
               tabler="IconTrendingDown"
@@ -55,7 +55,7 @@ export default function ChartBarPattern() {
               aria-hidden="true"
             />
             -15%
-          </Badge>
+          </ChartTrendBadge>
         </CardTitle>
         <CardDescription>Quarterly user growth tracking</CardDescription>
       </CardHeader>

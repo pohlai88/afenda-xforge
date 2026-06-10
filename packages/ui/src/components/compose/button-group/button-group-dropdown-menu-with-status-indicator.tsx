@@ -95,7 +95,7 @@ export function ButtonGroupDropdownMenuWithStatusIndicator() {
         <span>Production</span>
       </ButtonGroupText>
 
-      <Button variant="outline" size="icon">
+      <Button variant="outline" size="icon" aria-label="Refresh status">
         <IconPlaceholder
           lucide="RefreshCwIcon"
           tabler="IconRefreshDot"
@@ -106,7 +106,7 @@ export function ButtonGroupDropdownMenuWithStatusIndicator() {
         />
       </Button>
 
-      <Button variant="outline" size="icon">
+      <Button variant="outline" size="icon" aria-label="Open in new window">
         <IconPlaceholder
           lucide="ExternalLinkIcon"
           tabler="IconExternalLink"

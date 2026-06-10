@@ -36,7 +36,12 @@ export function CollapsibleFrame() {
               <div className="flex items-center justify-between gap-3">
                 <p className="text-sm font-medium">Notes and context</p>
                 <CollapsibleTrigger asChild>
-                  <Button variant="ghost" size="icon-sm" className="group">
+                  <Button
+                    aria-label="Toggle notes and context"
+                    variant="ghost"
+                    size="icon-sm"
+                    className="group"
+                  >
                     <ChevronDown className="size-4 transition-transform duration-200 group-data-[state=open]:rotate-180" />
                   </Button>
                 </CollapsibleTrigger>

@@ -26,6 +26,7 @@ import type {
 } from "./diagnostics.ts";
 import {
   bindRendererDiagnosticCorrelation,
+  createDeprecatedRendererDiagnostic,
   createMissingRendererDiagnostic,
   createRendererErrorDiagnostic,
 } from "./diagnostics.ts";
@@ -42,15 +43,47 @@ export type MetadataRendererResolution<TRenderer> = {
   renderer: TRenderer;
 };
 
+const resolveRegisteredRenderer = <TRenderer,>(
+  rendererType: MetadataRendererResolutionKind,
+  rendererKey: string,
+  registration:
+    | {
+        deprecated?: boolean;
+        renderer: TRenderer;
+        version: string;
+      }
+    | undefined
+): MetadataRendererResolution<TRenderer> | undefined => {
+  if (!registration) {
+    return;
+  }
+
+  return {
+    diagnostic: registration.deprecated
+      ? createDeprecatedRendererDiagnostic(
+          rendererType,
+          rendererKey,
+          registration.version
+        )
+      : undefined,
+    renderer: registration.renderer,
+  };
+};
+
 export function resolveMetadataFieldRenderer(
   kind: MetadataFieldKind | string | undefined,
   registry = defaultFieldRegistry
 ): MetadataRendererResolution<MetadataFieldRenderer> {
   const rendererKey = kind ?? "text";
   const registration = registry.resolve(rendererKey as MetadataFieldKind);
+  const resolved = resolveRegisteredRenderer(
+    "field",
+    rendererKey,
+    registration
+  );
 
-  if (registration) {
-    return { renderer: registration.renderer };
+  if (resolved) {
+    return resolved;
   }
 
   const diagnostic = createMissingRendererDiagnostic(
@@ -75,9 +108,14 @@ export function resolveMetadataActionRenderer(
 ): MetadataRendererResolution<MetadataActionRenderer> {
   const rendererKey = resolveActionSurface(actionOrSurface);
   const registration = registry.resolve(rendererKey as MetadataActionSurface);
+  const resolved = resolveRegisteredRenderer(
+    "action",
+    rendererKey,
+    registration
+  );
 
-  if (registration) {
-    return { renderer: registration.renderer };
+  if (resolved) {
+    return resolved;
   }
 
   const diagnostic = createMissingRendererDiagnostic(
@@ -98,9 +136,14 @@ export function resolveMetadataSectionRenderer(
 ): MetadataRendererResolution<MetadataSectionRenderer> {
   const rendererKey = kind ?? "section";
   const registration = registry.resolve(rendererKey as MetadataSectionKind);
+  const resolved = resolveRegisteredRenderer(
+    "section",
+    rendererKey,
+    registration
+  );
 
-  if (registration) {
-    return { renderer: registration.renderer };
+  if (resolved) {
+    return resolved;
   }
 
   const diagnostic = createMissingRendererDiagnostic(
@@ -121,9 +164,14 @@ export function resolveMetadataStateRenderer(
 ): MetadataRendererResolution<MetadataStateRenderer> {
   const rendererKey = state ?? "ready";
   const registration = registry.resolve(rendererKey as MetadataStateKind);
+  const resolved = resolveRegisteredRenderer(
+    "state",
+    rendererKey,
+    registration
+  );
 
-  if (registration) {
-    return { renderer: registration.renderer };
+  if (resolved) {
+    return resolved;
   }
 
   const diagnostic = createMissingRendererDiagnostic(

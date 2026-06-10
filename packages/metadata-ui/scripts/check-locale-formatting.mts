@@ -10,11 +10,12 @@ const formatterPath = join(
   "formatting",
   "metadata-value-formatter.ts"
 );
-const cellRenderersPath = join(
+const fieldTableCellDisplayPath = join(
   packageRoot,
   "src",
-  "components",
-  "metadata-cell-renderers.tsx"
+  "renderers",
+  "fields",
+  "field-table-cell-display.tsx"
 );
 const activityTablePath = join(
   packageRoot,
@@ -84,11 +85,25 @@ export function checkLocaleFormatting(): void {
     }
   }
 
-  const cellRendererSource = readFileSync(cellRenderersPath, "utf8");
+  const cellRendererSource = readFileSync(fieldTableCellDisplayPath, "utf8");
 
-  if (!cellRendererSource.includes("formatMetadataTableCellValue")) {
+  if (
+    !(
+      cellRendererSource.includes("renderMetadataTableCellSpan") ||
+      readFileSync(
+        join(
+          packageRoot,
+          "src",
+          "renderers",
+          "fields",
+          "date-field.renderer.tsx"
+        ),
+        "utf8"
+      ).includes("formatMetadataDate")
+    )
+  ) {
     violations.push(
-      `${relative(packageRoot, cellRenderersPath)}: must format date/money/number cells via metadata-value-formatter (MUI-VIS-007)`
+      `${relative(packageRoot, fieldTableCellDisplayPath)}: table cell display must route through field formatters (MUI-VIS-007)`
     );
   }
 
@@ -102,9 +117,9 @@ export function checkLocaleFormatting(): void {
 
   const metadataTableSource = readFileSync(metadataTablePath, "utf8");
 
-  if (!metadataTableSource.includes('"money"')) {
+  if (!metadataTableSource.includes("defaultFieldRegistry.has(")) {
     violations.push(
-      `${relative(packageRoot, metadataTablePath)}: must register locale-aware table cell kinds (MUI-VIS-007)`
+      `${relative(packageRoot, metadataTablePath)}: must align table cell kinds with defaultFieldRegistry (MUI-VIS-007)`
     );
   }
 

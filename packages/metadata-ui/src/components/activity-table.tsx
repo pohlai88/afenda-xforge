@@ -19,7 +19,10 @@ import type {
   ReactNode,
 } from "react";
 import { useDeferredValue, useEffect, useMemo, useState } from "react";
-import type { MetadataRenderDensity } from "../contracts/render-context.contract";
+import type {
+  MetadataRenderContext,
+  MetadataRenderDensity,
+} from "../contracts/render-context.contract";
 import {
   coerceDateValue,
   coerceNumericValue,
@@ -44,8 +47,8 @@ import {
   resolveSurfaceShellClassName,
 } from "../visualization/surface-visual-contract";
 import { MetadataMotionSkeleton } from "./metadata-motion-skeleton";
+import { renderMetadataStateBoundaryResult } from "./metadata-state-boundary";
 import { MetadataSurfaceRegion } from "./metadata-surface-region";
-import { StatePanel } from "./state-panel";
 
 type SortOrder = "asc" | "desc" | null;
 
@@ -59,6 +62,7 @@ const SKELETON_KEYS = [
 
 type ActivityTableProps = {
   columns?: readonly TableColumnMetadata[];
+  context?: Partial<MetadataRenderContext>;
   defaultSortColumn?: string;
   defaultSortOrder?: Exclude<SortOrder, null>;
   density?: MetadataRenderDensity;
@@ -203,6 +207,7 @@ const getAriaSort = (
 
 export function ActivityTable({
   columns,
+  context,
   defaultSortColumn,
   defaultSortOrder = "asc",
   density = "default",
@@ -319,57 +324,46 @@ export function ActivityTable({
   };
 
   if (forbidden) {
-    return (
-      <StatePanel
-        description="You do not have permission to view this table."
-        title="Access restricted"
-        tone="warning"
-      />
-    );
+    return renderMetadataStateBoundaryResult({
+      context,
+      forbiddenDescription: "You do not have permission to view this table.",
+      forbiddenTitle: "Access restricted",
+      state: "forbidden",
+    }).element as ReactElement;
   }
 
   if (error) {
-    return (
-      <StatePanel
-        action={
-          onRetry
-            ? {
-                label: "Retry",
-                onClick: onRetry,
-              }
-            : undefined
-        }
-        description={error}
-        title="Unable to load table"
-        tone="danger"
-      />
-    );
+    return renderMetadataStateBoundaryResult({
+      context,
+      error,
+      onRetry,
+      state: "error",
+    }).element as ReactElement;
   }
 
   if (loading) {
-    return (
-      <StatePanel
-        description="Loading rows for this table."
-        title="Loading"
-        tone="info"
-      >
+    return renderMetadataStateBoundaryResult({
+      children: (
         <div className="grid gap-3">
           {SKELETON_KEYS.map((key) => (
             <MetadataMotionSkeleton className="h-10 w-full" key={key} />
           ))}
         </div>
-      </StatePanel>
-    );
+      ),
+      context,
+      loadingDescription: "Loading rows for this table.",
+      loadingTitle: "Loading",
+      state: "loading",
+    }).element as ReactElement;
   }
 
   if (sortedRows.length === 0) {
-    return (
-      <StatePanel
-        description={emptyDescription}
-        title={emptyTitle}
-        tone="neutral"
-      />
-    );
+    return renderMetadataStateBoundaryResult({
+      context,
+      emptyDescription,
+      emptyTitle,
+      state: "empty",
+    }).element as ReactElement;
   }
 
   return (

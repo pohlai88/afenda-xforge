@@ -20,6 +20,8 @@ export type MetadataRenderMode = "create" | "read" | "review" | "update";
 
 export type MetadataRenderDensity = "compact" | "comfortable" | "default";
 
+export type MetadataSurfaceRole = "form-field" | "table-cell";
+
 export type MetadataRenderContext = MetadataActorScope &
   MetadataTenantScope & {
     capabilities: Readonly<Record<string, boolean>>;
@@ -35,6 +37,7 @@ export type MetadataRenderContext = MetadataActorScope &
     permissions: Readonly<Record<string, boolean>>;
     routeId?: string;
     surfaceId?: string;
+    surfaceRole?: MetadataSurfaceRole;
     state: MetadataUiState;
     telemetry?: MetadataTelemetrySink;
     timezone: string;

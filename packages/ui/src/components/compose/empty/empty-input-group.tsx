@@ -37,7 +37,10 @@ export function EmptyInputGroup() {
         </EmptyHeader>
         <EmptyContent>
           <InputGroup className="max-w-sm">
-            <InputGroupInput placeholder="team@example.com" />
+            <InputGroupInput
+              aria-label="Notification recipient email"
+              placeholder="team@example.com"
+            />
             <InputGroupAddon align="inline-end">
               <InputGroupButton size="icon-sm" aria-label="Add recipient">
                 <ArrowRight className="size-4" />

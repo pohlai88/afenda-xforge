@@ -38,6 +38,7 @@ export type MetadataFormProps = {
   loadingDescription?: string;
   loadingTitle?: string;
   onAction?: (action: MetadataActionContract) => void;
+  onFieldChange?: (fieldKey: string, value: unknown) => void;
   state?: MetadataRenderContext["state"];
   title?: string;
   values?: Record<string, unknown>;
@@ -60,6 +61,7 @@ export function renderMetadataFormResult({
   loadingDescription,
   loadingTitle,
   onAction,
+  onFieldChange,
   state = "ready",
   title,
   values,
@@ -98,6 +100,11 @@ export function renderMetadataFormResult({
       context: resolvedContext,
       disabled,
       field,
+      onChange: onFieldChange
+        ? (nextValue): void => {
+            onFieldChange(field.key, nextValue);
+          }
+        : undefined,
       value: values?.[field.key],
     })
   );

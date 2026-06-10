@@ -54,7 +54,12 @@ export function CollapsibleWithCheckboxSettings() {
               </p>
             </div>
             <CollapsibleTrigger asChild>
-              <Button variant="ghost" size="icon-sm" className="group">
+              <Button
+                aria-label="Toggle notification settings"
+                variant="ghost"
+                size="icon-sm"
+                className="group"
+              >
                 <ChevronDown className="size-4 transition-transform duration-200 group-data-[state=open]:rotate-180" />
               </Button>
             </CollapsibleTrigger>

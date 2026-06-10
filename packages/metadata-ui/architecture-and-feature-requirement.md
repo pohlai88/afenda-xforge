@@ -306,6 +306,8 @@ pnpm --filter @repo/metadata-ui check:reduced-motion    # prefers-reduced-motion
 # Storybook visual audit (`apps/storybook`) — renderer matrices, compose galleries, axe gates
 pnpm --filter storybook dev
 pnpm --filter storybook test:stories
+pnpm --filter storybook test:visual   # golden screenshots; baselines in tests/visual/__screenshots__
+# Hosted Storybook: https://pohlai88.github.io/afenda-xforge/ (GH Pages, storybook-pages.yml)
 ```
 
 Manual review checklist (from `frontend-design-review` + `web-design-guidelines`):
@@ -329,7 +331,7 @@ Manual review checklist (from `frontend-design-review` + `web-design-guidelines`
 | Registry-first | All renderers must be resolved through typed registries, not feature-local mappings. |
 | Fallback-safe | Unknown, invalid, forbidden, degraded, or unsupported metadata must render safe states. |
 | Observable by default | Rendering decisions must emit diagnostics and optional telemetry. |
-| Public API stable | All consumer imports must use explicit package subpaths. |
+| Public API stable | All consumer imports must use explicit package subpaths (`@repo/metadata-ui/<domain>`). Root barrel remains for backward compatibility only. |
 | Server authority preserved | UI may hide or disable actions, but server-side policy remains final. |
 | Generator-safe | Generation may create declarations, registries, fixtures, and docs, but not runtime logic. |
 | Test-enforced | Public API, renderer resolution, compatibility, and declaration drift must be tested. |
@@ -362,10 +364,10 @@ Gaps identified from code audit against production metadata-driven UI expectatio
 
 | Gap | Impact | Evidence | Target Requirement |
 | --- | --- | --- | --- |
-| No controlled field binding | Forms cannot participate in consumer form state; all fields use `defaultValue` (uncontrolled). | [`src/renderers/fields/`](./src/renderers/fields/) | MUI-013 |
-| Table cells bypass field registry | Column kinds resolved by hardcoded switch, not registry — inconsistent fallback and extension. | [`metadata-cell-renderers.tsx`](./src/components/metadata-cell-renderers.tsx) | MUI-018 |
-| `invalid-contract` diagnostic unused | Invalid metadata shapes are not validated at adapter entry; bad contracts may reach renderers silently. | [`diagnostics.contract.ts`](./src/contracts/diagnostics.contract.ts) | MUI-014 |
-| Consumer fixture test excluded from `pnpm test` | External import safety not verified in default test run. | [`tests/index.test.ts`](./tests/index.test.ts) | MUI-012 |
+| No controlled field binding | ~~Forms cannot participate in consumer form state~~ **Resolved:** controlled/uncontrolled binding via `onChange` / `onFieldChange`. | [`field-value-binding.ts`](./src/renderers/fields/field-value-binding.ts) | MUI-013 ✓ |
+| Table cells bypass field registry | ~~Column kinds resolved by hardcoded switch~~ **Resolved:** table cells route through `renderMetadataTableCellResult` → `renderMetadataField` with `surfaceRole: "table-cell"`. | [`ui-table-cell-adapter.tsx`](./src/adapters/ui-table-cell-adapter.tsx), [`field-table-cell-display.tsx`](./src/renderers/fields/field-table-cell-display.tsx) | MUI-018 ✓ |
+| `invalid-contract` diagnostic unused | ~~Invalid metadata shapes are not validated at adapter entry~~ **Resolved:** deep adapter-entry validation for field/action/section contracts. | [`contract-validation.ts`](./src/adapters/contract-validation.ts) | MUI-014 ✓ |
+| Consumer fixture test excluded from `pnpm test` | ~~External import safety not verified in default test run~~ **Resolved:** `pnpm test` runs vitest consumer fixture. | [`package.json`](./package.json) | MUI-012 ✓ |
 
 ### P1 — Weakens enterprise operability
 
@@ -375,7 +377,7 @@ Gaps identified from code audit against production metadata-driven UI expectatio
 | Locale on context unused | i18n cannot propagate through renderers; labels come directly from metadata strings. | [`render-context.contract.ts`](./src/contracts/render-context.contract.ts) | **Partial** — value formatting via `locale`/`timezone` (MUI-VIS-007); label resolution remains MUI-016 |
 | Customization limited to tables | Forms and section stacks cannot consume customization overlays. | [`metadata-table.tsx`](./src/components/metadata-table.tsx) | MUI-017 |
 | State renderers outside manifest | State family inconsistent with field/action/section generation and verification pipeline. | [`state-renderers.tsx`](./src/adapters/state-renderers.tsx) | MUI-007 |
-| No `./server` / `./client` entry points | Client bundle boundary not enforceable at import level. | [`package.json`](./package.json) | MUI-008 |
+| No `./server` / `./client` entry points | ~~Client bundle boundary not enforceable at import level~~ **Resolved:** explicit subpaths plus `check:client-server-boundaries`. | [`package.json`](./package.json), [`check-client-server-boundaries.mts`](./scripts/check-client-server-boundaries.mts) | MUI-008 ✓ |
 | Registry `version` ignored at resolve | Deprecation and version negotiation declared but not enforced. | [`create-renderer-registry.ts`](./src/registry/create-renderer-registry.ts) | MUI-007 |
 
 ### P2 — Quality and compliance debt
@@ -451,20 +453,22 @@ Gaps identified from code audit against production metadata-driven UI expectatio
 ```txt
 @repo/metadata-ui
 @repo/metadata-ui/adapters
+@repo/metadata-ui/client
 @repo/metadata-ui/components
 @repo/metadata-ui/contracts
 @repo/metadata-ui/compatibility
+@repo/metadata-ui/fixtures
 @repo/metadata-ui/policy
 @repo/metadata-ui/registry
 @repo/metadata-ui/renderers
+@repo/metadata-ui/server
 ```
 
-### Required for 9.5 completion
+Notes:
 
-```txt
-@repo/metadata-ui/server    ← server-safe exports (context factories, types, policy helpers)
-@repo/metadata-ui/client    ← client renderers and interactive components
-```
+- `@repo/metadata-ui/fixtures` is for Storybook, smoke tests, and verification fixtures — not production app imports.
+- `@repo/metadata-ui/server` exposes contracts, policy, and compatibility helpers without client renderer barrels.
+- `@repo/metadata-ui/client` exposes adapters, components, registries, and renderers for interactive UI surfaces.
 
 ---
 
@@ -552,10 +556,10 @@ Extracting `diagnostics/`, `runtime/`, and `telemetry/` into top-level folders i
 | `feature-flag-disabled` | Yes | Yes | Tested |
 | `readonly-mode` | Yes | Yes | Tested |
 | `disabled-renderer` | Yes | Yes | Tested |
-| `invalid-contract` | Yes | **No** | **Required (MUI-014)** |
-| `deprecated-renderer` | Yes | **No** | Required with version resolve (MUI-007) |
-| `duplicate-renderer` | Yes | **No** (build-time only) | Partial via manifest validation |
-| `unsupported-state` | Yes | **No** | Required when state enters manifest |
+| `invalid-contract` | Yes | Yes | Tested (`check:diagnostic-coverage`, adapter entry validation) |
+| `deprecated-renderer` | Yes | Yes | Tested (`check:diagnostic-coverage`, resolver deprecation warnings) |
+| `duplicate-renderer` | Yes | Yes (manifest/build) | Tested (`check:diagnostic-coverage`, manifest duplicate collector) |
+| `unsupported-state` | Yes | Yes | Tested (`check:diagnostic-coverage`, state adapter guard) |
 
 ---
 
@@ -583,24 +587,24 @@ Extracting `diagnostics/`, `runtime/`, and `telemetry/` into top-level folders i
 
 | Requirement | Status | Evidence |
 | --- | --- | --- |
-| MUI-001 | **Implemented** | [`package.json`](./package.json), [`scripts/check-public-api.mts`](./scripts/check-public-api.mts) |
-| MUI-002 | **Partial** | Adapters/registries implemented; table cells bypass registry — [`src/adapters`](./src/adapters), [`metadata-cell-renderers.tsx`](./src/components/metadata-cell-renderers.tsx) |
+| MUI-001 | **Implemented** | [`package.json`](./package.json), [`scripts/check-public-api.mts`](./scripts/check-public-api.mts), [`scripts/check-package-subpaths.mts`](./scripts/check-package-subpaths.mts), [`tests/package-subpaths.test.ts`](./tests/package-subpaths.test.ts) |
+| MUI-002 | **Implemented** | Forms, sections, actions, state boundaries, and table cells route through adapters/registries — [`src/adapters`](./src/adapters), [`check:adapter-pipeline`](./scripts/check-adapter-pipeline.mts), [`adapter-pipeline-surfaces.test.tsx`](./tests/adapter-pipeline-surfaces.test.tsx) |
 | MUI-003 | **Implemented** | [`src/renderers/states`](./src/renderers/states), [`tests/state-boundary.test.tsx`](./tests/state-boundary.test.tsx) |
 | MUI-004 | **Implemented** | [`src/adapters/diagnostics.ts`](./src/adapters/diagnostics.ts), [`scripts/check-telemetry-schema.mts`](./scripts/check-telemetry-schema.mts) |
 | MUI-005 | **Implemented** | [`src/policy/governance.ts`](./src/policy/governance.ts), [`scripts/check-boundaries.mts`](./scripts/check-boundaries.mts) |
 | MUI-006 | **Partial** | Missing/ forbidden fallbacks tested; invalid/partial/degraded contract paths untested — [`tests/diagnostics-and-fallbacks.test.tsx`](./tests/diagnostics-and-fallbacks.test.tsx) |
 | MUI-007 | **Partial** | Duplicate keys fail at manifest gen; no `check:renderer-registry`; version ignored at resolve — [`scripts/generate.mts`](./scripts/generate.mts) |
-| MUI-008 | **Not started** | No `./server` / `./client` exports — [`package.json`](./package.json) |
+| MUI-008 | **Implemented** | `./server` / `./client` subpaths + `check:client-server-boundaries` — [`src/server.ts`](./src/server.ts), [`src/client.ts`](./src/client.ts) |
 | MUI-009 | **Partial** | Correlation ID bound in adapters; not exhaustively asserted on all fallback paths — [`src/contracts/diagnostics.contract.ts`](./src/contracts/diagnostics.contract.ts) |
 | MUI-010 | **Implemented** | [`src/generated`](./src/generated), [`scripts/generate-registry.mts`](./scripts/generate-registry.mts), [`pnpm check:generated`](./package.json) |
 | MUI-011 | **Implemented** | [`scripts/check-declaration-snapshot.mts`](./scripts/check-declaration-snapshot.mts), [`snapshots/declaration-snapshot.json`](./snapshots/declaration-snapshot.json) |
-| MUI-012 | **Partial** | Fixture test exists but runs only via `check:consumer-fixture`, not `pnpm test` — [`tests/public-api-consumer.render.test.tsx`](./tests/public-api-consumer.render.test.tsx) |
-| MUI-013 | **Not started** | All field renderers uncontrolled — [`src/renderers/fields/`](./src/renderers/fields/) |
-| MUI-014 | **Not started** | `invalid-contract` declared, never emitted |
+| MUI-012 | **Implemented** | Consumer fixture in default `pnpm test` + `check:consumer-fixture-integration` — [`tests/public-api-consumer.render.test.tsx`](./tests/public-api-consumer.render.test.tsx) |
+| MUI-013 | **Implemented** | Controlled/uncontrolled field binding — [`field-value-binding.ts`](./src/renderers/fields/field-value-binding.ts) |
+| MUI-014 | **Implemented** | Deep adapter-entry contract validation + `check:contract-validation` — [`contract-validation.ts`](./src/adapters/contract-validation.ts) |
 | MUI-015 | **Not started** | Contracts only — [`src/contracts/layout.contract.ts`](./src/contracts/layout.contract.ts) |
 | MUI-016 | **Not started** | `locale` on context unused |
 | MUI-017 | **Partial** | Table surfaces only — [`src/components/metadata-table.tsx`](./src/components/metadata-table.tsx) |
-| MUI-018 | **Not started** | Hardcoded cell kinds — [`src/components/metadata-cell-renderers.tsx`](./src/components/metadata-cell-renderers.tsx) |
+| MUI-018 | **Implemented** | Table column kinds resolve through field registry via `renderMetadataTableCellResult` — [`ui-table-cell-adapter.tsx`](./src/adapters/ui-table-cell-adapter.tsx), [`field-table-cell-display.tsx`](./src/renderers/fields/field-table-cell-display.tsx) |
 
 ---
 
@@ -672,7 +676,7 @@ The package reaches production-enterprise 9.5 only when:
 | Risk | Severity | Mitigation |
 | --- | --- | --- |
 | Uncontrolled fields break form integration | High | MUI-013 — add `value`/`onChange` contract to field renderers |
-| Table cell pipeline bypass causes inconsistent fallbacks | High | MUI-018 — route cells through field registry |
+| Table cell pipeline bypass causes inconsistent fallbacks | ~~High~~ **Mitigated** | MUI-018 — cells route through field registry + `check:adapter-pipeline` |
 | Invalid metadata reaches renderers silently | High | MUI-014 — adapter-entry validation |
 | Client bundle pulls server concerns | Medium | MUI-008 — explicit entry points |
 | Customization inconsistency across surfaces | Medium | MUI-017 — universal resolution hook |
@@ -712,7 +716,7 @@ layout orchestration (until MUI-015 is implemented)
 
 **Last audited:** 2026-06-10
 
-MUI-001, MUI-003, MUI-004, MUI-005, MUI-010, MUI-011 are implemented. MUI-002, MUI-006, MUI-007, MUI-009, MUI-012, MUI-017 are partial. MUI-008, MUI-013, MUI-014, MUI-015, MUI-016, MUI-018 are not started.
+MUI-001, MUI-002, MUI-003, MUI-004, MUI-005, MUI-008, MUI-010, MUI-011, MUI-012, MUI-013, MUI-014, MUI-018 are implemented. MUI-006, MUI-007, MUI-009, MUI-017 are partial. MUI-015, MUI-016 are not started.
 
 | Area | Status | Evidence |
 | --- | --- | --- |
@@ -729,12 +733,12 @@ MUI-001, MUI-003, MUI-004, MUI-005, MUI-010, MUI-011 are implemented. MUI-002, M
 
 ### Planning Mark
 
-- `Implemented: MUI-001, MUI-003, MUI-004, MUI-005, MUI-010, MUI-011`
-- `Partial: MUI-002, MUI-006, MUI-007, MUI-009, MUI-012, MUI-017`
-- `Not started: MUI-008, MUI-013, MUI-014, MUI-015, MUI-016, MUI-018`
+- `Implemented: MUI-001, MUI-002, MUI-003, MUI-004, MUI-005, MUI-008, MUI-010, MUI-011, MUI-012, MUI-013, MUI-014, MUI-018`
+- `Partial: MUI-006, MUI-007, MUI-009, MUI-017`
+- `Not started: MUI-015, MUI-016`
 - `Visualization: MUI-VIS-001 through MUI-VIS-012 implemented`
-- `P0 next slices: MUI-013, MUI-014, MUI-018, MUI-012 (test runner integration)`
-- `Feature status: production-capable for read-only/list surfaces; form and pipeline-complete status blocked on P0 gaps`
+- `P0 next slices: MUI-015, MUI-016`
+- `Feature status: production-capable for read-only/list/form surfaces; remaining gaps are layout contracts and bundle graph enforcement`
 
 ---
 
@@ -742,14 +746,14 @@ MUI-001, MUI-003, MUI-004, MUI-005, MUI-010, MUI-011 are implemented. MUI-002, M
 
 | Element | Status | Code Evidence | Next Action |
 | --- | --- | --- | --- |
-| Adapter Pipeline | Implemented | [`src/adapters`](./src/adapters) | Add contract validation at entry (MUI-014) |
+| Adapter Pipeline | Implemented | [`src/adapters`](./src/adapters) | Contract validation at adapter entry (MUI-014) |
 | Registry + Manifest | Implemented | [`src/registry`](./src/registry), [`metadata-ui.manifest.ts`](./metadata-ui.manifest.ts) | Add `check:renderer-registry`; include states in manifest |
 | Fallback Runtime | Partial | [`src/adapters/fallbacks.tsx`](./src/adapters/fallbacks.tsx) | Test invalid/partial/degraded contract paths |
-| Field Renderers | Partial | [`src/renderers/fields/`](./src/renderers/fields/) | Add controlled binding (MUI-013) |
-| Table Cell Rendering | Gap | [`metadata-cell-renderers.tsx`](./src/components/metadata-cell-renderers.tsx) | Route through field registry (MUI-018) |
+| Field Renderers | Implemented | [`src/renderers/fields/`](./src/renderers/fields/) | Controlled binding via `field-value-binding.ts` (MUI-013) |
+| Table Cell Rendering | Implemented | [`ui-table-cell-adapter.tsx`](./src/adapters/ui-table-cell-adapter.tsx) | Field registry pipeline via `renderMetadataTableCellResult` (MUI-018 / AC #12) |
 | Layout/Composition | Not started | [`layout.contract.ts`](./src/contracts/layout.contract.ts) | Implement or remove from public API (MUI-015) |
 | Customization | Partial | [`metadata-table.tsx`](./src/components/metadata-table.tsx) | Universal resolution hook (MUI-017) |
-| Verification Tooling | Partial | [`scripts/`](./scripts) | Wire `check:renderer-registry`; fold consumer test into `pnpm test` |
+| Verification Tooling | Implemented | [`scripts/`](./scripts) | P0 gates for MUI-008/012/013/014 wired into `pnpm verify` |
 
 ---
 

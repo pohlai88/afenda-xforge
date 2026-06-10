@@ -1,11 +1,11 @@
 "use client";
 
-import { Badge, BadgePatternCard } from "./badge.shared";
+import { BadgePatternCard, StatusBadge } from "./badge.shared";
 
 export function BadgeWarningLight() {
   return (
     <BadgePatternCard title="Warning light badge">
-      <Badge variant="warning-light">Warning</Badge>
+      <StatusBadge tone="warning">Warning</StatusBadge>
     </BadgePatternCard>
   );
 }

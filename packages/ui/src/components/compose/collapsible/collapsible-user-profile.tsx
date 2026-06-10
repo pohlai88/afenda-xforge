@@ -50,7 +50,12 @@ export function CollapsibleUserProfile() {
               <p className="text-sm text-muted-foreground">Product lead</p>
             </div>
             <CollapsibleTrigger asChild>
-              <Button variant="ghost" size="icon-sm" className="group">
+              <Button
+                aria-label="Toggle profile details"
+                variant="ghost"
+                size="icon-sm"
+                className="group"
+              >
                 <ChevronDown className="size-4 transition-transform duration-200 group-data-[state=open]:rotate-180" />
               </Button>
             </CollapsibleTrigger>

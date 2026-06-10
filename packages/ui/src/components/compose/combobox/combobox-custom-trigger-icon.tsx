@@ -35,7 +35,10 @@ export function ComboboxCustomTriggerIcon() {
             placeholder="Open the custom trigger"
             showTrigger={false}
           >
-            <ComboboxTrigger className="[&>svg:last-child]:hidden absolute inset-y-0 right-0 h-full w-10 rounded-l-none">
+            <ComboboxTrigger
+              aria-label="Open fruit options"
+              className="[&>svg:last-child]:hidden absolute inset-y-0 right-0 h-full w-10 rounded-l-none"
+            >
               <SparklesIcon className="pointer-events-none size-4" />
             </ComboboxTrigger>
           </ComboboxInput>

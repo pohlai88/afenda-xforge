@@ -1,0 +1,68 @@
+name: Deploy Storybook Pages
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - "apps/storybook/**"
+      - "packages/ui/**"
+      - "packages/metadata-ui/**"
+      - "pnpm-lock.yaml"
+      - "pnpm-workspace.yaml"
+      - ".github/workflows/storybook-pages.yml"
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: storybook-pages
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    name: Publish Storybook to GitHub Pages
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Enable Corepack
+        run: corepack enable
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 10.0.0
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: pnpm
+
+      - name: Install
+        run: pnpm install --frozen-lockfile
+
+      - name: Verify metadata-ui generated artifacts
+        run: pnpm --filter @repo/metadata-ui check:generated
+
+      - name: Build Storybook for GitHub Pages
+        env:
+          STORYBOOK_BASE_PATH: /${{ github.event.repository.name }}/
+        run: pnpm --filter storybook build:pages
+
+      - name: Upload Pages artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: apps/storybook/storybook-static
+
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4

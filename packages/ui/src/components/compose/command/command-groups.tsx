@@ -4,13 +4,12 @@ import { Calendar, CreditCard, Settings, User } from "lucide-react";
 import {
   Command,
   CommandEmpty,
-  CommandGroup,
   CommandInput,
   CommandItem,
   CommandList,
-  CommandSeparator,
 } from "../../ui-shadcn/command";
 import { ComposePatternCard } from "../compose.pattern-shell";
+import { CommandGroup } from "./command.shared";
 
 export function CommandGroups() {
   return (
@@ -22,7 +21,7 @@ export function CommandGroups() {
         <CommandInput placeholder="Jump to a workspace action..." />
         <CommandList>
           <CommandEmpty>No matching command.</CommandEmpty>
-          <CommandGroup heading="Navigation">
+          <CommandGroup title="Navigation">
             <CommandItem>
               <Calendar className="size-4" />
               Calendar
@@ -32,8 +31,7 @@ export function CommandGroups() {
               Profile
             </CommandItem>
           </CommandGroup>
-          <CommandSeparator />
-          <CommandGroup heading="Settings">
+          <CommandGroup title="Settings" className="border-t border-border pt-2">
             <CommandItem>
               <CreditCard className="size-4" />
               Billing

@@ -23,6 +23,7 @@ type ScrollspyProps = React.PropsWithChildren<{
   history?: boolean;
   dataAttribute?: string;
   className?: string;
+  navLabel?: string;
 }>;
 
 type ScrollspyPatternCardProps = {
@@ -185,6 +186,7 @@ export function Scrollspy({
   smooth = true,
   history = true,
   dataAttribute = "scrollspy",
+  navLabel = "Scrollspy navigation",
   className,
   children,
 }: ScrollspyProps) {
@@ -312,7 +314,7 @@ export function Scrollspy({
   return (
     <nav
       ref={navRef}
-      aria-label="Scrollspy navigation"
+      aria-label={navLabel}
       className={cn("flex flex-col gap-2", className)}
     >
       {children}
@@ -340,7 +342,7 @@ export function ScrollspyLink({
         {...props}
         data-scrollspy-anchor={dataScrollspyAnchor}
         className={cn(
-          "inline-flex w-full cursor-pointer items-center justify-start gap-2 rounded-md px-3 py-2 text-left transition-colors data-[active=true]:bg-primary data-[active=true]:text-primary-foreground",
+          "inline-flex w-full cursor-pointer items-center justify-start gap-2 rounded-md px-3 py-2 text-left text-muted-foreground transition-colors hover:text-foreground data-[active=true]:bg-primary data-[active=true]:text-primary-foreground",
           className,
         )}
       >

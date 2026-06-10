@@ -40,6 +40,7 @@ const meta = {
     },
     disabled: { control: "boolean" },
     label: { control: "text" },
+    onClick: { action: "clicked" },
   },
 } satisfies Meta<typeof PrimitiveButtonShowcase>;
 

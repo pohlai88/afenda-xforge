@@ -459,8 +459,15 @@ function baseColumns({
       size: 42,
       enableSorting: false,
       enableHiding: false,
-      header: () => <GripVertical className="size-4 text-muted-foreground" />,
-      cell: () => <GripVertical className="size-4 text-muted-foreground" />,
+      header: () => (
+        <span className="flex items-center">
+          <span className="sr-only">Reorder rows</span>
+          <GripVertical aria-hidden className="size-4 text-muted-foreground" />
+        </span>
+      ),
+      cell: () => (
+        <GripVertical aria-hidden className="size-4 text-muted-foreground" />
+      ),
     });
   }
 
@@ -470,7 +477,12 @@ function baseColumns({
       size: 42,
       enableSorting: false,
       enableHiding: false,
-      header: () => <BadgeCheck className="size-4 text-muted-foreground" />,
+      header: () => (
+        <span className="flex items-center">
+          <span className="sr-only">Pin row</span>
+          <BadgeCheck aria-hidden className="size-4 text-muted-foreground" />
+        </span>
+      ),
       cell: ({ row }) => <DataGridTableRowPin row={row} />,
     });
   }
@@ -638,9 +650,10 @@ function baseColumns({
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
             <Button
-              variant="ghost"
-              size="icon-xs"
+              aria-label={`Actions for ${row.original.project}`}
               className="text-muted-foreground"
+              size="icon-xs"
+              variant="ghost"
             >
               <MoreHorizontal className="size-4" />
             </Button>

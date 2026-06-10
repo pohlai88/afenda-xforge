@@ -23,6 +23,7 @@ import {
   YAxis,
 } from "recharts";
 
+import { cn } from "../../../lib/utils";
 import { Badge } from "../../ui-shadcn/badge";
 import { Button } from "../../ui-shadcn/button";
 import {
@@ -219,6 +220,30 @@ const chartConfig = {
   },
 } satisfies ChartConfig;
 
+function TrendBadge({
+  tone,
+  children,
+  className,
+}: {
+  tone: "success" | "warning";
+  children: React.ReactNode;
+  className?: string;
+}) {
+  return (
+    <Badge
+      variant="outline"
+      className={cn(
+        tone === "success"
+          ? "border-transparent bg-success-muted text-success-muted-foreground"
+          : "border-transparent bg-warning-muted text-warning-muted-foreground",
+        className,
+      )}
+    >
+      {children}
+    </Badge>
+  );
+}
+
 function ChartMenu() {
   return (
     <DropdownMenu>
@@ -310,7 +335,7 @@ function ChartCard({
 function PeriodSelect() {
   return (
     <Select defaultValue="12m">
-      <SelectTrigger size="sm" className="w-32">
+      <SelectTrigger aria-label="Chart period" size="sm" className="w-32">
         <SelectValue placeholder="Period" />
       </SelectTrigger>
       <SelectContent>
@@ -444,10 +469,10 @@ function CashflowChart() {
         </div>
         <div className="flex items-center gap-3">
           <div className="text-3xl font-bold">${total.toLocaleString()}</div>
-          <Badge variant="success-light">
+          <TrendBadge tone="success">
             <TrendingUp />
             6.31%
-          </Badge>
+          </TrendBadge>
         </div>
       </div>
       <ChartContainer config={chartConfig} className="h-[300px] w-full">
@@ -552,10 +577,10 @@ function ConversionChart() {
     <ChartCard
       title="Conversion Funnel"
       action={
-        <Badge variant="primary-light">
+        <TrendBadge tone="success">
           <TrendingUp />
           +4.8%
-        </Badge>
+        </TrendBadge>
       }
     >
       <ChartContainer config={chartConfig} className="h-[320px] w-full">
@@ -669,7 +694,7 @@ function ForecastChart() {
   return (
     <ChartCard
       title="Revenue Forecast"
-      action={<Badge variant="warning-light">Forecast</Badge>}
+      action={<TrendBadge tone="warning">Forecast</TrendBadge>}
     >
       <ChartContainer config={chartConfig} className="h-[320px] w-full">
         <RechartsLineChart
@@ -807,10 +832,10 @@ function SparklineSummary() {
       <CardHeader className="pb-0">
         <CardTitle>ARR Growth</CardTitle>
         <CardAction>
-          <Badge variant="success-light">
+          <TrendBadge tone="success">
             <TrendingUp />
             18.2%
-          </Badge>
+          </TrendBadge>
         </CardAction>
       </CardHeader>
       <CardContent className="pt-4">

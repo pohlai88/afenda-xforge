@@ -35,6 +35,7 @@ export function ButtonGroupAdvancedGitToolbarWithBranchSelectionAndSplitCommitBu
           render={
             <Button
               size="icon"
+              aria-label="More execute options"
               className="border-primary-foreground/20 rounded-l-none border-l"
             />
           }

@@ -22,11 +22,12 @@ const activityTablePath = join(
   "activity-table.tsx"
 );
 
-const metadataCellRenderersPath = join(
+const fieldTableCellDisplayPath = join(
   packageRoot,
   "src",
-  "components",
-  "metadata-cell-renderers.tsx"
+  "renderers",
+  "fields",
+  "field-table-cell-display.tsx"
 );
 
 const statePanelPath = join(
@@ -163,8 +164,8 @@ export function checkKeyboardFocus(): void {
   );
 
   assertRequiredPatterns(
-    metadataCellRenderersPath,
-    readFileSync(metadataCellRenderersPath, "utf8"),
+    fieldTableCellDisplayPath,
+    readFileSync(fieldTableCellDisplayPath, "utf8"),
     [
       {
         pattern: /METADATA_INTERACTIVE_LINK_CLASS/,

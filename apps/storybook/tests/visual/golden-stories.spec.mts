@@ -125,11 +125,7 @@ async function captureStory(page: Page, storyId: string, snapshotName: string) {
       "*, *::before, *::after { animation-duration: 0s !important; transition-duration: 0s !important; }",
   });
 
-  if (storyId.includes("data-grid")) {
-    await page.waitForSelector("table", { timeout: 30_000 });
-  }
-
-  await delay(1500);
+  await delay(2000);
 
   const fs = await import("node:fs");
   await fs.promises.mkdir(snapshotDir, { recursive: true });

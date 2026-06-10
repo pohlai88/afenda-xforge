@@ -10,6 +10,9 @@ const storybookRoot = fileURLToPath(new URL("..", import.meta.url));
 const storiesDir = path.join(storybookRoot, "stories");
 const staticDir = path.join(storybookRoot, "storybook-static");
 
+const PLAY_TARGET = 6;
+const CHUNK_WARN_KB = 500;
+
 function countFiles(dir: string, pattern: RegExp): number {
   let count = 0;
 
@@ -40,13 +43,38 @@ function countPlayFunctions(): number {
   return count;
 }
 
-function largestJsChunk(): { name: string; bytes: number } | null {
-  const assetsDir = path.join(staticDir, "assets");
-  if (!fs.existsSync(assetsDir)) {
-    return null;
+function countA11yTiers(): { error: number; todo: number } {
+  let error = 0;
+  let todo = 0;
+
+  for (const file of fs.readdirSync(storiesDir)) {
+    if (!file.endsWith(".stories.tsx")) {
+      continue;
+    }
+
+    const content = fs.readFileSync(path.join(storiesDir, file), "utf8");
+    error += (content.match(/a11y:\s*\{\s*test:\s*["']error["']/g) ?? [])
+      .length;
+    todo += (content.match(/galleryStory\([^,]+,\s*["']todo["']\)/g) ?? [])
+      .length;
+    todo += (content.match(/a11y:\s*\{\s*test:\s*["']todo["']/g) ?? [])
+      .length;
   }
 
-  let largest: { name: string; bytes: number } | null = null;
+  return { error, todo };
+}
+
+function largestJsChunks(): {
+  overall: { name: string; bytes: number } | null;
+  composeCategory: { name: string; bytes: number } | null;
+} {
+  const assetsDir = path.join(staticDir, "assets");
+  if (!fs.existsSync(assetsDir)) {
+    return { overall: null, composeCategory: null };
+  }
+
+  let overall: { name: string; bytes: number } | null = null;
+  let composeCategory: { name: string; bytes: number } | null = null;
 
   for (const name of fs.readdirSync(assetsDir)) {
     if (!name.endsWith(".js")) {
@@ -54,26 +82,61 @@ function largestJsChunk(): { name: string; bytes: number } | null {
     }
 
     const bytes = fs.statSync(path.join(assetsDir, name)).size;
-    if (!largest || bytes > largest.bytes) {
-      largest = { name, bytes };
+    if (!overall || bytes > overall.bytes) {
+      overall = { name, bytes };
+    }
+
+    if (
+      name.startsWith("ui-compose-") &&
+      (!composeCategory || bytes > composeCategory.bytes)
+    ) {
+      composeCategory = { name, bytes };
     }
   }
 
-  return largest;
+  return { overall, composeCategory };
 }
 
 const storyFileCount = countFiles(storiesDir, /\.stories\.tsx$/);
 const mdxCount = countFiles(storiesDir, /\.mdx$/);
 const playCount = countPlayFunctions();
-const largest = largestJsChunk();
+const a11yTiers = countA11yTiers();
+const { overall: largest, composeCategory } = largestJsChunks();
 
 console.log("Storybook scorecard");
 console.log(`  story files: ${storyFileCount}`);
 console.log(`  mdx docs: ${mdxCount}`);
-console.log(`  play functions: ${playCount}`);
+console.log(`  play functions: ${playCount} (target: ${PLAY_TARGET}+)`);
+console.log(
+  `  a11y tiers: error=${a11yTiers.error} todo=${a11yTiers.todo} (story-level markers)`
+);
+
 if (largest) {
-  const kb = (largest.bytes / 1024).toFixed(1);
-  console.log(`  largest JS chunk: ${largest.name} (${kb} KB)`);
+  const kb = largest.bytes / 1024;
+  console.log(`  largest JS chunk: ${largest.name} (${kb.toFixed(1)} KB)`);
+  if (!largest.name.startsWith("iframe-") && kb > CHUNK_WARN_KB) {
+    console.warn(
+      `  warning: largest chunk exceeds ${CHUNK_WARN_KB} KB plan target`
+    );
+  }
 } else {
   console.log("  largest JS chunk: (run check:build first)");
+}
+
+if (composeCategory) {
+  const kb = composeCategory.bytes / 1024;
+  console.log(
+    `  largest compose category chunk: ${composeCategory.name} (${kb.toFixed(1)} KB)`
+  );
+  if (kb > CHUNK_WARN_KB) {
+    console.warn(
+      `  warning: compose category chunk exceeds ${CHUNK_WARN_KB} KB plan target`
+    );
+  }
+}
+
+if (playCount < PLAY_TARGET) {
+  console.warn(
+    `  warning: play functions below target (${playCount}/${PLAY_TARGET})`
+  );
 }

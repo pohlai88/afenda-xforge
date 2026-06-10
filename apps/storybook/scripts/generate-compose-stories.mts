@@ -45,20 +45,19 @@ const storiesDir = path.resolve(
 
 const legacyMonolith = path.join(storiesDir, "ui-compose-galleries.stories.tsx");
 
-/** Manifest-priority compose groups promoted to CI a11y gates after @repo/ui fixes. */
-const A11Y_ERROR_GROUPS = new Set([
-  "button",
-  "checkbox",
-  "field",
-  "dropdown-menu",
-  "card",
-  "tabs",
-  "empty",
-  "skeleton",
-]);
+/** All compose registry groups gate at error in test:stories (batches 1–3). */
+const A11Y_ERROR_GROUPS = new Set(
+  composeRegistryGroups.map((group) => group.name)
+);
 
-function galleryImportPath(name: string, exportName: string): string {
-  return `import { ${exportName} } from "../../../packages/ui/src/components/compose/${name}/${name}-gallery";`;
+function lazyGalleryStoryLine(
+  name: string,
+  storyExportName: string,
+  a11yTier: string
+): string {
+  const galleryExport = `${storyExportName}ComposeGallery`;
+  const importPath = `../../../packages/ui/src/components/compose/${name}/${name}-gallery`;
+  return `export const ${storyExportName}: Story = lazyGalleryStory(() => import("${importPath}").then((module) => ({ default: module.${galleryExport} })), "${a11yTier}");`;
 }
 
 function generateCategoryFile(
@@ -70,33 +69,48 @@ function generateCategoryFile(
     kinds.includes(group.kind)
   );
 
-  const imports = groups
-    .map((group) => {
-      const exportName = `${toStoryExportName(group.name)}ComposeGallery`;
-      return galleryImportPath(group.name, exportName);
-    })
-    .join("\n");
-
   const stories = groups
     .map((group) => {
       const exportName = toStoryExportName(group.name);
       const a11yTier = A11Y_ERROR_GROUPS.has(group.name) ? "error" : "todo";
-      return `export const ${exportName}: Story = galleryStory(${exportName}ComposeGallery, "${a11yTier}");`;
+      return lazyGalleryStoryLine(group.name, exportName, a11yTier);
     })
     .join("\n");
 
-  const content = `${imports}
-import type { Meta, StoryObj } from "@storybook/react";
+  const formDocsExtras =
+    file === "ui-compose-form.stories.tsx"
+      ? `
+    docs: {
+      description: {
+        component:
+          "Data-entry and action compose galleries. Stories promoted to a11y.test error enforce axe in test:stories.",
+      },
+    },`
+      : "";
 
-import { galleryStory } from "./ui-compose-story-utils";
+  const formArgTypes =
+    file === "ui-compose-form.stories.tsx"
+      ? `
+  argTypes: {
+    showLink: {
+      control: "boolean",
+      description: "Compose autodocs argTypes example (see UI Primitives Actions)",
+      table: { category: "Compose controls example" },
+    },
+  },`
+      : "";
+
+  const content = `import type { Meta, StoryObj } from "@storybook/react";
+
+import { lazyGalleryStory } from "./ui-compose-story-utils";
 
 const meta = {
   title: "${title}",
   parameters: {
     layout: "fullscreen",
-    a11y: { test: "todo" as const },
+    a11y: { test: "todo" as const },${formDocsExtras}
   },
-  tags: ["autodocs"],
+  tags: ["autodocs"],${formArgTypes}
 } satisfies Meta;
 
 export default meta;

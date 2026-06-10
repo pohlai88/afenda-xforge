@@ -33,8 +33,8 @@ assert.doesNotMatch(
 
 assert.match(
   dashboardViewSource,
-  /from\s+["']@repo\/metadata-ui["']/,
-  "dashboard view must consume metadata-ui through the public package export"
+  /from\s+["']@repo\/metadata-ui(?:\/components)?["']/,
+  "dashboard view must consume metadata-ui through an explicit package subpath"
 );
 assert.doesNotMatch(
   dashboardViewSource,

@@ -4,7 +4,6 @@ import type { CSSProperties } from "react";
 import { useMemo } from "react";
 import { Bar, BarChart, XAxis } from "recharts";
 
-import { Badge } from "../../ui-shadcn/badge";
 import type { ChartConfig } from "./chart.shared";
 import {
   Card,
@@ -15,6 +14,7 @@ import {
   ChartContainer,
   ChartTooltip,
   ChartTooltipContent,
+  ChartTrendBadge,
 } from "./chart.shared";
 import { IconPlaceholder } from "./icon-placeholder";
 
@@ -51,7 +51,7 @@ export default function Pattern() {
           <span className="ml-auto text-xl tracking-tighter">
             ${highlighted.desktop}
           </span>
-          <Badge variant="success-light">
+          <ChartTrendBadge>
             <IconPlaceholder
               lucide="TrendingUpIcon"
               tabler="IconTrendingUp"
@@ -61,7 +61,7 @@ export default function Pattern() {
               aria-hidden="true"
             />
             <span>5.2%</span>
-          </Badge>
+          </ChartTrendBadge>
         </CardTitle>
         <CardDescription>Real-time funnel conversion tracking</CardDescription>
       </CardHeader>

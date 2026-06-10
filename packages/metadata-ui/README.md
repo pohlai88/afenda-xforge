@@ -33,7 +33,7 @@ Example: compose UI primitives with metadata
 ```tsx
 import type { EntityMetadata } from "@repo/metadata";
 import { Badge, Button, Card, CardContent, CardHeader, CardTitle, Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@repo/ui";
-import { EntityMetadataPanel } from "@repo/metadata-ui";
+import { EntityMetadataPanel } from "@repo/metadata-ui/components";
 
 const invoiceMetadata: EntityMetadata = {
   id: "billing.invoices",

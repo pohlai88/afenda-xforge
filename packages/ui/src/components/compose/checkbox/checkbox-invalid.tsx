@@ -12,12 +12,20 @@ export function CheckboxInvalid() {
     >
       <div className="grid gap-2">
         <div className="flex items-center gap-3">
-          <Checkbox aria-invalid id="checkbox-invalid" />
+          <Checkbox
+            aria-describedby="checkbox-invalid-error"
+            aria-invalid
+            id="checkbox-invalid"
+          />
           <Label htmlFor="checkbox-invalid">
             I agree to the privacy policy
           </Label>
         </div>
-        <p className="text-sm text-destructive">
+        <p
+          className="text-sm text-destructive"
+          id="checkbox-invalid-error"
+          role="alert"
+        >
           You must accept the privacy policy before continuing.
         </p>
       </div>

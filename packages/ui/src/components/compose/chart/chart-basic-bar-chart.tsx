@@ -2,7 +2,6 @@
 // Order: 1
 
 import { Bar, BarChart, CartesianGrid, XAxis } from "recharts";
-import { Badge } from "../../ui-shadcn/badge";
 import type { ChartConfig } from "./chart.shared";
 import {
   Card,
@@ -13,6 +12,7 @@ import {
   ChartContainer,
   ChartTooltip,
   ChartTooltipContent,
+  ChartTrendBadge,
 } from "./chart.shared";
 import { IconPlaceholder } from "./icon-placeholder";
 
@@ -44,7 +44,7 @@ export default function ChartBar() {
       <CardHeader>
         <CardTitle>
           Revenue Growth
-          <Badge variant="success-light" className="ml-2">
+          <ChartTrendBadge className="ml-2">
             <IconPlaceholder
               lucide="TrendingUpIcon"
               tabler="IconTrendingUp"
@@ -54,7 +54,7 @@ export default function ChartBar() {
               aria-hidden="true"
             />
             +5.2%
-          </Badge>
+          </ChartTrendBadge>
         </CardTitle>
         <CardDescription>Monthly revenue performance tracking</CardDescription>
       </CardHeader>

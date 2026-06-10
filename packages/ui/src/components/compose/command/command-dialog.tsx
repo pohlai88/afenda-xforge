@@ -6,14 +6,13 @@ import { Button } from "../../ui-shadcn/button";
 import {
   CommandDialog as CommandDialogPrimitive,
   CommandEmpty,
-  CommandGroup,
   CommandInput,
   CommandItem,
   CommandList,
-  CommandSeparator,
 } from "../../ui-shadcn/command";
 import { Kbd, KbdGroup } from "../../ui-shadcn/kbd";
 import { ComposePatternCard } from "../compose.pattern-shell";
+import { CommandGroup } from "./command.shared";
 
 export function CommandDialogPattern() {
   const [open, setOpen] = useState(false);
@@ -71,7 +70,7 @@ export function CommandDialogPattern() {
         <CommandInput placeholder="Type a command or search..." />
         <CommandList>
           <CommandEmpty>No results found.</CommandEmpty>
-          <CommandGroup heading="Suggestions">
+          <CommandGroup title="Suggestions">
             <CommandItem>
               <Calendar className="size-4" />
               Calendar
@@ -81,8 +80,7 @@ export function CommandDialogPattern() {
               Notifications
             </CommandItem>
           </CommandGroup>
-          <CommandSeparator />
-          <CommandGroup heading="Workspace">
+          <CommandGroup title="Workspace" className="border-t border-border pt-2">
             <CommandItem>
               <CreditCard className="size-4" />
               Billing

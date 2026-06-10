@@ -5,7 +5,6 @@
 
 import type { CSSProperties } from "react";
 import { Bar, BarChart, CartesianGrid, XAxis } from "recharts";
-import { Badge } from "../../ui-shadcn/badge";
 import type { ChartConfig } from "./chart.shared";
 import {
   Card,
@@ -16,6 +15,7 @@ import {
   ChartContainer,
   ChartTooltip,
   ChartTooltipContent,
+  ChartTrendBadge,
 } from "./chart.shared";
 import { IconPlaceholder } from "./icon-placeholder";
 
@@ -45,7 +45,7 @@ export default function ChartBar() {
       <CardHeader>
         <CardTitle>
           Market Share
-          <Badge variant="warning-light" className="ml-2">
+          <ChartTrendBadge tone="warning" className="ml-2">
             <IconPlaceholder
               lucide="TrendingUpIcon"
               tabler="IconTrendingUp"
@@ -55,7 +55,7 @@ export default function ChartBar() {
               aria-hidden="true"
             />
             +12%
-          </Badge>
+          </ChartTrendBadge>
         </CardTitle>
         <CardDescription>Departmental performance comparison</CardDescription>
       </CardHeader>

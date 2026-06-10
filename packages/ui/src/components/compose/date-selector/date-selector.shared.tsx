@@ -14,6 +14,7 @@ import {
   useCallback,
   useContext,
   useEffect,
+  useId,
   useMemo,
   useState,
 } from "react";
@@ -24,8 +25,7 @@ import { cn } from "../../../lib/utils";
 import { Button } from "../../ui-shadcn/button";
 import { Calendar, CalendarDayButton } from "../../ui-shadcn/calendar";
 import { Input } from "../../ui-shadcn/input";
-import { ScrollArea } from "../../ui-shadcn/scroll-area";
-import { Tabs, TabsList, TabsTrigger } from "../../ui-shadcn/tabs";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "../../ui-shadcn/tabs";
 import { IconPlaceholder } from "../button-group/icon-placeholder";
 
 export interface DateSelectorI18nConfig {
@@ -575,38 +575,30 @@ function DateSelectorFilterToggle({
         )}
       >
         {showIs && (
-          <TabsTrigger
-            value="is"
-            aria-label={i18n.filterTypes.is}
-            className="py-1 font-normal"
-          >
+          <TabsTrigger value="is" className="py-1 font-normal">
             {i18n.filterTypes.is}
           </TabsTrigger>
         )}
-        <TabsTrigger
-          value="before"
-          aria-label={i18n.filterTypes.before}
-          className="py-1 font-normal"
-        >
+        <TabsTrigger value="before" className="py-1 font-normal">
           {i18n.filterTypes.before}
         </TabsTrigger>
-        <TabsTrigger
-          value="after"
-          aria-label={i18n.filterTypes.after}
-          className="py-1 font-normal"
-        >
+        <TabsTrigger value="after" className="py-1 font-normal">
           {i18n.filterTypes.after}
         </TabsTrigger>
         {showBetween && (
-          <TabsTrigger
-            value="between"
-            aria-label={i18n.filterTypes.between}
-            className="py-1 font-normal"
-          >
+          <TabsTrigger value="between" className="py-1 font-normal">
             {i18n.filterTypes.between}
           </TabsTrigger>
         )}
       </TabsList>
+      {showIs ? (
+        <TabsContent value="is" forceMount hidden className="sr-only" />
+      ) : null}
+      <TabsContent value="before" forceMount hidden className="sr-only" />
+      <TabsContent value="after" forceMount hidden className="sr-only" />
+      {showBetween ? (
+        <TabsContent value="between" forceMount hidden className="sr-only" />
+      ) : null}
     </Tabs>
   );
 }
@@ -664,13 +656,21 @@ function DateSelectorPeriodTabs({
             <TabsTrigger
               key={tab.value}
               value={tab.value}
-              aria-label={tab.label}
               className="px-1 py-1 font-normal sm:px-2.5"
             >
               {tab.label}
             </TabsTrigger>
           ))}
         </TabsList>
+        {filteredTabs.map((tab) => (
+          <TabsContent
+            key={tab.value}
+            value={tab.value}
+            forceMount
+            hidden
+            className="sr-only"
+          />
+        ))}
       </Tabs>
       {showNavigationButtons &&
         value === "day" &&
@@ -695,6 +695,7 @@ function DateSelectorPeriodTabs({
                   className="size-8.5"
                   onClick={() => onMonthChange(new Date())}
                   title={i18n.today}
+                  aria-label={i18n.today}
                 >
                   {isFuture ? (
                     <IconPlaceholder
@@ -720,6 +721,7 @@ function DateSelectorPeriodTabs({
               variant="ghost"
               className="size-8.5"
               onClick={() => onMonthChange(subMonths(calendarMonth, 1))}
+              aria-label="Previous month"
             >
               <IconPlaceholder
                 lucide="ChevronLeftIcon"
@@ -734,6 +736,7 @@ function DateSelectorPeriodTabs({
               variant="ghost"
               className="size-8.5"
               onClick={() => onMonthChange(addMonths(calendarMonth, 1))}
+              aria-label="Next month"
             >
               <IconPlaceholder
                 lucide="ChevronRightIcon"
@@ -809,9 +812,12 @@ function DateSelectorDayPicker({
   // Create custom DayButton component with hover support
   const CustomDayButton = useCallback(
     (props: ComponentProps<typeof DayButton>) => {
+      const dayLabel = format(props.day.date, "MMMM d, yyyy");
+
       return (
         <CalendarDayButton
           {...props}
+          aria-label={dayLabel}
           onMouseEnter={() => {
             if (isRange && onDayHover && props.day) {
               onDayHover(props.day.date);
@@ -1109,6 +1115,7 @@ export function DateSelector({
   const displayValue = formatDateValue(currentValue, mergedI18n, dayDateFormat);
   const [inputValue, setInputValue] = useState(displayValue);
   const [isInputFocused, setIsInputFocused] = useState(false);
+  const inputId = useId();
 
   // Sync input value when displayValue changes (but not when user is typing)
   useEffect(() => {
@@ -1225,11 +1232,15 @@ export function DateSelector({
     >
       <div className={cn("w-full space-y-4 sm:w-[470px]", className)}>
         <div className="flex flex-wrap items-center gap-3">
-          {label && (
-            <h3 className="text-sm font-medium" data-slot="data-selector-label">
+          {label ? (
+            <label
+              htmlFor={inputId}
+              className="text-sm font-medium"
+              data-slot="data-selector-label"
+            >
               {label}
-            </h3>
-          )}
+            </label>
+          ) : null}
           <DateSelectorFilterToggle
             value={filterType}
             onChange={setFilterType}
@@ -1240,9 +1251,11 @@ export function DateSelector({
         {showInput && (
           <div className="relative">
             <Input
+              id={inputId}
               type="text"
               value={inputHint ? inputValue : displayValue}
               readOnly={!inputHint}
+              aria-label={label ? undefined : mergedI18n.placeholder}
               placeholder={
                 isInputFocused && inputHint ? inputHint : mergedI18n.placeholder
               }
@@ -1254,6 +1267,7 @@ export function DateSelector({
               <button
                 type="button"
                 onClick={clearSelection}
+                aria-label={mergedI18n.clear}
                 className={cn(
                   // Base Styles
                   "absolute end-2.5 top-1/2 size-4 -translate-y-1/2 cursor-pointer rounded-xs",
@@ -1300,7 +1314,13 @@ export function DateSelector({
           </div>
         ) : (
           <div className="-mr-3 w-full">
-            <ScrollArea key={periodType} className="h-[200px] w-full pe-3">
+            <div
+              key={periodType}
+              className="h-[200px] w-full overflow-y-auto pe-3 outline-none focus-visible:ring-2 focus-visible:ring-ring/50"
+              tabIndex={0}
+              role="region"
+              aria-label={`Select ${periodType}`}
+            >
               {periodType === "month" && (
                 <DateSelectorPeriodGrid
                   years={years}
@@ -1353,7 +1373,7 @@ export function DateSelector({
                   onSelect={handleYearSelect}
                 />
               )}
-            </ScrollArea>
+            </div>
           </div>
         )}
       </div>

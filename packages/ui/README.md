@@ -25,6 +25,8 @@ Visual review:
 
 - Run `pnpm --filter storybook dev` for the local Storybook workspace
 - Compose galleries and primitives live under `UI` in Storybook; build with `pnpm --filter storybook build`
+- CI gates: `pnpm --filter storybook test:stories` (interaction + axe), `pnpm --filter storybook test:visual` (golden screenshots in `apps/storybook/tests/visual/__screenshots__`)
+- Hosted Storybook: [https://pohlai88.github.io/afenda-xforge/](https://pohlai88.github.io/afenda-xforge/) (deployed from `main` via `storybook-pages.yml`)
 
 Source layout:
 

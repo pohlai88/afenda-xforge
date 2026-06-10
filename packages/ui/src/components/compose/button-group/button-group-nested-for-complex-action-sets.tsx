@@ -19,7 +19,7 @@ export function ButtonGroupNestedForComplexActionSets() {
   return (
     <ButtonGroup>
       <ButtonGroup>
-        <Button variant="outline" size="icon">
+        <Button variant="outline" size="icon" aria-label="Send message">
           <IconPlaceholder
             lucide="SendIcon"
             tabler="IconSend"

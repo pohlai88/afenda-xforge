@@ -52,9 +52,6 @@ jobs:
       - name: Storybook scorecard
         run: pnpm --filter storybook scorecard
 
-      - name: Install Playwright Chromium
-        run: pnpm --filter storybook pretest:browser
-
       - name: Story interaction tests
         run: pnpm --filter storybook test:stories
 
@@ -85,8 +82,8 @@ jobs:
       - name: Install
         run: pnpm install --frozen-lockfile
 
-      - name: Install Playwright Chromium
-        run: pnpm --filter storybook pretest:browser
+      - name: Verify metadata-ui generated artifacts
+        run: pnpm --filter @repo/metadata-ui check:generated
 
       - name: Visual regression
         run: pnpm --filter storybook test:visual

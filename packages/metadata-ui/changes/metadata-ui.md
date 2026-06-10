@@ -114,6 +114,38 @@ Use this file for package-local public API notes when the repo does not require 
 - Snapshot updated: Yes, `snapshots/declaration-snapshot.json`.
 - Follow-up: Run `pnpm --filter @repo/metadata-ui check:diagnostics-visual` when changing fallback or diagnostics surfacing behavior.
 
+## 2026-06-10 (Diagnostic code coverage)
+
+- Date: 2026-06-10
+- Change: Closed diagnostic code coverage gaps for `invalid-contract`, `deprecated-renderer`, `duplicate-renderer`, and `unsupported-state` with adapter/resolver emission, `contract-validation.ts`, `check:diagnostic-coverage`, and diagnostic code coverage tests.
+- Public impact: New adapter exports for contract validation helpers and diagnostic factories. Invalid field/action/section contracts, deprecated renderer registrations, duplicate manifest keys, and unsupported runtime states now emit typed diagnostics instead of failing silently.
+- Snapshot updated: Yes, `snapshots/declaration-snapshot.json`.
+- Follow-up: Run `pnpm --filter @repo/metadata-ui check:diagnostic-coverage` when adding diagnostic codes or changing adapter entry validation.
+
+## 2026-06-10 (MUI-001 / AC #1)
+
+- Date: 2026-06-10
+- Change: Closed Enterprise Acceptance Criteria #1 gaps with `./server` and `./client` subpaths, `check:package-subpaths`, subpath import tests, and consumer fixture imports through explicit export map paths.
+- Public impact: Consumers should import via `@repo/metadata-ui/adapters`, `/components`, `/contracts`, `/server`, `/client`, etc. Root barrel remains for backward compatibility.
+- Snapshot updated: Yes, `snapshots/declaration-snapshot.json`.
+- Follow-up: Run `pnpm --filter @repo/metadata-ui check:package-subpaths` when adding or renaming public subpaths.
+
+## 2026-06-10 (MUI-002 / AC #2)
+
+- Date: 2026-06-10
+- Change: Implemented MUI-002 adapter/registry pipeline end to end for all metadata surfaces: new `renderMetadataTableCellResult` routes table cells through `renderMetadataField` with `surfaceRole: "table-cell"`, field renderers gained compact table-cell display mode, `ActivityTable` async states route through `renderMetadataStateBoundaryResult`, and `check:adapter-pipeline` plus `adapter-pipeline-surfaces.test.tsx` enforce the contract.
+- Public impact: New adapter exports `renderMetadataTableCell` / `renderMetadataTableCellResult` on `@repo/metadata-ui/adapters`. `MetadataRenderContext` adds optional `surfaceRole`. Component re-exports in `metadata-cell-renderers.tsx` remain for visual tests but delegate to adapters.
+- Snapshot updated: Yes, `snapshots/declaration-snapshot.json`.
+- Follow-up: Run `pnpm --filter @repo/metadata-ui check:adapter-pipeline` when changing surface orchestrators or table cell rendering.
+
+## 2026-06-10 (MUI-008 / MUI-012 / MUI-013 / MUI-014)
+
+- Date: 2026-06-10
+- Change: Closed remaining P0 runtime gaps: `check:client-server-boundaries` for `./server`/`./client` split, consumer fixture integrated into default `pnpm test`, controlled field binding via `field-value-binding.ts` + `onFieldChange`, and deep adapter-entry contract validation with `check:contract-validation` / `check:field-value-binding`.
+- Public impact: `MetadataFieldRendererProps` adds optional `onChange`; `MetadataForm` adds optional `onFieldChange`; contracts export `metadataFieldKinds` and `metadataSectionKinds`; new verification gates wired into `pnpm verify`.
+- Snapshot updated: Yes, `snapshots/declaration-snapshot.json`.
+- Follow-up: Run the new MUI-008/012/013/014 gates when changing entry points, form binding, or contract validation rules.
+
 ## Entry template
 
 - Date:

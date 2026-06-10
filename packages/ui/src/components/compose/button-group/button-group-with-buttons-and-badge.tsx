@@ -34,7 +34,7 @@ export function ButtonGroupWithButtonsAndBadge() {
         <span>Edit</span>
       </Button>
 
-      <Button variant="outline" size="icon">
+      <Button variant="outline" size="icon" aria-label="Upload file">
         <IconPlaceholder
           lucide="UploadIcon"
           tabler="IconUpload"

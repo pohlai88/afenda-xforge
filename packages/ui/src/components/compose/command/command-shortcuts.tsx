@@ -3,13 +3,13 @@
 import { Globe, Plus, Settings2, UserCircle2 } from "lucide-react";
 import {
   Command,
-  CommandGroup,
   CommandInput,
   CommandItem,
   CommandList,
   CommandShortcut,
 } from "../../ui-shadcn/command";
 import { ComposePatternCard } from "../compose.pattern-shell";
+import { CommandGroup } from "./command.shared";
 
 export function CommandShortcuts() {
   return (
@@ -20,7 +20,7 @@ export function CommandShortcuts() {
       <Command className="rounded-lg border bg-background">
         <CommandInput placeholder="Type a command..." />
         <CommandList>
-          <CommandGroup heading="Quick actions">
+          <CommandGroup title="Quick actions">
             <CommandItem>
               <Plus className="size-4" />
               New project

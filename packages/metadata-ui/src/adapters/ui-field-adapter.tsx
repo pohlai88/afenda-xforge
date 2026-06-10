@@ -8,6 +8,7 @@ import { defaultFieldRegistry } from "../registry/default-field-registry";
 import { ErrorState } from "../renderers/states/error-state.renderer";
 import { ForbiddenState } from "../renderers/states/forbidden-state.renderer";
 import type { MetadataRenderAdapterResult } from "./adapter-result";
+import { validateMetadataFieldContract } from "./contract-validation";
 import type { MetadataRendererDiagnostic } from "./diagnostics";
 import {
   bindRendererDiagnosticCorrelation,
@@ -23,6 +24,7 @@ export type MetadataFieldAdapterProps = {
   context: MetadataRenderContext;
   disabled?: boolean;
   field: MetadataFieldContract;
+  onChange?: (value: unknown) => void;
   registry?: typeof defaultFieldRegistry;
   value?: unknown;
 };
@@ -157,9 +159,41 @@ export function renderMetadataField({
   context,
   disabled,
   field,
+  onChange,
   registry = defaultFieldRegistry,
   value,
 }: MetadataFieldAdapterProps): MetadataRenderAdapterResult<ReactElement | null> {
+  const contractValidation = validateMetadataFieldContract(field);
+
+  if (!contractValidation.valid && contractValidation.diagnostic) {
+    const diagnostic = bindRendererDiagnosticCorrelation(
+      contractValidation.diagnostic,
+      context.correlationId
+    ) as MetadataRendererDiagnostic;
+
+    emitMetadataTelemetry(context, "metadata.renderer.fallback", {
+      attributes: {
+        fieldKey: contractValidation.diagnostic.target ?? "unknown",
+        reason: diagnostic.code,
+      },
+      diagnostics: [diagnostic],
+      level: "error",
+      rendererKey: field?.kind ?? "text",
+    });
+
+    return {
+      diagnostics: [diagnostic],
+      element: (
+        <ErrorState
+          context={context}
+          correlationId={context.correlationId}
+          description={diagnostic.message}
+          title="Invalid field contract"
+        />
+      ),
+    };
+  }
+
   const resolution = resolveMetadataFieldRenderer(field.kind, registry);
   const governance = evaluateMetadataGovernance({
     context,
@@ -197,6 +231,7 @@ export function renderMetadataField({
       diagnostics,
       disabled: nextDisabled,
       field,
+      onChange,
       value,
     });
 

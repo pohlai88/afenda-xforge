@@ -38,5 +38,5 @@ test("renderMetadataStateBoundaryResult exposes fallback diagnostics", () => {
 
   assert.equal((result.element as TestElement).type.name, "ErrorState");
   assert.equal(result.diagnostics.length > 0, true);
-  assert.equal(result.diagnostics[0]?.code, "missing-renderer");
+  assert.equal(result.diagnostics[0]?.code, "unsupported-state");
 });

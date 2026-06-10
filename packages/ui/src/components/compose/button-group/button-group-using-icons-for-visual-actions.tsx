@@ -8,7 +8,7 @@ import { IconPlaceholder } from "./icon-placeholder";
 export function ButtonGroupUsingIconsForVisualActions() {
   return (
     <ButtonGroup>
-      <Button variant="outline" size="icon">
+      <Button variant="outline" size="icon" aria-label="Flip horizontal">
         <IconPlaceholder
           lucide="FlipHorizontalIcon"
           tabler="IconBorderHorizontal"
@@ -18,7 +18,7 @@ export function ButtonGroupUsingIconsForVisualActions() {
           aria-hidden="true"
         />
       </Button>
-      <Button variant="outline" size="icon">
+      <Button variant="outline" size="icon" aria-label="Flip vertical">
         <IconPlaceholder
           lucide="FlipVerticalIcon"
           tabler="IconBorderVertical"
@@ -28,7 +28,7 @@ export function ButtonGroupUsingIconsForVisualActions() {
           aria-hidden="true"
         />
       </Button>
-      <Button variant="outline" size="icon">
+      <Button variant="outline" size="icon" aria-label="Rotate clockwise">
         <IconPlaceholder
           lucide="RotateCwIcon"
           tabler="IconRotateClockwise"

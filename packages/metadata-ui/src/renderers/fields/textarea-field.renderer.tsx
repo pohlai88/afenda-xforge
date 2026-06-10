@@ -3,6 +3,7 @@ import type { ReactElement } from "react";
 
 import type { MetadataFieldRendererProps } from "../../contracts/field-renderer.contract";
 import { resolveDensityTextareaClassName } from "../../visualization/density-visual-contract";
+import { createTextInputBinding } from "./field-value-binding";
 import {
   resolveFieldControlClassName,
   resolveFieldVisualState,
@@ -12,7 +13,7 @@ import { MetadataFieldShell } from "./metadata-field-shell";
 export function TextareaFieldRenderer(
   props: MetadataFieldRendererProps
 ): ReactElement {
-  const { context, field, value } = props;
+  const { context, field, onChange, value } = props;
   const visualState = resolveFieldVisualState(props);
   const resolvedValue =
     typeof value === "string" || typeof value === "number" ? String(value) : "";
@@ -31,7 +32,7 @@ export function TextareaFieldRenderer(
           resolveDensityTextareaClassName(context.density),
           context.density
         )}
-        defaultValue={resolvedValue}
+        {...createTextInputBinding(value, resolvedValue, onChange)}
         disabled={visualState.isDisabled || undefined}
         id={visualState.controlId}
         name={field.key}

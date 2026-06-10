@@ -17,8 +17,15 @@ const config: TestRunnerConfig = {
       return;
     }
 
-    if (context.title?.startsWith("UI/Compose")) {
-      return;
+    if (context.title?.startsWith("UI/Compose/")) {
+      await page.waitForFunction(
+        () => {
+          const root = document.querySelector("#storybook-root");
+          return root && !root.textContent?.includes("Loading gallery");
+        },
+        { timeout: 30_000 }
+      );
+      await page.waitForTimeout(500);
     }
 
     await checkA11y(page, "#storybook-root", {

@@ -2,7 +2,6 @@ import { DesignSystemProvider } from "@repo/ui/components/provider";
 import { fonts } from "@repo/ui/lib/fonts";
 import type { Preview } from "@storybook/react";
 
-import "@repo/ui/styles/globals.css";
 import "./preview.css";
 
 const preview: Preview = {

@@ -5,9 +5,20 @@ export {
 } from "../policy/index.ts";
 export type { MetadataRenderAdapterResult } from "./adapter-result.ts";
 export {
+  collectManifestDuplicateRendererDiagnostics,
+  isKnownMetadataUiState,
+  validateMetadataActionContract,
+  validateMetadataFieldContract,
+  validateMetadataSectionContract,
+} from "./contract-validation.ts";
+export {
+  createDeprecatedRendererDiagnostic,
+  createDuplicateRendererDiagnostic,
+  createInvalidContractDiagnostic,
   createMissingRendererDiagnostic,
   createRendererDiagnostic,
   createRendererErrorDiagnostic,
+  createUnsupportedStateDiagnostic,
   type MetadataRendererDiagnostic,
   type MetadataRendererResolutionKind,
   mergeRendererDiagnostics,
@@ -27,3 +38,7 @@ export { renderMetadataAction } from "./ui-action-adapter.tsx";
 export { renderMetadataField } from "./ui-field-adapter.tsx";
 export { renderMetadataSection } from "./ui-section-adapter.tsx";
 export { renderMetadataState } from "./ui-state-adapter.tsx";
+export {
+  renderMetadataTableCell,
+  renderMetadataTableCellResult,
+} from "./ui-table-cell-adapter.tsx";

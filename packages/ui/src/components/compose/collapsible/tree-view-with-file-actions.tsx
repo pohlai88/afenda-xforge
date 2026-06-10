@@ -48,10 +48,10 @@ function FileRow({
         <span className="text-sm">{name}</span>
       </div>
       <div className="flex items-center gap-1">
-        <Button variant="ghost" size="icon-sm">
+        <Button aria-label={`Download ${name}`} variant="ghost" size="icon-sm">
           <Download className="size-4" />
         </Button>
-        <Button variant="ghost" size="icon-sm">
+        <Button aria-label={`Open actions for ${name}`} variant="ghost" size="icon-sm">
           <Ellipsis className="size-4" />
         </Button>
       </div>
@@ -89,7 +89,12 @@ export function TreeViewWithFileActions() {
                   <span className="text-sm font-medium">src</span>
                 </div>
                 <CollapsibleTrigger asChild>
-                  <Button variant="ghost" size="icon-sm" className="group">
+                  <Button
+                    aria-label="Toggle src folder"
+                    variant="ghost"
+                    size="icon-sm"
+                    className="group"
+                  >
                     <ChevronDown className="size-4 transition-transform duration-200 group-data-[state=open]:rotate-180" />
                   </Button>
                 </CollapsibleTrigger>
@@ -115,7 +120,12 @@ export function TreeViewWithFileActions() {
                   <span className="text-sm font-medium">assets</span>
                 </div>
                 <CollapsibleTrigger asChild>
-                  <Button variant="ghost" size="icon-sm" className="group">
+                  <Button
+                    aria-label="Toggle assets folder"
+                    variant="ghost"
+                    size="icon-sm"
+                    className="group"
+                  >
                     <ChevronDown className="size-4 transition-transform duration-200 group-data-[state=open]:rotate-180" />
                   </Button>
                 </CollapsibleTrigger>

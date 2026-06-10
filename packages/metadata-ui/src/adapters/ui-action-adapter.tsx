@@ -8,6 +8,7 @@ import { defaultActionRegistry } from "../registry/default-action-registry";
 import { ErrorState } from "../renderers/states/error-state.renderer";
 import { ForbiddenState } from "../renderers/states/forbidden-state.renderer";
 import type { MetadataRenderAdapterResult } from "./adapter-result";
+import { validateMetadataActionContract } from "./contract-validation";
 import type { MetadataRendererDiagnostic } from "./diagnostics";
 import {
   bindRendererDiagnosticCorrelation,
@@ -156,6 +157,38 @@ export function renderMetadataAction({
   onAction,
   registry = defaultActionRegistry,
 }: MetadataActionAdapterProps): MetadataRenderAdapterResult<ReactElement | null> {
+  const contractValidation = validateMetadataActionContract(action);
+
+  if (!contractValidation.valid && contractValidation.diagnostic) {
+    const diagnostic = bindRendererDiagnosticCorrelation(
+      contractValidation.diagnostic,
+      context.correlationId
+    ) as MetadataRendererDiagnostic;
+
+    emitMetadataTelemetry(context, "metadata.renderer.fallback", {
+      action: action?.key ?? "unknown",
+      attributes: {
+        actionKey: contractValidation.diagnostic.target ?? "unknown",
+        reason: diagnostic.code,
+      },
+      diagnostics: [diagnostic],
+      level: "error",
+      rendererKey: action?.surface ?? action?.kind ?? "button",
+    });
+
+    return {
+      diagnostics: [diagnostic],
+      element: (
+        <ErrorState
+          context={context}
+          correlationId={context.correlationId}
+          description={diagnostic.message}
+          title="Invalid action contract"
+        />
+      ),
+    };
+  }
+
   const resolution = resolveMetadataActionRenderer(action, registry);
   const governance = evaluateMetadataGovernance({
     context,

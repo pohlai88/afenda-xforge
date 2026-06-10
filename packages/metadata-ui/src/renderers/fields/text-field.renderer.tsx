@@ -4,6 +4,13 @@ import type { ReactElement } from "react";
 import type { MetadataFieldRendererProps } from "../../contracts/field-renderer.contract";
 import { resolveMetadataDisplayValue } from "../../visualization/content-length-visual-contract";
 import {
+  isMetadataTableCellSurface,
+  renderMetadataTableCellEmail,
+  renderMetadataTableCellSpan,
+  renderMetadataTableCellStatus,
+} from "./field-table-cell-display";
+import { createTextInputBinding } from "./field-value-binding";
+import {
   resolveFieldControlClassName,
   resolveFieldVisualState,
 } from "./field-visual-state";
@@ -15,10 +22,29 @@ const resolveTextValue = (value: unknown): string =>
 export function TextFieldRenderer(
   props: MetadataFieldRendererProps
 ): ReactElement {
-  const { context, field, value } = props;
+  const { context, field, onChange, value } = props;
   const visualState = resolveFieldVisualState(props);
   const resolvedValue = resolveTextValue(value);
   const inputType = field.kind === "email" ? "email" : "text";
+
+  if (isMetadataTableCellSurface(context)) {
+    if (field.kind === "status") {
+      return renderMetadataTableCellStatus(
+        resolvedValue,
+        resolveMetadataDisplayValue(
+          resolvedValue.trim() ? resolvedValue : (field.placeholder ?? "")
+        )
+      );
+    }
+
+    if (field.kind === "email" && typeof value === "string") {
+      return renderMetadataTableCellEmail(value);
+    }
+
+    return renderMetadataTableCellSpan(
+      resolveMetadataDisplayValue(resolvedValue.trim() ? resolvedValue : value)
+    );
+  }
 
   if (field.kind === "status") {
     return (
@@ -55,7 +81,7 @@ export function TextFieldRenderer(
           "w-full",
           context.density
         )}
-        defaultValue={resolvedValue}
+        {...createTextInputBinding(value, resolvedValue, onChange)}
         disabled={visualState.isDisabled || undefined}
         id={visualState.controlId}
         name={field.key}

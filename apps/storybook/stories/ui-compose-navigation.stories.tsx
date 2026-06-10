@@ -1,11 +1,6 @@
-import { BreadcrumbComposeGallery } from "../../../packages/ui/src/components/compose/breadcrumb/breadcrumb-gallery";
-import { CommandComposeGallery } from "../../../packages/ui/src/components/compose/command/command-gallery";
-import { ScrollspyComposeGallery } from "../../../packages/ui/src/components/compose/scrollspy/scrollspy-gallery";
-import { StepperComposeGallery } from "../../../packages/ui/src/components/compose/stepper/stepper-gallery";
-import { TabsComposeGallery } from "../../../packages/ui/src/components/compose/tabs/tabs-gallery";
 import type { Meta, StoryObj } from "@storybook/react";
 
-import { galleryStory } from "./ui-compose-story-utils";
+import { lazyGalleryStory } from "./ui-compose-story-utils";
 
 const meta = {
   title: "UI/Compose/Navigation",
@@ -20,8 +15,8 @@ export default meta;
 
 type Story = StoryObj<typeof meta>;
 
-export const Breadcrumb: Story = galleryStory(BreadcrumbComposeGallery, "todo");
-export const Command: Story = galleryStory(CommandComposeGallery, "todo");
-export const Scrollspy: Story = galleryStory(ScrollspyComposeGallery, "todo");
-export const Stepper: Story = galleryStory(StepperComposeGallery, "todo");
-export const Tabs: Story = galleryStory(TabsComposeGallery, "error");
+export const Breadcrumb: Story = lazyGalleryStory(() => import("../../../packages/ui/src/components/compose/breadcrumb/breadcrumb-gallery").then((module) => ({ default: module.BreadcrumbComposeGallery })), "error");
+export const Command: Story = lazyGalleryStory(() => import("../../../packages/ui/src/components/compose/command/command-gallery").then((module) => ({ default: module.CommandComposeGallery })), "error");
+export const Scrollspy: Story = lazyGalleryStory(() => import("../../../packages/ui/src/components/compose/scrollspy/scrollspy-gallery").then((module) => ({ default: module.ScrollspyComposeGallery })), "error");
+export const Stepper: Story = lazyGalleryStory(() => import("../../../packages/ui/src/components/compose/stepper/stepper-gallery").then((module) => ({ default: module.StepperComposeGallery })), "error");
+export const Tabs: Story = lazyGalleryStory(() => import("../../../packages/ui/src/components/compose/tabs/tabs-gallery").then((module) => ({ default: module.TabsComposeGallery })), "error");

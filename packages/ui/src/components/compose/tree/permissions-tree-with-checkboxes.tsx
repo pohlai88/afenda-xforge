@@ -101,9 +101,10 @@ export function TreePermissionsWithCheckboxes() {
                   <span className="flex items-center gap-2">
                     {isLeaf && (
                       <Checkbox
+                        aria-label={item.getItemName()}
                         checked={checked.has(id)}
-                        onCheckedChange={() => togglePermission(id)}
                         className="size-3.5 shrink-0"
+                        onCheckedChange={() => togglePermission(id)}
                         onClick={(e) => e.stopPropagation()}
                       />
                     )}

@@ -61,6 +61,7 @@ export function ScrollspyHorizontal() {
     >
       <Scrollspy
         targetRef={containerRef}
+        navLabel="Horizontal scrollspy navigation"
         className="flex flex-row flex-wrap rounded-xl border bg-muted/20 p-3"
       >
         {horizontalSections.map((section, index) => (
@@ -81,6 +82,9 @@ export function ScrollspyHorizontal() {
 
       <div
         ref={containerRef}
+        tabIndex={0}
+        role="region"
+        aria-label="Horizontal scrollspy content"
         className="h-[480px] overflow-y-auto rounded-2xl border bg-background p-4"
       >
         <div className="mx-auto max-w-2xl space-y-4">
@@ -95,8 +99,8 @@ export function ScrollspyHorizontal() {
                 <p key={paragraph}>{paragraph}</p>
               ))}
               <div className="flex flex-wrap gap-2 pt-2">
-                <Badge variant="info-light">Navigation</Badge>
-                <Badge variant="warning-light">Live tracking</Badge>
+                <Badge variant="secondary">Navigation</Badge>
+                <Badge variant="outline">Live tracking</Badge>
               </div>
             </ScrollspySection>
           ))}

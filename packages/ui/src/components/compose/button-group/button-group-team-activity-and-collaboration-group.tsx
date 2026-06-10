@@ -65,7 +65,7 @@ export function ButtonGroupTeamActivityAndCollaborationGroup() {
       </ButtonGroupText>
 
       {/* Collaboration Actions */}
-      <Button variant="outline" size="icon">
+      <Button variant="outline" size="icon" aria-label="Add member">
         <IconPlaceholder
           lucide="PlusIcon"
           tabler="IconPlus"
@@ -75,7 +75,7 @@ export function ButtonGroupTeamActivityAndCollaborationGroup() {
           aria-hidden="true"
         />
       </Button>
-      <Button variant="outline" size="icon">
+      <Button variant="outline" size="icon" aria-label="View activity history">
         <IconPlaceholder
           lucide="ClockIcon"
           tabler="IconClock"
@@ -90,7 +90,7 @@ export function ButtonGroupTeamActivityAndCollaborationGroup() {
       <DropdownMenu>
         <DropdownMenuTrigger
           render={
-            <Button variant="outline" size="icon">
+            <Button variant="outline" size="icon" aria-label="Team options">
               <IconPlaceholder
                 lucide="MoreHorizontalIcon"
                 tabler="IconDots"

@@ -61,6 +61,7 @@ export function CollapsibleCardWithBottomTrigger() {
             <CardFooter className="border-t pt-4">
               <CollapsibleTrigger asChild>
                 <Button
+                  aria-label="Toggle weekly digest details"
                   variant="ghost"
                   className="group w-full justify-between"
                 >

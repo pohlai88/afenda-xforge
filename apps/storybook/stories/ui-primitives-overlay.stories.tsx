@@ -92,6 +92,20 @@ export const ConfirmAlertDialog: Story = {
       </AlertDialogContent>
     </AlertDialog>
   ),
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    const body = within(canvasElement.ownerDocument.body);
+
+    await userEvent.click(canvas.getByRole("button", { name: "Delete invoice" }));
+    await expect(
+      body.getByRole("alertdialog", { name: "Delete invoice?" })
+    ).toBeVisible();
+
+    await userEvent.keyboard("{Escape}");
+    await expect(
+      body.queryByRole("alertdialog", { name: "Delete invoice?" })
+    ).not.toBeInTheDocument();
+  },
 };
 
 export const PopoverAndTooltip: Story = {

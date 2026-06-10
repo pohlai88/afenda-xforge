@@ -14,16 +14,17 @@ import type { ReactElement } from "react";
 
 import type { MetadataRenderAdapterResult } from "../adapters/adapter-result";
 import { emitMetadataTelemetry } from "../adapters/telemetry";
+import { renderMetadataTableCell } from "../adapters/ui-table-cell-adapter";
 import type { MetadataDiagnostic } from "../contracts/diagnostics.contract";
 import type { MetadataRenderContext } from "../contracts/render-context.contract";
 import { createMetadataRenderContext } from "../contracts/render-context.defaults";
+import { defaultFieldRegistry } from "../registry/default-field-registry";
 import {
   resolveSurfaceKindProps,
   resolveSurfaceShellClassName,
 } from "../visualization/surface-visual-contract";
 import { ActivityTable } from "./activity-table";
 import { composeMetadataWithDiagnostics } from "./compose-metadata-with-diagnostics";
-import { renderMetadataTableCell } from "./metadata-cell-renderers";
 import { MetadataSurfaceRegion } from "./metadata-surface-region";
 import { MetadataToolbar } from "./metadata-toolbar";
 
@@ -42,14 +43,6 @@ type MetadataToolbarBadge = {
     | "success"
     | "warning";
 };
-
-const supportedTableCellKinds = new Set([
-  "date",
-  "email",
-  "money",
-  "status",
-  "text",
-]);
 
 const resolveMetadataSurfaceKey = (metadata: EntityMetadata): string =>
   metadata.id ?? metadata.entity;
@@ -89,7 +82,7 @@ const getMetadataTableDiagnostics = (
   columns: readonly TableColumnMetadata[]
 ): readonly MetadataDiagnostic[] =>
   columns.flatMap((column) =>
-    column.kind && !supportedTableCellKinds.has(column.kind)
+    column.kind && !defaultFieldRegistry.has(column.kind)
       ? [createMetadataTableCellDiagnostic(context, column)]
       : []
   );
@@ -196,6 +189,7 @@ export function renderMetadataTableResult({
   const element = (
     <ActivityTable
       columns={columns}
+      context={resolvedContext}
       defaultSortColumn={
         defaultSortColumn ?? resolvedMetadata.table?.defaultSort
       }

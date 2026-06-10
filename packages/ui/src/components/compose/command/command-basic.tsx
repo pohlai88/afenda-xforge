@@ -4,12 +4,12 @@ import { Calculator, Search, Smile } from "lucide-react";
 import {
   Command,
   CommandEmpty,
-  CommandGroup,
   CommandInput,
   CommandItem,
   CommandList,
 } from "../../ui-shadcn/command";
 import { ComposePatternCard } from "../compose.pattern-shell";
+import { CommandGroup } from "./command.shared";
 
 export function CommandBasic() {
   return (
@@ -21,7 +21,7 @@ export function CommandBasic() {
         <CommandInput placeholder="Search commands..." />
         <CommandList>
           <CommandEmpty>No results found.</CommandEmpty>
-          <CommandGroup heading="Suggestions">
+          <CommandGroup title="Suggestions">
             <CommandItem>
               <Search className="size-4" />
               Search workspace

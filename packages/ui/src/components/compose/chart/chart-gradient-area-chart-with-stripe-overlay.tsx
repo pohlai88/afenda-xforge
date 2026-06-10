@@ -5,7 +5,6 @@
 
 import type { CSSProperties } from "react";
 import { Area, AreaChart, CartesianGrid, XAxis } from "recharts";
-import { Badge } from "../../ui-shadcn/badge";
 import type { ChartConfig } from "./chart.shared";
 import {
   Card,
@@ -16,6 +15,7 @@ import {
   ChartContainer,
   ChartTooltip,
   ChartTooltipContent,
+  ChartTrendBadge,
 } from "./chart.shared";
 import { IconPlaceholder } from "./icon-placeholder";
 
@@ -41,7 +41,7 @@ export default function Pattern() {
       <CardHeader>
         <CardTitle>
           Website Traffic
-          <Badge variant="success-light" className="ml-2">
+          <ChartTrendBadge className="ml-2">
             <IconPlaceholder
               lucide="TrendingUpIcon"
               tabler="IconTrendingUp"
@@ -51,7 +51,7 @@ export default function Pattern() {
               aria-hidden="true"
             />
             +24.5%
-          </Badge>
+          </ChartTrendBadge>
         </CardTitle>
         <CardDescription>Monthly unique visitor trends</CardDescription>
       </CardHeader>

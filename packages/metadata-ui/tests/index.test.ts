@@ -1,3 +1,8 @@
+import "./package-subpaths.test.ts";
+import "./client-server-boundaries.test.ts";
+import "./contract-validation.test.ts";
+import "./field-value-binding.test.tsx";
+import "./diagnostic-code-coverage.test.tsx";
 import "./diagnostics-visual-states.test.tsx";
 import "./surface-visual-states.test.tsx";
 import "./motion-visual-states.test.tsx";
@@ -15,6 +20,7 @@ import "./diagnostics-and-fallbacks.test.tsx";
 import "./default-field-registry.test.tsx";
 import "./compatibility.test.tsx";
 import "./adapter-pipeline.test.tsx";
+import "./adapter-pipeline-surfaces.test.tsx";
 import "./generated/renderer-smoke.generated.test.tsx";
 import "./manifest-generation.test.ts";
 import "./metadata-form.test.tsx";

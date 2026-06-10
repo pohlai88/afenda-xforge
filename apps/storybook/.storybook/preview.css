@@ -1,7 +1,15 @@
+/**
+ * Storybook CSS entry — single Tailwind v4 + shadcn token pipeline.
+ *
+ * Architecture (tailwind-v4-shadcn / shadcn manual install):
+ * 1. Import @repo/ui globals (:root / .dark semantic tokens)
+ * 2. Import tw-animate-css (shadcn v4 animation replacement)
+ * 3. Extend @source scan paths for Storybook-only surfaces
+ *
+ * preview.tsx must import ONLY this file — never globals.css directly.
+ */
+@import "@repo/ui/styles/globals.css";
 @import "tw-animate-css";
 
 @source "../stories/**/*.{ts,tsx}";
-@source "../../packages/ui/src/components/compose/**/*.{ts,tsx}";
-@source "../../packages/ui/src/components/**/*.{ts,tsx}";
-@source "../../packages/ui/src/lib/**/*.{ts,tsx}";
-@source "../../packages/ui/src/index.ts";
+@source "../../../packages/metadata-ui/src/**/*.{ts,tsx}";

@@ -26,11 +26,15 @@ export function DropdownMenuDestructive() {
         <DropdownMenu>
           <DropdownMenuTrigger
             render={
-              <Button variant="outline" size="icon" aria-label="More actions" />
+              <Button
+                aria-label="More actions"
+                size="icon"
+                variant="outline"
+              >
+                <Ellipsis className="size-4" />
+              </Button>
             }
-          >
-            <Ellipsis className="size-4" />
-          </DropdownMenuTrigger>
+          />
           <DropdownMenuContent align="end">
             <DropdownMenuLabel>File actions</DropdownMenuLabel>
             <DropdownMenuSeparator />

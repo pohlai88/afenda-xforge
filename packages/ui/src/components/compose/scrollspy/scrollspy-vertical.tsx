@@ -63,6 +63,7 @@ export function ScrollspyVertical() {
         <div className="lg:sticky lg:top-4 lg:self-start">
           <Scrollspy
             targetRef={containerRef}
+            navLabel="Vertical scrollspy navigation"
             className="rounded-xl border bg-muted/20 p-3"
           >
             {verticalSections.map((section, index) => (
@@ -84,6 +85,9 @@ export function ScrollspyVertical() {
 
         <div
           ref={containerRef}
+          tabIndex={0}
+          role="region"
+          aria-label="Vertical scrollspy content"
           className="h-[560px] overflow-y-auto rounded-2xl border bg-background p-4"
         >
           <div className="space-y-4">
@@ -100,7 +104,7 @@ export function ScrollspyVertical() {
                 <div className="flex flex-wrap gap-2 pt-2">
                   <Badge variant="secondary">Docs</Badge>
                   <Badge variant="outline">Active state</Badge>
-                  <Badge variant="ghost">Smooth scroll</Badge>
+                  <Badge variant="outline">Smooth scroll</Badge>
                 </div>
               </ScrollspySection>
             ))}

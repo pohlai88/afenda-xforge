@@ -5,7 +5,6 @@
 
 import type { CSSProperties, SVGProps } from "react";
 import { Bar, BarChart, XAxis } from "recharts";
-import { Badge } from "../../ui-shadcn/badge";
 import type { ChartConfig } from "./chart.shared";
 import {
   Card,
@@ -16,6 +15,7 @@ import {
   ChartContainer,
   ChartTooltip,
   ChartTooltipContent,
+  ChartTrendBadge,
 } from "./chart.shared";
 import { IconPlaceholder } from "./icon-placeholder";
 
@@ -80,7 +80,7 @@ export default function ChartDuotone() {
       <CardHeader>
         <CardTitle>
           Operational Efficiency
-          <Badge variant="success-light" className="ml-2">
+          <ChartTrendBadge className="ml-2">
             <IconPlaceholder
               lucide="TrendingUpIcon"
               tabler="IconTrendingUp"
@@ -90,7 +90,7 @@ export default function ChartDuotone() {
               aria-hidden="true"
             />
             +12.5%
-          </Badge>
+          </ChartTrendBadge>
         </CardTitle>
         <CardDescription>Supply chain performance metrics</CardDescription>
       </CardHeader>

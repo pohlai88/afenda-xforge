@@ -45,8 +45,8 @@ export function ButtonGroupSearchInputWithFilterMenuAndClearButton() {
           <DropdownMenuItem>Archived</DropdownMenuItem>
         </DropdownMenuContent>
       </DropdownMenu>
-      <Input placeholder="Filter records..." />
-      <Button variant="outline" size="icon">
+      <Input aria-label="Filter records" placeholder="Filter records..." />
+      <Button variant="outline" size="icon" aria-label="Clear search">
         <IconPlaceholder
           lucide="XIcon"
           tabler="IconX"

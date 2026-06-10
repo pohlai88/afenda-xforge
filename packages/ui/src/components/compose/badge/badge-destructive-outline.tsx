@@ -1,11 +1,11 @@
 "use client";
 
-import { Badge, BadgePatternCard } from "./badge.shared";
+import { BadgePatternCard, OutlineStatusBadge } from "./badge.shared";
 
 export function BadgeDestructiveOutline() {
   return (
     <BadgePatternCard title="Destructive outline badge">
-      <Badge variant="destructive-outline">Destructive</Badge>
+      <OutlineStatusBadge tone="destructive">Destructive</OutlineStatusBadge>
     </BadgePatternCard>
   );
 }

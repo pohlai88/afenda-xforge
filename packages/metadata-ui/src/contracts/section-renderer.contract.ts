@@ -23,6 +23,24 @@ export type MetadataSectionKind =
   | "timeline"
   | "workflow";
 
+export const metadataSectionKinds = [
+  "activity",
+  "approval",
+  "card",
+  "chart",
+  "dashboard",
+  "details",
+  "evidence",
+  "form",
+  "kanban",
+  "list",
+  "section",
+  "stat",
+  "table",
+  "timeline",
+  "workflow",
+] as const satisfies readonly MetadataSectionKind[];
+
 export type MetadataSectionRow = Readonly<Record<string, unknown>> & {
   id: string;
 };

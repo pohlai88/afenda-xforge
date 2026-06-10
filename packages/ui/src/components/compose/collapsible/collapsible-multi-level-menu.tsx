@@ -40,7 +40,7 @@ export function CollapsibleMultiLevelMenu() {
                 </p>
               </div>
             </div>
-            <Button variant="ghost" size="icon-sm">
+            <Button aria-label="Open navigation menu" variant="ghost" size="icon-sm">
               <Sparkles className="size-4" />
             </Button>
           </div>
@@ -59,7 +59,12 @@ export function CollapsibleMultiLevelMenu() {
                     </p>
                   </div>
                   <CollapsibleTrigger asChild>
-                    <Button variant="ghost" size="icon-sm" className="group">
+                    <Button
+                      aria-label={`Toggle ${section.title} section`}
+                      variant="ghost"
+                      size="icon-sm"
+                      className="group"
+                    >
                       <ChevronDown className="size-4 transition-transform duration-200 group-data-[state=open]:rotate-180" />
                     </Button>
                   </CollapsibleTrigger>
@@ -77,6 +82,7 @@ export function CollapsibleMultiLevelMenu() {
                           <p className="text-sm">{item}</p>
                           <CollapsibleTrigger asChild>
                             <Button
+                              aria-label={`Toggle ${item} submenu`}
                               variant="ghost"
                               size="icon-sm"
                               className="group"

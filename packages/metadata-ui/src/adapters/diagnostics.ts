@@ -77,6 +77,60 @@ export const createRendererErrorDiagnostic = (
     severity: "error",
   });
 
+export const createInvalidContractDiagnostic = (
+  rendererType: MetadataRendererResolutionKind,
+  key: string,
+  message: string,
+  details?: Record<string, unknown>
+): MetadataRendererDiagnostic =>
+  createRendererDiagnostic({
+    code: "invalid-contract",
+    details,
+    key,
+    message,
+    rendererType,
+    severity: "error",
+  });
+
+export const createDeprecatedRendererDiagnostic = (
+  rendererType: MetadataRendererResolutionKind,
+  key: string,
+  version?: string
+): MetadataRendererDiagnostic =>
+  createRendererDiagnostic({
+    code: "deprecated-renderer",
+    details: version ? { version } : undefined,
+    key,
+    message: `Metadata ${rendererType} renderer '${key}' is deprecated${version ? ` (version ${version})` : ""}.`,
+    rendererType,
+    severity: "warning",
+  });
+
+export const createDuplicateRendererDiagnostic = (
+  rendererType: MetadataRendererResolutionKind,
+  key: string
+): MetadataRendererDiagnostic =>
+  createRendererDiagnostic({
+    code: "duplicate-renderer",
+    details: { rendererType },
+    key,
+    message: `Duplicate metadata ${rendererType} renderer registration detected for '${key}'.`,
+    rendererType,
+    severity: "error",
+  });
+
+export const createUnsupportedStateDiagnostic = (
+  state: string
+): MetadataRendererDiagnostic =>
+  createRendererDiagnostic({
+    code: "unsupported-state",
+    details: { state },
+    key: state,
+    message: `Metadata state '${state}' is not supported by the state registry.`,
+    rendererType: "state",
+    severity: "error",
+  });
+
 export const bindRendererDiagnosticCorrelation = (
   diagnostic: MetadataRendererDiagnostic | undefined,
   correlationId: string

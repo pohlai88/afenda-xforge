@@ -5,7 +5,6 @@
 
 import type { CSSProperties } from "react";
 import { Bar, BarChart, XAxis, YAxis } from "recharts";
-import { Badge } from "../../ui-shadcn/badge";
 import type { ChartConfig } from "./chart.shared";
 import {
   Card,
@@ -16,6 +15,7 @@ import {
   ChartContainer,
   ChartTooltip,
   ChartTooltipContent,
+  ChartTrendBadge,
 } from "./chart.shared";
 import { IconPlaceholder } from "./icon-placeholder";
 
@@ -45,7 +45,7 @@ export default function ChartVerticalBars() {
       <CardHeader>
         <CardTitle>
           Inventory Levels
-          <Badge variant="destructive-light" className="ml-2">
+          <ChartTrendBadge tone="destructive" className="ml-2">
             <IconPlaceholder
               lucide="TrendingDownIcon"
               tabler="IconTrendingDown"
@@ -55,7 +55,7 @@ export default function ChartVerticalBars() {
               aria-hidden="true"
             />
             -3.2%
-          </Badge>
+          </ChartTrendBadge>
         </CardTitle>
         <CardDescription>Stock availability across warehouses</CardDescription>
       </CardHeader>

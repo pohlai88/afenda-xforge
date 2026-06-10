@@ -29,6 +29,7 @@
     "./components/table": "./src/components/ui-shadcn/table.tsx",
     "./components/textarea": "./src/components/ui-shadcn/textarea.tsx",
     "./lib/fonts": "./src/lib/fonts.ts",
+    "./lib/utils": "./src/lib/utils.ts",
     "./providers/theme": "./src/components/ui-shadcn/theme-provider.tsx",
     "./styles/globals.css": "./src/styles/globals.css",
     "./types": "./src/types.ts",

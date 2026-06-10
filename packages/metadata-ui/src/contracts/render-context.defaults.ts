@@ -16,6 +16,7 @@ export type MetadataRenderContextDefaults = {
   tenantId?: string;
   timezone?: string;
   surfaceId?: string;
+  surfaceRole?: MetadataRenderContext["surfaceRole"];
   routeId?: string;
 };
 
@@ -83,6 +84,7 @@ export function createMetadataRenderContext(
     routeId: resolveOptional(context?.routeId ?? defaults.routeId),
     state: (context?.state ?? defaults.state ?? "ready") as MetadataUiState,
     surfaceId: resolveOptional(context?.surfaceId ?? defaults.surfaceId),
+    surfaceRole: resolveOptional(context?.surfaceRole ?? defaults.surfaceRole),
     telemetry: context?.telemetry,
     tenantId: resolveLiteral(context?.tenantId ?? defaults.tenantId, "default"),
     timezone: resolveLiteral(context?.timezone ?? defaults.timezone, "UTC"),

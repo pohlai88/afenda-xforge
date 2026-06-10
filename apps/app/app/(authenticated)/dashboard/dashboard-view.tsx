@@ -1,5 +1,5 @@
 import type { EntityMetadata } from "@repo/metadata";
-import { EntityMetadataPanel, getEntityLabels } from "@repo/metadata-ui";
+import { EntityMetadataPanel, getEntityLabels } from "@repo/metadata-ui/components";
 import type { ReactElement, ReactNode } from "react";
 import { DashboardGrid } from "../_components/dashboard-grid.tsx";
 import { KpiCard } from "../_components/kpi-card.tsx";

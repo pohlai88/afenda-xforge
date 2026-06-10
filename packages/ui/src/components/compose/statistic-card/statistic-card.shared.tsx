@@ -67,6 +67,7 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "../../ui-shadcn/tooltip";
+import { StatusBadge } from "../badge/badge.shared";
 
 export type StatisticCardPatternName =
   | "statistic-card-1"
@@ -182,13 +183,10 @@ function TrendBadge({ value }: { value: number }) {
   const Icon = positive ? ArrowUp : ArrowDown;
 
   return (
-    <Badge
-      variant={positive ? "success-light" : "destructive-light"}
-      className="gap-1"
-    >
+    <StatusBadge tone={positive ? "success" : "destructive"} className="gap-1">
       <Icon />
       {Math.abs(value)}%
-    </Badge>
+    </StatusBadge>
   );
 }
 
@@ -242,7 +240,7 @@ function PeriodSelect({
 }) {
   return (
     <Select defaultValue={defaultValue}>
-      <SelectTrigger size="sm" className="w-32">
+      <SelectTrigger aria-label="Statistic period" size="sm" className="w-32">
         <SelectValue placeholder="Period" />
       </SelectTrigger>
       <SelectContent>
@@ -295,7 +293,7 @@ function ColoredMetricCard({
       <div className="pointer-events-none absolute -top-10 -right-10 size-32 rounded-full bg-white/10" />
       <div className="pointer-events-none absolute right-12 bottom-8 size-16 rounded-full bg-white/10" />
       <CardHeader className="relative border-0">
-        <CardTitle className="text-sm font-medium opacity-90">
+        <CardTitle className="font-medium text-sm">
           {metric.title}
         </CardTitle>
         <CardAction>
@@ -307,12 +305,12 @@ function ColoredMetricCard({
           <span className="text-2xl font-semibold tracking-tight">
             {metric.value}
           </span>
-          <Badge className="bg-white/20 text-white">
+          <Badge className="border border-current/40 bg-transparent text-current">
             {(metric.delta ?? 0) >= 0 ? <ArrowUp /> : <ArrowDown />}
             {metric.delta}%
           </Badge>
         </div>
-        <div className="border-t border-white/20 pt-2.5 text-xs opacity-80">
+        <div className="border-t border-current/25 pt-2.5 text-xs">
           {metric.compare}
         </div>
       </CardContent>
@@ -328,6 +326,7 @@ function InfoTooltip({ children }: { children: React.ReactNode }) {
           render={
             <button
               type="button"
+              aria-label="More information"
               className="inline-flex text-muted-foreground hover:text-foreground"
             >
               <Info className="size-3.5" />
@@ -407,15 +406,15 @@ function SubscriptionAlerts() {
           ]}
         />
         <div className="flex flex-wrap items-center gap-4 text-xs">
-          <span className="flex items-center gap-1 text-success-foreground">
+          <span className="flex items-center gap-1 text-success-muted-foreground">
             <span className="size-2 rounded-full bg-success" />
             Free
           </span>
-          <span className="flex items-center gap-1 text-destructive-foreground">
+          <span className="flex items-center gap-1 text-destructive-muted-foreground">
             <span className="size-2 rounded-full bg-destructive" />
             Pro
           </span>
-          <span className="flex items-center gap-1 text-warning-foreground">
+          <span className="flex items-center gap-1 text-warning-muted-foreground">
             <span className="size-2 rounded-full bg-warning" />
             Enterprise
             <InfoTooltip>
@@ -449,7 +448,13 @@ function SubscriptionAlerts() {
                   {item.daysLeft}d
                 </span>
                 <Separator orientation="vertical" className="h-3" />
-                Renew
+                <Button
+                  variant="link"
+                  className="h-auto p-0 text-xs"
+                  aria-label={`Renew ${item.name} subscription`}
+                >
+                  Renew
+                </Button>
               </div>
             </div>
           ))}
@@ -571,7 +576,7 @@ function CampaignProgress() {
                   {goal.value}%
                 </span>
               </div>
-              <Progress value={goal.value} />
+              <Progress aria-label={`${goal.label} progress`} value={goal.value} />
             </div>
           );
         })}
@@ -689,7 +694,14 @@ function TasksOverview() {
               <span>{task.label}</span>
               <span className="text-muted-foreground">{task.value}%</span>
             </div>
-            <div className="h-2 overflow-hidden rounded-full bg-muted">
+            <div
+              role="progressbar"
+              aria-label={`${task.label} progress`}
+              aria-valuenow={task.value}
+              aria-valuemin={0}
+              aria-valuemax={100}
+              className="h-2 overflow-hidden rounded-full bg-muted"
+            >
               <div
                 className={cn("h-full rounded-full", task.className)}
                 style={{ width: `${task.value}%` }}
@@ -722,7 +734,7 @@ function RevenueBreakdown() {
               Net revenue this period
             </div>
           </div>
-          <Badge variant="primary-light">
+          <Badge variant="secondary" className="gap-1">
             <BarChart2 />
             Analytics
           </Badge>
@@ -764,7 +776,7 @@ function ApiQuota() {
           <span className="text-sm text-muted-foreground">Used calls</span>
           <span className="font-medium">78,240 / 100,000</span>
         </div>
-        <Progress value={78} />
+        <Progress aria-label="API call quota progress" value={78} />
         <div className="grid grid-cols-3 gap-3 text-center text-sm">
           <div className="rounded-lg bg-muted/50 p-3">
             <div className="font-semibold">21.7K</div>
@@ -786,18 +798,18 @@ function ApiQuota() {
 
 function SupportQuality() {
   const items = [
-    { label: "CSAT", value: "94%", icon: Smile, variant: "success-light" },
+    { label: "CSAT", value: "94%", icon: Smile, tone: "success" as const },
     {
       label: "Resolved",
       value: "8,420",
       icon: CheckCircle2,
-      variant: "primary-light",
+      tone: "primary" as const,
     },
     {
       label: "Open tickets",
       value: "128",
       icon: LifeBuoy,
-      variant: "warning-light",
+      tone: "warning" as const,
     },
   ] as const;
 
@@ -808,9 +820,18 @@ function SupportQuality() {
         return (
           <Card key={item.label}>
             <CardContent className="flex items-center gap-4 pt-6">
-              <Badge variant={item.variant} className="size-10 rounded-lg">
-                <Icon className="size-5" />
-              </Badge>
+              {item.tone === "primary" ? (
+                <Badge variant="secondary" className="size-10 rounded-lg">
+                  <Icon className="size-5" />
+                </Badge>
+              ) : (
+                <StatusBadge
+                  tone={item.tone}
+                  className="size-10 rounded-lg"
+                >
+                  <Icon className="size-5" />
+                </StatusBadge>
+              )}
               <div>
                 <div className="text-2xl font-semibold">{item.value}</div>
                 <div className="text-sm text-muted-foreground">
@@ -836,7 +857,7 @@ function SecurityScore() {
       </CardHeader>
       <CardContent className="flex flex-col gap-5">
         <div className="flex items-center gap-4">
-          <div className="flex size-14 items-center justify-center rounded-xl bg-success/10 text-success-foreground">
+          <div className="flex size-14 items-center justify-center rounded-xl bg-success-muted text-success-muted-foreground">
             <ShieldCheck className="size-7" />
           </div>
           <div>
@@ -846,7 +867,7 @@ function SecurityScore() {
             </div>
           </div>
         </div>
-        <Progress value={92} />
+        <Progress aria-label="Security score progress" value={92} />
         <div className="grid gap-2 text-sm">
           <div className="flex justify-between">
             <span className="text-muted-foreground">MFA coverage</span>
@@ -887,9 +908,9 @@ function SystemHealth() {
             >
               <div className="flex items-center justify-between">
                 <Icon className="size-4 text-muted-foreground" />
-                <Badge size="xs" variant="success-light">
+                <StatusBadge tone="success" size="xs">
                   Live
-                </Badge>
+                </StatusBadge>
               </div>
               <div>
                 <div className="text-xl font-semibold">{item.value}</div>
@@ -897,7 +918,10 @@ function SystemHealth() {
                   {item.label}
                 </div>
               </div>
-              <Progress value={item.progress} />
+              <Progress
+                aria-label={`${item.label} progress`}
+                value={item.progress}
+              />
             </div>
           );
         })}
@@ -944,6 +968,7 @@ function LinkedSummaryCards() {
                 </div>
                 <a
                   href={item.href}
+                  aria-label={`View ${item.title} details`}
                   className="inline-flex size-8 items-center justify-center rounded-md text-muted-foreground hover:bg-accent hover:text-foreground"
                 >
                   <ArrowRight className="size-4" />

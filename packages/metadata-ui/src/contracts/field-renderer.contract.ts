@@ -16,6 +16,19 @@ export type MetadataFieldKind =
   | "textarea"
   | "text";
 
+export const metadataFieldKinds = [
+  "checkbox",
+  "date",
+  "email",
+  "money",
+  "number",
+  "select",
+  "status",
+  "switch",
+  "textarea",
+  "text",
+] as const satisfies readonly MetadataFieldKind[];
+
 export type MetadataFieldOption = {
   disabled?: boolean;
   label: string;
@@ -58,6 +71,7 @@ export type MetadataFieldRendererProps = {
   disabled?: boolean;
   diagnostics?: readonly MetadataDiagnostic[];
   field: MetadataFieldContract;
+  onChange?: (value: unknown) => void;
   value?: unknown;
 };
 

@@ -5,7 +5,6 @@
 
 import type { CSSProperties, SVGProps } from "react";
 import { Bar, BarChart, XAxis } from "recharts";
-import { Badge } from "../../ui-shadcn/badge";
 import type { ChartConfig } from "./chart.shared";
 import {
   Card,
@@ -16,6 +15,7 @@ import {
   ChartContainer,
   ChartTooltip,
   ChartTooltipContent,
+  ChartTrendBadge,
 } from "./chart.shared";
 import { IconPlaceholder } from "./icon-placeholder";
 
@@ -103,7 +103,7 @@ export default function Chart3D() {
       <CardHeader>
         <CardTitle>
           Financial Forecast
-          <Badge variant="destructive-light" className="ml-2">
+          <ChartTrendBadge tone="destructive" className="ml-2">
             <IconPlaceholder
               lucide="TrendingDownIcon"
               tabler="IconTrendingDown"
@@ -113,7 +113,7 @@ export default function Chart3D() {
               aria-hidden="true"
             />
             +8.2%
-          </Badge>
+          </ChartTrendBadge>
         </CardTitle>
         <CardDescription>Projected vs actual revenue growth</CardDescription>
       </CardHeader>

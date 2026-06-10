@@ -8,6 +8,7 @@ import { defaultSectionRegistry } from "../registry/default-section-registry";
 import { ErrorState } from "../renderers/states/error-state.renderer";
 import { ForbiddenState } from "../renderers/states/forbidden-state.renderer";
 import type { MetadataRenderAdapterResult } from "./adapter-result";
+import { validateMetadataSectionContract } from "./contract-validation";
 import type { MetadataRendererDiagnostic } from "./diagnostics";
 import {
   bindRendererDiagnosticCorrelation,
@@ -158,6 +159,37 @@ export function renderMetadataSection({
   registry = defaultSectionRegistry,
   section,
 }: MetadataSectionAdapterProps): MetadataRenderAdapterResult<ReactElement | null> {
+  const contractValidation = validateMetadataSectionContract(section);
+
+  if (!contractValidation.valid && contractValidation.diagnostic) {
+    const diagnostic = bindRendererDiagnosticCorrelation(
+      contractValidation.diagnostic,
+      context.correlationId
+    ) as MetadataRendererDiagnostic;
+
+    emitMetadataTelemetry(context, "metadata.renderer.fallback", {
+      attributes: {
+        reason: diagnostic.code,
+        sectionKey: contractValidation.diagnostic.target ?? "unknown",
+      },
+      diagnostics: [diagnostic],
+      level: "error",
+      rendererKey: section?.kind ?? "section",
+    });
+
+    return {
+      diagnostics: [diagnostic],
+      element: (
+        <ErrorState
+          context={context}
+          correlationId={context.correlationId}
+          description={diagnostic.message}
+          title="Invalid section contract"
+        />
+      ),
+    };
+  }
+
   const resolution = resolveMetadataSectionRenderer(section.kind, registry);
   const governance = evaluateMetadataGovernance({
     context,

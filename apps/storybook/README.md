@@ -13,9 +13,12 @@ Visual workspace for `@repo/ui` and `@repo/metadata-ui` public surfaces.
 
 ## Commands
 
+Hosted review: [https://pohlai88.github.io/afenda-xforge/](https://pohlai88.github.io/afenda-xforge/) (GitHub Pages, `main` deploy via `.github/workflows/storybook-pages.yml`).
+
 ```bash
 pnpm --filter storybook dev
 pnpm --filter storybook build
+pnpm --filter storybook build:pages   # set STORYBOOK_BASE_PATH=/afenda-xforge/ for local Pages preview
 pnpm --filter storybook preview:static
 pnpm --filter storybook typecheck
 pnpm --filter storybook check
@@ -32,6 +35,7 @@ pnpm --filter storybook scorecard
 
 | Script | Purpose |
 | --- | --- |
+| `check:theme-css` | Validates Storybook CSS imports globals.css and shadcn v4 token mappings |
 | `check:build` | Static production build (CI gate for compile/bundle health) |
 | `scorecard` | Informational story/play/chunk metrics after build |
 | `check:metadata-ui-browser-smoke` | Playwright smoke against the metadata-ui integration fixture |
@@ -53,10 +57,10 @@ pnpm --filter storybook test:stories
 
 | Tier | Stories | CI behavior |
 | --- | --- | --- |
-| `a11y.test: 'error'` | Introduction, Metadata UI (all), UI Primitives (all), Compose Registry, manifest-priority compose galleries (batch 1) | `test:stories` fails on axe violations |
-| `a11y.test: 'todo'` | Remaining compose galleries | Logged in Storybook UI; not enforced in CI yet |
+| `a11y.test: 'error'` | Introduction, Metadata UI (all), UI Primitives (all), Compose Registry, all 40 compose galleries | `test:stories` fails on axe violations |
+| `a11y.test: 'todo'` | None (compose batches 1–3 complete) | — |
 
-Manifest-priority compose batch 1 (`button`, `checkbox`, `field`, `dropdown-menu`, `card`, `tabs`, `empty`, `skeleton`) gates at `error` after fixes land in `@repo/ui`. Local audit against a running dev server:
+All compose registry galleries gate at `error` in `test:stories` (lazy-loaded galleries wait before axe). Bootstrap visual baselines with `test:visual:update` before the first `test:visual` run. Local audit against a running dev server:
 
 ```bash
 pnpm exec storybook dev --ci -p 6010
@@ -65,12 +69,14 @@ $env:A11Y_AUDIT_PREFIX="UI/Compose"; tsx scripts/audit-story-a11y.mts
 
 ## Configuration highlights
 
+- Tailwind v4 token pipeline: `.storybook/preview.css` imports `@repo/ui/styles/globals.css` (single CSS entry; `preview.tsx` imports only `preview.css`)
+- `check:theme-css` CI gate validates the four-step shadcn/Tailwind v4 token architecture
 - `@storybook/addon-a11y` for axe-powered accessibility review in the UI
 - `@storybook/addon-docs` for MDX overview pages and autodocs
 - Scoped `react-docgen-typescript` on story wrapper components in `apps/storybook/stories`
 - `@repo/metadata-ui/fixtures` for manifest-aligned visual review data
 - Vite `optimizeDeps` and monorepo `server.fs.allow` tuning for faster dev startup
-- Tailwind `@source` scanning for `packages/ui` compose + primitives (not broad metadata-ui scan)
+- Storybook `@source` extends globals.css scan with `stories/**` and `metadata-ui/src/**`
 
 ## Score targets
 

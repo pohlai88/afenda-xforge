@@ -18,8 +18,8 @@ export function BreadcrumbWithAvatars() {
         <BreadcrumbList>
           <BreadcrumbItem>
             <BreadcrumbLink href="#" className="flex items-center gap-2">
-              <Avatar>
-                <AvatarImage src="https://github.com/vercel.png" />
+              <Avatar aria-hidden="true">
+                <AvatarImage alt="" src="https://github.com/vercel.png" />
                 <AvatarFallback>VC</AvatarFallback>
               </Avatar>
               Vercel
@@ -28,8 +28,8 @@ export function BreadcrumbWithAvatars() {
           <BreadcrumbSeparator />
           <BreadcrumbItem>
             <BreadcrumbLink href="#" className="flex items-center gap-2">
-              <Avatar>
-                <AvatarImage src="https://github.com/shadcn.png" />
+              <Avatar aria-hidden="true">
+                <AvatarImage alt="" src="https://github.com/shadcn.png" />
                 <AvatarFallback>SC</AvatarFallback>
               </Avatar>
               shadcn

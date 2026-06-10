@@ -81,7 +81,7 @@ export function ButtonGroupSegmentedControlWithDropdownInside() {
         </Button>
       ))}
       <DropdownMenu>
-        <DropdownMenuTrigger render={<Button variant="outline" size="icon" />}>
+        <DropdownMenuTrigger render={<Button variant="outline" size="icon" aria-label="More route options" />}>
           <IconPlaceholder
             lucide="ChevronDownIcon"
             tabler="IconChevronDown"

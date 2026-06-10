@@ -5,7 +5,6 @@
 
 import type { SVGProps } from "react";
 import { Bar, BarChart, XAxis } from "recharts";
-import { Badge } from "../../ui-shadcn/badge";
 import type { ChartConfig } from "./chart.shared";
 import {
   Card,
@@ -16,6 +15,7 @@ import {
   ChartContainer,
   ChartTooltip,
   ChartTooltipContent,
+  ChartTrendBadge,
 } from "./chart.shared";
 import { IconPlaceholder } from "./icon-placeholder";
 
@@ -100,7 +100,7 @@ export default function Chart3D() {
       <CardHeader>
         <CardTitle>
           Regional Performance
-          <Badge variant="success-light" className="ml-2">
+          <ChartTrendBadge className="ml-2">
             <IconPlaceholder
               lucide="TrendingUpIcon"
               tabler="IconTrendingUp"
@@ -110,7 +110,7 @@ export default function Chart3D() {
               aria-hidden="true"
             />
             +15.7%
-          </Badge>
+          </ChartTrendBadge>
         </CardTitle>
         <CardDescription>Global sales distribution by region</CardDescription>
       </CardHeader>

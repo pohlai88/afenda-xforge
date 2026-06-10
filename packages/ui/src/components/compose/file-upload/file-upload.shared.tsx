@@ -407,6 +407,7 @@ function UploadDropzone({
 }) {
   return (
     <fieldset
+      aria-label={title}
       className={cn(
         "rounded-xl border border-dashed bg-muted/20 p-4 transition-colors",
         isDragging && "border-primary bg-primary/5",
@@ -417,6 +418,7 @@ function UploadDropzone({
       onDragOver={onDragOver}
       onDrop={onDrop}
     >
+      <legend className="sr-only">{title}</legend>
       <div className="flex flex-col items-center justify-center gap-3 text-center">
         <div className="flex size-11 items-center justify-center rounded-full bg-background text-muted-foreground shadow-sm">
           <Upload className="size-5" />
@@ -456,7 +458,8 @@ function FileThumb({
     >
       {preview ? (
         <img
-          alt={name}
+          alt=""
+          role="presentation"
           className={cn(
             "bg-muted object-cover",
             compact
@@ -504,7 +507,8 @@ function FileRow({
         <div className="flex items-center gap-2">
           {getFileUrl(file) ? (
             <img
-              alt={name}
+              alt=""
+              role="presentation"
               className="size-8 rounded-md object-cover"
               src={getFileUrl(file)}
             />
@@ -562,6 +566,7 @@ function SortableThumb({
           {...attributes}
           {...listeners}
           type="button"
+          aria-label={`Reorder ${getFileName(file)}`}
         >
           <GripVertical className="size-3.5" />
           Drag
@@ -629,7 +634,10 @@ function DefaultUpload() {
             <FolderUp className="size-4" />
             Browse file
           </Button>
-          <input className="sr-only" {...actions.getInputProps()} />
+          <input
+            className="sr-only"
+            {...actions.getInputProps({ "aria-label": "Upload image" })}
+          />
         </UploadDropzone>
 
         {files.length > 0 ? (
@@ -658,8 +666,8 @@ export function AvatarUpload() {
       description="A single image uploader with a compact avatar preview."
     >
       <div className="flex items-center gap-4">
-        <Avatar className="size-20 rounded-2xl border">
-          <AvatarImage alt="Avatar" src={getFileUrl(current)} />
+        <Avatar aria-hidden="true" className="size-20 rounded-2xl border">
+          <AvatarImage alt="" src={getFileUrl(current)} />
           <AvatarFallback className="rounded-2xl bg-muted text-base">
             UP
           </AvatarFallback>
@@ -681,7 +689,10 @@ export function AvatarUpload() {
               Remove
             </Button>
           </div>
-          <input className="sr-only" {...actions.getInputProps()} />
+          <input
+            className="sr-only"
+            {...actions.getInputProps({ "aria-label": "Upload avatar" })}
+          />
         </div>
       </div>
     </FileUploadPatternCard>
@@ -720,7 +731,10 @@ function CompactUpload() {
           <Plus className="size-4" />
           Add files
         </Button>
-        <input className="sr-only" {...actions.getInputProps()} />
+        <input
+          className="sr-only"
+          {...actions.getInputProps({ "aria-label": "Add files" })}
+        />
       </UploadDropzone>
 
       <div className="grid gap-2">
@@ -779,7 +793,10 @@ function GalleryUpload() {
           <ImageIcon className="size-4" />
           Select images
         </Button>
-        <input className="sr-only" {...actions.getInputProps()} />
+        <input
+          className="sr-only"
+          {...actions.getInputProps({ "aria-label": "Select gallery images" })}
+        />
       </UploadDropzone>
 
       <div className="flex items-center justify-between gap-2 rounded-lg border bg-muted/30 px-3 py-2 text-sm">
@@ -848,7 +865,10 @@ function ProgressUpload() {
           <Plus className="size-4" />
           Select files
         </Button>
-        <input className="sr-only" {...actions.getInputProps()} />
+        <input
+          className="sr-only"
+          {...actions.getInputProps({ "aria-label": "Select files" })}
+        />
       </UploadDropzone>
 
       <div className="flex items-center justify-between rounded-lg border bg-muted/30 px-3 py-2 text-sm">
@@ -932,7 +952,10 @@ function TableUpload() {
             Browse files
           </Button>
         </div>
-        <input className="sr-only" {...actions.getInputProps()} />
+        <input
+          className="sr-only"
+          {...actions.getInputProps({ "aria-label": "Add table files" })}
+        />
       </UploadDropzone>
 
       <div className="flex items-center justify-between gap-2">
@@ -998,14 +1021,18 @@ function ImageUpload() {
           <ImageIcon className="size-4" />
           Browse file
         </Button>
-        <input className="sr-only" {...actions.getInputProps()} />
+        <input
+          className="sr-only"
+          {...actions.getInputProps({ "aria-label": "Browse images" })}
+        />
       </UploadDropzone>
 
       <div className="grid gap-3 sm:grid-cols-2">
         {files.map((file) => (
           <div key={file.id} className="overflow-hidden rounded-lg border">
             <img
-              alt={getFileName(file)}
+              alt=""
+              role="presentation"
               className="aspect-[4/3] w-full object-cover"
               src={getFileUrl(file)}
             />
@@ -1019,6 +1046,7 @@ function ImageUpload() {
                 </div>
               </div>
               <Button
+                aria-label={`Remove ${getFileName(file)}`}
                 size="icon"
                 variant="ghost"
                 onClick={() => actions.removeFile(file.id)}
@@ -1071,7 +1099,10 @@ function SortableUpload() {
           <ArrowUpDown className="size-4" />
           Browse file
         </Button>
-        <input className="sr-only" {...actions.getInputProps()} />
+        <input
+          className="sr-only"
+          {...actions.getInputProps({ "aria-label": "Browse sortable images" })}
+        />
       </UploadDropzone>
 
       <DndContext
@@ -1141,7 +1172,10 @@ function CardUpload() {
             Remove all
           </Button>
         </div>
-        <input className="sr-only" {...actions.getInputProps()} />
+        <input
+          className="sr-only"
+          {...actions.getInputProps({ "aria-label": "Add card files" })}
+        />
       </UploadDropzone>
 
       <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
@@ -1150,7 +1184,8 @@ function CardUpload() {
             <div className="flex items-center gap-3">
               {getFileUrl(file) ? (
                 <img
-                  alt={getFileName(file)}
+                  alt=""
+                  role="presentation"
                   className="size-12 rounded-md object-cover"
                   src={getFileUrl(file)}
                 />
@@ -1170,6 +1205,7 @@ function CardUpload() {
             </div>
             <div className="mt-3 flex justify-end">
               <Button
+                aria-label={`Remove ${getFileName(file)}`}
                 size="sm"
                 variant="ghost"
                 onClick={() => actions.removeFile(file.id)}
@@ -1204,7 +1240,8 @@ function CoverUpload() {
           {cover ? (
             <div className="relative aspect-[21/9] w-full">
               <img
-                alt="Cover"
+                alt=""
+                role="presentation"
                 className="h-full w-full object-cover"
                 src={getFileUrl(cover)}
               />
@@ -1236,7 +1273,10 @@ function CoverUpload() {
             Remove
           </Button>
         </div>
-        <input className="sr-only" {...actions.getInputProps()} />
+        <input
+          className="sr-only"
+          {...actions.getInputProps({ "aria-label": "Upload cover image" })}
+        />
         <div className="rounded-lg border bg-muted/20 p-3 text-sm text-muted-foreground">
           <div className="font-medium text-foreground">
             Cover Image Guidelines

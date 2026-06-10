@@ -41,7 +41,12 @@ const config: StorybookConfig = {
       },
     },
   },
-  viteFinal: (config) => {
+  viteFinal: (config, { configType }) => {
+    const pagesBase = process.env.STORYBOOK_BASE_PATH?.trim();
+    if (configType === "PRODUCTION" && pagesBase) {
+      config.base = pagesBase.endsWith("/") ? pagesBase : `${pagesBase}/`;
+    }
+
     config.optimizeDeps = {
       ...config.optimizeDeps,
       include: [

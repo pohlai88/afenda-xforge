@@ -23,30 +23,32 @@ const badgeVariants = cva(
           "bg-muted text-muted-foreground [a&]:hover:bg-muted/80 dark:text-foreground",
         outline:
           "border-border bg-background text-foreground [a&]:hover:bg-accent [a&]:hover:text-accent-foreground dark:bg-input/30",
+        // Surface badges (*-outline, *-light): use *-muted-foreground for text.
+        // *-foreground tokens are contrast pairs for filled badges (text on saturated bg).
         "primary-outline":
           "border-border bg-background text-primary [a&]:hover:bg-accent/50",
         "destructive-outline":
-          "border-border bg-background text-destructive-foreground [a&]:hover:bg-accent/50 dark:bg-input/30",
+          "border-border bg-background text-destructive-muted-foreground [a&]:hover:bg-accent/50 dark:bg-input/30",
         "info-outline":
-          "border-border bg-background text-info-foreground [a&]:hover:bg-accent/50 dark:bg-input/30",
+          "border-border bg-background text-info-muted-foreground [a&]:hover:bg-accent/50 dark:bg-input/30",
         "success-outline":
-          "border-border bg-background text-success-foreground [a&]:hover:bg-accent/50 dark:bg-input/30",
+          "border-border bg-background text-success-muted-foreground [a&]:hover:bg-accent/50 dark:bg-input/30",
         "warning-outline":
-          "border-border bg-background text-warning-foreground [a&]:hover:bg-accent/50 dark:bg-input/30",
+          "border-border bg-background text-warning-muted-foreground [a&]:hover:bg-accent/50 dark:bg-input/30",
         "invert-outline":
           "border-border bg-background text-invert-foreground [a&]:hover:bg-accent/50 dark:bg-input/30",
         "primary-light":
           "border-transparent bg-primary/10 text-primary [a&]:hover:bg-primary/15 dark:bg-primary/20",
         "destructive-light":
-          "border-transparent bg-destructive/10 text-destructive-foreground [a&]:hover:bg-destructive/15 dark:bg-destructive/20",
+          "border-transparent bg-destructive/10 text-destructive-muted-foreground [a&]:hover:bg-destructive/15 dark:bg-destructive/20",
         "info-light":
-          "border-transparent bg-info/10 text-info-foreground [a&]:hover:bg-info/15 dark:bg-info/20",
+          "border-transparent bg-info/10 text-info-muted-foreground [a&]:hover:bg-info/15 dark:bg-info/20",
         "success-light":
-          "border-transparent bg-success/10 text-success-foreground [a&]:hover:bg-success/15 dark:bg-success/20",
+          "border-transparent bg-success/10 text-success-muted-foreground [a&]:hover:bg-success/15 dark:bg-success/20",
         "warning-light":
-          "border-transparent bg-warning/10 text-warning-foreground [a&]:hover:bg-warning/15 dark:bg-warning/20",
+          "border-transparent bg-warning/10 text-warning-muted-foreground [a&]:hover:bg-warning/15 dark:bg-warning/20",
         "invert-light":
-          "border-transparent bg-invert/10 text-invert-foreground [a&]:hover:bg-invert/15 dark:bg-invert/20",
+          "border-transparent bg-invert/10 text-invert [a&]:hover:bg-invert/15 dark:bg-invert/20 dark:text-invert-foreground",
         ghost: "[a&]:hover:bg-accent [a&]:hover:text-accent-foreground",
         link: "text-primary underline-offset-4 [a&]:hover:underline",
       },

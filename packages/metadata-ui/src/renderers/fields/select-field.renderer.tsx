@@ -2,6 +2,7 @@ import { NativeSelect, NativeSelectOption } from "@repo/ui";
 import type { ReactElement } from "react";
 
 import type { MetadataFieldRendererProps } from "../../contracts/field-renderer.contract";
+import { createSelectInputBinding } from "./field-value-binding";
 import {
   resolveFieldControlClassName,
   resolveFieldVisualState,
@@ -11,7 +12,7 @@ import { MetadataFieldShell } from "./metadata-field-shell";
 export function SelectFieldRenderer(
   props: MetadataFieldRendererProps
 ): ReactElement {
-  const { context, field, value } = props;
+  const { context, field, onChange, value } = props;
   const visualState = resolveFieldVisualState(props);
   const resolvedValue =
     typeof value === "string" || typeof value === "number" ? String(value) : "";
@@ -30,7 +31,7 @@ export function SelectFieldRenderer(
           "w-full",
           context.density
         )}
-        defaultValue={resolvedValue}
+        {...createSelectInputBinding(value, resolvedValue, onChange)}
         disabled={visualState.isDisabled || visualState.isReadOnly || undefined}
         id={visualState.controlId}
         name={field.key}

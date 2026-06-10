@@ -198,6 +198,10 @@ function TreeItem<T = unknown>({
     "--tree-padding": `${item.getItemMeta().level * resolvedIndent}px`,
   } as CSSProperties;
 
+  const itemName =
+    typeof item.getItemName === "function" ? item.getItemName() : undefined;
+  const accessibleName = itemName?.trim() || "Tree item";
+
   const defaultProps = {
     "data-slot": "tree-item",
     style: mergedStyle,
@@ -227,6 +231,7 @@ function TreeItem<T = unknown>({
         ? item.isMatchingSearch() || false
         : undefined,
     "aria-expanded": item.isExpanded(),
+    "aria-label": accessibleName,
   };
 
   const Comp = asChild ? Slot.Root : "button";

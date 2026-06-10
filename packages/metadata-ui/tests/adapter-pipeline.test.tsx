@@ -79,10 +79,10 @@ test("renderMetadataState returns diagnostics and emits telemetry", () => {
 
   assert.equal((result.element as TestElement).type.name, "ErrorState");
   assert.equal(result.diagnostics.length > 0, true);
-  assert.equal(result.diagnostics[0]?.code, "missing-renderer");
+  assert.equal(result.diagnostics[0]?.code, "unsupported-state");
   assert.deepEqual(
     telemetry.events.map((event) => event.name),
-    ["metadata.state.render.started", "metadata.state.render.completed"]
+    ["metadata.state.render.started", "metadata.renderer.fallback"]
   );
 });
 

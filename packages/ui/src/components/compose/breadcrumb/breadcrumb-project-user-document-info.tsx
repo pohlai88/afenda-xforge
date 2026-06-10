@@ -21,8 +21,8 @@ export function BreadcrumbProjectUserDocumentInfo() {
           <BreadcrumbList className="gap-3">
             <BreadcrumbItem>
               <BreadcrumbLink href="#" className="flex items-center gap-2">
-                <Avatar className="size-6">
-                  <AvatarImage src="https://github.com/vercel.png" />
+                <Avatar aria-hidden="true" className="size-6">
+                  <AvatarImage alt="" src="https://github.com/vercel.png" />
                   <AvatarFallback>VC</AvatarFallback>
                 </Avatar>
                 Vercel
@@ -33,8 +33,8 @@ export function BreadcrumbProjectUserDocumentInfo() {
             </BreadcrumbSeparator>
             <BreadcrumbItem>
               <BreadcrumbLink href="#" className="flex items-center gap-3">
-                <Avatar className="size-6">
-                  <AvatarImage src="https://github.com/shadcn.png" />
+                <Avatar aria-hidden="true" className="size-6">
+                  <AvatarImage alt="" src="https://github.com/shadcn.png" />
                   <AvatarFallback>SC</AvatarFallback>
                 </Avatar>
                 <span className="flex flex-col">

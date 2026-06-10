@@ -229,7 +229,6 @@ function StepperTrigger({
       data-slot="stepper-trigger"
       aria-current={step === activeValue ? "step" : undefined}
       aria-controls={contentId}
-      aria-disabled={disabled || undefined}
       disabled={asChild ? undefined : disabled}
       onClick={(event: React.MouseEvent<HTMLElement>) => {
         onClick?.(event as React.MouseEvent<HTMLButtonElement>);
@@ -358,19 +357,30 @@ function StepperContent({
   const contentId = `stepper-content-${baseId}-${value}`;
   const triggerId = `stepper-trigger-${baseId}-${value}`;
 
-  if (!active && !forceMount) {
-    return null;
+  if (!forceMount && !active) {
+    return (
+      <div
+        role="region"
+        id={contentId}
+        data-slot="stepper-content"
+        data-state="inactive"
+        aria-labelledby={triggerId}
+        hidden
+        className={cn("hidden", className)}
+        {...props}
+      />
+    );
   }
 
   return (
     <div
-      role="tabpanel"
+      role="region"
       id={contentId}
       data-slot="stepper-content"
       data-state={active ? "active" : "inactive"}
       aria-labelledby={triggerId}
       hidden={!active}
-      className={cn("outline-none", className)}
+      className={cn("outline-none", !active && "hidden", className)}
       {...props}
     >
       {children}
