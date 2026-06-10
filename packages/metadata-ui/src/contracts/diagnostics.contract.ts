@@ -11,7 +11,8 @@ export type MetadataDiagnosticCode =
   | "missing-renderer"
   | "readonly-mode"
   | "renderer-error"
-  | "unsupported-state";
+  | "unsupported-state"
+  | "unsupported-renderer-version";
 
 export type MetadataDiagnostic = {
   code: MetadataDiagnosticCode;

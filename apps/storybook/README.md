@@ -23,10 +23,16 @@ pnpm --filter storybook preview:static
 pnpm --filter storybook typecheck
 pnpm --filter storybook check
 pnpm --filter storybook check:build
+pnpm --filter storybook check:theme-css
+pnpm --filter storybook check:stylelint
+pnpm --filter storybook check:intro-layout
+pnpm --filter storybook check:storybook-visual-tokens
 pnpm --filter storybook check:metadata-ui-browser-smoke
 pnpm --filter storybook test:stories
+pnpm --filter storybook test:visual:intro
 pnpm --filter storybook test:visual
 pnpm --filter storybook test:visual:update
+pnpm --filter storybook test:visual:intro:update
 pnpm --filter storybook generate:compose-stories
 pnpm --filter storybook scorecard
 ```
@@ -35,12 +41,16 @@ pnpm --filter storybook scorecard
 
 | Script | Purpose |
 | --- | --- |
-| `check:theme-css` | Validates Storybook CSS imports globals.css and shadcn v4 token mappings |
+| `check:theme-css` | Validates Storybook CSS imports globals.css and shadcn v4 token mappings (CI-blocking) |
+| `check:stylelint` | Scoped Stylelint on `globals.css` + `preview.css` (Tailwind v4 at-rules, no raw rgb/hsl) |
+| `check:intro-layout` | Orbit stage structure, overflow, and CSS utility gate (MUI-VIS-013) |
+| `check:storybook-visual-tokens` | Story className hygiene — semantic tokens, no `bg-size-[`, lucide imports (MUI-VIS-015) |
 | `check:build` | Static production build (CI gate for compile/bundle health) |
-| `scorecard` | Informational story/play/chunk metrics after build |
+| `scorecard` | Informational story/play/chunk metrics and guard gate status after build |
 | `check:metadata-ui-browser-smoke` | Playwright smoke against the metadata-ui integration fixture |
 | `test:stories` | Starts Storybook CI dev server and runs test-runner with axe checks |
-| `test:visual` | Playwright screenshot golden set (`tests/visual/__screenshots__`) |
+| `test:visual:intro` | PR-blocking Playwright screenshots for intro stories only |
+| `test:visual` | Full Playwright screenshot golden set (`tests/visual/__screenshots__`) |
 | `pretest:stories` | Ensures metadata-ui generated artifacts are current and Chromium is installed |
 
 Run story tests locally (dev server not required):

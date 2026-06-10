@@ -30,11 +30,15 @@ export type MetadataRenderContext = MetadataActorScope &
     diagnosticsEnabled: boolean;
     featureFlags: Readonly<Record<string, boolean>>;
     featureId?: string;
+    labelCatalog?: Readonly<Record<string, string>>;
     locale: string;
     moduleId?: string;
     mode: MetadataRenderMode;
     readonly: boolean;
     permissions: Readonly<Record<string, boolean>>;
+    rendererVersionConstraints?: Readonly<
+      Record<string, { exact?: string; min?: string }>
+    >;
     routeId?: string;
     surfaceId?: string;
     surfaceRole?: MetadataSurfaceRole;

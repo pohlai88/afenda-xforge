@@ -1,12 +1,3 @@
-import type { CustomizationContract } from "@repo/customization/contracts";
-import type {
-  CustomizationLayerSet,
-  LayeredCustomizationResolutionOptions,
-} from "@repo/customization/resolution";
-import {
-  resolveCustomizedEntityMetadata,
-  resolveLayeredCustomizedEntityMetadata,
-} from "@repo/customization/resolution";
 import type { EntityLabels, EntityMetadata } from "@repo/metadata";
 import type { DashboardTableRow, TableColumnMetadata } from "@repo/ui";
 import { Card, CardContent, CardHeader, Separator } from "@repo/ui";
@@ -18,6 +9,8 @@ import { renderMetadataTableCell } from "../adapters/ui-table-cell-adapter";
 import type { MetadataDiagnostic } from "../contracts/diagnostics.contract";
 import type { MetadataRenderContext } from "../contracts/render-context.contract";
 import { createMetadataRenderContext } from "../contracts/render-context.defaults";
+import type { MetadataCustomizationInput } from "../customization";
+import { resolveMetadataEntityCustomization } from "../customization";
 import { defaultFieldRegistry } from "../registry/default-field-registry";
 import {
   resolveSurfaceKindProps,
@@ -65,17 +58,9 @@ const createMetadataTableCellDiagnostic = (
 
 const getResolvedMetadata = (
   metadata: EntityMetadata,
-  customization?: CustomizationContract | null,
-  customizationLayers?: CustomizationLayerSet | null,
-  customizationOptions?: LayeredCustomizationResolutionOptions
+  customizationInput: MetadataCustomizationInput = {}
 ): EntityMetadata =>
-  customizationLayers
-    ? resolveLayeredCustomizedEntityMetadata(
-        metadata,
-        customizationLayers,
-        customizationOptions
-      )
-    : resolveCustomizedEntityMetadata(metadata, customization);
+  resolveMetadataEntityCustomization(metadata, customizationInput);
 
 const getMetadataTableDiagnostics = (
   context: MetadataRenderContext,
@@ -115,11 +100,8 @@ export const getMetadataSummary = (
   totalRecords,
 });
 
-export type MetadataTableProps = {
+export type MetadataTableProps = MetadataCustomizationInput & {
   context?: Partial<MetadataRenderContext>;
-  customization?: CustomizationContract | null;
-  customizationLayers?: CustomizationLayerSet | null;
-  customizationOptions?: LayeredCustomizationResolutionOptions;
   defaultSortColumn?: string;
   emptyDescription?: string;
   emptyTitle?: string;
@@ -159,12 +141,11 @@ export function renderMetadataTableResult({
   showSearch = true,
   surface = "contained",
 }: MetadataTableProps): MetadataTableRenderResult {
-  const resolvedMetadata = getResolvedMetadata(
-    metadata,
+  const resolvedMetadata = getResolvedMetadata(metadata, {
     customization,
     customizationLayers,
-    customizationOptions
-  );
+    customizationOptions,
+  });
   const resolvedContext = createMetadataRenderContext(context, {
     mode: "read",
     surfaceId: `metadata-table:${resolveMetadataSurfaceKey(resolvedMetadata)}`,
@@ -279,12 +260,11 @@ export function renderMetadataPanelResult({
   title,
   totalRecords,
 }: MetadataPanelProps): MetadataPanelRenderResult {
-  const resolvedMetadata = getResolvedMetadata(
-    metadata,
+  const resolvedMetadata = getResolvedMetadata(metadata, {
     customization,
     customizationLayers,
-    customizationOptions
-  );
+    customizationOptions,
+  });
   const summary = getMetadataSummary(
     resolvedMetadata,
     totalRecords ?? rows.length

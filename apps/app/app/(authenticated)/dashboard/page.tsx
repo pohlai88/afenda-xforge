@@ -1,6 +1,7 @@
 import { SignOut } from "@repo/auth/components/sign-out";
 import { resolveLayeredCustomizedEntityMetadata } from "@repo/customization/resolution";
 import { ForbiddenError } from "@repo/errors";
+import { MetadataStateBoundary } from "@repo/metadata-ui/components";
 import { companyMetadata } from "@repo/features-master-data-companies/metadata";
 import { customerMetadata } from "@repo/features-master-data-customers/metadata";
 import type { EntityMetadata } from "@repo/metadata";
@@ -10,20 +11,6 @@ import type { DashboardEntityCustomizationLayers } from "./_customizations.ts";
 import { loadDashboardMetadataCustomizations } from "./_customizations.ts";
 import { loadDashboardData } from "./_data.ts";
 import { DashboardView } from "./dashboard-view.tsx";
-
-const renderDashboardAccessError = (message: string): ReactElement => (
-  <section className="rounded-[var(--radius-xl)] border border-border bg-card/95 p-8 shadow-sm">
-    <div className="space-y-2">
-      <p className="text-muted-foreground text-sm uppercase tracking-[0.3em]">
-        XForge
-      </p>
-      <h1 className="font-semibold text-3xl tracking-tight">
-        Dashboard unavailable
-      </h1>
-      <p className="text-muted-foreground">{message}</p>
-    </div>
-  </section>
-);
 
 const resolveDashboardMetadata = (
   metadata: EntityMetadata,
@@ -103,15 +90,24 @@ export default async function DashboardPage(): Promise<ReactElement> {
     );
   } catch (error) {
     if (error instanceof ForbiddenError) {
-      return renderDashboardAccessError(
-        "Tenant membership is required before the dashboard can load."
+      return (
+        <MetadataStateBoundary
+          forbiddenDescription="Tenant membership is required before the dashboard can load."
+          forbiddenTitle="Dashboard unavailable"
+          state="forbidden"
+        />
       );
     }
 
-    return renderDashboardAccessError(
-      error instanceof Error
-        ? error.message
-        : "The dashboard could not be loaded."
+    return (
+      <MetadataStateBoundary
+        error={
+          error instanceof Error
+            ? error.message
+            : "The dashboard could not be loaded."
+        }
+        state="error"
+      />
     );
   }
 }

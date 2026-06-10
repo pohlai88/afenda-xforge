@@ -1,3 +1,10 @@
+/**
+ * UI-only governance hints for metadata renderers.
+ *
+ * Permission, capability, and feature-flag checks here use consumer-supplied
+ * render context values. They affect presentation only and are not a substitute
+ * for server-side authorization or mutation enforcement.
+ */
 import type {
   MetadataDiagnostic,
   MetadataDiagnosticCode,
@@ -74,6 +81,10 @@ const createGovernanceDiagnostic = (
   timestamp: new Date().toISOString(),
 });
 
+/**
+ * Evaluates UI-only governance hints from metadata policy against render context.
+ * Server-side permission authority remains outside this package.
+ */
 export function evaluateMetadataGovernance({
   context,
   disabled = false,

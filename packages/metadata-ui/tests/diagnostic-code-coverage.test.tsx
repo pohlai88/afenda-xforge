@@ -39,7 +39,7 @@ test("invalid-contract diagnostic is emitted for structurally invalid field cont
 
   assert.equal(result.diagnostics[0]?.code, "invalid-contract");
   assert.match(String(result.diagnostics[0]?.message ?? ""), /non-empty key/);
-  assert.equal((result.element as TestElement).type.name, "ErrorState");
+  assert.equal((result.element as TestElement).type.name, "InvalidState");
 });
 
 test("invalid-contract diagnostic is emitted for structurally invalid action contracts", () => {
@@ -120,6 +120,31 @@ test("deprecated-renderer diagnostic is emitted when resolving deprecated regist
 
   assert.equal(resolution.diagnostic?.code, "deprecated-renderer");
   assert.match(String(resolution.diagnostic?.message ?? ""), /deprecated/i);
+});
+
+test("unsupported-renderer-version diagnostic is emitted when version constraints fail", () => {
+  const registry = createRendererRegistry<
+    MetadataFieldKind,
+    MetadataFieldRenderer
+  >([
+    {
+      key: "text",
+      renderer: TextFieldRenderer,
+      version: "0.9.0",
+    },
+  ]);
+  const constrainedContext = createMetadataRenderContext({
+    rendererVersionConstraints: {
+      "field:text": { min: "1.0.0" },
+    },
+  });
+  const resolution = resolveMetadataFieldRenderer(
+    "text",
+    registry,
+    constrainedContext
+  );
+
+  assert.equal(resolution.diagnostic?.code, "unsupported-renderer-version");
 });
 
 test("duplicate-renderer diagnostic is emitted for duplicate manifest registry keys", () => {

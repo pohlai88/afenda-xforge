@@ -47,15 +47,21 @@ export type MetadataSectionRow = Readonly<Record<string, unknown>> & {
 
 export type MetadataSectionMetadata = Record<string, unknown>;
 
+export type MetadataSectionCompleteness = "degraded" | "full" | "partial";
+
 export type MetadataSectionContract<
   TMetadata = MetadataSectionMetadata,
   TRow extends MetadataSectionRow = MetadataSectionRow,
 > = MetadataGovernancePolicy & {
   actions?: readonly MetadataActionContract[];
+  completeness?: MetadataSectionCompleteness;
+  completenessDescription?: string;
   description?: string;
   fields?: readonly MetadataFieldContract[];
   key: string;
   kind?: MetadataSectionKind;
+  labelKey?: string;
+  labels?: Readonly<Partial<Record<string, string>>>;
   metadata?: TMetadata;
   metadataAttributes?: Record<string, unknown>;
   order?: number;

@@ -1,12 +1,16 @@
 import type { ReactElement, ReactNode } from "react";
 
-import type { MetadataUiState } from "./render-context.contract";
+import type {
+  MetadataRenderContext,
+  MetadataUiState,
+} from "./render-context.contract";
 
 export type MetadataStateKind = MetadataUiState;
 
 export type MetadataStateRendererProps = {
   actionLabel?: string;
   children?: ReactNode;
+  context?: MetadataRenderContext;
   diagnostics?: readonly {
     code: string;
     correlationId: string;

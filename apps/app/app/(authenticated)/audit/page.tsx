@@ -1,3 +1,4 @@
+import { MetadataStateBoundary } from "@repo/metadata-ui/components";
 import type {
   DashboardKpiTone,
   DashboardTableRow,
@@ -76,31 +77,21 @@ const resolveOutcomeBadgeTone = (
   return "neutral";
 };
 
-const renderAuditAccessError = (message: string): ReactElement => (
-  <section className="rounded-[var(--radius-xl)] border border-border bg-card/95 p-8 shadow-sm">
-    <div className="space-y-2">
-      <p className="text-muted-foreground text-sm uppercase tracking-[0.3em]">
-        XForge
-      </p>
-      <h1 className="font-semibold text-3xl tracking-tight">
-        Audit unavailable
-      </h1>
-      <p className="text-muted-foreground">{message}</p>
-    </div>
-  </section>
-);
-
 export default async function AuditPage(): Promise<ReactElement> {
   const audit = await loadAuditPageData();
 
   if (audit.status === "forbidden") {
-    return renderAuditAccessError(
-      "Audit visibility requires the audit.read permission for this tenant."
+    return (
+      <MetadataStateBoundary
+        forbiddenDescription="Audit visibility requires the audit.read permission for this tenant."
+        forbiddenTitle="Audit unavailable"
+        state="forbidden"
+      />
     );
   }
 
   if (audit.status === "error") {
-    return renderAuditAccessError(audit.message);
+    return <MetadataStateBoundary error={audit.message} state="error" />;
   }
 
   const { data } = audit;

@@ -1,3 +1,4 @@
+import type { EntityMetadata } from "@repo/metadata";
 import type { ReactElement } from "react";
 import { renderMetadataAction, renderMetadataField } from "../adapters";
 import type { MetadataRenderAdapterResult } from "../adapters/adapter-result";
@@ -5,6 +6,8 @@ import type { MetadataActionContract } from "../contracts/action-renderer.contra
 import type { MetadataFieldContract } from "../contracts/field-renderer.contract";
 import type { MetadataRenderContext } from "../contracts/render-context.contract";
 import { createMetadataRenderContext } from "../contracts/render-context.defaults";
+import type { MetadataCustomizationInput } from "../customization";
+import { resolveMetadataEntityCustomization } from "../customization";
 import {
   METADATA_FORM_DESCRIPTION_CLASS,
   METADATA_FORM_TITLE_CLASS,
@@ -24,15 +27,16 @@ import { MetadataSurfaceRegion } from "./metadata-surface-region";
 const cn = (...values: Array<string | false | null | undefined>): string =>
   values.filter(Boolean).join(" ");
 
-export type MetadataFormProps = {
+export type MetadataFormProps = MetadataCustomizationInput & {
   actions?: readonly MetadataActionContract[];
   context?: Partial<MetadataRenderContext>;
   description?: string;
   disabled?: boolean;
   emptyDescription?: string;
   emptyTitle?: string;
+  entityMetadata?: EntityMetadata;
   error?: string;
-  fields: readonly MetadataFieldContract[];
+  fields?: readonly MetadataFieldContract[];
   forbiddenDescription?: string;
   forbiddenTitle?: string;
   loadingDescription?: string;
@@ -50,12 +54,16 @@ export type MetadataFormRenderResult =
 export function renderMetadataFormResult({
   actions,
   context,
+  customization,
+  customizationLayers,
+  customizationOptions,
   description,
   disabled = false,
   emptyDescription,
   emptyTitle,
+  entityMetadata,
   error,
-  fields,
+  fields = [],
   forbiddenDescription,
   forbiddenTitle,
   loadingDescription,
@@ -66,6 +74,18 @@ export function renderMetadataFormResult({
   title,
   values,
 }: MetadataFormProps): MetadataFormRenderResult {
+  const resolvedEntityMetadata = entityMetadata
+    ? resolveMetadataEntityCustomization(entityMetadata, {
+        customization,
+        customizationLayers,
+        customizationOptions,
+      })
+    : undefined;
+  const resolvedFields = (
+    fields.length > 0 ? fields : (resolvedEntityMetadata?.fields ?? [])
+  ) as readonly MetadataFieldContract[];
+  const resolvedActions =
+    actions ?? resolvedEntityMetadata?.actions ?? undefined;
   const resolvedContext = createMetadataRenderContext(context, {
     mode: "create",
     state,
@@ -95,7 +115,7 @@ export function renderMetadataFormResult({
     };
   }
 
-  const fieldResults = fields.map((field) =>
+  const fieldResults = resolvedFields.map((field) =>
     renderMetadataField({
       context: resolvedContext,
       disabled,
@@ -109,7 +129,7 @@ export function renderMetadataFormResult({
     })
   );
   const actionResults =
-    actions?.map((action) =>
+    resolvedActions?.map((action) =>
       renderMetadataAction({
         action,
         context: resolvedContext,
@@ -170,7 +190,7 @@ export function renderMetadataFormResult({
               className={cn("grid md:grid-cols-2", densityVisual.formGridGap)}
             >
               {fieldResults.map((result, index) => (
-                <div key={fields[index]?.key}>{result.element}</div>
+                <div key={resolvedFields[index]?.key}>{result.element}</div>
               ))}
             </div>
           </MetadataSurfaceRegion>
@@ -180,7 +200,7 @@ export function renderMetadataFormResult({
           <MetadataSurfaceRegion kind="form" region="secondary-actions">
             <div className="flex flex-wrap items-center gap-2">
               {actionResults.map((result, index) => (
-                <div key={actions?.[index]?.key}>{result.element}</div>
+                <div key={resolvedActions?.[index]?.key}>{result.element}</div>
               ))}
             </div>
           </MetadataSurfaceRegion>

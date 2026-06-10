@@ -7,7 +7,9 @@ import { createMetadataCorrelationId } from "../contracts/render-context.default
 
 export type MetadataRendererResolutionKind =
   | "action"
+  | "composition"
   | "field"
+  | "layout"
   | "section"
   | "state";
 
@@ -128,6 +130,25 @@ export const createUnsupportedStateDiagnostic = (
     key: state,
     message: `Metadata state '${state}' is not supported by the state registry.`,
     rendererType: "state",
+    severity: "error",
+  });
+
+export const createUnsupportedRendererVersionDiagnostic = (
+  rendererType: MetadataRendererResolutionKind,
+  key: string,
+  registrationVersion: string,
+  constraint: { exact?: string; min?: string }
+): MetadataRendererDiagnostic =>
+  createRendererDiagnostic({
+    code: "unsupported-renderer-version",
+    details: {
+      constraint,
+      registrationVersion,
+      rendererType,
+    },
+    key,
+    message: `Metadata ${rendererType} renderer '${key}' version '${registrationVersion}' does not satisfy the active version constraint.`,
+    rendererType,
     severity: "error",
   });
 

@@ -14,6 +14,8 @@ import {
   bindRendererDiagnosticCorrelation,
   mergeRendererDiagnostics,
 } from "./diagnostics";
+import { createInvalidContractFallbackResult } from "./invalid-contract-fallback";
+import { withLocalizedActionLabel } from "./localized-metadata-contracts";
 import {
   createMetadataRendererErrorDiagnostic,
   resolveMetadataActionRenderer,
@@ -165,31 +167,20 @@ export function renderMetadataAction({
       context.correlationId
     ) as MetadataRendererDiagnostic;
 
-    emitMetadataTelemetry(context, "metadata.renderer.fallback", {
-      action: action?.key ?? "unknown",
-      attributes: {
-        actionKey: contractValidation.diagnostic.target ?? "unknown",
-        reason: diagnostic.code,
-      },
-      diagnostics: [diagnostic],
-      level: "error",
-      rendererKey: action?.surface ?? action?.kind ?? "button",
-    });
-
-    return {
-      diagnostics: [diagnostic],
-      element: (
-        <ErrorState
-          context={context}
-          correlationId={context.correlationId}
-          description={diagnostic.message}
-          title="Invalid action contract"
-        />
-      ),
-    };
+    return createInvalidContractFallbackResult(
+      context,
+      diagnostic,
+      "Invalid action contract",
+      {
+        attributes: {
+          actionKey: contractValidation.diagnostic.target ?? "unknown",
+        },
+        rendererKey: action?.surface ?? action?.kind ?? "button",
+      }
+    );
   }
 
-  const resolution = resolveMetadataActionRenderer(action, registry);
+  const resolution = resolveMetadataActionRenderer(action, registry, context);
   const governance = evaluateMetadataGovernance({
     context,
     disabled: action.disabled,
@@ -223,7 +214,7 @@ export function renderMetadataAction({
     nextContext: MetadataRenderContext
   ): ReactElement | null =>
     resolution.renderer({
-      action: nextAction,
+      action: withLocalizedActionLabel(nextAction, nextContext),
       context: nextContext,
       diagnostics,
       onAction: (nextResolvedAction: MetadataActionContract): void => {

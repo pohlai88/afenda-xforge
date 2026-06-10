@@ -14,6 +14,7 @@ export type MetadataActorScope = {
 export type MetadataGovernanceSeverity = "critical" | "info" | "warning";
 
 export type MetadataGovernancePolicy = {
+  /** UI-only permission hint from consumer render context; not server authority. */
   auditAction?: string;
   capability?: string;
   featureFlag?: string;

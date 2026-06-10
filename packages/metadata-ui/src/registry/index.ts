@@ -6,6 +6,7 @@ export type {
 export { createRendererRegistry } from "./create-renderer-registry.ts";
 export { defaultActionRegistry } from "./default-action-registry.tsx";
 export { defaultFieldRegistry } from "./default-field-registry.tsx";
+export { defaultLayoutRegistry } from "./default-layout-registry.ts";
 export { defaultSectionRegistry } from "./default-section-registry.tsx";
 export { defaultStateRegistry } from "./default-state-registry.tsx";
 export {
@@ -20,3 +21,10 @@ export {
   MetadataRendererRegistryError,
   MetadataRendererRegistryMissingError,
 } from "./registry-errors.ts";
+export {
+  compareRendererVersions,
+  type MetadataRendererVersionConstraint,
+  type MetadataRendererVersionParts,
+  parseRendererVersion,
+  satisfiesRendererVersionConstraint,
+} from "./renderer-version.ts";

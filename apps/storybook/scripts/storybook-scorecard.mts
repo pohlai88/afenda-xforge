@@ -2,6 +2,7 @@
  * Informational Storybook scorecard for CI logs.
  * Usage: tsx scripts/storybook-scorecard.mts (after check:build)
  */
+import { spawnSync } from "node:child_process";
 import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
@@ -12,6 +13,33 @@ const staticDir = path.join(storybookRoot, "storybook-static");
 
 const PLAY_TARGET = 6;
 const CHUNK_WARN_KB = 500;
+
+const gateChecks = [
+  { label: "theme-css", command: ["pnpm", "run", "check:theme-css"] },
+  { label: "stylelint", command: ["pnpm", "run", "check:stylelint"] },
+  { label: "intro-layout", command: ["pnpm", "run", "check:intro-layout"] },
+  {
+    label: "storybook-visual-tokens",
+    command: ["pnpm", "run", "check:storybook-visual-tokens"],
+  },
+] as const;
+
+function runGateCheck(label: string, command: readonly string[]): boolean {
+  const result = spawnSync(command[0], command.slice(1), {
+    cwd: storybookRoot,
+    encoding: "utf8",
+    shell: process.platform === "win32",
+  });
+
+  const passed = result.status === 0;
+  console.log(`  gate ${label}: ${passed ? "pass" : "fail"}`);
+
+  if (!passed && result.stderr) {
+    console.log(result.stderr.trim());
+  }
+
+  return passed;
+}
 
 function countFiles(dir: string, pattern: RegExp): number {
   let count = 0;
@@ -104,6 +132,10 @@ const a11yTiers = countA11yTiers();
 const { overall: largest, composeCategory } = largestJsChunks();
 
 console.log("Storybook scorecard");
+console.log("  guard gates:");
+for (const gate of gateChecks) {
+  runGateCheck(gate.label, gate.command);
+}
 console.log(`  story files: ${storyFileCount}`);
 console.log(`  mdx docs: ${mdxCount}`);
 console.log(`  play functions: ${playCount} (target: ${PLAY_TARGET}+)`);

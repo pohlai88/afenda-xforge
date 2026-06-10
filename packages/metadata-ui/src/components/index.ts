@@ -13,6 +13,7 @@ export {
   type MetadataFormRenderResult,
   renderMetadataFormResult,
 } from "./metadata-form";
+export { MetadataMotionSkeleton } from "./metadata-motion-skeleton";
 export { MetadataSectionStack } from "./metadata-section-stack";
 export {
   MetadataStateBoundary,

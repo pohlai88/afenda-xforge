@@ -16,9 +16,21 @@ const snapshotDir = path.join(storybookRoot, "tests/visual/__screenshots__");
 const baseUrl = `http://localhost:${port}`;
 
 const updateSnapshots = process.argv.includes("--update");
+const introOnly = process.argv.includes("--intro");
+
+const introGoldenStories = [
+  {
+    id: "introduction-beastmode-keynote--overview",
+    name: "introduction-beastmode-keynote",
+  },
+  {
+    id: "introduction-mutation-orbit--overview",
+    name: "introduction-mutation-orbit",
+  },
+] as const;
 
 const goldenStories = [
-  { id: "introduction-overview--overview", name: "introduction-overview" },
+  ...introGoldenStories,
   { id: "metadata-ui-smoke--overview", name: "metadata-ui-smoke-overview" },
   { id: "metadata-ui-actions--button-action", name: "metadata-ui-actions-button" },
   { id: "ui-compose-form--button", name: "ui-compose-form-button" },
@@ -37,6 +49,8 @@ const goldenStories = [
     name: "field-visual-error",
   },
 ] as const;
+
+const storiesToCapture = introOnly ? introGoldenStories : goldenStories;
 
 async function waitForServer(url: string): Promise<void> {
   const startedAt = Date.now();
@@ -163,7 +177,7 @@ try {
     viewport: { width: 1280, height: 900 },
   });
 
-  for (const story of goldenStories) {
+  for (const story of storiesToCapture) {
     await captureStory(page, story.id, story.name);
   }
 

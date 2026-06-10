@@ -11,7 +11,10 @@ import {
   sourceHasNamedExport,
 } from "./generator-lib.mts";
 
-const internalRendererAllowlist = new Set(["base-action.renderer.tsx"]);
+const internalRendererAllowlist = new Set([
+  "base-action.renderer.tsx",
+  "metadata-stack-layout.renderer.tsx",
+]);
 
 function getRendererFiles(directory: string): string[] {
   return readdirSync(directory, { withFileTypes: true }).flatMap((entry) => {

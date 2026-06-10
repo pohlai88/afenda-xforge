@@ -46,6 +46,21 @@ jobs:
       - name: Install
         run: pnpm install --frozen-lockfile
 
+      - name: Verify metadata-ui generated artifacts
+        run: pnpm --filter @repo/metadata-ui check:generated
+
+      - name: Theme CSS gate
+        run: pnpm --filter storybook check:theme-css
+
+      - name: Intro layout gate
+        run: pnpm --filter storybook check:intro-layout
+
+      - name: Storybook visual token gate
+        run: pnpm --filter storybook check:storybook-visual-tokens
+
+      - name: Intro visual regression
+        run: pnpm --filter storybook test:visual:intro
+
       - name: Build Storybook
         run: pnpm --filter storybook check:build
 

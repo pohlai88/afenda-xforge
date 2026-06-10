@@ -32,6 +32,7 @@ import {
   handleKeyboardActivation,
   METADATA_INTERACTIVE_ROW_CLASS,
 } from "../interaction/keyboard-focus-contract";
+import { MetadataTableLoadingSkeleton } from "../renderers/states/table-loading-skeleton";
 import {
   METADATA_TABLE_CELL_CONTENT_CLASS,
   METADATA_TABLE_HEADER_LABEL_CLASS,
@@ -46,19 +47,10 @@ import {
   resolveSurfaceKindProps,
   resolveSurfaceShellClassName,
 } from "../visualization/surface-visual-contract";
-import { MetadataMotionSkeleton } from "./metadata-motion-skeleton";
 import { renderMetadataStateBoundaryResult } from "./metadata-state-boundary";
 import { MetadataSurfaceRegion } from "./metadata-surface-region";
 
 type SortOrder = "asc" | "desc" | null;
-
-const SKELETON_KEYS = [
-  "metadata-table-skeleton-1",
-  "metadata-table-skeleton-2",
-  "metadata-table-skeleton-3",
-  "metadata-table-skeleton-4",
-  "metadata-table-skeleton-5",
-] as const;
 
 type ActivityTableProps = {
   columns?: readonly TableColumnMetadata[];
@@ -343,13 +335,7 @@ export function ActivityTable({
 
   if (loading) {
     return renderMetadataStateBoundaryResult({
-      children: (
-        <div className="grid gap-3">
-          {SKELETON_KEYS.map((key) => (
-            <MetadataMotionSkeleton className="h-10 w-full" key={key} />
-          ))}
-        </div>
-      ),
+      children: <MetadataTableLoadingSkeleton />,
       context,
       loadingDescription: "Loading rows for this table.",
       loadingTitle: "Loading",

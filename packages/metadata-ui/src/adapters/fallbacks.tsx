@@ -12,6 +12,10 @@ import type {
   MetadataFieldRendererProps,
 } from "../contracts/field-renderer.contract";
 import type {
+  MetadataLayoutRenderer,
+  MetadataLayoutRendererProps,
+} from "../contracts/layout.contract";
+import type {
   MetadataSectionRenderer,
   MetadataSectionRendererProps,
 } from "../contracts/section-renderer.contract";
@@ -62,6 +66,18 @@ export const createMissingSectionRenderer = (
       correlationId={fallback.correlationId}
       description={fallback.message}
       title={`Unsupported section: ${props.section.title}`}
+    />
+  ))(diagnostic);
+
+export const createMissingLayoutRenderer = (
+  diagnostic: MetadataRendererDiagnostic
+): MetadataLayoutRenderer =>
+  createFallbackRenderer<MetadataLayoutRendererProps>((props, fallback) => (
+    <ErrorState
+      context={props.context}
+      correlationId={fallback.correlationId}
+      description={fallback.message}
+      title={`Unsupported layout: ${props.layout.title ?? props.layout.key}`}
     />
   ))(diagnostic);
 

@@ -25,3 +25,7 @@ export {
   resolveStateVisualDefinition,
   STATE_VISUAL_MATRIX,
 } from "./state-visual-matrix";
+export {
+  MetadataTableLoadingSkeleton,
+  TABLE_LOADING_SKELETON_KEYS,
+} from "./table-loading-skeleton";

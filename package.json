@@ -32,7 +32,7 @@
     "typecheck": "turbo typecheck",
     "ci": "turbo build lint typecheck --affected && pnpm --filter @repo/generators build && pnpm run ci:metadata-ui",
     "ci:full": "pnpm lint && pnpm typecheck && pnpm test && pnpm build && pnpm --filter @repo/generators build && pnpm run ci:metadata-ui",
-    "ci:metadata-ui": "pnpm run metadata-ui:check-generated && pnpm --filter @repo/metadata-ui verify && pnpm --filter storybook check:build && pnpm --filter storybook scorecard && pnpm --filter storybook check:metadata-ui-browser-smoke && pnpm --filter storybook test:stories && pnpm --filter app check:metadata-ui-smoke",
+    "ci:metadata-ui": "pnpm run metadata-ui:check-generated && pnpm --filter @repo/metadata-ui verify && pnpm --filter storybook check:theme-css && pnpm --filter storybook check:intro-layout && pnpm --filter storybook check:storybook-visual-tokens && pnpm --filter storybook test:visual:intro && pnpm --filter storybook check:build && pnpm --filter storybook scorecard && pnpm --filter storybook check:metadata-ui-browser-smoke && pnpm --filter storybook test:stories && pnpm --filter app check:metadata-ui-smoke",
     "gen": "turbo gen package",
     "gen:app": "turbo gen app",
     "gen:feature": "turbo gen feature",

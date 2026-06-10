@@ -98,11 +98,11 @@ Implementation: [`src/policy/governance.ts`](./src/policy/governance.ts)
 | Field | `defaultFieldRegistry` | 10 | Generated from manifest |
 | Action | `defaultActionRegistry` | 3 | Generated from manifest |
 | Section | `defaultSectionRegistry` | 13 | Generated from manifest |
-| State | `stateRenderers` static map | 10 | **Not manifest-driven** — lives in `adapters/state-renderers.tsx` |
+| State | `defaultStateRegistry` | 10 | Generated from manifest |
 
-State renderers (`loading`, `empty`, `error`, `forbidden`, `ready`, `invalid`, `degraded`, `partial`, `readonly`, `maintenance`) are implemented but **outside the manifest/registry generation pipeline**. This is an architectural inconsistency to resolve in 9.5.
+State renderers (`loading`, `empty`, `error`, `forbidden`, `ready`, `invalid`, `degraded`, `partial`, `readonly`, `maintenance`) are manifest-backed and verified through `check:generated`, `check:renderer-registry`, and `tests/generated/renderer-smoke.generated.test.tsx`.
 
-Table column cell rendering uses a **hardcoded kind subset** (`email`, `status`, `text`) in [`src/components/metadata-cell-renderers.tsx`](./src/components/metadata-cell-renderers.tsx) rather than the field registry — another pipeline bypass.
+Table column cell rendering routes through `renderMetadataTableCellResult` and the field registry — see [`ui-table-cell-adapter.tsx`](./src/adapters/ui-table-cell-adapter.tsx).
 
 ---
 
@@ -192,6 +192,9 @@ Every metadata surface must pass three review pillars before 9.5 sign-off:
 | **MUI-VIS-010** | Animations in metadata surfaces shall honor `prefers-reduced-motion` and animate only `transform`/`opacity`. | web-design-guidelines | Motion review |
 | **MUI-VIS-011** | Surface kinds (`form`, `list`, `detail`, `dashboard`, `workflow`) shall declare expected visual hierarchy: title → description → primary content → secondary actions. | frontend-design-review, surface.contract | Surface contract implementation (MUI-015) |
 | **MUI-VIS-012** | Fallback and diagnostic UI shall be visually distinct from normal content and include correlation ID when `diagnosticsEnabled` is true. | frontend-design-review (trustworthy) | Diagnostics visibility tests |
+| **MUI-VIS-013** | Complex layouts (orbital, radial, stacked stages) shall use deterministic sizing, pin-based positioning, resolvable relative imports, and shared layout math — no inline `transform` combined with hover motion on the same node. | layout-composition-contract, orbit-layout | `check:layout-composition-visual`, Storybook `check:intro-layout`, visual golden stories |
+| **MUI-VIS-014** | Production metadata-ui surfaces (`renderers`, `components`, `adapters`) shall use semantic design tokens and `@repo/ui` primitives — no raw palette utilities, inline color literals, or raw form controls. | visual-token-contract, tailwind-design-system | `check:renderer-visual-tokens`, `check:field-visual-tokens` |
+| **MUI-VIS-015** | Storybook stories and shared story primitives shall use semantic tokens, registered `@utility` classes for non-standard CSS, and shared orbit layout primitives — no unreliable Tailwind arbitrary utilities or lucide imports without dependency declaration. | storybook-visual-token-contract, layout-composition-contract | Storybook `check:storybook-visual-tokens`, `check:intro-layout`, `check:stylelint`, Biome storybook import override |
 
 ### Visual state matrix
 
@@ -281,6 +284,9 @@ From [`surface.contract.ts`](./src/contracts/surface.contract.ts) — implemente
 | MUI-VIS-010 | **Implemented** | [`motion-visual-contract.ts`](./src/interaction/motion-visual-contract.ts), [`metadata-motion-skeleton.tsx`](./src/components/metadata-motion-skeleton.tsx), [`state-visual-icons.tsx`](./src/renderers/states/state-visual-icons.tsx), [`loading-state.renderer.tsx`](./src/renderers/states/loading-state.renderer.tsx), [`activity-table.tsx`](./src/components/activity-table.tsx), [`base-action.renderer.tsx`](./src/renderers/actions/base-action.renderer.tsx), [`scripts/check-reduced-motion.mts`](./scripts/check-reduced-motion.mts), [`tests/motion-visual-states.test.tsx`](./tests/motion-visual-states.test.tsx) |
 | MUI-VIS-011 | **Implemented** | [`surface-visual-contract.ts`](./src/visualization/surface-visual-contract.ts), [`metadata-surface-region.tsx`](./src/components/metadata-surface-region.tsx), [`metadata-surface.tsx`](./src/components/metadata-surface.tsx), [`metadata-toolbar.tsx`](./src/components/metadata-toolbar.tsx), [`metadata-form.tsx`](./src/components/metadata-form.tsx), [`metadata-table.tsx`](./src/components/metadata-table.tsx), [`activity-table.tsx`](./src/components/activity-table.tsx), [`metadata-section-stack.tsx`](./src/components/metadata-section-stack.tsx), [`metadata-section.renderer.tsx`](./src/renderers/sections/metadata-section.renderer.tsx), [`scripts/check-surface-visual.mts`](./scripts/check-surface-visual.mts), [`tests/surface-visual-states.test.tsx`](./tests/surface-visual-states.test.tsx) |
 | MUI-VIS-012 | **Implemented** | [`diagnostics-visual-contract.ts`](./src/visualization/diagnostics-visual-contract.ts), [`metadata-diagnostics-panel.tsx`](./src/components/metadata-diagnostics-panel.tsx), [`compose-metadata-with-diagnostics.tsx`](./src/components/compose-metadata-with-diagnostics.tsx), [`error-state.renderer.tsx`](./src/renderers/states/error-state.renderer.tsx), [`fallbacks.tsx`](./src/adapters/fallbacks.tsx), [`metadata-form.tsx`](./src/components/metadata-form.tsx), [`metadata-table.tsx`](./src/components/metadata-table.tsx), [`ui-state-adapter.tsx`](./src/adapters/ui-state-adapter.tsx), [`scripts/check-diagnostics-visual.mts`](./scripts/check-diagnostics-visual.mts), [`tests/diagnostics-visual-states.test.tsx`](./tests/diagnostics-visual-states.test.tsx) |
+| MUI-VIS-013 | **Implemented** | [`layout-composition-contract.ts`](./src/visualization/layout-composition-contract.ts), [`orbit-layout.ts`](./src/visualization/orbit-layout.ts), [`scripts/check-layout-composition-visual.mts`](./scripts/check-layout-composition-visual.mts), [`tests/orbit-layout.test.ts`](./tests/orbit-layout.test.ts), Storybook [`metadata-orbit-layout.tsx`](../apps/storybook/stories/metadata-orbit-layout.tsx), [`scripts/check-intro-layout.mts`](../apps/storybook/scripts/check-intro-layout.mts) |
+| MUI-VIS-014 | **Implemented** | [`visual-token-contract.ts`](./src/visualization/visual-token-contract.ts), [`scripts/visual-token-rules.mts`](./scripts/visual-token-rules.mts), [`scripts/check-renderer-visual-tokens.mts`](./scripts/check-renderer-visual-tokens.mts), [`scripts/check-field-visual-tokens.mts`](./scripts/check-field-visual-tokens.mts) |
+| MUI-VIS-015 | **Implemented** | [`storybook-visual-token-contract.ts`](../apps/storybook/stories/storybook-visual-token-contract.ts), [`scripts/check-storybook-visual-tokens.mts`](../apps/storybook/scripts/check-storybook-visual-tokens.mts), [`scripts/check-intro-layout.mts`](../apps/storybook/scripts/check-intro-layout.mts), [`scripts/check-theme-css.mts`](../apps/storybook/scripts/check-theme-css.mts), root [`stylelint.config.mjs`](../stylelint.config.mjs) |
 
 ### Visualization verification gates
 
@@ -301,12 +307,19 @@ pnpm --filter @repo/metadata-ui check:content-length   # Long content + empty di
 pnpm --filter @repo/metadata-ui check:diagnostics-visual # diagnostics panel visibility (MUI-VIS-012)
 pnpm --filter @repo/metadata-ui check:surface-visual    # surface hierarchy audit (MUI-VIS-011)
 pnpm --filter @repo/metadata-ui check:reduced-motion    # prefers-reduced-motion audit (MUI-VIS-010)
+pnpm --filter @repo/metadata-ui check:layout-composition-visual # orbital/stack layout safety (MUI-VIS-013)
+pnpm --filter @repo/metadata-ui check:renderer-visual-tokens   # package-wide semantic tokens (MUI-VIS-014)
 # pnpm --filter @repo/metadata-ui check:a11y          # optional axe audit per renderer family
 
 # Storybook visual audit (`apps/storybook`) — renderer matrices, compose galleries, axe gates
 pnpm --filter storybook dev
 pnpm --filter storybook test:stories
-pnpm --filter storybook test:visual   # golden screenshots; baselines in tests/visual/__screenshots__
+pnpm --filter storybook check:theme-css    # CI-blocking CSS/token pipeline gate
+pnpm --filter storybook check:stylelint    # scoped CSS entry lint (globals.css + preview.css)
+pnpm --filter storybook check:intro-layout # intro orbit layout + CSS utility gate (MUI-VIS-013)
+pnpm --filter storybook check:storybook-visual-tokens # story className hygiene (MUI-VIS-015)
+pnpm --filter storybook test:visual:intro  # PR-blocking intro story screenshots
+pnpm --filter storybook test:visual   # full golden screenshots; baselines in tests/visual/__screenshots__
 # Hosted Storybook: https://pohlai88.github.io/afenda-xforge/ (GH Pages, storybook-pages.yml)
 ```
 
@@ -344,15 +357,15 @@ Manual review checklist (from `frontend-design-review` + `web-design-guidelines`
 
 | Guarantee | Required Behavior | Current Status |
 | --- | --- | --- |
-| Invalid metadata | Render invalid/degraded state, never crash the page. | **Partial** — `invalid` state exists; `invalid-contract` diagnostic never emitted |
+| Invalid metadata | Render invalid/degraded state, never crash the page. | **Implemented** — adapter-entry validation emits `invalid-contract` and renders `InvalidState` |
 | Missing renderer | Render fallback renderer with diagnostics event. | **Implemented** |
 | Forbidden action | Hide or disable affordance based on context, but never treat UI as final permission. | **Implemented** |
 | Unknown section kind | Render unsupported section state with correlation ID. | **Implemented** |
-| Registry conflict | Fail verification when duplicate renderer keys or incompatible versions exist. | **Partial** — duplicate keys fail at build; version conflicts not checked at resolve time |
-| Telemetry failure | Rendering must continue even if telemetry sink fails. | **Implemented** (untested) |
-| Partial metadata | Render available sections and mark incomplete areas as partial/degraded. | **Partial** — states exist; partial section rendering untested |
-| Client/server split | Server-only concerns must never enter client bundle. | **Not started** — no `./server` / `./client` exports |
-| Pipeline completeness | All kind resolution goes through registries. | **Partial** — table cells and state renderers bypass field registry / manifest |
+| Registry conflict | Fail verification when duplicate renderer keys or incompatible versions exist. | **Implemented** — duplicate keys fail at build; version constraints enforced at resolve time |
+| Telemetry failure | Rendering must continue even if telemetry sink fails. | **Implemented** (`telemetry-resilience.test.ts`) |
+| Partial metadata | Render available sections and mark incomplete areas as partial/degraded. | **Implemented** — `section-completeness` wraps `PartialState`/`DegradedState` on all section render paths |
+| Client/server split | Server-only concerns must never enter client bundle. | **Implemented** — `./server` / `./client` exports + `check:client-server-boundaries` |
+| Pipeline completeness | All kind resolution goes through registries. | **Implemented** — table cells and state renderers route through adapter/registry pipeline |
 
 ---
 
@@ -376,7 +389,7 @@ Gaps identified from code audit against production metadata-driven UI expectatio
 | Layout/composition contracts unimplemented | Types exist with no adapters, registries, or renderers — dead contract surface. | [`layout.contract.ts`](./src/contracts/layout.contract.ts), [`composition.contract.ts`](./src/contracts/composition.contract.ts), [`surface.contract.ts`](./src/contracts/surface.contract.ts) | MUI-015 |
 | Locale on context unused | i18n cannot propagate through renderers; labels come directly from metadata strings. | [`render-context.contract.ts`](./src/contracts/render-context.contract.ts) | **Partial** — value formatting via `locale`/`timezone` (MUI-VIS-007); label resolution remains MUI-016 |
 | Customization limited to tables | Forms and section stacks cannot consume customization overlays. | [`metadata-table.tsx`](./src/components/metadata-table.tsx) | MUI-017 |
-| State renderers outside manifest | State family inconsistent with field/action/section generation and verification pipeline. | [`state-renderers.tsx`](./src/adapters/state-renderers.tsx) | MUI-007 |
+| State renderers outside manifest | ~~State family inconsistent with field/action/section generation~~ **Resolved:** manifest-backed state registry + `check:renderer-registry`. | [`metadata-ui.manifest.ts`](./metadata-ui.manifest.ts) | MUI-007 **Partial** (version negotiation remains) |
 | No `./server` / `./client` entry points | ~~Client bundle boundary not enforceable at import level~~ **Resolved:** explicit subpaths plus `check:client-server-boundaries`. | [`package.json`](./package.json), [`check-client-server-boundaries.mts`](./scripts/check-client-server-boundaries.mts) | MUI-008 ✓ |
 | Registry `version` ignored at resolve | Deprecation and version negotiation declared but not enforced. | [`create-renderer-registry.ts`](./src/registry/create-renderer-registry.ts) | MUI-007 |
 
@@ -389,8 +402,8 @@ Gaps identified from code audit against production metadata-driven UI expectatio
 | Density and locale on context unused | Visual formatting and spacing ignore render context. | [`render-context.contract.ts`](./src/contracts/render-context.contract.ts) | **Partial** — locale/timezone value formatting (MUI-VIS-007); density (MUI-VIS-008 **resolved**); label i18n (MUI-016) |
 | Destructive confirm uses `window.confirm` | Not accessible, not themeable, breaks trustworthy-building pillar. | [`base-action.renderer.tsx`](./src/renderers/actions/base-action.renderer.tsx) | **Resolved** — AlertDialog confirmation (MUI-VIS-004) |
 | No visualization verification gates | Visual/a11y requirements not enforced in CI. | [`package.json`](./package.json) | `check:field-a11y`, `check:keyboard-focus`, `check:locale-formatting`, `check:density-visual`, `check:content-length`, `check:reduced-motion` **implemented**; optional axe audit remains |
-| No telemetry sink failure test | Resilience code exists but unverified. | [`adapters/telemetry.ts`](./src/adapters/telemetry.ts) | MUI-004 |
-| `check:renderer-registry` script missing | 9.5 gate documented but not in `package.json`. | [`package.json`](./package.json) | MUI-007 |
+| No telemetry sink failure test | ~~Resilience code exists but unverified~~ **Resolved:** `tests/telemetry-resilience.test.ts`. | [`adapters/telemetry.ts`](./src/adapters/telemetry.ts) | MUI-004 ✓ |
+| `check:renderer-registry` script missing | ~~9.5 gate documented but not in `package.json`~~ **Resolved:** dedicated gate chains `check:generated` + compose-groups + registry parity tests. | [`scripts/check-renderer-registry.mts`](./scripts/check-renderer-registry.mts) | MUI-007 **Partial** |
 
 ---
 
@@ -571,8 +584,8 @@ Extracting `diagnostics/`, `runtime/`, and `telemetry/` into top-level folders i
 | 2 | Metadata forms, tables, sections, actions, and state surfaces render through package-owned adapter and registry flows. |
 | 3 | Loading, empty, error, forbidden, and ready state renderers are package-owned and reusable. |
 | 4 | Diagnostics, compatibility, and generated registry checks exist to prevent drift in the public rendering surface. |
-| 5 | The package does not take ownership of metadata source contracts, customization contracts, or server-side permission authority. |
-| 6 | Invalid, partial, unsupported, or degraded metadata renders safe fallback UI without crashing the page. |
+| 5 | The package does not take ownership of metadata source contracts, customization contracts, or server-side permission authority. | **Implemented** — package-owned renderer contracts, `src/customization/` facade, UI-only governance hints, `check:authority-boundary` |
+| 6 | Invalid, partial, unsupported, or degraded metadata renders safe fallback UI without crashing the page. | **Implemented** — `InvalidState` for invalid contracts, `PartialState`/`DegradedState` section wrapping, unsupported renderer `ErrorState`, `check:fallback-runtime` |
 | 7 | Registry conflicts, public API drift, and declaration snapshot mismatches fail verification gates. |
 | 8 | Client/server entry points are enforced and server-only concerns do not enter the client bundle. |
 | 9 | Diagnostics expose correlation ID, renderer key, section kind, state, and fallback reason for every fallback path. |
@@ -589,21 +602,21 @@ Extracting `diagnostics/`, `runtime/`, and `telemetry/` into top-level folders i
 | --- | --- | --- |
 | MUI-001 | **Implemented** | [`package.json`](./package.json), [`scripts/check-public-api.mts`](./scripts/check-public-api.mts), [`scripts/check-package-subpaths.mts`](./scripts/check-package-subpaths.mts), [`tests/package-subpaths.test.ts`](./tests/package-subpaths.test.ts) |
 | MUI-002 | **Implemented** | Forms, sections, actions, state boundaries, and table cells route through adapters/registries — [`src/adapters`](./src/adapters), [`check:adapter-pipeline`](./scripts/check-adapter-pipeline.mts), [`adapter-pipeline-surfaces.test.tsx`](./tests/adapter-pipeline-surfaces.test.tsx) |
-| MUI-003 | **Implemented** | [`src/renderers/states`](./src/renderers/states), [`tests/state-boundary.test.tsx`](./tests/state-boundary.test.tsx) |
-| MUI-004 | **Implemented** | [`src/adapters/diagnostics.ts`](./src/adapters/diagnostics.ts), [`scripts/check-telemetry-schema.mts`](./scripts/check-telemetry-schema.mts) |
-| MUI-005 | **Implemented** | [`src/policy/governance.ts`](./src/policy/governance.ts), [`scripts/check-boundaries.mts`](./scripts/check-boundaries.mts) |
-| MUI-006 | **Partial** | Missing/ forbidden fallbacks tested; invalid/partial/degraded contract paths untested — [`tests/diagnostics-and-fallbacks.test.tsx`](./tests/diagnostics-and-fallbacks.test.tsx) |
-| MUI-007 | **Partial** | Duplicate keys fail at manifest gen; no `check:renderer-registry`; version ignored at resolve — [`scripts/generate.mts`](./scripts/generate.mts) |
+| MUI-003 | **Implemented** | [`src/renderers/states`](./src/renderers/states), [`MetadataStateBoundary`](./src/components/metadata-state-boundary.tsx), [`MetadataTableLoadingSkeleton`](./src/renderers/states/table-loading-skeleton.tsx), [`check:state-renderer-ownership`](./scripts/check-state-renderer-ownership.mts), [`tests/state-boundary.test.tsx`](./tests/state-boundary.test.tsx), app consumers via `@repo/metadata-ui/components` |
+| MUI-004 | **Implemented** | [`src/adapters/diagnostics.ts`](./src/adapters/diagnostics.ts), [`scripts/check-telemetry-schema.mts`](./scripts/check-telemetry-schema.mts), [`scripts/check-diagnostic-coverage.mts`](./scripts/check-diagnostic-coverage.mts), [`tests/telemetry-resilience.test.ts`](./tests/telemetry-resilience.test.ts) |
+| MUI-005 | **Implemented** | Package-owned contracts, customization facade, UI-only governance — [`src/policy/governance.ts`](./src/policy/governance.ts), [`src/customization/`](./src/customization/), [`scripts/check-boundaries.mts`](./scripts/check-boundaries.mts), [`scripts/check-authority-boundary.mts`](./scripts/check-authority-boundary.mts), [`tests/authority-boundary.test.ts`](./tests/authority-boundary.test.ts) |
+| MUI-006 | **Implemented** | Section completeness wraps `PartialState` / `DegradedState` — [`section-completeness.ts`](./src/adapters/section-completeness.ts), [`ui-section-adapter.tsx`](./src/adapters/ui-section-adapter.tsx), [`label-i18n-and-section-completeness.test.tsx`](./tests/label-i18n-and-section-completeness.test.tsx) |
+| MUI-007 | **Implemented** | Version constraints enforced at resolve via `rendererVersionConstraints` — [`renderer-version.ts`](./src/registry/renderer-version.ts), [`metadata-renderer-resolvers.tsx`](./src/adapters/metadata-renderer-resolvers.tsx), [`renderer-version-resolution.test.tsx`](./tests/renderer-version-resolution.test.tsx) |
 | MUI-008 | **Implemented** | `./server` / `./client` subpaths + `check:client-server-boundaries` — [`src/server.ts`](./src/server.ts), [`src/client.ts`](./src/client.ts) |
-| MUI-009 | **Partial** | Correlation ID bound in adapters; not exhaustively asserted on all fallback paths — [`src/contracts/diagnostics.contract.ts`](./src/contracts/diagnostics.contract.ts) |
+| MUI-009 | **Implemented** | Correlation ID + renderer target asserted on fallback paths — [`tests/fallback-diagnostic-fields.test.tsx`](./tests/fallback-diagnostic-fields.test.tsx), [`tests/governance-diagnostic-coverage.test.tsx`](./tests/governance-diagnostic-coverage.test.tsx), [`scripts/check-diagnostic-coverage.mts`](./scripts/check-diagnostic-coverage.mts) |
 | MUI-010 | **Implemented** | [`src/generated`](./src/generated), [`scripts/generate-registry.mts`](./scripts/generate-registry.mts), [`pnpm check:generated`](./package.json) |
 | MUI-011 | **Implemented** | [`scripts/check-declaration-snapshot.mts`](./scripts/check-declaration-snapshot.mts), [`snapshots/declaration-snapshot.json`](./snapshots/declaration-snapshot.json) |
 | MUI-012 | **Implemented** | Consumer fixture in default `pnpm test` + `check:consumer-fixture-integration` — [`tests/public-api-consumer.render.test.tsx`](./tests/public-api-consumer.render.test.tsx) |
 | MUI-013 | **Implemented** | Controlled/uncontrolled field binding — [`field-value-binding.ts`](./src/renderers/fields/field-value-binding.ts) |
 | MUI-014 | **Implemented** | Deep adapter-entry contract validation + `check:contract-validation` — [`contract-validation.ts`](./src/adapters/contract-validation.ts) |
-| MUI-015 | **Not started** | Contracts only — [`src/contracts/layout.contract.ts`](./src/contracts/layout.contract.ts) |
-| MUI-016 | **Not started** | `locale` on context unused |
-| MUI-017 | **Partial** | Table surfaces only — [`src/components/metadata-table.tsx`](./src/components/metadata-table.tsx) |
+| MUI-015 | **Implemented** | Layout/composition adapter pipeline — [`ui-layout-adapter.tsx`](./src/adapters/ui-layout-adapter.tsx), [`ui-composition-adapter.tsx`](./src/adapters/ui-composition-adapter.tsx), [`default-layout-registry.ts`](./src/registry/default-layout-registry.ts), [`check:layout-composition`](./scripts/check-layout-composition.mts) |
+| MUI-016 | **Implemented** | Label i18n via `labelCatalog` / `labels` / `labelKey` — [`resolve-metadata-label.ts`](./src/localization/resolve-metadata-label.ts), localized field/action/section adapters, [`check:label-i18n`](./scripts/check-label-i18n.mts) |
+| MUI-017 | **Implemented** | Universal customization hook on table, form, and section stack — [`resolve-metadata-customization.ts`](./src/customization/resolve-metadata-customization.ts), [`metadata-form.tsx`](./src/components/metadata-form.tsx), [`metadata-section-stack.tsx`](./src/components/metadata-section-stack.tsx) |
 | MUI-018 | **Implemented** | Table column kinds resolve through field registry via `renderMetadataTableCellResult` — [`ui-table-cell-adapter.tsx`](./src/adapters/ui-table-cell-adapter.tsx), [`field-table-cell-display.tsx`](./src/renderers/fields/field-table-cell-display.tsx) |
 
 ---
@@ -621,7 +634,9 @@ pnpm --filter @repo/metadata-ui verify
 pnpm --filter @repo/metadata-ui check:public-api
 pnpm --filter @repo/metadata-ui check:boundaries
 pnpm --filter @repo/metadata-ui check:declaration-snapshot
-pnpm --filter @repo/metadata-ui check:renderer-registry   # not yet defined — alias to check:generated + registry tests
+pnpm --filter @repo/metadata-ui check:compatibility
+pnpm --filter @repo/metadata-ui check:renderer-registry
+pnpm --filter @repo/metadata-ui check:diagnostic-coverage
 pnpm --filter @repo/metadata-ui check:telemetry-schema
 pnpm --filter @repo/metadata-ui check:consumer-fixture    # includes vitest consumer render test
 ```
@@ -633,7 +648,7 @@ pnpm --filter @repo/metadata-ui check:consumer-fixture    # includes vitest cons
 | `lint` | Yes | Biome |
 | `typecheck` | Yes | tsc |
 | `build` | Yes | tsc build |
-| `test` | Yes | tsx — **excludes consumer fixture vitest test** |
+| `test` | Yes | tsx + vitest consumer fixture |
 | `verify` | Yes | Full chain including generate + all checks |
 | `check:public-api` | Yes | Export targets + `.d.ts` existence |
 | `check:boundaries` | Yes | Forbidden deep imports; contract decoupling |
@@ -641,7 +656,9 @@ pnpm --filter @repo/metadata-ui check:consumer-fixture    # includes vitest cons
 | `check:telemetry-schema` | Yes | vs `snapshots/telemetry-events.json` |
 | `check:consumer-fixture` | Yes | Script + vitest — should be part of default `test` |
 | `check:generated` | Yes | Manifest validation + registry drift |
-| `check:renderer-registry` | **No** | Add as alias or dedicated script for MUI-007 |
+| `check:compatibility` | Yes | Runtime compatibility report (Enterprise AC #4) |
+| `check:renderer-registry` | Yes | Generated drift + compose-groups + registry parity tests |
+| `check:diagnostic-coverage` | Yes | Diagnostic code + governance + telemetry resilience tests |
 | `check:change-note` | Yes | In `verify`, not in 9.5 gate list |
 | `check:quality-score` | Yes | In `verify`, threshold 90 |
 
@@ -716,25 +733,25 @@ layout orchestration (until MUI-015 is implemented)
 
 **Last audited:** 2026-06-10
 
-MUI-001, MUI-002, MUI-003, MUI-004, MUI-005, MUI-008, MUI-010, MUI-011, MUI-012, MUI-013, MUI-014, MUI-018 are implemented. MUI-006, MUI-007, MUI-009, MUI-017 are partial. MUI-015, MUI-016 are not started.
+MUI-001 through MUI-018 are implemented. Enterprise AC #1–#6 and AC #8–#13 are implemented; AC #7 and AC #9–#10 remain tracked through diagnostics and verification gates.
 
 | Area | Status | Evidence |
 | --- | --- | --- |
 | Adapter pipeline | Implemented | [`src/adapters`](./src/adapters) |
 | Registry + manifest generation | Implemented | [`metadata-ui.manifest.ts`](./metadata-ui.manifest.ts), [`src/generated`](./src/generated) |
 | Governance evaluation | Implemented | [`src/policy/governance.ts`](./src/policy/governance.ts) |
-| Fallback + diagnostics runtime | Partial | [`src/adapters/fallbacks.tsx`](./src/adapters/fallbacks.tsx) — invalid/partial paths incomplete |
-| State boundary rendering | Implemented (non-manifest) | [`src/adapters/state-renderers.tsx`](./src/adapters/state-renderers.tsx) |
-| Table customization | Partial | [`src/components/metadata-table.tsx`](./src/components/metadata-table.tsx) |
-| Field value binding | Not started | Uncontrolled renderers only |
-| Layout/composition pipeline | Not started | Types only in [`src/contracts/`](./src/contracts/) |
-| Client/server entry points | Not started | [`package.json`](./package.json) |
-| Verification gates | Partial | `check:renderer-registry` missing; consumer test outside default `test` |
+| Fallback + diagnostics runtime | Implemented | [`invalid-contract-fallback.tsx`](./src/adapters/invalid-contract-fallback.tsx), [`section-completeness.tsx`](./src/adapters/section-completeness.tsx), [`check-fallback-runtime`](./scripts/check-fallback-runtime.mts) |
+| State boundary rendering | Implemented | [`src/adapters/state-renderers.tsx`](./src/adapters/state-renderers.tsx), [`metadata-state-boundary.tsx`](./src/components/metadata-state-boundary.tsx) |
+| Table customization | Implemented | [`metadata-table.tsx`](./src/components/metadata-table.tsx), [`resolve-metadata-customization.ts`](./src/customization/resolve-metadata-customization.ts) |
+| Field value binding | Implemented | [`field-value-binding.ts`](./src/renderers/fields/field-value-binding.ts) |
+| Layout/composition pipeline | Implemented | [`ui-layout-adapter.tsx`](./src/adapters/ui-layout-adapter.tsx), [`ui-composition-adapter.tsx`](./src/adapters/ui-composition-adapter.tsx) |
+| Client/server entry points | Implemented | [`package.json`](./package.json), [`check-client-server-boundaries.mts`](./scripts/check-client-server-boundaries.mts) |
+| Verification gates | **Implemented** | `check:compatibility`, `check:renderer-registry`, `check:diagnostic-coverage`, declaration snapshot, generated drift |
 
 ### Planning Mark
 
-- `Implemented: MUI-001, MUI-002, MUI-003, MUI-004, MUI-005, MUI-008, MUI-010, MUI-011, MUI-012, MUI-013, MUI-014, MUI-018`
-- `Partial: MUI-006, MUI-007, MUI-009, MUI-017`
+- `Implemented: MUI-001, MUI-002, MUI-003, MUI-004, MUI-005, MUI-008, MUI-009, MUI-010, MUI-011, MUI-012, MUI-013, MUI-014, MUI-018`
+- `Partial: MUI-006, MUI-007, MUI-017`
 - `Not started: MUI-015, MUI-016`
 - `Visualization: MUI-VIS-001 through MUI-VIS-012 implemented`
 - `P0 next slices: MUI-015, MUI-016`
@@ -748,7 +765,7 @@ MUI-001, MUI-002, MUI-003, MUI-004, MUI-005, MUI-008, MUI-010, MUI-011, MUI-012,
 | --- | --- | --- | --- |
 | Adapter Pipeline | Implemented | [`src/adapters`](./src/adapters) | Contract validation at adapter entry (MUI-014) |
 | Registry + Manifest | Implemented | [`src/registry`](./src/registry), [`metadata-ui.manifest.ts`](./metadata-ui.manifest.ts) | Add `check:renderer-registry`; include states in manifest |
-| Fallback Runtime | Partial | [`src/adapters/fallbacks.tsx`](./src/adapters/fallbacks.tsx) | Test invalid/partial/degraded contract paths |
+| Fallback Runtime | Implemented | [`invalid-contract-fallback.tsx`](./src/adapters/invalid-contract-fallback.tsx), [`fallback-runtime.test.tsx`](./tests/fallback-runtime.test.tsx) | Keep `check:fallback-runtime` aligned with adapter fallback paths |
 | Field Renderers | Implemented | [`src/renderers/fields/`](./src/renderers/fields/) | Controlled binding via `field-value-binding.ts` (MUI-013) |
 | Table Cell Rendering | Implemented | [`ui-table-cell-adapter.tsx`](./src/adapters/ui-table-cell-adapter.tsx) | Field registry pipeline via `renderMetadataTableCellResult` (MUI-018 / AC #12) |
 | Layout/Composition | Not started | [`layout.contract.ts`](./src/contracts/layout.contract.ts) | Implement or remove from public API (MUI-015) |

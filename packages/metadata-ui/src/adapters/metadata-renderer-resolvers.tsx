@@ -7,7 +7,14 @@ import type {
   MetadataFieldKind,
   MetadataFieldRenderer,
 } from "../contracts/field-renderer.contract";
-import type { MetadataUiState } from "../contracts/render-context.contract";
+import type {
+  MetadataLayoutKind,
+  MetadataLayoutRenderer,
+} from "../contracts/layout.contract";
+import type {
+  MetadataRenderContext,
+  MetadataUiState,
+} from "../contracts/render-context.contract";
 import type {
   MetadataSectionKind,
   MetadataSectionRenderer,
@@ -18,8 +25,11 @@ import type {
 } from "../contracts/state-renderer.contract";
 import { defaultActionRegistry } from "../registry/default-action-registry";
 import { defaultFieldRegistry } from "../registry/default-field-registry";
+import { defaultLayoutRegistry } from "../registry/default-layout-registry";
 import { defaultSectionRegistry } from "../registry/default-section-registry";
 import { defaultStateRegistry } from "../registry/default-state-registry";
+import type { MetadataRendererVersionConstraint } from "../registry/renderer-version";
+import { satisfiesRendererVersionConstraint } from "../registry/renderer-version";
 import type {
   MetadataRendererDiagnostic,
   MetadataRendererResolutionKind,
@@ -29,10 +39,12 @@ import {
   createDeprecatedRendererDiagnostic,
   createMissingRendererDiagnostic,
   createRendererErrorDiagnostic,
+  createUnsupportedRendererVersionDiagnostic,
 } from "./diagnostics.ts";
 import {
   createMissingActionRenderer,
   createMissingFieldRenderer,
+  createMissingLayoutRenderer,
   createMissingSectionRenderer,
   resolveActionSurface,
 } from "./fallbacks.tsx";
@@ -41,6 +53,34 @@ import { createMissingStateRenderer } from "./state-renderers.tsx";
 export type MetadataRendererResolution<TRenderer> = {
   diagnostic?: MetadataRendererDiagnostic;
   renderer: TRenderer;
+};
+
+type RegisteredRendererResolution<TRenderer> =
+  | {
+      diagnostic?: MetadataRendererDiagnostic;
+      renderer: TRenderer;
+      status: "found";
+    }
+  | {
+      diagnostic: MetadataRendererDiagnostic;
+      status: "version-mismatch";
+    }
+  | { status: "missing" };
+
+const resolveRendererVersionConstraint = (
+  context: MetadataRenderContext | undefined,
+  rendererType: MetadataRendererResolutionKind,
+  rendererKey: string
+): MetadataRendererVersionConstraint | undefined => {
+  const constraints = context?.rendererVersionConstraints;
+
+  if (!constraints) {
+    return;
+  }
+
+  return (
+    constraints[`${rendererType}:${rendererKey}`] ?? constraints[rendererKey]
+  );
 };
 
 const resolveRegisteredRenderer = <TRenderer,>(
@@ -52,10 +92,31 @@ const resolveRegisteredRenderer = <TRenderer,>(
         renderer: TRenderer;
         version: string;
       }
-    | undefined
-): MetadataRendererResolution<TRenderer> | undefined => {
+    | undefined,
+  context?: MetadataRenderContext
+): RegisteredRendererResolution<TRenderer> => {
   if (!registration) {
-    return;
+    return { status: "missing" };
+  }
+
+  const versionConstraint = resolveRendererVersionConstraint(
+    context,
+    rendererType,
+    rendererKey
+  );
+
+  if (
+    !satisfiesRendererVersionConstraint(registration.version, versionConstraint)
+  ) {
+    return {
+      diagnostic: createUnsupportedRendererVersionDiagnostic(
+        rendererType,
+        rendererKey,
+        registration.version,
+        versionConstraint ?? {}
+      ),
+      status: "version-mismatch",
+    };
   }
 
   return {
@@ -67,35 +128,71 @@ const resolveRegisteredRenderer = <TRenderer,>(
         )
       : undefined,
     renderer: registration.renderer,
+    status: "found",
   };
 };
 
-export function resolveMetadataFieldRenderer(
-  kind: MetadataFieldKind | string | undefined,
-  registry = defaultFieldRegistry
-): MetadataRendererResolution<MetadataFieldRenderer> {
-  const rendererKey = kind ?? "text";
-  const registration = registry.resolve(rendererKey as MetadataFieldKind);
+const resolveRendererWithFallback = <TRenderer,>(
+  rendererType: MetadataRendererResolutionKind,
+  rendererKey: string,
+  registration:
+    | {
+        deprecated?: boolean;
+        renderer: TRenderer;
+        version: string;
+      }
+    | undefined,
+  context: MetadataRenderContext | undefined,
+  createFallback: (diagnostic: MetadataRendererDiagnostic) => TRenderer
+): MetadataRendererResolution<TRenderer> => {
   const resolved = resolveRegisteredRenderer(
-    "field",
+    rendererType,
     rendererKey,
-    registration
+    registration,
+    context
   );
 
-  if (resolved) {
-    return resolved;
+  if (resolved.status === "found") {
+    return {
+      diagnostic: resolved.diagnostic,
+      renderer: resolved.renderer,
+    };
+  }
+
+  if (resolved.status === "version-mismatch") {
+    return {
+      diagnostic: resolved.diagnostic,
+      renderer: createFallback(resolved.diagnostic),
+    };
   }
 
   const diagnostic = createMissingRendererDiagnostic(
-    "field",
+    rendererType,
     rendererKey,
     "error-state"
   );
 
   return {
     diagnostic,
-    renderer: createMissingFieldRenderer(diagnostic),
+    renderer: createFallback(diagnostic),
   };
+};
+
+export function resolveMetadataFieldRenderer(
+  kind: MetadataFieldKind | string | undefined,
+  registry = defaultFieldRegistry,
+  context?: MetadataRenderContext
+): MetadataRendererResolution<MetadataFieldRenderer> {
+  const rendererKey = kind ?? "text";
+  const registration = registry.resolve(rendererKey as MetadataFieldKind);
+
+  return resolveRendererWithFallback(
+    "field",
+    rendererKey,
+    registration,
+    context,
+    createMissingFieldRenderer
+  );
 }
 
 export function resolveMetadataActionRenderer(
@@ -104,86 +201,70 @@ export function resolveMetadataActionRenderer(
     | MetadataActionSurface
     | string
     | undefined,
-  registry = defaultActionRegistry
+  registry = defaultActionRegistry,
+  context?: MetadataRenderContext
 ): MetadataRendererResolution<MetadataActionRenderer> {
   const rendererKey = resolveActionSurface(actionOrSurface);
   const registration = registry.resolve(rendererKey as MetadataActionSurface);
-  const resolved = resolveRegisteredRenderer(
+
+  return resolveRendererWithFallback(
     "action",
     rendererKey,
-    registration
+    registration,
+    context,
+    createMissingActionRenderer
   );
-
-  if (resolved) {
-    return resolved;
-  }
-
-  const diagnostic = createMissingRendererDiagnostic(
-    "action",
-    rendererKey,
-    "error-state"
-  );
-
-  return {
-    diagnostic,
-    renderer: createMissingActionRenderer(diagnostic),
-  };
 }
 
 export function resolveMetadataSectionRenderer(
   kind: MetadataSectionKind | string | undefined,
-  registry = defaultSectionRegistry
+  registry = defaultSectionRegistry,
+  context?: MetadataRenderContext
 ): MetadataRendererResolution<MetadataSectionRenderer> {
   const rendererKey = kind ?? "section";
   const registration = registry.resolve(rendererKey as MetadataSectionKind);
-  const resolved = resolveRegisteredRenderer(
+
+  return resolveRendererWithFallback(
     "section",
     rendererKey,
-    registration
+    registration,
+    context,
+    createMissingSectionRenderer
   );
-
-  if (resolved) {
-    return resolved;
-  }
-
-  const diagnostic = createMissingRendererDiagnostic(
-    "section",
-    rendererKey,
-    "error-state"
-  );
-
-  return {
-    diagnostic,
-    renderer: createMissingSectionRenderer(diagnostic),
-  };
 }
 
 export function resolveMetadataStateRenderer(
   state: MetadataUiState | string | undefined,
-  registry = defaultStateRegistry
+  registry = defaultStateRegistry,
+  context?: MetadataRenderContext
 ): MetadataRendererResolution<MetadataStateRenderer> {
   const rendererKey = state ?? "ready";
   const registration = registry.resolve(rendererKey as MetadataStateKind);
-  const resolved = resolveRegisteredRenderer(
+
+  return resolveRendererWithFallback(
     "state",
     rendererKey,
-    registration
+    registration,
+    context,
+    createMissingStateRenderer
   );
+}
 
-  if (resolved) {
-    return resolved;
-  }
+export function resolveMetadataLayoutRenderer(
+  kind: MetadataLayoutKind | string | undefined,
+  registry = defaultLayoutRegistry,
+  context?: MetadataRenderContext
+): MetadataRendererResolution<MetadataLayoutRenderer> {
+  const rendererKey = kind ?? "stack";
+  const registration = registry.resolve(rendererKey as MetadataLayoutKind);
 
-  const diagnostic = createMissingRendererDiagnostic(
-    "state",
+  return resolveRendererWithFallback(
+    "layout",
     rendererKey,
-    "error-state"
+    registration,
+    context,
+    createMissingLayoutRenderer
   );
-
-  return {
-    diagnostic,
-    renderer: createMissingStateRenderer(diagnostic),
-  };
 }
 
 export function createMetadataRendererErrorDiagnostic(

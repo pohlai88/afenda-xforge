@@ -1,6 +1,9 @@
 import { readdirSync, readFileSync } from "node:fs";
 import { join, relative } from "node:path";
 import { isEntrypoint, packageRoot } from "./generator-lib.mts";
+import {
+  collectVisualTokenViolations,
+} from "./visual-token-rules.mts";
 
 const fieldRendererRoot = join(packageRoot, "src", "renderers", "fields");
 const sharedFieldModules = new Set([
@@ -8,37 +11,6 @@ const sharedFieldModules = new Set([
   "metadata-field-shell.tsx",
   "index.ts",
 ]);
-
-const forbiddenPatterns = [
-  {
-    pattern: /#[0-9a-fA-F]{3,8}\b/,
-    message: "hardcoded hex color",
-  },
-  {
-    pattern: /\brgb\s*\(/,
-    message: "hardcoded rgb() color",
-  },
-  {
-    pattern: /\bhsl\s*\(/,
-    message: "hardcoded hsl() color",
-  },
-  {
-    pattern: /<textarea\b/,
-    message: "raw textarea element — use @repo/ui Textarea",
-  },
-  {
-    pattern: /<select\b/,
-    message: "raw select element — use @repo/ui NativeSelect",
-  },
-  {
-    pattern: /<input\b(?![^>]*type=["']hidden["'])/,
-    message: "raw input element — use @repo/ui Input, Checkbox, or Switch",
-  },
-  {
-    pattern: /className=\{?\s*["'`][^"'`]*border-gray/,
-    message: "non-token gray utility",
-  },
-];
 
 function getFieldRendererFiles(): string[] {
   return readdirSync(fieldRendererRoot, { withFileTypes: true })
@@ -74,11 +46,7 @@ export function checkFieldVisualTokens(): void {
       violations.push(`${relativePath}: must compose @repo/ui primitives`);
     }
 
-    for (const rule of forbiddenPatterns) {
-      if (rule.pattern.test(source)) {
-        violations.push(`${relativePath}: ${rule.message}`);
-      }
-    }
+    violations.push(...collectVisualTokenViolations(relativePath, source));
   }
 
   if (violations.length > 0) {

@@ -6,12 +6,21 @@ import type {
 } from "../contracts/action-renderer.contract";
 import { metadataActionKinds } from "../contracts/action-renderer.contract";
 import type {
+  MetadataCompositionContract,
+  MetadataCompositionNode,
+  MetadataCompositionNodeKind,
+} from "../contracts/composition.contract";
+import type {
   MetadataFieldContract,
   MetadataFieldKind,
   MetadataFieldOption,
   MetadataFieldValidationRule,
 } from "../contracts/field-renderer.contract";
 import { metadataFieldKinds } from "../contracts/field-renderer.contract";
+import type {
+  MetadataLayoutContract,
+  MetadataLayoutKind,
+} from "../contracts/layout.contract";
 import type { MetadataUiState } from "../contracts/render-context.contract";
 import type {
   MetadataSectionContract,
@@ -34,6 +43,21 @@ const supportedActionKinds = new Set(metadataActionKinds);
 const supportedSectionKinds = new Set<MetadataSectionKind>(
   metadataSectionKinds
 );
+const supportedLayoutKinds = new Set<MetadataLayoutKind>([
+  "dashboard",
+  "grid",
+  "panel",
+  "stack",
+  "tabs",
+  "wizard",
+]);
+const supportedCompositionNodeKinds = new Set<MetadataCompositionNodeKind>([
+  "action",
+  "field",
+  "layout",
+  "section",
+  "surface",
+]);
 const supportedActionPlacements = new Set<MetadataActionPlacement>([
   "overflow",
   "primary",
@@ -96,6 +120,22 @@ const invalidSection = (
   message: string
 ): MetadataContractValidationResult => ({
   diagnostic: createInvalidContractDiagnostic("section", target, message),
+  valid: false,
+});
+
+const invalidLayout = (
+  target: string,
+  message: string
+): MetadataContractValidationResult => ({
+  diagnostic: createInvalidContractDiagnostic("layout", target, message),
+  valid: false,
+});
+
+const invalidComposition = (
+  target: string,
+  message: string
+): MetadataContractValidationResult => ({
+  diagnostic: createInvalidContractDiagnostic("composition", target, message),
   valid: false,
 });
 
@@ -431,6 +471,137 @@ export function validateMetadataSectionContract(
   }
 
   return validateSectionCollections(section);
+}
+
+export function validateMetadataLayoutContract(
+  layout: MetadataLayoutContract | null | undefined
+): MetadataContractValidationResult {
+  if (!layout || typeof layout !== "object") {
+    return invalidLayout(
+      "unknown",
+      "Layout contract must be a non-null object."
+    );
+  }
+
+  if (!isNonEmptyString(layout.key)) {
+    return invalidLayout(
+      String(layout.key ?? "unknown"),
+      "Layout contract requires a non-empty key."
+    );
+  }
+
+  if (!isNonEmptyString(layout.kind)) {
+    return invalidLayout(
+      layout.key,
+      "Layout contract requires a non-empty kind."
+    );
+  }
+
+  if (!supportedLayoutKinds.has(layout.kind)) {
+    return invalidLayout(
+      layout.key,
+      `Layout '${layout.key}' has unsupported kind '${String(layout.kind)}'.`
+    );
+  }
+
+  return { valid: true };
+}
+
+const validateCompositionNode = (
+  node: MetadataCompositionNode | null | undefined,
+  path: string
+): MetadataContractValidationResult => {
+  if (!node || typeof node !== "object") {
+    return invalidComposition(
+      path,
+      `Composition node '${path}' must be an object.`
+    );
+  }
+
+  if (!isNonEmptyString(node.key)) {
+    return invalidComposition(
+      path,
+      `Composition node '${path}' requires a non-empty key.`
+    );
+  }
+
+  if (!isNonEmptyString(node.kind)) {
+    return invalidComposition(
+      node.key,
+      `Composition node '${node.key}' requires a non-empty kind.`
+    );
+  }
+
+  if (!supportedCompositionNodeKinds.has(node.kind)) {
+    return invalidComposition(
+      node.key,
+      `Composition node '${node.key}' has unsupported kind '${String(node.kind)}'.`
+    );
+  }
+
+  if (node.children) {
+    if (!Array.isArray(node.children)) {
+      return invalidComposition(
+        node.key,
+        `Composition node '${node.key}' children must be an array when provided.`
+      );
+    }
+
+    for (const [index, child] of node.children.entries()) {
+      const childValidation = validateCompositionNode(
+        child,
+        `${node.key}.children[${index}]`
+      );
+
+      if (!childValidation.valid) {
+        return childValidation;
+      }
+    }
+  }
+
+  return { valid: true };
+};
+
+export function validateMetadataCompositionContract(
+  composition: MetadataCompositionContract | null | undefined
+): MetadataContractValidationResult {
+  if (!composition || typeof composition !== "object") {
+    return invalidComposition(
+      "unknown",
+      "Composition contract must be a non-null object."
+    );
+  }
+
+  if (!isNonEmptyString(composition.rootKey)) {
+    return invalidComposition(
+      String(composition.rootKey ?? "unknown"),
+      "Composition contract requires a non-empty rootKey."
+    );
+  }
+
+  if (!isNonEmptyString(composition.version)) {
+    return invalidComposition(
+      composition.rootKey,
+      "Composition contract requires a non-empty version."
+    );
+  }
+
+  if (!Array.isArray(composition.nodes) || composition.nodes.length === 0) {
+    return invalidComposition(
+      composition.rootKey,
+      "Composition contract requires at least one node."
+    );
+  }
+
+  for (const [index, node] of composition.nodes.entries()) {
+    const nodeValidation = validateCompositionNode(node, `nodes[${index}]`);
+
+    if (!nodeValidation.valid) {
+      return nodeValidation;
+    }
+  }
+
+  return { valid: true };
 }
 
 export function collectManifestDuplicateRendererDiagnostics(

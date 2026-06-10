@@ -1,4 +1,5 @@
 import { hrTenantDocumentDownloadPath } from "@repo/features-employee-management-documents-management";
+import { MetadataStateBoundary } from "@repo/metadata-ui/components";
 import Link from "next/link";
 import type { ReactElement } from "react";
 import type { StatusBadgeTone } from "../../../_components/status-badge.tsx";
@@ -57,19 +58,18 @@ export function DocumentSummaryList({
 }: DocumentSummaryListProps): ReactElement {
   if (documents.length === 0) {
     return (
-      <div className="rounded-[var(--radius-xl)] border border-border bg-card/95 p-6 shadow-sm">
-        <div className="space-y-2">
-          <h3 className="font-semibold text-xl tracking-tight">{emptyTitle}</h3>
-          <p className="text-muted-foreground text-sm">{emptyDescription}</p>
-        </div>
-        <div className="mt-4">
-          <Link
-            className="inline-flex h-10 items-center justify-center rounded-md bg-primary px-4 py-2 font-medium text-primary-foreground text-sm transition hover:opacity-90"
-            href="/hr/documents"
-          >
-            Open documents workspace
-          </Link>
-        </div>
+      <div className="space-y-4">
+        <MetadataStateBoundary
+          emptyDescription={emptyDescription}
+          emptyTitle={emptyTitle}
+          state="empty"
+        />
+        <Link
+          className="inline-flex h-10 items-center justify-center rounded-md bg-primary px-4 py-2 font-medium text-primary-foreground text-sm transition hover:opacity-90"
+          href="/hr/documents"
+        >
+          Open documents workspace
+        </Link>
       </div>
     );
   }

@@ -80,9 +80,27 @@ const forbiddenComponentPatterns = [
 
 const requiredComponentPatterns = [
   {
+    file: metadataFormPath,
+    pattern: /resolveMetadataEntityCustomization/,
+    message:
+      "metadata-form must resolve customization through shared hook (MUI-017)",
+  },
+  {
+    file: metadataSectionStackPath,
+    pattern: /resolveMetadataEntityCustomization/,
+    message:
+      "metadata-section-stack must resolve customization through shared hook (MUI-017)",
+  },
+  {
     file: metadataTablePath,
     pattern: /renderMetadataTableCell\(/,
     message: "metadata-table must render cells via renderMetadataTableCell",
+  },
+  {
+    file: metadataTablePath,
+    pattern: /resolveMetadataEntityCustomization/,
+    message:
+      "metadata-table must resolve customization through shared hook (MUI-017)",
   },
   {
     file: metadataTablePath,

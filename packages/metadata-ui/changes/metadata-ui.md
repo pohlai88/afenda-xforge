@@ -146,6 +146,46 @@ Use this file for package-local public API notes when the repo does not require 
 - Snapshot updated: Yes, `snapshots/declaration-snapshot.json`.
 - Follow-up: Run the new MUI-008/012/013/014 gates when changing entry points, form binding, or contract validation rules.
 
+## 2026-06-10 (MUI-003 / Enterprise AC #3)
+
+- Date: 2026-06-10
+- Change: Implemented Enterprise AC #3 end to end: five core state renderers remain package-owned and reusable via `MetadataStateBoundary` / `renderMetadataStateBoundaryResult`, added `MetadataTableLoadingSkeleton` for table loading slots, state adapter passes render `context` into `ErrorStateRenderer`, extended `state-boundary.test.tsx` coverage for all five states, and added `check:state-renderer-ownership`. App and Storybook consumers migrated off bespoke forbidden/error/empty UI to `@repo/metadata-ui/components`.
+- Public impact: New exports `MetadataTableLoadingSkeleton`, `TABLE_LOADING_SKELETON_KEYS`, and `MetadataMotionSkeleton` on `@repo/metadata-ui/components`; `MetadataStateRendererProps` adds optional `context`. Consumers should use `MetadataStateBoundary` or panel async props instead of local state panels.
+- Snapshot updated: Yes, `snapshots/declaration-snapshot.json`.
+- Follow-up: Run `pnpm --filter @repo/metadata-ui check:state-renderer-ownership` and `pnpm --filter app check:metadata-ui-smoke` when changing state surfaces or app integration.
+
+## 2026-06-10 (MUI-004 / MUI-007 / MUI-009 / Enterprise AC #4)
+
+- Date: 2026-06-10
+- Change: Implemented Enterprise AC #4 end to end: dedicated `check:compatibility` and `check:renderer-registry` gates (generated drift + compose-groups + registry parity), expanded `check:diagnostic-coverage` for governance codes and telemetry resilience, added fallback diagnostic field tests, manifest/export alignment test, state registry parity in generated smoke tests, and wired quality score to run compatibility/registry/diagnostic gates before scoring.
+- Public impact: New verification scripts `check:compatibility` and `check:renderer-registry`; expanded diagnostic test coverage for governance fallbacks and telemetry sink resilience. No breaking runtime API changes.
+- Snapshot updated: Yes, `snapshots/declaration-snapshot.json`.
+- Follow-up: Run `pnpm --filter @repo/metadata-ui verify` when changing manifest, generated outputs, diagnostics, or compatibility mappings.
+
+## 2026-06-10 (MUI-006 / MUI-007 / MUI-015 / MUI-016 / MUI-017)
+
+- Date: 2026-06-10
+- Change: Closed remaining metadata-ui runtime gaps: renderer version constraints at resolve time (`unsupported-renderer-version`), section partial/degraded completeness wrapping, locale label resolution through render context, universal customization resolution for forms and section stacks, and layout/composition adapter pipelines with default layout registry.
+- Public impact: New exports `renderMetadataLayout`, `renderMetadataComposition`, `resolveMetadataLayoutRenderer`, `resolveMetadataLabel`, `resolveMetadataEntityCustomization`, `defaultLayoutRegistry`, and version helpers on `@repo/metadata-ui/registry`. `MetadataRenderContext` adds optional `labelCatalog` and `rendererVersionConstraints`. Field/action/section contracts add optional `labelKey` / `labels`. `MetadataForm` and `MetadataSectionStack` accept customization props and optional `entityMetadata`.
+- Snapshot updated: Yes, `snapshots/declaration-snapshot.json`.
+- Follow-up: Run `pnpm --filter @repo/metadata-ui check:label-i18n`, `check:layout-composition`, and `check:diagnostic-coverage` when changing adapters, localization, layout/composition, or version negotiation.
+
+## 2026-06-10 (Enterprise AC #5 / MUI-005)
+
+- Date: 2026-06-10
+- Change: Hardened ownership boundaries for metadata source, customization, and server authority: centralized `@repo/customization` consumption behind `src/customization/`, removed direct customization imports from components, documented UI-only governance in `policy/governance.ts`, removed `@repo/metadata` coupling from section renderers, and added `check:authority-boundary` plus `tests/authority-boundary.test.ts`.
+- Public impact: Consumers should import customization helpers from `@repo/metadata-ui` (`resolveMetadataEntityCustomization`, `MetadataCustomizationInput`). Governance remains presentation-only; apps must enforce server-side authorization and pass resolved metadata/customization into surfaces.
+- Snapshot updated: Yes, `snapshots/declaration-snapshot.json`.
+- Follow-up: Run `pnpm --filter @repo/metadata-ui check:authority-boundary` when changing contracts, customization integration, governance, or component composition boundaries.
+
+## 2026-06-10 (Enterprise AC #6 / MUI-006)
+
+- Date: 2026-06-10
+- Change: Hardened fallback runtime for invalid, partial, unsupported, and degraded metadata: centralized `createInvalidContractFallbackResult` rendering `InvalidState`, section completeness wrapping on all render paths (including governance readonly/disable), diagnostics aggregation in `MetadataSectionStack`, and `check:fallback-runtime` plus `tests/fallback-runtime.test.tsx`.
+- Public impact: Invalid field/action/section/layout/composition contracts now render distinct invalid-state UI instead of generic error states. Section stacks continue rendering when one section is invalid. No breaking public API changes.
+- Snapshot updated: Yes, `snapshots/declaration-snapshot.json`.
+- Follow-up: Run `pnpm --filter @repo/metadata-ui check:fallback-runtime` when changing adapter fallback paths, section completeness, or state renderers.
+
 ## Entry template
 
 - Date:

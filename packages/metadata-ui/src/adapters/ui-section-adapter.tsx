@@ -14,10 +14,17 @@ import {
   bindRendererDiagnosticCorrelation,
   mergeRendererDiagnostics,
 } from "./diagnostics";
+import { createInvalidContractFallbackResult } from "./invalid-contract-fallback";
+import { withLocalizedSectionTitle } from "./localized-metadata-contracts";
 import {
   createMetadataRendererErrorDiagnostic,
   resolveMetadataSectionRenderer,
 } from "./metadata-renderer-resolvers.tsx";
+import {
+  resolveSectionCompleteness,
+  resolveSectionTitle,
+  wrapSectionCompleteness,
+} from "./section-completeness";
 import { emitMetadataTelemetry } from "./telemetry.ts";
 
 export type MetadataSectionAdapterProps = {
@@ -57,6 +64,22 @@ function createSectionDiagnostics(
   return mergeRendererDiagnostics(
     resolvedDiagnostic ? [resolvedDiagnostic] : [],
     resolvedGovernanceDiagnostic ? [resolvedGovernanceDiagnostic] : []
+  );
+}
+
+function wrapRenderedSectionElement(
+  section: MetadataSectionContract,
+  context: MetadataRenderContext,
+  element: ReactElement | null
+): ReactElement | null {
+  const completeness = resolveSectionCompleteness(section, context);
+  const title = resolveSectionTitle(section, context);
+
+  return wrapSectionCompleteness(
+    completeness,
+    title,
+    section.completenessDescription,
+    element
   );
 }
 
@@ -124,11 +147,15 @@ function renderDeniedSection(
     try {
       return {
         diagnostics,
-        element: renderResolvedSection(
-          createGovernedSectionContext(
-            context,
-            section,
-            governance.decision.effect === "readonly"
+        element: wrapRenderedSectionElement(
+          section,
+          context,
+          renderResolvedSection(
+            createGovernedSectionContext(
+              context,
+              section,
+              governance.decision.effect === "readonly"
+            )
           )
         ),
       };
@@ -167,30 +194,24 @@ export function renderMetadataSection({
       context.correlationId
     ) as MetadataRendererDiagnostic;
 
-    emitMetadataTelemetry(context, "metadata.renderer.fallback", {
-      attributes: {
-        reason: diagnostic.code,
-        sectionKey: contractValidation.diagnostic.target ?? "unknown",
-      },
-      diagnostics: [diagnostic],
-      level: "error",
-      rendererKey: section?.kind ?? "section",
-    });
-
-    return {
-      diagnostics: [diagnostic],
-      element: (
-        <ErrorState
-          context={context}
-          correlationId={context.correlationId}
-          description={diagnostic.message}
-          title="Invalid section contract"
-        />
-      ),
-    };
+    return createInvalidContractFallbackResult(
+      context,
+      diagnostic,
+      "Invalid section contract",
+      {
+        attributes: {
+          sectionKey: contractValidation.diagnostic.target ?? "unknown",
+        },
+        rendererKey: section?.kind ?? "section",
+      }
+    );
   }
 
-  const resolution = resolveMetadataSectionRenderer(section.kind, registry);
+  const resolution = resolveMetadataSectionRenderer(
+    section.kind,
+    registry,
+    context
+  );
   const governance = evaluateMetadataGovernance({
     context,
     key: section.key,
@@ -216,6 +237,8 @@ export function renderMetadataSection({
     rendererKey: section.kind ?? "section",
   });
 
+  const localizedSection = withLocalizedSectionTitle(section, context);
+
   const renderResolvedSection = (
     nextContext: MetadataRenderContext
   ): ReactElement | null =>
@@ -223,7 +246,7 @@ export function renderMetadataSection({
       children,
       context: nextContext,
       diagnostics,
-      section,
+      section: withLocalizedSectionTitle(localizedSection, nextContext),
     });
 
   if (!governance.allowed || section.visible === false) {
@@ -237,8 +260,13 @@ export function renderMetadataSection({
   }
 
   try {
-    const element = renderResolvedSection(
+    const renderedElement = renderResolvedSection(
       createGovernedSectionContext(context, section)
+    );
+    const element = wrapRenderedSectionElement(
+      section,
+      context,
+      renderedElement
     );
 
     emitMetadataTelemetry(context, "metadata.section.render.completed", {

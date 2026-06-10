@@ -25,8 +25,15 @@ It does not own:
 
 Allowed dependencies:
 
-- `@repo/metadata`
-- `@repo/ui`
+- `@repo/metadata` — consume resolved entity metadata at composition surfaces only
+- `@repo/customization` — consume through `src/customization/` facade only; never re-export governance rules
+- `@repo/ui` — presentational primitives only
+
+Authority boundaries:
+
+- render context `permissions`, `capabilities`, and `featureFlags` are UI hints supplied by the app
+- governance decisions affect presentation only; server-side authorization remains final
+- action renderers invoke consumer `onAction` callbacks; this package does not execute mutations
 
 Example: compose UI primitives with metadata
 

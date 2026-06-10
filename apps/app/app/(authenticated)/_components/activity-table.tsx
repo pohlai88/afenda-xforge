@@ -1,10 +1,10 @@
 "use client";
 
+import { MetadataStateBoundary } from "@repo/metadata-ui/components";
 import type { DashboardTableRow, TableColumnMetadata } from "@repo/ui";
 import {
   Button,
   Input,
-  Skeleton,
   Table,
   TableBody,
   TableCaption,
@@ -34,12 +34,6 @@ type ActivityTableProps = {
   searchAriaLabel?: string;
   searchPlaceholder?: string;
 };
-
-const SKELETON_KEYS = [
-  "audit-table-skeleton-1",
-  "audit-table-skeleton-2",
-  "audit-table-skeleton-3",
-] as const;
 
 const formatCellValue = (value: DashboardTableRow[string]): string => {
   if (value instanceof Date) {
@@ -165,12 +159,17 @@ export function ActivityTable({
       />
 
       {rows.length === 0 ? (
-        <div className="rounded-xl border border-border bg-card/80 p-8 text-center shadow-sm">
-          <h3 className="font-medium text-lg">{emptyTitle}</h3>
-          <p className="mt-2 text-muted-foreground text-sm">
-            {emptyDescription}
-          </p>
-        </div>
+        <MetadataStateBoundary
+          emptyDescription={emptyDescription}
+          emptyTitle={emptyTitle}
+          state="empty"
+        />
+      ) : pagedRows.length === 0 ? (
+        <MetadataStateBoundary
+          emptyDescription="Try adjusting your search query."
+          emptyTitle="No matching records"
+          state="empty"
+        />
       ) : (
         <div className="overflow-x-auto">
           <Table>
@@ -194,27 +193,19 @@ export function ActivityTable({
               </TableRow>
             </TableHeader>
             <TableBody>
-              {pagedRows.length === 0
-                ? SKELETON_KEYS.map((key) => (
-                    <TableRow key={key}>
-                      <TableCell colSpan={columns.length}>
-                        <Skeleton className="h-8 w-full" />
+              {pagedRows.map((row) => (
+                <TableRow key={row.id}>
+                  {columns.map((column) => {
+                    const value = row[column.key];
+                    return (
+                      <TableCell key={`${row.id}-${column.key}`}>
+                        {renderCell?.(column, value, row) ??
+                          formatCellValue(value)}
                       </TableCell>
-                    </TableRow>
-                  ))
-                : pagedRows.map((row) => (
-                    <TableRow key={row.id}>
-                      {columns.map((column) => {
-                        const value = row[column.key];
-                        return (
-                          <TableCell key={`${row.id}-${column.key}`}>
-                            {renderCell?.(column, value, row) ??
-                              formatCellValue(value)}
-                          </TableCell>
-                        );
-                      })}
-                    </TableRow>
-                  ))}
+                    );
+                  })}
+                </TableRow>
+              ))}
             </TableBody>
           </Table>
         </div>

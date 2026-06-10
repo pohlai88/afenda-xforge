@@ -4,6 +4,9 @@ import {
   createMetadataUiCompatibilityReport,
   createMetadataUiQualityAssessment,
 } from "../src/index.ts";
+import { checkCompatibility } from "./check-compatibility.mts";
+import { checkDiagnosticCoverage } from "./check-diagnostic-coverage.mts";
+import { checkRendererRegistry } from "./check-renderer-registry.mts";
 
 function resolveThreshold(argv: readonly string[]): number {
   const thresholdIndex = argv.indexOf("--threshold");
@@ -22,11 +25,17 @@ function resolveThreshold(argv: readonly string[]): number {
 
 const threshold = resolveThreshold(process.argv);
 
+checkCompatibility();
+checkDiagnosticCoverage();
+checkRendererRegistry();
+
+const compatibility = createMetadataUiCompatibilityReport();
+
 const assessment = createMetadataUiQualityAssessment({
-  compatibility: createMetadataUiCompatibilityReport(),
-  defaultRendererCoverage: true,
+  compatibility,
+  defaultRendererCoverage: compatibility.ok,
   governanceFallbackCoverage: true,
-  gracefulUnknownFallbacks: true,
+  gracefulUnknownFallbacks: compatibility.ok,
   telemetryCorrelationCoverage: true,
   verification: {
     boundaryLint: true,

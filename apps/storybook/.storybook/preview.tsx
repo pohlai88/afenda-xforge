@@ -72,6 +72,7 @@ const preview: Preview = {
       storySort: {
         order: [
           "Introduction",
+          ["Introduction", ["Beastmode Keynote", "Mutation Orbit", "Command Surface"]],
           "UI",
           ["UI", "Compose", "Form"],
           ["UI", "Compose", "Data"],
@@ -80,13 +81,20 @@ const preview: Preview = {
           ["UI", "Compose Registry"],
           ["UI", "Primitives"],
           "Metadata UI",
+          ["Metadata UI", "Overview"],
         ],
       },
     },
   },
   decorators: [
     (Story, context) => {
-      const theme = context.globals.theme === "dark" ? "dark" : "light";
+      const theme =
+        context.parameters.forcedTheme === "dark" ||
+        context.parameters.forcedTheme === "light"
+          ? context.parameters.forcedTheme
+          : context.globals.theme === "dark"
+            ? "dark"
+            : "light";
 
       return (
         <DesignSystemProvider

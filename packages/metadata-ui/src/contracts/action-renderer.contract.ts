@@ -43,6 +43,8 @@ export type MetadataActionContract = MetadataGovernancePolicy & {
   key: string;
   kind: MetadataActionKind;
   label: string;
+  labelKey?: string;
+  labels?: Readonly<Partial<Record<string, string>>>;
   metadata?: Record<string, unknown>;
   permissionHint?: string;
   placement?: MetadataActionPlacement;

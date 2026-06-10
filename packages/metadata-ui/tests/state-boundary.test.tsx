@@ -15,6 +15,25 @@ test("MetadataStateBoundary renders loading state", () => {
   assert.equal((element.type as { name?: string }).name, "LoadingState");
 });
 
+test("MetadataStateBoundary renders empty state", () => {
+  const element = MetadataStateBoundary({
+    emptyDescription: "No records yet.",
+    emptyTitle: "Nothing here",
+    state: "empty",
+  }) as TestElement;
+
+  assert.equal((element.type as { name?: string }).name, "EmptyState");
+});
+
+test("MetadataStateBoundary renders error state", () => {
+  const element = MetadataStateBoundary({
+    error: "Unable to load records.",
+    state: "error",
+  }) as TestElement;
+
+  assert.equal((element.type as { name?: string }).name, "ErrorState");
+});
+
 test("MetadataStateBoundary renders forbidden state", () => {
   const element = MetadataStateBoundary({ state: "forbidden" }) as TestElement;
 
@@ -39,4 +58,22 @@ test("renderMetadataStateBoundaryResult exposes fallback diagnostics", () => {
   assert.equal((result.element as TestElement).type.name, "ErrorState");
   assert.equal(result.diagnostics.length > 0, true);
   assert.equal(result.diagnostics[0]?.code, "unsupported-state");
+});
+
+test("renderMetadataStateBoundaryResult passes context to error renderer", () => {
+  const result = renderMetadataStateBoundaryResult({
+    context: {
+      correlationId: "corr-state-boundary-error",
+      diagnosticsEnabled: true,
+    },
+    error: "Load failed.",
+    state: "error",
+  });
+
+  const element = result.element as TestElement;
+  assert.equal(element.type.name, "ErrorState");
+  assert.equal(
+    element.props.context?.correlationId,
+    "corr-state-boundary-error"
+  );
 });

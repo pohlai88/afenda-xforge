@@ -138,7 +138,12 @@ function MetadataUiSmokeStory() {
         </h1>
         <p className="max-w-3xl text-muted-foreground text-sm leading-7 md:text-base">
           Storybook fixture for the public metadata-ui boundary, including form,
-          table panel, and ready state surfaces.
+          table panel, and ready state surfaces. Async and permission states are
+          covered in{" "}
+          <span className="font-medium text-foreground">
+            Metadata UI/State Boundary
+          </span>
+          .
         </p>
       </header>
 

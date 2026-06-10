@@ -13,3 +13,7 @@
 
 @source "../stories/**/*.{ts,tsx}";
 @source "../../../packages/metadata-ui/src/**/*.{ts,tsx}";
+
+@utility sb-intro-grid-bg {
+  background-size: 72px 72px;
+}

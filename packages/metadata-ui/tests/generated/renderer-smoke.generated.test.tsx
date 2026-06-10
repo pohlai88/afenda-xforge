@@ -23,9 +23,13 @@ import {
   generatedSectionRendererRegistrations,
 } from "../../src/generated/section-renderer-registry.generated";
 import {
+  generatedStateRendererRegistrations,
+} from "../../src/generated/state-renderer-registry.generated";
+import {
   defaultActionRegistry,
   defaultFieldRegistry,
   defaultSectionRegistry,
+  defaultStateRegistry,
 } from "../../src/registry";
 
 test("generated renderer registrations stay aligned with default registries", () => {
@@ -46,6 +50,13 @@ test("generated renderer registrations stay aligned with default registries", ()
   for (const registration of generatedSectionRendererRegistrations) {
     assert.equal(
       defaultSectionRegistry.get(registration.key).renderer,
+      registration.renderer
+    );
+  }
+
+  for (const registration of generatedStateRendererRegistrations) {
+    assert.equal(
+      defaultStateRegistry.get(registration.key).renderer,
       registration.renderer
     );
   }

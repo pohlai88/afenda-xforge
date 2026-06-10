@@ -57,6 +57,8 @@ export type MetadataFieldContract = MetadataGovernancePolicy & {
   kind?: MetadataFieldKind;
   key: string;
   label: string;
+  labelKey?: string;
+  labels?: Readonly<Partial<Record<string, string>>>;
   metadata?: Record<string, unknown>;
   options?: readonly MetadataFieldOption[];
   placeholder?: string;

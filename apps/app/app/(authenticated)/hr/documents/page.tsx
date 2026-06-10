@@ -1,3 +1,4 @@
+import { MetadataStateBoundary } from "@repo/metadata-ui/components";
 import { resolveObjectStorageProviderKind } from "@repo/storage/provider";
 import Link from "next/link";
 import type { ReactElement } from "react";
@@ -8,47 +9,56 @@ import { DocumentSummaryList } from "./_components/document-summary-list.tsx";
 import { loadHrDocumentsPageData } from "./_data.ts";
 import { DocumentUploadForm } from "./document-upload-form.tsx";
 
-const renderAccessError = (message: string): ReactElement => (
-  <section className="rounded-[var(--radius-xl)] border border-border bg-card/95 p-8 shadow-sm">
-    <div className="space-y-3">
-      <p className="text-muted-foreground text-sm uppercase tracking-[0.3em]">
-        XForge
-      </p>
-      <h1 className="font-semibold text-4xl tracking-tight">
-        Document storage unavailable
-      </h1>
-      <p className="max-w-3xl text-muted-foreground">{message}</p>
-    </div>
-
-    <div className="mt-6 flex flex-wrap items-center gap-3">
-      <Link
-        className="inline-flex h-10 items-center justify-center rounded-md border border-border bg-background px-4 py-2 font-medium text-sm transition hover:bg-muted"
-        href="/hr"
-      >
-        Back to HR hub
-      </Link>
-      <Link
-        className="inline-flex h-10 items-center justify-center rounded-md border border-border bg-background px-4 py-2 font-medium text-sm transition hover:bg-muted"
-        href="/dashboard"
-      >
-        Back to dashboard
-      </Link>
-    </div>
-  </section>
-);
-
 export default async function HrDocumentsPage(): Promise<ReactElement> {
   const documents = await loadHrDocumentsPageData();
   const storageProvider = resolveObjectStorageProviderKind() ?? "blob";
 
   if (documents.status === "forbidden") {
-    return renderAccessError(
-      "Document browsing requires an HR role with tenant-scoped document access."
+    return (
+      <section className="space-y-6">
+        <MetadataStateBoundary
+          forbiddenDescription="Document browsing requires an HR role with tenant-scoped document access."
+          forbiddenTitle="Document storage unavailable"
+          state="forbidden"
+        />
+        <div className="flex flex-wrap items-center gap-3">
+          <Link
+            className="inline-flex h-10 items-center justify-center rounded-md border border-border bg-background px-4 py-2 font-medium text-sm transition hover:bg-muted"
+            href="/hr"
+          >
+            Back to HR hub
+          </Link>
+          <Link
+            className="inline-flex h-10 items-center justify-center rounded-md border border-border bg-background px-4 py-2 font-medium text-sm transition hover:bg-muted"
+            href="/dashboard"
+          >
+            Back to dashboard
+          </Link>
+        </div>
+      </section>
     );
   }
 
   if (documents.status === "error") {
-    return renderAccessError(documents.message);
+    return (
+      <section className="space-y-6">
+        <MetadataStateBoundary error={documents.message} state="error" />
+        <div className="flex flex-wrap items-center gap-3">
+          <Link
+            className="inline-flex h-10 items-center justify-center rounded-md border border-border bg-background px-4 py-2 font-medium text-sm transition hover:bg-muted"
+            href="/hr"
+          >
+            Back to HR hub
+          </Link>
+          <Link
+            className="inline-flex h-10 items-center justify-center rounded-md border border-border bg-background px-4 py-2 font-medium text-sm transition hover:bg-muted"
+            href="/dashboard"
+          >
+            Back to dashboard
+          </Link>
+        </div>
+      </section>
+    );
   }
 
   const { data } = documents;

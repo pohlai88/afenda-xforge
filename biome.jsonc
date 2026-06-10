@@ -77,5 +77,24 @@
       "quoteStyle": "double",
       "semicolons": "always"
     }
-  }
+  },
+  "overrides": [
+    {
+      "includes": ["apps/storybook/**"],
+      "linter": {
+        "rules": {
+          "style": {
+            "noRestrictedImports": {
+              "level": "error",
+              "options": {
+                "paths": {
+                  "lucide-react": "lucide-react is not a storybook dependency — use @repo/ui icons or declare lucide-react in apps/storybook/package.json"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  ]
 }

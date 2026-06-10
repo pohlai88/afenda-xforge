@@ -52,6 +52,14 @@ export function ErrorState({
 }
 
 export const ErrorStateRenderer: MetadataStateRenderer = ({
+  context,
   error,
   onRetry,
-}) => <ErrorState description={error} onRetry={onRetry} />;
+}) => (
+  <ErrorState
+    context={context}
+    correlationId={context?.correlationId}
+    description={error}
+    onRetry={onRetry}
+  />
+);

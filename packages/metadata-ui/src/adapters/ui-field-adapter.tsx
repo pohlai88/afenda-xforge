@@ -14,6 +14,8 @@ import {
   bindRendererDiagnosticCorrelation,
   mergeRendererDiagnostics,
 } from "./diagnostics";
+import { createInvalidContractFallbackResult } from "./invalid-contract-fallback";
+import { withLocalizedFieldLabel } from "./localized-metadata-contracts";
 import {
   createMetadataRendererErrorDiagnostic,
   resolveMetadataFieldRenderer,
@@ -171,30 +173,24 @@ export function renderMetadataField({
       context.correlationId
     ) as MetadataRendererDiagnostic;
 
-    emitMetadataTelemetry(context, "metadata.renderer.fallback", {
-      attributes: {
-        fieldKey: contractValidation.diagnostic.target ?? "unknown",
-        reason: diagnostic.code,
-      },
-      diagnostics: [diagnostic],
-      level: "error",
-      rendererKey: field?.kind ?? "text",
-    });
-
-    return {
-      diagnostics: [diagnostic],
-      element: (
-        <ErrorState
-          context={context}
-          correlationId={context.correlationId}
-          description={diagnostic.message}
-          title="Invalid field contract"
-        />
-      ),
-    };
+    return createInvalidContractFallbackResult(
+      context,
+      diagnostic,
+      "Invalid field contract",
+      {
+        attributes: {
+          fieldKey: contractValidation.diagnostic.target ?? "unknown",
+        },
+        rendererKey: field?.kind ?? "text",
+      }
+    );
   }
 
-  const resolution = resolveMetadataFieldRenderer(field.kind, registry);
+  const resolution = resolveMetadataFieldRenderer(
+    field.kind,
+    registry,
+    context
+  );
   const governance = evaluateMetadataGovernance({
     context,
     disabled: disabled ?? field.disabled ?? field.readOnly,
@@ -222,6 +218,8 @@ export function renderMetadataField({
     rendererKey: field.kind ?? "text",
   });
 
+  const localizedField = withLocalizedFieldLabel(field, context);
+
   const renderResolvedField = (
     nextContext: MetadataRenderContext,
     nextDisabled: boolean
@@ -230,7 +228,7 @@ export function renderMetadataField({
       context: nextContext,
       diagnostics,
       disabled: nextDisabled,
-      field,
+      field: withLocalizedFieldLabel(localizedField, nextContext),
       onChange,
       value,
     });

@@ -9,9 +9,13 @@ export type MetadataRenderContextDefaults = {
   actorId?: string;
   correlationId?: string;
   featureId?: string;
+  labelCatalog?: Readonly<Record<string, string>>;
   locale?: string;
   mode?: MetadataRenderMode;
   moduleId?: string;
+  rendererVersionConstraints?: Readonly<
+    Record<string, { exact?: string; min?: string }>
+  >;
   state?: MetadataUiState;
   tenantId?: string;
   timezone?: string;
@@ -75,12 +79,16 @@ export function createMetadataRenderContext(
     diagnosticsEnabled: resolveBoolean(context?.diagnosticsEnabled, false),
     featureFlags: resolveReadonlyRecord(context?.featureFlags),
     featureId: resolveOptional(context?.featureId ?? defaults.featureId),
+    labelCatalog: context?.labelCatalog,
     locale: resolveLiteral(context?.locale ?? defaults.locale, "en"),
     mode: (context?.mode ?? defaults.mode ?? "read") as MetadataRenderMode,
     moduleId: resolveOptional(context?.moduleId ?? defaults.moduleId),
     organizationId: resolveNullableString(context?.organizationId, null),
     permissions: resolveReadonlyRecord(context?.permissions),
     readonly: resolveBoolean(context?.readonly, false),
+    rendererVersionConstraints:
+      context?.rendererVersionConstraints ??
+      defaults.rendererVersionConstraints,
     routeId: resolveOptional(context?.routeId ?? defaults.routeId),
     state: (context?.state ?? defaults.state ?? "ready") as MetadataUiState,
     surfaceId: resolveOptional(context?.surfaceId ?? defaults.surfaceId),

@@ -14,6 +14,7 @@
     "./policy": "./src/policy/index.ts",
     "./registry": "./src/registry/index.ts",
     "./renderers": "./src/renderers/index.ts",
+    "./visualization/orbit-layout": "./src/visualization/orbit-layout.ts",
     "./server": "./src/server.ts",
     "./client": "./src/client.ts",
     "./package.json": "./package.json"
@@ -31,6 +32,7 @@
   "scripts": {
     "build": "tsc -p tsconfig.build.json",
     "check:boundaries": "tsx scripts/check-boundaries.mts",
+    "check:authority-boundary": "tsx scripts/check-authority-boundary.mts",
     "check:change-note": "tsx scripts/check-change-note.mts",
     "check:compose-groups": "tsx scripts/check-compose-groups.mts",
     "check:consumer-fixture": "tsx scripts/check-consumer-fixture.mts && vitest run tests/public-api-consumer.render.test.tsx",
@@ -39,6 +41,10 @@
     "check:field-a11y": "tsx scripts/check-field-a11y.mts",
     "check:keyboard-focus": "tsx scripts/check-keyboard-focus.mts",
     "check:locale-formatting": "tsx scripts/check-locale-formatting.mts",
+    "check:label-i18n": "tsx scripts/check-label-i18n.mts",
+    "check:layout-composition": "tsx scripts/check-layout-composition.mts",
+    "check:layout-composition-visual": "tsx scripts/check-layout-composition-visual.mts",
+    "check:renderer-visual-tokens": "tsx scripts/check-renderer-visual-tokens.mts",
     "check:density-visual": "tsx scripts/check-density-visual.mts",
     "check:content-length": "tsx scripts/check-content-length.mts",
     "check:reduced-motion": "tsx scripts/check-reduced-motion.mts",
@@ -56,7 +62,10 @@
     "check:consumer-fixture-integration": "tsx scripts/check-consumer-fixture-integration.mts",
     "check:contract-validation": "tsx scripts/check-contract-validation.mts",
     "check:field-value-binding": "tsx scripts/check-field-value-binding.mts",
-    "check:renderer-registry": "tsx scripts/check-compose-groups.mts",
+    "check:fallback-runtime": "tsx scripts/check-fallback-runtime.mts",
+    "check:state-renderer-ownership": "tsx scripts/check-state-renderer-ownership.mts",
+    "check:compatibility": "tsx scripts/check-compatibility.mts",
+    "check:renderer-registry": "tsx scripts/check-renderer-registry.mts",
     "check:telemetry-schema": "tsx scripts/check-telemetry-schema.mts",
     "generate": "tsx scripts/generate.mts",
     "lint": "biome check .",
@@ -66,7 +75,7 @@
     "test:render": "vitest run tests/public-api-consumer.render.test.tsx",
     "typecheck": "tsc --noEmit --emitDeclarationOnly false",
     "update:declaration-snapshot": "tsx scripts/update-declaration-snapshot.mts",
-    "verify": "pnpm run generate && pnpm run typecheck && pnpm run lint && pnpm run build && pnpm run test && pnpm run check:boundaries && pnpm run check:public-api && pnpm run check:package-subpaths && pnpm run check:client-server-boundaries && pnpm run check:consumer-fixture-integration && pnpm run check:adapter-pipeline && pnpm run check:contract-validation && pnpm run check:field-value-binding && pnpm run check:declaration-snapshot && pnpm run check:change-note && pnpm run check:telemetry-schema && pnpm run check:consumer-fixture && pnpm run check:generated && pnpm run check:compose-groups && pnpm run check:field-visual-tokens && pnpm run check:field-a11y && pnpm run check:keyboard-focus && pnpm run check:locale-formatting && pnpm run check:density-visual && pnpm run check:content-length && pnpm run check:reduced-motion && pnpm run check:surface-visual && pnpm run check:diagnostics-visual && pnpm run check:diagnostic-coverage && pnpm run check:visual-states && pnpm run check:action-visual-states && pnpm run check:quality-score"
+    "verify": "pnpm run generate && pnpm run typecheck && pnpm run lint && pnpm run build && pnpm run test && pnpm run check:boundaries && pnpm run check:authority-boundary && pnpm run check:fallback-runtime && pnpm run check:public-api && pnpm run check:package-subpaths && pnpm run check:client-server-boundaries && pnpm run check:consumer-fixture-integration && pnpm run check:adapter-pipeline && pnpm run check:contract-validation && pnpm run check:field-value-binding && pnpm run check:state-renderer-ownership && pnpm run check:declaration-snapshot && pnpm run check:change-note && pnpm run check:telemetry-schema && pnpm run check:consumer-fixture && pnpm run check:generated && pnpm run check:compatibility && pnpm run check:compose-groups && pnpm run check:renderer-registry && pnpm run check:field-visual-tokens && pnpm run check:renderer-visual-tokens && pnpm run check:field-a11y && pnpm run check:keyboard-focus && pnpm run check:locale-formatting && pnpm run check:label-i18n && pnpm run check:layout-composition && pnpm run check:layout-composition-visual && pnpm run check:density-visual && pnpm run check:content-length && pnpm run check:reduced-motion && pnpm run check:surface-visual && pnpm run check:diagnostics-visual && pnpm run check:diagnostic-coverage && pnpm run check:visual-states && pnpm run check:action-visual-states && pnpm run check:quality-score"
   },
   "dependencies": {
     "@repo/customization": "workspace:*",

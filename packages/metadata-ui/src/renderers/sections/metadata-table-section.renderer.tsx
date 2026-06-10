@@ -1,4 +1,3 @@
-import type { EntityMetadata } from "@repo/metadata";
 import type { DashboardTableRow, DashboardTableValue } from "@repo/ui";
 import type { ReactElement } from "react";
 
@@ -10,11 +9,23 @@ import type {
 } from "../../contracts/section-renderer.contract";
 import { MetadataSectionRenderer } from "./metadata-section.renderer";
 
-const isEntityMetadata = (
+type EntityMetadataSectionPayload = MetadataSectionMetadata & {
+  entity: string;
+  labels: {
+    plural: string;
+    singular: string;
+  };
+};
+
+const isEntityMetadataSection = (
   value: MetadataSectionMetadata | undefined
-): value is EntityMetadata =>
+): value is EntityMetadataSectionPayload =>
   Boolean(
-    value && typeof value === "object" && "entity" in value && "labels" in value
+    value &&
+      typeof value === "object" &&
+      "entity" in value &&
+      "labels" in value &&
+      typeof (value as { entity?: unknown }).entity === "string"
   );
 
 const isDashboardTableValue = (value: unknown): value is DashboardTableValue =>
@@ -40,7 +51,7 @@ export function MetadataTableSectionRenderer({
   context,
   section,
 }: MetadataSectionRendererProps): ReactElement {
-  const metadata = isEntityMetadata(section.metadata)
+  const metadata = isEntityMetadataSection(section.metadata)
     ? section.metadata
     : undefined;
   const rows = toDashboardRows(section.rows);

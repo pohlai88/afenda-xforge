@@ -92,6 +92,8 @@ catalog:
   typescript: ^5.9.3
   ultracite: 7.8.1
   vitest: ^3.2.4
+  stylelint: ^16.26.1
+  stylelint-config-standard: ^39.0.0
   zod: 4.3.6
 
 catalogMode: strict

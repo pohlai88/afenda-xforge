@@ -5,6 +5,7 @@ import type {
   MetadataUiState,
 } from "../contracts/render-context.contract";
 import { createMetadataRenderContext } from "../contracts/render-context.defaults";
+import { defaultStateRegistry } from "../registry/default-state-registry";
 import { ErrorState } from "../renderers/states/error-state.renderer";
 import type { MetadataRenderAdapterResult } from "./adapter-result";
 import { isKnownMetadataUiState } from "./contract-validation";
@@ -48,7 +49,7 @@ export function renderMetadataState({
   state,
 }: MetadataStateAdapterProps): MetadataRenderAdapterResult<ReactElement | null> {
   const resolvedContext = createMetadataRenderContext(context, {
-    state: isKnownMetadataUiState(state) ? state : "ready",
+    state: isKnownMetadataUiState(state) ? state : ("ready" as const),
   });
 
   if (!isKnownMetadataUiState(state)) {
@@ -92,7 +93,11 @@ export function renderMetadataState({
     };
   }
 
-  const resolution = resolveMetadataStateRenderer(state);
+  const resolution = resolveMetadataStateRenderer(
+    state,
+    defaultStateRegistry,
+    resolvedContext
+  );
   const resolutionDiagnostic = bindRendererDiagnosticCorrelation(
     resolution.diagnostic,
     resolvedContext.correlationId
@@ -111,6 +116,7 @@ export function renderMetadataState({
   try {
     const element = resolution.renderer({
       children,
+      context: resolvedContext,
       diagnostics,
       emptyDescription,
       emptyTitle,

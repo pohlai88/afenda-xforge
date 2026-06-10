@@ -8,7 +8,9 @@ export {
   collectManifestDuplicateRendererDiagnostics,
   isKnownMetadataUiState,
   validateMetadataActionContract,
+  validateMetadataCompositionContract,
   validateMetadataFieldContract,
+  validateMetadataLayoutContract,
   validateMetadataSectionContract,
 } from "./contract-validation.ts";
 export {
@@ -18,6 +20,7 @@ export {
   createMissingRendererDiagnostic,
   createRendererDiagnostic,
   createRendererErrorDiagnostic,
+  createUnsupportedRendererVersionDiagnostic,
   createUnsupportedStateDiagnostic,
   type MetadataRendererDiagnostic,
   type MetadataRendererResolutionKind,
@@ -30,12 +33,18 @@ export {
   type MetadataStateRendererProps,
   resolveMetadataActionRenderer,
   resolveMetadataFieldRenderer,
+  resolveMetadataLayoutRenderer,
   resolveMetadataSectionRenderer,
   resolveMetadataStateRenderer,
 } from "./metadata-renderer-resolvers.tsx";
 export { emitMetadataTelemetry } from "./telemetry.ts";
 export { renderMetadataAction } from "./ui-action-adapter.tsx";
+export {
+  type MetadataCompositionNodeResolver,
+  renderMetadataComposition,
+} from "./ui-composition-adapter.tsx";
 export { renderMetadataField } from "./ui-field-adapter.tsx";
+export { renderMetadataLayout } from "./ui-layout-adapter.tsx";
 export { renderMetadataSection } from "./ui-section-adapter.tsx";
 export { renderMetadataState } from "./ui-state-adapter.tsx";
 export {
