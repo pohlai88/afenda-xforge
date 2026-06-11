@@ -340,44 +340,44 @@ function AppNavTopbarPinnedUtilitiesBar({
             role="group"
           >
             {visibleIds.map((utilityId) => {
-          const definition = getAppNavTopbarUtilityDefinition(utilityId);
+              const definition = getAppNavTopbarUtilityDefinition(utilityId);
 
-          if (utilityId === "notifications") {
-            return (
-              <AppNavTopbarSortableHorizontalItem
-                className="cursor-grab active:cursor-grabbing"
-                id={utilityId}
-                key={utilityId}
-              >
-                <AppNavTopbarNotifications
-                  preview={preview}
-                  tenantId={tenantId}
-                  userId={userId}
-                />
-              </AppNavTopbarSortableHorizontalItem>
-            );
-          }
+              if (utilityId === "notifications") {
+                return (
+                  <AppNavTopbarSortableHorizontalItem
+                    className="cursor-grab active:cursor-grabbing"
+                    id={utilityId}
+                    key={utilityId}
+                  >
+                    <AppNavTopbarNotifications
+                      preview={preview}
+                      tenantId={tenantId}
+                      userId={userId}
+                    />
+                  </AppNavTopbarSortableHorizontalItem>
+                );
+              }
 
-          return (
-            <AppNavTopbarSortableHorizontalItem
-              className="cursor-grab active:cursor-grabbing"
-              id={utilityId}
-              key={utilityId}
-            >
-              <Button
-                className={appNavTopbarGhostIconButtonClassName}
-                onClick={() => {
-                  onUtilityAction(utilityId);
-                }}
-                size="icon"
-                type="button"
-                variant="ghost"
-              >
-                {renderAppNavTopbarUtilityIcon(utilityId)}
-                <span className="sr-only">{definition.label}</span>
-              </Button>
-            </AppNavTopbarSortableHorizontalItem>
-          );
+              return (
+                <AppNavTopbarSortableHorizontalItem
+                  className="cursor-grab active:cursor-grabbing"
+                  id={utilityId}
+                  key={utilityId}
+                >
+                  <Button
+                    className={appNavTopbarGhostIconButtonClassName}
+                    onClick={() => {
+                      onUtilityAction(utilityId);
+                    }}
+                    size="icon"
+                    type="button"
+                    variant="ghost"
+                  >
+                    {renderAppNavTopbarUtilityIcon(utilityId)}
+                    <span className="sr-only">{definition.label}</span>
+                  </Button>
+                </AppNavTopbarSortableHorizontalItem>
+              );
             })}
           </div>
         </AppNavTopbarHorizontalUtilitySortable>
