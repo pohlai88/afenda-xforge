@@ -12,7 +12,7 @@ interface GlobalErrorProperties {
 const GlobalError = ({ reset }: GlobalErrorProperties): ReactElement => (
   <html className={fonts} lang="en">
     <body className="grid min-h-screen place-items-center bg-background px-6 py-10">
-      <main className="w-full max-w-md space-y-6 rounded-[var(--radius-xl)] border border-border bg-card/95 p-6 shadow-sm">
+      <main className="w-full max-w-md space-y-6 rounded-xl border border-border bg-card/95 p-6 shadow-sm">
         <div className="space-y-2">
           <p className="text-muted-foreground text-sm uppercase tracking-[0.3em]">
             XForge

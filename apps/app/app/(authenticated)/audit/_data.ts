@@ -50,7 +50,9 @@ type AuditTableRow = DashboardTableRow & {
 };
 
 export type AuditPageData = {
+  actorId: string;
   events: readonly AuditTableRow[];
+  grantedPermissions: readonly string[];
   latestEvent: AuditTableRow | null;
   tenantId: string;
   tenantRole: string;
@@ -117,7 +119,9 @@ const loadAuditEvents = async (
 
     return {
       data: {
+        actorId: access.actorId,
         events,
+        grantedPermissions: access.grantedPermissions,
         latestEvent: events[0] ?? null,
         tenantId: access.tenantId,
         tenantRole: access.role,

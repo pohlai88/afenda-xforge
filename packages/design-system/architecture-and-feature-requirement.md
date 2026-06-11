@@ -70,6 +70,18 @@
 | **DS-003** | System shall expose reusable variant registries for shared component families. |
 | **DS-004** | System shall keep package dependencies limited to contract and validation concerns. |
 | **DS-005** | System shall support generated assets derived from package-owned token sources. |
+| **DS-006** | System shall enforce hue reservation across brand, status, lane, and chart palettes with tiered separation (≥10° brand/lane vs status, ≥15° lane vs lane, ≥18° tiny UI warning) and tenant supplemental collision validation on save. |
+
+### DS-006 reserved hue slots (Spec v3)
+
+| Family | Hue slots |
+| --- | --- |
+| Brand (xforge) | primary 198°, secondary 248°, accent 72° |
+| Status (fixed) | success 145°, warning 50°, destructive 27°, info 230° |
+| ERP lanes | money 160°, people 330°, goods 95°, operations 212°, customer 272°, governance 305°, intelligence 184° |
+| Charts (fixed) | chart-1 198°, chart-2 285°, chart-3 72°, chart-4 155°, chart-5 25°, chart-6 230°, chart-7 330° |
+
+Validation commands: `pnpm --filter @repo/design-system check:hue-reservation`, `check:color-contrast`, `globals:css:check`.
 
 ---
 
@@ -101,7 +113,7 @@
 
 **Status:** Implemented
 
-**Last audited:** 2026-06-10
+**Last audited:** 2026-06-11
 
 This package already contains contracts, tokens, variants, generated CSS, scripts, and focused tests. This document standardizes the package boundary and merged completion criteria into one source-of-truth document.
 
@@ -115,11 +127,13 @@ This package already contains contracts, tokens, variants, generated CSS, script
 | Actions, workflows, or mutations | Not applicable by design | [`src/adapters/globals-css.adapter.ts`](./src/adapters/globals-css.adapter.ts) |
 | HTTP or API routes | Not applicable by design | [`package.json`](./package.json) |
 | Requirement coverage registry | Not implemented as a dedicated registry file | [`architecture-and-feature-requirement.md`](./architecture-and-feature-requirement.md) |
-| Verification tests | Implemented | [`src/tests/design-system.test.ts`](./src/tests/design-system.test.ts), [`src/tests/token-contract.test.ts`](./src/tests/token-contract.test.ts), [`src/tests/variant-contract.test.ts`](./src/tests/variant-contract.test.ts) |
+| Verification tests | Implemented | [`src/tests/design-system.test.ts`](./src/tests/design-system.test.ts), [`src/tests/token-contract.test.ts`](./src/tests/token-contract.test.ts), [`src/tests/variant-contract.test.ts`](./src/tests/variant-contract.test.ts), [`src/tests/merge-effective-branding.test.ts`](./src/tests/merge-effective-branding.test.ts), [`src/tests/resolve-tenant-branding.test.ts`](./src/tests/resolve-tenant-branding.test.ts) |
+| Dual tenant + user branding contracts | Implemented | [`src/contracts/tenant-branding.contract.ts`](./src/contracts/tenant-branding.contract.ts), [`src/contracts/user-branding.contract.ts`](./src/contracts/user-branding.contract.ts), [`src/resolution/merge-effective-branding.ts`](./src/resolution/merge-effective-branding.ts), [`src/resolution/resolve-tenant-branding.ts`](./src/resolution/resolve-tenant-branding.ts) |
+| Module lane catalog (explicit + prefix rules) | Implemented | [`src/contracts/module-lane.catalog.ts`](./src/contracts/module-lane.catalog.ts) |
 
 ### Planning Mark
 
-- `Current audited slices: DS-001, DS-002, DS-003, DS-004, DS-005`
+- `Current audited slices: DS-001, DS-002, DS-003, DS-004, DS-005, DS-006`
 - `Slice status: implemented`
 - `Feature status: implemented as a contract and token package`
 
@@ -134,6 +148,7 @@ This package already contains contracts, tokens, variants, generated CSS, script
 | DS-003 | Implemented | [`src/variants`](./src/variants), [`src/tests/variant-contract.test.ts`](./src/tests/variant-contract.test.ts) |
 | DS-004 | Implemented | [`package.json`](./package.json) |
 | DS-005 | Implemented | [`scripts/generate-globals-css.mts`](./scripts/generate-globals-css.mts), [`../ui/src/styles/globals.css`](../ui/src/styles/globals.css), [`src/tests/globals-css.test.ts`](./src/tests/globals-css.test.ts) |
+| DS-006 | Implemented | [`src/contracts/hue-reservation.contract.ts`](./src/contracts/hue-reservation.contract.ts), [`src/resolution/validate-branding-colors.ts`](./src/resolution/validate-branding-colors.ts), [`scripts/check-hue-reservation.mts`](./scripts/check-hue-reservation.mts), [`scripts/check-color-contrast.mts`](./scripts/check-color-contrast.mts) |
 
 ---
 
@@ -152,6 +167,9 @@ This package already contains contracts, tokens, variants, generated CSS, script
 1. `pnpm --filter @repo/design-system lint`
 2. `pnpm --filter @repo/design-system typecheck`
 3. `pnpm --filter @repo/design-system test`
+4. `pnpm --filter @repo/design-system check:hue-reservation`
+5. `pnpm --filter @repo/design-system check:color-contrast`
+6. `pnpm --filter @repo/design-system globals:css:check`
 
 These commands define package verification. They were not re-run as part of this documentation standardization pass.
 

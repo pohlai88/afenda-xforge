@@ -46,7 +46,29 @@ export function resolveLaneForFeature(
   settings: TenantBrandingSettings,
   featureId: string
 ): ErpVisualLaneId {
-  return settings.moduleLaneOverrides?.[featureId] ?? getDefaultLaneForFeature(featureId);
+  const directOverride = settings.moduleLaneOverrides?.[featureId];
+  if (directOverride) {
+    return directOverride;
+  }
+
+  const prefixOverrides = settings.moduleLaneOverrides;
+  if (prefixOverrides) {
+    for (const [key, laneId] of Object.entries(prefixOverrides)) {
+      if (!key.endsWith("*")) {
+        continue;
+      }
+
+      const prefix = key.slice(0, -1);
+      if (
+        featureId === prefix.replace(/\.$/, "") ||
+        featureId.startsWith(prefix)
+      ) {
+        return laneId;
+      }
+    }
+  }
+
+  return getDefaultLaneForFeature(featureId);
 }
 
 export function resolveLaneScale(

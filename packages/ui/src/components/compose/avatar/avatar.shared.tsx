@@ -860,7 +860,7 @@ export function renderAvatarPattern(name: AvatarPatternName) {
         "gradient-animated-ring",
         <AvatarStage>
           <div className="relative rounded-full p-1">
-            <div className="absolute inset-0 rounded-full bg-[conic-gradient(from_180deg_at_50%_50%,hsl(var(--primary)),transparent_35%,hsl(var(--primary)/0.15),transparent_70%,hsl(var(--primary)))] opacity-80 blur-[1px]" />
+            <div className="absolute inset-0 rounded-full bg-[conic-gradient(from_180deg_at_50%_50%,var(--primary),transparent_35%,color-mix(in_oklch,var(--primary)_15%,transparent),transparent_70%,var(--primary))] opacity-80 blur-[1px]" />
             <DemoAvatar
               person={avatarPeople[0]}
               size="lg"

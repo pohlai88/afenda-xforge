@@ -1,4 +1,5 @@
 export * from "./chart.contract";
+export * from "./chart-usage.contract";
 export * from "./color.contract";
 export * from "./component-size.contract";
 export * from "./component-variant.contract";
@@ -9,5 +10,7 @@ export * from "./registry.schema";
 export * from "./status-tone.contract";
 export * from "./theme-preset.contract";
 export * from "./visual-lane.contract";
+export * from "./hue-reservation.contract";
 export * from "./module-lane.catalog";
 export * from "./tenant-branding.contract";
+export * from "./user-branding.contract";

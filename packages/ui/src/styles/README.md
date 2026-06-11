@@ -11,6 +11,9 @@ It owns:
 - light and dark semantic variables
 - density modes
 - status, surface, and sidebar color tokens
+- neutral focus ring (`--ring`) separate from optional brand ring (`--ring-brand`)
+- independent chart palette (`--chart-1` through `--chart-7`, not brand aliases)
+- tenant hue collision validation via `validateTenantBrandingColors`
 - base layer defaults
 - utilities such as `control-density`, `row-density`, `text-tabular`, `font-rlig`, and `font-calt`
 - reduced-motion overrides

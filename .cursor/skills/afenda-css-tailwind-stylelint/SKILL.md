@@ -111,6 +111,20 @@ Config: `stylelint.config.mjs` — extends `stylelint-config-standard`, `@dreams
 | `afenda/token-sources-use-oklch-or-var` | Token sources use oklch/var/calc/color-mix |
 | `afenda/preview-css-pipeline` | Storybook preview.css imports globals only + `@source` + intro utility |
 | `afenda/utility-uses-declarations` | `@utility` blocks must contain declarations |
+| `afenda/prefer-neutral-ring` | `--ring` must not alias `--brand-primary` (use `--ring-brand`) |
+
+### Color governance (Spec v3)
+
+Five independent palettes: **brand** (tenant preset), **lanes** (module identity), **status** (fixed), **charts** (fixed), **neutrals** (surfaces + neutral `--ring`).
+
+```bash
+pnpm --filter @repo/design-system check:hue-reservation
+pnpm --filter @repo/design-system check:color-contrast
+pnpm --filter @repo/design-system globals:css:check
+pnpm run lint:tailwind-v4
+```
+
+Hue separation tiers: brand/lane vs status ≥10°, lane vs lane ≥15°, badge/dot UI warns at ≥18°. Tenant/user supplemental colors validate on save via `validateTenantBrandingColors`.
 
 ### Other enforced rules
 
@@ -136,7 +150,8 @@ Before large CSS changes, run:
 
 ```bash
 pnpm lint:stylelint
-python .agents/skills/tailwind-validator/scripts/validate.py --root . --suggest-fixes
+pnpm run lint:tailwind-v4
+python .agents/skills/tailwind-validator/scripts/validate.py --root packages/ui --suggest-fixes
 ```
 
 Flag any `tailwind.config.*`, `@tailwind` directives, or v3 PostCSS plugins.

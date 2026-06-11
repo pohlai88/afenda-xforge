@@ -119,3 +119,19 @@ test("afenda/tailwind-import-only-in-globals allows tailwind import in globals.c
     globalsPath,
   );
 });
+
+test("afenda/prefer-neutral-ring rejects brand-primary focus ring", async () => {
+  await expectRuleViolation(
+    "afenda/prefer-neutral-ring",
+    ":root { --ring: var(--brand-primary); }",
+    globalsPath,
+  );
+});
+
+test("afenda/prefer-neutral-ring allows neutral oklch focus ring", async () => {
+  await expectRuleClean(
+    "afenda/prefer-neutral-ring",
+    ":root { --ring: oklch(0.55 0.02 264); --ring-brand: var(--brand-primary); }",
+    globalsPath,
+  );
+});

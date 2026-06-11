@@ -36,7 +36,7 @@ export default async function SignInPage({
 
   return (
     <SignIn
-      className="space-y-6 rounded-[var(--radius-xl)] border border-border bg-card/95 p-6 shadow-sm"
+      className="space-y-6 rounded-xl border border-border bg-card/95 p-6 shadow-sm"
       redirectTo={redirectTo}
       signUpHref={buildSignUpPath(redirectTo)}
     />

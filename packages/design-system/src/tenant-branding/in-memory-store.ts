@@ -4,6 +4,7 @@ import {
   type TenantBrandingSettings,
 } from "../contracts/tenant-branding.contract";
 import { themePresetNameSchema } from "../contracts/theme-preset.contract";
+import { assertValidTenantBrandingColors } from "../resolution/validate-branding-colors";
 
 const tenantBrandingStore = new Map<string, TenantBrandingSettings>();
 
@@ -21,6 +22,7 @@ export function setTenantBranding(
   settings: TenantBrandingSettings
 ): TenantBrandingSettings {
   const parsed = tenantBrandingSettingsSchema.parse(settings);
+  assertValidTenantBrandingColors(parsed);
   tenantBrandingStore.set(tenantId, parsed);
   return parsed;
 }

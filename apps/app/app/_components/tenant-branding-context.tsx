@@ -1,41 +1,84 @@
 "use client";
 
-import type { TenantBrandingSettings } from "@repo/design-system";
-import { DEFAULT_TENANT_BRANDING_SETTINGS } from "@repo/design-system";
+import type {
+  TenantBrandingSettings,
+  UserBrandingPreferences,
+} from "@repo/design-system";
+import {
+  DEFAULT_TENANT_BRANDING_SETTINGS,
+  EMPTY_USER_BRANDING_PREFERENCES,
+  mergeEffectiveBranding,
+} from "@repo/design-system";
 import type { ReactElement, ReactNode } from "react";
-import { createContext, useContext, useEffect, useState } from "react";
+import { createContext, useContext, useEffect, useMemo, useState } from "react";
+import { ThemePreferenceSync } from "./theme-preference-sync.tsx";
 
 type TenantBrandingContextValue = {
-  branding: TenantBrandingSettings;
-  setBranding: (branding: TenantBrandingSettings) => void;
+  effectiveBranding: TenantBrandingSettings;
+  setTenantBranding: (branding: TenantBrandingSettings) => void;
+  setUserPreferences: (preferences: UserBrandingPreferences) => void;
+  tenantBranding: TenantBrandingSettings;
   tenantId: string;
+  userId: string;
+  userPreferences: UserBrandingPreferences;
 };
 
 const TenantBrandingContext = createContext<TenantBrandingContextValue>({
   tenantId: "tenant_default",
-  branding: DEFAULT_TENANT_BRANDING_SETTINGS,
-  setBranding: () => undefined,
+  userId: "user_default",
+  tenantBranding: DEFAULT_TENANT_BRANDING_SETTINGS,
+  userPreferences: EMPTY_USER_BRANDING_PREFERENCES,
+  effectiveBranding: DEFAULT_TENANT_BRANDING_SETTINGS,
+  setTenantBranding: () => undefined,
+  setUserPreferences: () => undefined,
 });
 
 type TenantBrandingProviderProps = {
-  branding: TenantBrandingSettings;
   children: ReactNode;
+  tenantBranding: TenantBrandingSettings;
   tenantId: string;
+  userId: string;
+  userPreferences?: UserBrandingPreferences;
 };
 
 export function TenantBrandingProvider({
-  branding: initialBranding,
   children,
+  tenantBranding: initialTenantBranding,
   tenantId,
+  userId,
+  userPreferences: initialUserPreferences = EMPTY_USER_BRANDING_PREFERENCES,
 }: TenantBrandingProviderProps): ReactElement {
-  const [branding, setBranding] = useState(initialBranding);
+  const [tenantBranding, setTenantBranding] = useState(initialTenantBranding);
+  const [userPreferences, setUserPreferences] = useState(
+    initialUserPreferences
+  );
 
   useEffect(() => {
-    setBranding(initialBranding);
-  }, [initialBranding]);
+    setTenantBranding(initialTenantBranding);
+  }, [initialTenantBranding]);
+
+  useEffect(() => {
+    setUserPreferences(initialUserPreferences);
+  }, [initialUserPreferences]);
+
+  const effectiveBranding = useMemo(
+    () => mergeEffectiveBranding(tenantBranding, userPreferences),
+    [tenantBranding, userPreferences]
+  );
 
   return (
-    <TenantBrandingContext.Provider value={{ branding, setBranding, tenantId }}>
+    <TenantBrandingContext.Provider
+      value={{
+        tenantId,
+        userId,
+        tenantBranding,
+        userPreferences,
+        effectiveBranding,
+        setTenantBranding,
+        setUserPreferences,
+      }}
+    >
+      <ThemePreferenceSync />
       {children}
     </TenantBrandingContext.Provider>
   );

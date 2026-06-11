@@ -9,6 +9,8 @@
     "./execution": "./src/execution/index.ts",
     "./manifest": "./src/manifest.ts",
     "./metadata": "./src/metadata.ts",
+    "./metadata/audit-event": "./src/domains/audit/event-metadata.ts",
+    "./metadata/dashboard-overview": "./src/domains/overview/dashboard-kpi-metadata.ts",
     "./schema": "./src/schema.ts",
     "./server": "./src/server.ts",
     "./shared": "./src/shared/index.ts",

@@ -20,6 +20,7 @@ export type MetadataUiQualityVerification = {
   telemetrySchema?: boolean;
   test?: boolean;
   typecheck?: boolean;
+  rendererAxeAudit?: boolean;
 };
 
 export type MetadataUiQualitySignals = {
@@ -429,6 +430,11 @@ const createTestingMetric = (
     {
       label: "Change-note verification passed",
       passed: verification.changeNote === true,
+      weight: 1,
+    },
+    {
+      label: "Renderer axe audit verification passed",
+      passed: verification.rendererAxeAudit === true,
       weight: 1,
     },
     {

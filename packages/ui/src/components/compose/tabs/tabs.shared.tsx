@@ -62,9 +62,9 @@ const tabsTriggerVariants = cva(
         default:
           "data-[state=active]:bg-background data-[state=active]:text-foreground dark:data-[state=active]:border-input dark:data-[state=active]:bg-input/30 dark:data-[state=active]:text-foreground group-data-[variant=default]/tabs-list:data-[state=active]:shadow-sm",
         button:
-          "rounded-lg border-border bg-background shadow-xs data-[state=active]:border-primary data-[state=active]:bg-primary data-[state=active]:text-primary-foreground dark:bg-input/20",
+          "rounded-lg border-border bg-background shadow-xs data-[state=active]:border-lane-active-border data-[state=active]:bg-lane-active-muted data-[state=active]:text-lane-active-muted-foreground dark:bg-input/20",
         pill: "rounded-full bg-transparent data-[state=active]:bg-foreground data-[state=active]:text-background dark:data-[state=active]:bg-foreground dark:data-[state=active]:text-background",
-        line: "rounded-none bg-transparent data-[state=active]:text-foreground after:absolute after:bg-foreground after:opacity-0 after:transition-opacity group-data-[orientation=horizontal]/tabs:after:inset-x-0 group-data-[orientation=horizontal]/tabs:after:bottom-[-5px] group-data-[orientation=horizontal]/tabs:after:h-0.5 group-data-[orientation=vertical]/tabs:after:inset-y-0 group-data-[orientation=vertical]/tabs:after:-right-1 group-data-[orientation=vertical]/tabs:after:w-0.5 group-data-[variant=line]/tabs-list:data-[state=active]:after:opacity-100",
+        line: "rounded-none bg-transparent data-[state=active]:text-foreground after:absolute after:bg-lane-active after:opacity-0 after:transition-opacity group-data-[orientation=horizontal]/tabs:after:inset-x-0 group-data-[orientation=horizontal]/tabs:after:bottom-[-5px] group-data-[orientation=horizontal]/tabs:after:h-0.5 group-data-[orientation=vertical]/tabs:after:inset-y-0 group-data-[orientation=vertical]/tabs:after:-right-1 group-data-[orientation=vertical]/tabs:after:w-0.5 group-data-[variant=line]/tabs-list:data-[state=active]:after:opacity-100",
       },
       size: {
         xs: "h-6 px-2 text-xs",

@@ -221,6 +221,7 @@ Every metadata surface must pass three review pillars before 9.5 sign-off:
 | **MUI-VIS-013** | Complex layouts (orbital, radial, stacked stages) shall use deterministic sizing, pin-based positioning, resolvable relative imports, and shared layout math — no inline `transform` combined with hover motion on the same node. | layout-composition-contract, orbit-layout | `check:layout-composition-visual`, Storybook `check:intro-layout`, visual golden stories |
 | **MUI-VIS-014** | Production metadata-ui surfaces (`renderers`, `components`, `adapters`) shall use semantic design tokens and `@repo/ui` primitives — no raw palette utilities, inline color literals, or raw form controls. | visual-token-contract, tailwind-design-system | `check:renderer-visual-tokens`, `check:field-visual-tokens` |
 | **MUI-VIS-015** | Storybook stories and shared story primitives shall use semantic tokens, registered `@utility` classes for non-standard CSS, and shared orbit layout primitives — no unreliable Tailwind arbitrary utilities or lucide imports without dependency declaration. | storybook-visual-token-contract, layout-composition-contract | Storybook `check:storybook-visual-tokens`, `check:intro-layout`, `check:stylelint`, Biome storybook import override |
+| **MUI-VIS-016** | Every manifest `smokeTest` renderer shall pass axe-core structural audits (WCAG 2.1 AA tags) via vitest-axe in CI; color-contrast remains a Storybook/browser follow-up because jsdom lacks canvas-backed contrast evaluation. | web-accessibility, playwright-best-practices | `check:renderer-axe-audit`, `tests/renderer-axe-audit.test.tsx` |
 
 ### Visual state matrix
 
@@ -313,6 +314,7 @@ From [`surface.contract.ts`](./src/contracts/surface.contract.ts) — implemente
 | MUI-VIS-013 | **Implemented** | [`layout-composition-contract.ts`](./src/visualization/layout-composition-contract.ts), [`orbit-layout.ts`](./src/visualization/orbit-layout.ts), [`scripts/check-layout-composition-visual.mts`](./scripts/check-layout-composition-visual.mts), [`tests/orbit-layout.test.ts`](./tests/orbit-layout.test.ts), Storybook [`metadata-orbit-layout.tsx`](../apps/storybook/stories/metadata-orbit-layout.tsx), [`scripts/check-intro-layout.mts`](../apps/storybook/scripts/check-intro-layout.mts) |
 | MUI-VIS-014 | **Implemented** | [`visual-token-contract.ts`](./src/visualization/visual-token-contract.ts), [`scripts/visual-token-rules.mts`](./scripts/visual-token-rules.mts), [`scripts/check-renderer-visual-tokens.mts`](./scripts/check-renderer-visual-tokens.mts), [`scripts/check-field-visual-tokens.mts`](./scripts/check-field-visual-tokens.mts) |
 | MUI-VIS-015 | **Implemented** | [`storybook-visual-token-contract.ts`](../apps/storybook/stories/storybook-visual-token-contract.ts), [`scripts/check-storybook-visual-tokens.mts`](../apps/storybook/scripts/check-storybook-visual-tokens.mts), [`scripts/check-intro-layout.mts`](../apps/storybook/scripts/check-intro-layout.mts), [`scripts/check-theme-css.mts`](../apps/storybook/scripts/check-theme-css.mts), root [`stylelint.config.mjs`](../stylelint.config.mjs), [`tools/stylelint/afenda-css-plugin.mjs`](../tools/stylelint/afenda-css-plugin.mjs), [`tools/stylelint/afenda-css-plugin.test.mjs`](../tools/stylelint/afenda-css-plugin.test.mjs) |
+| MUI-VIS-016 | **Implemented** | [`tests/renderer-axe-audit.test.tsx`](./tests/renderer-axe-audit.test.tsx), [`tests/axe-audit-config.ts`](./tests/axe-audit-config.ts), [`scripts/check-renderer-axe-audit.mts`](./scripts/check-renderer-axe-audit.mts), [`scripts/check-action-a11y.mts`](./scripts/check-action-a11y.mts), [`scripts/check-renderer-catalog.mts`](./scripts/check-renderer-catalog.mts), [`scripts/check-visualization-signoff.mts`](./scripts/check-visualization-signoff.mts), [`src/renderers/actions/menu-action-surface.tsx`](./src/renderers/actions/menu-action-surface.tsx) |
 
 ### Visualization verification gates
 
@@ -335,7 +337,9 @@ pnpm --filter @repo/metadata-ui check:surface-visual    # surface hierarchy audi
 pnpm --filter @repo/metadata-ui check:reduced-motion    # prefers-reduced-motion audit (MUI-VIS-010)
 pnpm --filter @repo/metadata-ui check:layout-composition-visual # orbital/stack layout safety (MUI-VIS-013)
 pnpm --filter @repo/metadata-ui check:renderer-visual-tokens   # package-wide semantic tokens (MUI-VIS-014)
-# pnpm --filter @repo/metadata-ui check:a11y          # optional axe audit per renderer family
+pnpm --filter @repo/metadata-ui check:renderer-axe-audit      # per-renderer axe audit (MUI-VIS-016)
+pnpm --filter @repo/metadata-ui check:renderer-catalog        # catalog completeness score ≥95 (9.5)
+pnpm --filter @repo/metadata-ui check:visualization-signoff   # wires all MUI-VIS gates into verify
 
 # Storybook visual audit (`apps/storybook`) — renderer matrices, compose galleries, axe gates
 pnpm --filter storybook dev
@@ -708,6 +712,9 @@ pnpm --filter @repo/metadata-ui check:consumer-fixture    # includes vitest cons
 | `check:verification-governance` | Yes | Enterprise AC #7 — registry/public API/snapshot gate wiring |
 | `check:change-note` | Yes | In `verify`, not in 9.5 gate list |
 | `check:quality-score` | Yes | In `verify`, threshold 90 |
+| `check:renderer-axe-audit` | Yes | MUI-VIS-016 per-renderer axe via vitest-axe |
+| `check:renderer-catalog` | Yes | Catalog score ≥95 for 9.5 renderer readiness |
+| `check:visualization-signoff` | Yes | Ensures all MUI-VIS gates wired into verify |
 
 ---
 
@@ -769,40 +776,27 @@ route ownership
 customization governance ownership
 metadata source ownership
 form state ownership
-layout orchestration (until MUI-015 is implemented)
+layout orchestration (MUI-015 implemented — feature routes compose via MetadataSectionStack)
 ```
 
 ---
 
 ## Implementation Status
 
-**Status:** Implemented core runtime — **9.5 upgrade in progress**
+**Status:** Production-enterprise **9.5** — runtime, visualization, and catalog gates implemented.
 
-**Last audited:** 2026-06-10
+**Last audited:** 2026-06-11
 
-MUI-001 through MUI-018 are implemented. Enterprise AC #1–#7 and AC #8–#13 are implemented; AC #9–#10 remain tracked through diagnostics and verification gates.
+MUI-001 through MUI-018 and MUI-VIS-001 through MUI-VIS-016 are implemented. App consumer rollout is tracked in [`docs/ui-ux-wiring-development-plan.md`](./docs/ui-ux-wiring-development-plan.md).
 
 | Area | Status | Evidence |
 | --- | --- | --- |
 | Adapter pipeline | Implemented | [`src/adapters`](./src/adapters) |
 | Registry + manifest generation | Implemented | [`metadata-ui.manifest.ts`](./metadata-ui.manifest.ts), [`src/generated`](./src/generated) |
-| Governance evaluation | Implemented | [`src/policy/governance.ts`](./src/policy/governance.ts) |
-| Fallback + diagnostics runtime | Implemented | [`invalid-contract-fallback.tsx`](./src/adapters/invalid-contract-fallback.tsx), [`section-completeness.tsx`](./src/adapters/section-completeness.tsx), [`check-fallback-runtime`](./scripts/check-fallback-runtime.mts) |
-| State boundary rendering | Implemented | [`src/adapters/state-renderers.tsx`](./src/adapters/state-renderers.tsx), [`metadata-state-boundary.tsx`](./src/components/metadata-state-boundary.tsx) |
-| Table customization | Implemented | [`metadata-table.tsx`](./src/components/metadata-table.tsx), [`resolve-metadata-customization.ts`](./src/customization/resolve-metadata-customization.ts) |
-| Field value binding | Implemented | [`field-value-binding.ts`](./src/renderers/fields/field-value-binding.ts) |
-| Layout/composition pipeline | Implemented | [`ui-layout-adapter.tsx`](./src/adapters/ui-layout-adapter.tsx), [`ui-composition-adapter.tsx`](./src/adapters/ui-composition-adapter.tsx) |
-| Client/server entry points | Implemented | [`package.json`](./package.json), [`check-client-server-boundaries.mts`](./scripts/check-client-server-boundaries.mts) |
-| Verification gates | **Implemented** | `check:verification-governance`, `check:compatibility`, `check:renderer-registry`, `check:public-api`, `check:declaration-snapshot`, `check:generated`, `validate-manifest` |
-
-### Planning Mark
-
-- `Implemented: MUI-001, MUI-002, MUI-003, MUI-004, MUI-005, MUI-008, MUI-009, MUI-010, MUI-011, MUI-012, MUI-013, MUI-014, MUI-018`
-- `Partial: MUI-006, MUI-007, MUI-017`
-- `Not started: MUI-015, MUI-016`
-- `Visualization: MUI-VIS-001 through MUI-VIS-012 implemented`
-- `P0 next slices: MUI-015, MUI-016`
-- `Feature status: production-capable for read-only/list/form surfaces; remaining gaps are optional bundle-graph enforcement in app consumers importing the root barrel`
+| Per-renderer axe audit | Implemented | [`tests/renderer-axe-audit.test.tsx`](./tests/renderer-axe-audit.test.tsx) |
+| Renderer catalog 9.5 | Implemented | [`check:renderer-catalog`](./scripts/check-renderer-catalog.mts) |
+| Action menu DropdownMenu | Implemented | [`menu-action-surface.tsx`](./src/renderers/actions/menu-action-surface.tsx) |
+| Verification gates | Implemented | `pnpm verify`, [`check:visualization-signoff`](./scripts/check-visualization-signoff.mts) |
 
 ---
 
@@ -810,14 +804,15 @@ MUI-001 through MUI-018 are implemented. Enterprise AC #1–#7 and AC #8–#13 a
 
 | Element | Status | Code Evidence | Next Action |
 | --- | --- | --- | --- |
-| Adapter Pipeline | Implemented | [`src/adapters`](./src/adapters) | Contract validation at adapter entry (MUI-014) |
-| Registry + Manifest | Implemented | [`src/registry`](./src/registry), [`metadata-ui.manifest.ts`](./metadata-ui.manifest.ts) | Add `check:renderer-registry`; include states in manifest |
-| Fallback Runtime | Implemented | [`invalid-contract-fallback.tsx`](./src/adapters/invalid-contract-fallback.tsx), [`fallback-runtime.test.tsx`](./tests/fallback-runtime.test.tsx) | Keep `check:fallback-runtime` aligned with adapter fallback paths |
-| Field Renderers | Implemented | [`src/renderers/fields/`](./src/renderers/fields/) | Controlled binding via `field-value-binding.ts` (MUI-013) |
-| Table Cell Rendering | Implemented | [`ui-table-cell-adapter.tsx`](./src/adapters/ui-table-cell-adapter.tsx) | Field registry pipeline via `renderMetadataTableCellResult` (MUI-018 / AC #12) |
-| Layout/Composition | Not started | [`layout.contract.ts`](./src/contracts/layout.contract.ts) | Implement or remove from public API (MUI-015) |
-| Customization | Partial | [`metadata-table.tsx`](./src/components/metadata-table.tsx) | Universal resolution hook (MUI-017) |
-| Verification Tooling | Implemented | [`scripts/`](./scripts) | P0 gates for MUI-008/012/013/014 wired into `pnpm verify` |
+| Adapter Pipeline | Implemented | [`src/adapters`](./src/adapters) | Keep adapter pipeline checks green on renderer changes |
+| Registry + Manifest | Implemented | [`src/registry`](./src/registry), [`metadata-ui.manifest.ts`](./metadata-ui.manifest.ts) | Regenerate after manifest edits; run `check:renderer-catalog` |
+| Fallback Runtime | Implemented | [`invalid-contract-fallback.tsx`](./src/adapters/invalid-contract-fallback.tsx) | Keep `check:fallback-runtime` aligned with adapter fallback paths |
+| Field Renderers | Implemented | [`src/renderers/fields/`](./src/renderers/fields/) | Run `check:renderer-axe-audit` when adding field kinds |
+| Table Cell Rendering | Implemented | [`ui-table-cell-adapter.tsx`](./src/adapters/ui-table-cell-adapter.tsx) | Route new column kinds through field registry |
+| Layout/Composition | Implemented | [`ui-layout-adapter.tsx`](./src/adapters/ui-layout-adapter.tsx), [`ui-composition-adapter.tsx`](./src/adapters/ui-composition-adapter.tsx) |
+| Customization | Implemented | [`resolve-metadata-customization.ts`](./src/customization/resolve-metadata-customization.ts) |
+| Action menu surface | Implemented | [`menu-action-surface.tsx`](./src/renderers/actions/menu-action-surface.tsx) |
+| Verification Tooling | Implemented | [`scripts/`](./scripts), `pnpm verify` |
 
 ---
 
@@ -852,7 +847,7 @@ Rules:
 - Always pass an explicit `MetadataRenderContext`.
 - Never treat `permissions` or `capabilities` as authorization finality.
 - Own form state and mutation execution in the feature layer.
-- Apply customization before passing metadata to non-table surfaces once MUI-017 lands.
+- Apply customization through table/form/section props (`customization`, `customizationLayers`).
 
 ---
 

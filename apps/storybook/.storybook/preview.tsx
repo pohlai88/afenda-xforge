@@ -43,7 +43,7 @@ const preview: Preview = {
       values: [
         { name: "surface", value: "var(--background)" },
         { name: "card", value: "var(--card)" },
-        { name: "dark", value: "oklch(0.205 0.018 264)" },
+        { name: "dark", value: "var(--foreground)" },
       ],
     },
     viewport: {
@@ -79,7 +79,14 @@ const preview: Preview = {
       storySort: {
         order: [
           "Introduction",
-          ["Introduction", ["Beastmode Keynote", "Mutation Orbit", "Command Surface"]],
+          [
+            "Introduction",
+            [
+              "Beastmode Keynote",
+              "Mutation Orbit",
+              "Command Surface",
+            ],
+          ],
           "UI",
           ["UI", "Compose", "Form"],
           ["UI", "Compose", "Data"],
@@ -89,6 +96,7 @@ const preview: Preview = {
           ["UI", "Primitives"],
           "Metadata UI",
           ["Metadata UI", "Overview"],
+          "Theme Studio",
         ],
       },
     },

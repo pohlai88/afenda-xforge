@@ -11,6 +11,7 @@ import {
   resolveActionVisualDefinition,
 } from "../src/renderers/actions";
 import { BaseActionRenderer } from "../src/renderers/actions/base-action.renderer";
+import { MenuActionSurface } from "../src/renderers/actions/menu-action-surface";
 import { test } from "./test-runtime";
 
 type TestElement = ReactElement<any, any>;
@@ -33,7 +34,8 @@ const expandActionTree = (node: ReactNode): ReactNode => {
   if (
     element.type === ButtonActionRenderer ||
     element.type === DestructiveActionRenderer ||
-    element.type === MenuActionRenderer
+    element.type === MenuActionRenderer ||
+    element.type === MenuActionSurface
   ) {
     return expandActionTree(element.type(element.props));
   }
@@ -150,6 +152,13 @@ test("action renderers expose surface-specific visual treatments", () => {
 
     if (surface === "menu") {
       assert.equal(trigger?.props?.["aria-haspopup"], "menu");
+      assert.ok(
+        findElementByProp(
+          element,
+          (candidate) => getTypeName(candidate) === "DropdownMenu"
+        ),
+        "menu surface should render DropdownMenu"
+      );
     }
   }
 });

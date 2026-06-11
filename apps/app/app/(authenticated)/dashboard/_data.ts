@@ -1,3 +1,4 @@
+import { listAuditEvents } from "@repo/audit";
 import { ForbiddenError } from "@repo/errors";
 import type { CompanyList } from "@repo/features-master-data-companies/contract";
 import { listCompanies } from "@repo/features-master-data-companies/server";
@@ -26,6 +27,19 @@ type LoadState<T> =
   | {
       status: "forbidden";
     };
+
+export type DashboardActivityEvent = {
+  action: string;
+  id: string;
+  occurredAt: Date;
+  outcome: string;
+  summary: string;
+};
+
+export type DashboardActivityState = LoadState<{
+  events: readonly DashboardActivityEvent[];
+  total: number;
+}>;
 
 const isForbiddenError = (error: unknown): boolean =>
   error instanceof ForbiddenError;
@@ -127,10 +141,58 @@ const loadCompanies = async (
   }
 };
 
+const loadAuditActivity = async (
+  access: RuntimeTenantAccess
+): Promise<DashboardActivityState> => {
+  try {
+    requirePermission(
+      createRuntimePermissionContext(
+        access,
+        "dashboard.audit-activity",
+        "audit"
+      ),
+      {
+        allOf: [permissionCatalog.audit.read],
+      }
+    );
+
+    const result = await listAuditEvents({
+      limit: 5,
+      offset: 0,
+      tenantId: access.tenantId,
+    });
+
+    return {
+      data: {
+        events: result.events.map((event) => ({
+          action: event.action,
+          id: event.id,
+          occurredAt: event.occurredAt,
+          outcome: event.outcome,
+          summary: event.summary,
+        })),
+        total: result.total,
+      },
+      status: "ready",
+    };
+  } catch (error) {
+    if (isForbiddenError(error)) {
+      return {
+        status: "forbidden",
+      };
+    }
+
+    return toErrorState(error);
+  }
+};
+
 export type DashboardData = {
+  activity: DashboardActivityState;
+  actorId: string;
   companyId: string | null;
   companies: LoadState<CompanyList>;
   customers: LoadState<CustomerList>;
+  grantedPermissions: readonly string[];
   tenantId: string;
   tenantRole: string;
   userEmail: string | null;
@@ -142,15 +204,19 @@ export const loadDashboardData = async (): Promise<DashboardData> => {
     loadOptionalCompanyAccess(),
   ]);
 
-  const [customers, companies] = await Promise.all([
+  const [customers, companies, activity] = await Promise.all([
     loadCustomers(access),
     loadCompanies(access),
+    loadAuditActivity(access),
   ]);
 
   return {
+    activity,
+    actorId: access.actorId,
     companyId: companyAccess?.companyId ?? null,
     companies,
     customers,
+    grantedPermissions: access.grantedPermissions,
     tenantId: access.tenantId,
     tenantRole: access.role,
     userEmail: access.userEmail,

@@ -10,6 +10,7 @@
     "./execution": "./src/execution.ts",
     "./manifest": "./src/manifest.ts",
     "./metadata": "./src/metadata.ts",
+    "./metadata/document-entity": "./src/document-entity-metadata.ts",
     "./schema": "./src/schema.ts",
     "./shared": "./src/shared/index.ts",
     "./server": "./src/server.ts",
@@ -30,6 +31,7 @@
   "dependencies": {
     "@repo/audit": "workspace:*",
     "@repo/jurisdictions-vn": "workspace:*",
+    "@repo/metadata": "workspace:*",
     "server-only": "catalog:",
     "zod": "catalog:"
   },

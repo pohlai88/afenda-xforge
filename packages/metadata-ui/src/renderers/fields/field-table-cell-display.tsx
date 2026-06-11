@@ -18,16 +18,31 @@ export function isMetadataTableCellSurface(
 }
 
 export const resolveStatusTone = (value: string): StatusBadgeTone => {
-  if (value === "active") {
+  if (value === "active" || value === "success" || value === "verified") {
     return "success";
   }
 
-  if (value === "pending" || value === "draft") {
+  if (value === "pending" || value === "internal") {
     return "info";
   }
 
-  if (value === "inactive") {
+  if (
+    value === "inactive" ||
+    value === "denied" ||
+    value === "pending_verification" ||
+    value === "draft" ||
+    value === "restricted"
+  ) {
     return "warning";
+  }
+
+  if (
+    value === "failure" ||
+    value === "rejected" ||
+    value === "expired" ||
+    value === "confidential"
+  ) {
+    return "danger";
   }
 
   return "neutral";

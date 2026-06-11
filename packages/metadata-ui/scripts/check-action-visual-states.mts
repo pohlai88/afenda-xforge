@@ -29,6 +29,11 @@ const surfaceExpectations = [
   },
 ] as const;
 
+const menuActionSurfacePath = join(
+  actionRendererRoot,
+  "menu-action-surface.tsx"
+);
+
 function collectSurfaceViolations(
   fileName: string,
   source: string,
@@ -90,6 +95,20 @@ export function checkActionVisualStates(): void {
     );
   }
 
+  const menuActionSurfaceSource = readFileSync(menuActionSurfacePath, "utf8");
+
+  if (!menuActionSurfaceSource.includes("DropdownMenu")) {
+    violations.push(
+      `${relative(packageRoot, menuActionSurfacePath)}: menu surface must use DropdownMenu (MUI-VIS-004)`
+    );
+  }
+
+  if (!menuActionSurfaceSource.includes("data-action-surface")) {
+    violations.push(
+      `${relative(packageRoot, menuActionSurfacePath)}: menu trigger must expose data-action-surface`
+    );
+  }
+
   for (const entry of readdirSync(actionRendererRoot, {
     withFileTypes: true,
   })) {
@@ -104,7 +123,12 @@ export function checkActionVisualStates(): void {
     const source = readFileSync(filePath, "utf8");
     const relativePath = relative(packageRoot, filePath);
 
-    if (entry.name === "base-action.renderer.tsx") {
+    if (entry.name === "menu-action.renderer.tsx") {
+      if (!source.includes("MenuActionSurface")) {
+        violations.push(
+          `${relativePath}: menu renderer must compose MenuActionSurface`
+        );
+      }
       continue;
     }
 

@@ -148,7 +148,7 @@ def find_css_files(root: Path) -> list[Path]:
     css_files = []
 
     # Common directories to search
-    search_dirs = ['src', 'app', 'styles', 'css', 'public']
+    search_dirs = ['src', 'app', 'styles', 'css', 'public', '.storybook']
 
     for dir_name in search_dirs:
         dir_path = root / dir_name
@@ -175,12 +175,20 @@ def check_css_files(root: Path, result: ValidationResult):
 
     found_v4_import = False
     found_theme_block = False
+    has_extension_stylesheet = False
 
     for css_file in css_files:
         rel_path = css_file.relative_to(root)
 
         with open(css_file) as f:
             lines = f.readlines()
+            content = ''.join(lines)
+
+        if '@repo/ui/styles/globals.css' in content:
+            has_extension_stylesheet = True
+            result.add_passed(
+                f'Extension stylesheet imports design-system globals in {rel_path}'
+            )
 
         for i, line in enumerate(lines, 1):
             # Check for v3 @tailwind directives
@@ -200,7 +208,6 @@ def check_css_files(root: Path, result: ValidationResult):
                 found_theme_block = True
 
         # Check for @theme block content
-        content = ''.join(lines)
         if '@theme' in content:
             theme_match = re.search(r'@theme\s*\{([^}]*)\}', content, re.DOTALL)
             if theme_match:
@@ -208,12 +215,12 @@ def check_css_files(root: Path, result: ValidationResult):
                 css_vars = re.findall(r'--[\w-]+:', theme_content)
                 result.add_passed(f'Found @theme block with {len(css_vars)} custom properties in {rel_path}')
 
-    if not found_v4_import:
+    if not found_v4_import and not has_extension_stylesheet:
         result.add_issue('error', 'CSS',
                         'No @import "tailwindcss" found - required for v4',
                         fix='Add @import "tailwindcss"; to your main CSS file')
 
-    if not found_theme_block:
+    if not found_theme_block and not has_extension_stylesheet:
         result.add_issue('warning', 'CSS',
                         'No @theme block found - consider adding custom theme configuration',
                         fix='Add @theme { } block after @import "tailwindcss" for custom properties')

@@ -1,37 +1,16 @@
 import { SignOut } from "@repo/auth/components/sign-out";
-import { resolveLayeredCustomizedEntityMetadata } from "@repo/customization/resolution";
 import { ForbiddenError } from "@repo/errors";
 import { companyMetadata } from "@repo/features-master-data-companies/metadata";
 import { customerMetadata } from "@repo/features-master-data-customers/metadata";
-import type { EntityMetadata } from "@repo/metadata";
 import { MetadataStateBoundary } from "@repo/metadata-ui/components";
 import Link from "next/link";
 import type { ReactElement } from "react";
-import type { DashboardEntityCustomizationLayers } from "./_customizations.ts";
+import { createAppMetadataContext } from "../../_lib/metadata-context.ts";
 import { loadDashboardMetadataCustomizations } from "./_customizations.ts";
 import { loadDashboardData } from "./_data.ts";
 import { DashboardView } from "./dashboard-view.tsx";
 
-const resolveDashboardMetadata = (
-  metadata: EntityMetadata,
-  layers: DashboardEntityCustomizationLayers,
-  companyId: string | null
-): EntityMetadata => {
-  try {
-    return resolveLayeredCustomizedEntityMetadata(metadata, layers, {
-      companyAware: Boolean(
-        companyId && layers.company?.companyId === companyId
-      ),
-    });
-  } catch (error) {
-    console.warn("Invalid dashboard metadata customization ignored.", {
-      entity: metadata.entity,
-      error: error instanceof Error ? error.message : String(error),
-    });
-
-    return metadata;
-  }
-};
+const DASHBOARD_FEATURE_ID = "system-admin.overview";
 
 export default async function DashboardPage(): Promise<ReactElement> {
   try {
@@ -40,24 +19,24 @@ export default async function DashboardPage(): Promise<ReactElement> {
       companyId: dashboard.companyId,
       tenantId: dashboard.tenantId,
     });
-    const resolvedCustomerMetadata = resolveDashboardMetadata(
-      customerMetadata,
-      customizations.customers,
-      dashboard.companyId
-    );
-    const resolvedCompanyMetadata = resolveDashboardMetadata(
-      companyMetadata,
-      customizations.companies,
-      dashboard.companyId
-    );
+    const context = createAppMetadataContext({
+      featureId: DASHBOARD_FEATURE_ID,
+      permissions: dashboard.grantedPermissions,
+      tenantId: dashboard.tenantId,
+      userId: dashboard.actorId,
+    });
     return (
       <DashboardView
+        activity={dashboard.activity}
         companies={{
-          metadata: resolvedCompanyMetadata,
+          customizationLayers: customizations.companies,
+          metadata: companyMetadata,
           state: dashboard.companies,
         }}
+        context={context}
         customers={{
-          metadata: resolvedCustomerMetadata,
+          customizationLayers: customizations.customers,
+          metadata: customerMetadata,
           state: dashboard.customers,
         }}
         headerActions={

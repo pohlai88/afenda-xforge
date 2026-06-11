@@ -8,6 +8,11 @@ export {
   updateTenantBranding,
 } from "./tenant-branding/in-memory-store";
 export {
+  clearUserBrandingStore,
+  getUserBrandingPreferences,
+  setUserBrandingPreferences,
+} from "./user-branding/in-memory-store";
+export {
   type DesignSystemTokenGroups,
   designSystemTokenGroups,
   fontPresetNames,

@@ -6,6 +6,7 @@ import {
   tenantBrandingSettingsSchema,
   type TenantBrandingSettings,
 } from "@repo/design-system/contracts/tenant-branding.contract";
+import { assertValidTenantBrandingColors } from "@repo/design-system/resolution";
 import { database, tenantSettings, timeDatabaseQuery } from "@repo/database";
 import { eq } from "drizzle-orm";
 import type { TenantAdminSettingUpdateShape } from "./schema.ts";
@@ -121,6 +122,7 @@ export const upsertTenantAdminSetting = async (
 
   if (input.key === "tenant-branding") {
     const branding = tenantBrandingSettingsSchema.parse(JSON.parse(input.value));
+    assertValidTenantBrandingColors(branding);
 
     await timeDatabaseQuery(
       () =>
@@ -150,6 +152,7 @@ export const upsertTenantAdminSetting = async (
       ...currentBranding,
       themePreset,
     });
+    assertValidTenantBrandingColors(branding);
 
     await timeDatabaseQuery(
       () =>

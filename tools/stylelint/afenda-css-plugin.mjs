@@ -14,6 +14,9 @@ const REQUIRED_THEME_INLINE_MAPPINGS = [
   "--color-border: var(--border)",
   "--shadow-sm: var(--elevation-sm)",
   "--radius-panel: var(--radius-panel)",
+  "--color-chart-5: var(--chart-5)",
+  "--color-chart-6: var(--chart-6)",
+  "--color-chart-7: var(--chart-7)",
   "--color-info-muted-foreground: var(--info-muted-foreground)",
   "--color-success-muted-foreground: var(--success-muted-foreground)",
   "--color-warning-muted-foreground: var(--warning-muted-foreground)",
@@ -24,6 +27,7 @@ const REQUIRED_THEME_INLINE_MAPPINGS = [
   "--color-lane-active-muted-foreground: var(--lane-active-muted-foreground)",
   "--color-lane-active-border: var(--lane-active-border)",
   "--color-lane-active-glow: var(--lane-active-glow)",
+  "--shadow-lane-active-glow: var(--elevation-lane-active-glow)",
 ];
 
 function isGlobalsStylesheet(source) {
@@ -450,6 +454,40 @@ const tailwindImportOnlyInGlobals = stylelint.createPlugin(
   },
 );
 
+const preferNeutralRing = stylelint.createPlugin(
+  `${pluginNamespace}/prefer-neutral-ring`,
+  () => {
+    return (root, result) => {
+      const source = getStylesheetSource(root);
+
+      if (!isGlobalsStylesheet(source)) {
+        return;
+      }
+
+      root.walkRules((rule) => {
+        if (rule.selector !== ":root" && rule.selector !== ".dark") {
+          return;
+        }
+
+        rule.walkDecls((decl) => {
+          if (decl.prop !== "--ring") {
+            return;
+          }
+
+          if (/var\(\s*--brand-primary\s*\)/.test(decl.value)) {
+            report(
+              result,
+              `${pluginNamespace}/prefer-neutral-ring`,
+              decl,
+              `--ring must stay neutral for accessibility — use --ring-brand for brand focus chrome`,
+            );
+          }
+        });
+      });
+    };
+  },
+);
+
 export default [
   noRootInLayerBase,
   noDarkNestedTheme,
@@ -463,4 +501,5 @@ export default [
   requireThemeInline,
   requireThemeInlineMappings,
   tailwindImportOnlyInGlobals,
+  preferNeutralRing,
 ];

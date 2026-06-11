@@ -122,7 +122,7 @@ export function AssistantComposer(): ReactElement {
   };
 
   return (
-    <div className="space-y-6 rounded-[var(--radius-xl)] border border-border bg-card/95 p-6 shadow-sm">
+    <div className="space-y-6 rounded-xl border border-border bg-card/95 p-6 shadow-sm">
       <form className="space-y-4" onSubmit={submitMessage}>
         <div className="grid gap-4 md:grid-cols-[180px_minmax(0,1fr)] md:items-start">
           <label className="space-y-2">

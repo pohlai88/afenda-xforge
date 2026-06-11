@@ -1,67 +1,29 @@
 "use client";
 
 import { createBrowserSupabaseClient } from "@repo/auth/client";
+import type { CustomizationLayerSet } from "@repo/customization/resolution";
+import { hrDocumentUploadFieldOptions } from "@repo/features-employee-management-documents-management/metadata/document-entity";
+import type { EntityMetadata } from "@repo/metadata";
+import { MetadataForm } from "@repo/metadata-ui/components";
+import type {
+  MetadataFieldContract,
+  MetadataRenderContext,
+} from "@repo/metadata-ui/contracts";
 import type { StorageProviderKind } from "@repo/storage/types";
 import type { PutBlobResult } from "@vercel/blob";
 import { upload } from "@vercel/blob/client";
-import type { ChangeEvent, FormEvent, ReactElement } from "react";
+import type { ReactElement } from "react";
 import { useRef, useState } from "react";
 import { withCSRFHeader } from "../../../../lib/csrf.client.ts";
 
 const SERVER_UPLOAD_LIMIT_BYTES = 4.5 * 1024 * 1024;
 
-const documentCategoryOptions = [
-  "employment",
-  "identity",
-  "qualification",
-  "payroll",
-  "policy",
-  "hr_letter",
-  "medical_leave",
-  "compliance",
-  "training",
-  "other",
-] as const;
-
-const documentTypeOptions = [
-  "offer_letter",
-  "appointment_letter",
-  "employment_contract",
-  "contract_renewal_letter",
-  "nric",
-  "passport",
-  "work_permit",
-  "visa",
-  "national_id",
-  "degree_certificate",
-  "professional_certificate",
-  "license",
-  "training_certificate",
-  "bank_form",
-  "tax_form",
-  "statutory_registration_form",
-  "payroll_declaration_reference",
-  "employee_handbook_acknowledgment",
-  "code_of_conduct_acknowledgment",
-  "it_policy_acknowledgment",
-  "safety_policy_acknowledgment",
-  "confirmation_letter",
-  "promotion_letter",
-  "transfer_letter",
-  "warning_letter",
-  "disciplinary_letter",
-  "medical_certificate",
-  "fitness_certificate",
-  "hospitalization_document",
-  "maternity_document",
-  "consent_form",
-  "statutory_declaration",
-  "right_to_work_document",
-  "regulatory_form",
-  "other",
-] as const;
-
-const visibilityOptions = ["internal", "restricted", "confidential"] as const;
+type DocumentCategory =
+  (typeof hrDocumentUploadFieldOptions.documentCategory)[number]["value"];
+type DocumentType =
+  (typeof hrDocumentUploadFieldOptions.documentType)[number]["value"];
+type DocumentVisibility =
+  (typeof hrDocumentUploadFieldOptions.visibility)[number]["value"];
 
 type DocumentUploadMode = "server" | "client";
 
@@ -92,14 +54,17 @@ type UploadResultState = {
 };
 
 type DocumentUploadFormProps = {
+  context?: Partial<MetadataRenderContext>;
+  customizationLayers?: CustomizationLayerSet | null;
+  metadata: EntityMetadata;
   requestHeaders: Readonly<Record<string, string>>;
   storageProvider: StorageProviderKind;
 };
 
 type DocumentFormState = {
   description: string;
-  documentCategory: (typeof documentCategoryOptions)[number];
-  documentType: (typeof documentTypeOptions)[number];
+  documentCategory: DocumentCategory;
+  documentType: DocumentType;
   employeeId: string;
   expiresAt: string;
   fileName: string;
@@ -108,7 +73,7 @@ type DocumentFormState = {
   mandatory: boolean;
   renewalDueAt: string;
   title: string;
-  visibility: (typeof visibilityOptions)[number];
+  visibility: DocumentVisibility;
 };
 
 const initialFormState: DocumentFormState = {
@@ -523,7 +488,60 @@ const uploadDocumentThroughR2 = async ({
   };
 };
 
+const buildUploadFields = (
+  metadata: EntityMetadata
+): readonly MetadataFieldContract[] => {
+  const uploadForm = metadata.forms?.find(
+    (form) => form.key === "document-upload"
+  );
+  const fieldMap = new Map(
+    (metadata.fields ?? []).map((field) => [field.key, field])
+  );
+
+  return (uploadForm?.fieldKeys ?? []).flatMap((fieldKey) => {
+    const field = fieldMap.get(fieldKey);
+    if (!field) {
+      return [];
+    }
+
+    if (field.key === "documentCategory") {
+      return [
+        {
+          ...field,
+          kind: "select",
+          options: hrDocumentUploadFieldOptions.documentCategory,
+        },
+      ];
+    }
+
+    if (field.key === "documentType") {
+      return [
+        {
+          ...field,
+          kind: "select",
+          options: hrDocumentUploadFieldOptions.documentType,
+        },
+      ];
+    }
+
+    if (field.key === "visibility") {
+      return [
+        {
+          ...field,
+          kind: "select",
+          options: hrDocumentUploadFieldOptions.visibility,
+        },
+      ];
+    }
+
+    return [field as MetadataFieldContract];
+  });
+};
+
 export function DocumentUploadForm({
+  context,
+  customizationLayers,
+  metadata,
   requestHeaders,
   storageProvider,
 }: DocumentUploadFormProps): ReactElement {
@@ -553,11 +571,7 @@ export function DocumentUploadForm({
     }));
   };
 
-  const submitUpload = async (
-    event: FormEvent<HTMLFormElement>
-  ): Promise<void> => {
-    event.preventDefault();
-
+  const submitUpload = async (): Promise<void> => {
     const file = fileInputRef.current?.files?.[0];
 
     if (!file) {
@@ -624,7 +638,7 @@ export function DocumentUploadForm({
   };
 
   return (
-    <section className="space-y-6 rounded-[var(--radius-xl)] border border-border bg-card/95 p-6 shadow-sm">
+    <section className="space-y-6 rounded-xl border border-border bg-card/95 p-6 shadow-sm">
       <div className="space-y-2">
         <p className="text-muted-foreground text-sm uppercase tracking-[0.3em]">
           Upload form
@@ -639,194 +653,47 @@ export function DocumentUploadForm({
         </p>
       </div>
 
-      <form className="space-y-6" onSubmit={submitUpload}>
-        <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
-          <label className="space-y-2">
-            <span className="block font-medium text-sm">Employee ID</span>
-            <input
-              className="h-11 w-full rounded-md border border-border bg-background px-3 text-sm shadow-sm outline-none transition focus-visible:border-primary focus-visible:ring-2 focus-visible:ring-primary/20"
-              onChange={(event: ChangeEvent<HTMLInputElement>) =>
-                updateField("employeeId", event.target.value)
-              }
-              placeholder="employee-123"
-              value={formState.employeeId}
-            />
-          </label>
-
-          <label className="space-y-2">
-            <span className="block font-medium text-sm">Title</span>
-            <input
-              className="h-11 w-full rounded-md border border-border bg-background px-3 text-sm shadow-sm outline-none transition focus-visible:border-primary focus-visible:ring-2 focus-visible:ring-primary/20"
-              onChange={(event: ChangeEvent<HTMLInputElement>) =>
-                updateField("title", event.target.value)
-              }
-              placeholder="Signed employment contract"
-              value={formState.title}
-            />
-          </label>
-
-          <label className="space-y-2">
-            <span className="block font-medium text-sm">File</span>
-            <input
-              accept=".pdf,.png,.jpg,.jpeg,.webp,.doc,.docx"
-              className="h-11 w-full rounded-md border border-border bg-background px-3 py-2 text-sm shadow-sm outline-none transition file:mr-4 file:border-0 file:bg-primary file:px-3 file:py-1.5 file:font-medium file:text-primary-foreground file:text-sm hover:file:opacity-90 focus-visible:border-primary focus-visible:ring-2 focus-visible:ring-primary/20"
-              ref={fileInputRef}
-              type="file"
-            />
-          </label>
-
-          <label className="space-y-2">
-            <span className="block font-medium text-sm">Category</span>
-            <select
-              className="h-11 w-full rounded-md border border-border bg-background px-3 text-sm shadow-sm outline-none transition focus-visible:border-primary focus-visible:ring-2 focus-visible:ring-primary/20"
-              onChange={(event: ChangeEvent<HTMLSelectElement>) =>
-                updateField(
-                  "documentCategory",
-                  event.target.value as DocumentFormState["documentCategory"]
-                )
-              }
-              value={formState.documentCategory}
-            >
-              {documentCategoryOptions.map((option) => (
-                <option key={option} value={option}>
-                  {option}
-                </option>
-              ))}
-            </select>
-          </label>
-
-          <label className="space-y-2">
-            <span className="block font-medium text-sm">Type</span>
-            <select
-              className="h-11 w-full rounded-md border border-border bg-background px-3 text-sm shadow-sm outline-none transition focus-visible:border-primary focus-visible:ring-2 focus-visible:ring-primary/20"
-              onChange={(event: ChangeEvent<HTMLSelectElement>) =>
-                updateField(
-                  "documentType",
-                  event.target.value as DocumentFormState["documentType"]
-                )
-              }
-              value={formState.documentType}
-            >
-              {documentTypeOptions.map((option) => (
-                <option key={option} value={option}>
-                  {option}
-                </option>
-              ))}
-            </select>
-          </label>
-
-          <label className="space-y-2">
-            <span className="block font-medium text-sm">Visibility</span>
-            <select
-              className="h-11 w-full rounded-md border border-border bg-background px-3 text-sm shadow-sm outline-none transition focus-visible:border-primary focus-visible:ring-2 focus-visible:ring-primary/20"
-              onChange={(event: ChangeEvent<HTMLSelectElement>) =>
-                updateField(
-                  "visibility",
-                  event.target.value as DocumentFormState["visibility"]
-                )
-              }
-              value={formState.visibility}
-            >
-              {visibilityOptions.map((option) => (
-                <option key={option} value={option}>
-                  {option}
-                </option>
-              ))}
-            </select>
-          </label>
-
-          <label className="space-y-2">
-            <span className="block font-medium text-sm">Legal entity code</span>
-            <input
-              className="h-11 w-full rounded-md border border-border bg-background px-3 text-sm shadow-sm outline-none transition focus-visible:border-primary focus-visible:ring-2 focus-visible:ring-primary/20"
-              onChange={(event: ChangeEvent<HTMLInputElement>) =>
-                updateField("legalEntityCode", event.target.value)
-              }
-              placeholder="TH-001"
-              value={formState.legalEntityCode}
-            />
-          </label>
-        </div>
-
-        <div className="grid gap-4 md:grid-cols-3">
-          <label className="space-y-2">
-            <span className="block font-medium text-sm">Issued at</span>
-            <input
-              className="h-11 w-full rounded-md border border-border bg-background px-3 text-sm shadow-sm outline-none transition focus-visible:border-primary focus-visible:ring-2 focus-visible:ring-primary/20"
-              onChange={(event: ChangeEvent<HTMLInputElement>) =>
-                updateField("issuedAt", event.target.value)
-              }
-              type="date"
-              value={formState.issuedAt}
-            />
-          </label>
-
-          <label className="space-y-2">
-            <span className="block font-medium text-sm">Expires at</span>
-            <input
-              className="h-11 w-full rounded-md border border-border bg-background px-3 text-sm shadow-sm outline-none transition focus-visible:border-primary focus-visible:ring-2 focus-visible:ring-primary/20"
-              onChange={(event: ChangeEvent<HTMLInputElement>) =>
-                updateField("expiresAt", event.target.value)
-              }
-              type="date"
-              value={formState.expiresAt}
-            />
-          </label>
-
-          <label className="space-y-2">
-            <span className="block font-medium text-sm">Renewal due at</span>
-            <input
-              className="h-11 w-full rounded-md border border-border bg-background px-3 text-sm shadow-sm outline-none transition focus-visible:border-primary focus-visible:ring-2 focus-visible:ring-primary/20"
-              onChange={(event: ChangeEvent<HTMLInputElement>) =>
-                updateField("renewalDueAt", event.target.value)
-              }
-              type="date"
-              value={formState.renewalDueAt}
-            />
-          </label>
-        </div>
+      <div className="space-y-6">
+        <MetadataForm
+          context={context}
+          customizationLayers={customizationLayers}
+          description="Register document metadata before uploading the file bytes."
+          fields={buildUploadFields(metadata)}
+          onFieldChange={(fieldKey, value) => {
+            updateField(
+              fieldKey as keyof DocumentFormState,
+              value as DocumentFormState[keyof DocumentFormState]
+            );
+          }}
+          title="Document metadata"
+          values={formState}
+        />
 
         <label className="space-y-2">
-          <span className="block font-medium text-sm">Description</span>
-          <textarea
-            className="min-h-[8rem] w-full rounded-md border border-border bg-background px-4 py-3 text-sm shadow-sm outline-none transition placeholder:text-muted-foreground focus-visible:border-primary focus-visible:ring-2 focus-visible:ring-primary/20"
-            onChange={(event: ChangeEvent<HTMLTextAreaElement>) =>
-              updateField("description", event.target.value)
-            }
-            placeholder="Short note about the document or upload"
-            value={formState.description}
-          />
-        </label>
-
-        <label className="flex items-center gap-3 rounded-lg border border-border/70 bg-background/70 px-4 py-3">
+          <span className="block font-medium text-sm">File</span>
           <input
-            checked={formState.mandatory}
-            className="h-4 w-4 rounded border-border text-primary focus:ring-primary"
-            onChange={(event: ChangeEvent<HTMLInputElement>) =>
-              updateField("mandatory", event.target.checked)
-            }
-            type="checkbox"
+            accept=".pdf,.png,.jpg,.jpeg,.webp,.doc,.docx"
+            className="h-11 w-full rounded-md border border-border bg-background px-3 py-2 text-sm shadow-sm outline-none transition file:mr-4 file:border-0 file:bg-primary file:px-3 file:py-1.5 file:font-medium file:text-primary-foreground file:text-sm hover:file:opacity-90 focus-visible:border-primary focus-visible:ring-2 focus-visible:ring-primary/20"
+            ref={fileInputRef}
+            type="file"
           />
-          <div className="space-y-0.5">
-            <span className="block font-medium text-sm">Mandatory</span>
-            <p className="text-muted-foreground text-xs">
-              Marks this document as required for the employee record.
-            </p>
-          </div>
         </label>
 
         <div className="flex flex-col gap-3 border-border border-t pt-6 sm:flex-row sm:items-center sm:justify-between">
           <button
             className="inline-flex h-11 items-center justify-center rounded-md bg-primary px-4 py-2 font-medium text-primary-foreground text-sm transition hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-50"
             disabled={isSubmitting}
-            type="submit"
+            onClick={() => {
+              void submitUpload();
+            }}
+            type="button"
           >
             {isSubmitting ? "Uploading..." : "Upload document"}
           </button>
 
           <div className="text-muted-foreground text-sm">{modeLabel}</div>
         </div>
-      </form>
+      </div>
 
       {progress ? (
         <div className="space-y-2 rounded-lg border border-border/70 bg-background/70 p-4">

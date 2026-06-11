@@ -35,7 +35,9 @@ export type HrDocumentsHeaderSet = Readonly<Record<string, string>>;
 
 export type HrDocumentsPageData = {
   access: HrDocumentsAccess;
+  actorId: string;
   documents: readonly DocumentsManagementDocumentSummaryProjection[];
+  grantedPermissions: readonly string[];
   headerSet: HrDocumentsHeaderSet;
   loadedDocumentCount: number;
   tenantId: string;
@@ -48,8 +50,10 @@ export type HrDocumentsPageData = {
 
 export type HrDocumentDetailData = {
   access: HrDocumentsAccess;
+  actorId: string;
   document: DocumentsManagementDocumentProjection;
   downloadPath: string;
+  grantedPermissions: readonly string[];
   headerSet: HrDocumentsHeaderSet;
   tenantId: string;
   tenantRole: string;
@@ -157,8 +161,10 @@ export const loadHrDocumentsPageData = async (): Promise<
     return {
       data: {
         access: runtimeAccess,
+        actorId: access.actorId,
         documents,
         expiringSoonDocumentCount: countExpiringSoonDocuments(documents),
+        grantedPermissions: access.grantedPermissions,
         headerSet: createDocumentsManagementHeaderSet(access),
         loadedDocumentCount: documents.length,
         mandatoryDocumentCount: documents.filter(
@@ -204,8 +210,10 @@ export const loadHrDocumentDetailPageData = async (
     return {
       data: {
         access: runtimeAccess,
+        actorId: access.actorId,
         document,
         downloadPath: hrTenantDocumentDownloadPath(document.id),
+        grantedPermissions: access.grantedPermissions,
         headerSet: createDocumentsManagementHeaderSet(access),
         tenantId: access.tenantId,
         tenantRole: access.role,

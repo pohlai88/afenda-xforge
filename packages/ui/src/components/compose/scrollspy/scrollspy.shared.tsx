@@ -342,7 +342,7 @@ export function ScrollspyLink({
         {...props}
         data-scrollspy-anchor={dataScrollspyAnchor}
         className={cn(
-          "inline-flex w-full cursor-pointer items-center justify-start gap-2 rounded-md px-3 py-2 text-left text-muted-foreground transition-colors hover:text-foreground data-[active=true]:bg-primary data-[active=true]:text-primary-foreground",
+          "inline-flex w-full cursor-pointer items-center justify-start gap-2 rounded-md px-3 py-2 text-left text-muted-foreground transition-colors hover:text-foreground data-[active=true]:bg-lane-active-muted data-[active=true]:text-lane-active-muted-foreground data-[active=true]:shadow-lane-active-glow",
           className,
         )}
       >

@@ -51,7 +51,10 @@
     "check:surface-visual": "tsx scripts/check-surface-visual.mts",
     "check:diagnostics-visual": "tsx scripts/check-diagnostics-visual.mts",
     "check:diagnostic-coverage": "tsx scripts/check-diagnostic-coverage.mts",
+    "check:action-a11y": "tsx scripts/check-action-a11y.mts",
     "check:action-visual-states": "tsx scripts/check-action-visual-states.mts",
+    "check:renderer-axe-audit": "tsx scripts/check-renderer-axe-audit.mts",
+    "check:visualization-signoff": "tsx scripts/check-visualization-signoff.mts",
     "check:visual-states": "tsx scripts/check-visual-states.mts",
     "check:generated": "tsx scripts/generate.mts --check",
     "check:quality-score": "tsx scripts/check-quality-score.mts --threshold 90",
@@ -67,16 +70,17 @@
     "check:state-renderer-ownership": "tsx scripts/check-state-renderer-ownership.mts",
     "check:compatibility": "tsx scripts/check-compatibility.mts",
     "check:renderer-registry": "tsx scripts/check-renderer-registry.mts",
+    "check:renderer-catalog": "tsx scripts/check-renderer-catalog.mts",
     "check:telemetry-schema": "tsx scripts/check-telemetry-schema.mts",
     "generate": "tsx scripts/generate.mts",
     "lint": "biome check .",
     "format": "biome format --write .",
     "clean": "git clean -xdf .cache .turbo dist node_modules",
-    "test": "tsx --test tests/index.test.ts && vitest run tests/public-api-consumer.render.test.tsx",
+    "test": "tsx --test tests/index.test.ts && vitest run tests/public-api-consumer.render.test.tsx tests/renderer-axe-audit.test.tsx",
     "test:render": "vitest run tests/public-api-consumer.render.test.tsx",
     "typecheck": "tsc --noEmit --emitDeclarationOnly false",
     "update:declaration-snapshot": "tsx scripts/update-declaration-snapshot.mts",
-    "verify": "pnpm run generate && pnpm run typecheck && pnpm run lint && pnpm run build && pnpm run test && pnpm run check:boundaries && pnpm run check:authority-boundary && pnpm run check:fallback-runtime && pnpm run check:verification-governance && pnpm run check:public-api && pnpm run check:package-subpaths && pnpm run check:client-server-boundaries && pnpm run check:consumer-fixture-integration && pnpm run check:adapter-pipeline && pnpm run check:contract-validation && pnpm run check:field-value-binding && pnpm run check:state-renderer-ownership && pnpm run check:declaration-snapshot && pnpm run check:change-note && pnpm run check:telemetry-schema && pnpm run check:consumer-fixture && pnpm run check:generated && pnpm run check:compatibility && pnpm run check:compose-groups && pnpm run check:renderer-registry && pnpm run check:field-visual-tokens && pnpm run check:renderer-visual-tokens && pnpm run check:field-a11y && pnpm run check:keyboard-focus && pnpm run check:locale-formatting && pnpm run check:label-i18n && pnpm run check:layout-composition && pnpm run check:layout-composition-visual && pnpm run check:density-visual && pnpm run check:content-length && pnpm run check:reduced-motion && pnpm run check:surface-visual && pnpm run check:diagnostics-visual && pnpm run check:diagnostic-coverage && pnpm run check:visual-states && pnpm run check:action-visual-states && pnpm run check:quality-score"
+    "verify": "pnpm run generate && pnpm run typecheck && pnpm run lint && pnpm run build && pnpm run test && pnpm run check:boundaries && pnpm run check:authority-boundary && pnpm run check:fallback-runtime && pnpm run check:verification-governance && pnpm run check:public-api && pnpm run check:package-subpaths && pnpm run check:client-server-boundaries && pnpm run check:consumer-fixture-integration && pnpm run check:adapter-pipeline && pnpm run check:contract-validation && pnpm run check:field-value-binding && pnpm run check:state-renderer-ownership && pnpm run check:declaration-snapshot && pnpm run check:change-note && pnpm run check:telemetry-schema && pnpm run check:consumer-fixture && pnpm run check:generated && pnpm run check:compatibility && pnpm run check:compose-groups && pnpm run check:renderer-registry && pnpm run check:renderer-catalog && pnpm run check:field-visual-tokens && pnpm run check:renderer-visual-tokens && pnpm run check:field-a11y && pnpm run check:action-a11y && pnpm run check:keyboard-focus && pnpm run check:locale-formatting && pnpm run check:label-i18n && pnpm run check:layout-composition && pnpm run check:layout-composition-visual && pnpm run check:density-visual && pnpm run check:content-length && pnpm run check:reduced-motion && pnpm run check:surface-visual && pnpm run check:diagnostics-visual && pnpm run check:diagnostic-coverage && pnpm run check:visual-states && pnpm run check:action-visual-states && pnpm run check:renderer-axe-audit && pnpm run check:visualization-signoff && pnpm run check:quality-score"
   },
   "dependencies": {
     "@repo/customization": "workspace:*",
@@ -92,10 +96,12 @@
     "@types/node": "catalog:",
     "@types/react": "catalog:",
     "@types/react-dom": "catalog:",
+    "axe-core": "^4.10.3",
     "jsdom": "catalog:",
     "react-dom": "catalog:",
     "tsx": "catalog:",
     "typescript": "catalog:",
-    "vitest": "catalog:"
+    "vitest": "catalog:",
+    "vitest-axe": "^0.1.0"
   }
 }

@@ -41,7 +41,7 @@ export default async function AuthErrorPage({
   const params = (await searchParams) ?? {};
 
   return (
-    <section className="space-y-6 rounded-[var(--radius-xl)] border border-border bg-card/95 p-6 shadow-sm">
+    <section className="space-y-6 rounded-xl border border-border bg-card/95 p-6 shadow-sm">
       <div className="space-y-2">
         <p className="text-muted-foreground text-sm uppercase tracking-[0.3em]">
           XForge

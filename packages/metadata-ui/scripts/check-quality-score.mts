@@ -48,6 +48,7 @@ const assessment = createMetadataUiQualityAssessment({
     telemetrySchema: true,
     test: true,
     typecheck: true,
+    rendererAxeAudit: true,
   },
 });
 

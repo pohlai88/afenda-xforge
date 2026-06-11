@@ -13,6 +13,24 @@ import { BrandingSettingsView } from "./branding-settings-view.tsx";
 
 const BRANDING_FEATURE_ID = "system-admin.tenant-settings";
 
+function canWriteTenantBranding(
+  access: Awaited<ReturnType<typeof resolveRuntimeTenantAccess>>
+): boolean {
+  try {
+    requirePermission(
+      createRuntimePermissionContext(
+        access,
+        permissionCatalog.systemAdmin.tenantSettingsWrite,
+        BRANDING_FEATURE_ID
+      ),
+      { allOf: [permissionCatalog.systemAdmin.tenantSettingsWrite] }
+    );
+    return true;
+  } catch {
+    return false;
+  }
+}
+
 export default async function BrandingSettingsPage(): Promise<ReactElement> {
   try {
     const access = await resolveRuntimeTenantAccess();
@@ -20,7 +38,7 @@ export default async function BrandingSettingsPage(): Promise<ReactElement> {
       createRuntimePermissionContext(
         access,
         permissionCatalog.systemAdmin.tenantSettingsRead,
-        "system-admin.tenant-settings"
+        BRANDING_FEATURE_ID
       ),
       { allOf: [permissionCatalog.systemAdmin.tenantSettingsRead] }
     );
@@ -28,15 +46,26 @@ export default async function BrandingSettingsPage(): Promise<ReactElement> {
 
     return (
       <AuthenticatedFeatureScope featureId={BRANDING_FEATURE_ID}>
-        <div className="space-y-6">
-          <Link
-            className="inline-flex h-9 items-center justify-center rounded-md border border-border bg-background px-3 font-medium text-sm transition hover:bg-muted"
-            href="/dashboard"
-          >
-            Back to dashboard
-          </Link>
-          <BrandingSettingsView initialSettings={settings} />
-        </div>
+        <section className="space-y-6">
+          <nav aria-label="Breadcrumb" className="text-sm">
+            <ol className="flex flex-wrap items-center gap-2 text-muted-foreground">
+              <li>
+                <Link
+                  className="transition hover:text-foreground"
+                  href="/dashboard"
+                >
+                  Dashboard
+                </Link>
+              </li>
+              <li aria-hidden>/</li>
+              <li className="text-foreground">Tenant branding</li>
+            </ol>
+          </nav>
+          <BrandingSettingsView
+            canWrite={canWriteTenantBranding(access)}
+            initialSettings={settings}
+          />
+        </section>
       </AuthenticatedFeatureScope>
     );
   } catch (error) {

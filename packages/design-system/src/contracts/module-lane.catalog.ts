@@ -57,3 +57,34 @@ export function getDefaultLaneForFeature(featureId: string): ErpVisualLaneId {
 
   return ERP_MODULE_LANE_DEFAULT_LANE;
 }
+
+export type CatalogModuleEntry = {
+  defaultLane: ErpVisualLaneId;
+  featureId: string;
+  resolution: "explicit" | "prefix";
+};
+
+const PREFIX_CATALOG_ENTRIES: readonly CatalogModuleEntry[] =
+  PREFIX_LANE_RULES.map((rule) => ({
+    featureId: `${rule.prefix}*`,
+    defaultLane: rule.lane,
+    resolution: "prefix" as const,
+  }));
+
+export const ERP_CATALOG_MODULE_ENTRIES: readonly CatalogModuleEntry[] = [
+  ...Object.entries(ERP_MODULE_LANE_DEFAULTS).map(([featureId, defaultLane]) => ({
+    featureId,
+    defaultLane,
+    resolution: "explicit" as const,
+  })),
+  ...PREFIX_CATALOG_ENTRIES.filter(
+    (entry) =>
+      !Object.keys(ERP_MODULE_LANE_DEFAULTS).some((featureId) =>
+        featureId.startsWith(entry.featureId.replace("*", ""))
+      )
+  ),
+].sort((left, right) => left.featureId.localeCompare(right.featureId));
+
+export function listCatalogModuleEntries(): readonly CatalogModuleEntry[] {
+  return ERP_CATALOG_MODULE_ENTRIES;
+}

@@ -73,23 +73,23 @@ export const THEME_PRESETS: readonly ThemePreset[] = [
   {
     name: "xforge",
     title: "XForge",
-    description: "Default balanced ERP palette with teal, green, and amber.",
+    description: "Default balanced ERP palette with teal, indigo, and warm gold.",
     brand: {
       light: {
         primary: "oklch(0.54 0.122 198)",
         "primary-foreground": "oklch(0.985 0.004 258)",
-        secondary: "oklch(0.55 0.074 154)",
+        secondary: "oklch(0.52 0.085 248)",
         "secondary-foreground": "oklch(0.985 0.004 258)",
-        accent: "oklch(0.71 0.112 82)",
-        "accent-foreground": "oklch(0.18 0.02 82)",
+        accent: "oklch(0.72 0.11 72)",
+        "accent-foreground": "oklch(0.18 0.03 72)",
       },
       dark: {
         primary: "oklch(0.72 0.112 198)",
         "primary-foreground": "oklch(0.174 0.014 264)",
-        secondary: "oklch(0.76 0.105 154)",
+        secondary: "oklch(0.74 0.09 248)",
         "secondary-foreground": "oklch(0.174 0.014 264)",
-        accent: "oklch(0.82 0.116 82)",
-        "accent-foreground": "oklch(0.18 0.014 84)",
+        accent: "oklch(0.82 0.105 72)",
+        "accent-foreground": "oklch(0.18 0.014 72)",
       },
     },
   },
@@ -124,7 +124,7 @@ export const THEME_PRESETS: readonly ThemePreset[] = [
       light: {
         primary: "oklch(0.49 0.14 265)",
         "primary-foreground": "oklch(0.985 0.004 258)",
-        secondary: "oklch(0.55 0.09 225)",
+        secondary: "oklch(0.55 0.09 215)",
         "secondary-foreground": "oklch(0.985 0.004 258)",
         accent: "oklch(0.66 0.12 310)",
         "accent-foreground": "oklch(0.985 0.004 258)",
@@ -132,7 +132,7 @@ export const THEME_PRESETS: readonly ThemePreset[] = [
       dark: {
         primary: "oklch(0.72 0.11 265)",
         "primary-foreground": "oklch(0.17 0.014 264)",
-        secondary: "oklch(0.76 0.085 225)",
+        secondary: "oklch(0.76 0.085 215)",
         "secondary-foreground": "oklch(0.17 0.014 264)",
         accent: "oklch(0.78 0.105 310)",
         "accent-foreground": "oklch(0.17 0.014 264)",
@@ -145,7 +145,7 @@ export const THEME_PRESETS: readonly ThemePreset[] = [
     description: "Finance and growth palette with strong positive status fit.",
     brand: {
       light: {
-        primary: "oklch(0.49 0.13 150)",
+        primary: "oklch(0.49 0.13 158)",
         "primary-foreground": "oklch(0.985 0.004 258)",
         secondary: "oklch(0.58 0.085 185)",
         "secondary-foreground": "oklch(0.985 0.004 258)",
@@ -153,7 +153,7 @@ export const THEME_PRESETS: readonly ThemePreset[] = [
         "accent-foreground": "oklch(0.18 0.02 78)",
       },
       dark: {
-        primary: "oklch(0.72 0.12 150)",
+        primary: "oklch(0.72 0.12 158)",
         "primary-foreground": "oklch(0.17 0.014 264)",
         secondary: "oklch(0.76 0.09 185)",
         "secondary-foreground": "oklch(0.17 0.014 264)",
@@ -170,17 +170,17 @@ export const THEME_PRESETS: readonly ThemePreset[] = [
       light: {
         primary: "oklch(0.6 0.12 70)",
         "primary-foreground": "oklch(0.18 0.02 70)",
-        secondary: "oklch(0.53 0.08 150)",
+        secondary: "oklch(0.53 0.08 160)",
         "secondary-foreground": "oklch(0.985 0.004 258)",
-        accent: "oklch(0.58 0.12 35)",
+        accent: "oklch(0.58 0.12 40)",
         "accent-foreground": "oklch(0.985 0.004 258)",
       },
       dark: {
         primary: "oklch(0.78 0.11 70)",
         "primary-foreground": "oklch(0.18 0.014 70)",
-        secondary: "oklch(0.74 0.085 150)",
+        secondary: "oklch(0.74 0.085 160)",
         "secondary-foreground": "oklch(0.17 0.014 264)",
-        accent: "oklch(0.75 0.115 35)",
+        accent: "oklch(0.75 0.115 40)",
         "accent-foreground": "oklch(0.17 0.014 264)",
       },
     },

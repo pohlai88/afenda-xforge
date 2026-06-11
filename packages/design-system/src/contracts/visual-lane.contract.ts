@@ -103,9 +103,9 @@ type LaneSolidDefinition = {
 const LANE_SOLID_DEFINITIONS: Record<ErpVisualLaneId, LaneSolidDefinition> = {
   money: {
     title: "Money",
-    light: "oklch(0.68 0.11 155)",
-    dark: "oklch(0.72 0.12 155)",
-    hue: 155,
+    light: "oklch(0.68 0.11 160)",
+    dark: "oklch(0.72 0.12 160)",
+    hue: 160,
   },
   people: {
     title: "People",
@@ -115,21 +115,21 @@ const LANE_SOLID_DEFINITIONS: Record<ErpVisualLaneId, LaneSolidDefinition> = {
   },
   goods: {
     title: "Goods",
-    light: "oklch(0.72 0.11 82)",
-    dark: "oklch(0.78 0.1 82)",
-    hue: 82,
+    light: "oklch(0.72 0.11 95)",
+    dark: "oklch(0.78 0.10 95)",
+    hue: 95,
   },
   operations: {
     title: "Operations",
-    light: "oklch(0.7 0.1 225)",
-    dark: "oklch(0.74 0.095 225)",
-    hue: 225,
+    light: "oklch(0.70 0.10 212)",
+    dark: "oklch(0.74 0.095 212)",
+    hue: 212,
   },
   customer: {
     title: "Customer",
-    light: "oklch(0.7 0.12 265)",
-    dark: "oklch(0.74 0.11 265)",
-    hue: 265,
+    light: "oklch(0.70 0.12 272)",
+    dark: "oklch(0.74 0.11 272)",
+    hue: 272,
   },
   governance: {
     title: "Governance",
@@ -139,9 +139,9 @@ const LANE_SOLID_DEFINITIONS: Record<ErpVisualLaneId, LaneSolidDefinition> = {
   },
   intelligence: {
     title: "Intelligence",
-    light: "oklch(0.74 0.1 175)",
-    dark: "oklch(0.78 0.095 175)",
-    hue: 175,
+    light: "oklch(0.74 0.10 184)",
+    dark: "oklch(0.78 0.095 184)",
+    hue: 184,
   },
 };
 

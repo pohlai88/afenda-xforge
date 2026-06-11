@@ -7,6 +7,7 @@ import {
   integer,
   jsonb,
   pgSchema,
+  primaryKey,
   text,
   timestamp,
   uniqueIndex,
@@ -257,6 +258,37 @@ export const tenantSettings = xforge.table("tenant_settings", {
     .defaultNow()
     .notNull(),
 });
+
+export const userAppearancePreferences = xforge.table(
+  "user_appearance_preferences",
+  {
+    tenantId: uuid("tenant_id")
+      .notNull()
+      .references(() => tenants.id, { onDelete: "cascade" }),
+    userId: uuid("user_id").notNull(),
+    themePreset: varchar("theme_preset", { length: 32 }),
+    branding: jsonb("branding")
+      .$type<Record<string, unknown>>()
+      .notNull()
+      .default({}),
+    createdAt: timestamp("created_at", {
+      mode: "date",
+      withTimezone: true,
+    })
+      .defaultNow()
+      .notNull(),
+    updatedAt: timestamp("updated_at", {
+      mode: "date",
+      withTimezone: true,
+    })
+      .defaultNow()
+      .notNull(),
+  },
+  (table) => [
+    primaryKey({ columns: [table.tenantId, table.userId] }),
+    index("user_appearance_preferences_user_id_idx").on(table.userId),
+  ]
+);
 
 export const webhookEndpoints = xforge.table(
   "webhook_endpoints",
@@ -1430,6 +1462,16 @@ export const tenantSettingsRelations = relations(tenantSettings, ({ one }) => ({
   }),
 }));
 
+export const userAppearancePreferencesRelations = relations(
+  userAppearancePreferences,
+  ({ one }) => ({
+    tenant: one(tenants, {
+      fields: [userAppearancePreferences.tenantId],
+      references: [tenants.id],
+    }),
+  })
+);
+
 export const companiesRelations = relations(companies, ({ one, many }) => ({
   tenant: one(tenants, {
     fields: [companies.tenantId],
@@ -1817,6 +1859,8 @@ export const databaseSchema: Omit<
   tenantMembershipsRelations,
   tenantSettings,
   tenantSettingsRelations,
+  userAppearancePreferences,
+  userAppearancePreferencesRelations,
   tenants,
   tenantsRelations,
   webhookEndpoints,

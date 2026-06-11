@@ -2,6 +2,14 @@
 
 Use this file for package-local public API notes when the repo does not require a broader release-note system.
 
+## 2026-06-11 (MUI-VIS-016 / catalog 9.5)
+
+- Date: 2026-06-11
+- Change: Implemented per-renderer axe audit (MUI-VIS-016): manifest-driven `tests/renderer-axe-audit.test.tsx` with vitest-axe, `check:renderer-axe-audit`, `check:action-a11y`, `check:renderer-catalog`, and `check:visualization-signoff` gates wired into `pnpm verify`. Upgraded menu actions to `@repo/ui` `DropdownMenu` via `MenuActionSurface`.
+- Public impact: `MenuActionRenderer` now opens a real dropdown menu (overflow actions invoke `onAction` from menu items). No breaking API changes to contracts or package subpaths.
+- Snapshot updated: No public export changes.
+- Follow-up: Run `pnpm --filter @repo/metadata-ui check:renderer-axe-audit` when adding manifest renderers. Run `pnpm --filter @repo/metadata-ui check:renderer-catalog` after manifest/registry changes.
+
 ## 2026-06-11 (MUI-008 / Enterprise AC #8)
 
 - Date: 2026-06-11

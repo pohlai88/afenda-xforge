@@ -29,7 +29,9 @@
     "clean": "git clean -xdf .cache .turbo dist node_modules",
     "globals:css": "tsx scripts/generate-globals-css.mts",
     "globals:css:check": "tsx scripts/generate-globals-css.mts --check",
-    "test": "node --import tsx --test src/tests/design-system.test.ts src/tests/token-contract.test.ts src/tests/globals-css.test.ts src/tests/variant-contract.test.ts src/tests/public-exports.test.ts src/tests/resolve-tenant-branding.test.ts",
+    "check:hue-reservation": "tsx scripts/check-hue-reservation.mts",
+    "check:color-contrast": "tsx scripts/check-color-contrast.mts",
+    "test": "node --import tsx --test src/tests/design-system.test.ts src/tests/token-contract.test.ts src/tests/globals-css.test.ts src/tests/variant-contract.test.ts src/tests/public-exports.test.ts src/tests/resolve-tenant-branding.test.ts src/tests/merge-effective-branding.test.ts src/tests/hue-reservation.test.ts src/tests/validate-branding-colors.test.ts",
     "typecheck": "tsc --noEmit --emitDeclarationOnly false"
   },
   "dependencies": {
@@ -37,6 +39,7 @@
   },
   "devDependencies": {
     "@types/node": "catalog:",
+    "culori": "^4.0.2",
     "tsx": "catalog:",
     "typescript": "catalog:"
   }

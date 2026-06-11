@@ -8,9 +8,13 @@ import {
   MenuActionRenderer,
 } from "../src/renderers/actions";
 import { BaseActionRenderer } from "../src/renderers/actions/base-action.renderer";
+import { MenuActionSurface } from "../src/renderers/actions/menu-action-surface";
 import { test } from "./test-runtime";
 
 type TestElement = ReactElement<any, any>;
+
+const getTypeName = (element: TestElement | undefined): string | undefined =>
+  typeof element?.type === "string" ? element.type : element?.type?.name;
 
 const context = createMetadataRenderContext(undefined, {
   mode: "read",
@@ -31,6 +35,7 @@ const expandActionTree = (node: ReactNode): ReactNode => {
     element.type === ButtonActionRenderer ||
     element.type === DestructiveActionRenderer ||
     element.type === MenuActionRenderer ||
+    element.type === MenuActionSurface ||
     element.type === BaseActionRenderer
   ) {
     return expandActionTree(element.type(element.props));
@@ -134,6 +139,29 @@ test("menu action renderer marks popup intent", () => {
 
   assert.equal(button?.props["aria-haspopup"], "menu");
   assert.equal(button?.props.variant, "ghost");
+  assert.ok(
+    ((): boolean => {
+      const walk = (node: ReactNode): boolean => {
+        if (Array.isArray(node)) {
+          return node.some((child) => walk(child));
+        }
+
+        if (!node || typeof node !== "object" || !("type" in node)) {
+          return false;
+        }
+
+        const candidate = node as TestElement;
+        if (getTypeName(candidate) === "DropdownMenu") {
+          return true;
+        }
+
+        return walk(candidate.props.children);
+      };
+
+      return walk(element);
+    })(),
+    "menu action should render DropdownMenu"
+  );
 });
 
 test("confirmation blocks destructive action execution until confirmed", () => {
