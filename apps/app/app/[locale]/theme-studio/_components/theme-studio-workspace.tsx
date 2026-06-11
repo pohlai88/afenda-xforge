@@ -1,9 +1,10 @@
 "use client";
 
-import { ModeToggle } from "@repo/ui";
 import { WorkspaceNavSiteTopbar } from "@repo/ui/components/compose/workspace";
 import { usePathname } from "next/navigation";
 import type { ReactElement, ReactNode } from "react";
+import { AppNavTopbarActions } from "../../../_components/workspace/app-nav-topbar-actions.tsx";
+import { AppNavTopbarThemeToggle } from "../../../_components/workspace/app-nav-topbar-theme-toggle.tsx";
 import { WorkspaceFrame } from "../../../_components/workspace/workspace-frame.tsx";
 import {
   THEME_STUDIO_DEPARTMENTS,
@@ -32,6 +33,12 @@ export function ThemeStudioWorkspace({
   return (
     <WorkspaceFrame
       appNavTopbar={{
+        actions: (
+          <AppNavTopbarActions
+            themeMenu={<AppNavTopbarThemeToggle />}
+            userName="Preview User"
+          />
+        ),
         switchers: [
           {
             defaultOptionId: THEME_STUDIO_ORGANIZATIONS[0]?.id,
@@ -58,7 +65,6 @@ export function ThemeStudioWorkspace({
       sidebar={<ThemeStudioRailSidebar />}
       topBar={
         <WorkspaceNavSiteTopbar
-          actions={<ModeToggle />}
           scopeLabel="WORKSPACE RAIL"
           title={activePage?.label ?? "Preview pages"}
         />

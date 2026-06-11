@@ -2,6 +2,7 @@ import assert from "node:assert/strict";
 import type { ReactElement, ReactNode } from "react";
 
 import { createMetadataRenderContext } from "../src/contracts/render-context.defaults";
+import { EnterpriseDropdownMenu } from "../src/components/enterprise-dropdown-menu";
 import {
   ButtonActionRenderer,
   DestructiveActionRenderer,
@@ -36,6 +37,7 @@ const expandActionTree = (node: ReactNode): ReactNode => {
     element.type === DestructiveActionRenderer ||
     element.type === MenuActionRenderer ||
     element.type === MenuActionSurface ||
+    element.type === EnterpriseDropdownMenu ||
     element.type === BaseActionRenderer
   ) {
     return expandActionTree(element.type(element.props));

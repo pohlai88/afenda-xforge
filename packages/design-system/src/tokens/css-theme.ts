@@ -27,7 +27,14 @@ import {
   STATUS_DARK_DECLARATIONS,
   STATUS_LIGHT_DECLARATIONS,
 } from "./status-tokens";
-import { FONT_FEATURE_TOKENS, TEXT_UTILITY_TOKENS } from "./typography-tokens";
+import {
+  FONT_FEATURE_TOKENS,
+  TEXT_UTILITY_TOKENS,
+  TYPE_SCALE_DEFINITIONS,
+  TYPE_SCALE_ROLES,
+  TYPE_UTILITY_TOKENS,
+  TAILWIND_TEXT_SIZE_OVERRIDES,
+} from "./typography-tokens";
 
 export type CssDeclaration = readonly [name: string, value: string];
 
@@ -59,6 +66,63 @@ export const GLOBALS_CSS_RADIUS_THEME_DECLARATIONS: readonly CssDeclaration[] = 
   ["--radius-control", "var(--radius-control)"],
   ["--radius-panel", "var(--radius-panel)"],
 ] as const;
+
+function typeScaleRootDeclarations(): readonly CssDeclaration[] {
+  return TYPE_SCALE_ROLES.flatMap((role) => {
+    const definition = TYPE_SCALE_DEFINITIONS[role];
+
+    return [
+      [`${definition.cssVarPrefix}-size`, definition.fontSize],
+      [`${definition.cssVarPrefix}-leading`, definition.lineHeight],
+    ] as const;
+  });
+}
+
+function typeScaleThemeDeclarations(): readonly CssDeclaration[] {
+  const semantic = TYPE_SCALE_ROLES.flatMap((role) => {
+    const definition = TYPE_SCALE_DEFINITIONS[role];
+
+    return [
+      [`--text-${role}`, `var(${definition.cssVarPrefix}-size)`],
+      [`--text-${role}--line-height`, `var(${definition.cssVarPrefix}-leading)`],
+    ] as const;
+  });
+
+  const tailwindOverrides = Object.entries(TAILWIND_TEXT_SIZE_OVERRIDES).flatMap(
+    ([step, value]) =>
+      [
+        [`--text-${step}`, value.size],
+        [`--text-${step}--line-height`, value.lineHeight],
+      ] as const
+  );
+
+  return [...semantic, ...tailwindOverrides];
+}
+
+function renderTypeUtility(role: (typeof TYPE_SCALE_ROLES)[number]): string {
+  const definition = TYPE_SCALE_DEFINITIONS[role];
+  const lines = [
+    `font-size: var(${definition.cssVarPrefix}-size);`,
+    `line-height: var(${definition.cssVarPrefix}-leading);`,
+  ];
+
+  if (definition.fontWeight) {
+    lines.push(`font-weight: ${definition.fontWeight};`);
+  }
+
+  if (definition.letterSpacing) {
+    lines.push(`letter-spacing: ${definition.letterSpacing};`);
+  }
+
+  if (definition.textTransform) {
+    lines.push(`text-transform: ${definition.textTransform};`);
+  }
+
+  return lines.join("\n  ");
+}
+
+export const GLOBALS_CSS_TYPE_ROOT_DECLARATIONS: readonly CssDeclaration[] =
+  typeScaleRootDeclarations();
 
 export const GLOBALS_CSS_ROOT_DECLARATIONS: readonly CssDeclaration[] = [
   [
@@ -116,6 +180,7 @@ export const GLOBALS_CSS_ROOT_DECLARATIONS: readonly CssDeclaration[] = [
   ...sidebarRootDeclarations(SIDEBAR_LIGHT_DECLARATIONS),
   ...GLOBALS_CSS_LANE_ROOT_DECLARATIONS,
   ...GLOBALS_CSS_ACTIVE_LANE_DECLARATIONS,
+  ...GLOBALS_CSS_TYPE_ROOT_DECLARATIONS,
 ] as const;
 
 export const GLOBALS_CSS_DARK_DECLARATIONS: readonly CssDeclaration[] = [
@@ -194,11 +259,13 @@ export const GLOBALS_CSS_THEME_DECLARATIONS: readonly CssDeclaration[] = [
   ...colorThemeInlineDeclarations(STATUS_COLOR_TOKENS),
   ...SIDEBAR_THEME_INLINE_DECLARATIONS,
   ["--font-sans", "ui-sans-serif, system-ui, sans-serif"],
+  ["--font-heading", "ui-sans-serif, system-ui, sans-serif"],
   [
     "--font-mono",
     `ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono",
     "Courier New", monospace`,
   ],
+  ...typeScaleThemeDeclarations(),
   ["--color-chart-1", "var(--chart-1)"],
   ["--color-chart-2", "var(--chart-2)"],
   ["--color-chart-3", "var(--chart-3)"],
@@ -231,6 +298,11 @@ export const GLOBALS_CSS_UTILITIES = [
   ["text-tabular", "font-variant-numeric: tabular-nums;"],
   ["font-rlig", 'font-feature-settings: "rlig";'],
   ["font-calt", 'font-feature-settings: "calt";'],
+  ...TYPE_UTILITY_TOKENS.map((utility) => {
+    const role = utility.replace(/^type-/, "") as (typeof TYPE_SCALE_ROLES)[number];
+
+    return [utility, renderTypeUtility(role)] as const;
+  }),
   ["control-density", "min-height: var(--density-control-height);"],
   ["row-density", "min-height: var(--density-table-row-height);"],
 ] as const;
@@ -259,7 +331,9 @@ export function validateGlobalsCssTokens(): void {
     ANIMATION_TOKENS[0] !== "shimmer" ||
     !FONT_FEATURE_TOKENS.includes("rlig") ||
     !FONT_FEATURE_TOKENS.includes("calt") ||
-    !TEXT_UTILITY_TOKENS.includes("text-tabular")
+    !TEXT_UTILITY_TOKENS.includes("text-tabular") ||
+    TYPE_SCALE_ROLES.length !== 5 ||
+    TYPE_UTILITY_TOKENS.length !== 5
   ) {
     throw new Error("globals CSS tokens do not match the design-system contract");
   }

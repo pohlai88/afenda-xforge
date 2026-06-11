@@ -38,6 +38,12 @@ test("globals.css renders from the design-system adapter", async () => {
   assert.match(globalsCss, /--lane-active:/);
   assert.match(globalsCss, /--color-lane-active:/);
   assert.match(globalsCss, /--lane-money:/);
+  assert.match(globalsCss, /--type-read-size:\s*0\.75rem;/);
+  assert.match(globalsCss, /--type-label-size:\s*0\.375rem;/);
+  assert.match(globalsCss, /--text-sm:\s*0\.75rem;/);
+  assert.match(globalsCss, /@utility type-read/);
+  assert.match(globalsCss, /@utility type-label/);
+  assert.match(globalsCss, /--font-heading:/);
 });
 
 test("validateGlobalsCssTokens passes for the current contract", () => {

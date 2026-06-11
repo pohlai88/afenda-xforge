@@ -10,7 +10,7 @@ export function WorkspaceAppNavTopbarPattern() {
 
   return (
     <WorkspacePatternCard
-      description="Organization → department → team → project switchers driven by 7.4-workspace.demo-seed.json. Each parent change resets linked children."
+      description="Organization ÔåÆ department ÔåÆ team ÔåÆ project switchers driven by 7.4-workspace.demo-seed.json. Each parent change resets linked children."
       title="App nav topbar (1.0)"
     >
       <div className="overflow-hidden rounded-lg border">

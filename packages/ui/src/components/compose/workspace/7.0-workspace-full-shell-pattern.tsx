@@ -129,7 +129,7 @@ export function WorkspaceFullShellFrame({
           />
           <WorkspaceSiteContent padded>
             <div className="rounded-lg border border-dashed p-8 text-center text-muted-foreground text-sm">
-              Linked demo seed — switch org, department, team, or project in the
+              Linked demo seed ÔÇö switch org, department, team, or project in the
               app topbar to see child options update from 7.4-workspace.demo-seed.json.
             </div>
           </WorkspaceSiteContent>
@@ -142,7 +142,7 @@ export function WorkspaceFullShellFrame({
 export function WorkspaceFullShell(): ReactElement {
   return (
     <WorkspacePatternCard
-      description="6.0 provider + linked JSON demo seed (org → department → team → project). Mirrors WorkspaceFrame assembly."
+      description="6.0 provider + linked JSON demo seed (org ÔåÆ department ÔåÆ team ÔåÆ project). Mirrors WorkspaceFrame assembly."
       title="Full workspace shell"
     >
       <div className="overflow-hidden rounded-lg border">

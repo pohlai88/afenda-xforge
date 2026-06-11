@@ -133,6 +133,16 @@
   --lane-active-muted-foreground: var(--lane-governance-muted-foreground, oklch(0.42 0.06 305));
   --lane-active-border: var(--lane-governance-border, color-mix(in oklab, oklch(0.66 0.07 305) 35%, transparent));
   --lane-active-glow: var(--lane-governance-glow, color-mix(in oklab, oklch(0.66 0.07 305) 24%, transparent));
+  --type-read-size: 0.75rem;
+  --type-read-leading: 1.0833;
+  --type-head-size: 0.75rem;
+  --type-head-leading: 1.0833;
+  --type-caption-size: 0.625rem;
+  --type-caption-leading: 1.2;
+  --type-micro-size: 0.5rem;
+  --type-micro-leading: 1.25;
+  --type-label-size: 0.375rem;
+  --type-label-leading: 1.167;
 }
 
 .dark {
@@ -310,8 +320,45 @@
   --color-sidebar-border: var(--sidebar-border);
   --color-sidebar-ring: var(--sidebar-ring);
   --font-sans: ui-sans-serif, system-ui, sans-serif;
+  --font-heading: ui-sans-serif, system-ui, sans-serif;
   --font-mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono",
     "Courier New", monospace;
+  --text-read: var(--type-read-size);
+  --text-read--line-height: var(--type-read-leading);
+  --text-head: var(--type-head-size);
+  --text-head--line-height: var(--type-head-leading);
+  --text-caption: var(--type-caption-size);
+  --text-caption--line-height: var(--type-caption-leading);
+  --text-micro: var(--type-micro-size);
+  --text-micro--line-height: var(--type-micro-leading);
+  --text-label: var(--type-label-size);
+  --text-label--line-height: var(--type-label-leading);
+  --text-xs: 0.625rem;
+  --text-xs--line-height: 1.2;
+  --text-sm: 0.75rem;
+  --text-sm--line-height: 1.0833;
+  --text-base: 0.75rem;
+  --text-base--line-height: 1.0833;
+  --text-lg: 0.75rem;
+  --text-lg--line-height: 1.0833;
+  --text-xl: 0.75rem;
+  --text-xl--line-height: 1.0833;
+  --text-2xl: 0.75rem;
+  --text-2xl--line-height: 1.0833;
+  --text-3xl: 0.75rem;
+  --text-3xl--line-height: 1.0833;
+  --text-4xl: 0.75rem;
+  --text-4xl--line-height: 1.0833;
+  --text-5xl: 0.75rem;
+  --text-5xl--line-height: 1.0833;
+  --text-6xl: 0.75rem;
+  --text-6xl--line-height: 1.0833;
+  --text-7xl: 0.75rem;
+  --text-7xl--line-height: 1.0833;
+  --text-8xl: 0.75rem;
+  --text-8xl--line-height: 1.0833;
+  --text-9xl: 0.75rem;
+  --text-9xl--line-height: 1.0833;
   --color-chart-1: var(--chart-1);
   --color-chart-2: var(--chart-2);
   --color-chart-3: var(--chart-3);
@@ -403,7 +450,7 @@
   }
 
   body {
-    @apply min-h-dvh bg-background text-foreground antialiased;
+    @apply min-h-dvh bg-background text-foreground antialiased text-sm;
   }
 
   button,
@@ -424,6 +471,35 @@
 
 @utility font-calt {
   font-feature-settings: "calt";
+}
+
+@utility type-read {
+  font-size: var(--type-read-size);
+  line-height: var(--type-read-leading);
+}
+
+@utility type-head {
+  font-size: var(--type-head-size);
+  line-height: var(--type-head-leading);
+  font-weight: 500;
+}
+
+@utility type-caption {
+  font-size: var(--type-caption-size);
+  line-height: var(--type-caption-leading);
+}
+
+@utility type-micro {
+  font-size: var(--type-micro-size);
+  line-height: var(--type-micro-leading);
+}
+
+@utility type-label {
+  font-size: var(--type-label-size);
+  line-height: var(--type-label-leading);
+  font-weight: 500;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
 }
 
 @utility control-density {

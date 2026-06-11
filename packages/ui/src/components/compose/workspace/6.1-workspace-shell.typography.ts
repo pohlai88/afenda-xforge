@@ -1,11 +1,10 @@
 /**
  * Workspace shell typography + layout tokens.
  *
- * Hierarchy (Codex-style compact chrome):
- * - 13px — sidebar navigation
- * - 12px — app topbar values, breadcrumb, dropdown items
- * - 10px — dropdown menu labels
- * - 6px — app topbar scope micro labels
+ * Uses the compact Afenda type scale from globals.css:
+ * - type-read / type-head — 12px maximum for reading and topic titles
+ * - type-caption / type-micro — sentence-case metadata
+ * - type-label — 6px maximum for uppercase labels
  *
  * Colors and surfaces use shadcn semantic tokens (bg-background, border-border,
  * text-sidebar-foreground, text-muted-foreground). Do not add hex values here.
@@ -22,29 +21,26 @@ const WORKSPACE_SHELL_CHROME_IDLE =
   "text-muted-foreground transition-colors hover:bg-muted hover:text-foreground focus-visible:text-foreground data-[state=open]:bg-muted data-[state=open]:text-foreground";
 
 export const WORKSPACE_SHELL_TYPE = {
-  sidebarRoot: "text-[13px] text-sidebar-foreground antialiased",
+  sidebarRoot: "type-read text-sidebar-foreground antialiased",
   appTopbarScopeLabel:
-    "text-[6px] font-normal uppercase tracking-[0.04em] leading-[7px] text-muted-foreground/65",
+    "type-label tracking-[0.04em] leading-[7px] text-muted-foreground/65",
   appTopbarItemValue:
-    "truncate text-[12px] font-normal leading-[13px] tracking-[-0.01em] text-sidebar-foreground",
+    "type-read truncate leading-[13px] tracking-[-0.01em] text-sidebar-foreground",
   appTopbarSwitcherValueMax: "max-w-[20ch]",
   appTopbarBreadcrumb:
-    "flex-nowrap gap-1 text-[12px] text-muted-foreground sm:gap-1",
+    "type-read flex-nowrap gap-1 text-muted-foreground sm:gap-1",
   appTopbarSwitcherIdle: WORKSPACE_SHELL_CHROME_IDLE,
-  appTopbarSeparator: "text-[12px] text-muted-foreground/45 [&>svg]:size-3",
-  siteTopbarTitle:
-    "text-[13px] font-normal tracking-[-0.01em] text-foreground",
+  appTopbarSeparator: "type-read text-muted-foreground/45 [&>svg]:size-3",
+  siteTopbarTitle: "type-head tracking-[-0.01em] text-foreground",
   siteTopbarDescription:
-    "text-[8px] font-normal leading-[10px] tracking-[0.01em] text-muted-foreground/70",
-  sectionLabel:
-    "px-2 text-[11px] font-medium uppercase tracking-[0.08em] text-muted-foreground/70",
+    "type-caption leading-[10px] tracking-[0.01em] text-muted-foreground/70",
+  sectionLabel: "type-label px-2 text-muted-foreground/70",
   navItem:
-    "text-[13px] font-normal tracking-[-0.005em] text-sidebar-foreground/88",
+    "type-read tracking-[-0.005em] text-sidebar-foreground/88",
   navItemActive:
-    "text-[13px] font-medium tracking-[-0.005em] text-sidebar-foreground",
-  menuLabel:
-    "text-[10px] font-medium uppercase tracking-[0.08em] text-muted-foreground/70",
-  menuItem: "text-[12px] font-normal tracking-[-0.005em]",
+    "type-read font-medium tracking-[-0.005em] text-sidebar-foreground",
+  menuLabel: "type-label text-muted-foreground/70",
+  menuItem: "type-read tracking-[-0.005em]",
 } as const;
 
 /** Canonical 1px hairlines — finest reliable border on all displays. */

@@ -1,16 +1,10 @@
 "use client";
 
 import { ChevronDown } from "lucide-react";
-import type { ReactElement } from "react";
-import { Fragment, useState } from "react";
+import type { ReactElement, ReactNode } from "react";
+import { useState } from "react";
 
 import { cn } from "../../../lib/utils";
-import {
-  Breadcrumb,
-  BreadcrumbItem,
-  BreadcrumbList,
-  BreadcrumbSeparator,
-} from "../../ui-shadcn/breadcrumb";
 import { Button } from "../../ui-shadcn/button";
 import {
   DropdownMenu,
@@ -35,15 +29,26 @@ import {
 
 export const WORKSPACE_APP_NAV_TOPBAR_HEIGHT = WORKSPACE_SHELL_CHROME_HEIGHT;
 
+const WORKSPACE_APP_TOPBAR_SWITCHER_MAX_CHARS = 20;
+
 export type WorkspaceAppNavTopbarProps = {
+  actions?: ReactNode;
   brand?: ReactElement;
   brandHomeHref?: string;
   className?: string;
   showSidebarTrigger?: boolean;
-  switchers: readonly WorkspaceNavContextSwitcherProps[];
+  switchers?: readonly WorkspaceNavContextSwitcherProps[];
 };
 
-function BreadcrumbSwitcher({
+function truncateSwitcherLabel(value: string): string {
+  if (value.length <= WORKSPACE_APP_TOPBAR_SWITCHER_MAX_CHARS) {
+    return value;
+  }
+
+  return `${value.slice(0, WORKSPACE_APP_TOPBAR_SWITCHER_MAX_CHARS - 1)}…`;
+}
+
+function ContextSwitcher({
   activeOptionId: activeOptionIdProp,
   defaultOptionId,
   menuLabel,
@@ -82,7 +87,7 @@ function BreadcrumbSwitcher({
         >
           <span className="flex min-w-0 flex-1 flex-col items-start justify-center gap-0">
             <span className={WORKSPACE_SHELL_TYPE.appTopbarScopeLabel}>
-              {scopeIndicator}
+              {truncateSwitcherLabel(scopeIndicator)}
             </span>
             <span
               className={cn(
@@ -90,7 +95,7 @@ function BreadcrumbSwitcher({
                 WORKSPACE_SHELL_TYPE.appTopbarSwitcherValueMax
               )}
             >
-              {activeOption.name}
+              {truncateSwitcherLabel(activeOption.name)}
             </span>
           </span>
           <ChevronDown className="size-3.5 shrink-0 text-muted-foreground/70" />
@@ -121,11 +126,12 @@ function BreadcrumbSwitcher({
 }
 
 export function WorkspaceAppNavTopbar({
+  actions,
   brand,
   brandHomeHref,
   className,
   showSidebarTrigger = true,
-  switchers,
+  switchers = [],
 }: WorkspaceAppNavTopbarProps): ReactElement {
   return (
     <div
@@ -146,32 +152,31 @@ export function WorkspaceAppNavTopbar({
           )}
         />
       ) : null}
-      {brand ?? (
-        <WorkspaceAppNavTopbarBrand homeHref={brandHomeHref} />
-      )}
-      <Breadcrumb
-        aria-label="Workspace context"
-        className="min-w-0 flex-1 overflow-x-auto"
-      >
-        <BreadcrumbList className={WORKSPACE_SHELL_TYPE.appTopbarBreadcrumb}>
+      {brand ?? <WorkspaceAppNavTopbarBrand homeHref={brandHomeHref} />}
+      {switchers.length > 0 ? (
+        <nav
+          aria-label="Workspace context"
+          className={cn(
+            "flex min-w-0 flex-1 items-center overflow-x-auto",
+            WORKSPACE_SHELL_TYPE.appTopbarBreadcrumb
+          )}
+        >
           {switchers.map((switcher, index) => {
             const switcherKey = `${switcher.scope ?? switcher.menuLabel ?? "switcher"}-${index}`;
 
             return (
-              <Fragment key={switcherKey}>
-                {index > 0 ? (
-                  <BreadcrumbSeparator
-                    className={WORKSPACE_SHELL_TYPE.appTopbarSeparator}
-                  />
-                ) : null}
-                <BreadcrumbItem className="min-w-0">
-                  <BreadcrumbSwitcher {...switcher} showShortcuts={false} />
-                </BreadcrumbItem>
-              </Fragment>
+              <div className="min-w-0 shrink-0" key={switcherKey}>
+                <ContextSwitcher {...switcher} showShortcuts={false} />
+              </div>
             );
           })}
-        </BreadcrumbList>
-      </Breadcrumb>
+        </nav>
+      ) : (
+        <div className="min-w-0 flex-1" />
+      )}
+      {actions ? (
+        <div className="ms-auto flex shrink-0 items-center">{actions}</div>
+      ) : null}
     </div>
   );
 }

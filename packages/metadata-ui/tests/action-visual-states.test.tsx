@@ -2,6 +2,7 @@ import assert from "node:assert/strict";
 import type { ReactElement, ReactNode } from "react";
 import type { MetadataActionSurface } from "../src/contracts/action-renderer.contract";
 import { createMetadataRenderContext } from "../src/contracts/render-context.defaults";
+import { EnterpriseDropdownMenu } from "../src/components/enterprise-dropdown-menu";
 import {
   ACTION_VISUAL_MATRIX,
   ButtonActionRenderer,
@@ -35,7 +36,8 @@ const expandActionTree = (node: ReactNode): ReactNode => {
     element.type === ButtonActionRenderer ||
     element.type === DestructiveActionRenderer ||
     element.type === MenuActionRenderer ||
-    element.type === MenuActionSurface
+    element.type === MenuActionSurface ||
+    element.type === EnterpriseDropdownMenu
   ) {
     return expandActionTree(element.type(element.props));
   }

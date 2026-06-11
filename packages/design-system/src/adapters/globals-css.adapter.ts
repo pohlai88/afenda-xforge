@@ -74,7 +74,7 @@ export function renderGlobalsCss(): string {
       "shimmer"
     )}\n}`,
     "",
-    "@layer base {\n  * {\n    @apply border-border outline-ring/50;\n  }\n\n  html {\n    @apply bg-background text-foreground;\n  }\n\n  body {\n    @apply min-h-dvh bg-background text-foreground antialiased;\n  }\n\n  button,\n  input,\n  select,\n  textarea {\n    @apply [font:inherit];\n  }\n}",
+    "@layer base {\n  * {\n    @apply border-border outline-ring/50;\n  }\n\n  html {\n    @apply bg-background text-foreground;\n  }\n\n  body {\n    @apply min-h-dvh bg-background text-foreground antialiased text-sm;\n  }\n\n  button,\n  input,\n  select,\n  textarea {\n    @apply [font:inherit];\n  }\n}",
     "",
     ...GLOBALS_CSS_UTILITIES.flatMap(([name, body]) => [
       renderUtility(name, `  ${body}`),

@@ -44,6 +44,8 @@ const tokenGroups: Record<string, readonly unknown[]> = {
   status: designSystemTokenGroups.color.status,
   surface: designSystemTokenGroups.color.surface,
   textUtilities: designSystemTokenGroups.typography.textUtilities,
+  typeScaleRoles: designSystemTokenGroups.typography.typeScaleRoles,
+  typeUtilities: designSystemTokenGroups.typography.typeUtilities,
   themeBrandColorTokens: designSystemTokenGroups.theme.brandColorTokens,
   themePresetNames: designSystemTokenGroups.theme.presetNames,
   visualLaneIds: designSystemTokenGroups.visualLanes.ids,

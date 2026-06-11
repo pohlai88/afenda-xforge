@@ -15,6 +15,7 @@ It owns:
 - independent chart palette (`--chart-1` through `--chart-7`, not brand aliases)
 - tenant hue collision validation via `validateTenantBrandingColors`
 - base layer defaults
+- compact typography scale (`type-read`, `type-head`, `type-caption`, `type-micro`, `type-label`) with Tailwind `text-sm` capped at 12px
 - utilities such as `control-density`, `row-density`, `text-tabular`, `font-rlig`, and `font-calt`
 - reduced-motion overrides
 - radius scale and animation token exports used by the design-system globals CSS adapter

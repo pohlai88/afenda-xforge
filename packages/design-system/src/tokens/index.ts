@@ -37,6 +37,8 @@ import {
   FONT_FAMILY_TOKENS as fontFamilyTokensValue,
   FONT_FEATURE_TOKENS as fontFeatureTokensValue,
   TEXT_UTILITY_TOKENS as textUtilityTokensValue,
+  TYPE_SCALE_ROLES as typeScaleRolesValue,
+  TYPE_UTILITY_TOKENS as typeUtilityTokensValue,
 } from "./typography-tokens";
 
 export const animationTokens: typeof animationTokensValue =
@@ -71,6 +73,9 @@ export const statusColorTokens: typeof statusColorTokensValue =
   statusColorTokensValue;
 export const textUtilityTokens: typeof textUtilityTokensValue =
   textUtilityTokensValue;
+export const typeScaleRoles: typeof typeScaleRolesValue = typeScaleRolesValue;
+export const typeUtilityTokens: typeof typeUtilityTokensValue =
+  typeUtilityTokensValue;
 export const themeBrandColorTokens: typeof themeBrandColorTokensValue =
   themeBrandColorTokensValue;
 export const themePresetNames: typeof themePresetNamesValue =
@@ -106,6 +111,8 @@ export const designSystemTokenGroups = {
     fontPresets: fontPresetsValue,
     fontRoles: fontRolesValue,
     textUtilities: textUtilityTokensValue,
+    typeScaleRoles: typeScaleRolesValue,
+    typeUtilities: typeUtilityTokensValue,
   },
   theme: {
     brandColorTokens: themeBrandColorTokensValue,

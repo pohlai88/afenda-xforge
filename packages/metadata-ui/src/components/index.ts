@@ -1,5 +1,11 @@
 export { composeMetadataWithDiagnostics } from "./compose-metadata-with-diagnostics";
 export {
+  buildEnterpriseDropdownGroupsFromMetadataActions,
+  metadataActionToEnterpriseDropdownItem,
+  type BuildEnterpriseDropdownFromMetadataOptions,
+} from "./build-enterprise-dropdown-from-metadata";
+export { EnterpriseDropdownMenu } from "./enterprise-dropdown-menu";
+export {
   renderMetadataStatus,
   renderMetadataTableCell,
   resolveStatusTone,

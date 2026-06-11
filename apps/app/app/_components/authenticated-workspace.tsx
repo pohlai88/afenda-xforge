@@ -4,6 +4,7 @@ import { usePathname } from "next/navigation";
 import type { ReactElement, ReactNode } from "react";
 import { AuthenticatedFeatureScope } from "./authenticated-feature-scope.tsx";
 import { AuthenticatedSidebar } from "./authenticated-sidebar.tsx";
+import { AuthenticatedAppNavTopbarActions } from "./authenticated-app-nav-topbar-actions.tsx";
 import { AuthenticatedTopBar } from "./authenticated-top-bar.tsx";
 import {
   AUTHENTICATED_DEFAULT_FEATURE_ID,
@@ -28,6 +29,9 @@ export function AuthenticatedWorkspace({
 
   return (
     <WorkspaceFrame
+      appNavTopbar={{
+        actions: <AuthenticatedAppNavTopbarActions />,
+      }}
       collapsible="icon"
       contentPadded
       sidebar={<AuthenticatedSidebar />}
