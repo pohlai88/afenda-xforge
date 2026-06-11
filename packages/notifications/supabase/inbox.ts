@@ -251,6 +251,51 @@ export const markNotificationRead = async ({
   return updated[0] ? toNotificationInboxEntry(updated[0]) : null;
 };
 
+export const archiveAllNotifications = async ({
+  companyId,
+  includeCrossCompany = true,
+  tenantId,
+  userId,
+}: {
+  readonly companyId?: string | null;
+  readonly includeCrossCompany?: boolean;
+  readonly tenantId: string;
+  readonly userId: string;
+}): Promise<number> => {
+  const companyScope = buildCompanyScope({ companyId, includeCrossCompany });
+  const filters = [
+    eq(notificationInbox.tenantId, tenantId),
+    eq(notificationInbox.userId, userId),
+    isNull(notificationInbox.archivedAt),
+  ];
+
+  if (companyScope) {
+    filters.push(companyScope);
+  }
+
+  const where = and(...filters);
+  const now = new Date();
+  const updated = await timeDatabaseQuery(
+    () =>
+      database
+        .update(notificationInbox)
+        .set({
+          archivedAt: now,
+          updatedAt: now,
+        })
+        .where(where)
+        .returning({
+          id: notificationInbox.id,
+        }),
+    {
+      operation: "update",
+      resource: "notification_inbox",
+    }
+  );
+
+  return updated.length;
+};
+
 export const markAllNotificationsRead = async ({
   companyId,
   includeCrossCompany = true,

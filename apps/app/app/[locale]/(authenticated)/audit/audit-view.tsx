@@ -1,11 +1,11 @@
 import type { CustomizationLayerSet } from "@repo/customization/resolution";
 import type { EntityMetadata } from "@repo/metadata";
-import type { MetadataRenderContext } from "@repo/metadata-ui/contracts";
 import {
   EntityMetadataPanel,
   MetadataSectionStack,
   renderMetadataTableCell,
 } from "@repo/metadata-ui/components";
+import type { MetadataRenderContext } from "@repo/metadata-ui/contracts";
 import type { DashboardKpiTone } from "@repo/ui";
 import { Badge } from "@repo/ui/components/badge";
 import { Button } from "@repo/ui/components/button";
@@ -125,8 +125,8 @@ export function AuditView({
                 </h1>
                 <p className="max-w-3xl text-muted-foreground">
                   Transaction-aware audit records for this tenant, surfaced with
-                  the action, outcome, actor, target, route, policy, and
-                  request details operators need to trace exactly what changed.
+                  the action, outcome, actor, target, route, policy, and request
+                  details operators need to trace exactly what changed.
                 </p>
               </div>
 
@@ -178,7 +178,8 @@ export function AuditView({
                         },
                         {
                           description:
-                            latestEvent.policyReference || "No policy reference",
+                            latestEvent.policyReference ||
+                            "No policy reference",
                           title: "Policy evaluation",
                         },
                         {
@@ -195,7 +196,9 @@ export function AuditView({
                               {index + 1}
                             </span>
                             <div className="space-y-1">
-                              <p className="font-medium text-sm">{step.title}</p>
+                              <p className="font-medium text-sm">
+                                {step.title}
+                              </p>
                               <p className="text-muted-foreground text-xs">
                                 {step.description}
                               </p>
@@ -230,7 +233,8 @@ export function AuditView({
                               : "No approval required"}
                           </p>
                           <p className="text-muted-foreground text-xs">
-                            Operation {latestEvent.operationId || latestEvent.requestId}
+                            Operation{" "}
+                            {latestEvent.operationId || latestEvent.requestId}
                           </p>
                         </div>
                         {renderMetadataTableCell(
@@ -279,7 +283,8 @@ export function AuditView({
                 }
                 sections={[
                   {
-                    description: "Governed approval context for the latest audit event.",
+                    description:
+                      "Governed approval context for the latest audit event.",
                     key: "audit-approval-preview",
                     kind: "approval",
                     title: "Approval preview",

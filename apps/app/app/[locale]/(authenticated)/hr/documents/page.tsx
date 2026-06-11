@@ -1,15 +1,13 @@
 import { hrDocumentEntityMetadata } from "@repo/features-employee-management-documents-management/metadata/document-entity";
 import { resolveObjectStorageProviderKind } from "@repo/storage/provider";
+import { Button } from "@repo/ui/components/button";
 import Link from "next/link";
 import type { ReactElement } from "react";
 import { MetadataFeatureShell } from "../../../../_components/metadata-feature-shell.tsx";
 import { createAppMetadataContext } from "../../../../_lib/metadata-context.ts";
-import {
-  loadEntityMetadataCustomizations,
-} from "../../../../_lib/metadata-customizations.ts";
-import { Button } from "@repo/ui/components/button";
-import { DocumentsView } from "./documents-view.tsx";
+import { loadEntityMetadataCustomizations } from "../../../../_lib/metadata-customizations.ts";
 import { loadHrDocumentsPageData } from "./_data.ts";
+import { DocumentsView } from "./documents-view.tsx";
 
 const HR_DOCUMENTS_FEATURE_ID =
   "hr-suite.employee-management.documents-management";

@@ -1,5 +1,5 @@
-import { createMetadataRenderContext } from "@repo/metadata-ui/contracts";
 import type { MetadataRenderContext } from "@repo/metadata-ui/contracts";
+import { createMetadataRenderContext } from "@repo/metadata-ui/contracts";
 
 export type AppMetadataContextInput = {
   tenantId: string;

@@ -1,6 +1,6 @@
 "use client";
 
-import { useAuthClient } from "@repo/auth";
+import { useAuthClient } from "@repo/auth/provider";
 import type { MetadataActionContract } from "@repo/metadata-ui/contracts";
 import { Bell, CircleUser, CreditCard } from "lucide-react";
 import { useRouter } from "next/navigation";
@@ -10,6 +10,8 @@ import { createAppMetadataContext } from "../_lib/metadata-context.ts";
 import { useTenantBranding } from "./tenant-branding-context.tsx";
 import { AppNavTopbarActions } from "./workspace/app-nav-topbar-actions.tsx";
 import { appNavTopbarIconClassName } from "./workspace/app-nav-topbar-chrome.ts";
+import { AppNavTopbarNotifications } from "./workspace/app-nav-topbar-notifications.tsx";
+import { useWorkspaceShortcuts } from "./workspace/keyboard-shortcuts/use-keyboard-shortcuts.tsx";
 
 const USER_MENU_ICONS: Record<string, ReactNode> = {
   account: <CircleUser className={appNavTopbarIconClassName} />,
@@ -35,9 +37,14 @@ export function AuthenticatedAppNavTopbarActions(): ReactElement {
         return;
       }
 
-      const metadata = data.user.user_metadata as Record<string, unknown> | null;
+      const metadata = data.user.user_metadata as Record<
+        string,
+        unknown
+      > | null;
       const fullName =
-        typeof metadata?.full_name === "string" ? metadata.full_name : undefined;
+        typeof metadata?.full_name === "string"
+          ? metadata.full_name
+          : undefined;
       const avatar =
         typeof metadata?.avatar_url === "string" ? metadata.avatar_url : null;
 
@@ -90,10 +97,16 @@ export function AuthenticatedAppNavTopbarActions(): ReactElement {
     }
   };
 
+  const { openHelp } = useWorkspaceShortcuts();
+
   return (
     <AppNavTopbarActions
       avatarUrl={avatarUrl}
       logoutLoading={logoutLoading}
+      notificationsMenu={
+        <AppNavTopbarNotifications tenantId={tenantId} userId={userId} />
+      }
+      onKeyboardShortcutsClick={openHelp}
       onLogout={handleLogout}
       onUserMenuAction={handleUserMenuAction}
       userEmail={email}

@@ -124,7 +124,11 @@ const FORM_FIELDS: FormField[] = [
 const POLICY_CHECKS = [
   { label: "Brand color contrast", result: "Passed", tone: "success" },
   { label: "Warning color separation", result: "Passed", tone: "success" },
-  { label: "Tenant identity completeness", result: "Needs input", tone: "warning" },
+  {
+    label: "Tenant identity completeness",
+    result: "Needs input",
+    tone: "warning",
+  },
   { label: "Finance activation", result: "Blocked", tone: "destructive" },
 ] as const;
 
@@ -179,250 +183,256 @@ function getHelperClasses(status: FieldStatus): string {
 export function FormExperiencePreview(): ReactElement {
   return (
     <PreviewPageShell>
-        <PreviewHeader
-          description="Validates inputs, selects, validation states, neutral focus rings, required markers, form summary, and approval submit surfaces — where many ERP themes fail."
-          previewNumber="03"
-          scores={[
-            { label: "Input clarity", value: 93 },
-            { label: "Focus visibility", value: 91 },
-            { label: "Validation clarity", value: 96 },
-          ]}
-          title="Form Experience Preview"
-        />
+      <PreviewHeader
+        description="Validates inputs, selects, validation states, neutral focus rings, required markers, form summary, and approval submit surfaces — where many ERP themes fail."
+        previewNumber="03"
+        scores={[
+          { label: "Input clarity", value: 93 },
+          { label: "Focus visibility", value: 91 },
+          { label: "Validation clarity", value: 96 },
+        ]}
+        title="Form Experience Preview"
+      />
 
-        <section className="grid gap-6 xl:grid-cols-[1.15fr_0.85fr]">
-          <Card className="shadow-sm">
-            <CardHeader className="border-border border-b">
-              <CardTitle>Tenant configuration form</CardTitle>
-              <CardDescription>
-                Realistic admin form with default, success, warning, and error
-                states on one screen.
-              </CardDescription>
-            </CardHeader>
+      <section className="grid gap-6 xl:grid-cols-[1.15fr_0.85fr]">
+        <Card className="shadow-sm">
+          <CardHeader className="border-border border-b">
+            <CardTitle>Tenant configuration form</CardTitle>
+            <CardDescription>
+              Realistic admin form with default, success, warning, and error
+              states on one screen.
+            </CardDescription>
+          </CardHeader>
 
-            <CardContent className="grid gap-5 md:grid-cols-2">
-              {FORM_FIELDS.map((field) => (
-                <FormFieldControl field={field} key={field.label} />
-              ))}
+          <CardContent className="grid gap-5 md:grid-cols-2">
+            {FORM_FIELDS.map((field) => (
+              <FormFieldControl field={field} key={field.label} />
+            ))}
 
-              <div className="space-y-2 md:col-span-2">
-                <Label htmlFor="operating-notes">Operating Notes</Label>
-                <Textarea
-                  className="min-h-32 px-4 py-3 leading-6"
-                  defaultValue="Tenant requires finance activation after registration number is verified. Theme customization is approved for brand preview only."
-                  id="operating-notes"
-                />
-                <p className="text-muted-foreground text-xs leading-5">
-                  Textarea validates long-form readability, focus ring, border
-                  contrast, and comfortable typing surfaces.
-                </p>
-              </div>
-            </CardContent>
+            <div className="space-y-2 md:col-span-2">
+              <Label htmlFor="operating-notes">Operating Notes</Label>
+              <Textarea
+                className="min-h-32 px-4 py-3 leading-6"
+                defaultValue="Tenant requires finance activation after registration number is verified. Theme customization is approved for brand preview only."
+                id="operating-notes"
+              />
+              <p className="text-muted-foreground text-xs leading-5">
+                Textarea validates long-form readability, focus ring, border
+                contrast, and comfortable typing surfaces.
+              </p>
+            </div>
+          </CardContent>
 
-            <CardFooter className="flex flex-col gap-3 border-border border-t sm:flex-row sm:items-center sm:justify-between">
-              <div>
-                <p className="font-medium text-sm">Draft saved locally</p>
-                <p className="mt-1 text-muted-foreground text-xs">
-                  Changes require validation before tenant activation.
-                </p>
-              </div>
+          <CardFooter className="flex flex-col gap-3 border-border border-t sm:flex-row sm:items-center sm:justify-between">
+            <div>
+              <p className="font-medium text-sm">Draft saved locally</p>
+              <p className="mt-1 text-muted-foreground text-xs">
+                Changes require validation before tenant activation.
+              </p>
+            </div>
 
-              <div className="flex flex-col gap-2 sm:flex-row">
-                <Button className="control-density" type="button" variant="outline">
-                  Save draft
-                </Button>
-                <Button className="control-density" type="button">
-                  Submit for approval
-                </Button>
-              </div>
-            </CardFooter>
-          </Card>
+            <div className="flex flex-col gap-2 sm:flex-row">
+              <Button
+                className="control-density"
+                type="button"
+                variant="outline"
+              >
+                Save draft
+              </Button>
+              <Button className="control-density" type="button">
+                Submit for approval
+              </Button>
+            </div>
+          </CardFooter>
+        </Card>
 
-          <aside className="grid gap-6">
-            <Card className="shadow-sm">
-              <CardHeader>
-                <CardTitle>Validation summary</CardTitle>
-                <CardDescription>
-                  Status colors stay semantic — tenant brand must not change
-                  these meanings.
-                </CardDescription>
-              </CardHeader>
-              <CardContent className="grid gap-3">
-                <Alert variant="info">
-                  <AlertTitle>Semantic validation colors</AlertTitle>
-                  <AlertDescription>
-                    Status tokens below must stay fixed under tenant brand
-                    customization — brand primary must not replace warning or
-                    destructive meaning.
-                  </AlertDescription>
-                </Alert>
-
-                {POLICY_CHECKS.map((check) => (
-                  <div
-                    className={cn(
-                      "flex items-center justify-between border border-border bg-surface p-4",
-                      PREVIEW_PANEL_CLASS
-                    )}
-                    key={check.label}
-                  >
-                    <div>
-                      <p className="font-medium text-sm">{check.label}</p>
-                      <p className="mt-1 text-muted-foreground text-xs">
-                        System validation
-                      </p>
-                    </div>
-                    <Badge size="sm" variant={TONE_BADGE[check.tone]}>
-                      {check.result}
-                    </Badge>
-                  </div>
-                ))}
-              </CardContent>
-            </Card>
-
-            <Card className="shadow-sm">
-              <CardHeader>
-                <CardTitle>Focus ring test</CardTitle>
-                <CardDescription>
-                  Default focus uses neutral ring. Brand ring is reserved for
-                  selected navigation or marketing chrome.
-                </CardDescription>
-              </CardHeader>
-              <CardContent className="grid gap-4">
-                <div
-                  className={cn(
-                    "border border-border bg-surface p-4",
-                    PREVIEW_PANEL_CLASS
-                  )}
-                >
-                  <Label htmlFor="neutral-focus">Neutral focus input</Label>
-                  <Input
-                    className="control-density mt-2"
-                    defaultValue="Neutral ring from --ring"
-                    id="neutral-focus"
-                  />
-                </div>
-
-                <div
-                  className={cn(
-                    "border border-primary/30 bg-primary/10 p-4",
-                    PREVIEW_PANEL_CLASS
-                  )}
-                >
-                  <Label className="text-primary">Brand-selected surface</Label>
-                  <div
-                    className={cn(
-                      "mt-2 border border-primary/40 bg-card px-4 py-3 text-sm shadow-[0_0_24px_var(--brand-primary)]/10",
-                      PREVIEW_PANEL_CLASS
-                    )}
-                  >
-                    Uses brand color as identity chrome, not default form
-                    focus.
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-          </aside>
-        </section>
-
-        <section className="grid gap-6 xl:grid-cols-[0.85fr_1.15fr]">
+        <aside className="grid gap-6">
           <Card className="shadow-sm">
             <CardHeader>
-              <CardTitle>Form state palette</CardTitle>
+              <CardTitle>Validation summary</CardTitle>
               <CardDescription>
-                Each state remains visually distinct under tenant customization.
+                Status colors stay semantic — tenant brand must not change these
+                meanings.
               </CardDescription>
             </CardHeader>
             <CardContent className="grid gap-3">
-              <StatePreview
-                className={TONE_SURFACE.success}
-                description="Verified, valid, approved, or completed."
-                title="Success"
-              />
-              <StatePreview
-                className={TONE_SURFACE.warning}
-                description="Needs attention but does not block progress."
-                title="Warning"
-              />
-              <StatePreview
-                className={TONE_SURFACE.destructive}
-                description="Invalid, blocked, rejected, or dangerous action."
-                title="Destructive"
-              />
-              <StatePreview
-                className={TONE_SURFACE.info}
-                description="Reference, evidence, note, or system message."
-                title="Info"
-              />
+              <Alert variant="info">
+                <AlertTitle>Semantic validation colors</AlertTitle>
+                <AlertDescription>
+                  Status tokens below must stay fixed under tenant brand
+                  customization — brand primary must not replace warning or
+                  destructive meaning.
+                </AlertDescription>
+              </Alert>
+
+              {POLICY_CHECKS.map((check) => (
+                <div
+                  className={cn(
+                    "flex items-center justify-between border border-border bg-surface p-4",
+                    PREVIEW_PANEL_CLASS
+                  )}
+                  key={check.label}
+                >
+                  <div>
+                    <p className="font-medium text-sm">{check.label}</p>
+                    <p className="mt-1 text-muted-foreground text-xs">
+                      System validation
+                    </p>
+                  </div>
+                  <Badge size="sm" variant={TONE_BADGE[check.tone]}>
+                    {check.result}
+                  </Badge>
+                </div>
+              ))}
             </CardContent>
           </Card>
 
           <Card className="shadow-sm">
             <CardHeader>
-              <CardTitle>Approval submit panel</CardTitle>
+              <CardTitle>Focus ring test</CardTitle>
               <CardDescription>
-                Form footer must clearly show what happens when configuration
-                changes are submitted.
+                Default focus uses neutral ring. Brand ring is reserved for
+                selected navigation or marketing chrome.
               </CardDescription>
             </CardHeader>
-            <CardContent className="space-y-5">
-              <Alert className="items-start" variant="warning">
-                <TriangleAlertIcon />
-                <AlertTitle>Approval required before activation</AlertTitle>
-                <AlertDescription>
-                  Finance activation is blocked until required registration fields
-                  are completed. Theme customization can be saved as a draft but
-                  cannot be published yet.
-                </AlertDescription>
-                <AlertAction>
-                  <Badge size="sm" variant="warning-light">
-                    Pending Review
-                  </Badge>
-                </AlertAction>
-              </Alert>
+            <CardContent className="grid gap-4">
+              <div
+                className={cn(
+                  "border border-border bg-surface p-4",
+                  PREVIEW_PANEL_CLASS
+                )}
+              >
+                <Label htmlFor="neutral-focus">Neutral focus input</Label>
+                <Input
+                  className="control-density mt-2"
+                  defaultValue="Neutral ring from --ring"
+                  id="neutral-focus"
+                />
+              </div>
 
-              <div className="grid gap-3 md:grid-cols-3">
-                <MiniStat label="Missing fields" tone="destructive" value="1" />
-                <MiniStat label="Warnings" tone="warning" value="2" />
-                <MiniStat label="Passed checks" tone="success" value="8" />
+              <div
+                className={cn(
+                  "border border-primary/30 bg-primary/10 p-4",
+                  PREVIEW_PANEL_CLASS
+                )}
+              >
+                <Label className="text-primary">Brand-selected surface</Label>
+                <div
+                  className={cn(
+                    "mt-2 border border-primary/40 bg-card px-4 py-3 text-sm shadow-[0_0_24px_var(--brand-primary)]/10",
+                    PREVIEW_PANEL_CLASS
+                  )}
+                >
+                  Uses brand color as identity chrome, not default form focus.
+                </div>
               </div>
             </CardContent>
           </Card>
-        </section>
+        </aside>
+      </section>
 
+      <section className="grid gap-6 xl:grid-cols-[0.85fr_1.15fr]">
         <Card className="shadow-sm">
           <CardHeader>
-            <CardTitle>Form preview validation notes</CardTitle>
+            <CardTitle>Form state palette</CardTitle>
             <CardDescription>
-              Page 3 confirms the theme is usable for enterprise input
-              workflows, not only dashboard presentation.
+              Each state remains visually distinct under tenant customization.
             </CardDescription>
           </CardHeader>
-          <CardContent className="grid gap-3 md:grid-cols-2 xl:grid-cols-4">
-            <ValidationNote
-              description="Neutral focus ring remains visible in dense form workflows."
-              title="Focus behavior"
+          <CardContent className="grid gap-3">
+            <StatePreview
+              className={TONE_SURFACE.success}
+              description="Verified, valid, approved, or completed."
+              title="Success"
             />
-            <ValidationNote
-              description="Destructive fields must be recognizable without relying only on red text."
-              title="Error recognition"
+            <StatePreview
+              className={TONE_SURFACE.warning}
+              description="Needs attention but does not block progress."
+              title="Warning"
             />
-            <ValidationNote
-              description="Warning must not be confused with warm brand accent."
-              title="Warning separation"
+            <StatePreview
+              className={TONE_SURFACE.destructive}
+              description="Invalid, blocked, rejected, or dangerous action."
+              title="Destructive"
             />
-            <ValidationNote
-              description="Textareas, labels, and helper copy remain readable in light and dark mode."
-              title="Long-form comfort"
+            <StatePreview
+              className={TONE_SURFACE.info}
+              description="Reference, evidence, note, or system message."
+              title="Info"
             />
           </CardContent>
         </Card>
+
+        <Card className="shadow-sm">
+          <CardHeader>
+            <CardTitle>Approval submit panel</CardTitle>
+            <CardDescription>
+              Form footer must clearly show what happens when configuration
+              changes are submitted.
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-5">
+            <Alert className="items-start" variant="warning">
+              <TriangleAlertIcon />
+              <AlertTitle>Approval required before activation</AlertTitle>
+              <AlertDescription>
+                Finance activation is blocked until required registration fields
+                are completed. Theme customization can be saved as a draft but
+                cannot be published yet.
+              </AlertDescription>
+              <AlertAction>
+                <Badge size="sm" variant="warning-light">
+                  Pending Review
+                </Badge>
+              </AlertAction>
+            </Alert>
+
+            <div className="grid gap-3 md:grid-cols-3">
+              <MiniStat label="Missing fields" tone="destructive" value="1" />
+              <MiniStat label="Warnings" tone="warning" value="2" />
+              <MiniStat label="Passed checks" tone="success" value="8" />
+            </div>
+          </CardContent>
+        </Card>
+      </section>
+
+      <Card className="shadow-sm">
+        <CardHeader>
+          <CardTitle>Form preview validation notes</CardTitle>
+          <CardDescription>
+            Page 3 confirms the theme is usable for enterprise input workflows,
+            not only dashboard presentation.
+          </CardDescription>
+        </CardHeader>
+        <CardContent className="grid gap-3 md:grid-cols-2 xl:grid-cols-4">
+          <ValidationNote
+            description="Neutral focus ring remains visible in dense form workflows."
+            title="Focus behavior"
+          />
+          <ValidationNote
+            description="Destructive fields must be recognizable without relying only on red text."
+            title="Error recognition"
+          />
+          <ValidationNote
+            description="Warning must not be confused with warm brand accent."
+            title="Warning separation"
+          />
+          <ValidationNote
+            description="Textareas, labels, and helper copy remain readable in light and dark mode."
+            title="Long-form comfort"
+          />
+        </CardContent>
+      </Card>
     </PreviewPageShell>
   );
 }
 
 function FormFieldControl({ field }: { field: FormField }): ReactElement {
   const fieldId = field.label.toLowerCase().replace(/\s+/g, "-");
-  const controlClass = cn("control-density mt-2 w-full", getFieldClasses(field.status));
+  const controlClass = cn(
+    "control-density mt-2 w-full",
+    getFieldClasses(field.status)
+  );
   const isInvalid = field.status === "error";
 
   return (
@@ -461,7 +471,9 @@ function FormFieldControl({ field }: { field: FormField }): ReactElement {
         />
       )}
 
-      <p className={cn("mt-2 text-xs leading-5", getHelperClasses(field.status))}>
+      <p
+        className={cn("mt-2 text-xs leading-5", getHelperClasses(field.status))}
+      >
         {field.helper}
       </p>
     </div>
@@ -504,7 +516,7 @@ function MiniStat({
   return (
     <div className={cn("border p-4", PREVIEW_PANEL_CLASS, surfaceClass)}>
       <p className="font-semibold text-xs">{label}</p>
-      <strong className="mt-2 block text-3xl tracking-tight text-tabular">
+      <strong className="mt-2 block text-3xl text-tabular tracking-tight">
         {value}
       </strong>
     </div>

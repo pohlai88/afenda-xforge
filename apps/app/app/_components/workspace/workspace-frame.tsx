@@ -1,17 +1,22 @@
 "use client";
 
+import type { WorkspaceAppNavTopbarProps } from "@repo/ui/components/compose/workspace";
 import {
-  WorkspaceAppNavTopbar,
-  type WorkspaceAppNavTopbarProps,
   WORKSPACE_APP_NAV_TOPBAR_HEIGHT,
   WORKSPACE_SHELL_SIDEBAR_WIDTH,
+  WorkspaceAppNavTopbar,
   WorkspaceAppSidebar,
   WorkspaceNavSiteContent,
   WorkspaceShellProvider,
   WorkspaceSiteContent,
 } from "@repo/ui/components/compose/workspace";
 import { cn } from "@repo/ui/lib/utils";
-import type { ComponentProps, CSSProperties, ReactElement, ReactNode } from "react";
+import type {
+  ComponentProps,
+  CSSProperties,
+  ReactElement,
+  ReactNode,
+} from "react";
 
 type WorkspaceFrameProps = {
   appNavTopbar?: WorkspaceAppNavTopbarProps;
@@ -57,7 +62,9 @@ export function WorkspaceFrame({
     </WorkspaceAppSidebar>
   );
 
-  const resolvedSidebar = sidebarWrapper ? sidebarWrapper(sidebarNode) : sidebarNode;
+  const resolvedSidebar = sidebarWrapper
+    ? sidebarWrapper(sidebarNode)
+    : sidebarNode;
 
   const siteColumn = (
     <WorkspaceNavSiteContent>

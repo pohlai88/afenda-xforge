@@ -1,3 +1,5 @@
+import "server-only";
+
 import type { CookieOptions } from "@supabase/ssr";
 import { createServerClient } from "@supabase/ssr";
 import type { NextRequest } from "next/server";

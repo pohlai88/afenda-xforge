@@ -6,8 +6,11 @@ import { redirect } from "next/navigation";
 import type { ReactElement, ReactNode } from "react";
 import { localizedPath } from "@/i18n/locale-prefix";
 import { readUserAppearancePreferences } from "../../../lib/user-appearance/repository.server";
+import { readWorkspaceShortcuts } from "../../../lib/workspace-shortcuts/repository.server";
+import { resolveProductDefaults } from "../../../lib/workspace-shortcuts/resolve-shortcuts.ts";
 import { AuthenticatedShell } from "../../_components/authenticated-shell.tsx";
 import { TenantBrandingProvider } from "../../_components/tenant-branding-context.tsx";
+import { WorkspaceShortcutsRoot } from "../../_components/workspace-shortcuts-root.tsx";
 
 type AuthenticatedLayoutProps = {
   children: ReactNode;
@@ -38,6 +41,17 @@ export default async function AuthenticatedLayout({
     membership.userId
   );
 
+  let workspaceShortcuts = resolveProductDefaults();
+
+  try {
+    workspaceShortcuts = await readWorkspaceShortcuts(
+      membership.tenantId,
+      membership.userId
+    );
+  } catch {
+    workspaceShortcuts = resolveProductDefaults();
+  }
+
   return (
     <TenantBrandingProvider
       tenantBranding={tenantBranding}
@@ -45,9 +59,11 @@ export default async function AuthenticatedLayout({
       userId={membership.userId}
       userPreferences={userPreferences}
     >
-      <main className="min-h-screen bg-background">
-        <AuthenticatedShell>{children}</AuthenticatedShell>
-      </main>
+      <WorkspaceShortcutsRoot payload={workspaceShortcuts}>
+        <main className="min-h-screen bg-background">
+          <AuthenticatedShell>{children}</AuthenticatedShell>
+        </main>
+      </WorkspaceShortcutsRoot>
     </TenantBrandingProvider>
   );
 }

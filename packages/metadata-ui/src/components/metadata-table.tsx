@@ -114,6 +114,7 @@ export type MetadataTableProps = MetadataCustomizationInput & {
   pageSize?: number;
   rows: readonly DashboardTableRow[];
   searchPlaceholder?: string;
+  selectedRowId?: string | null;
   showSearch?: boolean;
   surface?: "contained" | "embedded";
 };
@@ -138,6 +139,7 @@ export function renderMetadataTableResult({
   pageSize,
   rows,
   searchPlaceholder,
+  selectedRowId,
   showSearch = true,
   surface = "contained",
 }: MetadataTableProps): MetadataTableRenderResult {
@@ -195,6 +197,7 @@ export function renderMetadataTableResult({
       searchPlaceholder={
         searchPlaceholder ?? `Search ${labels.plural.toLowerCase()}...`
       }
+      selectedRowId={selectedRowId}
       showSearch={showSearch}
       surface={surface}
       timezone={resolvedContext.timezone}
@@ -256,6 +259,7 @@ export function renderMetadataPanelResult({
   pageSize,
   rows,
   searchPlaceholder,
+  selectedRowId,
   showSearch,
   title,
   totalRecords,
@@ -296,6 +300,7 @@ export function renderMetadataPanelResult({
     pageSize,
     rows,
     searchPlaceholder,
+    selectedRowId,
     showSearch,
     surface: "embedded",
   });

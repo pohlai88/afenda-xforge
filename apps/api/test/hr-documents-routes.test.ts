@@ -23,7 +23,11 @@ import {
   setDocumentsManagementStorageProviderForTesting,
 } from "../app/api/hr/documents/_lib/storage.ts";
 import { GET as downloadDocumentRoute } from "../app/api/hr/documents/[documentId]/download/route.ts";
-import { GET as getDocumentRoute } from "../app/api/hr/documents/[documentId]/route.ts";
+import {
+  DELETE as deleteDocumentRoute,
+  GET as getDocumentRoute,
+  PATCH as patchDocumentRoute,
+} from "../app/api/hr/documents/[documentId]/route.ts";
 import { GET as getExpiringRoute } from "../app/api/hr/documents/expiring/route.ts";
 import { GET as getReadinessRoute } from "../app/api/hr/documents/readiness/route.ts";
 import {
@@ -611,4 +615,73 @@ test("surfaces blob storage failures as service-unavailable responses", async ()
     error: "Document storage is unavailable",
     ok: false,
   });
+});
+
+test("updates and deletes documents through document detail routes", async () => {
+  const registeredDocument = await registerDocumentsManagementDocument(
+    {
+      documentCategory: "identity",
+      documentType: "passport",
+      employeeId: "employee-mutation",
+      title: "Original Title",
+    },
+    {
+      canRead: true,
+      canWrite: true,
+      companyId: "company-a",
+      tenantId: "tenant-a",
+    }
+  );
+
+  const patchResponse = await patchDocumentRoute(
+    new Request(`http://localhost/api/hr/documents/${registeredDocument.id}`, {
+      body: JSON.stringify({
+        description: "Updated description",
+        title: "Updated Title",
+      }),
+      headers: {
+        ...baseHeaders,
+        "content-type": "application/json",
+        "x-can-write-documents": "true",
+      },
+      method: "PATCH",
+    }),
+    {
+      params: Promise.resolve({ documentId: registeredDocument.id }),
+    }
+  );
+
+  assert.equal(patchResponse.status, 200);
+  const patchedDocument = (await patchResponse.json()) as { title?: string };
+  assert.equal(patchedDocument.title, "Updated Title");
+
+  const deleteResponse = await deleteDocumentRoute(
+    new Request(`http://localhost/api/hr/documents/${registeredDocument.id}`, {
+      body: JSON.stringify({ reason: "Test cleanup" }),
+      headers: {
+        ...baseHeaders,
+        "content-type": "application/json",
+        "x-can-write-documents": "true",
+      },
+      method: "DELETE",
+    }),
+    {
+      params: Promise.resolve({ documentId: registeredDocument.id }),
+    }
+  );
+
+  assert.equal(deleteResponse.status, 200);
+  const deletedDocument = (await deleteResponse.json()) as { status?: string };
+  assert.equal(deletedDocument.status, "archived");
+
+  const getResponse = await getDocumentRoute(
+    buildRequest(`/api/hr/documents/${registeredDocument.id}`),
+    {
+      params: Promise.resolve({ documentId: registeredDocument.id }),
+    }
+  );
+
+  assert.equal(getResponse.status, 200);
+  const archivedSummary = (await getResponse.json()) as { status?: string };
+  assert.equal(archivedSummary.status, "archived");
 });

@@ -1,24 +1,21 @@
 import type { CustomizationLayerSet } from "@repo/customization/resolution";
+import { dashboardOverviewKpiSectionTemplates } from "@repo/features-system-admin-control-plane/metadata/dashboard-overview";
 import type { EntityMetadata } from "@repo/metadata";
 import {
-  dashboardOverviewKpiSectionTemplates,
-} from "@repo/features-system-admin-control-plane/metadata/dashboard-overview";
-import {
-  EntityMetadataPanel,
   getEntityLabels,
   MetadataSectionStack,
   renderMetadataTableCell,
 } from "@repo/metadata-ui/components";
 import type { MetadataRenderContext } from "@repo/metadata-ui/contracts";
+import { permissionCatalog } from "@repo/permissions";
 import { Badge } from "@repo/ui/components/badge";
 import type { ReactElement, ReactNode } from "react";
 import { AuthenticatedFeatureScope } from "../../../_components/authenticated-feature-scope.tsx";
 import { DashboardGrid } from "../_components/dashboard-grid.tsx";
+import { DashboardEntitySections } from "./_components/dashboard-entity-sections.tsx";
 import type { DashboardActivityState } from "./_data.ts";
 
 const DASHBOARD_SHELL_FEATURE_ID = "system-admin.overview";
-const CUSTOMERS_FEATURE_ID = "master-data.customers";
-const COMPANIES_FEATURE_ID = "master-data.companies";
 
 const auditOutcomeColumn = {
   field: "outcome",
@@ -60,64 +57,10 @@ export type DashboardViewProps = {
     state: DashboardSectionState;
   };
   headerActions?: ReactNode;
+  grantedPermissions: readonly string[];
   tenantId: string;
   tenantRole: string;
   userEmail: string | null;
-};
-
-const renderSection = (
-  title: string,
-  metadata: EntityMetadata,
-  customizationLayers: CustomizationLayerSet | null | undefined,
-  state: DashboardSectionState,
-  searchPlaceholder: string,
-  context: MetadataRenderContext
-): ReactElement => {
-  if (state.status === "forbidden") {
-    return (
-      <EntityMetadataPanel
-        context={context}
-        customizationLayers={customizationLayers}
-        defaultSortColumn={metadata.table?.defaultSort}
-        forbidden
-        metadata={metadata}
-        rows={[]}
-        searchPlaceholder={searchPlaceholder}
-        title={title}
-        totalRecords={0}
-      />
-    );
-  }
-
-  if (state.status === "error") {
-    return (
-      <EntityMetadataPanel
-        context={context}
-        customizationLayers={customizationLayers}
-        defaultSortColumn={metadata.table?.defaultSort}
-        error={state.message}
-        metadata={metadata}
-        rows={[]}
-        searchPlaceholder={searchPlaceholder}
-        title={title}
-        totalRecords={0}
-      />
-    );
-  }
-
-  return (
-    <EntityMetadataPanel
-      context={context}
-      customizationLayers={customizationLayers}
-      defaultSortColumn={metadata.table?.defaultSort}
-      metadata={metadata}
-      pageSize={5}
-      rows={state.data.items}
-      searchPlaceholder={searchPlaceholder}
-      title={title}
-      totalRecords={state.data.total}
-    />
-  );
 };
 
 const resolveDashboardKpiValue = (
@@ -146,6 +89,7 @@ export function DashboardView({
   companies,
   context,
   customers,
+  grantedPermissions,
   headerActions,
   tenantId,
   tenantRole,
@@ -153,6 +97,12 @@ export function DashboardView({
 }: DashboardViewProps): ReactElement {
   const customerLabels = getEntityLabels(customers.metadata);
   const companyLabels = getEntityLabels(companies.metadata);
+  const canWriteCustomers = grantedPermissions.includes(
+    permissionCatalog.customers.write
+  );
+  const canWriteCompanies = grantedPermissions.includes(
+    permissionCatalog.companies.write
+  );
   const kpiSections = dashboardOverviewKpiSectionTemplates.map((template) => ({
     description:
       template.key === "dashboard-kpi-customers"
@@ -225,26 +175,23 @@ export function DashboardView({
       </header>
 
       <div className="grid gap-8">
-        <AuthenticatedFeatureScope featureId={CUSTOMERS_FEATURE_ID}>
-          {renderSection(
-            customerLabels.plural,
-            customers.metadata,
-            customers.customizationLayers,
-            customers.state,
-            `Search ${customerLabels.plural.toLowerCase()}...`,
-            context
-          )}
-        </AuthenticatedFeatureScope>
-        <AuthenticatedFeatureScope featureId={COMPANIES_FEATURE_ID}>
-          {renderSection(
-            companyLabels.plural,
-            companies.metadata,
-            companies.customizationLayers,
-            companies.state,
-            `Search ${companyLabels.plural.toLowerCase()}...`,
-            context
-          )}
-        </AuthenticatedFeatureScope>
+        <DashboardEntitySections
+          companies={{
+            canWrite: canWriteCompanies,
+            customizationLayers: companies.customizationLayers,
+            metadata: companies.metadata,
+            state: companies.state,
+            title: companyLabels.plural,
+          }}
+          context={context}
+          customers={{
+            canWrite: canWriteCustomers,
+            customizationLayers: customers.customizationLayers,
+            metadata: customers.metadata,
+            state: customers.state,
+            title: customerLabels.plural,
+          }}
+        />
         {activity.status === "ready" && activity.data.events.length > 0 ? (
           <MetadataSectionStack
             context={context}
@@ -260,8 +207,7 @@ export function DashboardView({
                         <div className="space-y-1">
                           <p className="font-medium text-sm">{event.summary}</p>
                           <p className="text-muted-foreground text-xs">
-                            {event.action} ·{" "}
-                            {event.occurredAt.toLocaleString()}
+                            {event.action} · {event.occurredAt.toLocaleString()}
                           </p>
                         </div>
                         {renderMetadataTableCell(

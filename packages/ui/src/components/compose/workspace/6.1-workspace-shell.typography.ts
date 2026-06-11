@@ -59,9 +59,12 @@ export const WORKSPACE_SHELL_SPACE = {
   sidebarLabelGap: "mt-1.5",
   navListGap: "space-y-1",
   navRow: "h-8 gap-2 rounded-md px-2",
-  topbarX: "px-3",
-  /** Left inset aligns with sidebar nav (`sidebarRoot` px-2.5). */
-  appTopbarX: "px-2.5 pr-3",
+  /** Shared 16px horizontal inset — app nav topbar only. */
+  shellInsetX: "px-4",
+  /** Wider 32px horizontal inset — site topbar + site canvas. */
+  siteInsetX: "px-8",
+  topbarX: "px-8",
+  appTopbarX: "px-4",
   /** Circular brand disk — matches legacy appshell 30px mark with chrome breathing room. */
   appTopbarBrand:
     "size-[1.875rem] shrink-0 overflow-hidden rounded-full border border-border bg-sidebar-accent leading-none",
@@ -76,7 +79,7 @@ export const WORKSPACE_SHELL_SPACE = {
   topbarItem:
     "h-8 min-h-8 w-auto max-w-[calc(20ch+1.75rem)] gap-0.5 rounded-md px-1.5 py-0 has-[>svg]:px-1",
   contentRoot:
-    "w-full max-w-none overflow-x-hidden overflow-y-auto overscroll-y-contain px-8 py-6",
+    "w-full max-w-none overflow-x-hidden overflow-y-auto overscroll-y-contain py-6",
   iconButton: "size-8 rounded-md",
 } as const;
 

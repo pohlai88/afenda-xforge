@@ -34,7 +34,7 @@ export function WorkspaceNavSiteTopbar({
       className={cn(
         "flex shrink-0 items-center gap-2 antialiased",
         WORKSPACE_SHELL_SPACE.siteTopbarSurface,
-        WORKSPACE_SHELL_SPACE.topbarX,
+        WORKSPACE_SHELL_SPACE.siteInsetX,
         className
       )}
       data-slot="workspace-nav-site-topbar"

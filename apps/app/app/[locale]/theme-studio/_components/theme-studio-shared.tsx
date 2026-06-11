@@ -1,8 +1,5 @@
 import { Badge } from "@repo/ui/components/badge";
-import {
-  Card,
-  CardContent,
-} from "@repo/ui/components/card";
+import { Card, CardContent } from "@repo/ui/components/card";
 import { Progress } from "@repo/ui/components/ui/progress";
 import { cn } from "@repo/ui/lib/utils";
 import type { ReactElement, ReactNode } from "react";
@@ -93,13 +90,19 @@ export function PreviewHeader({
           <p className="max-w-3xl text-muted-foreground text-sm leading-6 md:text-base">
             {description}
           </p>
-          {actions ? <div className="flex flex-wrap gap-2 pt-1">{actions}</div> : null}
+          {actions ? (
+            <div className="flex flex-wrap gap-2 pt-1">{actions}</div>
+          ) : null}
         </div>
 
         <Card className="w-full max-w-xs shrink-0 shadow-sm">
           <CardContent className="space-y-3 pt-6">
             {scores.map((score) => (
-              <ScoreRow key={score.label} label={score.label} value={score.value} />
+              <ScoreRow
+                key={score.label}
+                label={score.label}
+                value={score.value}
+              />
             ))}
           </CardContent>
         </Card>
@@ -157,7 +160,11 @@ export function IntelligencePreviewHeader({
         <Card className="w-full max-w-xs shrink-0 border-border/80 bg-surface/90 shadow-sm backdrop-blur-sm">
           <CardContent className="space-y-3 pt-6">
             {scores.map((score) => (
-              <ScoreRow key={score.label} label={score.label} value={score.value} />
+              <ScoreRow
+                key={score.label}
+                label={score.label}
+                value={score.value}
+              />
             ))}
           </CardContent>
         </Card>
@@ -193,10 +200,7 @@ export function ValidationNote({
 }): ReactElement {
   return (
     <div
-      className={cn(
-        "border border-border bg-surface p-4",
-        PREVIEW_PANEL_CLASS
-      )}
+      className={cn("border border-border bg-surface p-4", PREVIEW_PANEL_CLASS)}
     >
       <p className="font-medium text-sm">{title}</p>
       <p className="mt-2 text-muted-foreground text-xs leading-5">

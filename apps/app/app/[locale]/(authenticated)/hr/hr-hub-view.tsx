@@ -1,11 +1,13 @@
 import type { DocumentsManagementDocumentSummaryProjection } from "@repo/features-employee-management-documents-management";
 import type { EntityMetadata } from "@repo/metadata";
-import type { MetadataRenderContext } from "@repo/metadata-ui/contracts";
 import {
   MetadataForm,
   MetadataSectionStack,
 } from "@repo/metadata-ui/components";
-import type { MetadataFieldContract } from "@repo/metadata-ui/contracts";
+import type {
+  MetadataFieldContract,
+  MetadataRenderContext,
+} from "@repo/metadata-ui/contracts";
 import { Button } from "@repo/ui/components/button";
 import Link from "next/link";
 import type { ReactElement } from "react";
@@ -182,7 +184,7 @@ export function HrHubView({
           context={context}
           resolveSectionContent={({ section }) =>
             section.key === "hr-hub-document-timeline" && latestDocument ? (
-              <ol className="space-y-4 border-l border-border pl-4">
+              <ol className="space-y-4 border-border border-l pl-4">
                 {[
                   {
                     date: formatDate(latestDocument.uploadedAt),
@@ -206,9 +208,11 @@ export function HrHubView({
                   },
                 ].map((entry) => (
                   <li className="relative pl-4" key={entry.label}>
-                    <span className="-left-[1.35rem] absolute top-1 size-2 rounded-full bg-lane-active" />
+                    <span className="absolute top-1 -left-[1.35rem] size-2 rounded-full bg-lane-active" />
                     <p className="font-medium text-sm">{entry.label}</p>
-                    <p className="text-muted-foreground text-xs">{entry.date}</p>
+                    <p className="text-muted-foreground text-xs">
+                      {entry.date}
+                    </p>
                   </li>
                 ))}
               </ol>

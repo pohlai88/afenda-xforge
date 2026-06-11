@@ -1,4 +1,7 @@
-import { formatDemoUserIdEnv, getCurrentAuthenticatedUserId } from "@repo/auth";
+import {
+  formatDemoUserIdEnv,
+  getCurrentAuthenticatedUserId,
+} from "@repo/auth/server";
 import { withRequestLogging } from "@repo/logger";
 
 const handleGet = async (): Promise<Response> => {

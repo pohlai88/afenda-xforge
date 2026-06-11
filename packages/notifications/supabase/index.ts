@@ -4,6 +4,7 @@ export {
   unsubscribeFromRecipientNotifications,
 } from "./client.ts";
 export {
+  archiveAllNotifications,
   listNotificationInbox,
   markAllNotificationsRead,
   markNotificationRead,

@@ -1,6 +1,6 @@
 import { getUser } from "@repo/auth/server";
-import { setRequestLocale } from "next-intl/server";
 import { redirect } from "next/navigation";
+import { setRequestLocale } from "next-intl/server";
 import type { ReactElement } from "react";
 import { localizedPath } from "@/i18n/locale-prefix";
 

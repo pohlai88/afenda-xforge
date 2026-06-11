@@ -2,7 +2,7 @@ import {
   AUTH_CALLBACK_PATH,
   AUTH_CONFIRM_PATH,
   DEFAULT_SIGN_IN_PATH,
-} from "@repo/auth";
+} from "@repo/auth/routes";
 import { createMetadata } from "@repo/seo/metadata";
 import { createAppSitePreset } from "@repo/seo/presets";
 import type { Metadata } from "next";

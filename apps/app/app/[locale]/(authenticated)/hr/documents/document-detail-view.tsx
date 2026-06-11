@@ -1,12 +1,14 @@
 import type { CustomizationLayerSet } from "@repo/customization/resolution";
 import type { EntityMetadata } from "@repo/metadata";
-import type { MetadataRenderContext } from "@repo/metadata-ui/contracts";
 import {
   MetadataForm,
   MetadataSectionStack,
   renderMetadataTableCell,
 } from "@repo/metadata-ui/components";
-import type { MetadataFieldContract } from "@repo/metadata-ui/contracts";
+import type {
+  MetadataFieldContract,
+  MetadataRenderContext,
+} from "@repo/metadata-ui/contracts";
 import { Badge } from "@repo/ui/components/badge";
 import { Button } from "@repo/ui/components/button";
 import Link from "next/link";
@@ -238,10 +240,10 @@ export function DocumentDetailView({
 
             if (section.key === "document-timeline" && section.fields) {
               return (
-                <ol className="space-y-4 border-l border-border pl-4">
+                <ol className="space-y-4 border-border border-l pl-4">
                   {section.fields.map((field) => (
                     <li className="relative pl-4" key={field.key}>
-                      <span className="-left-[1.35rem] absolute top-1 size-2 rounded-full bg-lane-active" />
+                      <span className="absolute top-1 -left-[1.35rem] size-2 rounded-full bg-lane-active" />
                       <p className="font-medium text-sm">{field.label}</p>
                       <p className="text-muted-foreground text-xs">
                         {String(detailValues[field.key] ?? "n/a")}

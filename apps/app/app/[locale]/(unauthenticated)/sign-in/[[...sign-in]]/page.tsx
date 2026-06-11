@@ -1,9 +1,9 @@
+import { SignIn } from "@repo/auth/components/sign-in";
 import {
   buildSignUpPath,
   DEFAULT_AUTHENTICATED_REDIRECT_PATH,
   resolvePostAuthRedirectPath,
-} from "@repo/auth";
-import { SignIn } from "@repo/auth/components/sign-in";
+} from "@repo/auth/routes";
 import { createMetadata } from "@repo/seo/metadata";
 import { createAppSitePreset } from "@repo/seo/presets";
 import type { Metadata } from "next";

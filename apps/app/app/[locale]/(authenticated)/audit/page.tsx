@@ -2,11 +2,9 @@ import { auditEventMetadata } from "@repo/features-system-admin-control-plane/me
 import type { ReactElement } from "react";
 import { MetadataFeatureShell } from "../../../_components/metadata-feature-shell.tsx";
 import { createAppMetadataContext } from "../../../_lib/metadata-context.ts";
-import {
-  loadEntityMetadataCustomizations,
-} from "../../../_lib/metadata-customizations.ts";
-import { AuditView } from "./audit-view.tsx";
+import { loadEntityMetadataCustomizations } from "../../../_lib/metadata-customizations.ts";
 import { loadAuditPageData } from "./_data.ts";
+import { AuditView } from "./audit-view.tsx";
 
 const AUDIT_FEATURE_ID = "system-admin.audit";
 

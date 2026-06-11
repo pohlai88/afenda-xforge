@@ -84,6 +84,21 @@
         "clear": false
       },
       "problemMatcher": []
+    },
+    {
+      "label": "app: check stability",
+      "type": "shell",
+      "command": "pnpm --filter app check:stability",
+      "group": {
+        "kind": "test",
+        "isDefault": false
+      },
+      "presentation": {
+        "reveal": "always",
+        "panel": "shared",
+        "clear": true
+      },
+      "problemMatcher": ["$tsc"]
     }
   ]
 }

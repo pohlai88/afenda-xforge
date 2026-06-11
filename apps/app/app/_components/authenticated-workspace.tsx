@@ -2,14 +2,15 @@
 
 import { usePathname } from "next/navigation";
 import type { ReactElement, ReactNode } from "react";
+import { AuthenticatedAppNavTopbarActions } from "./authenticated-app-nav-topbar-actions.tsx";
 import { AuthenticatedFeatureScope } from "./authenticated-feature-scope.tsx";
 import { AuthenticatedSidebar } from "./authenticated-sidebar.tsx";
-import { AuthenticatedAppNavTopbarActions } from "./authenticated-app-nav-topbar-actions.tsx";
 import { AuthenticatedTopBar } from "./authenticated-top-bar.tsx";
 import {
   AUTHENTICATED_DEFAULT_FEATURE_ID,
   AUTHENTICATED_NAV_ITEMS,
 } from "./authenticated-workspace-nav.ts";
+import { WorkspaceShortcutsDispatcher } from "./workspace/keyboard-shortcuts/keyboard-shortcuts-provider.tsx";
 import { resolveActiveFeatureId } from "./workspace/path-utils.ts";
 import { WorkspaceFrame } from "./workspace/workspace-frame.tsx";
 
@@ -42,6 +43,7 @@ export function AuthenticatedWorkspace({
       )}
       topBar={<AuthenticatedTopBar />}
     >
+      <WorkspaceShortcutsDispatcher />
       {children}
     </WorkspaceFrame>
   );

@@ -39,6 +39,7 @@ export default async function DashboardPage(): Promise<ReactElement> {
           metadata: customerMetadata,
           state: dashboard.customers,
         }}
+        grantedPermissions={dashboard.grantedPermissions}
         headerActions={
           <>
             <Link
@@ -52,6 +53,12 @@ export default async function DashboardPage(): Promise<ReactElement> {
               href="/audit"
             >
               Open audit
+            </Link>
+            <Link
+              className="inline-flex h-10 items-center justify-center rounded-md border border-border bg-background px-4 py-2 font-medium text-sm transition hover:bg-muted"
+              href="/admin/keyboard-shortcuts"
+            >
+              Keyboard shortcuts
             </Link>
             <Link
               className="inline-flex h-10 items-center justify-center rounded-md border border-border bg-background px-4 py-2 font-medium text-sm transition hover:bg-muted"

@@ -1,8 +1,8 @@
 "use client";
 
 import type { ColorModePreference } from "@repo/design-system";
-import { Button } from "@repo/ui";
 import { EnterpriseDropdownMenu } from "@repo/metadata-ui/components";
+import { Button } from "@repo/ui";
 import { cn } from "@repo/ui/lib/utils";
 import { Monitor, Moon, Sun } from "lucide-react";
 import { useTheme } from "next-themes";

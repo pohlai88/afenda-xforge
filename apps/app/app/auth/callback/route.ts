@@ -2,9 +2,9 @@ import {
   AUTH_ERROR_PATH,
   AUTH_REDIRECT_SEARCH_PARAM,
   DEFAULT_AUTHENTICATED_REDIRECT_PATH,
-  exchangeCodeForSession,
   resolvePostAuthRedirectPath,
-} from "@repo/auth";
+} from "@repo/auth/routes";
+import { exchangeCodeForSession } from "@repo/auth/server";
 import type { NextRequest } from "next/server";
 import { NextResponse } from "next/server";
 

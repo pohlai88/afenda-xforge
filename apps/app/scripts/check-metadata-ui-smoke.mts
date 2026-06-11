@@ -66,7 +66,10 @@ const assistantPagePath = fileURLToPath(
   new URL("../app/(authenticated)/assistant/page.tsx", import.meta.url)
 );
 const assistantViewPath = fileURLToPath(
-  new URL("../app/(authenticated)/assistant/assistant-view.tsx", import.meta.url)
+  new URL(
+    "../app/(authenticated)/assistant/assistant-view.tsx",
+    import.meta.url
+  )
 );
 const documentSummaryListPath = fileURLToPath(
   new URL(

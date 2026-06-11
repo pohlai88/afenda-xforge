@@ -384,3 +384,27 @@ test("EntityMetadataPanel accepts layered customization input", () => {
 
   assert.equal(toolbar?.props.title, "Tenant Accounts");
 });
+
+test("renderMetadataTableResult passes selectedRowId to ActivityTable", () => {
+  const result = renderMetadataTableResult({
+    context: {
+      featureId: "customer.records",
+      locale: "en",
+      permissions: [],
+      tenantId: "tenant-acme",
+      timezone: "UTC",
+      userId: "user-001",
+    },
+    metadata,
+    rows: [...rows, { ...rows[0], id: "row-2", name: "Beta" }],
+    selectedRowId: "row-2",
+  });
+
+  const table = collectElements(result.element).find(
+    (candidate) =>
+      (candidate.type as { name?: string }).name === "ActivityTable"
+  ) as TestElement | undefined;
+
+  assert.ok(table);
+  assert.equal(table?.props.selectedRowId, "row-2");
+});

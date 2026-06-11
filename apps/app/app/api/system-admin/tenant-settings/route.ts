@@ -8,6 +8,7 @@ import {
 } from "@repo/features-system-admin-control-plane/server";
 import { permissionCatalog, requirePermission } from "@repo/permissions";
 import { NextResponse } from "next/server";
+import { mapApiRouteError } from "../../../../lib/api/route-errors.ts";
 import { requireSystemAdminScope } from "../_lib/context.ts";
 
 export async function GET(request: Request): Promise<Response> {
@@ -29,16 +30,7 @@ export async function GET(request: Request): Promise<Response> {
 
     return NextResponse.json(tenantAdminSettingsReadSchema.parse(access));
   } catch (error) {
-    return NextResponse.json(
-      {
-        ok: false,
-        error:
-          error instanceof Error
-            ? error.message
-            : "Tenant settings read failed",
-      },
-      { status: 400 }
-    );
+    return mapApiRouteError(error, "Tenant settings read failed");
   }
 }
 
@@ -50,15 +42,6 @@ export async function POST(request: Request): Promise<Response> {
       status: 202,
     });
   } catch (error) {
-    return NextResponse.json(
-      {
-        ok: false,
-        error:
-          error instanceof Error
-            ? error.message
-            : "Tenant settings update failed",
-      },
-      { status: 400 }
-    );
+    return mapApiRouteError(error, "Tenant settings update failed");
   }
 }

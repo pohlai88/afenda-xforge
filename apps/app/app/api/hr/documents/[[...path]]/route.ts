@@ -1,4 +1,5 @@
 import type { NextRequest } from "next/server";
+import { mapApiRouteError } from "../../../../../lib/api/route-errors.ts";
 
 const LOCAL_API_ORIGIN = "http://127.0.0.1:3002";
 
@@ -65,36 +66,42 @@ const proxyRequest = async (
   request: NextRequest,
   context: RouteContext
 ): Promise<Response> => {
-  const apiOrigin = resolveApiOrigin();
+  try {
+    const apiOrigin = resolveApiOrigin();
 
-  if (!apiOrigin) {
-    return Response.json(
-      { ok: false, error: "API origin is not configured" },
-      { status: 503 }
+    if (!apiOrigin) {
+      return Response.json(
+        { ok: false, error: "API origin is not configured" },
+        { status: 503 }
+      );
+    }
+
+    const { path = [] } = await context.params;
+    const upstreamUrl = new URL(
+      ["/api/hr/documents", ...path].join("/"),
+      `${apiOrigin}/`
     );
+
+    upstreamUrl.search = request.nextUrl.search;
+
+    const hasBody = request.method !== "GET" && request.method !== "HEAD";
+    const upstreamInit: StreamingRequestInit = {
+      body: hasBody ? request.body : undefined,
+      cache: "no-store",
+      duplex: hasBody ? "half" : undefined,
+      headers: createUpstreamHeaders(request),
+      method: request.method,
+      redirect: "manual",
+    };
+    const upstream = await fetch(upstreamUrl, upstreamInit);
+
+    return createClientResponse(upstream);
+  } catch (error) {
+    return mapApiRouteError(error, "HR document proxy failed");
   }
-
-  const { path = [] } = await context.params;
-  const upstreamUrl = new URL(
-    ["/api/hr/documents", ...path].join("/"),
-    `${apiOrigin}/`
-  );
-
-  upstreamUrl.search = request.nextUrl.search;
-
-  const hasBody = request.method !== "GET" && request.method !== "HEAD";
-  const upstreamInit: StreamingRequestInit = {
-    body: hasBody ? request.body : undefined,
-    cache: "no-store",
-    duplex: hasBody ? "half" : undefined,
-    headers: createUpstreamHeaders(request),
-    method: request.method,
-    redirect: "manual",
-  };
-  const upstream = await fetch(upstreamUrl, upstreamInit);
-
-  return createClientResponse(upstream);
 };
 
 export const GET = proxyRequest;
 export const POST = proxyRequest;
+export const PATCH = proxyRequest;
+export const DELETE = proxyRequest;

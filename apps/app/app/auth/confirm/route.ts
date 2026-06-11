@@ -3,8 +3,8 @@ import {
   AUTH_REDIRECT_SEARCH_PARAM,
   DEFAULT_AUTHENTICATED_REDIRECT_PATH,
   resolvePostAuthRedirectPath,
-  verifyOtpCode,
-} from "@repo/auth";
+} from "@repo/auth/routes";
+import { verifyOtpCode } from "@repo/auth/server";
 import type { NextRequest } from "next/server";
 import { NextResponse } from "next/server";
 

@@ -93,9 +93,7 @@ function fixFile(full) {
       path.dirname(full)
     );
     const segments =
-      depthInThemeStudio === ""
-        ? 0
-        : depthInThemeStudio.split(path.sep).length;
+      depthInThemeStudio === "" ? 0 : depthInThemeStudio.split(path.sep).length;
     const toThemeStudioComponents = dots(segments + 1);
 
     content = rewriteImport(

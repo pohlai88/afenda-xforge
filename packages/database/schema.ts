@@ -290,6 +290,67 @@ export const userAppearancePreferences = xforge.table(
   ]
 );
 
+export const userWorkspacePreferences = xforge.table(
+  "user_workspace_preferences",
+  {
+    tenantId: uuid("tenant_id")
+      .notNull()
+      .references(() => tenants.id, { onDelete: "cascade" }),
+    userId: uuid("user_id").notNull(),
+    shortcuts: jsonb("shortcuts")
+      .$type<Record<string, string>>()
+      .notNull()
+      .default({}),
+    createdAt: timestamp("created_at", {
+      mode: "date",
+      withTimezone: true,
+    })
+      .defaultNow()
+      .notNull(),
+    updatedAt: timestamp("updated_at", {
+      mode: "date",
+      withTimezone: true,
+    })
+      .defaultNow()
+      .notNull(),
+  },
+  (table) => [
+    primaryKey({ columns: [table.tenantId, table.userId] }),
+    index("user_workspace_preferences_user_id_idx").on(table.userId),
+  ]
+);
+
+export const tenantKeyboardShortcutPolicies = xforge.table(
+  "tenant_keyboard_shortcut_policies",
+  {
+    tenantId: uuid("tenant_id")
+      .primaryKey()
+      .references(() => tenants.id, { onDelete: "cascade" }),
+    allowUserCustomize: boolean("allow_user_customize").notNull().default(false),
+    allowFnKeyBindings: boolean("allow_fn_key_bindings").notNull().default(true),
+    lockedActions: jsonb("locked_actions")
+      .$type<string[]>()
+      .notNull()
+      .default([]),
+    overrides: jsonb("overrides")
+      .$type<Record<string, string>>()
+      .notNull()
+      .default({}),
+    createdAt: timestamp("created_at", {
+      mode: "date",
+      withTimezone: true,
+    })
+      .defaultNow()
+      .notNull(),
+    updatedAt: timestamp("updated_at", {
+      mode: "date",
+      withTimezone: true,
+    })
+      .defaultNow()
+      .notNull(),
+  }
+);
+
 export const webhookEndpoints = xforge.table(
   "webhook_endpoints",
   {
@@ -1472,6 +1533,26 @@ export const userAppearancePreferencesRelations = relations(
   })
 );
 
+export const userWorkspacePreferencesRelations = relations(
+  userWorkspacePreferences,
+  ({ one }) => ({
+    tenant: one(tenants, {
+      fields: [userWorkspacePreferences.tenantId],
+      references: [tenants.id],
+    }),
+  })
+);
+
+export const tenantKeyboardShortcutPoliciesRelations = relations(
+  tenantKeyboardShortcutPolicies,
+  ({ one }) => ({
+    tenant: one(tenants, {
+      fields: [tenantKeyboardShortcutPolicies.tenantId],
+      references: [tenants.id],
+    }),
+  })
+);
+
 export const companiesRelations = relations(companies, ({ one, many }) => ({
   tenant: one(tenants, {
     fields: [companies.tenantId],
@@ -1861,6 +1942,10 @@ export const databaseSchema: Omit<
   tenantSettingsRelations,
   userAppearancePreferences,
   userAppearancePreferencesRelations,
+  userWorkspacePreferences,
+  userWorkspacePreferencesRelations,
+  tenantKeyboardShortcutPolicies,
+  tenantKeyboardShortcutPoliciesRelations,
   tenants,
   tenantsRelations,
   webhookEndpoints,

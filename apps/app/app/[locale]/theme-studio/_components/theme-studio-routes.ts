@@ -67,7 +67,8 @@ export const THEME_STUDIO_PAGES: readonly ThemeStudioPage[] = [
   },
 ] as const;
 
-export const DEFAULT_THEME_STUDIO_HREF = THEME_STUDIO_PAGES[0]?.href ?? "/theme-studio/executive-dashboard";
+export const DEFAULT_THEME_STUDIO_HREF =
+  THEME_STUDIO_PAGES[0]?.href ?? "/theme-studio/executive-dashboard";
 
 export function isThemeStudioPathActive(
   pathname: string,

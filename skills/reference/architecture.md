@@ -404,7 +404,7 @@ Recommended import style:
 
 ```ts
 import { database } from "@repo/database";
-import { requireAuth } from "@repo/auth";
+import { requireAuth } from "@repo/auth/server";
 import { executeMutation } from "@repo/execution";
 import { can } from "@repo/permissions";
 import { writeAuditEvent } from "@repo/audit";

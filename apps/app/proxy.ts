@@ -18,15 +18,20 @@ import {
   assessErpRequestBoundary,
   createSecurityMiddleware,
 } from "@repo/security";
-import createIntlMiddleware from "next-intl/middleware";
 import type { NextRequest } from "next/server";
 import { NextResponse } from "next/server";
+import createIntlMiddleware from "next-intl/middleware";
 import {
   localePrefixFromPathname,
   stripLocalePrefix,
   withLocalePrefix,
 } from "./i18n/locale-path";
 import { routing } from "./i18n/routing";
+import {
+  fromPackageNextResponse,
+  toPackageNextRequest,
+  toPackageNextResponse,
+} from "./lib/proxy/next-types.ts";
 
 const handleI18nRouting = createIntlMiddleware(routing);
 
@@ -122,12 +127,15 @@ const shouldSkipIntlRouting = (pathname: string): boolean =>
   pathname.startsWith("/api") || pathname.startsWith("/auth");
 
 export async function proxy(request: NextRequest): Promise<NextResponse> {
-  const context = createProxyContext(request);
-  const proxyHeaders = createProxyHeaders(request);
-  const preflightResponse = createPreflightResponse(request);
+  const packageRequest = toPackageNextRequest(request);
+  const context = createProxyContext(packageRequest);
+  const proxyHeaders = createProxyHeaders(packageRequest);
+  const preflightResponse = createPreflightResponse(packageRequest);
 
   if (preflightResponse) {
-    return applyProxyResponseHeaders(preflightResponse, context, proxyHeaders);
+    return fromPackageNextResponse(
+      applyProxyResponseHeaders(preflightResponse, context, proxyHeaders)
+    );
   }
 
   const pathname = request.nextUrl.pathname;
@@ -142,10 +150,11 @@ export async function proxy(request: NextRequest): Promise<NextResponse> {
   }
 
   const baseResponse =
-    intlResponse ?? createProxyBaseResponse(request, context);
-  const authResult = await authMiddleware(request);
-  const assessment = await evaluateSecurity(request);
-  const boundary = assessErpRequestBoundary(request, {
+    intlResponse ??
+    fromPackageNextResponse(createProxyBaseResponse(packageRequest, context));
+  const authResult = await authMiddleware(packageRequest);
+  const assessment = await evaluateSecurity(packageRequest);
+  const boundary = assessErpRequestBoundary(packageRequest, {
     csrf: {
       sessionId: authResult.sessionId,
       userId: authResult.userId,
@@ -169,12 +178,14 @@ export async function proxy(request: NextRequest): Promise<NextResponse> {
       }
     );
 
-    mergeNextResponses(response, authResult.response);
+    mergeNextResponses(toPackageNextResponse(response), authResult.response);
     return applyBoundaryResponseState(
-      applyProxyResponseHeaders(response, context, {
-        ...proxyHeaders,
-        ...assessment.headers,
-      }),
+      fromPackageNextResponse(
+        applyProxyResponseHeaders(toPackageNextResponse(response), context, {
+          ...proxyHeaders,
+          ...assessment.headers,
+        })
+      ),
       boundary
     );
   }
@@ -189,12 +200,14 @@ export async function proxy(request: NextRequest): Promise<NextResponse> {
       }
     );
 
-    mergeNextResponses(response, authResult.response);
+    mergeNextResponses(toPackageNextResponse(response), authResult.response);
     return applyBoundaryResponseState(
-      applyProxyResponseHeaders(response, context, {
-        ...proxyHeaders,
-        ...assessment.headers,
-      }),
+      fromPackageNextResponse(
+        applyProxyResponseHeaders(toPackageNextResponse(response), context, {
+          ...proxyHeaders,
+          ...assessment.headers,
+        })
+      ),
       boundary
     );
   }
@@ -202,30 +215,38 @@ export async function proxy(request: NextRequest): Promise<NextResponse> {
   const authRedirect = resolveAuthRedirect(request, authResult.isAuthenticated);
 
   if (authRedirect) {
-    mergeNextResponses(authRedirect, authResult.response);
+    mergeNextResponses(
+      toPackageNextResponse(authRedirect),
+      authResult.response
+    );
     return applyBoundaryResponseState(
-      applyProxyResponseHeaders(authRedirect, context, {
-        ...proxyHeaders,
-        ...assessment.headers,
-      }),
+      fromPackageNextResponse(
+        applyProxyResponseHeaders(
+          toPackageNextResponse(authRedirect),
+          context,
+          {
+            ...proxyHeaders,
+            ...assessment.headers,
+          }
+        )
+      ),
       boundary
     );
   }
 
-  mergeNextResponses(baseResponse, authResult.response);
+  mergeNextResponses(toPackageNextResponse(baseResponse), authResult.response);
 
   return applyBoundaryResponseState(
-    applyProxyResponseHeaders(baseResponse, context, {
-      ...proxyHeaders,
-      ...assessment.headers,
-    }),
+    fromPackageNextResponse(
+      applyProxyResponseHeaders(toPackageNextResponse(baseResponse), context, {
+        ...proxyHeaders,
+        ...assessment.headers,
+      })
+    ),
     boundary
   );
 }
 
 export const config = {
-  matcher: [
-    "/((?!api|trpc|_next|_vercel|.*\\..*).*)",
-    "/api(.*)",
-  ],
+  matcher: ["/((?!api|trpc|_next|_vercel|.*\\..*).*)", "/api(.*)"],
 };

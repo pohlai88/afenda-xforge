@@ -37,13 +37,13 @@ import {
   LANE_SYSTEM_MODULES,
   LANE_SYSTEM_TITLE,
 } from "./theme-studio-lane-tokens.ts";
+import type { SemanticTone } from "./theme-studio-shared.tsx";
 import {
   PREVIEW_PANEL_CLASS,
   PreviewHeader,
   PreviewPageShell,
   SEMANTIC_TONE_BADGE,
   ValidationNote,
-  type SemanticTone,
 } from "./theme-studio-shared.tsx";
 
 type ModuleItem = {
@@ -248,7 +248,7 @@ export function ErpNavigationPreview(): ReactElement {
               railCollapsed ? "w-20" : "w-full xl:w-72"
             )}
           >
-            <Sidebar collapsible="none" className="w-full border-0">
+            <Sidebar className="w-full border-0" collapsible="none">
               <SidebarHeader className="border-sidebar-border border-b p-4">
                 <div className="flex items-center gap-3">
                   <div
@@ -258,7 +258,7 @@ export function ErpNavigationPreview(): ReactElement {
                   >
                     XF
                   </div>
-                  {!railCollapsed ? (
+                  {railCollapsed ? null : (
                     <div className="min-w-0">
                       <p className="font-semibold text-sidebar-foreground text-sm">
                         XForge ERP
@@ -267,10 +267,10 @@ export function ErpNavigationPreview(): ReactElement {
                         Tenant: Vietnam Feed
                       </p>
                     </div>
-                  ) : null}
+                  )}
                 </div>
 
-                {!railCollapsed ? (
+                {railCollapsed ? null : (
                   <div className="relative mt-4">
                     <SearchIcon className="pointer-events-none absolute top-1/2 left-3 size-4 -translate-y-1/2 text-muted-foreground" />
                     <Input
@@ -280,11 +280,13 @@ export function ErpNavigationPreview(): ReactElement {
                       value={commandQuery}
                     />
                   </div>
-                ) : null}
+                )}
               </SidebarHeader>
 
               <SidebarContent>
-                <ScrollArea className={railCollapsed ? "h-[28rem]" : "h-[32rem]"}>
+                <ScrollArea
+                  className={railCollapsed ? "h-[28rem]" : "h-[32rem]"}
+                >
                   {railCollapsed ? (
                     <SidebarGroup className="p-2">
                       <SidebarMenu>
@@ -461,7 +463,9 @@ export function ErpNavigationPreview(): ReactElement {
                     )}
                     key={lane}
                     onClick={() => {
-                      const module = ALL_MODULES.find((item) => item.lane === lane);
+                      const module = ALL_MODULES.find(
+                        (item) => item.lane === lane
+                      );
                       if (module) {
                         setActiveModuleId(module.id);
                       }
@@ -540,7 +544,10 @@ function SidebarModuleItem({
       >
         <span
           aria-hidden
-          className={cn("size-2.5 shrink-0 rounded-full", LANE_DOT_CLASS[module.lane])}
+          className={cn(
+            "size-2.5 shrink-0 rounded-full",
+            LANE_DOT_CLASS[module.lane]
+          )}
         />
         <span className="flex min-w-0 flex-1 flex-col gap-0.5 text-left">
           <span className="truncate font-medium leading-tight">
@@ -625,7 +632,9 @@ function ModuleCard({
 
 function LaneOverview({ lane }: { lane: ErpVisualLaneId }): ReactElement {
   return (
-    <div className={cn("border p-4", PREVIEW_PANEL_CLASS, LANE_PILL_CLASS[lane])}>
+    <div
+      className={cn("border p-4", PREVIEW_PANEL_CLASS, LANE_PILL_CLASS[lane])}
+    >
       <div className="flex items-center gap-3">
         <span
           aria-hidden
@@ -655,7 +664,9 @@ function MappingRow({
     >
       <div>
         <h3 className="font-semibold text-sm">{row.module}</h3>
-        <p className="mt-1 text-muted-foreground text-xs">Tenant mapping preview</p>
+        <p className="mt-1 text-muted-foreground text-xs">
+          Tenant mapping preview
+        </p>
       </div>
 
       <div className="flex items-center gap-2 text-xs">

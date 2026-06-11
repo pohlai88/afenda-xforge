@@ -33,7 +33,7 @@
     "ci": "turbo build lint typecheck --affected && pnpm --filter @repo/generators build && pnpm run ci:metadata-ui",
     "ci:full": "pnpm lint && pnpm typecheck && pnpm test && pnpm build && pnpm --filter @repo/generators build && pnpm run ci:metadata-ui",
     "ci:tokens": "pnpm --filter @repo/design-system globals:css:check && pnpm run test:stylelint && pnpm run lint:stylelint && pnpm run lint:tailwind-v4",
-    "ci:metadata-ui": "pnpm run metadata-ui:check-generated && pnpm run ci:tokens && pnpm --filter @repo/design-system check:hue-reservation && pnpm --filter @repo/design-system check:color-contrast && pnpm --filter @repo/metadata-ui verify && pnpm --filter storybook check:theme-css && pnpm --filter storybook check:intro-layout && pnpm --filter storybook check:storybook-visual-tokens && pnpm --filter storybook check:hardcoded-css && pnpm --filter storybook test:visual:intro && pnpm --filter storybook check:build && pnpm --filter storybook scorecard && pnpm --filter storybook check:metadata-ui-browser-smoke && pnpm --filter storybook test:stories && pnpm --filter app check:metadata-ui-smoke",
+    "ci:metadata-ui": "pnpm run metadata-ui:check-generated && pnpm run ci:tokens && pnpm --filter @repo/design-system check:hue-reservation && pnpm --filter @repo/design-system check:color-contrast && pnpm --filter @repo/metadata-ui verify && pnpm --filter storybook check:theme-css && pnpm --filter storybook check:intro-layout && pnpm --filter storybook check:storybook-visual-tokens && pnpm --filter storybook check:hardcoded-css && pnpm --filter storybook test:visual:intro && pnpm --filter storybook check:build && pnpm --filter storybook scorecard && pnpm --filter storybook check:metadata-ui-browser-smoke && pnpm --filter storybook test:stories && pnpm --filter app check:metadata-ui-smoke && pnpm --filter app check:stability",
     "gen": "turbo gen package",
     "gen:app": "turbo gen app",
     "gen:feature": "turbo gen feature",
@@ -58,7 +58,8 @@
     "metadata-ui:check-generated": "pnpm --filter @repo/metadata-ui check:generated",
     "metadata-ui:check-public-api": "pnpm --filter @repo/metadata-ui check:public-api",
     "metadata-ui:generate": "pnpm --filter @repo/metadata-ui generate",
-    "check": "pnpm lint && pnpm typecheck && pnpm test",
+    "check": "pnpm lint && pnpm typecheck && pnpm test && pnpm --filter app check:stability",
+    "app:check:stability": "pnpm --filter app check:stability",
     "clean": "turbo clean",
     "clean:hard": "node scripts/clean.mjs"
   },

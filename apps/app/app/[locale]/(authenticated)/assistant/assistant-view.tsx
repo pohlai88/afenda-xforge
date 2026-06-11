@@ -1,5 +1,5 @@
-import type { MetadataRenderContext } from "@repo/metadata-ui/contracts";
 import { MetadataSectionStack } from "@repo/metadata-ui/components";
+import type { MetadataRenderContext } from "@repo/metadata-ui/contracts";
 import { Button } from "@repo/ui/components/button";
 import Link from "next/link";
 import type { ReactElement } from "react";

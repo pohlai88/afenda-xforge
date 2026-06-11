@@ -23,6 +23,7 @@ import { SparklesIcon, TriangleAlertIcon } from "lucide-react";
 import type { ReactElement } from "react";
 import { useState } from "react";
 import { LANE_PILL_CLASS } from "./theme-studio-lane-tokens.ts";
+import type { SemanticTone } from "./theme-studio-shared.tsx";
 import {
   IntelligencePreviewHeader,
   PREVIEW_PANEL_CLASS,
@@ -30,7 +31,6 @@ import {
   SEMANTIC_TONE_BADGE,
   SEMANTIC_TONE_SOLID,
   SEMANTIC_TONE_SURFACE,
-  type SemanticTone,
   ValidationNote,
 } from "./theme-studio-shared.tsx";
 
@@ -124,12 +124,14 @@ const REASONING_TIMELINE: TimelineItem[] = [
   },
   {
     label: "Decision",
-    description: "Recommended priority is inventory risk before revenue review.",
+    description:
+      "Recommended priority is inventory risk before revenue review.",
     tone: "destructive",
   },
   {
     label: "Action",
-    description: "Create procurement escalation and assign governance approval.",
+    description:
+      "Create procurement escalation and assign governance approval.",
     tone: "success",
   },
 ];
@@ -141,7 +143,9 @@ const PROMPT_CHIPS = [
 ] as const;
 
 export function NexusLynxPreview(): ReactElement {
-  const [query, setQuery] = useState("What requires executive attention today?");
+  const [query, setQuery] = useState(
+    "What requires executive attention today?"
+  );
 
   return (
     <PreviewPageShell>
@@ -194,7 +198,10 @@ export function NexusLynxPreview(): ReactElement {
                   onChange={(event) => setQuery(event.target.value)}
                   value={query}
                 />
-                <Button className="control-density shrink-0 gap-2" type="button">
+                <Button
+                  className="control-density shrink-0 gap-2"
+                  type="button"
+                >
                   <SparklesIcon className="size-4" />
                   Ask Lynx
                 </Button>
@@ -242,7 +249,7 @@ export function NexusLynxPreview(): ReactElement {
                 )}
               >
                 <div className="text-center">
-                  <strong className="block text-4xl tracking-tight text-tabular">
+                  <strong className="block text-4xl text-tabular tracking-tight">
                     91
                   </strong>
                   <span className="mt-1 block font-semibold text-xs">
@@ -304,7 +311,10 @@ export function NexusLynxPreview(): ReactElement {
                       {index + 1}
                     </span>
                     {index < REASONING_TIMELINE.length - 1 ? (
-                      <Separator className="mt-2 h-full min-h-8 w-px" orientation="vertical" />
+                      <Separator
+                        className="mt-2 h-full min-h-8 w-px"
+                        orientation="vertical"
+                      />
                     ) : null}
                   </div>
 
@@ -363,8 +373,9 @@ export function NexusLynxPreview(): ReactElement {
               <TriangleAlertIcon />
               <AlertTitle>Approval required: procurement escalation</AlertTitle>
               <AlertDescription>
-                Lynx recommends escalating raw material purchase approval because
-                projected stockout risk is higher than delayed revenue impact.
+                Lynx recommends escalating raw material purchase approval
+                because projected stockout risk is higher than delayed revenue
+                impact.
               </AlertDescription>
               <AlertAction>
                 <Badge size="sm" variant="warning-light">
@@ -435,7 +446,10 @@ function EvidenceCard({ item }: { item: EvidenceItem }): ReactElement {
           <p className="mt-1 text-muted-foreground text-xs">{item.source}</p>
         </div>
         <span
-          className={cn("size-3 shrink-0 rounded-full", SEMANTIC_TONE_SOLID[item.tone])}
+          className={cn(
+            "size-3 shrink-0 rounded-full",
+            SEMANTIC_TONE_SOLID[item.tone]
+          )}
         />
       </div>
       <p className="mt-4 text-muted-foreground text-sm leading-6">
@@ -453,7 +467,9 @@ function ActionCard({ item }: { item: ActionItem }): ReactElement {
       <div className="flex items-start justify-between gap-3">
         <div>
           <h3 className="font-semibold text-sm">{item.title}</h3>
-          <p className="mt-1 text-muted-foreground text-xs">Owner: {item.owner}</p>
+          <p className="mt-1 text-muted-foreground text-xs">
+            Owner: {item.owner}
+          </p>
         </div>
         <Badge size="sm" variant={SEMANTIC_TONE_BADGE[item.tone]}>
           {item.impact}
@@ -473,9 +489,15 @@ function DecisionMiniStat({
   value: string;
 }): ReactElement {
   return (
-    <div className={cn("border p-4", PREVIEW_PANEL_CLASS, SEMANTIC_TONE_SURFACE[tone])}>
+    <div
+      className={cn(
+        "border p-4",
+        PREVIEW_PANEL_CLASS,
+        SEMANTIC_TONE_SURFACE[tone]
+      )}
+    >
       <p className="font-semibold text-xs">{label}</p>
-      <strong className="mt-2 block text-3xl tracking-tight text-tabular">
+      <strong className="mt-2 block text-3xl text-tabular tracking-tight">
         {value}
       </strong>
     </div>

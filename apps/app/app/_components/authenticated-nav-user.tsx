@@ -1,6 +1,6 @@
 "use client";
 
-import { useAuthClient } from "@repo/auth";
+import { useAuthClient } from "@repo/auth/provider";
 import type { WorkspaceNavUserProfile } from "@repo/ui/components/compose/workspace";
 import { WorkspaceNavUser } from "@repo/ui/components/compose/workspace";
 import { Bell, CircleUser, CreditCard } from "lucide-react";
@@ -28,9 +28,14 @@ export function AuthenticatedNavUser(): ReactElement {
         return;
       }
 
-      const metadata = data.user.user_metadata as Record<string, unknown> | null;
+      const metadata = data.user.user_metadata as Record<
+        string,
+        unknown
+      > | null;
       const fullName =
-        typeof metadata?.full_name === "string" ? metadata.full_name : undefined;
+        typeof metadata?.full_name === "string"
+          ? metadata.full_name
+          : undefined;
       const avatarUrl =
         typeof metadata?.avatar_url === "string" ? metadata.avatar_url : null;
 

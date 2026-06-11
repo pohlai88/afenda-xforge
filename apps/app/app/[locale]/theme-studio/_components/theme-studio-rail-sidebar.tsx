@@ -1,16 +1,16 @@
 "use client";
 
+import { SidebarMenu, SidebarMenuButton, SidebarMenuItem } from "@repo/ui";
 import {
+  WORKSPACE_SHELL_SPACE,
+  WORKSPACE_SHELL_TYPE,
   WorkspaceAppSidebarContent,
   WorkspaceAppSidebarFooter,
   WorkspaceNavUser,
   WorkspaceSidebarNavMain,
   WorkspaceSidebarNavSecondary,
   WorkspaceSidebarSectionLabel,
-  WORKSPACE_SHELL_SPACE,
-  WORKSPACE_SHELL_TYPE,
 } from "@repo/ui/components/compose/workspace";
-import { SidebarMenu, SidebarMenuButton, SidebarMenuItem } from "@repo/ui";
 import { cn } from "@repo/ui/lib/utils";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
@@ -29,7 +29,9 @@ export function ThemeStudioRailSidebar(): ReactElement {
     <>
       <WorkspaceAppSidebarContent className="gap-0 pt-2">
         <WorkspaceSidebarNavMain>
-          <WorkspaceSidebarSectionLabel>Preview pages</WorkspaceSidebarSectionLabel>
+          <WorkspaceSidebarSectionLabel>
+            Preview pages
+          </WorkspaceSidebarSectionLabel>
           <div
             className={cn(
               WORKSPACE_SHELL_SPACE.sidebarLabelGap,

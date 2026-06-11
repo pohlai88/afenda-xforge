@@ -23,7 +23,9 @@ describe("DocumentUploadForm", () => {
     expect(
       screen.getByRole("heading", { name: "Document metadata" })
     ).toBeInTheDocument();
-    expect(screen.getByRole("button", { name: "Upload document" })).toBeInTheDocument();
+    expect(
+      screen.getByRole("button", { name: "Upload document" })
+    ).toBeInTheDocument();
     expect(screen.getByText("File")).toBeInTheDocument();
   });
 });

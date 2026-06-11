@@ -8,9 +8,11 @@ export function WorkspaceRailPreview(): ReactElement {
     <div className="space-y-6">
       <p className="max-w-3xl text-muted-foreground text-sm leading-6">
         This route renders the full workspace shell from{" "}
-        <code className="text-foreground">@repo/ui/components/compose/workspace</code>{" "}
-        via <code className="text-foreground">WorkspaceFrame</code>. Use the chrome
-        around this canvas — not a second shell inside the page.
+        <code className="text-foreground">
+          @repo/ui/components/compose/workspace
+        </code>{" "}
+        via <code className="text-foreground">WorkspaceFrame</code>. Use the
+        chrome around this canvas — not a second shell inside the page.
       </p>
 
       <section className="space-y-4 border-border border-t pt-6">

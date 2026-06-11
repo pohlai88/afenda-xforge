@@ -23,10 +23,10 @@ import { PaletteIcon } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import type { CSSProperties, ReactElement, ReactNode } from "react";
+import type { ThemeStudioPage } from "./theme-studio-routes.ts";
 import {
   isThemeStudioPathActive,
   THEME_STUDIO_PAGES,
-  type ThemeStudioPage,
 } from "./theme-studio-routes.ts";
 
 type ThemeStudioShellProps = {
@@ -42,9 +42,7 @@ export function ThemeStudioShell({
   );
 
   return (
-    <SidebarProvider
-      style={{ "--sidebar-width": "18rem" } as CSSProperties}
-    >
+    <SidebarProvider style={{ "--sidebar-width": "18rem" } as CSSProperties}>
       <Sidebar collapsible="offcanvas" variant="inset">
         <SidebarHeader className="border-sidebar-border border-b p-4">
           <div className="flex items-center gap-3">
@@ -55,7 +53,9 @@ export function ThemeStudioShell({
               <p className="font-semibold text-sidebar-foreground text-sm">
                 Theme Studio
               </p>
-              <p className="text-muted-foreground text-xs">Live preview pages</p>
+              <p className="text-muted-foreground text-xs">
+                Live preview pages
+              </p>
             </div>
           </div>
           <p className="mt-3 text-muted-foreground text-xs leading-5">

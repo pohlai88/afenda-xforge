@@ -1,10 +1,8 @@
 import type { CustomizationLayerSet } from "@repo/customization/resolution";
 import type { DocumentsManagementDocumentSummaryProjection } from "@repo/features-employee-management-documents-management";
 import type { EntityMetadata } from "@repo/metadata";
+import { MetadataSectionStack } from "@repo/metadata-ui/components";
 import type { MetadataRenderContext } from "@repo/metadata-ui/contracts";
-import {
-  MetadataSectionStack,
-} from "@repo/metadata-ui/components";
 import type { StorageProviderKind } from "@repo/storage/types";
 import { Badge } from "@repo/ui/components/badge";
 import { Button } from "@repo/ui/components/button";
@@ -12,9 +10,8 @@ import Link from "next/link";
 import type { ReactElement } from "react";
 import { AuthenticatedFeatureScope } from "../../../../_components/authenticated-feature-scope.tsx";
 import { StatusBadge } from "../../_components/status-badge.tsx";
+import { DocumentsWorkspaceShell } from "./_components/documents-workspace-shell.tsx";
 import type { HrDocumentsPageData } from "./_data.ts";
-import { DocumentsDirectoryPanel } from "./_components/documents-directory-panel.tsx";
-import { DocumentUploadForm } from "./document-upload-form.tsx";
 
 const HR_DOCUMENTS_FEATURE_ID =
   "hr-suite.employee-management.documents-management";
@@ -178,15 +175,7 @@ export function DocumentsView({
           </div>
         </header>
 
-        {data.access.canWrite ? (
-          <DocumentUploadForm
-            context={context}
-            customizationLayers={customizationLayers}
-            metadata={metadata}
-            requestHeaders={data.headerSet}
-            storageProvider={storageProvider}
-          />
-        ) : (
+        {data.access.canWrite ? null : (
           <section className="rounded-xl border border-border bg-card/95 p-6 shadow-sm">
             <div className="space-y-2">
               <p className="text-muted-foreground text-sm uppercase tracking-[0.3em]">
@@ -203,18 +192,21 @@ export function DocumentsView({
           </section>
         )}
 
-        <DocumentsDirectoryPanel
+        <DocumentsWorkspaceShell
+          canWrite={data.access.canWrite}
           context={context}
           customizationLayers={customizationLayers}
           defaultSortColumn={metadata.table?.defaultSort}
-          description={`${data.loadedDocumentCount} document${data.loadedDocumentCount === 1 ? "" : "s"} loaded in this view.`}
+          directoryDescription={`${data.loadedDocumentCount} document${data.loadedDocumentCount === 1 ? "" : "s"} loaded in this view.`}
+          directoryTitle="Document directory"
           emptyDescription="No document summaries were returned for this tenant scope yet."
           emptyTitle="No documents"
           loadedDocumentCount={data.loadedDocumentCount}
           metadata={metadata}
+          requestHeaders={data.headerSet}
           rows={toDocumentTableRows(data.documents)}
           searchPlaceholder="Search documents..."
-          title="Document directory"
+          storageProvider={storageProvider}
         />
       </section>
     </AuthenticatedFeatureScope>

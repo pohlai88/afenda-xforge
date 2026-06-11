@@ -5,7 +5,6 @@ import type { EntityMetadata } from "@repo/metadata";
 import { EntityMetadataPanel } from "@repo/metadata-ui/components";
 import type { MetadataRenderContext } from "@repo/metadata-ui/contracts";
 import type { DashboardTableRow } from "@repo/ui";
-import { useRouter } from "next/navigation";
 import type { ReactElement } from "react";
 
 export type DocumentsDirectoryPanelProps = {
@@ -17,8 +16,10 @@ export type DocumentsDirectoryPanelProps = {
   emptyTitle?: string;
   loadedDocumentCount: number;
   metadata: EntityMetadata;
+  onRowSelect?: (row: DashboardTableRow) => void;
   rows: readonly DashboardTableRow[];
   searchPlaceholder?: string;
+  selectedDocumentId?: string | null;
   title?: string;
 };
 
@@ -31,31 +32,37 @@ export function DocumentsDirectoryPanel({
   emptyTitle,
   loadedDocumentCount,
   metadata,
+  onRowSelect,
   rows,
   searchPlaceholder,
+  selectedDocumentId,
   title,
 }: DocumentsDirectoryPanelProps): ReactElement {
-  const router = useRouter();
-
   return (
-    <EntityMetadataPanel
-      context={context}
-      customizationLayers={customizationLayers}
-      defaultSortColumn={defaultSortColumn}
-      description={description}
-      emptyDescription={emptyDescription}
-      emptyTitle={emptyTitle}
-      metadata={metadata}
-      onRowClick={(row) => {
-        if (typeof row.id === "string" && row.id.length > 0) {
-          router.push(`/hr/documents/${row.id}`);
-        }
-      }}
-      pageSize={10}
-      rows={rows}
-      searchPlaceholder={searchPlaceholder}
-      title={title}
-      totalRecords={loadedDocumentCount}
-    />
+    <section className="space-y-3">
+      {selectedDocumentId ? (
+        <p className="text-muted-foreground text-xs">
+          Selected row: press F2 to open the document detail.
+        </p>
+      ) : null}
+      <EntityMetadataPanel
+        context={context}
+        customizationLayers={customizationLayers}
+        defaultSortColumn={defaultSortColumn}
+        description={description}
+        emptyDescription={emptyDescription}
+        emptyTitle={emptyTitle}
+        metadata={metadata}
+        onRowClick={(row) => {
+          onRowSelect?.(row);
+        }}
+        pageSize={10}
+        rows={rows}
+        searchPlaceholder={searchPlaceholder}
+        selectedRowId={selectedDocumentId}
+        title={title}
+        totalRecords={loadedDocumentCount}
+      />
+    </section>
   );
 }

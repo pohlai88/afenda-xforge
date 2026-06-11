@@ -1,5 +1,5 @@
-import { routing } from "./routing";
 import { withLocalePrefix } from "./locale-path";
+import { routing } from "./routing";
 
 export function localePrefixFor(locale: string): string {
   if (

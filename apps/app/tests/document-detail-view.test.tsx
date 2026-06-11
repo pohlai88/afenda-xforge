@@ -75,7 +75,9 @@ describe("DocumentDetailView", () => {
       screen.getByRole("heading", { name: "Employment contract" })
     ).toBeInTheDocument();
     expect(screen.getByText("Document facts")).toBeInTheDocument();
-    expect(screen.getByText("Lifecycle and retention dates")).toBeInTheDocument();
+    expect(
+      screen.getByText("Lifecycle and retention dates")
+    ).toBeInTheDocument();
     expect(screen.getByDisplayValue("employee-001")).toBeInTheDocument();
   });
 });

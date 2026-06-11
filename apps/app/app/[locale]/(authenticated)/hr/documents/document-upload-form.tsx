@@ -13,7 +13,7 @@ import type { StorageProviderKind } from "@repo/storage/types";
 import type { PutBlobResult } from "@vercel/blob";
 import { upload } from "@vercel/blob/client";
 import type { ReactElement } from "react";
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { withCSRFHeader } from "../../../../../lib/csrf.client.ts";
 
 const SERVER_UPLOAD_LIMIT_BYTES = 4.5 * 1024 * 1024;
@@ -57,6 +57,11 @@ type DocumentUploadFormProps = {
   context?: Partial<MetadataRenderContext>;
   customizationLayers?: CustomizationLayerSet | null;
   metadata: EntityMetadata;
+  onRegisterShortcutHandlers?: (handlers: {
+    cancel: () => void;
+    create: () => void;
+    submit: () => void;
+  }) => void;
   requestHeaders: Readonly<Record<string, string>>;
   storageProvider: StorageProviderKind;
 };
@@ -542,6 +547,7 @@ export function DocumentUploadForm({
   context,
   customizationLayers,
   metadata,
+  onRegisterShortcutHandlers,
   requestHeaders,
   storageProvider,
 }: DocumentUploadFormProps): ReactElement {
@@ -569,6 +575,19 @@ export function DocumentUploadForm({
       ...current,
       [key]: value,
     }));
+  };
+
+  const resetForm = (): void => {
+    setFormState(initialFormState);
+    setError(null);
+    setResult(null);
+    setProgress(null);
+    setMode(null);
+    setIsSubmitting(false);
+
+    if (fileInputRef.current) {
+      fileInputRef.current.value = "";
+    }
   };
 
   const submitUpload = async (): Promise<void> => {
@@ -636,6 +655,25 @@ export function DocumentUploadForm({
       setIsSubmitting(false);
     }
   };
+
+  const submitUploadRef = useRef(submitUpload);
+  submitUploadRef.current = submitUpload;
+  const resetFormRef = useRef(resetForm);
+  resetFormRef.current = resetForm;
+
+  useEffect(() => {
+    onRegisterShortcutHandlers?.({
+      cancel: () => {
+        resetFormRef.current();
+      },
+      create: () => {
+        fileInputRef.current?.click();
+      },
+      submit: () => {
+        void submitUploadRef.current();
+      },
+    });
+  }, [onRegisterShortcutHandlers]);
 
   return (
     <section className="space-y-6 rounded-xl border border-border bg-card/95 p-6 shadow-sm">

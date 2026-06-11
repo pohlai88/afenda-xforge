@@ -1,4 +1,8 @@
-export { isPathActive, resolveActiveFeatureId, resolveActiveNavItem } from "./path-utils.ts";
+export {
+  isPathActive,
+  resolveActiveFeatureId,
+  resolveActiveNavItem,
+} from "./path-utils.ts";
 export type {
   WorkspaceNavGroup,
   WorkspaceNavItem,

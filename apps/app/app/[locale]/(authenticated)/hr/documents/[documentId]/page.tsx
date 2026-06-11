@@ -1,14 +1,13 @@
 import { hrDocumentEntityMetadata } from "@repo/features-employee-management-documents-management/metadata/document-entity";
+import { Button } from "@repo/ui/components/button";
 import Link from "next/link";
 import type { ReactElement } from "react";
 import { MetadataFeatureShell } from "../../../../../_components/metadata-feature-shell.tsx";
 import { createAppMetadataContext } from "../../../../../_lib/metadata-context.ts";
-import {
-  loadEntityMetadataCustomizations,
-} from "../../../../../_lib/metadata-customizations.ts";
-import { Button } from "@repo/ui/components/button";
-import { DocumentDetailView } from "../document-detail-view.tsx";
+import { loadEntityMetadataCustomizations } from "../../../../../_lib/metadata-customizations.ts";
+import { DocumentDetailWorkspace } from "../_components/document-detail-workspace.tsx";
 import { loadHrDocumentDetailPageData } from "../_data.ts";
+import { DocumentDetailView } from "../document-detail-view.tsx";
 
 const HR_DOCUMENTS_FEATURE_ID =
   "hr-suite.employee-management.documents-management";
@@ -75,11 +74,19 @@ export default async function HrDocumentDetailPage({
   });
 
   return (
-    <DocumentDetailView
-      context={context}
-      customizationLayers={customizations}
-      data={data}
-      metadata={hrDocumentEntityMetadata}
-    />
+    <DocumentDetailWorkspace
+      canWrite={data.access.canWrite}
+      documentDescription={data.document.description}
+      documentId={data.document.id}
+      documentTitle={data.document.title}
+      requestHeaders={data.headerSet}
+    >
+      <DocumentDetailView
+        context={context}
+        customizationLayers={customizations}
+        data={data}
+        metadata={hrDocumentEntityMetadata}
+      />
+    </DocumentDetailWorkspace>
   );
 }

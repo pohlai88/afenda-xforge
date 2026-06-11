@@ -77,7 +77,7 @@ function ContextSwitcher({
       <DropdownMenuTrigger asChild>
         <Button
           className={cn(
-            "font-normal hover:bg-sidebar-accent data-[state=open]:bg-sidebar-accent",
+            "group font-normal hover:bg-sidebar-accent data-[state=open]:bg-sidebar-accent",
             WORKSPACE_SHELL_TYPE.appTopbarSwitcherIdle,
             WORKSPACE_SHELL_SPACE.topbarItem
           )}
@@ -98,7 +98,7 @@ function ContextSwitcher({
               {truncateSwitcherLabel(activeOption.name)}
             </span>
           </span>
-          <ChevronDown className="size-3.5 shrink-0 text-muted-foreground/70" />
+          <ChevronDown className="size-3.5 shrink-0 text-muted-foreground/70 transition-transform duration-200 group-data-[state=open]:rotate-180" />
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent align="start" className="min-w-56">
@@ -138,7 +138,7 @@ export function WorkspaceAppNavTopbar({
       className={cn(
         "sticky top-0 z-50 flex shrink-0 items-center gap-1 antialiased",
         WORKSPACE_SHELL_SPACE.appTopbarSurface,
-        WORKSPACE_SHELL_SPACE.appTopbarX,
+        WORKSPACE_SHELL_SPACE.shellInsetX,
         className
       )}
       data-slot="workspace-app-nav-topbar"

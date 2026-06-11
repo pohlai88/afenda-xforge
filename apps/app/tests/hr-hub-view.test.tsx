@@ -47,13 +47,14 @@ describe("HrHubView", () => {
     );
 
     expect(screen.getByRole("heading", { name: "HR hub" })).toBeInTheDocument();
-    expect(screen.getByRole("link", { name: "Open documents" })).toHaveAttribute(
-      "href",
-      "/hr/documents"
-    );
+    expect(
+      screen.getByRole("link", { name: "Open documents" })
+    ).toHaveAttribute("href", "/hr/documents");
     expect(screen.getByText("Document preview")).toBeInTheDocument();
     expect(screen.getByText("Lifecycle timeline")).toBeInTheDocument();
-    expect(screen.getByRole("heading", { name: "Upload form preview" })).toBeInTheDocument();
+    expect(
+      screen.getByRole("heading", { name: "Upload form preview" })
+    ).toBeInTheDocument();
     expect(screen.getByDisplayValue("Offer letter")).toBeInTheDocument();
   });
 });

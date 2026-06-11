@@ -75,6 +75,7 @@ type ActivityTableProps = {
   rows: readonly DashboardTableRow[];
   searchAriaLabel?: string;
   searchPlaceholder?: string;
+  selectedRowId?: string | null;
   showSearch?: boolean;
   surface?: "contained" | "embedded";
   timezone?: string;
@@ -216,6 +217,7 @@ export function ActivityTable({
   rows,
   searchAriaLabel = "Search rows",
   searchPlaceholder = "Search records...",
+  selectedRowId = null,
   showSearch = true,
   surface = "contained",
   timezone = "UTC",
@@ -419,16 +421,22 @@ export function ActivityTable({
               <TableBody>
                 {pagedRows.map((row) => {
                   const rowIsInteractive = Boolean(onRowClick);
+                  const isSelected =
+                    selectedRowId !== null &&
+                    selectedRowId !== undefined &&
+                    row.id === selectedRowId;
                   const activateRow = (): void => {
                     onRowClick?.(row);
                   };
 
                   return (
                     <TableRow
+                      aria-selected={isSelected || undefined}
                       className={cn(
                         resolveTableRowDensityClassName(),
                         rowIsInteractive && METADATA_INTERACTIVE_ROW_CLASS
                       )}
+                      data-state={isSelected ? "selected" : undefined}
                       key={row.id}
                       onClick={rowIsInteractive ? activateRow : undefined}
                       onKeyDown={

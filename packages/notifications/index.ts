@@ -8,6 +8,7 @@ export type {
   PersistAndDispatchNotificationsResult,
 } from "./shared/types.ts";
 export {
+  archiveAllNotifications,
   listNotificationInbox,
   markAllNotificationsRead,
   markNotificationRead,

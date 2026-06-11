@@ -27,7 +27,9 @@ function toWorkspaceTeam(company: Company): WorkspaceNavTeam {
 export function AuthenticatedCompanySwitcher(): ReactElement | null {
   const router = useRouter();
   const [activeTeamId, setActiveTeamId] = useState<string | undefined>();
-  const [teams, setTeams] = useState<readonly WorkspaceNavTeam[]>([LOADING_TEAM]);
+  const [teams, setTeams] = useState<readonly WorkspaceNavTeam[]>([
+    LOADING_TEAM,
+  ]);
   const [switching, setSwitching] = useState(false);
 
   useEffect(() => {

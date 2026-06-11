@@ -10,13 +10,13 @@ import {
 } from "@repo/ui/components/card";
 import { cn } from "@repo/ui/lib/utils";
 import type { ReactElement } from "react";
+import type { SemanticTone } from "./theme-studio-shared.tsx";
 import {
   PREVIEW_PANEL_CLASS,
   PreviewHeader,
   PreviewPageShell,
   SEMANTIC_TONE_BADGE,
   SEMANTIC_TONE_SURFACE,
-  type SemanticTone,
   ValidationNote,
 } from "./theme-studio-shared.tsx";
 
@@ -101,12 +101,14 @@ const INSIGHTS: Insight[] = [
   },
   {
     title: "Critical stockout risk",
-    description: "Two material groups are below the minimum operating threshold.",
+    description:
+      "Two material groups are below the minimum operating threshold.",
     tone: "destructive",
   },
   {
     title: "Chart colors are independent",
-    description: "Series colors are visual only and do not imply status meaning.",
+    description:
+      "Series colors are visual only and do not imply status meaning.",
     tone: "info",
   },
 ];
@@ -119,8 +121,18 @@ const HEATMAP_TONE_SURFACE: Record<HeatmapTone, string> = {
 };
 
 const KPI_CARDS = [
-  { label: "Revenue", value: "$4.82M", delta: "+12.8%", tone: "success" as const },
-  { label: "Gross Margin", value: "31.4%", delta: "+2.1%", tone: "info" as const },
+  {
+    label: "Revenue",
+    value: "$4.82M",
+    delta: "+12.8%",
+    tone: "success" as const,
+  },
+  {
+    label: "Gross Margin",
+    value: "31.4%",
+    delta: "+2.1%",
+    tone: "info" as const,
+  },
   {
     label: "Procurement Risk",
     value: "18",
@@ -219,7 +231,9 @@ export function AnalyticsPreview(): ReactElement {
                 key={series.label}
               >
                 <div className="flex items-center gap-3">
-                  <span className={cn("size-4 rounded-full", series.className)} />
+                  <span
+                    className={cn("size-4 rounded-full", series.className)}
+                  />
                   <span className="font-semibold text-sm">{series.label}</span>
                 </div>
                 <strong className="text-sm text-tabular">{series.value}</strong>
@@ -254,12 +268,16 @@ export function AnalyticsPreview(): ReactElement {
           <CardContent className="grid gap-3 sm:grid-cols-2">
             {HEATMAP_CELLS.map((cell) => (
               <div
-                className={cn("border p-4", PREVIEW_PANEL_CLASS, HEATMAP_TONE_SURFACE[cell.tone])}
+                className={cn(
+                  "border p-4",
+                  PREVIEW_PANEL_CLASS,
+                  HEATMAP_TONE_SURFACE[cell.tone]
+                )}
                 key={cell.label}
               >
                 <div className="flex items-center justify-between gap-3">
                   <h3 className="font-semibold text-sm">{cell.label}</h3>
-                  <strong className="text-2xl tracking-tight text-tabular">
+                  <strong className="text-2xl text-tabular tracking-tight">
                     {cell.value}
                   </strong>
                 </div>
@@ -303,7 +321,11 @@ export function AnalyticsPreview(): ReactElement {
               )}
             >
               {CHART_STRESS_COLORS.map((color, index) => (
-                <ColorBlock className={color} key={color} label={String(index + 1)} />
+                <ColorBlock
+                  className={color}
+                  key={color}
+                  label={String(index + 1)}
+                />
               ))}
             </div>
 
@@ -392,7 +414,7 @@ function MetricCard({
     <Card className="shadow-sm">
       <CardHeader className="pb-2">
         <CardDescription>{label}</CardDescription>
-        <CardTitle className="text-3xl tracking-tight text-tabular">
+        <CardTitle className="text-3xl text-tabular tracking-tight">
           {value}
         </CardTitle>
       </CardHeader>
@@ -429,11 +451,16 @@ function HorizontalSeries({
     <div>
       <div className="mb-2 flex items-center justify-between gap-4 text-sm">
         <span className="font-semibold">{series.label}</span>
-        <span className="text-muted-foreground text-tabular">{series.value}%</span>
+        <span className="text-muted-foreground text-tabular">
+          {series.value}%
+        </span>
       </div>
       <div className="relative h-3 overflow-hidden rounded-full bg-muted">
         <div
-          className={cn("absolute inset-y-0 left-0 rounded-full", series.barClassName)}
+          className={cn(
+            "absolute inset-y-0 left-0 rounded-full",
+            series.barClassName
+          )}
           style={{ width: `${series.value}%` }}
         />
       </div>

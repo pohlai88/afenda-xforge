@@ -10,6 +10,7 @@ import {
 } from "@repo/openapi";
 import { registerAuditOpenApi } from "../audit/_spec.ts";
 import { registerAuditExportOpenApi } from "../audit/export/contract.ts";
+import { registerWorkspaceShortcutsOpenApi } from "../../../lib/workspace-shortcuts/openapi.server.ts";
 
 const version: string =
   process.env.VERCEL_GIT_COMMIT_SHA?.slice(0, 7) ??
@@ -462,6 +463,7 @@ export const getAppOpenApiDocument = (): OpenApiDocument => {
   registerMachineOpenApi(document);
   registerAuditOpenApi(document);
   registerAuditExportOpenApi(document);
+  registerWorkspaceShortcutsOpenApi(document);
 
   return document;
 };

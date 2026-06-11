@@ -1,25 +1,29 @@
 import { requireActiveTenantMembership } from "@repo/auth/server";
 import { userBrandingPreferencesSchema } from "@repo/design-system";
 import { NextResponse } from "next/server";
+import { mapApiRouteError } from "../../../../lib/api/route-errors.ts";
 import {
   readUserAppearancePreferences,
   upsertUserAppearancePreferences,
 } from "../../../../lib/user-appearance/repository.server";
 
 export async function GET(): Promise<NextResponse> {
-  const membership = await requireActiveTenantMembership();
-  const preferences = await readUserAppearancePreferences(
-    membership.tenantId,
-    membership.userId
-  );
+  try {
+    const membership = await requireActiveTenantMembership();
+    const preferences = await readUserAppearancePreferences(
+      membership.tenantId,
+      membership.userId
+    );
 
-  return NextResponse.json({ preferences });
+    return NextResponse.json({ preferences });
+  } catch (error) {
+    return mapApiRouteError(error, "User appearance preferences read failed");
+  }
 }
 
 export async function POST(request: Request): Promise<NextResponse> {
-  const membership = await requireActiveTenantMembership();
-
   try {
+    const membership = await requireActiveTenantMembership();
     const payload = (await request.json()) as { preferences?: unknown };
     const preferences = userBrandingPreferencesSchema.parse(
       payload.preferences ?? {}
@@ -32,14 +36,6 @@ export async function POST(request: Request): Promise<NextResponse> {
 
     return NextResponse.json({ preferences: saved });
   } catch (error) {
-    return NextResponse.json(
-      {
-        error:
-          error instanceof Error
-            ? error.message
-            : "User appearance preferences update failed",
-      },
-      { status: 400 }
-    );
+    return mapApiRouteError(error, "User appearance preferences update failed");
   }
 }

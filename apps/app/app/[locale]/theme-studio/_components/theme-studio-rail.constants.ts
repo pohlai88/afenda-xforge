@@ -87,3 +87,15 @@ export const THEME_STUDIO_FEATURE_NAV = [
     label: "Lane accents",
   },
 ] as const;
+
+/** Demo identity for Theme Studio app-nav actions popover header. */
+export const THEME_STUDIO_DEMO_USER = {
+  email: "brand.lead@vietnamfeed.com",
+  name: "Brand Lead",
+} as const;
+
+/** Demo tenant/user for Theme Studio notifications preview wiring. */
+export const THEME_STUDIO_DEMO_CONTEXT = {
+  tenantId: "00000000-0000-4000-8000-000000000001",
+  userId: "theme-studio-demo-user",
+} as const;

@@ -52,6 +52,10 @@
       "dependsOn": ["^check"],
       "outputs": []
     },
+    "check:stability": {
+      "dependsOn": ["^typecheck"],
+      "outputs": []
+    },
     "clean": {
       "cache": false,
       "outputs": []

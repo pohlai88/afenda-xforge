@@ -44,6 +44,11 @@ export const AUTHENTICATED_SETTINGS_NAV: WorkspaceNavGroup = {
       label: "Tenant branding",
       featureId: "system-admin.tenant-settings",
     },
+    {
+      href: "/admin/keyboard-shortcuts",
+      label: "Keyboard shortcuts",
+      featureId: "system-admin.tenant-settings",
+    },
   ],
 };
 
