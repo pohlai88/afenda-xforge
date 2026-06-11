@@ -1,14 +1,14 @@
 import type { EntityMetadata } from "@repo/metadata";
-import type {
-  MetadataActionContract,
-  MetadataFieldContract,
-} from "@repo/metadata-ui/contracts";
-import { createMetadataRenderContext } from "@repo/metadata-ui/contracts";
 import {
   EntityMetadataPanel,
   MetadataForm,
   MetadataStateBoundary,
 } from "@repo/metadata-ui/components";
+import type {
+  MetadataActionContract,
+  MetadataFieldContract,
+} from "@repo/metadata-ui/contracts";
+import { createMetadataRenderContext } from "@repo/metadata-ui/contracts";
 import type { Meta, StoryObj } from "@storybook/react";
 import { expect, userEvent, within } from "storybook/test";
 

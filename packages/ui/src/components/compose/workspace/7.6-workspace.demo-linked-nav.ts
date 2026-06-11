@@ -1,9 +1,9 @@
 "use client";
 
 import { useCallback, useMemo, useState } from "react";
-
-import type { WorkspaceNavContextSwitcherProps } from "./5.7-workspace-nav-context-switcher.tsx";
 import type { WorkspaceNavTeam } from "./5.4-workspace-rail.types.ts";
+import type { WorkspaceNavContextSwitcherProps } from "./5.7-workspace-nav-context-switcher.tsx";
+import type { WorkspaceDemoSelection } from "./7.5-workspace.demo-seed.adapter.ts";
 import {
   getWorkspaceDemoDefaultSelection,
   resolveWorkspaceDemoSwitchers,
@@ -13,7 +13,6 @@ import {
   selectWorkspaceDemoOrganization,
   selectWorkspaceDemoProject,
   selectWorkspaceDemoTeam,
-  type WorkspaceDemoSelection,
 } from "./7.5-workspace.demo-seed.adapter.ts";
 
 export type WorkspaceDemoLinkedNav = {
@@ -28,14 +27,17 @@ export type WorkspaceDemoLinkedNav = {
 };
 
 export function useWorkspaceDemoLinkedNav(
-  initialSelection: WorkspaceDemoSelection = getWorkspaceDemoDefaultSelection()
+  initialSelection: WorkspaceDemoSelection = getWorkspaceDemoDefaultSelection(),
 ): WorkspaceDemoLinkedNav {
   const [selection, setSelection] = useState(initialSelection);
 
   const teams = useMemo(
     () =>
-      resolveWorkspaceDemoTeams(selection.organizationId, selection.departmentId),
-    [selection.departmentId, selection.organizationId]
+      resolveWorkspaceDemoTeams(
+        selection.organizationId,
+        selection.departmentId,
+      ),
+    [selection.departmentId, selection.organizationId],
   );
 
   const activeTeam = useMemo(
@@ -43,18 +45,24 @@ export function useWorkspaceDemoLinkedNav(
       resolveWorkspaceDemoTeam(
         selection.organizationId,
         selection.departmentId,
-        selection.teamId
+        selection.teamId,
       ),
-    [selection.departmentId, selection.organizationId, selection.teamId]
+    [selection.departmentId, selection.organizationId, selection.teamId],
   );
 
   const onOrganizationChange = useCallback((organizationId: string) => {
-    setSelection((current) => selectWorkspaceDemoOrganization(organizationId, current));
+    setSelection((current) =>
+      selectWorkspaceDemoOrganization(organizationId, current),
+    );
   }, []);
 
   const onDepartmentChange = useCallback((departmentId: string) => {
     setSelection((current) =>
-      selectWorkspaceDemoDepartment(current.organizationId, departmentId, current)
+      selectWorkspaceDemoDepartment(
+        current.organizationId,
+        departmentId,
+        current,
+      ),
     );
   }, []);
 
@@ -64,8 +72,8 @@ export function useWorkspaceDemoLinkedNav(
         current.organizationId,
         current.departmentId,
         teamId,
-        current
-      )
+        current,
+      ),
     );
   }, []);
 
@@ -75,8 +83,8 @@ export function useWorkspaceDemoLinkedNav(
         current.organizationId,
         current.departmentId,
         current.teamId,
-        projectId
-      )
+        projectId,
+      ),
     );
   }, []);
 
@@ -94,7 +102,7 @@ export function useWorkspaceDemoLinkedNav(
       onProjectChange,
       onTeamChange,
       selection,
-    ]
+    ],
   );
 
   return {

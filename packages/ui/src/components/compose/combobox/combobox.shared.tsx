@@ -13,9 +13,9 @@ import {
   CardTitle,
 } from "../../ui-shadcn/card";
 import {
-  Combobox as ComboboxRoot,
   ComboboxChips,
   ComboboxChipsInput,
+  ComboboxClear as ComboboxClearPrimitive,
   ComboboxCollection,
   ComboboxContent,
   ComboboxEmpty,
@@ -23,9 +23,9 @@ import {
   ComboboxItem,
   ComboboxLabel,
   ComboboxList,
+  Combobox as ComboboxRoot,
   ComboboxSeparator,
   ComboboxTrigger as ComboboxTriggerPrimitive,
-  ComboboxClear as ComboboxClearPrimitive,
   ComboboxValue,
   useComboboxAnchor,
 } from "../../ui-shadcn/combobox";

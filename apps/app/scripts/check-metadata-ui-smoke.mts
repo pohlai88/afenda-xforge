@@ -2,20 +2,25 @@ import assert from "node:assert/strict";
 import { existsSync, readFileSync } from "node:fs";
 import { fileURLToPath } from "node:url";
 
+const authenticatedRoot = "../app/[locale]/(authenticated)/";
+
 const dashboardPagePath = fileURLToPath(
-  new URL("../app/(authenticated)/dashboard/page.tsx", import.meta.url)
+  new URL(`${authenticatedRoot}dashboard/page.tsx`, import.meta.url)
 );
 const dashboardViewPath = fileURLToPath(
+  new URL(`${authenticatedRoot}dashboard/dashboard-view.tsx`, import.meta.url)
+);
+const dashboardEntitySectionsPath = fileURLToPath(
   new URL(
-    "../app/(authenticated)/dashboard/dashboard-view.tsx",
+    `${authenticatedRoot}dashboard/_components/dashboard-entity-sections.tsx`,
     import.meta.url
   )
 );
 const auditPagePath = fileURLToPath(
-  new URL("../app/(authenticated)/audit/page.tsx", import.meta.url)
+  new URL(`${authenticatedRoot}audit/page.tsx`, import.meta.url)
 );
 const auditViewPath = fileURLToPath(
-  new URL("../app/(authenticated)/audit/audit-view.tsx", import.meta.url)
+  new URL(`${authenticatedRoot}audit/audit-view.tsx`, import.meta.url)
 );
 const metadataContextPath = fileURLToPath(
   new URL("../app/_lib/metadata-context.ts", import.meta.url)
@@ -24,62 +29,69 @@ const metadataFeatureShellPath = fileURLToPath(
   new URL("../app/_components/metadata-feature-shell.tsx", import.meta.url)
 );
 const documentsPagePath = fileURLToPath(
-  new URL("../app/(authenticated)/hr/documents/page.tsx", import.meta.url)
+  new URL(`${authenticatedRoot}hr/documents/page.tsx`, import.meta.url)
 );
 const documentsViewPath = fileURLToPath(
   new URL(
-    "../app/(authenticated)/hr/documents/documents-view.tsx",
+    `${authenticatedRoot}hr/documents/documents-view.tsx`,
+    import.meta.url
+  )
+);
+const documentsWorkspaceShellPath = fileURLToPath(
+  new URL(
+    `${authenticatedRoot}hr/documents/_components/documents-workspace-shell.tsx`,
     import.meta.url
   )
 );
 const documentDetailViewPath = fileURLToPath(
   new URL(
-    "../app/(authenticated)/hr/documents/document-detail-view.tsx",
+    `${authenticatedRoot}hr/documents/document-detail-view.tsx`,
     import.meta.url
   )
 );
 const documentsDirectoryPanelPath = fileURLToPath(
   new URL(
-    "../app/(authenticated)/hr/documents/_components/documents-directory-panel.tsx",
+    `${authenticatedRoot}hr/documents/_components/documents-directory-panel.tsx`,
     import.meta.url
   )
 );
 const documentDetailPagePath = fileURLToPath(
   new URL(
-    "../app/(authenticated)/hr/documents/[documentId]/page.tsx",
+    `${authenticatedRoot}hr/documents/[documentId]/page.tsx`,
     import.meta.url
   )
 );
 const documentUploadFormPath = fileURLToPath(
   new URL(
-    "../app/(authenticated)/hr/documents/document-upload-form.tsx",
+    `${authenticatedRoot}hr/documents/document-upload-form.tsx`,
     import.meta.url
   )
 );
 const hrHubPagePath = fileURLToPath(
-  new URL("../app/(authenticated)/hr/page.tsx", import.meta.url)
+  new URL(`${authenticatedRoot}hr/page.tsx`, import.meta.url)
 );
 const hrHubViewPath = fileURLToPath(
-  new URL("../app/(authenticated)/hr/hr-hub-view.tsx", import.meta.url)
+  new URL(`${authenticatedRoot}hr/hr-hub-view.tsx`, import.meta.url)
 );
 const assistantPagePath = fileURLToPath(
-  new URL("../app/(authenticated)/assistant/page.tsx", import.meta.url)
+  new URL(`${authenticatedRoot}assistant/page.tsx`, import.meta.url)
 );
 const assistantViewPath = fileURLToPath(
-  new URL(
-    "../app/(authenticated)/assistant/assistant-view.tsx",
-    import.meta.url
-  )
+  new URL(`${authenticatedRoot}assistant/assistant-view.tsx`, import.meta.url)
 );
 const documentSummaryListPath = fileURLToPath(
   new URL(
-    "../app/(authenticated)/hr/documents/_components/document-summary-list.tsx",
+    `${authenticatedRoot}hr/documents/_components/document-summary-list.tsx`,
     import.meta.url
   )
 );
 
 const dashboardPageSource = readFileSync(dashboardPagePath, "utf8");
 const dashboardViewSource = readFileSync(dashboardViewPath, "utf8");
+const dashboardEntitySectionsSource = readFileSync(
+  dashboardEntitySectionsPath,
+  "utf8"
+);
 const auditPageSource = readFileSync(auditPagePath, "utf8");
 const auditViewSource = readFileSync(auditViewPath, "utf8");
 const metadataContextSource = readFileSync(metadataContextPath, "utf8");
@@ -89,6 +101,10 @@ const metadataFeatureShellSource = readFileSync(
 );
 const documentsPageSource = readFileSync(documentsPagePath, "utf8");
 const documentsViewSource = readFileSync(documentsViewPath, "utf8");
+const documentsWorkspaceShellSource = readFileSync(
+  documentsWorkspaceShellPath,
+  "utf8"
+);
 const documentDetailViewSource = readFileSync(documentDetailViewPath, "utf8");
 const documentsDirectoryPanelSource = readFileSync(
   documentsDirectoryPanelPath,
@@ -145,8 +161,13 @@ assert.match(
 );
 assert.match(
   dashboardViewSource,
+  /DashboardEntitySections/,
+  "dashboard view must delegate entity directories to DashboardEntitySections"
+);
+assert.match(
+  dashboardViewSource,
   /customizationLayers/,
-  "dashboard view must pass customizationLayers to EntityMetadataPanel"
+  "dashboard view must pass customizationLayers to DashboardEntitySections"
 );
 assert.doesNotMatch(
   dashboardViewSource,
@@ -164,14 +185,19 @@ assert.doesNotMatch(
   "dashboard view must use native stat sections instead of KpiCard wrappers"
 );
 assert.match(
-  dashboardViewSource,
+  dashboardEntitySectionsSource,
   /if \(state\.status === "forbidden"\)[\s\S]*?<EntityMetadataPanel[\s\S]*?forbidden[\s\S]*?rows=\{\[\]\}/,
-  "dashboard view must keep a governed forbidden fallback through EntityMetadataPanel"
+  "dashboard entity sections must keep a governed forbidden fallback through EntityMetadataPanel"
 );
 assert.match(
-  dashboardViewSource,
-  /return \(\s*<EntityMetadataPanel[\s\S]*?rows=\{state\.data\.items\}[\s\S]*?totalRecords=\{state\.data\.total\}/,
-  "dashboard view must keep a ready metadata-ui consumer path through EntityMetadataPanel"
+  dashboardEntitySectionsSource,
+  /<EntityMetadataPanel[\s\S]*?rows=\{state\.data\.items\}[\s\S]*?totalRecords=\{state\.data\.total\}/,
+  "dashboard entity sections must keep a ready metadata-ui consumer path through EntityMetadataPanel"
+);
+assert.match(
+  dashboardEntitySectionsSource,
+  /from\s+["']@repo\/metadata-ui\/components["']/,
+  "dashboard entity sections must consume metadata-ui through @repo/metadata-ui/components"
 );
 
 assert.match(
@@ -254,8 +280,13 @@ assert.match(
 
 assert.match(
   documentsViewSource,
+  /DocumentsWorkspaceShell/,
+  "documents view must render the document workspace through DocumentsWorkspaceShell"
+);
+assert.match(
+  documentsWorkspaceShellSource,
   /DocumentsDirectoryPanel/,
-  "documents view must render the document directory through DocumentsDirectoryPanel"
+  "documents workspace shell must render the document directory through DocumentsDirectoryPanel"
 );
 assert.match(
   documentsDirectoryPanelSource,
@@ -269,8 +300,13 @@ assert.match(
 );
 assert.match(
   documentsViewSource,
+  /customizationLayers=\{customizationLayers\}/,
+  "documents view must pass customizationLayers to DocumentsWorkspaceShell"
+);
+assert.match(
+  documentsWorkspaceShellSource,
   /customizationLayers/,
-  "documents view must pass customizationLayers to the document directory panel"
+  "documents workspace shell must pass customizationLayers to DocumentsDirectoryPanel"
 );
 assert.match(
   documentsViewSource,

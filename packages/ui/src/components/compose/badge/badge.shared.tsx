@@ -93,8 +93,8 @@ export {
   Badge,
   BadgeDot,
   BadgePatternCard,
-  OutlineStatusBadge,
-  StatusBadge,
   badgeOutlineToneClassName,
   badgeToneClassName,
+  OutlineStatusBadge,
+  StatusBadge,
 };

@@ -1,15 +1,18 @@
 import { CHART_HUES } from "../contracts/chart.contract";
+import type { HueReservationEntry } from "../contracts/hue-reservation.contract";
 import {
   collectReservedStatusHueEntries,
   extractHue,
   xforgeColorSystemV3,
-  type HueReservationEntry,
 } from "../contracts/hue-reservation.contract";
-import { THEME_PRESETS, type ThemePresetName } from "../contracts/theme-preset.contract";
+import type { ThemePresetName } from "../contracts/theme-preset.contract";
+import { THEME_PRESETS } from "../contracts/theme-preset.contract";
 import { ERP_VISUAL_LANES } from "../contracts/visual-lane.contract";
 import { CHART_LIGHT_DECLARATIONS } from "./chart-tokens";
 
-function collectBrandHueEntries(presetName: ThemePresetName): HueReservationEntry[] {
+function collectBrandHueEntries(
+  presetName: ThemePresetName
+): HueReservationEntry[] {
   const preset = THEME_PRESETS.find((entry) => entry.name === presetName);
   if (!preset) {
     throw new Error(`Unknown theme preset: ${presetName}`);
@@ -46,7 +49,8 @@ export function collectDefaultPlatformHueEntries(): HueReservationEntry[] {
   const laneEntries: HueReservationEntry[] = ERP_VISUAL_LANES.map((lane) => ({
     family: `lane-${lane.id}`,
     category: "lane",
-    hue: extractHue(lane.scales.light.solid) ?? xforgeColorSystemV3.lanes[lane.id],
+    hue:
+      extractHue(lane.scales.light.solid) ?? xforgeColorSystemV3.lanes[lane.id],
     source: lane.scales.light.solid,
   }));
 

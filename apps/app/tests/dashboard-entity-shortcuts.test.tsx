@@ -107,6 +107,7 @@ vi.mock("../lib/master-data/customer-api.client.ts", () => ({
 }));
 
 vi.mock("../lib/master-data/company-api.client.ts", () => ({
+  archiveCompanyRecord: vi.fn(),
   updateCompanyRecord: vi.fn(),
 }));
 

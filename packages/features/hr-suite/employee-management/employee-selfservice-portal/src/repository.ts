@@ -9,9 +9,10 @@ type EmployeeSelfservicePortalRepositoryModule =
 
 const nodeRequire = createRequire(import.meta.url);
 
-const loadRepositoryModule =
-  (): EmployeeSelfservicePortalRepositoryModule =>
-    nodeRequire("./repository.file.ts") as EmployeeSelfservicePortalRepositoryModule;
+const loadRepositoryModule = (): EmployeeSelfservicePortalRepositoryModule =>
+  nodeRequire(
+    "./repository.file.ts"
+  ) as EmployeeSelfservicePortalRepositoryModule;
 
 export const appendEmployeeSelfservicePortalAuditEvent: EmployeeSelfservicePortalRepositoryModule["appendEmployeeSelfservicePortalAuditEvent"] =
   (...args) =>

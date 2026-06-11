@@ -2,21 +2,24 @@
  * One-off audit: run axe on Storybook iframe URLs and print violations per story.
  * Usage: start `pnpm exec storybook dev --ci -p 6010` then `tsx scripts/audit-story-a11y.mts`
  */
+
+import { checkA11y, getViolations, injectAxe } from "axe-playwright";
 import { chromium } from "playwright";
-import { injectAxe, checkA11y, getViolations } from "axe-playwright";
 
 const port = Number(process.env.STORYBOOK_TEST_PORT ?? "6010");
 const baseUrl = `http://localhost:${port}`;
 
-const index = await fetch(`${baseUrl}/index.json`).then((r) => r.json()) as {
-  entries: Record<string, { title: string; name: string; type: string; importPath: string }>;
+const index = (await fetch(`${baseUrl}/index.json`).then((r) => r.json())) as {
+  entries: Record<
+    string,
+    { title: string; name: string; type: string; importPath: string }
+  >;
 };
 
 const filterPrefix = process.env.A11Y_AUDIT_PREFIX;
 const stories = Object.values(index.entries).filter(
   (e) =>
-    e.type === "story" &&
-    (!filterPrefix || e.title.startsWith(filterPrefix))
+    e.type === "story" && (!filterPrefix || e.title.startsWith(filterPrefix))
 );
 
 const browser = await chromium.launch();
@@ -29,7 +32,9 @@ for (const story of stories) {
   const storyId = Object.keys(index.entries).find(
     (k) => index.entries[k] === story
   );
-  if (!storyId) continue;
+  if (!storyId) {
+    continue;
+  }
 
   const url = `${baseUrl}/iframe.html?id=${storyId}&viewMode=story`;
   await page.goto(url, { waitUntil: "networkidle", timeout: 60_000 });
@@ -56,7 +61,9 @@ for (const story of stories) {
 await browser.close();
 
 console.log("\n--- Summary ---");
-console.log(`Pass: ${stories.length - failures.length}, Fail: ${failures.length}`);
+console.log(
+  `Pass: ${stories.length - failures.length}, Fail: ${failures.length}`
+);
 for (const f of failures) {
   console.log(`  ${f.id}: ${f.violations} (${f.rules.join(", ")})`);
 }

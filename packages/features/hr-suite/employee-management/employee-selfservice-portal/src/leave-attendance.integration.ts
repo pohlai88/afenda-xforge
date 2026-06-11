@@ -61,10 +61,11 @@ type EmployeeSelfservicePortalLeaveAttendanceIntegration = {
   ) => readonly EmployeeSelfservicePortalLeaveBalanceSourceRecord[];
 };
 
-const defaultIntegration: EmployeeSelfservicePortalLeaveAttendanceIntegration = {
-  listLeaveApplications: () => [],
-  listLeaveBalances: () => [],
-};
+const defaultIntegration: EmployeeSelfservicePortalLeaveAttendanceIntegration =
+  {
+    listLeaveApplications: () => [],
+    listLeaveBalances: () => [],
+  };
 
 let integration: EmployeeSelfservicePortalLeaveAttendanceIntegration =
   defaultIntegration;

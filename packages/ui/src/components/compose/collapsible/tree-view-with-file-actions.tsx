@@ -51,7 +51,11 @@ function FileRow({
         <Button aria-label={`Download ${name}`} variant="ghost" size="icon-sm">
           <Download className="size-4" />
         </Button>
-        <Button aria-label={`Open actions for ${name}`} variant="ghost" size="icon-sm">
+        <Button
+          aria-label={`Open actions for ${name}`}
+          variant="ghost"
+          size="icon-sm"
+        >
           <Ellipsis className="size-4" />
         </Button>
       </div>

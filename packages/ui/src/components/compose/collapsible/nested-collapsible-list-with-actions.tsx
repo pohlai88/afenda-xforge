@@ -65,7 +65,11 @@ export function NestedCollapsibleListWithActions() {
                       </p>
                     </div>
                     <div className="flex items-center gap-1">
-                      <Button aria-label={`Open actions for ${item.title}`} variant="ghost" size="icon-sm">
+                      <Button
+                        aria-label={`Open actions for ${item.title}`}
+                        variant="ghost"
+                        size="icon-sm"
+                      >
                         <Ellipsis className="size-4" />
                       </Button>
                       <CollapsibleTrigger asChild>

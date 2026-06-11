@@ -38,8 +38,6 @@ export {
   employeeLifecycleManagementSensitiveCapabilities,
   employeeLifecycleManagementWriteCapabilities,
 } from "./capability.contract.ts";
-export type { EmployeeLifecycleManagementManifest } from "./manifest.contract.ts";
-export type { EmployeeLifecycleManagementMetadata } from "./metadata.contract.ts";
 export type {
   EmployeeLifecycleComplianceWorkerStatus,
   EmployeeLifecycleIamRevocationTrigger,
@@ -60,6 +58,8 @@ export {
   employeeLifecyclePayrollSettlementReadinessSchema,
   employeeLifecycleTaskAttentionSnapshotSchema,
 } from "./integration.contract.ts";
+export type { EmployeeLifecycleManagementManifest } from "./manifest.contract.ts";
+export type { EmployeeLifecycleManagementMetadata } from "./metadata.contract.ts";
 export type { EmployeeLifecycleManagementPermission } from "./permission.contract.ts";
 export {
   employeeLifecycleManagementPermissions,

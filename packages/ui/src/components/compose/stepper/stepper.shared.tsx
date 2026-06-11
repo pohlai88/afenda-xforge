@@ -340,7 +340,7 @@ function StepperPanel({ className, ...props }: React.ComponentProps<"div">) {
   );
 }
 
-type StepperContentProps = React.ComponentProps<"div"> & {
+type StepperContentProps = React.ComponentProps<"section"> & {
   value: number;
   forceMount?: boolean;
 };
@@ -359,8 +359,7 @@ function StepperContent({
 
   if (!forceMount && !active) {
     return (
-      <div
-        role="region"
+      <section
         id={contentId}
         data-slot="stepper-content"
         data-state="inactive"
@@ -373,8 +372,7 @@ function StepperContent({
   }
 
   return (
-    <div
-      role="region"
+    <section
       id={contentId}
       data-slot="stepper-content"
       data-state={active ? "active" : "inactive"}
@@ -384,7 +382,7 @@ function StepperContent({
       {...props}
     >
       {children}
-    </div>
+    </section>
   );
 }
 

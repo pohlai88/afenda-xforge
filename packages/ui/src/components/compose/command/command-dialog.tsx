@@ -80,7 +80,10 @@ export function CommandDialogPattern() {
               Notifications
             </CommandItem>
           </CommandGroup>
-          <CommandGroup title="Workspace" className="border-t border-border pt-2">
+          <CommandGroup
+            title="Workspace"
+            className="border-t border-border pt-2"
+          >
             <CommandItem>
               <CreditCard className="size-4" />
               Billing

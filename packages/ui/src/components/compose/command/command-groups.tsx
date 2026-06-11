@@ -31,7 +31,10 @@ export function CommandGroups() {
               Profile
             </CommandItem>
           </CommandGroup>
-          <CommandGroup title="Settings" className="border-t border-border pt-2">
+          <CommandGroup
+            title="Settings"
+            className="border-t border-border pt-2"
+          >
             <CommandItem>
               <CreditCard className="size-4" />
               Billing

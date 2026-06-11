@@ -293,9 +293,7 @@ function ColoredMetricCard({
       <div className="pointer-events-none absolute -top-10 -right-10 size-32 rounded-full bg-white/10" />
       <div className="pointer-events-none absolute right-12 bottom-8 size-16 rounded-full bg-white/10" />
       <CardHeader className="relative border-0">
-        <CardTitle className="font-medium text-sm">
-          {metric.title}
-        </CardTitle>
+        <CardTitle className="font-medium text-sm">{metric.title}</CardTitle>
         <CardAction>
           <StatisticCardMenu />
         </CardAction>
@@ -576,7 +574,10 @@ function CampaignProgress() {
                   {goal.value}%
                 </span>
               </div>
-              <Progress aria-label={`${goal.label} progress`} value={goal.value} />
+              <Progress
+                aria-label={`${goal.label} progress`}
+                value={goal.value}
+              />
             </div>
           );
         })}
@@ -825,10 +826,7 @@ function SupportQuality() {
                   <Icon className="size-5" />
                 </Badge>
               ) : (
-                <StatusBadge
-                  tone={item.tone}
-                  className="size-10 rounded-lg"
-                >
+                <StatusBadge tone={item.tone} className="size-10 rounded-lg">
                   <Icon className="size-5" />
                 </StatusBadge>
               )}

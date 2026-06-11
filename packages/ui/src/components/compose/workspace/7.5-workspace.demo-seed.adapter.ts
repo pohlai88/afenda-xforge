@@ -6,10 +6,9 @@ import {
   Users,
 } from "lucide-react";
 import type { ElementType } from "react";
-
-import type { WorkspaceNavContextSwitcherProps } from "./5.7-workspace-nav-context-switcher.tsx";
-import type { WorkspaceNavTeam } from "./5.4-workspace-rail.types.ts";
 import type { WorkspaceNavUserProfile } from "./4.0-workspace-nav-user.tsx";
+import type { WorkspaceNavTeam } from "./5.4-workspace-rail.types.ts";
+import type { WorkspaceNavContextSwitcherProps } from "./5.7-workspace-nav-context-switcher.tsx";
 import seed from "./7.4-workspace.demo-seed.json";
 
 export type WorkspaceDemoIconId =
@@ -105,29 +104,29 @@ export function getWorkspaceDemoNavFeatures(): readonly WorkspaceDemoNavItemSeed
 }
 
 function findOrganization(
-  organizationId: string
+  organizationId: string,
 ): WorkspaceDemoOrganizationSeed | undefined {
   return workspaceDemoSeed.organizations.find(
-    (organization) => organization.id === organizationId
+    (organization) => organization.id === organizationId,
   );
 }
 
 function findDepartment(
   organizationId: string,
-  departmentId: string
+  departmentId: string,
 ): WorkspaceDemoDepartmentSeed | undefined {
   return findOrganization(organizationId)?.departments.find(
-    (department) => department.id === departmentId
+    (department) => department.id === departmentId,
   );
 }
 
 function findTeam(
   organizationId: string,
   departmentId: string,
-  teamId: string
+  teamId: string,
 ): WorkspaceDemoTeamSeed | undefined {
   return findDepartment(organizationId, departmentId)?.teams.find(
-    (team) => team.id === teamId
+    (team) => team.id === teamId,
   );
 }
 
@@ -135,15 +134,15 @@ function findProject(
   organizationId: string,
   departmentId: string,
   teamId: string,
-  projectId: string
+  projectId: string,
 ): WorkspaceDemoProjectSeed | undefined {
   return findTeam(organizationId, departmentId, teamId)?.projects.find(
-    (project) => project.id === projectId
+    (project) => project.id === projectId,
   );
 }
 
 function firstLinkedSelection(
-  organization: WorkspaceDemoOrganizationSeed
+  organization: WorkspaceDemoOrganizationSeed,
 ): WorkspaceDemoSelection {
   const department = organization.departments[0];
   const team = department?.teams[0];
@@ -158,14 +157,14 @@ function firstLinkedSelection(
 }
 
 export function resolveWorkspaceDemoIcon(
-  iconId: WorkspaceDemoIconId
+  iconId: WorkspaceDemoIconId,
 ): ElementType<{ className?: string }> {
   return DEMO_ICON_MAP[iconId];
 }
 
 export function resolveWorkspaceDemoTeams(
   organizationId: string,
-  departmentId: string
+  departmentId: string,
 ): readonly WorkspaceNavTeam[] {
   const department = findDepartment(organizationId, departmentId);
 
@@ -184,7 +183,7 @@ export function resolveWorkspaceDemoTeams(
 export function resolveWorkspaceDemoTeam(
   organizationId: string,
   departmentId: string,
-  teamId: string
+  teamId: string,
 ): WorkspaceNavTeam | undefined {
   const team = findTeam(organizationId, departmentId, teamId);
 
@@ -209,17 +208,17 @@ export type WorkspaceDemoSelectionHandlers = {
 
 export function resolveWorkspaceDemoSwitchers(
   selection: WorkspaceDemoSelection,
-  handlers: WorkspaceDemoSelectionHandlers
+  handlers: WorkspaceDemoSelectionHandlers,
 ): readonly WorkspaceNavContextSwitcherProps[] {
   const organization = findOrganization(selection.organizationId);
   const department = findDepartment(
     selection.organizationId,
-    selection.departmentId
+    selection.departmentId,
   );
   const team = findTeam(
     selection.organizationId,
     selection.departmentId,
-    selection.teamId
+    selection.teamId,
   );
 
   if (!organization || !department || !team) {
@@ -284,7 +283,7 @@ export function resolveWorkspaceDemoSwitchers(
 
 export function selectWorkspaceDemoOrganization(
   organizationId: string,
-  current: WorkspaceDemoSelection = getWorkspaceDemoDefaultSelection()
+  current: WorkspaceDemoSelection = getWorkspaceDemoDefaultSelection(),
 ): WorkspaceDemoSelection {
   const organization = findOrganization(organizationId);
 
@@ -298,7 +297,7 @@ export function selectWorkspaceDemoOrganization(
 export function selectWorkspaceDemoDepartment(
   organizationId: string,
   departmentId: string,
-  current: WorkspaceDemoSelection = getWorkspaceDemoDefaultSelection()
+  current: WorkspaceDemoSelection = getWorkspaceDemoDefaultSelection(),
 ): WorkspaceDemoSelection {
   const department = findDepartment(organizationId, departmentId);
 
@@ -321,7 +320,7 @@ export function selectWorkspaceDemoTeam(
   organizationId: string,
   departmentId: string,
   teamId: string,
-  current: WorkspaceDemoSelection = getWorkspaceDemoDefaultSelection()
+  current: WorkspaceDemoSelection = getWorkspaceDemoDefaultSelection(),
 ): WorkspaceDemoSelection {
   const team = findTeam(organizationId, departmentId, teamId);
 
@@ -343,14 +342,9 @@ export function selectWorkspaceDemoProject(
   organizationId: string,
   departmentId: string,
   teamId: string,
-  projectId: string
+  projectId: string,
 ): WorkspaceDemoSelection {
-  const project = findProject(
-    organizationId,
-    departmentId,
-    teamId,
-    projectId
-  );
+  const project = findProject(organizationId, departmentId, teamId, projectId);
 
   if (!project) {
     return selectWorkspaceDemoTeam(organizationId, departmentId, teamId);
@@ -375,6 +369,6 @@ export function getWorkspaceDemoTeamsSnapshot(): readonly WorkspaceNavTeam[] {
 
   return resolveWorkspaceDemoTeams(
     selection.organizationId,
-    selection.departmentId
+    selection.departmentId,
   );
 }

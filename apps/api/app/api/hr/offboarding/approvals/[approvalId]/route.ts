@@ -2,8 +2,8 @@ import {
   approveOffboardingApprovalStep,
   escalateOffboardingApprovalStep,
   getOffboardingApprovalById,
-  reopenOffboardingApprovalStep,
   rejectOffboardingApprovalStep,
+  reopenOffboardingApprovalStep,
   submitOffboardingApprovalStep,
 } from "@repo/features-employee-management-offboarding-exit-management/server";
 import { NextResponse } from "next/server";
@@ -55,31 +55,38 @@ export async function PATCH(
   const body = (await request.json()) as ApprovalActionRequest;
   const writeContext = createOffboardingWriteContext(request);
 
-  const result =
-    body.action === "submit"
-      ? await submitOffboardingApprovalStep(
-          { approvalId, ...body },
-          writeContext
-        )
-      : body.action === "approve"
-        ? await approveOffboardingApprovalStep(
-            { approvalId, ...body },
-            writeContext
-          )
-        : body.action === "reject"
-          ? await rejectOffboardingApprovalStep(
-              { approvalId, ...body },
-              writeContext
-            )
-          : body.action === "reopen"
-            ? await reopenOffboardingApprovalStep(
-                { approvalId, ...body },
-                writeContext
-              )
-            : await escalateOffboardingApprovalStep(
-                { approvalId, ...body },
-                writeContext
-              );
+  let result: Awaited<ReturnType<typeof submitOffboardingApprovalStep>>;
+  switch (body.action) {
+    case "submit":
+      result = await submitOffboardingApprovalStep(
+        { approvalId, ...body },
+        writeContext
+      );
+      break;
+    case "approve":
+      result = await approveOffboardingApprovalStep(
+        { approvalId, ...body },
+        writeContext
+      );
+      break;
+    case "reject":
+      result = await rejectOffboardingApprovalStep(
+        { approvalId, ...body },
+        writeContext
+      );
+      break;
+    case "reopen":
+      result = await reopenOffboardingApprovalStep(
+        { approvalId, ...body },
+        writeContext
+      );
+      break;
+    default:
+      result = await escalateOffboardingApprovalStep(
+        { approvalId, ...body },
+        writeContext
+      );
+  }
 
   return NextResponse.json(result, { status: result.ok ? 200 : 404 });
 }

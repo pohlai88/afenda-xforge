@@ -1,16 +1,16 @@
 "use client";
 
+import type { CSSProperties, ReactElement } from "react";
 import { cn } from "../../../lib/utils";
 import {
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
 } from "../../ui-shadcn/sidebar";
-import type { CSSProperties, ReactElement } from "react";
 
 import {
-  WorkspaceAppNavTopbar,
   WORKSPACE_APP_NAV_TOPBAR_HEIGHT,
+  WorkspaceAppNavTopbar,
 } from "./1.0-workspace-app-nav-topbar.tsx";
 import {
   WorkspaceAppSidebar,
@@ -22,21 +22,21 @@ import {
   WorkspaceSidebarSectionLabel,
 } from "./2.0-workspace-app-sidebar.tsx";
 import { WorkspaceNavSiteContent } from "./3.0-workspace-site-nav-content.tsx";
-import { WorkspaceNavSiteTopbar } from "./3.1-workspace-site-nav-topbar.tsx";
 import { WorkspaceSiteContent } from "./3.1-workspace-site-content.tsx";
+import { WorkspaceNavSiteTopbar } from "./3.1-workspace-site-nav-topbar.tsx";
 import { WorkspaceNavUser } from "./4.0-workspace-nav-user.tsx";
 import { WorkspaceShellProvider } from "./6.0-workspace-shell-provider.tsx";
 import {
   WORKSPACE_SHELL_SPACE,
   WORKSPACE_SHELL_TYPE,
 } from "./6.1-workspace-shell.typography.ts";
-import { useWorkspaceDemoLinkedNav } from "./7.6-workspace.demo-linked-nav.ts";
-import { getWorkspaceDemoUser } from "./7.5-workspace.demo-seed.adapter.ts";
 import {
   WORKSPACE_DEMO_FEATURE_ITEMS,
   WORKSPACE_DEMO_NAV_ITEMS,
   WorkspacePatternCard,
 } from "./7.3-workspace-pattern.shared.tsx";
+import { getWorkspaceDemoUser } from "./7.5-workspace.demo-seed.adapter.ts";
+import { useWorkspaceDemoLinkedNav } from "./7.6-workspace.demo-linked-nav.ts";
 
 const workspaceBodyBelowAppTopbarClass =
   "[--workspace-app-topbar-height:var(--workspace-app-nav-topbar-height,2.75rem)] [&_[data-slot=sidebar-container]]:top-[var(--workspace-app-topbar-height)] [&_[data-slot=sidebar-container]]:h-[calc(100%-var(--workspace-app-topbar-height))]";
@@ -52,7 +52,7 @@ export function WorkspaceFullShellFrame({
     <WorkspaceShellProvider
       className={cn(
         "flex min-h-0 flex-col overflow-hidden",
-        className ?? "h-svh"
+        className ?? "h-svh",
       )}
       style={
         {
@@ -64,7 +64,7 @@ export function WorkspaceFullShellFrame({
       <div
         className={cn(
           "flex min-h-0 w-full flex-1 overflow-hidden",
-          workspaceBodyBelowAppTopbarClass
+          workspaceBodyBelowAppTopbarClass,
         )}
         data-slot="workspace-body"
       >
@@ -77,7 +77,7 @@ export function WorkspaceFullShellFrame({
               <div
                 className={cn(
                   WORKSPACE_SHELL_SPACE.sidebarLabelGap,
-                  WORKSPACE_SHELL_SPACE.navListGap
+                  WORKSPACE_SHELL_SPACE.navListGap,
                 )}
               >
                 <SidebarMenu>
@@ -88,7 +88,7 @@ export function WorkspaceFullShellFrame({
                           WORKSPACE_SHELL_SPACE.navRow,
                           item.active
                             ? WORKSPACE_SHELL_TYPE.navItemActive
-                            : WORKSPACE_SHELL_TYPE.navItem
+                            : WORKSPACE_SHELL_TYPE.navItem,
                         )}
                         isActive={item.active}
                         type="button"
@@ -107,7 +107,7 @@ export function WorkspaceFullShellFrame({
                     <SidebarMenuButton
                       className={cn(
                         WORKSPACE_SHELL_SPACE.navRow,
-                        WORKSPACE_SHELL_TYPE.navItem
+                        WORKSPACE_SHELL_TYPE.navItem,
                       )}
                       type="button"
                     >
@@ -123,14 +123,12 @@ export function WorkspaceFullShellFrame({
           </WorkspaceAppSidebarFooter>
         </WorkspaceAppSidebar>
         <WorkspaceNavSiteContent>
-          <WorkspaceNavSiteTopbar
-            scopeLabel="SITE"
-            title="Dashboard"
-          />
+          <WorkspaceNavSiteTopbar scopeLabel="SITE" title="Dashboard" />
           <WorkspaceSiteContent padded>
             <div className="rounded-lg border border-dashed p-8 text-center text-muted-foreground text-sm">
-              Linked demo seed ÔÇö switch org, department, team, or project in the
-              app topbar to see child options update from 7.4-workspace.demo-seed.json.
+              Linked demo seed ÔÇö switch org, department, team, or project in
+              the app topbar to see child options update from
+              7.4-workspace.demo-seed.json.
             </div>
           </WorkspaceSiteContent>
         </WorkspaceNavSiteContent>

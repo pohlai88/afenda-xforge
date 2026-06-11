@@ -8,7 +8,10 @@ import {
   parseOklch,
   validateHueReservation,
 } from "../contracts/hue-reservation.contract";
-import { collectAllThemePresetHueEntries, collectDefaultPlatformHueEntries } from "../tokens/collect-platform-hue-entries";
+import {
+  collectAllThemePresetHueEntries,
+  collectDefaultPlatformHueEntries,
+} from "../tokens/collect-platform-hue-entries";
 import { STATUS_LIGHT_DECLARATIONS } from "../tokens/status-tokens";
 
 test("parseOklch extracts lightness, chroma, hue, and alpha", () => {
@@ -44,7 +47,8 @@ test("all theme presets satisfy brand vs status hue reservation", () => {
   assert.equal(
     result.valid,
     true,
-    formatHueValidationReport(result) || "expected all presets to pass hue validation"
+    formatHueValidationReport(result) ||
+      "expected all presets to pass hue validation"
   );
 });
 
@@ -96,8 +100,17 @@ test("validateHueReservation warns on tight lane badge separation", () => {
 
 test("status and chart declarations align with reserved hue slots", () => {
   for (const [tokenName, value] of STATUS_LIGHT_DECLARATIONS) {
-    const key = tokenName.replace(/^--/, "").replace(/-foreground$/, "").replace(/-muted.*$/, "").replace(/-border$/, "");
-    if (key === "success" || key === "warning" || key === "destructive" || key === "info") {
+    const key = tokenName
+      .replace(/^--/, "")
+      .replace(/-foreground$/, "")
+      .replace(/-muted.*$/, "")
+      .replace(/-border$/, "");
+    if (
+      key === "success" ||
+      key === "warning" ||
+      key === "destructive" ||
+      key === "info"
+    ) {
       const hue = extractHue(value);
       assert.ok(hue !== null, `${tokenName} should contain a parseable hue`);
     }

@@ -1,13 +1,13 @@
 import "server-only";
 
-import { themePresetNameSchema } from "@repo/design-system/contracts/theme-preset.contract";
+import { database, tenantSettings, timeDatabaseQuery } from "@repo/database";
+import type { TenantBrandingSettings } from "@repo/design-system/contracts/tenant-branding.contract";
 import {
   DEFAULT_TENANT_BRANDING_SETTINGS,
   tenantBrandingSettingsSchema,
-  type TenantBrandingSettings,
 } from "@repo/design-system/contracts/tenant-branding.contract";
+import { themePresetNameSchema } from "@repo/design-system/contracts/theme-preset.contract";
 import { assertValidTenantBrandingColors } from "@repo/design-system/resolution";
-import { database, tenantSettings, timeDatabaseQuery } from "@repo/database";
 import { eq } from "drizzle-orm";
 import type { TenantAdminSettingUpdateShape } from "./schema.ts";
 
@@ -121,7 +121,9 @@ export const upsertTenantAdminSetting = async (
   const now = new Date();
 
   if (input.key === "tenant-branding") {
-    const branding = tenantBrandingSettingsSchema.parse(JSON.parse(input.value));
+    const branding = tenantBrandingSettingsSchema.parse(
+      JSON.parse(input.value)
+    );
     assertValidTenantBrandingColors(branding);
 
     await timeDatabaseQuery(

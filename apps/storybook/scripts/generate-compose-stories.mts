@@ -43,7 +43,10 @@ const storiesDir = path.resolve(
   "../stories"
 );
 
-const legacyMonolith = path.join(storiesDir, "ui-compose-galleries.stories.tsx");
+const legacyMonolith = path.join(
+  storiesDir,
+  "ui-compose-galleries.stories.tsx"
+);
 
 /** All compose registry groups gate at error in test:stories (batches 1–3). */
 const A11Y_ERROR_GROUPS = new Set(

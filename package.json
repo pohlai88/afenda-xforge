@@ -59,6 +59,7 @@
     "metadata-ui:check-public-api": "pnpm --filter @repo/metadata-ui check:public-api",
     "metadata-ui:generate": "pnpm --filter @repo/metadata-ui generate",
     "check": "pnpm lint && pnpm typecheck && pnpm test && pnpm --filter app check:stability",
+    "check:dead-code": "pnpm knip",
     "app:check:stability": "pnpm --filter app check:stability",
     "clean": "turbo clean",
     "clean:hard": "node scripts/clean.mjs"

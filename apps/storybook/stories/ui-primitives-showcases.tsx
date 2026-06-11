@@ -1,8 +1,8 @@
+import { Checkbox, NativeSelect, NativeSelectOption, Switch } from "@repo/ui";
 import { Badge } from "@repo/ui/components/badge";
 import { Button } from "@repo/ui/components/button";
 import { Input } from "@repo/ui/components/input";
 import { Label } from "@repo/ui/components/label";
-import { Checkbox, NativeSelect, NativeSelectOption, Switch } from "@repo/ui";
 import { Textarea } from "@repo/ui/components/textarea";
 
 type ButtonVariant =
@@ -27,7 +27,12 @@ export function PrimitiveButtonShowcase({
   variant = "default",
 }: PrimitiveButtonShowcaseProps) {
   return (
-    <Button disabled={disabled} onClick={onClick} type="button" variant={variant}>
+    <Button
+      disabled={disabled}
+      onClick={onClick}
+      type="button"
+      variant={variant}
+    >
       {label}
     </Button>
   );
@@ -135,7 +140,10 @@ export function PrimitiveSelectionShowcase({
       </div>
       <div className="grid gap-2">
         <Label htmlFor="primitive-status-showcase">Status</Label>
-        <NativeSelect defaultValue={statusDefault} id="primitive-status-showcase">
+        <NativeSelect
+          defaultValue={statusDefault}
+          id="primitive-status-showcase"
+        >
           <NativeSelectOption value="draft">Draft</NativeSelectOption>
           <NativeSelectOption value="active">Active</NativeSelectOption>
           <NativeSelectOption value="archived">Archived</NativeSelectOption>

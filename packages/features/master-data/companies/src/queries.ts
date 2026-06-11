@@ -10,10 +10,12 @@ const mapCompany = (row: {
   code: string;
   id: string;
   name: string;
+  status: string;
 }): Company => ({
   code: row.code,
   id: row.id,
   name: row.name,
+  status: row.status as Company["status"],
 });
 
 export const listCompanies = async (
@@ -48,6 +50,7 @@ export const listCompanies = async (
             code: companies.code,
             id: companies.id,
             name: companies.name,
+            status: companies.status,
           })
           .from(companies)
           .where(whereClause)
@@ -108,6 +111,7 @@ export const getCompany = async (
           code: companies.code,
           id: companies.id,
           name: companies.name,
+          status: companies.status,
         })
         .from(companies)
         .where(

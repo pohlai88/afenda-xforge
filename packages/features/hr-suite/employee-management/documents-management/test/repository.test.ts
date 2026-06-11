@@ -13,8 +13,6 @@ import {
   listDocumentsManagementRecords,
 } from "../src/queries.ts";
 import {
-} from "../src/repository.ts";
-import {
   getDocumentsManagementRepositoryPath,
   resetDocumentsManagementRepositoryForTesting,
   setDocumentsManagementRepositoryPathForTesting,

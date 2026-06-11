@@ -6,7 +6,9 @@ export const ERP_MODULE_LANE_DEFAULT_LANE: ErpVisualLaneId = "governance";
  * Explicit featureId → lane overrides. Prefix rules in `getDefaultLaneForFeature`
  * handle the rest of the catalog.
  */
-export const ERP_MODULE_LANE_DEFAULTS: Readonly<Record<string, ErpVisualLaneId>> = {
+export const ERP_MODULE_LANE_DEFAULTS: Readonly<
+  Record<string, ErpVisualLaneId>
+> = {
   "master-data.customers": "customer",
   "master-data.companies": "customer",
   "master-data.products": "goods",
@@ -37,8 +39,7 @@ const PREFIX_LANE_RULES = [
   { prefix: "master-data.companies", lane: "customer" },
   { prefix: "master-data.", lane: "goods" },
   { prefix: "system-admin.", lane: "governance" },
-]
-  .sort((left, right) => right.prefix.length - left.prefix.length) as readonly {
+].sort((left, right) => right.prefix.length - left.prefix.length) as readonly {
   lane: ErpVisualLaneId;
   prefix: string;
 }[];
@@ -72,11 +73,13 @@ const PREFIX_CATALOG_ENTRIES: readonly CatalogModuleEntry[] =
   }));
 
 export const ERP_CATALOG_MODULE_ENTRIES: readonly CatalogModuleEntry[] = [
-  ...Object.entries(ERP_MODULE_LANE_DEFAULTS).map(([featureId, defaultLane]) => ({
-    featureId,
-    defaultLane,
-    resolution: "explicit" as const,
-  })),
+  ...Object.entries(ERP_MODULE_LANE_DEFAULTS).map(
+    ([featureId, defaultLane]) => ({
+      featureId,
+      defaultLane,
+      resolution: "explicit" as const,
+    })
+  ),
   ...PREFIX_CATALOG_ENTRIES.filter(
     (entry) =>
       !Object.keys(ERP_MODULE_LANE_DEFAULTS).some((featureId) =>

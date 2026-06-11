@@ -1,18 +1,10 @@
 // Component: [Name]
 // TODO: Customize for your framework (React, Vue, Svelte, etc.)
 
-import React from 'react';
+type Props = Record<string, never>;
 
-interface Props {
-  // TODO: Define props
-}
-
-export function ComponentName({ }: Props) {
+export function ComponentName(_props: Props) {
   // TODO: Add state and effects
 
-  return (
-    <div>
-      {/* TODO: Add component markup */}
-    </div>
-  );
+  return <div>{/* TODO: Add component markup */}</div>;
 }

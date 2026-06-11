@@ -1,7 +1,7 @@
 "use client";
 
-import { SidebarProvider } from "../../ui-shadcn/sidebar";
 import type { CSSProperties, ReactElement, ReactNode } from "react";
+import { SidebarProvider } from "../../ui-shadcn/sidebar";
 
 export type WorkspaceShellProviderProps = {
   children: ReactNode;

@@ -1,10 +1,11 @@
 import type { Meta, StoryObj } from "@storybook/react";
-
+import type {
+  PrimitiveInputShowcaseProps,
+  PrimitiveSelectionShowcaseProps,
+} from "./ui-primitives-showcases";
 import {
   PrimitiveInputShowcase,
-  type PrimitiveInputShowcaseProps,
   PrimitiveSelectionShowcase,
-  type PrimitiveSelectionShowcaseProps,
   PrimitiveTextareaShowcase,
 } from "./ui-primitives-showcases";
 

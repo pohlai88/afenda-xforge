@@ -54,11 +54,9 @@ const assertNonEmptyString = (value: unknown, label: string): string => {
   return value;
 };
 
-const normalizeCompanyId = (
-  companyId: unknown
-): string | null | undefined => {
+const normalizeCompanyId = (companyId: unknown): string | null | undefined => {
   if (companyId === undefined) {
-    return undefined;
+    return;
   }
 
   if (companyId === null) {
@@ -78,9 +76,11 @@ const parseNotificationDispatchRequest = (
   const { event, notificationId, payload, recipients } = body;
 
   if (
-    !isNonEmptyString(event) ||
-    !isPlainRecord(payload) ||
-    !Array.isArray(recipients) ||
+    !(
+      isNonEmptyString(event) &&
+      isPlainRecord(payload) &&
+      Array.isArray(recipients)
+    ) ||
     recipients.length === 0
   ) {
     throw new Error("Invalid notification payload");
@@ -97,12 +97,12 @@ const parseNotificationDispatchRequest = (
     const { companyId, tenantId, userId } = recipient;
 
     if (
-      !isNonEmptyString(tenantId) ||
-      !isNonEmptyString(userId) ||
       !(
-        companyId === undefined ||
-        companyId === null ||
-        isNonEmptyString(companyId)
+        isNonEmptyString(tenantId) &&
+        isNonEmptyString(userId) &&
+        (companyId === undefined ||
+          companyId === null ||
+          isNonEmptyString(companyId))
       )
     ) {
       throw new Error("Invalid notification payload");
@@ -129,7 +129,9 @@ const parseNotificationDispatchRequest = (
 
   return {
     event,
-    notificationId: isNonEmptyString(notificationId) ? notificationId : undefined,
+    notificationId: isNonEmptyString(notificationId)
+      ? notificationId
+      : undefined,
     payload,
     recipients: normalizedRecipients,
   };

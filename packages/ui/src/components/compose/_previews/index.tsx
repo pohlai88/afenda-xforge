@@ -69,7 +69,11 @@ export const composePreviewGalleryComponents = [
   },
   { name: "avatar", title: "Avatar", component: AvatarComposeGallery },
   { name: "badge", title: "Badge", component: BadgeComposeGallery },
-  { name: "breadcrumb", title: "Breadcrumb", component: BreadcrumbComposeGallery },
+  {
+    name: "breadcrumb",
+    title: "Breadcrumb",
+    component: BreadcrumbComposeGallery,
+  },
   { name: "button", title: "Button", component: ButtonComposeGallery },
   {
     name: "button-group",

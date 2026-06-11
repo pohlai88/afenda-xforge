@@ -1,18 +1,21 @@
-import { THEME_PRESETS } from "../contracts/theme-preset.contract";
 import {
   BASE_COLOR_TOKENS,
   BRAND_COLOR_TOKENS,
   SIDEBAR_COLOR_TOKENS,
   STATUS_COLOR_TOKENS,
 } from "../contracts/color.contract";
+import { THEME_PRESETS } from "../contracts/theme-preset.contract";
+import {
+  CHART_DARK_DECLARATIONS,
+  CHART_LIGHT_DECLARATIONS,
+} from "./chart-tokens";
+import { SURFACE_COLOR_TOKENS } from "./color-tokens";
 import {
   GLOBALS_CSS_ACTIVE_LANE_DECLARATIONS,
   GLOBALS_CSS_LANE_DARK_DECLARATIONS,
   GLOBALS_CSS_LANE_ROOT_DECLARATIONS,
   laneThemeInlineDeclarations,
 } from "./lane-css-declarations";
-import { CHART_DARK_DECLARATIONS, CHART_LIGHT_DECLARATIONS } from "./chart-tokens";
-import { SURFACE_COLOR_TOKENS } from "./color-tokens";
 import { ANIMATION_TOKENS } from "./motion-tokens";
 import { RADIUS_TOKENS } from "./radius-tokens";
 import {
@@ -29,11 +32,11 @@ import {
 } from "./status-tokens";
 import {
   FONT_FEATURE_TOKENS,
+  TAILWIND_TEXT_SIZE_OVERRIDES,
   TEXT_UTILITY_TOKENS,
   TYPE_SCALE_DEFINITIONS,
   TYPE_SCALE_ROLES,
   TYPE_UTILITY_TOKENS,
-  TAILWIND_TEXT_SIZE_OVERRIDES,
 } from "./typography-tokens";
 
 export type CssDeclaration = readonly [name: string, value: string];
@@ -55,17 +58,18 @@ export const GLOBALS_CSS_SOURCE_GLOBS = [
 ] as const;
 
 /** shadcn CLI v4 multiplicative radius scale from `--radius`. */
-export const GLOBALS_CSS_RADIUS_THEME_DECLARATIONS: readonly CssDeclaration[] = [
-  ["--radius-sm", "calc(var(--radius) * 0.6)"],
-  ["--radius-md", "calc(var(--radius) * 0.8)"],
-  ["--radius-lg", "var(--radius)"],
-  ["--radius-xl", "calc(var(--radius) * 1.4)"],
-  ["--radius-2xl", "calc(var(--radius) * 1.8)"],
-  ["--radius-3xl", "calc(var(--radius) * 2.2)"],
-  ["--radius-4xl", "calc(var(--radius) * 2.6)"],
-  ["--radius-control", "var(--radius-control)"],
-  ["--radius-panel", "var(--radius-panel)"],
-] as const;
+export const GLOBALS_CSS_RADIUS_THEME_DECLARATIONS: readonly CssDeclaration[] =
+  [
+    ["--radius-sm", "calc(var(--radius) * 0.6)"],
+    ["--radius-md", "calc(var(--radius) * 0.8)"],
+    ["--radius-lg", "var(--radius)"],
+    ["--radius-xl", "calc(var(--radius) * 1.4)"],
+    ["--radius-2xl", "calc(var(--radius) * 1.8)"],
+    ["--radius-3xl", "calc(var(--radius) * 2.2)"],
+    ["--radius-4xl", "calc(var(--radius) * 2.6)"],
+    ["--radius-control", "var(--radius-control)"],
+    ["--radius-panel", "var(--radius-panel)"],
+  ] as const;
 
 function typeScaleRootDeclarations(): readonly CssDeclaration[] {
   return TYPE_SCALE_ROLES.flatMap((role) => {
@@ -84,11 +88,16 @@ function typeScaleThemeDeclarations(): readonly CssDeclaration[] {
 
     return [
       [`--text-${role}`, `var(${definition.cssVarPrefix}-size)`],
-      [`--text-${role}--line-height`, `var(${definition.cssVarPrefix}-leading)`],
+      [
+        `--text-${role}--line-height`,
+        `var(${definition.cssVarPrefix}-leading)`,
+      ],
     ] as const;
   });
 
-  const tailwindOverrides = Object.entries(TAILWIND_TEXT_SIZE_OVERRIDES).flatMap(
+  const tailwindOverrides = Object.entries(
+    TAILWIND_TEXT_SIZE_OVERRIDES
+  ).flatMap(
     ([step, value]) =>
       [
         [`--text-${step}`, value.size],
@@ -250,7 +259,9 @@ export const GLOBALS_CSS_COMFORTABLE_DENSITY_DECLARATIONS: readonly CssDeclarati
 function colorThemeInlineDeclarations(
   tokens: readonly string[]
 ): readonly CssDeclaration[] {
-  return tokens.map((token) => [`--color-${token}`, `var(--${token})`] as const);
+  return tokens.map(
+    (token) => [`--color-${token}`, `var(--${token})`] as const
+  );
 }
 
 export const GLOBALS_CSS_THEME_DECLARATIONS: readonly CssDeclaration[] = [
@@ -299,7 +310,10 @@ export const GLOBALS_CSS_UTILITIES = [
   ["font-rlig", 'font-feature-settings: "rlig";'],
   ["font-calt", 'font-feature-settings: "calt";'],
   ...TYPE_UTILITY_TOKENS.map((utility) => {
-    const role = utility.replace(/^type-/, "") as (typeof TYPE_SCALE_ROLES)[number];
+    const role = utility.replace(
+      /^type-/,
+      ""
+    ) as (typeof TYPE_SCALE_ROLES)[number];
 
     return [utility, renderTypeUtility(role)] as const;
   }),
@@ -313,9 +327,7 @@ function declarationNames(
   return new Set(declarations.map(([name]) => name));
 }
 
-function themeColorNames(
-  declarations: readonly CssDeclaration[]
-): Set<string> {
+function themeColorNames(declarations: readonly CssDeclaration[]): Set<string> {
   return new Set(
     declarations
       .map(([name]) => name)
@@ -335,7 +347,9 @@ export function validateGlobalsCssTokens(): void {
     TYPE_SCALE_ROLES.length !== 5 ||
     TYPE_UTILITY_TOKENS.length !== 5
   ) {
-    throw new Error("globals CSS tokens do not match the design-system contract");
+    throw new Error(
+      "globals CSS tokens do not match the design-system contract"
+    );
   }
 
   const rootNames = declarationNames(GLOBALS_CSS_ROOT_DECLARATIONS);
@@ -370,21 +384,25 @@ export function validateGlobalsCssTokens(): void {
     const themeVar = `--radius-${token}`;
 
     if (!themeNames.has(themeVar)) {
-      throw new Error(`globals CSS missing @theme inline mapping for ${themeVar}`);
+      throw new Error(
+        `globals CSS missing @theme inline mapping for ${themeVar}`
+      );
     }
   }
 
   for (const token of SIDEBAR_COLOR_TOKENS) {
     const cssVar = `--${token}`;
 
-    if (!rootNames.has(cssVar) || !darkNames.has(cssVar)) {
+    if (!(rootNames.has(cssVar) && darkNames.has(cssVar))) {
       throw new Error(`globals CSS sidebar alias missing for ${cssVar}`);
     }
   }
 
   for (const [themeVar] of laneThemeInlineDeclarations()) {
     if (!themeNames.has(themeVar)) {
-      throw new Error(`globals CSS missing @theme inline mapping for ${themeVar}`);
+      throw new Error(
+        `globals CSS missing @theme inline mapping for ${themeVar}`
+      );
     }
   }
 }

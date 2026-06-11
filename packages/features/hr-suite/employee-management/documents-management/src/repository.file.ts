@@ -122,15 +122,15 @@ const globalDocumentsManagementState = globalThis as typeof globalThis & {
   [documentsManagementRepositoryStateKey]?: DocumentsManagementRepositoryRuntimeState;
 };
 
+globalDocumentsManagementState[documentsManagementRepositoryStateKey] ??= {
+  cache: null,
+  repositoryFilePath:
+    process.env.AFENDA_DOCUMENTS_MANAGEMENT_REPOSITORY_PATH ??
+    process.env.AFENDA_DOCUMENTS_MANAGEMENT_STORE_PATH ??
+    defaultRepositoryPath,
+};
 const runtimeState =
-  globalDocumentsManagementState[documentsManagementRepositoryStateKey] ??
-  (globalDocumentsManagementState[documentsManagementRepositoryStateKey] = {
-    cache: null,
-    repositoryFilePath:
-      process.env.AFENDA_DOCUMENTS_MANAGEMENT_REPOSITORY_PATH ??
-      process.env.AFENDA_DOCUMENTS_MANAGEMENT_STORE_PATH ??
-      defaultRepositoryPath,
-  });
+  globalDocumentsManagementState[documentsManagementRepositoryStateKey];
 
 const emptyState = (): DocumentsManagementRepositoryState => ({
   auditEvents: [],
@@ -306,7 +306,9 @@ export const getDocumentsManagementRepositoryPath = (): string =>
 export const setDocumentsManagementRepositoryPathForTesting = (
   nextPath: string
 ): void => {
-  runtimeState.repositoryFilePath = resolve(/* turbopackIgnore: true */ nextPath);
+  runtimeState.repositoryFilePath = resolve(
+    /* turbopackIgnore: true */ nextPath
+  );
   runtimeState.cache = null;
 };
 

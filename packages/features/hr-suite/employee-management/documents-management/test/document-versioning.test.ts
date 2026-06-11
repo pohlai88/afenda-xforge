@@ -3,14 +3,15 @@ import { mkdtempSync, rmSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { afterEach, beforeEach, test } from "node:test";
-import {
-  resetDocumentsManagementRepositoryForTesting,
-  setDocumentsManagementRepositoryPathForTesting,
-} from "../src/repository.testing.ts";
+import { createNoopAuditWriter } from "@repo/audit";
 import {
   resetDocumentsManagementAuditWriterForTesting,
   setDocumentsManagementAuditWriterForTesting,
 } from "../src/audit.ts";
+import {
+  resetDocumentsManagementRepositoryForTesting,
+  setDocumentsManagementRepositoryPathForTesting,
+} from "../src/repository.testing.ts";
 import {
   getDocumentsManagementDocument,
   getDocumentsManagementDocumentLatestVersion,
@@ -19,7 +20,6 @@ import {
   registerDocumentsManagementDocument,
   updateDocumentsManagementDocument,
 } from "../src/server.ts";
-import { createNoopAuditWriter } from "@repo/audit";
 
 let sandboxDirectory: string;
 

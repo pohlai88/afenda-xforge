@@ -10,23 +10,22 @@ import {
 } from "@repo/database/schema";
 import type { SQL } from "drizzle-orm";
 import { and, eq } from "drizzle-orm";
-import { z } from "zod";
 import type {
   HrOrgAuditEvent,
   HrOrgPositionRecord,
   HrOrgReportingRelationshipRecord,
   HrOrgUnitRecord,
 } from "./contracts/domain.contract.ts";
+import type {
+  HrOrgRepositoryResolvedScope,
+  HrOrgRepositoryState,
+} from "./repository.shared.ts";
 import {
   hrOrgAuditEventSchema,
   hrOrgPositionRecordSchema,
   hrOrgReportingRelationshipRecordSchema,
   hrOrgUnitRecordSchema,
 } from "./schema.ts";
-import type {
-  HrOrgRepositoryResolvedScope,
-  HrOrgRepositoryState,
-} from "./repository.shared.ts";
 
 const scopeFilter = (
   table: { companyId: unknown; tenantId: unknown },
@@ -154,12 +153,19 @@ export const loadHrOrgDatabaseRepository = async (
   const [units, positions, reportingRelationships, scopedAuditEvents] =
     await Promise.all([
       timeDatabaseQuery(
-        () => database.select().from(hrOrgUnits).where(scopeFilter(hrOrgUnits, scope)),
+        () =>
+          database
+            .select()
+            .from(hrOrgUnits)
+            .where(scopeFilter(hrOrgUnits, scope)),
         { operation: "select", resource: "hr_org_units" }
       ),
       timeDatabaseQuery(
         () =>
-          database.select().from(hrOrgPositions).where(scopeFilter(hrOrgPositions, scope)),
+          database
+            .select()
+            .from(hrOrgPositions)
+            .where(scopeFilter(hrOrgPositions, scope)),
         { operation: "select", resource: "hr_org_positions" }
       ),
       timeDatabaseQuery(
@@ -245,7 +251,9 @@ export const saveHrOrgDatabaseRepository = async (
     );
     await timeDatabaseQuery(
       () =>
-        database.delete(hrOrgPositions).where(scopeFilter(hrOrgPositions, scope)),
+        database
+          .delete(hrOrgPositions)
+          .where(scopeFilter(hrOrgPositions, scope)),
       {
         operation: "delete",
         resource: "hr_org_positions",

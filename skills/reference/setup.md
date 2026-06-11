@@ -120,7 +120,42 @@ If the workspace uses Supabase heavily, keep a project-level `.mcp.json` pointin
 
 Configuration alone is not enough. The MCP client still needs an interactive authentication flow against Supabase before project tools become callable.
 
+### Next.js MCP (apps/app)
+
+The Next.js app (`apps/app`, port **3000**) uses the `next-devtools` MCP server for runtime quality gates. Repo config:
+
+```json
+{
+  "mcpServers": {
+    "next-devtools": {
+      "command": "npx",
+      "args": ["-y", "next-devtools-mcp@latest"]
+    }
+  }
+}
+```
+
+**Requires Next.js 16+** — runtime MCP is exposed at `/_next/mcp` when `pnpm --filter app dev` is running.
+
+Agent workflow:
+
+1. MCP `init` with `project_path` set to the absolute path of `apps/app`.
+2. Start dev server: `pnpm --filter app dev` (from repo root).
+3. `nextjs_index` — discover servers and tools (pass `port: "3000"` if auto-discovery fails).
+4. `nextjs_call` — e.g. `get_errors`, `get_routes`, `get_project_metadata` before marking integration complete.
+5. `nextjs_docs` — authoritative App Router / Cache Components answers (prefer over memory).
+
+Static gates (no dev server required):
+
+```bash
+pnpm --filter app typecheck
+pnpm --filter app check:stability
+pnpm --filter app check:metadata-ui-smoke
+```
+
 Rules:
+
+- keep environment access inside the package that owns the provider
 
 - keep environment access inside the package that owns the provider
 - validate env at build or startup time with the package's schema

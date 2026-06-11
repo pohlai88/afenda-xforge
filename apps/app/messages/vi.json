@@ -13,10 +13,12 @@
     "confirm": "Xac nhan",
     "create": "Tao moi",
     "delete": "Xoa",
+    "discard": "Bo thay doi",
     "edit": "Sua",
     "error": "Loi",
     "loading": "Dang tai...",
     "noData": "Khong co du lieu",
+    "reset": "Dat lai",
     "save": "Luu",
     "search": "Tim kiem",
     "success": "Thanh cong"
@@ -28,5 +30,130 @@
     "numberInvalid": "Gia tri so khong hop le",
     "phone": "So dien thoai khong hop le",
     "required": "Truong nay la bat buoc"
+  },
+  "admin": {
+    "keyboardShortcuts": {
+      "badge": "Chinh sach tenant",
+      "breadcrumb": "Phim tat",
+      "customizationPolicy": {
+        "allowFnKeysDescription": "Tat khi laptop can giu phim media thay vi phim F.",
+        "allowFnKeysLabel": "Cho phep gan phim chuc nang",
+        "allowUserCustomizeDescription": "Khi bat, nguoi dung co the ghi de cac phim chua bi khoa.",
+        "allowUserCustomizeLabel": "Cho phep tuy chinh ca nhan",
+        "description": "Dieu khien viec nguoi dung co the ca nhan hoa phim va su dung phim F.",
+        "title": "Chinh sach tuy chinh"
+      },
+      "description": "Mac dinh to chuc ap dung cho moi nguoi dung. Khoa hanh dong de ngan ghi de ca nhan, hoac cho phep tuy chinh khi chinh sach cho phep.",
+      "forbiddenDescription": "Chinh sach phim tat tenant yeu cau quyen quan tri tenant.",
+      "forbiddenTitle": "Phim tat khong kha dung",
+      "loadError": "Khong the tai chinh sach phim tat.",
+      "lockedActions": {
+        "description": "Lenh bi khoa boi san pham ({lockedActions}) khong the thay doi o day.",
+        "title": "Hanh dong bi khoa"
+      },
+      "organizationOverrides": {
+        "description": "Mac dinh tenant ghi de phim san pham cho moi nguoi dung trong to chuc.",
+        "lockedHint": "Da khoa",
+        "pendingHint": "Cho luu",
+        "title": "Ghi de to chuc"
+      },
+      "readOnly": "Ban chi co quyen doc chinh sach phim tat tenant.",
+      "savePolicy": "Luu chinh sach tenant",
+      "saveFailed": "Luu that bai",
+      "saveSuccess": "Da luu chinh sach phim tat tenant",
+      "saving": "Dang luu…",
+      "statusDirty": "Co thay doi chua luu",
+      "statusSaved": "Chinh sach da cap nhat",
+      "tabs": {
+        "locked": "Hanh dong bi khoa",
+        "overrides": "Ghi de",
+        "policy": "Chinh sach"
+      },
+      "title": "Phim tat"
+    }
+  },
+  "workspace": {
+    "keyboardShortcuts": {
+      "actions": {
+        "crud_cancel": "Huy chinh sua",
+        "crud_create": "Tao ban ghi moi",
+        "crud_delete": "Xoa ban ghi dang chon",
+        "crud_edit": "Sua ban ghi dang chon",
+        "crud_save": "Luu ban nhap hien tai",
+        "workspace_commandSearch": "Mo bang lenh",
+        "workspace_openShortcutHelp": "Mo tro giup phim tat",
+        "workspace_toggleSidebar": "Bat/tat thanh ben"
+      },
+      "badges": {
+        "browserConflict": "Xung dot trinh duyet",
+        "browserConflictHint": "Trinh duyet co the chặn phim truoc khi workspace nhan duoc. Hay dung phim thay the neu co.",
+        "fnKey": "Phim Fn",
+        "fnKeyHint": "Tat Fn lock tren ban phim de dung phim chuc nang nhu Excel.",
+        "locked": "Da khoa",
+        "lockedHint": "To chuc da khoa hanh dong nay. Khong the ghi de ca nhan.",
+        "lowReliability": "Do tin cay thap",
+        "lowReliabilityHint": "Phim nay co the khong hoat dong nhat quan tren trinh duyet hoac bo go.",
+        "pending": "Cho luu",
+        "productLocked": "San pham khoa",
+        "productLockedHint": "Phim lenh nay co dinh boi san pham va khong the thay doi.",
+        "sources": {
+          "product": "San pham",
+          "tenant": "To chuc",
+          "user": "Ca nhan"
+        },
+        "sourceHints": {
+          "product": "Mac dinh cho moi workspace.",
+          "tenant": "Do to chuc dat va ap dung cho moi nguoi dung.",
+          "user": "Ghi de ca nhan da luu vao tai khoan cua ban."
+        }
+      },
+      "capture": {
+        "assign": "Gan phim",
+        "fnLockHint": "Tat Fn lock cho phim F",
+        "listening": "Dang lang nghe…",
+        "pressEsc": "Nhan Esc de huy ma khong luu.",
+        "pressKeys": "Nhan phim",
+        "pressToAssign": "Nhan to hop phim ban muon gan.",
+        "recordTitle": "Ghi phim tat"
+      },
+      "commandPalette": {
+        "empty": "Khong co lenh phu hop.",
+        "groups": {
+          "crud": "Ban ghi dang chon",
+          "navigation": "Dieu huong",
+          "workspace": "Workspace"
+        },
+        "searchPlaceholder": "Tim lenh workspace..."
+      },
+      "crud": {
+        "noFocusedRecord": "Khong co ban ghi dang chon"
+      },
+      "deleteConfirm": {
+        "description": "Xoa ban ghi dang chon? Hanh dong nay khong the hoan tac.",
+        "title": "Xoa ban ghi dang chon?"
+      },
+      "description": "Phim lenh workspace duoc giai quyet tu server. Tat Fn lock de dung phim chuc nang nhu Excel.",
+      "discardConfirm": {
+        "confirm": "Bo thay doi",
+        "description": "Ban co {count, plural, one {# phim chua luu} other {# phim chua luu}}. Dong se mat cac thay doi nay.",
+        "keepEditing": "Tiep tuc chinh sua",
+        "title": "Bo phim tat chua luu?"
+      },
+      "groups": {
+        "crud": "CRUD",
+        "crudDescription": "Phim CRUD thuc thi tren ban ghi hoac form dang chon.",
+        "globalDescription": "Lenh workspace toan cuc.",
+        "help": "Tro giup",
+        "navigation": "Dieu huong"
+      },
+      "noPendingChanges": "Khong co thay doi cho",
+      "noSearchResults": "Khong co phim tat phu hop trong nhom nay.",
+      "policyDisabled": "To chuc da tat tuy chinh ca nhan. Phim hien thi o day chi doc.",
+      "savePersonal": "Luu phim tat ca nhan",
+      "saveSuccess": "Da luu phim tat",
+      "searchPlaceholder": "Tim lenh hoac phim…",
+      "title": "Phim tat",
+      "unsavedChanges": "{count, plural, one {# thay doi chua luu} other {# thay doi chua luu}}"
+    }
   }
 }

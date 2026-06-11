@@ -16,8 +16,6 @@ import {
   employeeLifecycleTaskAttentionSnapshotSchema,
 } from "./contracts/integration.contract.ts";
 import type { EmployeeLifecycleManagementPolicyContext } from "./policy.ts";
-import type { EmployeeLifecycleRepositoryScope } from "./repository.ts";
-import { findEmployeeLifecycleStateByEmployeeId } from "./repository.ts";
 import {
   getEmployeeLifecycleContractStatus,
   getEmployeeLifecycleExitStatus,
@@ -28,6 +26,8 @@ import {
   getEmployeeLifecycleSuspensionStatus,
   listEmployeeLifecycleTaskEntries,
 } from "./queries.ts";
+import type { EmployeeLifecycleRepositoryScope } from "./repository.ts";
+import { findEmployeeLifecycleStateByEmployeeId } from "./repository.ts";
 
 const toIsoDate = (value: Date | null | undefined): string | null =>
   value ? value.toISOString() : null;
@@ -51,7 +51,11 @@ export function buildEmployeeLifecycleIntegrationSnapshot(
     return null;
   }
 
-  const overview = getEmployeeLifecycleOverviewEntry(employeeId, scope, context);
+  const overview = getEmployeeLifecycleOverviewEntry(
+    employeeId,
+    scope,
+    context
+  );
   const onboarding = getEmployeeLifecycleOnboardingStatus(employeeId, scope);
   const probation = getEmployeeLifecycleProbationStatus(employeeId, scope);
   const movement = getEmployeeLifecycleMovementStatus(employeeId, scope);
@@ -69,7 +73,9 @@ export function buildEmployeeLifecycleIntegrationSnapshot(
     overview: {
       movementCount: overview?.movementCount ?? 0,
       needsAttention: overview?.needsAttention ?? false,
-      latestActivityAt: toIsoDate(overview?.latestActivityAt ?? state.updatedAt),
+      latestActivityAt: toIsoDate(
+        overview?.latestActivityAt ?? state.updatedAt
+      ),
     },
     onboarding: onboarding
       ? {

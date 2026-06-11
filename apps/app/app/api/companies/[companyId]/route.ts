@@ -1,9 +1,15 @@
 import { createContractRoute } from "@repo/api/route";
 import { InternalError } from "@repo/errors";
 import type { CompanyIdParams } from "@repo/features-master-data-companies/contract";
-import { updateCompanyRouteContract } from "@repo/features-master-data-companies/contract";
+import {
+  archiveCompanyRouteContract,
+  updateCompanyRouteContract,
+} from "@repo/features-master-data-companies/contract";
 import { createLogger } from "@repo/logger";
-import { updateCompanyForTenant } from "../_execution.ts";
+import {
+  archiveCompanyForTenant,
+  updateCompanyForTenant,
+} from "../_execution.ts";
 
 const companyApiLogger = createLogger("app.companies");
 
@@ -30,6 +36,23 @@ export const PATCH = createContractRoute(
 
     return {
       data: await updateCompanyForTenant(resolvedParams.companyId, body),
+    };
+  },
+  {
+    logger: companyApiLogger,
+    metricsApp: "app",
+  }
+);
+
+export const DELETE = createContractRoute(
+  archiveCompanyRouteContract,
+  async ({ params }) => {
+    const resolvedParams = resolveCompanyParams(
+      params as CompanyIdParams | undefined
+    );
+
+    return {
+      data: await archiveCompanyForTenant(resolvedParams.companyId),
     };
   },
   {

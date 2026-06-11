@@ -9,9 +9,9 @@ import {
   CardHeader,
   CardTitle,
 } from "../../ui-shadcn/card";
-import type { WorkspaceNavContextSwitcherProps } from "./5.7-workspace-nav-context-switcher.tsx";
-import type { WorkspaceNavTeam } from "./5.4-workspace-rail.types.ts";
 import type { WorkspaceNavUserProfile } from "./4.0-workspace-nav-user.tsx";
+import type { WorkspaceNavTeam } from "./5.4-workspace-rail.types.ts";
+import type { WorkspaceNavContextSwitcherProps } from "./5.7-workspace-nav-context-switcher.tsx";
 import {
   getWorkspaceDemoNavFeatures,
   getWorkspaceDemoNavModules,
@@ -41,7 +41,8 @@ export function WorkspacePatternCard({
 }
 
 /** @deprecated Prefer `useWorkspaceDemoLinkedNav()` for interactive demos. */
-export const WORKSPACE_DEMO_USER: WorkspaceNavUserProfile = getWorkspaceDemoUser();
+export const WORKSPACE_DEMO_USER: WorkspaceNavUserProfile =
+  getWorkspaceDemoUser();
 
 /** @deprecated Prefer `useWorkspaceDemoLinkedNav()` for interactive demos. */
 export const WORKSPACE_DEMO_TEAMS: readonly WorkspaceNavTeam[] =

@@ -9,7 +9,7 @@ const storybookRoot = join(import.meta.dirname, "..");
 const previewTsxPath = join(storybookRoot, ".storybook/preview.tsx");
 const badgePath = join(
   storybookRoot,
-  "../../packages/ui/src/components/ui-shadcn/badge.tsx",
+  "../../packages/ui/src/components/ui-shadcn/badge.tsx"
 );
 
 const previewTsx = readFileSync(previewTsxPath, "utf8");
@@ -19,7 +19,7 @@ const errors: string[] = [];
 
 if (/@repo\/ui\/styles\/globals\.css/.test(previewTsx)) {
   errors.push(
-    "preview.tsx must import only ./preview.css, not globals.css directly (avoid duplicate Tailwind pipelines)",
+    "preview.tsx must import only ./preview.css, not globals.css directly (avoid duplicate Tailwind pipelines)"
   );
 }
 
@@ -28,7 +28,7 @@ const badSurfaceBadgeForeground =
 
 if (badSurfaceBadgeForeground.test(badgeTsx)) {
   errors.push(
-    "Badge *-outline/*-light variants must use *-muted-foreground on surfaces, not *-foreground (filled-badge contrast pair)",
+    "Badge *-outline/*-light variants must use *-muted-foreground on surfaces, not *-foreground (filled-badge contrast pair)"
   );
 }
 

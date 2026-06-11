@@ -1,9 +1,9 @@
 import type { EntityMetadata } from "@repo/metadata";
-import { createMetadataRenderContext } from "@repo/metadata-ui/contracts";
 import {
   EntityMetadataPanel,
   MetadataStateBoundary,
 } from "@repo/metadata-ui/components";
+import { createMetadataRenderContext } from "@repo/metadata-ui/contracts";
 import type { Meta, StoryObj } from "@storybook/react";
 
 import { MetadataUiStoryFrame } from "./metadata-ui-story-utils";
@@ -72,7 +72,9 @@ type Story = StoryObj<typeof meta>;
 
 export const Loading: Story = {
   render: () => {
-    const context = createStoryContext("storybook/metadata-ui-state-boundary/loading");
+    const context = createStoryContext(
+      "storybook/metadata-ui-state-boundary/loading"
+    );
 
     return (
       <MetadataUiStoryFrame>
@@ -89,7 +91,9 @@ export const Loading: Story = {
 
 export const Empty: Story = {
   render: () => {
-    const context = createStoryContext("storybook/metadata-ui-state-boundary/empty");
+    const context = createStoryContext(
+      "storybook/metadata-ui-state-boundary/empty"
+    );
 
     return (
       <MetadataUiStoryFrame>
@@ -104,9 +108,11 @@ export const Empty: Story = {
   },
 };
 
-export const Error: Story = {
+export const ErrorState: Story = {
   render: () => {
-    const context = createStoryContext("storybook/metadata-ui-state-boundary/error");
+    const context = createStoryContext(
+      "storybook/metadata-ui-state-boundary/error"
+    );
 
     return (
       <MetadataUiStoryFrame>
@@ -144,7 +150,9 @@ export const Forbidden: Story = {
 
 export const Ready: Story = {
   render: () => {
-    const context = createStoryContext("storybook/metadata-ui-state-boundary/ready");
+    const context = createStoryContext(
+      "storybook/metadata-ui-state-boundary/ready"
+    );
 
     return (
       <MetadataUiStoryFrame>
@@ -152,7 +160,8 @@ export const Ready: Story = {
           <div className="rounded-[calc(var(--radius)+0.5rem)] border bg-card p-6 shadow-sm">
             <p className="font-medium">Ready content</p>
             <p className="mt-2 text-muted-foreground text-sm">
-              Consumers render governed children once async state resolves to ready.
+              Consumers render governed children once async state resolves to
+              ready.
             </p>
           </div>
         </MetadataStateBoundary>

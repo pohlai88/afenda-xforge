@@ -159,11 +159,12 @@ export const ERP_VISUAL_LANES: readonly ErpVisualLaneDefinition[] =
     };
   });
 
-export const ERP_VISUAL_LANE_BY_ID: Record<ErpVisualLaneId, ErpVisualLaneDefinition> =
-  Object.fromEntries(ERP_VISUAL_LANES.map((lane) => [lane.id, lane])) as Record<
-    ErpVisualLaneId,
-    ErpVisualLaneDefinition
-  >;
+export const ERP_VISUAL_LANE_BY_ID: Record<
+  ErpVisualLaneId,
+  ErpVisualLaneDefinition
+> = Object.fromEntries(
+  ERP_VISUAL_LANES.map((lane) => [lane.id, lane])
+) as Record<ErpVisualLaneId, ErpVisualLaneDefinition>;
 
 export function laneCssVarName(
   laneId: ErpVisualLaneId,

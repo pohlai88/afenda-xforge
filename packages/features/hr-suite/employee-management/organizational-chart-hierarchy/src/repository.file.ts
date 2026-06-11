@@ -3,17 +3,17 @@ import "server-only";
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { dirname, resolve } from "node:path";
 import { z } from "zod";
+import type {
+  HrOrgRepositoryScope,
+  HrOrgRepositoryState,
+} from "./repository.shared.ts";
+import { emptyState } from "./repository.shared.ts";
 import {
   hrOrgAuditEventSchema,
   hrOrgPositionRecordSchema,
   hrOrgReportingRelationshipRecordSchema,
   hrOrgUnitRecordSchema,
 } from "./schema.ts";
-import {
-  emptyState,
-  type HrOrgRepositoryScope,
-  type HrOrgRepositoryState,
-} from "./repository.shared.ts";
 
 const defaultRepositoryPath = resolve(
   /* turbopackIgnore: true */ process.cwd(),
@@ -73,9 +73,9 @@ export const loadHrOrgFileRepository = async (
   _scope?: HrOrgRepositoryScope
 ): Promise<HrOrgRepositoryState> => readRepositoryStateFromDisk();
 
-export const saveHrOrgFileRepository = async (
+export const saveHrOrgFileRepository = (
   nextState: HrOrgRepositoryState,
   _scope?: HrOrgRepositoryScope
-): Promise<void> => {
+): void => {
   persistRepositoryState(nextState);
 };

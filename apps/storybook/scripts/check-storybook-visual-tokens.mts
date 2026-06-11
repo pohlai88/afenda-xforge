@@ -6,7 +6,8 @@ const storiesRoot = join(storybookRoot, "stories");
 
 const forbiddenClassPatterns = [
   {
-    pattern: /(?:bg|border|text|ring|fill|stroke)-(gray|slate|zinc|neutral|stone)-/,
+    pattern:
+      /(?:bg|border|text|ring|fill|stroke)-(gray|slate|zinc|neutral|stone)-/,
     message: "non-token palette utility — use semantic design tokens",
   },
   {
@@ -36,7 +37,8 @@ function collectStorySources(directory: string): string[] {
       return collectStorySources(fullPath);
     }
 
-    return entry.isFile() && /\.(stories\.tsx|stories\.ts|tsx)$/.test(entry.name)
+    return entry.isFile() &&
+      /\.(stories\.tsx|stories\.ts|tsx)$/.test(entry.name)
       ? [fullPath]
       : [];
   });
@@ -56,7 +58,7 @@ for (const storyPath of collectStorySources(storiesRoot)) {
 
   if (/from\s+["']lucide-react["']/.test(source)) {
     errors.push(
-      `${storyName}: lucide-react is not a storybook dependency — use @repo/ui icons or add lucide-react to storybook dependencies`,
+      `${storyName}: lucide-react is not a storybook dependency — use @repo/ui icons or add lucide-react to storybook dependencies`
     );
   }
 
@@ -66,7 +68,7 @@ for (const storyPath of collectStorySources(storiesRoot)) {
     !storyPath.endsWith("metadata-orbit-layout.tsx")
   ) {
     errors.push(
-      `${storyName}: overflow-hidden on orbit stage containers clips orbital nodes — use overflow-visible`,
+      `${storyName}: overflow-hidden on orbit stage containers clips orbital nodes — use overflow-visible`
     );
   }
 }

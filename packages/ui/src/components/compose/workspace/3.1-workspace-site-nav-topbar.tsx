@@ -1,7 +1,7 @@
 "use client";
 
-import { cn } from "../../../lib/utils";
 import type { ReactElement, ReactNode } from "react";
+import { cn } from "../../../lib/utils";
 import {
   WORKSPACE_SHELL_CHROME_HEIGHT,
   WORKSPACE_SHELL_SPACE,
@@ -35,7 +35,7 @@ export function WorkspaceNavSiteTopbar({
         "flex shrink-0 items-center gap-2 antialiased",
         WORKSPACE_SHELL_SPACE.siteTopbarSurface,
         WORKSPACE_SHELL_SPACE.siteInsetX,
-        className
+        className,
       )}
       data-slot="workspace-nav-site-topbar"
       style={{ height: WORKSPACE_SHELL_CHROME_HEIGHT }}
@@ -46,7 +46,7 @@ export function WorkspaceNavSiteTopbar({
             <div
               className={cn(
                 "flex min-w-0 flex-col justify-center",
-                usesScopeStack ? "gap-0 leading-tight" : "leading-tight"
+                usesScopeStack ? "gap-0 leading-tight" : "leading-tight",
               )}
             >
               {usesScopeStack ? (
@@ -58,7 +58,7 @@ export function WorkspaceNavSiteTopbar({
                     <p
                       className={cn(
                         "truncate",
-                        WORKSPACE_SHELL_TYPE.appTopbarItemValue
+                        WORKSPACE_SHELL_TYPE.appTopbarItemValue,
                       )}
                     >
                       {title}
@@ -71,7 +71,7 @@ export function WorkspaceNavSiteTopbar({
                     <p
                       className={cn(
                         "truncate",
-                        WORKSPACE_SHELL_TYPE.siteTopbarTitle
+                        WORKSPACE_SHELL_TYPE.siteTopbarTitle,
                       )}
                     >
                       {title}
@@ -81,7 +81,7 @@ export function WorkspaceNavSiteTopbar({
                     <p
                       className={cn(
                         "truncate",
-                        WORKSPACE_SHELL_TYPE.siteTopbarDescription
+                        WORKSPACE_SHELL_TYPE.siteTopbarDescription,
                       )}
                     >
                       {description}

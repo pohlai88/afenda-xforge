@@ -69,7 +69,7 @@ function MetadataLivingCanvas() {
 
   useEffect(() => {
     setWave((current) => current + 1);
-  }, [mutationId]);
+  }, []);
 
   const selectMutation = (id: MutationId) => {
     setMutationId(id);
@@ -132,7 +132,7 @@ function MetadataLivingCanvas() {
             </div>
           </div>
 
-          <div
+          <section
             aria-label="Metadata mutation propagation preview"
             className="flex w-full flex-col gap-6"
           >
@@ -179,7 +179,9 @@ function MetadataLivingCanvas() {
                   ["1", "contract"],
                 ].map(([value, label]) => (
                   <div key={label}>
-                    <p className="font-semibold text-2xl text-primary">{value}</p>
+                    <p className="font-semibold text-2xl text-primary">
+                      {value}
+                    </p>
                     <p className="font-mono text-[0.65rem] text-muted-foreground">
                       {label}
                     </p>
@@ -187,7 +189,7 @@ function MetadataLivingCanvas() {
                 ))}
               </div>
             </div>
-          </div>
+          </section>
         </div>
       </section>
     </main>

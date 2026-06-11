@@ -95,15 +95,18 @@ export function parseOklch(value: string): ParsedOklch | null {
   }
 
   const [, lightness, chroma, hue, alpha] = match;
+  let alphaValue: number | undefined;
+  if (alpha) {
+    alphaValue = alpha.endsWith("%")
+      ? Number.parseFloat(alpha) / 100
+      : Number.parseFloat(alpha);
+  }
+
   return {
     l: Number.parseFloat(lightness),
     c: Number.parseFloat(chroma),
     h: Number.parseFloat(hue),
-    alpha: alpha
-      ? alpha.endsWith("%")
-        ? Number.parseFloat(alpha) / 100
-        : Number.parseFloat(alpha)
-      : undefined,
+    alpha: alphaValue,
   };
 }
 
@@ -140,7 +143,7 @@ function isStatusCategory(category: HueFamilyCategory): boolean {
   return category === "status";
 }
 
-function isBrandOrLaneCategory(category: HueFamilyCategory): boolean {
+function _isBrandOrLaneCategory(category: HueFamilyCategory): boolean {
   return category === "brand" || category === "lane";
 }
 
@@ -192,7 +195,11 @@ export function validateHueReservation(
   const warnings: HueCollision[] = [];
 
   for (let index = 0; index < entries.length; index += 1) {
-    for (let otherIndex = index + 1; otherIndex < entries.length; otherIndex += 1) {
+    for (
+      let otherIndex = index + 1;
+      otherIndex < entries.length;
+      otherIndex += 1
+    ) {
       const left = entries[index];
       const right = entries[otherIndex];
       const rule = minimumSeparation(left, right);

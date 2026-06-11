@@ -1,3 +1,4 @@
+import { archiveDocumentsManagementDocumentsForSeparatedEmployee } from "@repo/features-employee-management-documents-management/server";
 import {
   offboardingCaseProjectionSchema,
   updateOffboardingCaseInputSchema,
@@ -6,8 +7,8 @@ import {
   getOffboardingCaseById,
   updateOffboardingCase,
 } from "@repo/features-employee-management-offboarding-exit-management/server";
-import { archiveDocumentsManagementDocumentsForSeparatedEmployee } from "@repo/features-employee-management-documents-management/server";
 import { NextResponse } from "next/server";
+import { z } from "zod";
 import {
   createOffboardingReadContext,
   createOffboardingWriteContext,
@@ -22,30 +23,9 @@ import {
   validateOffboardingResponse,
 } from "../../_lib/http.ts";
 
-const caseRouteParamsSchema = {
-  parse(value: unknown): { caseId: string } {
-    if (
-      typeof value !== "object" ||
-      value === null ||
-      typeof (value as { caseId?: unknown }).caseId !== "string" ||
-      !(value as { caseId: string }).caseId.trim()
-    ) {
-      throw {
-        issues: [
-          {
-            code: "custom",
-            message: "caseId is required",
-            path: ["caseId"],
-          },
-        ],
-      };
-    }
-
-    return {
-      caseId: (value as { caseId: string }).caseId.trim(),
-    };
-  },
-};
+const caseRouteParamsSchema = z.object({
+  caseId: z.string().trim().min(1, "caseId is required"),
+});
 
 const updateCaseBodySchema = updateOffboardingCaseInputSchema.omit({
   caseId: true,

@@ -105,9 +105,14 @@ test("builds stable integration snapshots and downstream-safe contracts", () => 
   assert.ok(taskAttention);
   assert.ok(changeEvent);
   assert.equal(snapshot?.snapshotVersion, 1);
-  assert.equal(changeEvent?.eventName, employeeLifecycleIntegrationEvents.changed);
+  assert.equal(
+    changeEvent?.eventName,
+    employeeLifecycleIntegrationEvents.changed
+  );
   assert.equal(changeEvent?.eventVersion, 1);
-  assert.doesNotThrow(() => employeeLifecycleIntegrationSnapshotSchema.parse(snapshot));
+  assert.doesNotThrow(() =>
+    employeeLifecycleIntegrationSnapshotSchema.parse(snapshot)
+  );
   assert.doesNotThrow(() =>
     employeeLifecycleIntegrationChangeEventSchema.parse(changeEvent)
   );

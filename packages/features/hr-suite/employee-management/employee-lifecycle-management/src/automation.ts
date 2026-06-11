@@ -1,6 +1,10 @@
 import "server-only";
 
 import { openOffboardingCase } from "../../offboarding-exit-management/src/server.ts";
+import {
+  recordEmployeeLifecycleContractReminder,
+  startEmployeeLifecycleOnboarding,
+} from "./actions.ts";
 import type {
   EmployeeLifecycleAutomationAction,
   EmployeeLifecycleBootstrapProfile,
@@ -15,6 +19,13 @@ import {
   runEmployeeLifecycleAutomationInputSchema,
 } from "./contracts/automation.contract.ts";
 import { buildEmployeeLifecycleOffboardingHandoffProjection } from "./integration.ts";
+import {
+  getEmployeeLifecycleContractStatus,
+  getEmployeeLifecycleExitStatus,
+  getEmployeeLifecycleOnboardingStatus,
+  getEmployeeLifecycleProbationStatus,
+  getEmployeeLifecycleSuspensionStatus,
+} from "./queries.ts";
 import type { EmployeeLifecycleRepositoryScope } from "./repository.ts";
 import {
   findEmployeeLifecycleNotificationIntentByDedupeKey,
@@ -32,17 +43,6 @@ import type {
   EmployeeLifecycleProbationReadModel,
   EmployeeLifecycleSuspensionReadModel,
 } from "./schema.ts";
-import {
-  recordEmployeeLifecycleContractReminder,
-  startEmployeeLifecycleOnboarding,
-} from "./actions.ts";
-import {
-  getEmployeeLifecycleContractStatus,
-  getEmployeeLifecycleExitStatus,
-  getEmployeeLifecycleOnboardingStatus,
-  getEmployeeLifecycleProbationStatus,
-  getEmployeeLifecycleSuspensionStatus,
-} from "./queries.ts";
 
 const toScope = (
   input?: Pick<EmployeeLifecycleBootstrapProfile, "companyId" | "tenantId">
@@ -116,7 +116,8 @@ const buildOnboardingAutoStartAction = (
     sourceEventId: null,
     dedupeKey: "onboarding:auto-start",
     summary: "Start onboarding for a newly created employee record",
-    reason: "Employee record contains enough employment context for onboarding bootstrap",
+    reason:
+      "Employee record contains enough employment context for onboarding bootstrap",
     metadata: profile,
   });
 
@@ -198,7 +199,10 @@ const buildOffboardingHandoffAction = (
     employeeId: exitStatus.employeeId,
     companyId: exitStatus.companyId ?? null,
     tenantId: exitStatus.tenantId ?? null,
-    dueAt: exitStatus.lastWorkingAt ?? exitStatus.noticeEndsAt ?? exitStatus.startedAt,
+    dueAt:
+      exitStatus.lastWorkingAt ??
+      exitStatus.noticeEndsAt ??
+      exitStatus.startedAt,
     sourceEventId: exitStatus.events.at(-1)?.id ?? null,
     dedupeKey: `offboarding-handoff:${exitStatus.exitKind}:${exitStatus.startedAt.toISOString()}`,
     summary: "Create offboarding handoff for an active exit lifecycle",
@@ -255,7 +259,10 @@ export function evaluateEmployeeLifecycleAutomation(
   }
 
   for (const employeeId of targetEmployeeIds) {
-    const probation = getEmployeeLifecycleProbationStatus(employeeId, resolvedScope);
+    const probation = getEmployeeLifecycleProbationStatus(
+      employeeId,
+      resolvedScope
+    );
     if (probation && probation.reviewDueAt.getTime() <= now.getTime()) {
       actions.push(buildProbationDueAction(probation));
     }
@@ -272,7 +279,10 @@ export function evaluateEmployeeLifecycleAutomation(
       actions.push(buildContractReviewDueAction(contract));
     }
 
-    const exitStatus = getEmployeeLifecycleExitStatus(employeeId, resolvedScope);
+    const exitStatus = getEmployeeLifecycleExitStatus(
+      employeeId,
+      resolvedScope
+    );
     if (
       exitStatus &&
       !exitStatus.isArchived &&
@@ -367,9 +377,10 @@ const buildProbationNotificationIntent = (
     },
   });
 
-const buildContractNotificationIntents = (
+// biome-ignore lint/complexity/noExcessiveCognitiveComplexity: notification intent assembly spans many lifecycle branches
+function buildContractNotificationIntents(
   contract: EmployeeLifecycleContractReadModel
-): EmployeeLifecycleNotificationIntent[] => {
+): EmployeeLifecycleNotificationIntent[] {
   const intents: EmployeeLifecycleNotificationIntent[] = [];
 
   if (contract.isReminderDue) {
@@ -424,7 +435,7 @@ const buildContractNotificationIntents = (
   }
 
   return intents;
-};
+}
 
 const buildSuspensionNotificationIntent = (
   suspension: EmployeeLifecycleSuspensionReadModel
@@ -461,7 +472,10 @@ const buildExitNotificationIntents = (
         companyId: exitStatus.companyId ?? null,
         tenantId: exitStatus.tenantId ?? null,
         audienceRole: "manager",
-        dueAt: exitStatus.noticeEndsAt ?? exitStatus.lastWorkingAt ?? exitStatus.startedAt,
+        dueAt:
+          exitStatus.noticeEndsAt ??
+          exitStatus.lastWorkingAt ??
+          exitStatus.startedAt,
         sourceEventId: exitStatus.events.at(-1)?.id ?? null,
         dedupeKey: `exit-notice:${exitStatus.startedAt.toISOString()}`,
         summary: "Exit notice period is active",
@@ -474,7 +488,7 @@ const buildExitNotificationIntents = (
     );
   }
 
-  if (!exitStatus.isOffboardingTriggered && !exitStatus.isArchived) {
+  if (!(exitStatus.isOffboardingTriggered || exitStatus.isArchived)) {
     intents.push(
       buildNotificationIntent({
         kind: "offboarding_pending",
@@ -482,7 +496,10 @@ const buildExitNotificationIntents = (
         companyId: exitStatus.companyId ?? null,
         tenantId: exitStatus.tenantId ?? null,
         audienceRole: "hr_operations",
-        dueAt: exitStatus.lastWorkingAt ?? exitStatus.noticeEndsAt ?? exitStatus.startedAt,
+        dueAt:
+          exitStatus.lastWorkingAt ??
+          exitStatus.noticeEndsAt ??
+          exitStatus.startedAt,
         sourceEventId: exitStatus.events.at(-1)?.id ?? null,
         dedupeKey: `offboarding-pending:${exitStatus.startedAt.toISOString()}`,
         summary: "Offboarding handoff is pending",
@@ -528,7 +545,7 @@ export function evaluateEmployeeLifecycleNotificationIntents(
     }
 
     const suspension = getEmployeeLifecycleSuspensionStatus(employeeId, scope);
-    if (suspension && suspension.isRestricted && !suspension.isClosed) {
+    if (suspension?.isRestricted && !suspension.isClosed) {
       intents.push(buildSuspensionNotificationIntent(suspension));
     }
 
@@ -565,6 +582,7 @@ export function enqueueEmployeeLifecycleNotificationIntents(
   return stored;
 }
 
+// biome-ignore lint/complexity/noExcessiveCognitiveComplexity: automation orchestrates multiple lifecycle side effects in one pass
 export async function runEmployeeLifecycleAutomation(
   input: RunEmployeeLifecycleAutomationInput,
   scope?: EmployeeLifecycleRepositoryScope
@@ -577,7 +595,10 @@ export async function runEmployeeLifecycleAutomation(
   const now = parsedInput.now ?? new Date();
   const resolvedScope =
     scope ?? toScope(parsedInput.employeeProfile) ?? undefined;
-  const actions = evaluateEmployeeLifecycleAutomation(parsedInput, resolvedScope);
+  const actions = evaluateEmployeeLifecycleAutomation(
+    parsedInput,
+    resolvedScope
+  );
   const handoffs: EmployeeLifecycleOffboardingHandoffRecord[] = [];
 
   for (const action of actions) {
@@ -624,7 +645,10 @@ export async function runEmployeeLifecycleAutomation(
       continue;
     }
 
-    if (action.kind === "offboarding_handoff" && parsedInput.triggerOffboardingHandoff !== false) {
+    if (
+      action.kind === "offboarding_handoff" &&
+      parsedInput.triggerOffboardingHandoff !== false
+    ) {
       const exitStatus = getEmployeeLifecycleExitStatus(
         action.employeeId,
         resolvedScope
@@ -643,16 +667,20 @@ export async function runEmployeeLifecycleAutomation(
         continue;
       }
 
-      const handoffProjection = buildEmployeeLifecycleOffboardingHandoffProjection({
-        employeeId: action.employeeId,
-        companyId: exitStatus.companyId ?? undefined,
-        tenantId: exitStatus.tenantId ?? undefined,
-        lifecycleExitReference,
-        exitKind: exitStatus.exitKind,
-        effectiveSeparationDate: exitStatus.lastWorkingAt ?? exitStatus.noticeEndsAt ?? exitStatus.startedAt,
-        noticeEndsAt: exitStatus.noticeEndsAt ?? null,
-        lastWorkingAt: exitStatus.lastWorkingAt ?? null,
-      });
+      const handoffProjection =
+        buildEmployeeLifecycleOffboardingHandoffProjection({
+          employeeId: action.employeeId,
+          companyId: exitStatus.companyId ?? undefined,
+          tenantId: exitStatus.tenantId ?? undefined,
+          lifecycleExitReference,
+          exitKind: exitStatus.exitKind,
+          effectiveSeparationDate:
+            exitStatus.lastWorkingAt ??
+            exitStatus.noticeEndsAt ??
+            exitStatus.startedAt,
+          noticeEndsAt: exitStatus.noticeEndsAt ?? null,
+          lastWorkingAt: exitStatus.lastWorkingAt ?? null,
+        });
 
       const offboardingResult = await openOffboardingCase(
         {
@@ -665,7 +693,9 @@ export async function runEmployeeLifecycleAutomation(
               : exitStatus.exitKind,
           reason: `${exitStatus.exitKind} lifecycle handoff`,
           effectiveSeparationDate:
-            exitStatus.lastWorkingAt ?? exitStatus.noticeEndsAt ?? exitStatus.startedAt,
+            exitStatus.lastWorkingAt ??
+            exitStatus.noticeEndsAt ??
+            exitStatus.startedAt,
           noticeEndDate: exitStatus.noticeEndsAt ?? undefined,
           lastWorkingDate: exitStatus.lastWorkingAt ?? undefined,
           initiationSource: "system",
@@ -701,13 +731,14 @@ export async function runEmployeeLifecycleAutomation(
           source: parsedInput.source ?? "system",
           actionId: action.id,
           offboardingOk: offboardingResult.ok,
-          offboardingError: offboardingResult.ok ? null : offboardingResult.error,
+          offboardingError: offboardingResult.ok
+            ? null
+            : offboardingResult.error,
         },
       });
 
       upsertEmployeeLifecycleOffboardingHandoff(handoffRecord, resolvedScope);
       handoffs.push(handoffRecord);
-      continue;
     }
   }
 

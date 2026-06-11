@@ -21,7 +21,10 @@ import type { ReactElement } from "react";
 import { useCallback, useMemo, useState } from "react";
 import { useRouter } from "@/i18n/navigation";
 import { withCSRFHeader } from "../../../../../lib/csrf.client.ts";
-import { updateCompanyRecord } from "../../../../../lib/master-data/company-api.client.ts";
+import {
+  archiveCompanyRecord,
+  updateCompanyRecord,
+} from "../../../../../lib/master-data/company-api.client.ts";
 import {
   archiveCustomerRecord,
   updateCustomerRecord,
@@ -111,9 +114,9 @@ const DashboardEntityDirectoryPanel = ({
       {isActive && selectedRowId ? (
         <p className="text-muted-foreground text-xs">
           Selected row: press F2 to edit
-          {entityKind === "customers"
+          {entityKind === "customers" || entityKind === "companies"
             ? " or F8 to archive."
-            : ". Company archive is pending lifecycle schema support."}
+            : "."}
         </p>
       ) : null}
       <EntityMetadataPanel
@@ -349,18 +352,17 @@ export function DashboardEntitySections({
       return;
     }
 
-    if (activeEntity === "companies") {
-      toast.message(
-        "Company archive routes are not exposed on the dashboard yet."
-      );
-      return;
-    }
-
     setIsSubmitting(true);
 
     try {
-      await archiveCustomerRecord({ customerId: selectedRowId });
-      toast.message("Customer archived.");
+      if (activeEntity === "companies") {
+        await archiveCompanyRecord({ companyId: selectedRowId });
+        toast.message("Company archived.");
+      } else {
+        await archiveCustomerRecord({ customerId: selectedRowId });
+        toast.message("Customer archived.");
+      }
+
       setSelectedRowId(null);
       router.refresh();
     } catch (error) {

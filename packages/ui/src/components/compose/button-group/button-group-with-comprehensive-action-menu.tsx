@@ -28,7 +28,15 @@ export function ButtonGroupWithComprehensiveActionMenu() {
         <span>Conversation</span>
       </Button>
       <DropdownMenu>
-        <DropdownMenuTrigger render={<Button variant="outline" size="icon" aria-label="More conversation options" />}>
+        <DropdownMenuTrigger
+          render={
+            <Button
+              variant="outline"
+              size="icon"
+              aria-label="More conversation options"
+            />
+          }
+        >
           <IconPlaceholder
             lucide="EllipsisVerticalIcon"
             tabler="IconDotsVertical"

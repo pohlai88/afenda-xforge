@@ -30,16 +30,16 @@ import {
   THEME_PRESETS as themePresetsValue,
 } from "./theme-preset-tokens";
 import {
-  ERP_VISUAL_LANE_IDS as erpVisualLaneIdsValue,
-  ERP_VISUAL_LANES as erpVisualLanesValue,
-} from "./visual-lane-tokens";
-import {
   FONT_FAMILY_TOKENS as fontFamilyTokensValue,
   FONT_FEATURE_TOKENS as fontFeatureTokensValue,
   TEXT_UTILITY_TOKENS as textUtilityTokensValue,
   TYPE_SCALE_ROLES as typeScaleRolesValue,
   TYPE_UTILITY_TOKENS as typeUtilityTokensValue,
 } from "./typography-tokens";
+import {
+  ERP_VISUAL_LANE_IDS as erpVisualLaneIdsValue,
+  ERP_VISUAL_LANES as erpVisualLanesValue,
+} from "./visual-lane-tokens";
 
 export const animationTokens: typeof animationTokensValue =
   animationTokensValue;

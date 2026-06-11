@@ -6,7 +6,7 @@ import {
   writeAuditEventInTransaction,
 } from "@repo/audit";
 import { companies, database, timeDatabaseQuery } from "@repo/database";
-import { NotFoundError } from "@repo/errors";
+import { NotFoundError, ResourceStateError } from "@repo/errors";
 import type {
   ExecutionDatabaseTransaction,
   ExecutionDomainResult,
@@ -67,18 +67,29 @@ type CompanyByIdUpdateContext = TenantActorScope & {
   requestId?: string;
 };
 
+type CompanyArchiveContext = TenantActorScope & {
+  companyId: string;
+  db?: ExecutionDatabaseTransaction;
+  grantedPermissions: string[];
+  operationId?: string;
+  requestId?: string;
+};
+
 const mapCompany = (row: {
   code: string;
   id: string;
   name: string;
+  status: string;
 }): Company => ({
   code: row.code,
   id: row.id,
   name: row.name,
+  status: row.status as Company["status"],
 });
 
 const createCompanyPermissionContext = (
   context:
+    | CompanyArchiveContext
     | CompanyCreateContext
     | CompanyUpdateContext
     | CompanyByIdUpdateContext,
@@ -118,6 +129,7 @@ const insertCompanyRecord = async (
           code: companies.code,
           id: companies.id,
           name: companies.name,
+          status: companies.status,
         }),
     {
       operation: "insert",
@@ -156,6 +168,7 @@ const updateCompanyRecord = async (
           code: companies.code,
           id: companies.id,
           name: companies.name,
+          status: companies.status,
         })
         .from(companies)
         .where(
@@ -199,6 +212,7 @@ const updateCompanyRecord = async (
           code: companies.code,
           id: companies.id,
           name: companies.name,
+          status: companies.status,
         }),
     {
       operation: "update",
@@ -420,4 +434,154 @@ export const updateCompanyById = (
   });
 
   return pipeline(input);
+};
+
+const readCompanyRecord = async (
+  context: CompanyArchiveContext
+): Promise<Company> => {
+  const db = context.db ?? database;
+
+  const [company] = await timeDatabaseQuery(
+    () =>
+      db
+        .select({
+          code: companies.code,
+          id: companies.id,
+          name: companies.name,
+          status: companies.status,
+        })
+        .from(companies)
+        .where(
+          and(
+            eq(companies.id, context.companyId),
+            eq(companies.tenantId, context.tenantId)
+          )
+        )
+        .limit(1),
+    {
+      operation: "select",
+      resource: "companies",
+      metadata: {
+        companyId: context.companyId,
+        tenantId: context.tenantId,
+        userId: context.userId,
+      },
+    }
+  );
+
+  if (!company) {
+    throw new NotFoundError("Company", context.companyId);
+  }
+
+  return mapCompany(company);
+};
+
+const archiveCompanyRecord = async (
+  context: CompanyArchiveContext
+): Promise<{ after: Company; before: Company }> => {
+  const db = context.db ?? database;
+  const before = await readCompanyRecord(context);
+
+  if (before.status === "inactive") {
+    throw new ResourceStateError("Company", before.status);
+  }
+
+  appendRequestContextMetadata({
+    companyId: context.companyId,
+    feature: "companies",
+    operation: "archive",
+    tenantId: context.tenantId,
+  });
+
+  const [company] = await timeDatabaseQuery(
+    () =>
+      db
+        .update(companies)
+        .set({
+          status: "inactive",
+          updatedAt: new Date(),
+        })
+        .where(
+          and(
+            eq(companies.id, context.companyId),
+            eq(companies.tenantId, context.tenantId)
+          )
+        )
+        .returning({
+          code: companies.code,
+          id: companies.id,
+          name: companies.name,
+          status: companies.status,
+        }),
+    {
+      operation: "update",
+      resource: "companies",
+      metadata: {
+        companyId: context.companyId,
+        tenantId: context.tenantId,
+        userId: context.userId,
+      },
+    }
+  );
+
+  if (!company) {
+    throw new NotFoundError("Company", context.companyId);
+  }
+
+  return {
+    after: mapCompany(company),
+    before,
+  };
+};
+
+export const archiveCompany = (
+  context: CompanyArchiveContext
+): Promise<Company> => {
+  const pipeline = createExecutionPipeline<{ companyId: string }, Company>({
+    executeDomainOperation: async ({
+      db,
+      actor,
+      tenant,
+    }: ExecutionMutationContext<{ companyId: string }>) => {
+      const { after, before } = await archiveCompanyRecord({
+        ...context,
+        companyId: context.companyId,
+        db,
+        tenantId: tenant.tenantId,
+        userId: actor.actorId,
+      });
+
+      return {
+        action: "companies.archive",
+        after: {
+          company: after,
+        },
+        before: {
+          company: before,
+        },
+        reason: "archive company",
+        result: after,
+        targetId: after.id,
+        targetType: "company",
+      };
+    },
+    permissionContext: () =>
+      createCompanyPermissionContext(context, "companies.archive"),
+    permissionRequirement: {
+      allOf: [permissionCatalog.companies.write],
+    },
+    runInTransaction: <T>(
+      run: (db: ExecutionDatabaseTransaction) => Promise<T>
+    ): Promise<T> => database.transaction(run),
+    operationId: context.operationId ?? context.requestId ?? randomUUID(),
+    requireAuth: async () => ({ actorId: context.userId }),
+    requirePermission,
+    requireTenantMembership: async () => undefined,
+    resolveActiveTenant: async () => ({ tenantId: context.tenantId }),
+    requestId: context.requestId ?? randomUUID(),
+    validateInput: async () => undefined,
+    writeAuditEvent: persistCompanyAuditEvent,
+  });
+
+  return pipeline({ companyId: context.companyId });
 };

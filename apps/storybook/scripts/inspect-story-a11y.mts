@@ -1,5 +1,5 @@
+import { getViolations, injectAxe } from "axe-playwright";
 import { chromium } from "playwright";
-import { injectAxe, getViolations } from "axe-playwright";
 
 const storyId = process.argv[2] ?? "metadata-ui-actions--button-action";
 const port = Number(process.env.STORYBOOK_TEST_PORT ?? "6010");

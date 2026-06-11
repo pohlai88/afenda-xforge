@@ -58,9 +58,7 @@ test("webhook upsert fails closed when company is outside tenant scope", async (
           secret: "secret",
         },
         {
-          grantedPermissions: [
-            permissionCatalog.systemAdmin.integrationsWrite,
-          ],
+          grantedPermissions: [permissionCatalog.systemAdmin.integrationsWrite],
           tenantId: "tenant_1",
           userId: "user_1",
         }

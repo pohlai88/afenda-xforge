@@ -1,8 +1,8 @@
+import { acknowledgeDocumentsManagementPolicyInputSchema } from "@repo/features-employee-management-documents-management/contracts";
 import {
   acknowledgeDocumentsManagementPolicy,
   listDocumentsManagementPolicyAcknowledgmentSummaries,
 } from "@repo/features-employee-management-documents-management/server";
-import { acknowledgeDocumentsManagementPolicyInputSchema } from "@repo/features-employee-management-documents-management/contracts";
 import { NextResponse } from "next/server";
 
 import {

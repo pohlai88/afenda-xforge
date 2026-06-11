@@ -36,11 +36,11 @@ import {
   loadHrOrgChartTreeNodes,
   loadHrOrgOverviewSnapshot,
 } from "../src/queries.ts";
+import { resetHrOrgRepositoryForTesting } from "../src/repository.testing.ts";
 import {
   loadHrOrgRepository,
   mutateHrOrgRepository,
 } from "../src/repository.ts";
-import { resetHrOrgRepositoryForTesting } from "../src/repository.testing.ts";
 import { upsertHrOrgUnitAction } from "../src/server.ts";
 import { hrOrgStore } from "../src/store.ts";
 

@@ -1,6 +1,5 @@
 "use client";
 
-import { toast } from "@repo/ui";
 import { useSidebar } from "@repo/ui/components/ui/sidebar";
 import type { ReactElement } from "react";
 import { useEffect } from "react";
@@ -13,10 +12,11 @@ import {
   resolveActiveShortcutScopes,
 } from "../../../../lib/workspace-shortcuts/normalize-shortcut.ts";
 import { KeyboardShortcutsDialog } from "./keyboard-shortcuts-dialog.tsx";
+import { ShortcutDeleteConfirmDialog } from "./shortcut-delete-confirm-dialog.tsx";
 import { useWorkspaceShortcuts } from "./use-keyboard-shortcuts.tsx";
+import { useShortcutCrudDispatch } from "./use-shortcut-crud-dispatch.ts";
 import { WorkspaceCommandPalette } from "./workspace-command-palette.tsx";
 
-const CRUD_FALLBACK_MESSAGE = "No focused record available";
 const CRUD_ACTION_IDS = new Set<ShortcutActionId>([
   "crud.create",
   "crud.edit",
@@ -24,23 +24,6 @@ const CRUD_ACTION_IDS = new Set<ShortcutActionId>([
   "crud.delete",
   "crud.cancel",
 ]);
-
-const dispatchCrudAction = (
-  actionId: ShortcutActionId,
-  handler: (() => void) | undefined
-): void => {
-  if (handler) {
-    handler();
-    return;
-  }
-
-  if (actionId === "crud.delete") {
-    toast.error(CRUD_FALLBACK_MESSAGE);
-    return;
-  }
-
-  toast.message(CRUD_FALLBACK_MESSAGE);
-};
 
 const handleWorkspaceShortcutAction = (
   actionId: ShortcutActionId,
@@ -65,24 +48,6 @@ const handleWorkspaceShortcutAction = (
   }
 };
 
-const handleCrudShortcutAction = (
-  actionId: ShortcutActionId,
-  handler: (() => void) | undefined
-): void => {
-  if (actionId === "crud.delete" && handler) {
-    // biome-ignore lint/suspicious/noAlert: native confirm until governed delete dialog exists
-    const confirmed = window.confirm(
-      "Delete the focused record? This action cannot be undone."
-    );
-
-    if (!confirmed) {
-      return;
-    }
-  }
-
-  dispatchCrudAction(actionId, handler);
-};
-
 export function WorkspaceShortcutsHost(): ReactElement {
   const {
     payload,
@@ -95,10 +60,16 @@ export function WorkspaceShortcutsHost(): ReactElement {
     getFocusedTarget,
   } = useWorkspaceShortcuts();
   const { toggleSidebar } = useSidebar();
+  const {
+    confirmPendingDelete,
+    deleteConfirmOpen,
+    dispatchCrudAction,
+    setDeleteConfirmOpen,
+  } = useShortcutCrudDispatch();
 
   useEffect(() => {
     const onKeyDown = (event: KeyboardEvent) => {
-      if (helpOpen || commandOpen || captureSuspended) {
+      if (helpOpen || commandOpen || captureSuspended || deleteConfirmOpen) {
         return;
       }
 
@@ -136,8 +107,7 @@ export function WorkspaceShortcutsHost(): ReactElement {
       }
 
       if (CRUD_ACTION_IDS.has(actionId)) {
-        const handler = focusedTarget?.handlers[actionId];
-        handleCrudShortcutAction(actionId, handler);
+        dispatchCrudAction(actionId);
       }
     };
 
@@ -146,6 +116,8 @@ export function WorkspaceShortcutsHost(): ReactElement {
   }, [
     captureSuspended,
     commandOpen,
+    deleteConfirmOpen,
+    dispatchCrudAction,
     getFocusedTarget,
     helpOpen,
     openHelp,
@@ -158,10 +130,17 @@ export function WorkspaceShortcutsHost(): ReactElement {
     <>
       <KeyboardShortcutsDialog onOpenChange={setHelpOpen} open={helpOpen} />
       <WorkspaceCommandPalette
+        dispatchCrudAction={dispatchCrudAction}
         onOpenChange={setCommandOpen}
         onOpenHelp={openHelp}
+        onToggleSidebar={toggleSidebar}
         open={commandOpen}
         payload={payload}
+      />
+      <ShortcutDeleteConfirmDialog
+        onConfirm={confirmPendingDelete}
+        onOpenChange={setDeleteConfirmOpen}
+        open={deleteConfirmOpen}
       />
     </>
   );

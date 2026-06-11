@@ -7,10 +7,13 @@ import {
 import type { PaginatedList } from "@repo/shared";
 import { z } from "zod";
 
+export const companyStatusSchema = z.enum(["active", "inactive"]);
+
 export const companySchema = z.object({
   id: z.string(),
   code: z.string(),
   name: z.string(),
+  status: companyStatusSchema,
 });
 
 export const listCompaniesQuerySchema = z.object({
@@ -222,12 +225,43 @@ export const updateCompanyRouteContract = defineRouteContract({
   tags: ["companies"],
 });
 
+export const archiveCompanyRouteContract = defineRouteContract({
+  audience: "client",
+  method: "DELETE",
+  operationId: "archiveCompany",
+  path: "/api/companies/{companyId}",
+  request: {
+    params: {
+      schema: companyIdParamsSchema,
+      openApiSchema: {
+        type: "object",
+        additionalProperties: false,
+        properties: {
+          companyId: { type: "string", format: "uuid" },
+        },
+        required: ["companyId"],
+      },
+    },
+  },
+  success: {
+    description: "Archived company",
+    openApiSchema: {
+      $ref: "#/components/schemas/Company",
+    },
+    schema: companySchema,
+    status: 200,
+  },
+  summary: "Archive a company",
+  tags: ["companies"],
+});
+
 export const companyRouteContracts = [
   listCompaniesRouteContract,
   createCompanyRouteContract,
   getActiveCompanyRouteContract,
   updateActiveCompanyRouteContract,
   updateCompanyRouteContract,
+  archiveCompanyRouteContract,
 ] as const;
 
 export const companyOpenApiSchemas = {
@@ -238,8 +272,9 @@ export const companyOpenApiSchemas = {
       id: { type: "string" },
       code: { type: "string" },
       name: { type: "string" },
+      status: { type: "string", enum: ["active", "inactive"] },
     },
-    required: ["id", "code", "name"],
+    required: ["id", "code", "name", "status"],
   },
 } as const;
 

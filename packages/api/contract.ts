@@ -75,28 +75,37 @@ export type AnyApiRouteContract = ApiRouteContract<
   z.ZodTypeAny
 >;
 
-type InferSection<TSection> = TSection extends { schema: infer TSchema }
-  ? TSchema extends z.ZodTypeAny
-    ? z.infer<TSchema>
-    : never
-  : undefined;
-
 type ContractParams<TContract extends AnyApiRouteContract> =
-  TContract extends ApiRouteContract<infer TParams, infer _TQuery, infer _TBody, infer _TResponse>
+  TContract extends ApiRouteContract<
+    infer TParams,
+    infer _TQuery,
+    infer _TBody,
+    infer _TResponse
+  >
     ? TParams extends z.ZodTypeAny
       ? z.infer<TParams>
       : undefined
     : undefined;
 
 type ContractQuery<TContract extends AnyApiRouteContract> =
-  TContract extends ApiRouteContract<infer _TParams, infer TQuery, infer _TBody, infer _TResponse>
+  TContract extends ApiRouteContract<
+    infer _TParams,
+    infer TQuery,
+    infer _TBody,
+    infer _TResponse
+  >
     ? TQuery extends z.ZodTypeAny
       ? z.infer<TQuery>
       : undefined
     : undefined;
 
 type ContractBody<TContract extends AnyApiRouteContract> =
-  TContract extends ApiRouteContract<infer _TParams, infer _TQuery, infer TBody, infer _TResponse>
+  TContract extends ApiRouteContract<
+    infer _TParams,
+    infer _TQuery,
+    infer TBody,
+    infer _TResponse
+  >
     ? TBody extends z.ZodTypeAny
       ? z.infer<TBody>
       : undefined

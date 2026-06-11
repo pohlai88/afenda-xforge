@@ -30,7 +30,15 @@ export function ButtonGroupStarWithCountAndDropdown() {
         <Badge variant="secondary">2.4k</Badge>
       </Button>
       <DropdownMenu>
-        <DropdownMenuTrigger render={<Button variant="outline" size="icon" aria-label="More star options" />}>
+        <DropdownMenuTrigger
+          render={
+            <Button
+              variant="outline"
+              size="icon"
+              aria-label="More star options"
+            />
+          }
+        >
           <IconPlaceholder
             lucide="ChevronDownIcon"
             tabler="IconChevronDown"

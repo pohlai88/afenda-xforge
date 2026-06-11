@@ -1,8 +1,8 @@
+import type { OffboardingMutationResult } from "@repo/features-employee-management-offboarding-exit-management";
 import {
   offboardingAuditTrailProjectionSchema,
   offboardingCaseProjectionSchema,
   offboardingFoundationSnapshotSchema,
-  type OffboardingMutationResult,
 } from "@repo/features-employee-management-offboarding-exit-management";
 import {
   canReadOffboardingExitManagement,

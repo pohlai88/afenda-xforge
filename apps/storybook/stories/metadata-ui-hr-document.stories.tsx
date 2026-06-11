@@ -1,6 +1,6 @@
 import { hrDocumentEntityMetadata } from "@repo/features-employee-management-documents-management/metadata/document-entity";
-import { createMetadataRenderContext } from "@repo/metadata-ui/contracts";
 import { EntityMetadataPanel } from "@repo/metadata-ui/components";
+import { createMetadataRenderContext } from "@repo/metadata-ui/contracts";
 import type { Meta, StoryObj } from "@storybook/react";
 import { expect, within } from "storybook/test";
 

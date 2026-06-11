@@ -5,9 +5,8 @@ import { cva } from "class-variance-authority";
 import { PanelLeftIcon, PanelRightIcon } from "lucide-react";
 import { Slot } from "radix-ui";
 import * as React from "react";
-
-import { SIDEBAR_WIDTH_DEFAULT } from "../../lib/sidebar-layout";
 import { useIsMobile } from "../../hooks/use-mobile";
+import { SIDEBAR_WIDTH_DEFAULT } from "../../lib/sidebar-layout";
 import { cn } from "../../lib/utils";
 import { Button } from "./button";
 import { Input } from "./input";

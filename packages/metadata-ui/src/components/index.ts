@@ -1,9 +1,9 @@
-export { composeMetadataWithDiagnostics } from "./compose-metadata-with-diagnostics";
 export {
+  type BuildEnterpriseDropdownFromMetadataOptions,
   buildEnterpriseDropdownGroupsFromMetadataActions,
   metadataActionToEnterpriseDropdownItem,
-  type BuildEnterpriseDropdownFromMetadataOptions,
 } from "./build-enterprise-dropdown-from-metadata";
+export { composeMetadataWithDiagnostics } from "./compose-metadata-with-diagnostics";
 export { EnterpriseDropdownMenu } from "./enterprise-dropdown-menu";
 export {
   renderMetadataStatus,

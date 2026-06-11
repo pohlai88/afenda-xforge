@@ -31,48 +31,51 @@ export const integrationCapabilities = {
   integrationsWrite: "system-admin.integrations.write",
 } as const;
 
-export const systemAdminListWebhookEndpointsRouteContract = defineRouteContract({
-  audience: "client",
-  method: "GET",
-  operationId: "listSystemAdminWebhookEndpoints",
-  path: "/api/system-admin/webhooks/endpoints",
-  success: {
-    description: "System admin webhook endpoints",
-    openApiSchema: {
-      type: "array",
-      items: { $ref: "#/components/schemas/SystemAdminWebhookEndpoint" },
-    },
-    schema: systemAdminWebhookEndpointSchema.array(),
-    status: 200,
-  },
-  summary: "List governed webhook endpoints",
-  tags: ["system-admin", "webhooks"],
-});
-
-export const systemAdminUpsertWebhookEndpointRouteContract = defineRouteContract({
-  audience: "client",
-  method: "POST",
-  operationId: "upsertSystemAdminWebhookEndpoint",
-  path: "/api/system-admin/webhooks/endpoints",
-  request: {
-    body: {
+export const systemAdminListWebhookEndpointsRouteContract = defineRouteContract(
+  {
+    audience: "client",
+    method: "GET",
+    operationId: "listSystemAdminWebhookEndpoints",
+    path: "/api/system-admin/webhooks/endpoints",
+    success: {
+      description: "System admin webhook endpoints",
       openApiSchema: {
-        $ref: "#/components/schemas/UpsertSystemAdminWebhookEndpointInput",
+        type: "array",
+        items: { $ref: "#/components/schemas/SystemAdminWebhookEndpoint" },
       },
-      schema: upsertSystemAdminWebhookEndpointInputSchema,
+      schema: systemAdminWebhookEndpointSchema.array(),
+      status: 200,
     },
-  },
-  success: {
-    description: "Upserted system admin webhook endpoint",
-    openApiSchema: {
-      $ref: "#/components/schemas/SystemAdminWebhookEndpoint",
+    summary: "List governed webhook endpoints",
+    tags: ["system-admin", "webhooks"],
+  }
+);
+
+export const systemAdminUpsertWebhookEndpointRouteContract =
+  defineRouteContract({
+    audience: "client",
+    method: "POST",
+    operationId: "upsertSystemAdminWebhookEndpoint",
+    path: "/api/system-admin/webhooks/endpoints",
+    request: {
+      body: {
+        openApiSchema: {
+          $ref: "#/components/schemas/UpsertSystemAdminWebhookEndpointInput",
+        },
+        schema: upsertSystemAdminWebhookEndpointInputSchema,
+      },
     },
-    schema: systemAdminWebhookEndpointSchema,
-    status: 200,
-  },
-  summary: "Create or update a governed webhook endpoint",
-  tags: ["system-admin", "webhooks"],
-});
+    success: {
+      description: "Upserted system admin webhook endpoint",
+      openApiSchema: {
+        $ref: "#/components/schemas/SystemAdminWebhookEndpoint",
+      },
+      schema: systemAdminWebhookEndpointSchema,
+      status: 200,
+    },
+    summary: "Create or update a governed webhook endpoint",
+    tags: ["system-admin", "webhooks"],
+  });
 
 export const integrationsRouteContracts = [
   systemAdminListWebhookEndpointsRouteContract,

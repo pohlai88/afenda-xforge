@@ -12,7 +12,7 @@ function storybookAppJsxPlugin() {
   return {
     name: "storybook:jsx-apps-app",
     enforce: "pre" as const,
-    async transform(code: string, id: string) {
+    transform(code: string, id: string) {
       const normalizedId = id.replace(/\\/g, "/");
       if (!appTsxPattern.test(normalizedId)) {
         return null;
@@ -27,10 +27,7 @@ function storybookAppJsxPlugin() {
 }
 
 const config: StorybookConfig = {
-  stories: [
-    "../stories/**/*.mdx",
-    "../stories/**/*.stories.@(ts|tsx)",
-  ],
+  stories: ["../stories/**/*.mdx", "../stories/**/*.stories.@(ts|tsx)"],
   addons: ["@storybook/addon-a11y", "@storybook/addon-docs"],
   framework: {
     name: "@storybook/react-vite",

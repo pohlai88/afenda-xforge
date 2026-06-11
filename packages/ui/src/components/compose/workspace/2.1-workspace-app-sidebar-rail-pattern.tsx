@@ -39,11 +39,13 @@ export function WorkspaceAppSidebarRailPattern() {
           <WorkspaceAppSidebar collapsible="none" variant="sidebar">
             <WorkspaceAppSidebarContent className="gap-0 pt-2">
               <WorkspaceSidebarNavMain>
-                <WorkspaceSidebarSectionLabel>Modules</WorkspaceSidebarSectionLabel>
+                <WorkspaceSidebarSectionLabel>
+                  Modules
+                </WorkspaceSidebarSectionLabel>
                 <div
                   className={cn(
                     WORKSPACE_SHELL_SPACE.sidebarLabelGap,
-                    WORKSPACE_SHELL_SPACE.navListGap
+                    WORKSPACE_SHELL_SPACE.navListGap,
                   )}
                 >
                   <SidebarMenu>
@@ -54,7 +56,7 @@ export function WorkspaceAppSidebarRailPattern() {
                             WORKSPACE_SHELL_SPACE.navRow,
                             item.active
                               ? WORKSPACE_SHELL_TYPE.navItemActive
-                              : WORKSPACE_SHELL_TYPE.navItem
+                              : WORKSPACE_SHELL_TYPE.navItem,
                           )}
                           isActive={item.active}
                           type="button"
@@ -73,7 +75,7 @@ export function WorkspaceAppSidebarRailPattern() {
                       <SidebarMenuButton
                         className={cn(
                           WORKSPACE_SHELL_SPACE.navRow,
-                          WORKSPACE_SHELL_TYPE.navItem
+                          WORKSPACE_SHELL_TYPE.navItem,
                         )}
                         type="button"
                       >

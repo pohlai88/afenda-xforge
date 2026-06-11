@@ -29,6 +29,11 @@ export {
 export { documentsManagementManifest } from "./manifest.ts";
 export { documentsManagementMetadata } from "./metadata.ts";
 export {
+  getDocumentsManagementRepositoryPath,
+  resetDocumentsManagementRepositoryForTesting,
+  setDocumentsManagementRepositoryPathForTesting,
+} from "./repository.testing.ts";
+export {
   acknowledgeDocumentsManagementPolicy,
   anonymizeDocumentsManagementDocument,
   archiveDocumentsManagementDocument,
@@ -65,9 +70,4 @@ export {
   updateDocumentsManagementDocumentRetention,
   verifyDocumentsManagementDocument,
 } from "./server.ts";
-export {
-  getDocumentsManagementRepositoryPath,
-  resetDocumentsManagementRepositoryForTesting,
-  setDocumentsManagementRepositoryPathForTesting,
-} from "./repository.testing.ts";
 export { documentsManagementFeatureScope } from "./shared/index.ts";

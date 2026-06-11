@@ -4,12 +4,12 @@ import { rmSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { resolve } from "node:path";
 import { afterEach, beforeEach, test } from "node:test";
+import { upsertComplianceWorkerProfileInputSchema } from "../../compliance-regulatory-tracking/src/index.ts";
 import {
   getEmployeeLifecycleOnboardingStatus,
   resetEmployeeLifecycleRepositoryForTesting,
   setEmployeeLifecycleRepositoryPathForTesting,
 } from "../../employee-lifecycle-management/src/index.ts";
-import { upsertComplianceWorkerProfileInputSchema } from "../../compliance-regulatory-tracking/src/index.ts";
 import { hrRecordsFeatureManifestSchema } from "../src/contracts/manifest.contract.ts";
 import { hrRecordsFeatureScope } from "../src/feature-scope.ts";
 import {

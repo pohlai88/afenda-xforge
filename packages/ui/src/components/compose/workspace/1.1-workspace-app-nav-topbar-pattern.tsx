@@ -2,8 +2,8 @@
 
 import { WorkspaceAppNavTopbar } from "./1.0-workspace-app-nav-topbar.tsx";
 import { WorkspaceShellProvider } from "./6.0-workspace-shell-provider.tsx";
-import { useWorkspaceDemoLinkedNav } from "./7.6-workspace.demo-linked-nav.ts";
 import { WorkspacePatternCard } from "./7.3-workspace-pattern.shared.tsx";
+import { useWorkspaceDemoLinkedNav } from "./7.6-workspace.demo-linked-nav.ts";
 
 export function WorkspaceAppNavTopbarPattern() {
   const { switchers } = useWorkspaceDemoLinkedNav();

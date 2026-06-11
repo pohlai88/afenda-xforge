@@ -1,8 +1,7 @@
 import assert from "node:assert/strict";
 import type { ReactElement, ReactNode } from "react";
-
-import { createMetadataRenderContext } from "../src/contracts/render-context.defaults";
 import { EnterpriseDropdownMenu } from "../src/components/enterprise-dropdown-menu";
+import { createMetadataRenderContext } from "../src/contracts/render-context.defaults";
 import {
   ButtonActionRenderer,
   DestructiveActionRenderer,

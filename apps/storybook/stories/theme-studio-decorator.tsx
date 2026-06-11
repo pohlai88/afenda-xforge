@@ -1,8 +1,8 @@
-import { ThemeStudioPreviewRoot } from "../../app/app/theme-studio/_components/theme-studio-preview-root.tsx";
-import { ThemeStudioWorkspace } from "../../app/app/theme-studio/_components/theme-studio-workspace.tsx";
 import { DEFAULT_TENANT_BRANDING_SETTINGS } from "@repo/design-system";
 import type { Decorator } from "@storybook/react";
 import { useEffect } from "react";
+import { ThemeStudioPreviewRoot } from "../../app/app/[locale]/theme-studio/_components/theme-studio-preview-root.tsx";
+import { ThemeStudioWorkspace } from "../../app/app/[locale]/theme-studio/_components/theme-studio-workspace.tsx";
 
 import { setStorybookPathname } from "../.storybook/mocks/next-navigation.ts";
 

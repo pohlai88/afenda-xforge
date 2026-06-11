@@ -1,4 +1,4 @@
-import type { Meta, StoryObj } from "@storybook/react";
+import { Button } from "@repo/ui/components/button";
 
 import {
   Card,
@@ -7,9 +7,9 @@ import {
   CardHeader,
   CardTitle,
 } from "@repo/ui/components/card";
-import { Button } from "@repo/ui/components/button";
 import { Input } from "@repo/ui/components/input";
 import { Label } from "@repo/ui/components/label";
+import type { Meta, StoryObj } from "@storybook/react";
 
 import {
   PrimitiveBadgesMatrix,

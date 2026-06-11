@@ -9,8 +9,8 @@ import {
 } from "@repo/database";
 import { permissionCatalog, requirePermission } from "@repo/permissions";
 import { and, eq } from "drizzle-orm";
-import { integrationCapabilities } from "../contract.ts";
 import type { SystemAdminScope } from "../../../schema.ts";
+import type { integrationCapabilities } from "../contract.ts";
 
 const ACTIVE_WEBHOOK_ENDPOINT_STATUS = "active";
 const SYSTEM_ADMIN_WEBHOOK_ROUTE = "/api/system-admin/webhooks/endpoints";
@@ -69,7 +69,9 @@ export type SystemAdminWebhookEndpointServiceDependencies = {
 };
 
 const requireWebhookAdministrationPermission = (
-  permission: typeof integrationCapabilities.integrationsRead | typeof integrationCapabilities.integrationsWrite,
+  permission:
+    | typeof integrationCapabilities.integrationsRead
+    | typeof integrationCapabilities.integrationsWrite,
   context: SystemAdminScope
 ): void => {
   requirePermission(

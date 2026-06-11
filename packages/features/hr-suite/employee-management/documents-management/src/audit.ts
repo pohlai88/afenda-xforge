@@ -1,6 +1,10 @@
 import "server-only";
 
-import type { Audit7W1HEvent, Audit7W1HEventInput, Audit7W1HWriter } from "@repo/audit";
+import type {
+  Audit7W1HEvent,
+  Audit7W1HEventInput,
+  Audit7W1HWriter,
+} from "@repo/audit";
 import {
   createAuditEvent,
   createDatabaseAuditWriter,

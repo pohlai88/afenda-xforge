@@ -5,10 +5,11 @@
 import assert from "node:assert/strict";
 import { spawn } from "node:child_process";
 import { once } from "node:events";
+import path from "node:path";
 import { setTimeout as delay } from "node:timers/promises";
 import { fileURLToPath } from "node:url";
-import { chromium, type Page } from "playwright";
-import path from "node:path";
+import type { Page } from "playwright";
+import { chromium } from "playwright";
 
 const port = Number(process.env.STORYBOOK_TEST_PORT ?? "6010");
 const storybookRoot = fileURLToPath(new URL("../../", import.meta.url));
@@ -32,7 +33,10 @@ const introGoldenStories = [
 const goldenStories = [
   ...introGoldenStories,
   { id: "metadata-ui-smoke--overview", name: "metadata-ui-smoke-overview" },
-  { id: "metadata-ui-actions--button-action", name: "metadata-ui-actions-button" },
+  {
+    id: "metadata-ui-actions--button-action",
+    name: "metadata-ui-actions-button",
+  },
   { id: "ui-compose-form--button", name: "ui-compose-form-button" },
   { id: "ui-compose-data--data-grid", name: "ui-compose-data-grid" },
   {

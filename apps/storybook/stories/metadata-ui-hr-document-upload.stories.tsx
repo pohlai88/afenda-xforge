@@ -3,9 +3,9 @@ import {
   hrDocumentUploadFieldOptions,
 } from "@repo/features-employee-management-documents-management/metadata/document-entity";
 import type { EntityMetadata } from "@repo/metadata";
-import { createMetadataRenderContext } from "@repo/metadata-ui/contracts";
-import type { MetadataFieldContract } from "@repo/metadata-ui/contracts";
 import { MetadataForm } from "@repo/metadata-ui/components";
+import type { MetadataFieldContract } from "@repo/metadata-ui/contracts";
+import { createMetadataRenderContext } from "@repo/metadata-ui/contracts";
 import type { Meta, StoryObj } from "@storybook/react";
 import { expect, within } from "storybook/test";
 

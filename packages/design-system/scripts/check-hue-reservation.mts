@@ -1,13 +1,15 @@
 import {
-  collectAllThemePresetHueEntries,
-  collectDefaultPlatformHueEntries,
-} from "../src/tokens/collect-platform-hue-entries.ts";
-import {
   formatHueValidationReport,
   validateHueReservation,
 } from "../src/contracts/hue-reservation.contract.ts";
+import {
+  collectAllThemePresetHueEntries,
+  collectDefaultPlatformHueEntries,
+} from "../src/tokens/collect-platform-hue-entries.ts";
 
-const platformResult = validateHueReservation(collectDefaultPlatformHueEntries());
+const platformResult = validateHueReservation(
+  collectDefaultPlatformHueEntries()
+);
 const presetResult = validateHueReservation(collectAllThemePresetHueEntries());
 
 const failures = [

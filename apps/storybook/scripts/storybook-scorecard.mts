@@ -85,8 +85,7 @@ function countA11yTiers(): { error: number; todo: number } {
       .length;
     todo += (content.match(/galleryStory\([^,]+,\s*["']todo["']\)/g) ?? [])
       .length;
-    todo += (content.match(/a11y:\s*\{\s*test:\s*["']todo["']/g) ?? [])
-      .length;
+    todo += (content.match(/a11y:\s*\{\s*test:\s*["']todo["']/g) ?? []).length;
   }
 
   return { error, todo };

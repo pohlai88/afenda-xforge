@@ -18,8 +18,16 @@ type ScanRoot = {
 };
 
 const scanRoots: ScanRoot[] = [
-  { label: "storybook/.storybook", path: join(storybookRoot, ".storybook"), severity: "error" },
-  { label: "storybook/stories", path: join(storybookRoot, "stories"), severity: "error" },
+  {
+    label: "storybook/.storybook",
+    path: join(storybookRoot, ".storybook"),
+    severity: "error",
+  },
+  {
+    label: "storybook/stories",
+    path: join(storybookRoot, "stories"),
+    severity: "error",
+  },
   {
     label: "ui/compose",
     path: join(repoRoot, "packages/ui/src/components/compose"),
@@ -60,7 +68,8 @@ const rules = [
   },
   {
     id: "tailwind-palette",
-    pattern: /(?:bg|border|text|ring|fill|stroke)-(gray|slate|zinc|neutral|stone|red|green|blue|amber|teal|emerald|violet|purple|pink|orange|yellow)-/g,
+    pattern:
+      /(?:bg|border|text|ring|fill|stroke)-(gray|slate|zinc|neutral|stone|red|green|blue|amber|teal|emerald|violet|purple|pink|orange|yellow)-/g,
     message: "Tailwind palette utility — use semantic token utilities",
   },
 ] as const;
@@ -127,17 +136,33 @@ const findings: Finding[] = [];
 
 if (runSelfTestOnly || !skipSelfTest) {
   const probes: Array<{ line: string; shouldMatch: boolean; label: string }> = [
-    { line: 'style={{ color: "#ff0000" }}', shouldMatch: true, label: "hex in story surface" },
+    {
+      line: 'style={{ color: "#ff0000" }}',
+      shouldMatch: true,
+      label: "hex in story surface",
+    },
     {
       line: 'background: "oklch(0.205 0.018 264)"',
       shouldMatch: true,
       label: "oklch literal (old v2 foreground)",
     },
-    { line: 'className="bg-emerald-500 text-white"', shouldMatch: true, label: "Tailwind palette" },
-    { line: 'className="bg-background text-foreground"', shouldMatch: false, label: "semantic tokens" },
-    { line: 'background: `var(--primary)`', shouldMatch: false, label: "CSS variable reference" },
     {
-      line: 'bg-[conic-gradient(from_180deg,hsl(var(--primary)),transparent)]',
+      line: 'className="bg-emerald-500 text-white"',
+      shouldMatch: true,
+      label: "Tailwind palette",
+    },
+    {
+      line: 'className="bg-background text-foreground"',
+      shouldMatch: false,
+      label: "semantic tokens",
+    },
+    {
+      line: "background: `var(--primary)`",
+      shouldMatch: false,
+      label: "CSS variable reference",
+    },
+    {
+      line: "bg-[conic-gradient(from_180deg,hsl(var(--primary)),transparent)]",
       shouldMatch: false,
       label: "hsl(var(--token)) wrapper",
     },
@@ -163,7 +188,9 @@ if (runSelfTestOnly || !skipSelfTest) {
   }
 
   if (failed > 0) {
-    console.error(`Self-test failed: ${failed} probe(s) did not behave as expected.`);
+    console.error(
+      `Self-test failed: ${failed} probe(s) did not behave as expected.`
+    );
     process.exit(1);
   }
 
@@ -218,7 +245,11 @@ if (errors.length > 0) {
 }
 
 if (findings.length === 0) {
-  console.log("Hardcoded CSS gate passed — no literal colors in Storybook surfaces.");
+  console.log(
+    "Hardcoded CSS gate passed — no literal colors in Storybook surfaces."
+  );
 } else {
-  console.log("\nHardcoded CSS gate passed with warnings (compose/shadcn demo literals).");
+  console.log(
+    "\nHardcoded CSS gate passed with warnings (compose/shadcn demo literals)."
+  );
 }

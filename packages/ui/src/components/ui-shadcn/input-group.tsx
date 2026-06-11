@@ -63,6 +63,8 @@ function InputGroupAddon({
   ...props
 }: React.ComponentProps<"div"> & VariantProps<typeof inputGroupAddonVariants>) {
   return (
+    // biome-ignore lint/a11y/noStaticElementInteractions: delegates focus to sibling input when addon chrome is clicked
+    // biome-ignore lint/a11y/useKeyWithClickEvents: nested buttons retain native keyboard handling
     <div
       data-slot="input-group-addon"
       data-align={align}

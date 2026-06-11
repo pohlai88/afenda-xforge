@@ -50,13 +50,20 @@ export const systemAdminRouteContracts = [
 ] as const;
 
 export { systemAdminAssignRoleRouteContract } from "./domains/access/contract.ts";
+export { roleAssignmentCommandSchema } from "./domains/access/schema.ts";
 export {
   systemAdminPublishCustomizationRouteContract,
   systemAdminReviewCustomizationRouteContract,
 } from "./domains/customization/contract.ts";
 export {
+  customizationGovernanceCommandSchema,
+  systemAdminCustomizationReviewRequestSchema,
+} from "./domains/customization/schema.ts";
+export {
   systemAdminListWebhookEndpointsRouteContract,
   systemAdminUpsertWebhookEndpointRouteContract,
+  systemAdminWebhookEndpointSchema,
+  upsertSystemAdminWebhookEndpointInputSchema,
 } from "./domains/integrations/contract.ts";
 export {
   systemAdminListSectionsRouteContract,
@@ -68,15 +75,6 @@ export {
   systemAdminUpdateTenantSettingRouteContract,
   tenantAdminSettingsReadSchema,
 } from "./domains/tenant-settings/contract.ts";
-export { roleAssignmentCommandSchema } from "./domains/access/schema.ts";
-export {
-  customizationGovernanceCommandSchema,
-  systemAdminCustomizationReviewRequestSchema,
-} from "./domains/customization/schema.ts";
-export {
-  systemAdminWebhookEndpointSchema,
-  upsertSystemAdminWebhookEndpointInputSchema,
-} from "./domains/integrations/contract.ts";
 export { tenantAdminSettingUpdateSchema } from "./domains/tenant-settings/schema.ts";
 
 export const systemAdminOpenApiSchemas = {

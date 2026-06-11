@@ -1,12 +1,9 @@
 "use client";
 
 import type { ReactElement } from "react";
-
-import {
-  WorkspaceNavContextSwitcher,
-  type WorkspaceNavContextSwitcherProps,
-} from "./5.7-workspace-nav-context-switcher.tsx";
 import type { WorkspaceNavTeam } from "./5.4-workspace-rail.types.ts";
+import type { WorkspaceNavContextSwitcherProps } from "./5.7-workspace-nav-context-switcher.tsx";
+import { WorkspaceNavContextSwitcher } from "./5.7-workspace-nav-context-switcher.tsx";
 
 export type WorkspaceNavTeamSwitcherProps = {
   activeTeamId?: string;

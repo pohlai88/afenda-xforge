@@ -13,7 +13,7 @@
     "format": "biome format --write .",
     "test": "vitest run",
     "test:notifications": "vitest run tests/app-nav-topbar-notifications-trigger.test.tsx tests/app-nav-topbar-notifications.utils.test.ts tests/app-nav-topbar-notifications.test.tsx tests/notifications-inbox.client.test.ts tests/api-me-notifications.route.test.ts",
-    "test:stability": "vitest run tests/app-nav-topbar-notifications-trigger.test.tsx tests/app-nav-topbar-notifications.utils.test.ts tests/app-nav-topbar-notifications.test.tsx tests/notifications-inbox.client.test.ts tests/api-me-notifications.route.test.ts tests/api-companies-select.route.test.ts tests/api-companies-company-id.route.test.ts tests/api-customers-customer-id.route.test.ts tests/api-system-admin-tenant-settings.route.test.ts tests/api-admin-tenant-keyboard-shortcuts.route.test.ts tests/api-openapi.route.test.ts",
+    "test:stability": "vitest run tests/app-nav-topbar-notifications-trigger.test.tsx tests/app-nav-topbar-notifications.utils.test.ts tests/app-nav-topbar-notifications.test.tsx tests/notifications-inbox.client.test.ts tests/api-me-notifications.route.test.ts tests/api-audit-export.route.test.ts tests/api-companies-select.route.test.ts tests/api-companies-company-id.route.test.ts tests/api-customers-customer-id.route.test.ts tests/api-system-admin-tenant-settings.route.test.ts tests/api-admin-tenant-keyboard-shortcuts.route.test.ts tests/api-openapi.route.test.ts",
     "test:e2e:notifications": "playwright test tests/e2e/notifications-bell.spec.ts",
     "typecheck": "tsc --noEmit --emitDeclarationOnly false",
     "clean": "git clean -xdf .cache .turbo dist node_modules"

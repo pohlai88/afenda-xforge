@@ -1,7 +1,7 @@
+import type { TenantBrandingSettings } from "../contracts/tenant-branding.contract";
 import {
   DEFAULT_TENANT_BRANDING_SETTINGS,
   tenantBrandingSettingsSchema,
-  type TenantBrandingSettings,
 } from "../contracts/tenant-branding.contract";
 import { themePresetNameSchema } from "../contracts/theme-preset.contract";
 import { assertValidTenantBrandingColors } from "../resolution/validate-branding-colors";

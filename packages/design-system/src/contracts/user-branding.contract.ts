@@ -1,10 +1,9 @@
 import { z } from "zod";
-
-import { themePresetNameSchema } from "./theme-preset.contract";
 import {
   erpVisualLaneIdSchema,
   partialLaneColorModeScaleSchema,
 } from "./tenant-branding.contract";
+import { themePresetNameSchema } from "./theme-preset.contract";
 
 export const colorModePreferenceSchema = z.enum(["light", "dark", "system"]);
 
@@ -46,10 +45,10 @@ export function validateUserBrandingPreferences(
 export function isUserBrandingEmpty(
   preferences: UserBrandingPreferences
 ): boolean {
-  return (
-    !preferences.colorMode &&
-    !preferences.themePreset &&
-    !preferences.moduleLaneOverrides &&
-    !preferences.laneColorOverrides
+  return !(
+    preferences.colorMode ||
+    preferences.themePreset ||
+    preferences.moduleLaneOverrides ||
+    preferences.laneColorOverrides
   );
 }

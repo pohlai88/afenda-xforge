@@ -1,4 +1,4 @@
-import { listAuditEvents } from "@repo/audit";
+import { exportAuditEvents, listAuditEvents } from "@repo/audit";
 import { requireActiveTenantAccess } from "@repo/auth/server";
 import type { PermissionContext } from "@repo/permissions";
 import {
@@ -7,6 +7,7 @@ import {
   resolvePermissionsForTenantRole,
 } from "@repo/permissions";
 import type { AuditEvent, AuditEventList, AuditListQuery } from "./contract.ts";
+import type { AuditExportQuery } from "./export/contract.ts";
 
 type AuditAccess = {
   actorId: string;
@@ -93,6 +94,26 @@ const serializeAuditEvent = (event: AuditEventRecord): AuditEvent => ({
   targetType: event.targetType,
   tenantId: event.tenantId,
 });
+
+export const exportAuditEventsForTenant = async (
+  query: AuditExportQuery
+): Promise<string> => {
+  const access = await resolveAuditAccess();
+
+  requirePermission(createAuditPermissionContext(access, "audit.export"), {
+    allOf: [permissionCatalog.audit.read],
+  });
+
+  const { format, ...filters } = query;
+
+  return exportAuditEvents({
+    tenantId: access.tenantId,
+    ...filters,
+    format,
+    limit: 1000,
+    offset: 0,
+  });
+};
 
 export const listAuditEventsForTenant = async (
   query: AuditListQuery

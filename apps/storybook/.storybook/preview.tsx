@@ -3,13 +3,27 @@ import {
   DEFAULT_TENANT_BRANDING_SETTINGS,
   resolveActiveLaneCssVars,
 } from "@repo/design-system";
-import { DesignSystemProvider } from "@repo/ui/components/provider";
 import { Badge } from "@repo/ui/components/badge";
+import { DesignSystemProvider } from "@repo/ui/components/provider";
 import { fonts } from "@repo/ui/lib/fonts";
 import type { Preview } from "@storybook/react";
 import type { CSSProperties } from "react";
 
 import "./preview.css";
+
+function resolvePreviewTheme(context: {
+  globals: { theme?: string };
+  parameters: { forcedTheme?: string };
+}): "dark" | "light" {
+  if (
+    context.parameters.forcedTheme === "dark" ||
+    context.parameters.forcedTheme === "light"
+  ) {
+    return context.parameters.forcedTheme;
+  }
+
+  return context.globals.theme === "dark" ? "dark" : "light";
+}
 
 const preview: Preview = {
   globalTypes: {
@@ -81,11 +95,7 @@ const preview: Preview = {
           "Introduction",
           [
             "Introduction",
-            [
-              "Beastmode Keynote",
-              "Mutation Orbit",
-              "Command Surface",
-            ],
+            ["Beastmode Keynote", "Mutation Orbit", "Command Surface"],
           ],
           "UI",
           ["UI", "Compose", "Form"],
@@ -98,19 +108,15 @@ const preview: Preview = {
           "Metadata UI",
           ["Metadata UI", "Overview"],
           "Theme Studio",
+          "Workspace",
+          ["Workspace", "Keyboard Shortcuts"],
         ],
       },
     },
   },
   decorators: [
     (Story, context) => {
-      const theme =
-        context.parameters.forcedTheme === "dark" ||
-        context.parameters.forcedTheme === "light"
-          ? context.parameters.forcedTheme
-          : context.globals.theme === "dark"
-            ? "dark"
-            : "light";
+      const theme = resolvePreviewTheme(context);
 
       const activeFeatureId =
         typeof context.parameters.activeFeatureId === "string"
@@ -139,7 +145,7 @@ const preview: Preview = {
               style={laneStyle}
             >
               {activeFeatureId ? (
-                <div className="border-b border-lane-active-border bg-lane-active-muted px-4 py-2">
+                <div className="border-lane-active-border border-b bg-lane-active-muted px-4 py-2">
                   <Badge variant="lane">
                     Lane: {laneVars["--lane-active-id"] ?? "default"} (
                     {activeFeatureId})

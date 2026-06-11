@@ -57,6 +57,11 @@ const companyOperations = [
     operationId: "updateCompany",
     path: "/api/companies/{companyId}",
   },
+  {
+    method: "delete" as const,
+    operationId: "archiveCompany",
+    path: "/api/companies/{companyId}",
+  },
 ] as const;
 
 describe("/api/openapi", () => {

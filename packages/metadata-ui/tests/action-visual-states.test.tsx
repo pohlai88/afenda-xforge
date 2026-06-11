@@ -1,8 +1,8 @@
 import assert from "node:assert/strict";
 import type { ReactElement, ReactNode } from "react";
+import { EnterpriseDropdownMenu } from "../src/components/enterprise-dropdown-menu";
 import type { MetadataActionSurface } from "../src/contracts/action-renderer.contract";
 import { createMetadataRenderContext } from "../src/contracts/render-context.defaults";
-import { EnterpriseDropdownMenu } from "../src/components/enterprise-dropdown-menu";
 import {
   ACTION_VISUAL_MATRIX,
   ButtonActionRenderer,

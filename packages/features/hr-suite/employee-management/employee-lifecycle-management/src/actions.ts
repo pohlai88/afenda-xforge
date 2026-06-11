@@ -2,6 +2,7 @@ import "server-only";
 
 import type { EmployeeLifecycleTransitionRequest } from "./contracts/transition.contract.ts";
 import { employeeLifecycleTransitionRequestSchema } from "./contracts/transition.contract.ts";
+import { runEmployeeLifecycleManagementAction } from "./execution/index.ts";
 import type {
   EmployeeLifecycleRepositoryScope,
   EmployeeLifecycleRepositoryState,
@@ -10,7 +11,6 @@ import {
   findEmployeeLifecycleStateByEmployeeId,
   mutateEmployeeLifecycleRepository,
 } from "./repository.ts";
-import { runEmployeeLifecycleManagementAction } from "./execution/index.ts";
 import type {
   EmployeeLifecycleContractReadModel,
   EmployeeLifecycleContractReminderInput,
@@ -1661,11 +1661,7 @@ const buildExitReadModel = (
 const startEmployeeLifecycleExit = (
   input: Omit<EmployeeLifecycleExitStartInput, "exitKind">,
   scope: EmployeeLifecycleRepositoryScope | undefined,
-  exitKind:
-    | "resignation"
-    | "termination"
-    | "retirement"
-    | "contract_expiry"
+  exitKind: "resignation" | "termination" | "retirement" | "contract_expiry"
 ): EmployeeLifecycleExitReadModel => {
   const parsedInput = employeeLifecycleExitStartInputSchema.parse({
     ...input,

@@ -88,7 +88,7 @@ function BeastmodeMetadataKeynote() {
             <p
               className={cn(
                 "text-lg text-muted-foreground transition-all duration-700",
-                ready ? "translate-y-0 opacity-100" : "translate-y-4 opacity-0",
+                ready ? "translate-y-0 opacity-100" : "translate-y-4 opacity-0"
               )}
             >
               {moment.eyebrow}
@@ -97,7 +97,7 @@ function BeastmodeMetadataKeynote() {
             <h1
               className={cn(
                 "mt-5 text-balance font-semibold text-6xl tracking-tight transition-all delay-75 duration-700 md:text-8xl",
-                ready ? "translate-y-0 opacity-100" : "translate-y-5 opacity-0",
+                ready ? "translate-y-0 opacity-100" : "translate-y-5 opacity-0"
               )}
             >
               {moment.title}
@@ -107,7 +107,7 @@ function BeastmodeMetadataKeynote() {
             <p
               className={cn(
                 "mt-8 max-w-xl text-pretty text-lg text-muted-foreground leading-8 transition-all delay-150 duration-700",
-                ready ? "translate-y-0 opacity-100" : "translate-y-5 opacity-0",
+                ready ? "translate-y-0 opacity-100" : "translate-y-5 opacity-0"
               )}
             >
               Metadata becomes the operating system for ERP surfaces — calm,
@@ -122,7 +122,7 @@ function BeastmodeMetadataKeynote() {
                     "rounded-full px-5 py-2 text-sm transition-all",
                     momentId === id
                       ? "bg-foreground text-background shadow-sm"
-                      : "text-muted-foreground hover:text-foreground",
+                      : "text-muted-foreground hover:text-foreground"
                   )}
                   key={id}
                   onClick={() => selectMoment(id)}
@@ -139,7 +139,7 @@ function BeastmodeMetadataKeynote() {
               className="lg:justify-self-end"
               hubClassName={cn(
                 "w-[25rem] max-w-[calc(100vw-3rem)] rounded-[2rem] border border-white/10 bg-card/80 p-6 shadow-2xl ring-1 ring-white/10 backdrop-blur-2xl transition-all duration-700",
-                wave > 0 && "scale-[1.015] ring-primary/30",
+                wave > 0 && "scale-[1.015] ring-primary/30"
               )}
               nodes={SURFACES.map((surface) => ({
                 id: surface,

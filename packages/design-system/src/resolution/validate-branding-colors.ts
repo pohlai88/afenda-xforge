@@ -1,18 +1,18 @@
 import { CHART_HUES } from "../contracts/chart.contract";
+import type {
+  HueReservationEntry,
+  HueValidationResult,
+} from "../contracts/hue-reservation.contract";
 import {
   collectReservedStatusHueEntries,
   extractHue,
   validateHueReservation,
-  type HueReservationEntry,
-  type HueValidationResult,
 } from "../contracts/hue-reservation.contract";
-import { THEME_PRESETS } from "../contracts/theme-preset.contract";
 import type { TenantBrandingSettings } from "../contracts/tenant-branding.contract";
+import { THEME_PRESETS } from "../contracts/theme-preset.contract";
 import type { UserBrandingPreferences } from "../contracts/user-branding.contract";
-import {
-  ERP_VISUAL_LANE_BY_ID,
-  type ErpVisualLaneId,
-} from "../contracts/visual-lane.contract";
+import type { ErpVisualLaneId } from "../contracts/visual-lane.contract";
+import { ERP_VISUAL_LANE_BY_ID } from "../contracts/visual-lane.contract";
 import { resolveLaneScale } from "./resolve-tenant-branding";
 
 export type BrandingColorValidationError = {
@@ -54,7 +54,9 @@ function mapCollisions(
 function collectBrandHueEntries(
   settings: TenantBrandingSettings
 ): HueReservationEntry[] {
-  const preset = THEME_PRESETS.find((entry) => entry.name === settings.themePreset);
+  const preset = THEME_PRESETS.find(
+    (entry) => entry.name === settings.themePreset
+  );
   if (!preset) {
     throw new Error(`Unknown theme preset: ${settings.themePreset}`);
   }
@@ -86,7 +88,9 @@ function collectLaneHueEntries(
 ): HueReservationEntry[] {
   const laneIds = new Set<ErpVisualLaneId>();
 
-  for (const laneId of Object.keys(ERP_VISUAL_LANE_BY_ID) as ErpVisualLaneId[]) {
+  for (const laneId of Object.keys(
+    ERP_VISUAL_LANE_BY_ID
+  ) as ErpVisualLaneId[]) {
     laneIds.add(laneId);
   }
 
@@ -94,7 +98,9 @@ function collectLaneHueEntries(
     laneIds.add(laneId);
   }
 
-  for (const laneId of Object.keys(settings.laneColorOverrides?.byLane ?? {}) as ErpVisualLaneId[]) {
+  for (const laneId of Object.keys(
+    settings.laneColorOverrides?.byLane ?? {}
+  ) as ErpVisualLaneId[]) {
     laneIds.add(laneId);
   }
 
@@ -125,9 +131,11 @@ export function validateUserBrandingColors(
   preferences: UserBrandingPreferences
 ): BrandingColorValidationResult {
   if (
-    !preferences.themePreset &&
-    !preferences.laneColorOverrides &&
-    !preferences.moduleLaneOverrides
+    !(
+      preferences.themePreset ||
+      preferences.laneColorOverrides ||
+      preferences.moduleLaneOverrides
+    )
   ) {
     return { valid: true, errors: [], warnings: [] };
   }

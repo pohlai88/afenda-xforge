@@ -1,7 +1,7 @@
 import "server-only";
 
 import { randomUUID } from "node:crypto";
-
+import { writeDocumentsManagementAuditEvent } from "./audit.ts";
 import type {
   AcknowledgeDocumentsManagementPolicyInput,
   AnonymizeDocumentsManagementDocumentInput,
@@ -25,6 +25,7 @@ import type {
   VerifyDocumentsManagementDocumentInput,
 } from "./contracts/index.ts";
 import { runHrSuiteFeatureAction } from "./execution/action.ts";
+import { resolveDocumentsManagementJurisdictionDefaults } from "./jurisdiction.ts";
 import type { DocumentsManagementPolicyContext } from "./policy.ts";
 import {
   buildDocumentsManagementAuditMetadata,
@@ -47,8 +48,8 @@ import {
   getDocumentsManagementRepositoryLatestDocumentVersion,
   listDocumentsManagementRepositoryAuditEvents,
   listDocumentsManagementRepositoryDocumentObligations,
-  listDocumentsManagementRepositoryDocumentVersions,
   listDocumentsManagementRepositoryDocuments,
+  listDocumentsManagementRepositoryDocumentVersions,
   upsertDocumentsManagementRepositoryDocument,
   upsertDocumentsManagementRepositoryDocumentObligation,
   upsertDocumentsManagementRepositoryDocumentVersion,
@@ -60,8 +61,6 @@ import {
   documentsManagementDocumentSchema,
   documentsManagementDocumentVersionSchema,
 } from "./schema.ts";
-import { writeDocumentsManagementAuditEvent } from "./audit.ts";
-import { resolveDocumentsManagementJurisdictionDefaults } from "./jurisdiction.ts";
 
 const DEFAULT_RETENTION = {
   action: "retain" as const,
@@ -378,7 +377,8 @@ const buildRegisteredDocument = (
     reference: createDocumentReference(input.reference),
     rejectedAt: undefined,
     rejectionReason: undefined,
-    retention: input.retention ?? jurisdictionDefaults?.retention ?? DEFAULT_RETENTION,
+    retention:
+      input.retention ?? jurisdictionDefaults?.retention ?? DEFAULT_RETENTION,
     renewalDueAt: normalizeOptionalDate(input.renewalDueAt),
     status: input.status ?? "draft",
     title: input.title.trim(),
@@ -544,11 +544,12 @@ const obligationMatchesDocument = (
   return true;
 };
 
-const syncObligationsForDocument = async (
+const syncObligationsForDocument = (
   document: DocumentsManagementDocument,
   context?: DocumentsManagementPolicyContext
-): Promise<void> => {
-  const obligations = listDocumentsManagementRepositoryDocumentObligations(context);
+): void => {
+  const obligations =
+    listDocumentsManagementRepositoryDocumentObligations(context);
 
   for (const obligation of obligations) {
     if (!obligationMatchesDocument(obligation, document)) {
@@ -634,7 +635,10 @@ const persistVersionedDocumentRevision = async (input: {
     retiredVersion,
     input.context
   );
-  upsertDocumentsManagementRepositoryDocumentVersion(nextVersion, input.context);
+  upsertDocumentsManagementRepositoryDocumentVersion(
+    nextVersion,
+    input.context
+  );
   upsertDocumentsManagementRepositoryDocument(nextDocument, input.context);
   await syncObligationsForDocument(nextDocument, input.context);
   appendDocumentsManagementRepositoryAuditEvent(
@@ -672,7 +676,7 @@ const persistVersionedDocumentRevision = async (input: {
   return nextDocument;
 };
 
-export async function registerDocumentsManagementDocument(
+export function registerDocumentsManagementDocument(
   input: RegisterDocumentsManagementDocumentInput,
   context?: DocumentsManagementPolicyContext
 ): Promise<DocumentsManagementDocument> {
@@ -739,7 +743,7 @@ export async function registerDocumentsManagementDocument(
   }, context);
 }
 
-export async function updateDocumentsManagementDocument(
+export function updateDocumentsManagementDocument(
   input: UpdateDocumentsManagementDocumentInput,
   context?: DocumentsManagementPolicyContext
 ): Promise<DocumentsManagementDocument> {
@@ -779,7 +783,7 @@ export async function updateDocumentsManagementDocument(
   }, context);
 }
 
-export async function verifyDocumentsManagementDocument(
+export function verifyDocumentsManagementDocument(
   input: VerifyDocumentsManagementDocumentInput,
   context?: DocumentsManagementPolicyContext
 ): Promise<DocumentsManagementDocument> {
@@ -817,7 +821,7 @@ export async function verifyDocumentsManagementDocument(
   }, context);
 }
 
-export async function rejectDocumentsManagementDocument(
+export function rejectDocumentsManagementDocument(
   input: RejectDocumentsManagementDocumentInput,
   context?: DocumentsManagementPolicyContext
 ): Promise<DocumentsManagementDocument> {
@@ -857,7 +861,7 @@ export async function rejectDocumentsManagementDocument(
   }, context);
 }
 
-export async function expireDocumentsManagementDocument(
+export function expireDocumentsManagementDocument(
   input: ExpireDocumentsManagementDocumentInput,
   context?: DocumentsManagementPolicyContext
 ): Promise<DocumentsManagementDocument> {
@@ -901,7 +905,7 @@ export async function expireDocumentsManagementDocument(
   }, context);
 }
 
-export async function archiveDocumentsManagementDocument(
+export function archiveDocumentsManagementDocument(
   input: ArchiveDocumentsManagementDocumentInput,
   context?: DocumentsManagementPolicyContext
 ): Promise<DocumentsManagementDocument> {
@@ -940,7 +944,7 @@ export async function archiveDocumentsManagementDocument(
   }, context);
 }
 
-export async function updateDocumentsManagementDocumentRetention(
+export function updateDocumentsManagementDocumentRetention(
   input: UpdateDocumentsManagementRetentionInput,
   context?: DocumentsManagementPolicyContext
 ): Promise<DocumentsManagementDocument> {
@@ -978,7 +982,7 @@ export async function updateDocumentsManagementDocumentRetention(
   }, context);
 }
 
-export async function deleteDocumentsManagementDocument(
+export function deleteDocumentsManagementDocument(
   input: DeleteDocumentsManagementDocumentInput,
   context?: DocumentsManagementPolicyContext
 ): Promise<DocumentsManagementDocument> {
@@ -1018,7 +1022,7 @@ export async function deleteDocumentsManagementDocument(
   }, context);
 }
 
-export async function anonymizeDocumentsManagementDocument(
+export function anonymizeDocumentsManagementDocument(
   input: AnonymizeDocumentsManagementDocumentInput,
   context?: DocumentsManagementPolicyContext
 ): Promise<DocumentsManagementDocument> {
@@ -1086,7 +1090,10 @@ export async function executeDocumentsManagementRetention(
 
   for (const document of documents) {
     const anchorDate =
-      document.archivedAt ?? document.expiresAt ?? document.uploadedAt ?? document.createdAt;
+      document.archivedAt ??
+      document.expiresAt ??
+      document.uploadedAt ??
+      document.createdAt;
     const days = document.retention.retentionPeriodDays ?? 0;
     const dueAt = new Date(anchorDate.getTime() + days * 24 * 60 * 60 * 1000);
 
@@ -1143,7 +1150,7 @@ export async function executeDocumentsManagementRetention(
   return retained;
 }
 
-export async function createDocumentsManagementDocumentObligation(
+export function createDocumentsManagementDocumentObligation(
   input: CreateDocumentsManagementDocumentObligationInput,
   context?: DocumentsManagementPolicyContext
 ): Promise<DocumentsManagementDocumentObligation> {
@@ -1170,7 +1177,8 @@ export async function createDocumentsManagementDocumentObligation(
       obligationType: input.obligationType ?? "document",
       policyId: normalizeNullableString(input.policyId),
       policyVersion: normalizeNullableString(input.policyVersion),
-      retention: input.retention ?? jurisdictionDefaults?.retention ?? DEFAULT_RETENTION,
+      retention:
+        input.retention ?? jurisdictionDefaults?.retention ?? DEFAULT_RETENTION,
       source: normalizeNullableString(input.source),
       status: input.status ?? "pending",
       title: input.title.trim(),
@@ -1199,62 +1207,85 @@ export async function createDocumentsManagementDocumentObligation(
   }, context);
 }
 
-export async function updateDocumentsManagementDocumentObligation(
+const resolveObligationOptionalNullableString = (
+  inputValue: string | null | undefined,
+  currentValue: string | null | undefined
+): string | null =>
+  inputValue === undefined
+    ? (currentValue ?? null)
+    : (normalizeNullableString(inputValue) ?? null);
+
+const resolveObligationOptionalDate = (
+  inputValue: Date | null | undefined,
+  currentValue: Date | null | undefined
+): Date | null =>
+  inputValue === undefined
+    ? (currentValue ?? null)
+    : (normalizeOptionalDate(inputValue) ?? null);
+
+const buildUpdatedDocumentObligation = (
+  currentObligation: DocumentsManagementDocumentObligation,
+  input: UpdateDocumentsManagementDocumentObligationInput
+): DocumentsManagementDocumentObligation =>
+  documentsManagementDocumentObligationSchema.parse({
+    ...currentObligation,
+    description: resolveObligationOptionalNullableString(
+      input.description,
+      currentObligation.description
+    ),
+    dueAt: resolveObligationOptionalDate(input.dueAt, currentObligation.dueAt),
+    expiresAt: resolveObligationOptionalDate(
+      input.expiresAt,
+      currentObligation.expiresAt
+    ),
+    jurisdictionCode: resolveObligationOptionalNullableString(
+      input.jurisdictionCode,
+      currentObligation.jurisdictionCode
+    ),
+    legalEntityCode: resolveObligationOptionalNullableString(
+      input.legalEntityCode,
+      currentObligation.legalEntityCode
+    ),
+    mandatory: input.mandatory ?? currentObligation.mandatory,
+    policyId: resolveObligationOptionalNullableString(
+      input.policyId,
+      currentObligation.policyId
+    ),
+    policyVersion: resolveObligationOptionalNullableString(
+      input.policyVersion,
+      currentObligation.policyVersion
+    ),
+    retention: input.retention ?? currentObligation.retention,
+    source: resolveObligationOptionalNullableString(
+      input.source,
+      currentObligation.source
+    ),
+    status: input.status ?? currentObligation.status,
+    title: input.title?.trim() ?? currentObligation.title,
+    updatedAt: new Date(),
+  });
+
+export function updateDocumentsManagementDocumentObligation(
   input: UpdateDocumentsManagementDocumentObligationInput,
   context?: DocumentsManagementPolicyContext
 ): Promise<DocumentsManagementDocumentObligation> {
   return runHrSuiteFeatureAction(async () => {
-    const currentObligation = getDocumentsManagementRepositoryDocumentObligation(
-      input.id,
-      context
-    );
+    const currentObligation =
+      getDocumentsManagementRepositoryDocumentObligation(input.id, context);
 
     if (!currentObligation) {
       throw new Error("Document obligation not found");
     }
 
-    const nextObligation = documentsManagementDocumentObligationSchema.parse({
-      ...currentObligation,
-      description:
-        input.description === undefined
-          ? currentObligation.description
-          : normalizeNullableString(input.description),
-      dueAt:
-        input.dueAt === undefined
-          ? currentObligation.dueAt
-          : normalizeOptionalDate(input.dueAt),
-      expiresAt:
-        input.expiresAt === undefined
-          ? currentObligation.expiresAt
-          : normalizeOptionalDate(input.expiresAt),
-      jurisdictionCode:
-        input.jurisdictionCode === undefined
-          ? currentObligation.jurisdictionCode
-          : normalizeNullableString(input.jurisdictionCode),
-      legalEntityCode:
-        input.legalEntityCode === undefined
-          ? currentObligation.legalEntityCode
-          : normalizeNullableString(input.legalEntityCode),
-      mandatory: input.mandatory ?? currentObligation.mandatory,
-      policyId:
-        input.policyId === undefined
-          ? currentObligation.policyId
-          : normalizeNullableString(input.policyId),
-      policyVersion:
-        input.policyVersion === undefined
-          ? currentObligation.policyVersion
-          : normalizeNullableString(input.policyVersion),
-      retention: input.retention ?? currentObligation.retention,
-      source:
-        input.source === undefined
-          ? currentObligation.source
-          : normalizeNullableString(input.source),
-      status: input.status ?? currentObligation.status,
-      title: input.title?.trim() ?? currentObligation.title,
-      updatedAt: new Date(),
-    });
+    const nextObligation = buildUpdatedDocumentObligation(
+      currentObligation,
+      input
+    );
 
-    upsertDocumentsManagementRepositoryDocumentObligation(nextObligation, context);
+    upsertDocumentsManagementRepositoryDocumentObligation(
+      nextObligation,
+      context
+    );
     await writeGovernedAudit({
       action: "hr.documents.obligation.update",
       after: nextObligation as Record<string, unknown>,
@@ -1275,7 +1306,7 @@ export async function updateDocumentsManagementDocumentObligation(
   }, context);
 }
 
-export async function assignDocumentsManagementPolicyAcknowledgment(
+export function assignDocumentsManagementPolicyAcknowledgment(
   input: AssignDocumentsManagementPolicyAcknowledgmentInput,
   context?: DocumentsManagementPolicyContext
 ): Promise<DocumentsManagementDocumentObligation> {
@@ -1341,7 +1372,10 @@ export async function acknowledgeDocumentsManagementPolicy(
     updatedAt: new Date(),
   });
 
-  upsertDocumentsManagementRepositoryDocumentObligation(nextObligation, context);
+  upsertDocumentsManagementRepositoryDocumentObligation(
+    nextObligation,
+    context
+  );
   await writeGovernedAudit({
     action: "hr.documents.acknowledge",
     after: nextObligation as Record<string, unknown>,
@@ -1364,7 +1398,7 @@ export async function acknowledgeDocumentsManagementPolicy(
   );
 }
 
-export async function archiveDocumentsManagementDocumentsForSeparatedEmployee(
+export function archiveDocumentsManagementDocumentsForSeparatedEmployee(
   input: {
     employeeId: string;
   },
@@ -1373,7 +1407,9 @@ export async function archiveDocumentsManagementDocumentsForSeparatedEmployee(
   return runHrSuiteFeatureAction(async () => {
     const archived: DocumentsManagementDocument[] = [];
 
-    for (const document of listDocumentsManagementRepositoryDocuments(context)) {
+    for (const document of listDocumentsManagementRepositoryDocuments(
+      context
+    )) {
       if (
         document.employeeId !== input.employeeId ||
         !document.retention.archiveAfterEmployeeSeparation ||
@@ -1404,9 +1440,12 @@ export async function recordDocumentsManagementDocumentAccess(
   },
   context?: DocumentsManagementPolicyContext
 ): Promise<void> {
-  const document = getDocumentsManagementRepositoryDocument(input.documentId, context);
+  const document = getDocumentsManagementRepositoryDocument(
+    input.documentId,
+    context
+  );
 
-  if (!document || !canReadDocumentsManagement(context)) {
+  if (!(document && canReadDocumentsManagement(context))) {
     return;
   }
 

@@ -5,11 +5,16 @@ import { tmpdir } from "node:os";
 import { join, resolve } from "node:path";
 import { afterEach, beforeEach, test } from "node:test";
 import {
+  listOffboardingCaseRecords,
+  resetOffboardingRepositoryForTesting,
+  setOffboardingRepositoryPathForTesting,
+} from "../../offboarding-exit-management/src/index.ts";
+import {
   createEmployeeLifecycleState,
   evaluateEmployeeLifecycleAutomation,
   getEmployeeLifecycleOnboardingStatus,
-  listEnqueuedEmployeeLifecycleNotificationIntents,
   listEmployeeLifecycleOffboardingHandoffs,
+  listEnqueuedEmployeeLifecycleNotificationIntents,
   recordEmployeeLifecycleGradeChange,
   resetEmployeeLifecycleRepositoryForTesting,
   runEmployeeLifecycleAutomation,
@@ -19,11 +24,6 @@ import {
   startEmployeeLifecycleResignation,
   upsertEmployeeLifecycleState,
 } from "../src/index.ts";
-import {
-  listOffboardingCaseRecords,
-  resetOffboardingRepositoryForTesting,
-  setOffboardingRepositoryPathForTesting,
-} from "../../offboarding-exit-management/src/index.ts";
 
 let lifecycleRepositoryPath = "";
 let offboardingRepositoryPath = "";
@@ -46,11 +46,15 @@ beforeEach(async () => {
 afterEach(() => {
   try {
     rmSync(lifecycleRepositoryPath, { force: true });
-  } catch {}
+  } catch {
+    /* noop */
+  }
 
   try {
     rmSync(offboardingRepositoryPath, { force: true });
-  } catch {}
+  } catch {
+    /* noop */
+  }
 });
 
 test("auto-starts onboarding once for a bootstrap employee profile", async () => {
@@ -68,7 +72,10 @@ test("auto-starts onboarding once for a bootstrap employee profile", async () =>
     },
   });
 
-  assert.equal(result.actions.some((action) => action.kind === "onboarding_auto_start"), true);
+  assert.equal(
+    result.actions.some((action) => action.kind === "onboarding_auto_start"),
+    true
+  );
   assert.equal(
     getEmployeeLifecycleOnboardingStatus("emp-bootstrap", {
       companyId: "co-bootstrap",
@@ -92,7 +99,9 @@ test("auto-starts onboarding once for a bootstrap employee profile", async () =>
   });
 
   assert.equal(
-    secondPass.actions.some((action) => action.kind === "onboarding_auto_start"),
+    secondPass.actions.some(
+      (action) => action.kind === "onboarding_auto_start"
+    ),
     false
   );
 });
@@ -155,10 +164,10 @@ test("evaluates due automation deterministically and avoids duplicate notificati
     }
   );
 
-  assert.deepEqual(
-    reminderEvaluated.map((action) => action.kind).sort(),
-    ["contract_reminder_due", "probation_review_due"]
-  );
+  assert.deepEqual(reminderEvaluated.map((action) => action.kind).sort(), [
+    "contract_reminder_due",
+    "probation_review_due",
+  ]);
 
   const reviewEvaluated = evaluateEmployeeLifecycleAutomation(
     {
@@ -172,10 +181,10 @@ test("evaluates due automation deterministically and avoids duplicate notificati
     }
   );
 
-  assert.deepEqual(
-    reviewEvaluated.map((action) => action.kind).sort(),
-    ["contract_review_due", "probation_review_due"]
-  );
+  assert.deepEqual(reviewEvaluated.map((action) => action.kind).sort(), [
+    "contract_review_due",
+    "probation_review_due",
+  ]);
 
   await runEmployeeLifecycleAutomation(
     {

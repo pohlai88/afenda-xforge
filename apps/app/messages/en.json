@@ -13,10 +13,12 @@
     "confirm": "Confirm",
     "create": "Create",
     "delete": "Delete",
+    "discard": "Discard",
     "edit": "Edit",
     "error": "Error",
     "loading": "Loading...",
     "noData": "No data",
+    "reset": "Reset",
     "save": "Save",
     "search": "Search",
     "success": "Success"
@@ -28,5 +30,130 @@
     "numberInvalid": "Invalid number",
     "phone": "Invalid phone number",
     "required": "This field is required"
+  },
+  "admin": {
+    "keyboardShortcuts": {
+      "badge": "Tenant policy",
+      "breadcrumb": "Keyboard shortcuts",
+      "customizationPolicy": {
+        "allowFnKeysDescription": "Disable when laptops should keep media keys instead of F-keys.",
+        "allowFnKeysLabel": "Allow function key bindings",
+        "allowUserCustomizeDescription": "When enabled, users can override unlocked bindings for themselves.",
+        "allowUserCustomizeLabel": "Allow user customization",
+        "description": "Controls whether users can personalize bindings and use function keys.",
+        "title": "Customization policy"
+      },
+      "description": "Organization defaults ship for every user. Lock actions to prevent personal overrides, or allow users to customize when policy permits.",
+      "forbiddenDescription": "Tenant keyboard shortcut policy requires tenant admin permissions.",
+      "forbiddenTitle": "Keyboard shortcuts unavailable",
+      "loadError": "Keyboard shortcut policy could not be loaded.",
+      "lockedActions": {
+        "description": "Product-locked commands ({lockedActions}) cannot be changed here.",
+        "title": "Locked actions"
+      },
+      "organizationOverrides": {
+        "description": "Tenant defaults override product bindings for all users in this organization.",
+        "lockedHint": "Locked",
+        "pendingHint": "Pending",
+        "title": "Organization overrides"
+      },
+      "readOnly": "You have read-only access to tenant keyboard shortcut policy.",
+      "savePolicy": "Save tenant policy",
+      "saveFailed": "Save failed",
+      "saveSuccess": "Tenant keyboard shortcut policy saved",
+      "saving": "Saving…",
+      "statusDirty": "Unsaved policy changes",
+      "statusSaved": "Policy is up to date",
+      "tabs": {
+        "locked": "Locked actions",
+        "overrides": "Overrides",
+        "policy": "Policy"
+      },
+      "title": "Keyboard shortcuts"
+    }
+  },
+  "workspace": {
+    "keyboardShortcuts": {
+      "actions": {
+        "crud_cancel": "Cancel edit",
+        "crud_create": "Create new record",
+        "crud_delete": "Delete focused record",
+        "crud_edit": "Edit focused record",
+        "crud_save": "Save current draft",
+        "workspace_commandSearch": "Open command palette",
+        "workspace_openShortcutHelp": "Open keyboard shortcuts help",
+        "workspace_toggleSidebar": "Toggle sidebar"
+      },
+      "badges": {
+        "browserConflict": "Browser conflict",
+        "browserConflictHint": "Browsers may intercept this key before the workspace receives it. Use the secondary binding when available.",
+        "fnKey": "Fn key",
+        "fnKeyHint": "Turn Fn lock off on your keyboard to use function keys like Excel.",
+        "locked": "Locked",
+        "lockedHint": "Your organization locked this action. Personal overrides are blocked.",
+        "lowReliability": "Low reliability",
+        "lowReliabilityHint": "This binding may not fire consistently across browsers or keyboard layouts.",
+        "pending": "Pending",
+        "productLocked": "Product locked",
+        "productLockedHint": "This command binding is fixed by the product and cannot be changed.",
+        "sources": {
+          "product": "Product",
+          "tenant": "Organization",
+          "user": "Personal"
+        },
+        "sourceHints": {
+          "product": "Shipped as the default binding for every workspace.",
+          "tenant": "Set by your organization and applied for all users.",
+          "user": "Personal override saved to your account."
+        }
+      },
+      "capture": {
+        "assign": "Assign",
+        "fnLockHint": "Fn lock off for F-keys",
+        "listening": "Listening…",
+        "pressEsc": "Press Esc to cancel without saving.",
+        "pressKeys": "Press keys",
+        "pressToAssign": "Press the key combination you want to assign.",
+        "recordTitle": "Record shortcut"
+      },
+      "commandPalette": {
+        "empty": "No matching commands.",
+        "groups": {
+          "crud": "Focused record",
+          "navigation": "Navigation",
+          "workspace": "Workspace"
+        },
+        "searchPlaceholder": "Search workspace commands..."
+      },
+      "crud": {
+        "noFocusedRecord": "No focused record available"
+      },
+      "deleteConfirm": {
+        "description": "Delete the focused record? This action cannot be undone.",
+        "title": "Delete focused record?"
+      },
+      "description": "Server-resolved workspace command bindings. Turn Fn lock off to use function keys like Excel.",
+      "discardConfirm": {
+        "confirm": "Discard changes",
+        "description": "You have {count, plural, one {# unsaved binding} other {# unsaved bindings}}. Closing will lose those changes.",
+        "keepEditing": "Keep editing",
+        "title": "Discard unsaved shortcuts?"
+      },
+      "groups": {
+        "crud": "CRUD",
+        "crudDescription": "CRUD keys dispatch to the focused record or form.",
+        "globalDescription": "Global workspace commands.",
+        "help": "Help",
+        "navigation": "Navigation"
+      },
+      "noPendingChanges": "No pending changes",
+      "noSearchResults": "No shortcuts match your search in this group.",
+      "policyDisabled": "Personal customization is disabled by your organization. Bindings shown here are read-only.",
+      "savePersonal": "Save personal shortcuts",
+      "saveSuccess": "Keyboard shortcuts saved",
+      "searchPlaceholder": "Search commands or keys…",
+      "title": "Keyboard shortcuts",
+      "unsavedChanges": "{count, plural, one {# unsaved change} other {# unsaved changes}}"
+    }
   }
 }

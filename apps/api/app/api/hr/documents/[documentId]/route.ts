@@ -1,14 +1,14 @@
 import {
+  deleteDocumentsManagementDocumentInputSchema,
+  updateDocumentsManagementDocumentInputSchema,
+} from "@repo/features-employee-management-documents-management/contracts";
+import {
   canWriteDocumentsManagement,
   deleteDocumentsManagementDocument,
   getDocumentsManagementDocumentSummary,
   recordDocumentsManagementDocumentAccess,
   updateDocumentsManagementDocument,
 } from "@repo/features-employee-management-documents-management/server";
-import {
-  deleteDocumentsManagementDocumentInputSchema,
-  updateDocumentsManagementDocumentInputSchema,
-} from "@repo/features-employee-management-documents-management/contracts";
 import { NextResponse } from "next/server";
 
 import {
@@ -90,9 +90,7 @@ export async function PATCH(
       {
         ok: false,
         error:
-          error instanceof Error
-            ? error.message
-            : "Unable to update document",
+          error instanceof Error ? error.message : "Unable to update document",
       },
       { status: 400 }
     );
@@ -144,9 +142,7 @@ export async function DELETE(
       {
         ok: false,
         error:
-          error instanceof Error
-            ? error.message
-            : "Unable to delete document",
+          error instanceof Error ? error.message : "Unable to delete document",
       },
       { status: 400 }
     );

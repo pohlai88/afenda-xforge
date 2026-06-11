@@ -103,7 +103,10 @@ export const archiveHrEmployeeRecord = (
 ): Promise<ReturnType<typeof archiveHrEmployeeRecordAction>> =>
   runHrSuiteFeatureAction(async () =>
     syncLifecycleAfterMutation(
-      await syncSearchAfterMutation(archiveHrEmployeeRecordAction(...args), args[1]),
+      await syncSearchAfterMutation(
+        archiveHrEmployeeRecordAction(...args),
+        args[1]
+      ),
       args[1]
     )
   );
@@ -113,7 +116,10 @@ export const createHrEmployeeRecord = (
 ): Promise<ReturnType<typeof createHrEmployeeRecordAction>> =>
   runHrSuiteFeatureAction(async () =>
     syncLifecycleAfterMutation(
-      await syncSearchAfterMutation(createHrEmployeeRecordAction(...args), args[1]),
+      await syncSearchAfterMutation(
+        createHrEmployeeRecordAction(...args),
+        args[1]
+      ),
       args[1]
     )
   );
@@ -138,7 +144,10 @@ export const updateHrEmployeeRecord = (
 ): Promise<ReturnType<typeof updateHrEmployeeRecordAction>> =>
   runHrSuiteFeatureAction(async () =>
     syncLifecycleAfterMutation(
-      await syncSearchAfterMutation(updateHrEmployeeRecordAction(...args), args[1]),
+      await syncSearchAfterMutation(
+        updateHrEmployeeRecordAction(...args),
+        args[1]
+      ),
       args[1]
     )
   );

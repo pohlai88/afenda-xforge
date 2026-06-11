@@ -26,11 +26,7 @@ export function DropdownMenuDestructive() {
         <DropdownMenu>
           <DropdownMenuTrigger
             render={
-              <Button
-                aria-label="More actions"
-                size="icon"
-                variant="outline"
-              >
+              <Button aria-label="More actions" size="icon" variant="outline">
                 <Ellipsis className="size-4" />
               </Button>
             }

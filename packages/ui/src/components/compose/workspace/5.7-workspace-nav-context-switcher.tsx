@@ -50,13 +50,12 @@ export function WorkspaceNavContextSwitcher({
 }: WorkspaceNavContextSwitcherProps): ReactElement | null {
   const { isMobile } = useSidebar();
   const [internalActiveOptionId, setInternalActiveOptionId] = useState(
-    defaultOptionId ?? options[0]?.id
+    defaultOptionId ?? options[0]?.id,
   );
   const activeOptionId = activeOptionIdProp ?? internalActiveOptionId;
   const activeOption =
     options.find((option) => option.id === activeOptionId) ?? options[0];
-  const resolvedMenuLabel =
-    menuLabel ?? WORKSPACE_NAV_CONTEXT_LABELS[scope];
+  const resolvedMenuLabel = menuLabel ?? WORKSPACE_NAV_CONTEXT_LABELS[scope];
 
   if (!activeOption) {
     return null;
@@ -85,7 +84,9 @@ export function WorkspaceNavContextSwitcher({
                 {ActiveLogo ? <ActiveLogo className="size-4" /> : null}
               </div>
               <div className="grid flex-1 text-left text-sm leading-tight">
-                <span className="truncate font-medium">{activeOption.name}</span>
+                <span className="truncate font-medium">
+                  {activeOption.name}
+                </span>
                 <span className="truncate text-muted-foreground text-xs">
                   {activeOption.subtitle}
                 </span>

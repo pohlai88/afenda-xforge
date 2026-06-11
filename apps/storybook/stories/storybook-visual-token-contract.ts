@@ -9,4 +9,5 @@ export const STORYBOOK_VISUAL_TOKEN_RULES = [
   "Do not import lucide-react unless it is declared in storybook dependencies.",
 ] as const;
 
-export type StorybookVisualTokenRule = (typeof STORYBOOK_VISUAL_TOKEN_RULES)[number];
+export type StorybookVisualTokenRule =
+  (typeof STORYBOOK_VISUAL_TOKEN_RULES)[number];

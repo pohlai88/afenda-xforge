@@ -11,13 +11,13 @@ import {
 import { tmpdir } from "node:os";
 import { dirname, resolve } from "node:path";
 import type { OffboardingRepositoryState } from "./contracts/index.ts";
-import { offboardingRepositoryStateSchema } from "./schema.ts";
+import type { OffboardingRepositoryScope } from "./repository.shared.ts";
 import {
   assertNoDuplicateOpenCases,
   emptyState,
   matchesScope,
-  type OffboardingRepositoryScope,
 } from "./repository.shared.ts";
+import { offboardingRepositoryStateSchema } from "./schema.ts";
 
 let repositoryFilePath: string =
   process.env.AFENDA_OFFBOARDING_EXIT_MANAGEMENT_REPOSITORY_PATH ??
@@ -64,14 +64,15 @@ export const setOffboardingRepositoryPathForTesting = (
   repositoryFilePath = resolve(/* turbopackIgnore: true */ nextPath);
 };
 
-export const resetOffboardingFileRepositoryForTesting = async (): Promise<void> => {
-  persistState(emptyState());
-  await Promise.resolve();
-};
+export const resetOffboardingFileRepositoryForTesting =
+  async (): Promise<void> => {
+    persistState(emptyState());
+    await Promise.resolve();
+  };
 
-export const loadOffboardingFileRepository = async (
+export const loadOffboardingFileRepository = (
   scope?: OffboardingRepositoryScope
-): Promise<OffboardingRepositoryState> => {
+): OffboardingRepositoryState => {
   const state = readStateFromDisk();
   if (!scope) {
     return state;
@@ -86,10 +87,10 @@ export const loadOffboardingFileRepository = async (
   };
 };
 
-export const saveOffboardingFileRepository = async (
+export const saveOffboardingFileRepository = (
   nextState: OffboardingRepositoryState,
   scope?: OffboardingRepositoryScope
-): Promise<void> => {
+): void => {
   assertNoDuplicateOpenCases(nextState);
 
   if (!scope) {

@@ -1,9 +1,9 @@
+import { canWriteDocumentsManagement } from "@repo/features-employee-management-documents-management";
+import { createDocumentsManagementDocumentObligationInputSchema } from "@repo/features-employee-management-documents-management/contracts";
 import {
   createDocumentsManagementDocumentObligation,
   listDocumentsManagementDocumentObligations,
 } from "@repo/features-employee-management-documents-management/server";
-import { canWriteDocumentsManagement } from "@repo/features-employee-management-documents-management";
-import { createDocumentsManagementDocumentObligationInputSchema } from "@repo/features-employee-management-documents-management/contracts";
 import { NextResponse } from "next/server";
 
 import {

@@ -104,6 +104,10 @@ export {
   hrRecordsIntegrationSnapshotVersion,
 } from "./registry/integration.ts";
 export {
+  resetHrEmployeeRecordsRepositoryForTesting,
+  setHrEmployeeRecordsRepositoryPathForTesting,
+} from "./repository.testing.ts";
+export {
   hrEmployeeArchiveRoutePath,
   hrEmployeeAssignmentsRoutePath,
   hrEmployeeDetailRoutePath,
@@ -114,7 +118,3 @@ export {
 } from "./route-paths.ts";
 export { hasHrEmployeeRecordsSearch } from "./search.ts";
 export { parseHrRecordsSearchParams } from "./search-params.parse.shared.ts";
-export {
-  resetHrEmployeeRecordsRepositoryForTesting,
-  setHrEmployeeRecordsRepositoryPathForTesting,
-} from "./repository.testing.ts";

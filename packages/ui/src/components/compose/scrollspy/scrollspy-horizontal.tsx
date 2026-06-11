@@ -52,7 +52,7 @@ const horizontalSections = [
 ] as const;
 
 export function ScrollspyHorizontal() {
-  const containerRef = React.useRef<HTMLDivElement>(null);
+  const containerRef = React.useRef<HTMLElement>(null);
 
   return (
     <ScrollspyPatternCard
@@ -80,10 +80,8 @@ export function ScrollspyHorizontal() {
         ))}
       </Scrollspy>
 
-      <div
+      <section
         ref={containerRef}
-        tabIndex={0}
-        role="region"
         aria-label="Horizontal scrollspy content"
         className="h-[480px] overflow-y-auto rounded-2xl border bg-background p-4"
       >
@@ -105,7 +103,7 @@ export function ScrollspyHorizontal() {
             </ScrollspySection>
           ))}
         </div>
-      </div>
+      </section>
     </ScrollspyPatternCard>
   );
 }

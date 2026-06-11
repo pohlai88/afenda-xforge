@@ -13,15 +13,13 @@ import type {
   OffboardingAuditEvent,
   OffboardingRepositoryState,
 } from "./contracts/index.ts";
+import type { OffboardingRepositoryScope } from "./repository.shared.ts";
+import { assertNoDuplicateOpenCases } from "./repository.shared.ts";
 import {
   offboardingApprovalStepSchema,
   offboardingAuditEventSchema,
   offboardingCaseSchema,
 } from "./schema.ts";
-import {
-  assertNoDuplicateOpenCases,
-  type OffboardingRepositoryScope,
-} from "./repository.shared.ts";
 
 const scopeFilters = (
   table: { companyId: unknown; tenantId: unknown },

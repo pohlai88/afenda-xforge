@@ -1,11 +1,8 @@
 "use client";
 
 import type { ReactElement } from "react";
-
-import {
-  WorkspaceNavContextSwitcher,
-  type WorkspaceNavContextSwitcherProps,
-} from "./5.7-workspace-nav-context-switcher.tsx";
+import type { WorkspaceNavContextSwitcherProps } from "./5.7-workspace-nav-context-switcher.tsx";
+import { WorkspaceNavContextSwitcher } from "./5.7-workspace-nav-context-switcher.tsx";
 
 export type WorkspaceNavDeptSwitcherProps = Omit<
   WorkspaceNavContextSwitcherProps,
@@ -13,7 +10,7 @@ export type WorkspaceNavDeptSwitcherProps = Omit<
 >;
 
 export function WorkspaceNavDeptSwitcher(
-  props: WorkspaceNavDeptSwitcherProps
+  props: WorkspaceNavDeptSwitcherProps,
 ): ReactElement | null {
   return <WorkspaceNavContextSwitcher scope="department" {...props} />;
 }

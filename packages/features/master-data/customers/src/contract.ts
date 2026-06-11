@@ -100,7 +100,8 @@ export const listCustomersRouteContract = defineRouteContract({
 
 export const createCustomerRouteContract = defineRouteContract({
   audience: "client",
-  description: "Creates a tenant-scoped customer record through the governed execution pipeline.",
+  description:
+    "Creates a tenant-scoped customer record through the governed execution pipeline.",
   method: "POST",
   operationId: "createCustomer",
   path: "/api/customers",

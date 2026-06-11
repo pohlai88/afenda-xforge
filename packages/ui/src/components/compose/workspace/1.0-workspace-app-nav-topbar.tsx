@@ -14,13 +14,13 @@ import {
   DropdownMenuTrigger,
 } from "../../ui-shadcn/dropdown-menu";
 import { SidebarTrigger } from "../../ui-shadcn/sidebar";
+import { WorkspaceAppNavTopbarBrand } from "./1.2-workspace-app-nav-topbar-brand.tsx";
 import type { WorkspaceNavContextScope } from "./5.4-workspace-rail.types.ts";
 import {
   WORKSPACE_NAV_CONTEXT_LABELS,
   WORKSPACE_NAV_CONTEXT_SCOPE_INDICATORS,
 } from "./5.4-workspace-rail.types.ts";
 import type { WorkspaceNavContextSwitcherProps } from "./5.7-workspace-nav-context-switcher.tsx";
-import { WorkspaceAppNavTopbarBrand } from "./1.2-workspace-app-nav-topbar-brand.tsx";
 import {
   WORKSPACE_SHELL_CHROME_HEIGHT,
   WORKSPACE_SHELL_SPACE,
@@ -57,13 +57,12 @@ function ContextSwitcher({
   scope = "organization",
 }: WorkspaceNavContextSwitcherProps): ReactElement | null {
   const [internalActiveOptionId, setInternalActiveOptionId] = useState(
-    defaultOptionId ?? options[0]?.id
+    defaultOptionId ?? options[0]?.id,
   );
   const activeOptionId = activeOptionIdProp ?? internalActiveOptionId;
   const activeOption =
     options.find((option) => option.id === activeOptionId) ?? options[0];
-  const resolvedMenuLabel =
-    menuLabel ?? WORKSPACE_NAV_CONTEXT_LABELS[scope];
+  const resolvedMenuLabel = menuLabel ?? WORKSPACE_NAV_CONTEXT_LABELS[scope];
   const scopeIndicator =
     WORKSPACE_NAV_CONTEXT_SCOPE_INDICATORS[scope as WorkspaceNavContextScope] ??
     resolvedMenuLabel;
@@ -79,7 +78,7 @@ function ContextSwitcher({
           className={cn(
             "group font-normal hover:bg-sidebar-accent data-[state=open]:bg-sidebar-accent",
             WORKSPACE_SHELL_TYPE.appTopbarSwitcherIdle,
-            WORKSPACE_SHELL_SPACE.topbarItem
+            WORKSPACE_SHELL_SPACE.topbarItem,
           )}
           size="sm"
           type="button"
@@ -92,7 +91,7 @@ function ContextSwitcher({
             <span
               className={cn(
                 WORKSPACE_SHELL_TYPE.appTopbarItemValue,
-                WORKSPACE_SHELL_TYPE.appTopbarSwitcherValueMax
+                WORKSPACE_SHELL_TYPE.appTopbarSwitcherValueMax,
               )}
             >
               {truncateSwitcherLabel(activeOption.name)}
@@ -139,7 +138,7 @@ export function WorkspaceAppNavTopbar({
         "sticky top-0 z-50 flex shrink-0 items-center gap-1 antialiased",
         WORKSPACE_SHELL_SPACE.appTopbarSurface,
         WORKSPACE_SHELL_SPACE.shellInsetX,
-        className
+        className,
       )}
       data-slot="workspace-app-nav-topbar"
       style={{ height: WORKSPACE_SHELL_CHROME_HEIGHT }}
@@ -148,7 +147,7 @@ export function WorkspaceAppNavTopbar({
         <SidebarTrigger
           className={cn(
             WORKSPACE_SHELL_SPACE.iconButton,
-            "shrink-0 text-muted-foreground hover:bg-sidebar-accent hover:text-sidebar-foreground"
+            "shrink-0 text-muted-foreground hover:bg-sidebar-accent hover:text-sidebar-foreground",
           )}
         />
       ) : null}
@@ -158,7 +157,7 @@ export function WorkspaceAppNavTopbar({
           aria-label="Workspace context"
           className={cn(
             "flex min-w-0 flex-1 items-center overflow-x-auto",
-            WORKSPACE_SHELL_TYPE.appTopbarBreadcrumb
+            WORKSPACE_SHELL_TYPE.appTopbarBreadcrumb,
           )}
         >
           {switchers.map((switcher, index) => {

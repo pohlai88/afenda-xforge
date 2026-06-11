@@ -3,6 +3,7 @@ import type { XForgeRedisClient } from "@repo/redis";
 import {
   getRedisClient,
   hasRedisConfig,
+  loadRedisKeys,
   sendRedisCommand,
 } from "@repo/redis";
 

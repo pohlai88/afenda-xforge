@@ -12,6 +12,7 @@ import {
   CardTitle,
   Checkbox,
   Label,
+  ScrollArea,
   Separator,
   Switch,
   Tabs,
@@ -20,7 +21,8 @@ import {
   TabsTrigger,
   toast,
 } from "@repo/ui";
-import { Keyboard, ShieldCheck } from "lucide-react";
+import { Keyboard, Loader2, ShieldCheck } from "lucide-react";
+import { useTranslations } from "next-intl";
 import type { ReactElement } from "react";
 import { useMemo, useState } from "react";
 import { useRouter } from "@/i18n/navigation";
@@ -41,6 +43,7 @@ import {
   PRODUCT_SHORTCUT_DEFINITIONS,
 } from "../../../../../lib/workspace-shortcuts/product-defaults.ts";
 import { ShortcutCapturePopover } from "../../../../_components/workspace/keyboard-shortcuts/shortcut-capture-popover.tsx";
+import { shortcutActionMessageKey } from "../../../../_components/workspace/keyboard-shortcuts/shortcut-i18n.ts";
 
 type SaveStatus = "idle" | "pending" | "success" | "error";
 
@@ -55,6 +58,9 @@ export function KeyboardShortcutsAdminView({
   canWrite: boolean;
   initialPayload: TenantKeyboardShortcutPolicyPayload;
 }): ReactElement {
+  const t = useTranslations("admin.keyboardShortcuts");
+  const tActions = useTranslations("workspace.keyboardShortcuts.actions");
+  const tCommon = useTranslations("common");
   const router = useRouter();
   const [payload, setPayload] = useState(initialPayload);
   const [allowUserCustomize, setAllowUserCustomize] = useState(
@@ -170,7 +176,7 @@ export function KeyboardShortcutsAdminView({
       setLockedActions(result.payload.policy.lockedActions);
       setPendingOverrides({});
       setStatus("success");
-      toast.message("Tenant keyboard shortcut policy saved");
+      toast.message(t("saveSuccess"));
       router.refresh();
 
       if (typeof BroadcastChannel !== "undefined") {
@@ -182,7 +188,7 @@ export function KeyboardShortcutsAdminView({
       }
     } catch (error) {
       setStatus("error");
-      toast.error(error instanceof Error ? error.message : "Save failed");
+      toast.error(error instanceof Error ? error.message : t("saveFailed"));
     }
   };
 
@@ -192,50 +198,47 @@ export function KeyboardShortcutsAdminView({
         <div className="flex flex-wrap items-center gap-2">
           <Keyboard className="size-6 text-muted-foreground" />
           <h1 className="font-semibold text-2xl tracking-tight">
-            Keyboard shortcuts
+            {t("title")}
           </h1>
-          <Badge variant="outline">Tenant policy</Badge>
+          <Badge variant="outline">{t("badge")}</Badge>
         </div>
         <p className="max-w-3xl text-muted-foreground text-sm">
-          Organization defaults ship for every user. Lock actions to prevent
-          personal overrides, or allow users to customize when policy permits.
+          {t("description")}
         </p>
       </header>
 
       {canWrite ? null : (
         <Alert>
           <ShieldCheck className="size-4" />
-          <AlertDescription>
-            You have read-only access to tenant keyboard shortcut policy.
-          </AlertDescription>
+          <AlertDescription>{t("readOnly")}</AlertDescription>
         </Alert>
       )}
 
       <Tabs onValueChange={setActiveTab} value={activeTab}>
         <TabsList className="grid w-full max-w-xl grid-cols-3">
-          <TabsTrigger value="policy">Policy</TabsTrigger>
-          <TabsTrigger value="locked">Locked actions</TabsTrigger>
-          <TabsTrigger value="overrides">Overrides</TabsTrigger>
+          <TabsTrigger value="policy">{t("tabs.policy")}</TabsTrigger>
+          <TabsTrigger value="locked">{t("tabs.locked")}</TabsTrigger>
+          <TabsTrigger value="overrides">{t("tabs.overrides")}</TabsTrigger>
         </TabsList>
 
         <TabsContent className="space-y-4" value="policy">
           <Card>
             <CardHeader>
-              <CardTitle className="text-base">Customization policy</CardTitle>
+              <CardTitle className="text-base">
+                {t("customizationPolicy.title")}
+              </CardTitle>
               <CardDescription>
-                Controls whether users can personalize bindings and use function
-                keys.
+                {t("customizationPolicy.description")}
               </CardDescription>
             </CardHeader>
             <CardContent className="space-y-6">
               <div className="flex items-center justify-between gap-4">
                 <div className="space-y-1">
                   <Label htmlFor="allow-user-customize">
-                    Allow user customization
+                    {t("customizationPolicy.allowUserCustomizeLabel")}
                   </Label>
                   <p className="text-muted-foreground text-xs">
-                    When enabled, users can override unlocked bindings for
-                    themselves.
+                    {t("customizationPolicy.allowUserCustomizeDescription")}
                   </p>
                 </div>
                 <Switch
@@ -249,11 +252,10 @@ export function KeyboardShortcutsAdminView({
               <div className="flex items-center justify-between gap-4">
                 <div className="space-y-1">
                   <Label htmlFor="allow-fn-keys">
-                    Allow function key bindings
+                    {t("customizationPolicy.allowFnKeysLabel")}
                   </Label>
                   <p className="text-muted-foreground text-xs">
-                    Disable when laptops should keep media keys instead of
-                    F-keys.
+                    {t("customizationPolicy.allowFnKeysDescription")}
                   </p>
                 </div>
                 <Switch
@@ -270,15 +272,19 @@ export function KeyboardShortcutsAdminView({
         <TabsContent className="space-y-4" value="locked">
           <Card>
             <CardHeader>
-              <CardTitle className="text-base">Locked actions</CardTitle>
+              <CardTitle className="text-base">
+                {t("lockedActions.title")}
+              </CardTitle>
               <CardDescription>
-                Product-locked commands ({PRODUCT_LOCKED_ACTIONS.join(", ")})
-                cannot be changed here.
+                {t("lockedActions.description", {
+                  lockedActions: PRODUCT_LOCKED_ACTIONS.join(", "),
+                })}
               </CardDescription>
             </CardHeader>
             <CardContent className="grid gap-3 sm:grid-cols-2">
               {CUSTOMIZABLE_ACTIONS.map((definition) => {
                 const checked = lockedActions.includes(definition.actionId);
+                const checkboxId = `lock-${definition.actionId}`;
 
                 return (
                   <div
@@ -288,18 +294,24 @@ export function KeyboardShortcutsAdminView({
                     <Checkbox
                       checked={checked}
                       disabled={!canWrite}
+                      id={checkboxId}
                       onCheckedChange={(next) =>
                         toggleLockedAction(definition.actionId, next === true)
                       }
                     />
-                    <span className="space-y-1">
+                    <Label
+                      className="space-y-1 font-normal"
+                      htmlFor={checkboxId}
+                    >
                       <span className="block font-medium text-sm">
-                        {definition.description}
+                        {tActions(
+                          shortcutActionMessageKey(definition.actionId)
+                        )}
                       </span>
                       <span className="block text-muted-foreground text-xs">
                         {definition.actionId}
                       </span>
-                    </span>
+                    </Label>
                   </div>
                 );
               })}
@@ -311,77 +323,92 @@ export function KeyboardShortcutsAdminView({
           <Card>
             <CardHeader>
               <CardTitle className="text-base">
-                Organization overrides
+                {t("organizationOverrides.title")}
               </CardTitle>
               <CardDescription>
-                Tenant defaults override product bindings for all users in this
-                organization.
+                {t("organizationOverrides.description")}
               </CardDescription>
             </CardHeader>
-            <CardContent className="divide-y p-0">
-              {CUSTOMIZABLE_ACTIONS.map((definition) => {
-                const savedResolved =
-                  payload.preview.bindings[definition.actionId];
-                const resolved = draftPreview.bindings[definition.actionId];
-                const pendingValue = pendingOverrides[definition.actionId];
-                const effectiveNormalized = resolved.binding.normalized;
+            <CardContent className="p-0">
+              <ScrollArea className="max-h-[min(56vh,640px)]">
+                <div className="divide-y">
+                  {CUSTOMIZABLE_ACTIONS.map((definition) => {
+                    const savedResolved =
+                      payload.preview.bindings[definition.actionId];
+                    const resolved = draftPreview.bindings[definition.actionId];
+                    const pendingValue = pendingOverrides[definition.actionId];
+                    const effectiveNormalized = resolved.binding.normalized;
+                    const isLocked = lockedActions.includes(
+                      definition.actionId
+                    );
 
-                return (
-                  <div
-                    className="flex flex-col gap-2 px-4 py-3 sm:flex-row sm:items-center sm:justify-between"
-                    key={definition.actionId}
-                  >
-                    <div className="space-y-1">
-                      <p className="font-medium text-sm">
-                        {definition.description}
-                      </p>
-                      <p className="text-muted-foreground text-xs">
-                        {formatShortcutLabel(effectiveNormalized)}
-                      </p>
-                    </div>
-                    {canWrite ? (
-                      <div className="flex items-center gap-2">
-                        <ShortcutCapturePopover
-                          actionId={definition.actionId}
-                          allowFnKeyBindings={allowFnKeyBindings}
-                          collisionContext={{
-                            payload: draftPreview,
-                            pendingOverrides,
-                          }}
-                          disabled={lockedActions.includes(definition.actionId)}
-                          onCapture={(normalized) =>
-                            setPendingOverrides((current) => ({
-                              ...current,
-                              [definition.actionId]: normalized,
-                            }))
-                          }
-                          pendingOverrides={pendingOverrides}
-                          value={effectiveNormalized}
-                        />
-                        {savedResolved.source === "tenant" ||
-                        pendingValue !== undefined ? (
-                          <Button
-                            disabled={lockedActions.includes(
-                              definition.actionId
+                    return (
+                      <div
+                        className="flex flex-col gap-2 px-4 py-3 sm:flex-row sm:items-center sm:justify-between"
+                        key={definition.actionId}
+                      >
+                        <div className="space-y-1">
+                          <p className="font-medium text-sm">
+                            {tActions(
+                              shortcutActionMessageKey(definition.actionId)
                             )}
-                            onClick={() =>
-                              setPendingOverrides((current) => ({
-                                ...current,
-                                [definition.actionId]: null,
-                              }))
-                            }
-                            size="sm"
-                            type="button"
-                            variant="ghost"
-                          >
-                            Reset
-                          </Button>
+                          </p>
+                          <p className="text-muted-foreground text-xs">
+                            {formatShortcutLabel(effectiveNormalized)}
+                            {pendingValue === undefined
+                              ? null
+                              : ` · ${t("organizationOverrides.pendingHint")}`}
+                            {isLocked
+                              ? ` · ${t("organizationOverrides.lockedHint")}`
+                              : null}
+                          </p>
+                        </div>
+                        {canWrite ? (
+                          <div className="flex items-center gap-2">
+                            <ShortcutCapturePopover
+                              actionId={definition.actionId}
+                              actionLabel={tActions(
+                                shortcutActionMessageKey(definition.actionId)
+                              )}
+                              allowFnKeyBindings={allowFnKeyBindings}
+                              collisionContext={{
+                                payload: draftPreview,
+                                pendingOverrides,
+                              }}
+                              disabled={isLocked}
+                              onCapture={(normalized) =>
+                                setPendingOverrides((current) => ({
+                                  ...current,
+                                  [definition.actionId]: normalized,
+                                }))
+                              }
+                              pendingOverrides={pendingOverrides}
+                              value={effectiveNormalized}
+                            />
+                            {savedResolved.source === "tenant" ||
+                            pendingValue !== undefined ? (
+                              <Button
+                                disabled={isLocked}
+                                onClick={() =>
+                                  setPendingOverrides((current) => ({
+                                    ...current,
+                                    [definition.actionId]: null,
+                                  }))
+                                }
+                                size="sm"
+                                type="button"
+                                variant="ghost"
+                              >
+                                {tCommon("reset")}
+                              </Button>
+                            ) : null}
+                          </div>
                         ) : null}
                       </div>
-                    ) : null}
-                  </div>
-                );
-              })}
+                    );
+                  })}
+                </div>
+              </ScrollArea>
             </CardContent>
           </Card>
         </TabsContent>
@@ -390,7 +417,7 @@ export function KeyboardShortcutsAdminView({
       {canWrite ? (
         <div className="sticky bottom-0 flex items-center justify-between gap-3 border-t bg-background/95 py-4 backdrop-blur supports-[backdrop-filter]:bg-background/80">
           <p className="text-muted-foreground text-xs">
-            {dirty ? "Unsaved policy changes" : "Policy is up to date"}
+            {dirty ? t("statusDirty") : t("statusSaved")}
           </p>
           <div className="flex gap-2">
             <Button
@@ -399,7 +426,7 @@ export function KeyboardShortcutsAdminView({
               type="button"
               variant="outline"
             >
-              Discard
+              {tCommon("discard")}
             </Button>
             <Button
               disabled={!dirty || status === "pending"}
@@ -408,7 +435,14 @@ export function KeyboardShortcutsAdminView({
               }}
               type="button"
             >
-              Save tenant policy
+              {status === "pending" ? (
+                <>
+                  <Loader2 className="mr-2 size-4 animate-spin" />
+                  {t("saving")}
+                </>
+              ) : (
+                t("savePolicy")
+              )}
             </Button>
           </div>
         </div>

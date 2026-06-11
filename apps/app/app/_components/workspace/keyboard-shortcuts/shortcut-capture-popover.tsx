@@ -1,13 +1,17 @@
 "use client";
 
 import {
+  Alert,
+  AlertDescription,
   Badge,
   Button,
+  Kbd,
   Popover,
   PopoverContent,
   PopoverTrigger,
 } from "@repo/ui";
 import { Keyboard } from "lucide-react";
+import { useTranslations } from "next-intl";
 import type { ReactElement } from "react";
 import { useEffect, useRef, useState } from "react";
 import type {
@@ -27,6 +31,7 @@ import { useWorkspaceShortcuts } from "./use-keyboard-shortcuts.tsx";
 
 export function ShortcutCapturePopover({
   actionId,
+  actionLabel,
   allowFnKeyBindings,
   collisionContext,
   disabled,
@@ -35,6 +40,7 @@ export function ShortcutCapturePopover({
   value,
 }: {
   actionId: ShortcutActionId;
+  actionLabel?: string;
   allowFnKeyBindings: boolean;
   collisionContext?: {
     payload: WorkspaceShortcutsPayload;
@@ -45,6 +51,8 @@ export function ShortcutCapturePopover({
   pendingOverrides?: ShortcutOverridePatch;
   value: string;
 }): ReactElement {
+  const t = useTranslations("workspace.keyboardShortcuts.capture");
+  const tBadges = useTranslations("workspace.keyboardShortcuts.badges");
   const [open, setOpen] = useState(false);
   const [recording, setRecording] = useState(false);
   const [hint, setHint] = useState<string | null>(null);
@@ -77,7 +85,7 @@ export function ShortcutCapturePopover({
       const canonical = normalizeShortcutString(normalized) ?? normalized;
 
       if (isMediaKeyBinding(canonical)) {
-        setHint("Turn Fn lock off to bind function keys.");
+        setHint(tBadges("fnKeyHint"));
         return;
       }
 
@@ -129,6 +137,7 @@ export function ShortcutCapturePopover({
     open,
     pendingOverrides,
     recording,
+    tBadges,
   ]);
 
   return (
@@ -145,23 +154,36 @@ export function ShortcutCapturePopover({
       <PopoverTrigger asChild>
         <Button disabled={disabled} size="sm" type="button" variant="outline">
           <Keyboard className="mr-1.5 size-3.5" />
-          {value ? formatShortcutLabel(value) : "Assign"}
+          {value ? formatShortcutLabel(value) : t("assign")}
         </Button>
       </PopoverTrigger>
-      <PopoverContent align="end" className="w-72 space-y-3">
+      <PopoverContent align="end" className="w-80 space-y-3">
         <div className="space-y-1">
-          <p className="font-medium text-sm">Record shortcut</p>
-          <p className="text-muted-foreground text-xs">{actionId}</p>
+          <p className="font-medium text-sm">{t("recordTitle")}</p>
+          <p className="text-muted-foreground text-xs">
+            {actionLabel ?? actionId}
+          </p>
+        </div>
+        <div className="flex min-h-10 items-center justify-center rounded-md border border-dashed bg-muted/40 px-3">
+          {recording ? (
+            <Kbd className="animate-pulse">{t("listening")}</Kbd>
+          ) : (
+            <Kbd>{value ? formatShortcutLabel(value) : t("pressKeys")}</Kbd>
+          )}
         </div>
         <p className="text-muted-foreground text-xs">
-          {recording
-            ? "Listening… Press Esc to cancel."
-            : "Press a key combination."}
+          {recording ? t("pressEsc") : t("pressToAssign")}
         </p>
-        {hint ? <p className="text-destructive text-xs">{hint}</p> : null}
-        <Badge className="font-normal" variant="outline">
-          Fn lock off for F-keys
-        </Badge>
+        {hint ? (
+          <Alert variant="destructive">
+            <AlertDescription>{hint}</AlertDescription>
+          </Alert>
+        ) : null}
+        {allowFnKeyBindings ? (
+          <Badge className="font-normal" variant="outline">
+            {t("fnLockHint")}
+          </Badge>
+        ) : null}
       </PopoverContent>
     </Popover>
   );

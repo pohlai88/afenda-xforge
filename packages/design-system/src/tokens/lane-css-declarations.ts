@@ -1,25 +1,19 @@
-import type { CssDeclaration } from "./css-theme";
+import type { ErpVisualLaneId } from "../contracts/visual-lane.contract";
 import {
   activeLaneCssVarName,
-  ERP_VISUAL_LANE_IDS,
   ERP_VISUAL_LANE_BY_ID,
+  ERP_VISUAL_LANE_IDS,
   LANE_COLOR_SCALE_FIELDS,
   laneCssVarName,
   tenantLaneCssVarName,
-  type ErpVisualLaneId,
-  type LaneColorScaleField,
 } from "../contracts/visual-lane.contract";
+import type { CssDeclaration } from "./css-theme";
 
-function tenantLaneVar(
-  tenantVar: string,
-  fallback: string
-): string {
+function tenantLaneVar(tenantVar: string, fallback: string): string {
   return `var(${tenantVar}, ${fallback})`;
 }
 
-function laneDeclarationsForMode(
-  mode: "dark" | "light"
-): CssDeclaration[] {
+function laneDeclarationsForMode(mode: "dark" | "light"): CssDeclaration[] {
   const declarations: CssDeclaration[] = [];
 
   for (const laneId of ERP_VISUAL_LANE_IDS) {
@@ -49,9 +43,12 @@ function activeLaneDeclarations(
   });
 }
 
-export const GLOBALS_CSS_LANE_ROOT_DECLARATIONS = laneDeclarationsForMode("light");
-export const GLOBALS_CSS_LANE_DARK_DECLARATIONS = laneDeclarationsForMode("dark");
-export const GLOBALS_CSS_ACTIVE_LANE_DECLARATIONS = activeLaneDeclarations("governance");
+export const GLOBALS_CSS_LANE_ROOT_DECLARATIONS =
+  laneDeclarationsForMode("light");
+export const GLOBALS_CSS_LANE_DARK_DECLARATIONS =
+  laneDeclarationsForMode("dark");
+export const GLOBALS_CSS_ACTIVE_LANE_DECLARATIONS =
+  activeLaneDeclarations("governance");
 
 export function laneThemeInlineDeclarations(): CssDeclaration[] {
   const declarations: CssDeclaration[] = [];
@@ -59,8 +56,7 @@ export function laneThemeInlineDeclarations(): CssDeclaration[] {
   for (const laneId of ERP_VISUAL_LANE_IDS) {
     for (const field of LANE_COLOR_SCALE_FIELDS) {
       const cssVar = laneCssVarName(laneId, field);
-      const utilitySuffix =
-        field === "solid" ? laneId : `${laneId}-${field}`;
+      const utilitySuffix = field === "solid" ? laneId : `${laneId}-${field}`;
       declarations.push([`--color-lane-${utilitySuffix}`, `var(${cssVar})`]);
     }
   }

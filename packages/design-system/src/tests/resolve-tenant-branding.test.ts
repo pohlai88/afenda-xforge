@@ -2,17 +2,17 @@ import assert from "node:assert/strict";
 import test from "node:test";
 
 import { getDefaultLaneForFeature } from "../contracts/module-lane.catalog";
+import type { TenantBrandingSettings } from "../contracts/tenant-branding.contract";
 import {
   DEFAULT_TENANT_BRANDING_SETTINGS,
   tenantBrandingSettingsSchema,
-  type TenantBrandingSettings,
 } from "../contracts/tenant-branding.contract";
 import {
+  renderTenantBrandingStyleBlock,
   resolveActiveLaneCssVars,
   resolveLaneForFeature,
   resolveLaneScale,
   resolveTenantBrandCssVars,
-  renderTenantBrandingStyleBlock,
 } from "../resolution/resolve-tenant-branding";
 
 const customMoneySolid = "oklch(0.55 0.18 145)";
@@ -25,7 +25,10 @@ test("resolveLaneForFeature prefers module overrides over catalog defaults", () 
     },
   };
 
-  assert.equal(resolveLaneForFeature(settings, "master-data.customers"), "money");
+  assert.equal(
+    resolveLaneForFeature(settings, "master-data.customers"),
+    "money"
+  );
   assert.equal(
     getDefaultLaneForFeature("master-data.customers"),
     "customer",
@@ -44,7 +47,8 @@ test("resolveLaneScale merges byLane then byFeature overrides", () => {
             foreground: "oklch(0.14 0.02 145)",
             muted: "color-mix(in oklab, oklch(0.55 0.18 145) 12%, transparent)",
             "muted-foreground": "oklch(0.42 0.06 145)",
-            border: "color-mix(in oklab, oklch(0.55 0.18 145) 35%, transparent)",
+            border:
+              "color-mix(in oklab, oklch(0.55 0.18 145) 35%, transparent)",
             glow: "color-mix(in oklab, oklch(0.55 0.18 145) 24%, transparent)",
           },
           dark: {
@@ -52,7 +56,8 @@ test("resolveLaneScale merges byLane then byFeature overrides", () => {
             foreground: "oklch(0.98 0.01 145)",
             muted: "color-mix(in oklab, oklch(0.55 0.18 145) 18%, transparent)",
             "muted-foreground": "oklch(0.72 0.04 145)",
-            border: "color-mix(in oklab, oklch(0.55 0.18 145) 40%, transparent)",
+            border:
+              "color-mix(in oklab, oklch(0.55 0.18 145) 40%, transparent)",
             glow: "color-mix(in oklab, oklch(0.55 0.18 145) 30%, transparent)",
           },
         },

@@ -1,5 +1,6 @@
 import { z } from "zod";
-
+import type { DocumentsManagementStatus } from "./projection.contract.ts";
+import { documentsManagementStatusSchema } from "./projection.contract.ts";
 import {
   documentsManagementAcknowledgmentMethodSchema,
   documentsManagementDocumentCategorySchema,
@@ -15,8 +16,6 @@ import {
   optionalTrimmedStringSchema,
   trimmedStringSchema,
 } from "./schema.ts";
-import type { DocumentsManagementStatus } from "./projection.contract.ts";
-import { documentsManagementStatusSchema } from "./projection.contract.ts";
 
 export type CreateDocumentsManagementInput = {
   name: string;

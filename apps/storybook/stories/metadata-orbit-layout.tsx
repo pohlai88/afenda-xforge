@@ -70,8 +70,13 @@ export function MetadataOrbitStage({
           viewBox={`0 0 ${metrics.svgSize} ${metrics.svgSize}`}
           width={metrics.svgSize}
         >
+          <title>Orbit connection guides</title>
           {nodes.map((node, index) => {
-            const { x, y } = resolveOrbitNodePosition(index, nodes.length, radius);
+            const { x, y } = resolveOrbitNodePosition(
+              index,
+              nodes.length,
+              radius
+            );
 
             return (
               <line
@@ -91,7 +96,7 @@ export function MetadataOrbitStage({
 
         <div
           aria-hidden
-          className="pointer-events-none absolute left-1/2 top-1/2 z-[1] -translate-x-1/2 -translate-y-1/2 rounded-full border border-border/40"
+          className="pointer-events-none absolute top-1/2 left-1/2 z-[1] -translate-x-1/2 -translate-y-1/2 rounded-full border border-border/40"
           style={{
             height: metrics.outerRingSize,
             width: metrics.outerRingSize,
@@ -99,7 +104,7 @@ export function MetadataOrbitStage({
         />
         <div
           aria-hidden
-          className="pointer-events-none absolute left-1/2 top-1/2 z-[1] -translate-x-1/2 -translate-y-1/2 rounded-full border border-primary/20 motion-safe:animate-pulse"
+          className="pointer-events-none absolute top-1/2 left-1/2 z-[1] -translate-x-1/2 -translate-y-1/2 rounded-full border border-primary/20 motion-safe:animate-pulse"
           style={{
             height: metrics.innerRingSize,
             width: metrics.innerRingSize,
@@ -108,8 +113,8 @@ export function MetadataOrbitStage({
 
         <div
           className={cn(
-            "absolute left-1/2 top-1/2 z-20 -translate-x-1/2 -translate-y-1/2",
-            hubClassName,
+            "absolute top-1/2 left-1/2 z-20 -translate-x-1/2 -translate-y-1/2",
+            hubClassName
           )}
         >
           {children}
@@ -117,7 +122,7 @@ export function MetadataOrbitStage({
 
         {nodes.map((node, index) => {
           const pinStyle = resolveOrbitNodePinStyle(
-            resolveOrbitNodePosition(index, nodes.length, radius),
+            resolveOrbitNodePosition(index, nodes.length, radius)
           );
 
           return (
@@ -132,7 +137,7 @@ export function MetadataOrbitStage({
               <div
                 className={cn(
                   "w-40 -translate-x-1/2 -translate-y-1/2 rounded-2xl border border-primary/25 bg-card/80 px-4 py-3 text-center shadow-sm backdrop-blur-md",
-                  "motion-safe:transition-colors motion-safe:duration-300 hover:border-primary/50 hover:bg-primary/10",
+                  "hover:border-primary/50 hover:bg-primary/10 motion-safe:transition-colors motion-safe:duration-300"
                 )}
                 style={{ width: nodeWidth }}
               >
@@ -165,14 +170,14 @@ export function IntroductionAtmosphere({
         aria-hidden
         className={cn(
           "pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_50%_32%,var(--primary)/22%,transparent_34%),radial-gradient(circle_at_15%_15%,var(--brand-secondary)/14%,transparent_28%),radial-gradient(circle_at_85%_80%,var(--brand-accent)/13%,transparent_30%)]",
-          className,
+          className
         )}
       />
       <div
         aria-hidden
         className={cn(
           "sb-intro-grid-bg pointer-events-none absolute inset-0 bg-[linear-gradient(to_right,var(--border)/35_1px,transparent_1px),linear-gradient(to_bottom,var(--border)/35_1px,transparent_1px)]",
-          className,
+          className
         )}
         style={{ opacity: gridOpacity }}
       />

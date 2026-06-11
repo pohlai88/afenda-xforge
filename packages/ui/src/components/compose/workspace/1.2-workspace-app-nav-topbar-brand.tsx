@@ -1,7 +1,7 @@
 "use client";
 
-import { cn } from "../../../lib/utils";
 import type { ReactElement } from "react";
+import { cn } from "../../../lib/utils";
 import {
   WORKSPACE_AFENDA_BRAND_ICON,
   WORKSPACE_SHELL_SPACE,
@@ -29,7 +29,7 @@ export function WorkspaceAppNavTopbarBrand({
   const shellClass = cn(
     "flex items-center justify-center",
     WORKSPACE_SHELL_SPACE.appTopbarBrand,
-    className
+    className,
   );
 
   const images = (
@@ -46,7 +46,7 @@ export function WorkspaceAppNavTopbarBrand({
         alt=""
         className={cn(
           WORKSPACE_SHELL_SPACE.appTopbarBrandImg,
-          "hidden dark:block"
+          "hidden dark:block",
         )}
         decoding="sync"
         height={BRAND_RENDER_SIZE_PX}
@@ -62,7 +62,7 @@ export function WorkspaceAppNavTopbarBrand({
         aria-label="Afenda home"
         className={cn(
           shellClass,
-          "shrink-0 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+          "shrink-0 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
         )}
         href={homeHref}
       >

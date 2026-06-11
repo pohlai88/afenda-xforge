@@ -1,8 +1,9 @@
 import { ForbiddenError } from "@repo/errors";
 import { MetadataStateBoundary } from "@repo/metadata-ui/components";
 import { permissionCatalog, requirePermission } from "@repo/permissions";
-import Link from "next/link";
+import { getTranslations } from "next-intl/server";
 import type { ReactElement } from "react";
+import { Link } from "@/i18n/navigation";
 import { readTenantKeyboardShortcutPolicy } from "../../../../../lib/workspace-shortcuts/repository.server.ts";
 import { AuthenticatedFeatureScope } from "../../../../_components/authenticated-feature-scope.tsx";
 import {
@@ -32,6 +33,8 @@ function canWriteTenantKeyboardShortcuts(
 }
 
 export default async function KeyboardShortcutsAdminPage(): Promise<ReactElement> {
+  const t = await getTranslations("admin.keyboardShortcuts");
+
   try {
     const access = await resolveRuntimeTenantAccess();
     requirePermission(
@@ -61,7 +64,7 @@ export default async function KeyboardShortcutsAdminPage(): Promise<ReactElement
                 </Link>
               </li>
               <li aria-hidden>/</li>
-              <li className="text-foreground">Keyboard shortcuts</li>
+              <li className="text-foreground">{t("breadcrumb")}</li>
             </ol>
           </nav>
           <KeyboardShortcutsAdminView
@@ -75,8 +78,8 @@ export default async function KeyboardShortcutsAdminPage(): Promise<ReactElement
     if (error instanceof ForbiddenError) {
       return (
         <MetadataStateBoundary
-          forbiddenDescription="Tenant keyboard shortcut policy requires tenant admin permissions."
-          forbiddenTitle="Keyboard shortcuts unavailable"
+          forbiddenDescription={t("forbiddenDescription")}
+          forbiddenTitle={t("forbiddenTitle")}
           state="forbidden"
         />
       );
@@ -84,11 +87,7 @@ export default async function KeyboardShortcutsAdminPage(): Promise<ReactElement
 
     return (
       <MetadataStateBoundary
-        error={
-          error instanceof Error
-            ? error.message
-            : "Keyboard shortcut policy could not be loaded."
-        }
+        error={error instanceof Error ? error.message : t("loadError")}
         state="error"
       />
     );

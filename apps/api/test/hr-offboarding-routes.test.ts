@@ -5,9 +5,7 @@ import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { afterEach, beforeEach, test } from "node:test";
 
-import {
-  openOffboardingCase,
-} from "@repo/features-employee-management-offboarding-exit-management/server";
+import { openOffboardingCase } from "@repo/features-employee-management-offboarding-exit-management/server";
 import {
   resetOffboardingRepositoryForTesting,
   setOffboardingRepositoryPathForTesting,
@@ -296,7 +294,9 @@ test("normalizes audit trail reads and audit event writes", async () => {
 
   const auditEntries = (await listResponse.json()) as Array<{ action: string }>;
   assert.equal(
-    auditEntries.some((entry) => entry.action === "hr.offboarding.case.reviewed"),
+    auditEntries.some(
+      (entry) => entry.action === "hr.offboarding.case.reviewed"
+    ),
     true
   );
 });

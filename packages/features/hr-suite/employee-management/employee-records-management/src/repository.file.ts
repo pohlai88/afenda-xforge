@@ -133,19 +133,21 @@ const hrEmployeeRecordsRepositoryStateKey = Symbol.for(
   "afenda.employee-records-management.repository-state"
 );
 
-const globalHrEmployeeRecordsRepositoryState = globalThis as typeof globalThis & {
-  [hrEmployeeRecordsRepositoryStateKey]?: HrEmployeeRecordsRepositoryRuntimeState;
-};
+const globalHrEmployeeRecordsRepositoryState =
+  globalThis as typeof globalThis & {
+    [hrEmployeeRecordsRepositoryStateKey]?: HrEmployeeRecordsRepositoryRuntimeState;
+  };
 
-const runtimeState =
-  globalHrEmployeeRecordsRepositoryState[hrEmployeeRecordsRepositoryStateKey] ??
-  (globalHrEmployeeRecordsRepositoryState[hrEmployeeRecordsRepositoryStateKey] = {
+globalHrEmployeeRecordsRepositoryState[hrEmployeeRecordsRepositoryStateKey] ??=
+  {
     cache: null,
     repositoryFilePath:
       process.env.AFENDA_EMPLOYEE_RECORDS_MANAGEMENT_REPOSITORY_PATH ??
       process.env.AFENDA_EMPLOYEE_RECORDS_MANAGEMENT_STORE_PATH ??
       defaultRepositoryPath,
-  });
+  };
+const runtimeState =
+  globalHrEmployeeRecordsRepositoryState[hrEmployeeRecordsRepositoryStateKey];
 
 const normalizeOrganizationId = (
   organizationId: string | undefined

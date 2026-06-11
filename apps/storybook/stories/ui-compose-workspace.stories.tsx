@@ -2,15 +2,15 @@ import type { Meta, StoryObj } from "@storybook/react";
 import { lazy, Suspense } from "react";
 
 const LazyFullShellFrame = lazy(() =>
-  import("../../../packages/ui/src/components/compose/workspace/7.0-workspace-full-shell-pattern").then(
-    (module) => ({ default: module.WorkspaceFullShellFrame })
-  )
+  import(
+    "../../../packages/ui/src/components/compose/workspace/7.0-workspace-full-shell-pattern"
+  ).then((module) => ({ default: module.WorkspaceFullShellFrame }))
 );
 
 const LazyWorkspaceComposeGallery = lazy(() =>
-  import("../../../packages/ui/src/components/compose/workspace/7.1-workspace-compose-gallery").then(
-    (module) => ({ default: module.WorkspaceComposeGallery })
-  )
+  import(
+    "../../../packages/ui/src/components/compose/workspace/7.1-workspace-compose-gallery"
+  ).then((module) => ({ default: module.WorkspaceComposeGallery }))
 );
 
 const meta = {
@@ -64,7 +64,11 @@ export const FullShell: Story = {
     },
   },
   render: () => (
-    <Suspense fallback={<div className="p-10 text-muted-foreground text-sm">Loading…</div>}>
+    <Suspense
+      fallback={
+        <div className="p-10 text-muted-foreground text-sm">Loading…</div>
+      }
+    >
       <LazyFullShellFrame />
     </Suspense>
   ),

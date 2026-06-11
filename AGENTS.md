@@ -100,6 +100,15 @@ Run the narrowest relevant command first, then widen if needed:
 - `pnpm lint:biome`
 - `pnpm lint:architecture`
 - `pnpm check`
+- `pnpm --filter app check:stability` — client boundaries, typecheck, API/route smoke tests
+- `pnpm knip` — unused files, exports, and dependencies (see `knip.jsonc`)
+- **Next.js MCP** (`next-devtools` in `.cursor/mcp.json`) — for `apps/app` work with a running dev server:
+  1. MCP `init` with `project_path` → `apps/app`
+  2. `nextjs_index` (port `3000` if auto-discovery fails)
+  3. `nextjs_call` → `get_errors`, `get_routes` before claiming UI/API integration is done
+  4. `nextjs_docs` for App Router / Cache Components questions (do not guess)
+
+See `.cursor/rules/nextjs-mcp-quality.mdc` and `skills/reference/setup.md` (Next.js MCP section).
 
 Biome guards style and import restrictions. `tools/check-architecture-boundaries.mjs` guards architecture rules that Biome cannot express reliably.
 

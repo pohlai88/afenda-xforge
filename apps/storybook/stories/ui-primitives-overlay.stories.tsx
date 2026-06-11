@@ -96,7 +96,9 @@ export const ConfirmAlertDialog: Story = {
     const canvas = within(canvasElement);
     const body = within(canvasElement.ownerDocument.body);
 
-    await userEvent.click(canvas.getByRole("button", { name: "Delete invoice" }));
+    await userEvent.click(
+      canvas.getByRole("button", { name: "Delete invoice" })
+    );
     await expect(
       body.getByRole("alertdialog", { name: "Delete invoice?" })
     ).toBeVisible();

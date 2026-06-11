@@ -1,13 +1,13 @@
 "use client";
 
+import type { ComponentProps, ReactElement, ReactNode } from "react";
+import { cn } from "../../../lib/utils";
 import {
   Sidebar,
   SidebarContent,
   SidebarFooter,
   SidebarHeader,
 } from "../../ui-shadcn/sidebar";
-import { cn } from "../../../lib/utils";
-import type { ComponentProps, ReactElement, ReactNode } from "react";
 import {
   WORKSPACE_SHELL_SPACE,
   WORKSPACE_SHELL_TYPE,
@@ -45,7 +45,7 @@ export function WorkspaceAppSidebarHeader({
       className={cn(
         WORKSPACE_SHELL_SPACE.sidebarRoot,
         WORKSPACE_SHELL_TYPE.sidebarRoot,
-        className
+        className,
       )}
       data-slot="workspace-sidebar-header"
     >
@@ -68,7 +68,7 @@ export function WorkspaceAppSidebarContent({
         WORKSPACE_SHELL_SPACE.sidebarRoot,
         WORKSPACE_SHELL_SPACE.sidebarSectionGap,
         WORKSPACE_SHELL_TYPE.sidebarRoot,
-        className
+        className,
       )}
       data-slot="workspace-sidebar-content"
     >
@@ -101,7 +101,10 @@ export function WorkspaceSidebarNavMain({
   className?: string;
 }): ReactElement {
   return (
-    <section className={cn("flex flex-col", className)} data-slot="workspace-nav-main">
+    <section
+      className={cn("flex flex-col", className)}
+      data-slot="workspace-nav-main"
+    >
       {children}
     </section>
   );
@@ -126,7 +129,7 @@ export function WorkspaceSidebarNavSecondary({
       <div
         className={cn(
           WORKSPACE_SHELL_SPACE.sidebarLabelGap,
-          WORKSPACE_SHELL_SPACE.navListGap
+          WORKSPACE_SHELL_SPACE.navListGap,
         )}
       >
         {children}
@@ -144,10 +147,7 @@ export function WorkspaceSidebarNavMemoryLane({
   className?: string;
 }): ReactElement {
   return (
-    <section
-      className={cn(className)}
-      data-slot="workspace-nav-memory-lane"
-    >
+    <section className={cn(className)} data-slot="workspace-nav-memory-lane">
       {children}
     </section>
   );
@@ -166,7 +166,7 @@ export function WorkspaceAppSidebarFooter({
         WORKSPACE_SHELL_SPACE.sidebarRoot,
         "pb-2 pt-0",
         WORKSPACE_SHELL_TYPE.sidebarRoot,
-        className
+        className,
       )}
       data-slot="workspace-nav-user-region"
     >

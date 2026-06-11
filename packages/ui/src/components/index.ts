@@ -104,15 +104,6 @@ export {
   DropdownMenuTrigger,
 } from "./ui-shadcn/dropdown-menu";
 export {
-  Form,
-  FormControl,
-  FormDescription,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormMessage,
-} from "./ui-shadcn/form";
-export {
   Field,
   FieldContent,
   FieldDescription,
@@ -124,6 +115,15 @@ export {
   FieldSet,
   FieldTitle,
 } from "./ui-shadcn/field";
+export {
+  Form,
+  FormControl,
+  FormDescription,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "./ui-shadcn/form";
 export { Input } from "./ui-shadcn/input";
 export {
   Kanban,
@@ -195,8 +195,8 @@ export {
   SidebarTrigger,
 } from "./ui-shadcn/sidebar";
 export { Skeleton } from "./ui-shadcn/skeleton";
-export { Switch } from "./ui-shadcn/switch";
 export { Toaster, toast } from "./ui-shadcn/sonner";
+export { Switch } from "./ui-shadcn/switch";
 export {
   Table,
   TableBody,

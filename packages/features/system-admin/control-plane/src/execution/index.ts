@@ -2,6 +2,7 @@ import "server-only";
 
 import { randomUUID } from "node:crypto";
 import { writeAuditEvent, writeAuditEventInTransaction } from "@repo/audit";
+import { setTenantBranding } from "@repo/design-system/tenant-branding";
 import type {
   ExecutionDatabaseTransaction,
   ExecutionDomainResult,
@@ -14,9 +15,8 @@ import { roleAssignmentCommandSchema } from "../domains/access/schema.ts";
 import { customizationCapabilities } from "../domains/customization/contract.ts";
 import { customizationGovernanceCommandSchema } from "../domains/customization/schema.ts";
 import { tenantSettingsCapabilities } from "../domains/tenant-settings/contract.ts";
-import { tenantAdminSettingUpdateSchema } from "../domains/tenant-settings/schema.ts";
-import { setTenantBranding } from "@repo/design-system/tenant-branding";
 import { upsertTenantAdminSetting } from "../domains/tenant-settings/repository.server.ts";
+import { tenantAdminSettingUpdateSchema } from "../domains/tenant-settings/schema.ts";
 import { createSystemAdminPermissionContext } from "../feature-scope.ts";
 import type {
   CustomizationGovernanceCommand,

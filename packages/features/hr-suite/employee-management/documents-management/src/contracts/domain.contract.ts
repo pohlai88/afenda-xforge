@@ -1,4 +1,19 @@
 export type {
+  DocumentsManagementAlertReadyProjection,
+  DocumentsManagementDocumentExpiringProjection,
+  DocumentsManagementDocumentObligationProjection,
+  DocumentsManagementDocumentProjection,
+  DocumentsManagementDocumentReadinessProjection,
+  DocumentsManagementDocumentSummaryProjection,
+  DocumentsManagementDownstreamReadinessProjection,
+  DocumentsManagementMissingRequirementProjection,
+  DocumentsManagementPolicyAcknowledgmentSummaryProjection,
+  DocumentsManagementRecord,
+  DocumentsManagementRecordProjection,
+  DocumentsManagementRetentionCandidateProjection,
+  DocumentsManagementStatus,
+} from "./projection.contract.ts";
+export type {
   DocumentsManagementAcknowledgment,
   DocumentsManagementAcknowledgmentMethod,
   DocumentsManagementAcknowledgmentStatus,
@@ -22,18 +37,3 @@ export type {
   DocumentsManagementRetentionAction,
   DocumentsManagementWriteContext,
 } from "./schema.ts";
-export type {
-  DocumentsManagementAlertReadyProjection,
-  DocumentsManagementDocumentExpiringProjection,
-  DocumentsManagementDocumentObligationProjection,
-  DocumentsManagementDocumentProjection,
-  DocumentsManagementDocumentReadinessProjection,
-  DocumentsManagementDocumentSummaryProjection,
-  DocumentsManagementDownstreamReadinessProjection,
-  DocumentsManagementMissingRequirementProjection,
-  DocumentsManagementPolicyAcknowledgmentSummaryProjection,
-  DocumentsManagementRecord,
-  DocumentsManagementRecordProjection,
-  DocumentsManagementRetentionCandidateProjection,
-  DocumentsManagementStatus,
-} from "./projection.contract.ts";

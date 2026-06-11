@@ -1,6 +1,12 @@
 "use client";
 
-import { Alert, AlertDescription, AlertTitle } from "@repo/ui/components/compose/alert";
+import { Badge } from "@repo/ui/components/badge";
+import { Button } from "@repo/ui/components/button";
+import {
+  Alert,
+  AlertDescription,
+  AlertTitle,
+} from "@repo/ui/components/compose/alert";
 import { DataGridDenseTable } from "@repo/ui/components/compose/data-grid";
 import {
   Field,
@@ -12,8 +18,9 @@ import {
 import { PreviewKanban } from "@repo/ui/components/compose/kanban";
 import { renderLineChartPattern } from "@repo/ui/components/compose/line-chart";
 import { renderStatisticCardPattern } from "@repo/ui/components/compose/statistic-card";
-import { Badge } from "@repo/ui/components/badge";
-import { Button } from "@repo/ui/components/button";
+import { Input } from "@repo/ui/components/input";
+import { Kbd, KbdGroup } from "@repo/ui/components/kbd";
+import { Separator } from "@repo/ui/components/separator";
 import {
   CommandDialog,
   CommandEmpty,
@@ -23,12 +30,10 @@ import {
   CommandList,
   CommandShortcut,
 } from "@repo/ui/components/ui/command";
-import { Input } from "@repo/ui/components/input";
-import { Kbd, KbdGroup } from "@repo/ui/components/kbd";
-import { Separator } from "@repo/ui/components/separator";
 import { cn } from "@repo/ui/lib/utils";
 import type { Meta, StoryObj } from "@storybook/react";
-import { useEffect, useMemo, useState, type ReactNode } from "react";
+import type { ReactNode } from "react";
+import { useEffect, useMemo, useState } from "react";
 
 type SurfaceId = "dashboard" | "list" | "form" | "audit" | "kanban";
 type MutationId = "status" | "owner" | "threshold" | "permission";
@@ -41,6 +46,16 @@ type DeskEvent = {
   message: string;
   tone: "default" | "success" | "warning" | "destructive";
 };
+
+function deskEventBadgeVariant(tone: DeskEvent["tone"]) {
+  if (tone === "success") {
+    return "success-light";
+  }
+  if (tone === "destructive") {
+    return "destructive-light";
+  }
+  return "outline";
+}
 
 const MUTATIONS = {
   status: {
@@ -166,7 +181,7 @@ function ComposeCanvas({ children }: { children: ReactNode }) {
         "[&_.min-h-\\[220px\\]]:min-h-0",
         "[&_.min-h-\\[260px\\]]:min-h-0",
         "[&_.rounded-xl.bg-muted\\/35]:rounded-none [&_.rounded-xl.bg-muted\\/35]:border-0 [&_.rounded-xl.bg-muted\\/35]:bg-transparent [&_.rounded-xl.bg-muted\\/35]:p-0",
-        "[&_.rounded-lg.bg-muted\\/40]:rounded-none [&_.rounded-lg.bg-muted\\/40]:border-0 [&_.rounded-lg.bg-muted\\/40]:bg-transparent [&_.rounded-lg.bg-muted\\/40]:p-0",
+        "[&_.rounded-lg.bg-muted\\/40]:rounded-none [&_.rounded-lg.bg-muted\\/40]:border-0 [&_.rounded-lg.bg-muted\\/40]:bg-transparent [&_.rounded-lg.bg-muted\\/40]:p-0"
       )}
     >
       {children}
@@ -198,10 +213,14 @@ function SurfacePreview({
             <Field>
               <FieldLabel htmlFor="cmd-entity">Entity name</FieldLabel>
               <Input defaultValue="Purchase order" id="cmd-entity" />
-              <FieldDescription>{mutation.after.split(".")[0]}</FieldDescription>
+              <FieldDescription>
+                {mutation.after.split(".")[0]}
+              </FieldDescription>
             </Field>
             <Field>
-              <FieldLabel htmlFor="cmd-threshold">Approval threshold</FieldLabel>
+              <FieldLabel htmlFor="cmd-threshold">
+                Approval threshold
+              </FieldLabel>
               <Input
                 defaultValue={
                   mutation.label.includes("threshold") ? "50000" : "25000"
@@ -232,13 +251,19 @@ function SurfacePreview({
             <AlertDescription>{mutation.summary}</AlertDescription>
           </Alert>
           <div className="rounded-lg border border-border bg-card p-4 font-mono text-xs leading-6">
-            <p className="text-muted-foreground">{nowStamp()} · mutation.applied</p>
+            <p className="text-muted-foreground">
+              {nowStamp()} · mutation.applied
+            </p>
             <p className="text-foreground">
               {mutation.before} → {mutation.after}
             </p>
             <Separator className="my-3 bg-border/60" />
-            <p className="text-muted-foreground">{nowStamp()} · surface.propagated</p>
-            <p className="text-foreground">12 downstream surfaces · {mutation.verb}</p>
+            <p className="text-muted-foreground">
+              {nowStamp()} · surface.propagated
+            </p>
+            <p className="text-foreground">
+              12 downstream surfaces · {mutation.verb}
+            </p>
           </div>
         </div>
       );
@@ -256,7 +281,8 @@ function PropagationOrbit({ wave, verb }: { wave: number; verb: string }) {
 
   return (
     <div aria-hidden className="relative size-[5.5rem] shrink-0">
-      <svg className="size-full" viewBox={`0 0 ${size} ${size}`}>
+      <svg aria-hidden className="size-full" viewBox={`0 0 ${size} ${size}`}>
+        <title>Propagation orbit</title>
         <circle
           className="motion-safe:animate-pulse"
           cx={center}
@@ -318,13 +344,16 @@ function MetadataCommandPalette({
   };
 
   return (
-    <CommandDialog open={open} onOpenChange={onOpenChange}>
+    <CommandDialog onOpenChange={onOpenChange} open={open}>
       <CommandInput placeholder="Mutations, surfaces, density, governance..." />
       <CommandList>
         <CommandEmpty>No matching command.</CommandEmpty>
         <CommandGroup heading="Mutations">
           {(Object.keys(MUTATIONS) as MutationId[]).map((id) => (
-            <CommandItem key={id} onSelect={() => closeThen(() => onMutation(id))}>
+            <CommandItem
+              key={id}
+              onSelect={() => closeThen(() => onMutation(id))}
+            >
               {MUTATIONS[id].label}
               <CommandShortcut>{MUTATIONS[id].verb}</CommandShortcut>
             </CommandItem>
@@ -343,7 +372,10 @@ function MetadataCommandPalette({
         </CommandGroup>
         <CommandGroup heading="Density">
           {(["compact", "default", "comfortable"] as const).map((mode) => (
-            <CommandItem key={mode} onSelect={() => closeThen(() => onDensity(mode))}>
+            <CommandItem
+              key={mode}
+              onSelect={() => closeThen(() => onDensity(mode))}
+            >
               Set density · {mode}
             </CommandItem>
           ))}
@@ -380,8 +412,9 @@ function MetadataCommandSurface() {
   ]);
 
   const surface = useMemo(
-    () => DESK_SURFACES.find((item) => item.id === surfaceId) ?? DESK_SURFACES[0],
-    [surfaceId],
+    () =>
+      DESK_SURFACES.find((item) => item.id === surfaceId) ?? DESK_SURFACES[0],
+    [surfaceId]
   );
   const mutation = MUTATIONS[mutationId];
 
@@ -398,7 +431,7 @@ function MetadataCommandSurface() {
     const onKeyDown = (event: KeyboardEvent) => {
       if (
         event.key.toLowerCase() !== "k" ||
-        (!event.metaKey && !event.ctrlKey)
+        !(event.metaKey || event.ctrlKey)
       ) {
         return;
       }
@@ -435,7 +468,10 @@ function MetadataCommandSurface() {
   const selectMutation = (id: MutationId) => {
     setMutationId(id);
     setWave((current) => current + 1);
-    pushEvent(`Mutation · ${MUTATIONS[id].label} · ${MUTATIONS[id].verb}`, "success");
+    pushEvent(
+      `Mutation · ${MUTATIONS[id].label} · ${MUTATIONS[id].verb}`,
+      "success"
+    );
     if (id === "permission") {
       setPermission("readonly");
     }
@@ -459,7 +495,7 @@ function MetadataCommandSurface() {
     setPermission(mode);
     pushEvent(
       `Governance · ${PERMISSION_LABELS[mode]}`,
-      mode === "forbidden" ? "destructive" : "success",
+      mode === "forbidden" ? "destructive" : "success"
     );
   };
 
@@ -471,7 +507,7 @@ function MetadataCommandSurface() {
       />
       <div
         aria-hidden
-        className="pointer-events-none absolute inset-0 sb-intro-grid-bg bg-[linear-gradient(to_right,var(--border)/30_1px,transparent_1px),linear-gradient(to_bottom,var(--border)/30_1px,transparent_1px)] opacity-25"
+        className="sb-intro-grid-bg pointer-events-none absolute inset-0 bg-[linear-gradient(to_right,var(--border)/30_1px,transparent_1px),linear-gradient(to_bottom,var(--border)/30_1px,transparent_1px)] opacity-25"
       />
 
       <header className="relative z-10 border-border border-b bg-background/80 px-4 py-5 backdrop-blur-sm md:px-8">
@@ -518,7 +554,10 @@ function MetadataCommandSurface() {
           <div className="flex flex-wrap items-center justify-between gap-3 border-border border-b bg-surface-muted/40 px-4 py-3">
             <div className="flex flex-wrap items-center gap-2">
               <span className="font-medium text-sm">Operating desk</span>
-              <Separator className="hidden h-4 sm:block" orientation="vertical" />
+              <Separator
+                className="hidden h-4 sm:block"
+                orientation="vertical"
+              />
               <Badge variant="outline">Org · Northwind</Badge>
             </div>
             <div className="flex flex-wrap items-center gap-2">
@@ -534,7 +573,10 @@ function MetadataCommandSurface() {
                   {mode}
                 </Button>
               ))}
-              <Separator className="hidden h-4 md:block" orientation="vertical" />
+              <Separator
+                className="hidden h-4 md:block"
+                orientation="vertical"
+              />
               <span className="text-muted-foreground text-xs">Permission</span>
               {(["allow", "readonly", "forbidden"] as const).map((mode) => (
                 <Button
@@ -579,11 +621,15 @@ function MetadataCommandSurface() {
                     wave {wave}
                   </span>
                 </div>
-                <p className="font-mono text-[0.6rem] text-muted-foreground">before</p>
+                <p className="font-mono text-[0.6rem] text-muted-foreground">
+                  before
+                </p>
                 <p className="mt-1 truncate rounded border bg-surface-muted/50 px-2 py-1 font-mono text-[0.6rem]">
                   {mutation.before}
                 </p>
-                <p className="mt-2 font-mono text-[0.6rem] text-muted-foreground">after</p>
+                <p className="mt-2 font-mono text-[0.6rem] text-muted-foreground">
+                  after
+                </p>
                 <p className="mt-1 truncate rounded border border-primary/30 bg-primary/10 px-2 py-1 font-mono text-[0.6rem] text-primary">
                   {mutation.after}
                 </p>
@@ -596,7 +642,10 @@ function MetadataCommandSurface() {
                   Surface tree
                 </p>
               </div>
-              <nav aria-label="Metadata surfaces" className="min-h-0 flex-1 overflow-auto p-2">
+              <nav
+                aria-label="Metadata surfaces"
+                className="min-h-0 flex-1 overflow-auto p-2"
+              >
                 {DESK_SURFACES.map((item, index) => (
                   <button
                     aria-current={surfaceId === item.id ? "page" : undefined}
@@ -605,7 +654,7 @@ function MetadataCommandSurface() {
                       surfaceId === item.id
                         ? "border-primary/35 bg-primary/10 text-foreground"
                         : "border-transparent text-muted-foreground hover:border-border hover:bg-surface-muted/40 hover:text-foreground",
-                      wave > 0 && "border-primary/20 bg-primary/5",
+                      wave > 0 && "border-primary/20 bg-primary/5"
                     )}
                     key={`${item.id}-${wave}`}
                     onClick={() => selectSurface(item.id)}
@@ -629,7 +678,10 @@ function MetadataCommandSurface() {
                 </p>
                 <ol className="space-y-1.5">
                   {PIPELINE.map((step, index) => (
-                    <li className="flex items-center gap-2 font-mono text-[0.62rem]" key={step}>
+                    <li
+                      className="flex items-center gap-2 font-mono text-[0.62rem]"
+                      key={step}
+                    >
                       <span className="flex size-5 items-center justify-center rounded-sm border border-border bg-surface-muted text-muted-foreground">
                         0{index + 1}
                       </span>
@@ -643,7 +695,7 @@ function MetadataCommandSurface() {
             <div
               className={cn(
                 "relative flex min-h-[24rem] min-w-0 flex-col border-border border-b xl:border-r xl:border-b-0",
-                wave > 0 && "motion-safe:ring-2 motion-safe:ring-primary/25",
+                wave > 0 && "motion-safe:ring-2 motion-safe:ring-primary/25"
               )}
               data-density={density === "default" ? undefined : density}
               key={`canvas-${wave}`}
@@ -671,7 +723,7 @@ function MetadataCommandSurface() {
                       "pointer-events-none absolute inset-3 overflow-hidden rounded-lg border border-border/40 bg-card/40 opacity-35 blur-[0.5px]",
                       layerIndex === 0
                         ? "translate-x-2 translate-y-2 scale-[0.985]"
-                        : "translate-x-4 translate-y-4 scale-[0.97]",
+                        : "translate-x-4 translate-y-4 scale-[0.97]"
                     )}
                     key={`peek-${peek.id}-${wave}`}
                   >
@@ -691,7 +743,7 @@ function MetadataCommandSurface() {
                 {wave > 0 ? (
                   <div
                     aria-hidden
-                    className="pointer-events-none absolute inset-0 motion-safe:animate-pulse rounded-none ring-1 ring-primary/20 ring-inset"
+                    className="pointer-events-none absolute inset-0 rounded-none ring-1 ring-primary/20 ring-inset motion-safe:animate-pulse"
                   />
                 ) : null}
 
@@ -740,7 +792,10 @@ function MetadataCommandSurface() {
                 <InspectorBlock title="Surface contract">
                   <InspectorRow label="entity" value={surface.entity} />
                   <InspectorRow label="renderer" value={surface.renderer} />
-                  <InspectorRow label="permission" value={PERMISSION_LABELS[permission]} />
+                  <InspectorRow
+                    label="permission"
+                    value={PERMISSION_LABELS[permission]}
+                  />
                   <InspectorRow label="density" value={density} />
                   <div className="mt-2 flex flex-wrap gap-1.5">
                     {surface.compose.map((group) => (
@@ -755,7 +810,7 @@ function MetadataCommandSurface() {
                   <div className="flex flex-wrap gap-1.5">
                     {REGISTRY_MAP.map((key) => {
                       const active = surface.compose.some((group) =>
-                        key.startsWith(group),
+                        key.startsWith(group)
                       );
                       return (
                         <Badge
@@ -795,7 +850,7 @@ function MetadataCommandSurface() {
               {PROPAGATION_SURFACES.map((name, index) => (
                 <div
                   className={cn(
-                    "min-w-[9rem] shrink-0 rounded-md border border-primary/20 bg-primary/5 px-3 py-2 motion-safe:transition-all motion-safe:duration-500",
+                    "min-w-[9rem] shrink-0 rounded-md border border-primary/20 bg-primary/5 px-3 py-2 motion-safe:transition-all motion-safe:duration-500"
                   )}
                   key={`${name}-${wave}`}
                   style={{ transitionDelay: `${index * 30}ms` }}
@@ -819,15 +874,7 @@ function MetadataCommandSurface() {
                   className="min-w-[15rem] shrink-0 rounded-md border border-border bg-card px-3 py-2"
                   key={event.id}
                 >
-                  <Badge
-                    variant={
-                      event.tone === "success"
-                        ? "success-light"
-                        : event.tone === "destructive"
-                          ? "destructive-light"
-                          : "outline"
-                    }
-                  >
+                  <Badge variant={deskEventBadgeVariant(event.tone)}>
                     {event.at}
                   </Badge>
                   <p className="mt-1.5 font-mono text-[0.62rem] leading-5">

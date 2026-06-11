@@ -459,7 +459,6 @@ function FileThumb({
       {preview ? (
         <img
           alt=""
-          role="presentation"
           className={cn(
             "bg-muted object-cover",
             compact
@@ -508,7 +507,6 @@ function FileRow({
           {getFileUrl(file) ? (
             <img
               alt=""
-              role="presentation"
               className="size-8 rounded-md object-cover"
               src={getFileUrl(file)}
             />
@@ -1032,7 +1030,6 @@ function ImageUpload() {
           <div key={file.id} className="overflow-hidden rounded-lg border">
             <img
               alt=""
-              role="presentation"
               className="aspect-[4/3] w-full object-cover"
               src={getFileUrl(file)}
             />
@@ -1185,7 +1182,6 @@ function CardUpload() {
               {getFileUrl(file) ? (
                 <img
                   alt=""
-                  role="presentation"
                   className="size-12 rounded-md object-cover"
                   src={getFileUrl(file)}
                 />
@@ -1241,7 +1237,6 @@ function CoverUpload() {
             <div className="relative aspect-[21/9] w-full">
               <img
                 alt=""
-                role="presentation"
                 className="h-full w-full object-cover"
                 src={getFileUrl(cover)}
               />

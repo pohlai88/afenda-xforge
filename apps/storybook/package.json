@@ -43,6 +43,7 @@
     "@storybook/react-vite": "catalog:",
     "react": "catalog:",
     "react-dom": "catalog:",
+    "next-intl": "catalog:",
     "storybook": "catalog:"
   },
   "devDependencies": {

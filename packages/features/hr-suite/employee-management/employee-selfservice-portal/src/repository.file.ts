@@ -32,19 +32,19 @@ const globalEmployeeSelfservicePortalState = globalThis as typeof globalThis & {
   [employeeSelfservicePortalRepositoryStateKey]?: EmployeeSelfservicePortalRepositoryRuntimeState;
 };
 
+globalEmployeeSelfservicePortalState[
+  employeeSelfservicePortalRepositoryStateKey
+] ??= {
+  repositoryCache: null,
+  repositoryPath: resolve(
+    /* turbopackIgnore: true */ tmpdir(),
+    "afenda-employee-selfservice-portal-repository.json"
+  ),
+};
 const runtimeState =
   globalEmployeeSelfservicePortalState[
     employeeSelfservicePortalRepositoryStateKey
-  ] ??
-  (globalEmployeeSelfservicePortalState[
-    employeeSelfservicePortalRepositoryStateKey
-  ] = {
-    repositoryCache: null,
-    repositoryPath: resolve(
-      /* turbopackIgnore: true */ tmpdir(),
-      "afenda-employee-selfservice-portal-repository.json"
-    ),
-  });
+  ];
 
 const reviveAuditEventDates = (value: unknown): unknown => {
   if (!value || typeof value !== "object") {

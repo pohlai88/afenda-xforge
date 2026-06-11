@@ -1,9 +1,5 @@
-import {
-  lazy,
-  Suspense,
-  type ComponentType,
-  type ReactNode,
-} from "react";
+import type { ComponentType, ReactNode } from "react";
+import { lazy, Suspense } from "react";
 
 export function GalleryFrame({ children }: { children: ReactNode }) {
   return <div className="mx-auto w-full max-w-6xl p-6 md:p-10">{children}</div>;

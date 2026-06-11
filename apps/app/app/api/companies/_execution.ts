@@ -8,6 +8,7 @@ import type {
   UpdateCompanyBody,
 } from "@repo/features-master-data-companies/contract";
 import {
+  archiveCompany,
   createCompany,
   getCompany,
   listCompanies,
@@ -105,6 +106,21 @@ export const updateCompanyForTenant = async (
     grantedPermissions: access.grantedPermissions,
     operationId: access.operationId,
     postCommitHooks: [workdayCompanySyncPostCommitHook],
+    requestId: access.requestId,
+    tenantId: access.tenantId,
+    userId: access.actorId,
+  });
+};
+
+export const archiveCompanyForTenant = async (
+  companyId: string
+): Promise<Company> => {
+  const access = await resolveRuntimeTenantAccess();
+
+  return archiveCompany({
+    companyId,
+    grantedPermissions: access.grantedPermissions,
+    operationId: access.operationId,
     requestId: access.requestId,
     tenantId: access.tenantId,
     userId: access.actorId,

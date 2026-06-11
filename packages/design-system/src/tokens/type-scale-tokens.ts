@@ -33,7 +33,10 @@ export type TypeScaleDefinition = {
   readonly textTransform?: string;
 };
 
-export const TYPE_SCALE_DEFINITIONS: Record<TypeScaleRole, TypeScaleDefinition> = {
+export const TYPE_SCALE_DEFINITIONS: Record<
+  TypeScaleRole,
+  TypeScaleDefinition
+> = {
   read: {
     cssVarPrefix: "--type-read",
     fontSize: "0.75rem",

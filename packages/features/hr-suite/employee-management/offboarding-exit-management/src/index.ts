@@ -125,6 +125,4 @@ export {
   listOffboardingAuditTrailRecords,
   listOffboardingCaseRecords,
 } from "./queries.ts";
-export {
-  offboardingExitManagementExecutionSurface,
-} from "./shared/index.ts";
+export { offboardingExitManagementExecutionSurface } from "./shared/index.ts";

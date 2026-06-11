@@ -1,8 +1,8 @@
+import { canDownloadDocumentsManagement } from "@repo/features-employee-management-documents-management";
 import {
   getDocumentsManagementDocument,
   recordDocumentsManagementDocumentAccess,
 } from "@repo/features-employee-management-documents-management/server";
-import { canDownloadDocumentsManagement } from "@repo/features-employee-management-documents-management";
 
 import { createDocumentsManagementReadContext } from "../../_lib/context.ts";
 import {

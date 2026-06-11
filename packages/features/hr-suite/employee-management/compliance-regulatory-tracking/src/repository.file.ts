@@ -61,7 +61,7 @@ const emptyState = (): ComplianceRepositoryState => ({
   workerProfiles: [],
 });
 
-let repositoryFilePath: string =
+const repositoryFilePath: string =
   process.env.AFENDA_COMPLIANCE_REGULATORY_TRACKING_REPOSITORY_PATH ??
   process.env.AFENDA_COMPLIANCE_REGULATORY_TRACKING_STORE_PATH ??
   resolve(
@@ -84,12 +84,12 @@ const globalComplianceRepositoryState = globalThis as typeof globalThis & {
   [complianceRepositoryStateKey]?: ComplianceRepositoryRuntimeState;
 };
 
+globalComplianceRepositoryState[complianceRepositoryStateKey] ??= {
+  cache: null,
+  repositoryFilePath,
+};
 const runtimeState =
-  globalComplianceRepositoryState[complianceRepositoryStateKey] ??
-  (globalComplianceRepositoryState[complianceRepositoryStateKey] = {
-    cache: null,
-    repositoryFilePath,
-  });
+  globalComplianceRepositoryState[complianceRepositoryStateKey];
 
 const serializeRepositoryState = (state: ComplianceRepositoryState): string =>
   JSON.stringify(state, (_key, value) =>

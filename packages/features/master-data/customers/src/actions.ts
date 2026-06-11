@@ -9,8 +9,8 @@ import {
 import { requireTenantActorAccess } from "@repo/auth/access";
 import type { TrustedTenantContext } from "@repo/auth/trusted";
 import { isTrustedTenantContext } from "@repo/auth/trusted";
-import { NotFoundError, ResourceStateError } from "@repo/errors";
 import { customers, database, timeDatabaseQuery } from "@repo/database";
+import { NotFoundError, ResourceStateError } from "@repo/errors";
 import type {
   ExecutionDatabaseTransaction,
   ExecutionDomainResult,
@@ -438,78 +438,79 @@ export const updateCustomer = (
 ): Promise<Customer> => {
   const parsedInput = updateCustomerBodySchema.parse(input);
   let resolvedAccess: ResolvedCustomerCommandAccess | null = null;
-  const pipeline = createExecutionPipeline<UpdateCustomerCommandInput, Customer>(
-    {
-      executeDomainOperation: async ({
+  const pipeline = createExecutionPipeline<
+    UpdateCustomerCommandInput,
+    Customer
+  >({
+    executeDomainOperation: async ({
+      db,
+      input: executionInput,
+      actor,
+      tenant,
+    }: ExecutionMutationContext<UpdateCustomerCommandInput>) => {
+      const { after, before } = await updateCustomerRecord(executionInput, {
+        ...context,
+        customerId: executionInput.customerId,
         db,
-        input: executionInput,
-        actor,
-        tenant,
-      }: ExecutionMutationContext<UpdateCustomerCommandInput>) => {
-        const { after, before } = await updateCustomerRecord(executionInput, {
-          ...context,
-          customerId: executionInput.customerId,
-          db,
-          tenantId: tenant.tenantId,
-          userId: actor.actorId,
-        });
+        tenantId: tenant.tenantId,
+        userId: actor.actorId,
+      });
 
-        return {
-          action: "customers.update",
-          after: {
-            customer: after,
-          },
-          before: {
-            customer: before,
-          },
-          channel: resolvedAccess?.channel,
-          reason: "update customer",
-          result: after,
-          targetId: after.id,
-          targetType: "customer",
-        };
-      },
-      permissionContext: () => {
-        if (!resolvedAccess) {
-          throw new Error("Customer command access was not resolved");
-        }
+      return {
+        action: "customers.update",
+        after: {
+          customer: after,
+        },
+        before: {
+          customer: before,
+        },
+        channel: resolvedAccess?.channel,
+        reason: "update customer",
+        result: after,
+        targetId: after.id,
+        targetType: "customer",
+      };
+    },
+    permissionContext: () => {
+      if (!resolvedAccess) {
+        throw new Error("Customer command access was not resolved");
+      }
 
-        return createCustomerPermissionContext(
-          resolvedAccess,
-          "customers.update"
-        );
-      },
-      permissionRequirement: {
-        allOf: [permissionCatalog.customers.write],
-      },
-      runInTransaction: <T>(
-        run: (db: ExecutionDatabaseTransaction) => Promise<T>
-      ): Promise<T> => database.transaction(run),
-      operationId: context.operationId ?? context.requestId ?? randomUUID(),
-      requireAuth: async () => {
-        resolvedAccess = await resolveCustomerCommandAccess(context);
+      return createCustomerPermissionContext(
+        resolvedAccess,
+        "customers.update"
+      );
+    },
+    permissionRequirement: {
+      allOf: [permissionCatalog.customers.write],
+    },
+    runInTransaction: <T>(
+      run: (db: ExecutionDatabaseTransaction) => Promise<T>
+    ): Promise<T> => database.transaction(run),
+    operationId: context.operationId ?? context.requestId ?? randomUUID(),
+    requireAuth: async () => {
+      resolvedAccess = await resolveCustomerCommandAccess(context);
 
-        return {
-          actorId: resolvedAccess.userId,
-          actorType: resolvedAccess.actorType,
-        };
-      },
-      requirePermission,
-      requireTenantMembership: () => Promise.resolve(),
-      resolveActiveTenant: () => {
-        if (!resolvedAccess) {
-          throw new Error("Customer command access was not resolved");
-        }
+      return {
+        actorId: resolvedAccess.userId,
+        actorType: resolvedAccess.actorType,
+      };
+    },
+    requirePermission,
+    requireTenantMembership: () => Promise.resolve(),
+    resolveActiveTenant: () => {
+      if (!resolvedAccess) {
+        throw new Error("Customer command access was not resolved");
+      }
 
-        return Promise.resolve({ tenantId: resolvedAccess.tenantId });
-      },
-      requestId: context.requestId ?? randomUUID(),
-      validateInput: (executionInput) => {
-        updateCustomerBodySchema.parse(executionInput);
-      },
-      writeAuditEvent: persistCustomerAuditEvent,
-    }
-  );
+      return Promise.resolve({ tenantId: resolvedAccess.tenantId });
+    },
+    requestId: context.requestId ?? randomUUID(),
+    validateInput: (executionInput) => {
+      updateCustomerBodySchema.parse(executionInput);
+    },
+    writeAuditEvent: persistCustomerAuditEvent,
+  });
 
   return pipeline({ ...parsedInput, customerId: context.customerId });
 };

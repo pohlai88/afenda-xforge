@@ -1,20 +1,24 @@
 import type { ColorMode } from "../contracts/color.contract";
 import { getDefaultLaneForFeature } from "../contracts/module-lane.catalog";
-import { THEME_PRESETS } from "../contracts/theme-preset.contract";
+import type {
+  PartialLaneColorScale,
+  TenantBrandingSettings,
+} from "../contracts/tenant-branding.contract";
 import {
   DEFAULT_TENANT_BRANDING_SETTINGS,
   mergeLaneScaleFields,
-  type PartialLaneColorScale,
-  type TenantBrandingSettings,
 } from "../contracts/tenant-branding.contract";
+import { THEME_PRESETS } from "../contracts/theme-preset.contract";
+import type {
+  ErpVisualLaneId,
+  LaneColorScale,
+  LaneColorScaleField,
+} from "../contracts/visual-lane.contract";
 import {
   activeLaneCssVarName,
   ERP_VISUAL_LANE_BY_ID,
   laneCssVarName,
   tenantLaneCssVarName,
-  type ErpVisualLaneId,
-  type LaneColorScale,
-  type LaneColorScaleField,
 } from "../contracts/visual-lane.contract";
 
 export type CssVarMap = Record<string, string>;
@@ -34,7 +38,9 @@ function mergeOptionalLaneScale(
 }
 
 function getThemePreset(settings: TenantBrandingSettings) {
-  const preset = THEME_PRESETS.find((entry) => entry.name === settings.themePreset);
+  const preset = THEME_PRESETS.find(
+    (entry) => entry.name === settings.themePreset
+  );
   if (!preset) {
     throw new Error(`Unknown theme preset: ${settings.themePreset}`);
   }
@@ -84,7 +90,12 @@ export function resolveLaneScale(
   const laneModeScale = settings.laneColorOverrides?.byLane?.[laneId];
 
   return mergeOptionalLaneScale(
-    mergeOptionalLaneScale(base, laneModeScale?.light, laneModeScale?.dark, mode),
+    mergeOptionalLaneScale(
+      base,
+      laneModeScale?.light,
+      laneModeScale?.dark,
+      mode
+    ),
     featureModeScale?.light,
     featureModeScale?.dark,
     mode
@@ -152,7 +163,9 @@ export function resolveActiveLaneCssVars(
   return vars;
 }
 
-export function cssVarMapToInlineStyle(vars: CssVarMap): Record<string, string> {
+export function cssVarMapToInlineStyle(
+  vars: CssVarMap
+): Record<string, string> {
   return { ...vars };
 }
 
@@ -173,7 +186,9 @@ export function renderTenantBrandingStyleBlock(
       .map(([name, value]) => `  ${name}: ${value};`)
       .join("\n")}\n}`;
 
-  return [renderBlock(":root", rootVars), renderBlock(".dark", darkVars)].join("\n\n");
+  return [renderBlock(":root", rootVars), renderBlock(".dark", darkVars)].join(
+    "\n\n"
+  );
 }
 
 export function resolveLaneCssVarReference(

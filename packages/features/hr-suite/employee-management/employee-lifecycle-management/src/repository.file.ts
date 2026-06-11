@@ -10,8 +10,6 @@ import {
 } from "node:fs";
 import { dirname, resolve } from "node:path";
 import { z } from "zod";
-import type { EmployeeLifecycleManagementAuditEvent } from "./registry/audit.ts";
-import { employeeLifecycleManagementAuditEvents } from "./registry/audit.ts";
 import type {
   EmployeeLifecycleNotificationIntent,
   EmployeeLifecycleOffboardingHandoffRecord,
@@ -20,6 +18,8 @@ import {
   employeeLifecycleNotificationIntentSchema,
   employeeLifecycleOffboardingHandoffRecordSchema,
 } from "./contracts/automation.contract.ts";
+import type { EmployeeLifecycleManagementAuditEvent } from "./registry/audit.ts";
+import { employeeLifecycleManagementAuditEvents } from "./registry/audit.ts";
 import type {
   EmployeeLifecycleContractRecord,
   EmployeeLifecycleExitRecord,
@@ -101,19 +101,21 @@ const employeeLifecycleRepositoryStateKey = Symbol.for(
   "afenda.employee-lifecycle-management.repository-state"
 );
 
-const globalEmployeeLifecycleRepositoryState = globalThis as typeof globalThis & {
-  [employeeLifecycleRepositoryStateKey]?: EmployeeLifecycleRepositoryRuntimeState;
-};
+const globalEmployeeLifecycleRepositoryState =
+  globalThis as typeof globalThis & {
+    [employeeLifecycleRepositoryStateKey]?: EmployeeLifecycleRepositoryRuntimeState;
+  };
 
-const runtimeState =
-  globalEmployeeLifecycleRepositoryState[employeeLifecycleRepositoryStateKey] ??
-  (globalEmployeeLifecycleRepositoryState[employeeLifecycleRepositoryStateKey] = {
+globalEmployeeLifecycleRepositoryState[employeeLifecycleRepositoryStateKey] ??=
+  {
     cache: null,
     repositoryFilePath:
       process.env.AFENDA_EMPLOYEE_LIFECYCLE_MANAGEMENT_REPOSITORY_PATH ??
       process.env.AFENDA_EMPLOYEE_LIFECYCLE_MANAGEMENT_STORE_PATH ??
       defaultRepositoryPath,
-  });
+  };
+const runtimeState =
+  globalEmployeeLifecycleRepositoryState[employeeLifecycleRepositoryStateKey];
 
 const emptyState = (): EmployeeLifecycleRepositoryState => ({
   states: [],

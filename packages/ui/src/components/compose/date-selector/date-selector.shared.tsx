@@ -1314,12 +1314,10 @@ export function DateSelector({
           </div>
         ) : (
           <div className="-mr-3 w-full">
-            <div
+            <section
               key={periodType}
-              className="h-[200px] w-full overflow-y-auto pe-3 outline-none focus-visible:ring-2 focus-visible:ring-ring/50"
-              tabIndex={0}
-              role="region"
               aria-label={`Select ${periodType}`}
+              className="h-[200px] w-full overflow-y-auto pe-3 outline-none focus-visible:ring-2 focus-visible:ring-ring/50"
             >
               {periodType === "month" && (
                 <DateSelectorPeriodGrid
@@ -1373,7 +1371,7 @@ export function DateSelector({
                   onSelect={handleYearSelect}
                 />
               )}
-            </div>
+            </section>
           </div>
         )}
       </div>

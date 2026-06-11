@@ -1,4 +1,4 @@
-import { converter, parse, wcagContrast } from "culori";
+import { parse, wcagContrast } from "culori";
 
 import {
   GLOBALS_CSS_DARK_DECLARATIONS,
@@ -49,8 +49,10 @@ function contrastRatio(foreground: string, background: string): number {
   const foregroundColor = parse(foreground);
   const backgroundColor = parse(background);
 
-  if (!foregroundColor || !backgroundColor) {
-    throw new Error(`Unable to parse contrast pair: ${foreground} on ${background}`);
+  if (!(foregroundColor && backgroundColor)) {
+    throw new Error(
+      `Unable to parse contrast pair: ${foreground} on ${background}`
+    );
   }
 
   return wcagContrast(foregroundColor, backgroundColor);
@@ -58,7 +60,9 @@ function contrastRatio(foreground: string, background: string): number {
 
 function collectPairs(mode: "dark" | "light"): ContrastPair[] {
   const lookup = declarationMap(
-    mode === "light" ? GLOBALS_CSS_ROOT_DECLARATIONS : GLOBALS_CSS_DARK_DECLARATIONS
+    mode === "light"
+      ? GLOBALS_CSS_ROOT_DECLARATIONS
+      : GLOBALS_CSS_DARK_DECLARATIONS
   );
 
   const read = (token: string) => resolveValue(`var(${token})`, lookup);

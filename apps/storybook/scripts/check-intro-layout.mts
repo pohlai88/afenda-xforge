@@ -28,7 +28,9 @@ function collectStorySources(directory: string): string[] {
 const errors: string[] = [];
 
 if (!existsSync(orbitLayoutPath)) {
-  errors.push("stories/metadata-orbit-layout.tsx is required for intro orbit layouts");
+  errors.push(
+    "stories/metadata-orbit-layout.tsx is required for intro orbit layouts"
+  );
 }
 
 const orbitLayoutSource = existsSync(orbitLayoutPath)
@@ -40,7 +42,7 @@ if (
   !orbitLayoutSource.includes("@repo/metadata-ui/visualization/orbit-layout")
 ) {
   errors.push(
-    "metadata-orbit-layout.tsx must import sizing from @repo/metadata-ui/visualization/orbit-layout",
+    "metadata-orbit-layout.tsx must import sizing from @repo/metadata-ui/visualization/orbit-layout"
   );
 }
 
@@ -50,7 +52,7 @@ if (!orbitLayoutSource.includes("MetadataOrbitStage")) {
 
 if (!orbitLayoutSource.includes("overflow-visible")) {
   errors.push(
-    "metadata-orbit-layout.tsx: MetadataOrbitStage stage root must use overflow-visible",
+    "metadata-orbit-layout.tsx: MetadataOrbitStage stage root must use overflow-visible"
   );
 }
 
@@ -59,18 +61,20 @@ for (const storyPath of introStoryFiles) {
   const storyName = storyPath.split(/[/\\]/).pop() ?? storyPath;
 
   if (!source.includes("MetadataOrbitStage")) {
-    errors.push(`${storyName}: must render orbital UI through MetadataOrbitStage`);
+    errors.push(
+      `${storyName}: must render orbital UI through MetadataOrbitStage`
+    );
   }
 
   if (/style=\{\{[\s\S]*?transform:/.test(source)) {
     errors.push(
-      `${storyName}: must not use inline style.transform for orbital nodes — use MetadataOrbitStage pin pattern`,
+      `${storyName}: must not use inline style.transform for orbital nodes — use MetadataOrbitStage pin pattern`
     );
   }
 
   if (/MetadataOrbitStage[\s\S]*absolute[\s\S]*bottom-0/.test(source)) {
     errors.push(
-      `${storyName}: stats/footer must not use absolute bottom-0 inside MetadataOrbitStage — place outside the stage`,
+      `${storyName}: stats/footer must not use absolute bottom-0 inside MetadataOrbitStage — place outside the stage`
     );
   }
 }
@@ -81,7 +85,7 @@ for (const storyPath of collectStorySources(storiesRoot)) {
 
   if (/bg-size-\[/.test(source)) {
     errors.push(
-      `${storyName}: bg-size-[…] is not a reliable Tailwind v4 utility — use sb-intro-grid-bg or bg-[length:…]`,
+      `${storyName}: bg-size-[…] is not a reliable Tailwind v4 utility — use sb-intro-grid-bg or bg-[length:…]`
     );
   }
 
@@ -90,7 +94,7 @@ for (const storyPath of collectStorySources(storiesRoot)) {
     /style=\{\{[\s\S]*?transform:/.test(source)
   ) {
     errors.push(
-      `${storyName}: hover translate on the same node as inline transform breaks orbital placement`,
+      `${storyName}: hover translate on the same node as inline transform breaks orbital placement`
     );
   }
 }
@@ -98,7 +102,9 @@ for (const storyPath of collectStorySources(storiesRoot)) {
 const previewCss = readFileSync(previewCssPath, "utf8");
 
 if (!/@utility\s+sb-intro-grid-bg/.test(previewCss)) {
-  errors.push("preview.css must declare @utility sb-intro-grid-bg for grid backgrounds");
+  errors.push(
+    "preview.css must declare @utility sb-intro-grid-bg for grid backgrounds"
+  );
 }
 
 if (errors.length > 0) {

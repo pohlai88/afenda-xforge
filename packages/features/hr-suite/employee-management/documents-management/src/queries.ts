@@ -127,7 +127,9 @@ const matchesDocumentsManagementDocumentQuery = (
     return false;
   }
 
-  if (!matchesOptionalString(query.jurisdictionCode, document.jurisdictionCode)) {
+  if (
+    !matchesOptionalString(query.jurisdictionCode, document.jurisdictionCode)
+  ) {
     return false;
   }
 
@@ -162,12 +164,14 @@ const matchesDocumentsManagementDocumentQuery = (
   }
 
   if (
-    !matchesOptionalDateBefore(document.expiresAt, query.expiresBefore) ||
-    !matchesOptionalDateAfter(document.expiresAt, query.expiresAfter) ||
-    !matchesOptionalDateBefore(document.issuedAt, query.issuedBefore) ||
-    !matchesOptionalDateAfter(document.issuedAt, query.issuedAfter) ||
-    !matchesOptionalDateBefore(document.uploadedAt, query.uploadedAtBefore) ||
-    !matchesOptionalDateAfter(document.uploadedAt, query.uploadedAtAfter)
+    !(
+      matchesOptionalDateBefore(document.expiresAt, query.expiresBefore) &&
+      matchesOptionalDateAfter(document.expiresAt, query.expiresAfter) &&
+      matchesOptionalDateBefore(document.issuedAt, query.issuedBefore) &&
+      matchesOptionalDateAfter(document.issuedAt, query.issuedAfter) &&
+      matchesOptionalDateBefore(document.uploadedAt, query.uploadedAtBefore) &&
+      matchesOptionalDateAfter(document.uploadedAt, query.uploadedAtAfter)
+    )
   ) {
     return false;
   }
@@ -209,11 +213,15 @@ const matchesDocumentsManagementObligationQuery = (
     return false;
   }
 
-  if (!matchesOptionalString(query.legalEntityCode, obligation.legalEntityCode)) {
+  if (
+    !matchesOptionalString(query.legalEntityCode, obligation.legalEntityCode)
+  ) {
     return false;
   }
 
-  if (!matchesOptionalString(query.jurisdictionCode, obligation.jurisdictionCode)) {
+  if (
+    !matchesOptionalString(query.jurisdictionCode, obligation.jurisdictionCode)
+  ) {
     return false;
   }
 
@@ -231,10 +239,7 @@ const matchesDocumentsManagementObligationQuery = (
     return false;
   }
 
-  if (
-    query.obligationStatus &&
-    obligation.status !== query.obligationStatus
-  ) {
+  if (query.obligationStatus && obligation.status !== query.obligationStatus) {
     return false;
   }
 
@@ -248,8 +253,10 @@ const matchesDocumentsManagementObligationQuery = (
   }
 
   if (
-    !matchesOptionalDateBefore(obligation.expiresAt, query.expiresBefore) ||
-    !matchesOptionalDateAfter(obligation.expiresAt, query.expiresAfter)
+    !(
+      matchesOptionalDateBefore(obligation.expiresAt, query.expiresBefore) &&
+      matchesOptionalDateAfter(obligation.expiresAt, query.expiresAfter)
+    )
   ) {
     return false;
   }
@@ -264,7 +271,10 @@ const matchesDocumentsManagementObligationQuery = (
   return matchesObligationSearchTerm(obligation, searchTerm);
 };
 
-const paginate = <T>(items: readonly T[], query: ListDocumentsManagementQuery) => {
+const paginate = <T>(
+  items: readonly T[],
+  query: ListDocumentsManagementQuery
+) => {
   const page = normalizePositiveInteger(query.page, 1);
   const pageSize = normalizePositiveInteger(query.pageSize, DEFAULT_PAGE_SIZE);
   const startIndex = (page - 1) * pageSize;
@@ -397,7 +407,9 @@ export function listDocumentsManagementDocumentObligations(
           left.title.localeCompare(right.title)
       ),
     parsedQuery
-  ).map((obligation) => projectDocumentsManagementDocumentObligation(obligation));
+  ).map((obligation) =>
+    projectDocumentsManagementDocumentObligation(obligation)
+  );
 }
 
 export function listDocumentsManagementPolicyAcknowledgmentSummaries(
@@ -413,7 +425,9 @@ export function listDocumentsManagementPolicyAcknowledgmentSummaries(
 
   return paginate(
     listDocumentsManagementRepositoryDocumentObligations(context)
-      .filter((obligation) => obligation.obligationType === "policy_acknowledgment")
+      .filter(
+        (obligation) => obligation.obligationType === "policy_acknowledgment"
+      )
       .filter((obligation) =>
         matchesDocumentsManagementObligationQuery(
           obligation,
@@ -459,7 +473,9 @@ export function listDocumentsManagementMissingRequirementSummaries(
           left.title.localeCompare(right.title)
       ),
     parsedQuery
-  ).map((obligation) => projectDocumentsManagementMissingRequirement(obligation));
+  ).map((obligation) =>
+    projectDocumentsManagementMissingRequirement(obligation)
+  );
 }
 
 export function listDocumentsManagementDocumentReadinessSummaries(
@@ -473,11 +489,18 @@ export function listDocumentsManagementDocumentReadinessSummaries(
   const parsedQuery = listDocumentsManagementQuerySchema.parse(query);
   const searchTerm = normalizeSearchTerm(parsedQuery.search);
   const groupedDocuments = new Map<string, DocumentsManagementDocument[]>();
-  const groupedObligations = new Map<string, DocumentsManagementDocumentObligation[]>();
+  const groupedObligations = new Map<
+    string,
+    DocumentsManagementDocumentObligation[]
+  >();
 
   for (const document of listDocumentsManagementRepositoryDocuments(context)) {
     if (
-      !matchesDocumentsManagementDocumentQuery(document, parsedQuery, searchTerm)
+      !matchesDocumentsManagementDocumentQuery(
+        document,
+        parsedQuery,
+        searchTerm
+      )
     ) {
       continue;
     }
@@ -654,7 +677,9 @@ export function listDocumentsManagementRetentionCandidates(
         retentionDueAt,
       };
     })
-    .filter((candidate) => candidate.retentionDueAt.getTime() <= currentTime.getTime())
+    .filter(
+      (candidate) => candidate.retentionDueAt.getTime() <= currentTime.getTime()
+    )
     .sort(
       (left, right) =>
         left.retentionDueAt.getTime() - right.retentionDueAt.getTime() ||

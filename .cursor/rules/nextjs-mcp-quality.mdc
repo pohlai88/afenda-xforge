@@ -1,0 +1,47 @@
+---
+description: Next.js MCP quality gates for apps/app development and review
+globs: apps/app/**/*
+alwaysApply: false
+---
+
+# Next.js MCP Quality Gates
+
+Use the `next-devtools` MCP server (`.cursor/mcp.json`) when changing `apps/app`.
+
+## Session start (mandatory for Next.js work)
+
+1. Call MCP `init` with `project_path: apps/app` (absolute path to the Next.js app package).
+2. For API/routing/cache questions, use `nextjs_docs` — do not answer from memory.
+3. When the dev server is running (`pnpm --filter app dev`, port 3000):
+   - `nextjs_index` → discover runtime tools
+   - `nextjs_call` → `get_errors`, `get_routes`, `get_project_metadata` before claiming a feature works
+
+## Before marking UI/API work complete
+
+Run narrow gates first:
+
+```bash
+pnpm --filter app typecheck
+pnpm --filter app test:stability
+```
+
+When dev server is up, call `nextjs_call` with `toolName: get_errors` on port `3000` and resolve any runtime/build errors reported.
+
+## Scope
+
+- **App package:** `apps/app` (Next.js 16+, built-in `/_next/mcp` on dev server)
+- **Do not** substitute MCP runtime checks with guesses about App Router behavior
+- **Monorepo:** point `init` at `apps/app`, not repo root
+
+## MCP config (already in repo)
+
+```json
+{
+  "mcpServers": {
+    "next-devtools": {
+      "command": "npx",
+      "args": ["-y", "next-devtools-mcp@latest"]
+    }
+  }
+}
+```

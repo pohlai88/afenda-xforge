@@ -20,13 +20,16 @@ export type DocumentsManagementRoutePath =
 
 export const documentsManagementApiRoutePaths = {
   acknowledgments: "/api/hr/documents/acknowledgments",
-  documentDownload: (documentId: string): `/api/hr/documents/${string}/download` =>
+  documentDownload: (
+    documentId: string
+  ): `/api/hr/documents/${string}/download` =>
     `/api/hr/documents/${documentId}/download`,
   document: (documentId: string): `/api/hr/documents/${string}` =>
     `/api/hr/documents/${documentId}`,
   documentUpload: "/api/hr/documents/upload",
   documents: "/api/hr/documents",
-  essAcknowledgments: "/api/hr/employee-selfservice-portal/documents/acknowledgments",
+  essAcknowledgments:
+    "/api/hr/employee-selfservice-portal/documents/acknowledgments",
   essDocuments: "/api/hr/employee-selfservice-portal/documents",
   expiring: "/api/hr/documents/expiring",
   obligations: "/api/hr/documents/obligations",

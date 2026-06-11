@@ -158,6 +158,4 @@ export {
   organizationalChartHierarchyRequirementCoverage,
   organizationalChartHierarchyRiskClassification,
 } from "./registry/index.ts";
-export {
-  hrOrgFeatureScope,
-} from "./shared/index.ts";
+export { hrOrgFeatureScope } from "./shared/index.ts";

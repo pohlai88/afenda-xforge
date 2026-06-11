@@ -5,16 +5,16 @@ import { tmpdir } from "node:os";
 import { resolve } from "node:path";
 import { afterEach, beforeEach, test } from "node:test";
 import {
-  createEmployeeSelfservicePortal,
+  resetEmployeeSelfservicePortalRepositoryForTesting,
+  setEmployeeSelfservicePortalRepositoryPathForTesting,
+} from "../src/repository.ts";
+import {
   configureEmployeeSelfservicePortalLeaveAttendanceIntegration,
+  createEmployeeSelfservicePortal,
   listEmployeeSelfservicePortalLeaveApplications,
   listEmployeeSelfservicePortalLeaveBalances,
   resetEmployeeSelfservicePortalLeaveAttendanceIntegrationForTesting,
 } from "../src/server.ts";
-import {
-  resetEmployeeSelfservicePortalRepositoryForTesting,
-  setEmployeeSelfservicePortalRepositoryPathForTesting,
-} from "../src/repository.ts";
 
 let essRepositoryPath = "";
 
@@ -57,7 +57,9 @@ beforeEach(() => {
               updatedAt: new Date("2026-06-05T00:00:00.000Z"),
             },
           ].filter((record) =>
-            query.leaveTypeCode ? record.leaveTypeCode === query.leaveTypeCode : true
+            query.leaveTypeCode
+              ? record.leaveTypeCode === query.leaveTypeCode
+              : true
           )
         : [],
     listLeaveBalances: (query, context) =>
@@ -80,7 +82,9 @@ beforeEach(() => {
               usedBalance: 8,
             },
           ].filter((record) =>
-            query.leaveTypeCode ? record.leaveTypeCode === query.leaveTypeCode : true
+            query.leaveTypeCode
+              ? record.leaveTypeCode === query.leaveTypeCode
+              : true
           )
         : [],
   });

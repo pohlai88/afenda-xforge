@@ -90,6 +90,10 @@ export { employeeSelfservicePortalManifest } from "./manifest.ts";
 export { employeeSelfservicePortalMetadata } from "./metadata.ts";
 export { employeeSelfservicePortalRequirementCoverage } from "./registry/index.ts";
 export {
+  resetEmployeeSelfservicePortalRepositoryForTesting,
+  setEmployeeSelfservicePortalRepositoryPathForTesting,
+} from "./repository.testing.ts";
+export {
   approveEmployeeSelfservicePortalProfileUpdateRequest,
   buildEmployeeSelfservicePortalProfilePageModel,
   configureEmployeeSelfservicePortalLeaveAttendanceIntegration,
@@ -114,13 +118,9 @@ export {
   listEmployeeSelfservicePortalResources,
   listEmployeeSelfservicePortalTasks,
   recordEmployeeSelfservicePortalAuditEvent,
-  resetEmployeeSelfservicePortalLeaveAttendanceIntegrationForTesting,
   rejectEmployeeSelfservicePortalProfileUpdateRequest,
+  resetEmployeeSelfservicePortalLeaveAttendanceIntegrationForTesting,
   submitEmployeeSelfservicePortalProfileUpdateRequest,
   updateEmployeeSelfservicePortal,
 } from "./server.ts";
 export { employeeSelfservicePortalFeatureScope } from "./shared/index.ts";
-export {
-  resetEmployeeSelfservicePortalRepositoryForTesting,
-  setEmployeeSelfservicePortalRepositoryPathForTesting,
-} from "./repository.testing.ts";

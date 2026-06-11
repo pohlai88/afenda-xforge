@@ -1,7 +1,13 @@
 import "server-only";
 
-export { createCompany, updateCompany, updateCompanyById } from "./actions.ts";
 export {
+  archiveCompany,
+  createCompany,
+  updateCompany,
+  updateCompanyById,
+} from "./actions.ts";
+export {
+  archiveCompanyRouteContract,
   companyApiRoutePaths,
   companyOpenApiSchemas,
   companyRouteContracts,

@@ -8,11 +8,7 @@ import {
   LogOut,
 } from "lucide-react";
 import type { ReactElement, ReactNode } from "react";
-import {
-  Avatar,
-  AvatarFallback,
-  AvatarImage,
-} from "../../ui-shadcn/avatar";
+import { Avatar, AvatarFallback, AvatarImage } from "../../ui-shadcn/avatar";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -70,10 +66,10 @@ function resolveInitials(name: string, fallback?: string): string {
   }
 
   if (parts.length === 1) {
-    return parts[0]!.slice(0, 2).toUpperCase();
+    return parts[0]?.slice(0, 2).toUpperCase();
   }
 
-  return `${parts[0]![0] ?? ""}${parts[1]![0] ?? ""}`.toUpperCase();
+  return `${parts[0]?.[0] ?? ""}${parts[1]?.[0] ?? ""}`.toUpperCase();
 }
 
 function UserSummary({
@@ -132,7 +128,9 @@ export function WorkspaceNavUser({
               <div className="flex items-center gap-2 px-1 py-1.5 text-left text-sm">
                 <Avatar className="h-8 w-8 rounded-lg">
                   <AvatarImage alt={user.name} src={user.avatar ?? undefined} />
-                  <AvatarFallback className="rounded-lg">{initials}</AvatarFallback>
+                  <AvatarFallback className="rounded-lg">
+                    {initials}
+                  </AvatarFallback>
                 </Avatar>
                 <div className="grid flex-1 text-left text-sm leading-tight">
                   <span className="truncate font-medium">{user.name}</span>

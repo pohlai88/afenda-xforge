@@ -35,8 +35,7 @@ export const WORKSPACE_SHELL_TYPE = {
   siteTopbarDescription:
     "type-caption leading-[10px] tracking-[0.01em] text-muted-foreground/70",
   sectionLabel: "type-label px-2 text-muted-foreground/70",
-  navItem:
-    "type-read tracking-[-0.005em] text-sidebar-foreground/88",
+  navItem: "type-read tracking-[-0.005em] text-sidebar-foreground/88",
   navItemActive:
     "type-read font-medium tracking-[-0.005em] text-sidebar-foreground",
   menuLabel: "type-label text-muted-foreground/70",
@@ -68,14 +67,11 @@ export const WORKSPACE_SHELL_SPACE = {
   /** Circular brand disk — matches legacy appshell 30px mark with chrome breathing room. */
   appTopbarBrand:
     "size-[1.875rem] shrink-0 overflow-hidden rounded-full border border-border bg-sidebar-accent leading-none",
-  appTopbarBrandImg:
-    "block size-full object-cover object-center",
+  appTopbarBrandImg: "block size-full object-cover object-center",
   /** App chrome — flush with sidebar rail, no bottom rule (unified nav plane). */
   appTopbarSurface: "bg-sidebar text-sidebar-foreground",
   /** Site / page header — 1px rule separates title chrome from canvas. */
-  siteTopbarSurface:
-    "bg-background border-border " +
-    WORKSPACE_SHELL_BORDER.hairlineBottom,
+  siteTopbarSurface: `bg-background border-border ${WORKSPACE_SHELL_BORDER.hairlineBottom}`,
   topbarItem:
     "h-8 min-h-8 w-auto max-w-[calc(20ch+1.75rem)] gap-0.5 rounded-md px-1.5 py-0 has-[>svg]:px-1",
   contentRoot:

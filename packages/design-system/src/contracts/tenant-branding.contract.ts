@@ -1,16 +1,17 @@
 import { z } from "zod";
 
 import { themePresetNameSchema } from "./theme-preset.contract";
+import type {
+  ErpVisualLaneId,
+  LaneColorScale,
+  LaneColorScaleField,
+} from "./visual-lane.contract";
 import {
-  type ErpVisualLaneId,
   ERP_VISUAL_LANE_IDS,
-  laneColorModeScaleSchema,
   laneColorScaleSchema,
-  type LaneColorScale,
-  type LaneColorScaleField,
 } from "./visual-lane.contract";
 
-const cssColorValueSchema = z
+const _cssColorValueSchema = z
   .string()
   .trim()
   .min(1)
@@ -38,7 +39,9 @@ export const erpVisualLaneIdSchema = z.enum(
 export const tenantBrandingSettingsSchema = z
   .object({
     themePreset: themePresetNameSchema,
-    moduleLaneOverrides: z.record(z.string().trim().min(1), erpVisualLaneIdSchema).optional(),
+    moduleLaneOverrides: z
+      .record(z.string().trim().min(1), erpVisualLaneIdSchema)
+      .optional(),
     laneColorOverrides: z
       .object({
         byLane: z
@@ -53,7 +56,9 @@ export const tenantBrandingSettingsSchema = z
   })
   .strict();
 
-export type TenantBrandingSettings = z.infer<typeof tenantBrandingSettingsSchema>;
+export type TenantBrandingSettings = z.infer<
+  typeof tenantBrandingSettingsSchema
+>;
 
 export type PartialLaneColorScale = z.infer<typeof partialLaneColorScaleSchema>;
 
@@ -100,5 +105,7 @@ function assertValidLaneOverrideKeys(
 export function validateTenantBrandingSettings(
   settings: TenantBrandingSettings
 ): TenantBrandingSettings {
-  return assertValidLaneOverrideKeys(tenantBrandingSettingsSchema.parse(settings));
+  return assertValidLaneOverrideKeys(
+    tenantBrandingSettingsSchema.parse(settings)
+  );
 }

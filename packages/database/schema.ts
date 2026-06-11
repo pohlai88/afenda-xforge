@@ -48,6 +48,7 @@ export const companies = xforge.table(
       .references(() => tenants.id, { onDelete: "cascade" }),
     name: text("name").notNull(),
     code: varchar("code", { length: 64 }).notNull(),
+    status: varchar("status", { length: 16 }).notNull().default("active"),
     createdAt: timestamp("created_at", {
       mode: "date",
       withTimezone: true,
@@ -63,6 +64,7 @@ export const companies = xforge.table(
   },
   (table) => [
     index("companies_tenant_id_idx").on(table.tenantId),
+    index("companies_tenant_status_idx").on(table.tenantId, table.status),
     uniqueIndex("companies_tenant_code_unique").on(table.tenantId, table.code),
   ]
 );
@@ -240,7 +242,9 @@ export const tenantSettings = xforge.table("tenant_settings", {
     .notNull()
     .default("UTC"),
   customizationMode: varchar("customization_mode", { length: 32 }),
-  themePreset: varchar("theme_preset", { length: 32 }).notNull().default("xforge"),
+  themePreset: varchar("theme_preset", { length: 32 })
+    .notNull()
+    .default("xforge"),
   branding: jsonb("branding")
     .$type<Record<string, unknown>>()
     .notNull()
@@ -326,8 +330,12 @@ export const tenantKeyboardShortcutPolicies = xforge.table(
     tenantId: uuid("tenant_id")
       .primaryKey()
       .references(() => tenants.id, { onDelete: "cascade" }),
-    allowUserCustomize: boolean("allow_user_customize").notNull().default(false),
-    allowFnKeyBindings: boolean("allow_fn_key_bindings").notNull().default(true),
+    allowUserCustomize: boolean("allow_user_customize")
+      .notNull()
+      .default(false),
+    allowFnKeyBindings: boolean("allow_fn_key_bindings")
+      .notNull()
+      .default(true),
     lockedActions: jsonb("locked_actions")
       .$type<string[]>()
       .notNull()

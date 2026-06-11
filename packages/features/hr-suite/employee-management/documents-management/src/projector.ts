@@ -64,7 +64,9 @@ export function projectDocumentsManagementDocumentSummary(
 export function projectDocumentsManagementDocumentObligation(
   obligation: DocumentsManagementDocumentObligation
 ): DocumentsManagementDocumentObligationProjection {
-  return documentsManagementDocumentObligationProjectionSchema.parse(obligation);
+  return documentsManagementDocumentObligationProjectionSchema.parse(
+    obligation
+  );
 }
 
 export function projectDocumentsManagementDocumentReadiness(
@@ -79,17 +81,21 @@ export function projectDocumentsManagementDocumentReadiness(
   );
   const sortedObligations = [...obligations].sort(
     (leftObligation, rightObligation) =>
-      rightObligation.updatedAt.getTime() - leftObligation.updatedAt.getTime() ||
+      rightObligation.updatedAt.getTime() -
+        leftObligation.updatedAt.getTime() ||
       leftObligation.id.localeCompare(rightObligation.id)
   );
   const mandatoryObligations = sortedObligations.filter(
     (obligation) => obligation.mandatory
   );
-  const mandatoryDocuments = sortedDocuments.filter((document) => document.mandatory);
+  const mandatoryDocuments = sortedDocuments.filter(
+    (document) => document.mandatory
+  );
   const missingMandatoryDocumentCount =
     mandatoryObligations.length > 0
-      ? mandatoryObligations.filter((obligation) => obligation.status !== "satisfied")
-          .length
+      ? mandatoryObligations.filter(
+          (obligation) => obligation.status !== "satisfied"
+        ).length
       : mandatoryDocuments.filter((document) => document.status !== "verified")
           .length;
   const updatedAt =
@@ -101,7 +107,8 @@ export function projectDocumentsManagementDocumentReadiness(
     archivedDocumentCount: sortedDocuments.filter(
       (document) => document.status === "archived"
     ).length,
-    companyId: sortedDocuments[0]?.companyId ?? sortedObligations[0]?.companyId ?? null,
+    companyId:
+      sortedDocuments[0]?.companyId ?? sortedObligations[0]?.companyId ?? null,
     documentCount: sortedDocuments.length,
     employeeId,
     expiredDocumentCount: sortedDocuments.filter(
@@ -121,8 +128,7 @@ export function projectDocumentsManagementDocumentReadiness(
     pendingVerificationDocumentCount: sortedDocuments.filter(
       (document) => document.status === "pending_verification"
     ).length,
-    ready:
-      missingMandatoryDocumentCount === 0,
+    ready: missingMandatoryDocumentCount === 0,
     rejectedDocumentCount: sortedDocuments.filter(
       (document) => document.status === "rejected"
     ).length,
@@ -235,23 +241,30 @@ export function projectDocumentsManagementAlertReady(
   obligation: DocumentsManagementDocumentObligation
 ): DocumentsManagementAlertReadyProjection {
   const isPolicy = obligation.obligationType === "policy_acknowledgment";
-  const kind =
-    isPolicy && obligation.status === "pending"
-      ? "policy_pending"
-      : obligation.status === "expired"
-        ? "document_expiring"
-        : "document_missing";
+  let kind: DocumentsManagementAlertReadyProjection["kind"];
+
+  if (isPolicy && obligation.status === "pending") {
+    kind = "policy_pending";
+  } else if (obligation.status === "expired") {
+    kind = "document_expiring";
+  } else {
+    kind = "document_missing";
+  }
+
+  let message: string;
+  if (kind === "policy_pending") {
+    message = `${obligation.title} requires acknowledgment.`;
+  } else if (kind === "document_expiring") {
+    message = `${obligation.title} is expired or due for renewal.`;
+  } else {
+    message = `${obligation.title} is missing.`;
+  }
 
   return documentsManagementAlertReadyProjectionSchema.parse({
     employeeId: obligation.employeeId,
     id: `${kind}:${obligation.id}`,
     kind,
-    message:
-      kind === "policy_pending"
-        ? `${obligation.title} requires acknowledgment.`
-        : kind === "document_expiring"
-          ? `${obligation.title} is expired or due for renewal.`
-          : `${obligation.title} is missing.`,
+    message,
     obligationId: obligation.id,
     severity: obligation.mandatory ? "high" : "medium",
     status: obligation.status === "satisfied" ? "resolved" : "open",

@@ -52,7 +52,7 @@ const verticalSections = [
 ] as const;
 
 export function ScrollspyVertical() {
-  const containerRef = React.useRef<HTMLDivElement>(null);
+  const containerRef = React.useRef<HTMLElement>(null);
 
   return (
     <ScrollspyPatternCard
@@ -83,10 +83,8 @@ export function ScrollspyVertical() {
           </Scrollspy>
         </div>
 
-        <div
+        <section
           ref={containerRef}
-          tabIndex={0}
-          role="region"
           aria-label="Vertical scrollspy content"
           className="h-[560px] overflow-y-auto rounded-2xl border bg-background p-4"
         >
@@ -109,7 +107,7 @@ export function ScrollspyVertical() {
               </ScrollspySection>
             ))}
           </div>
-        </div>
+        </section>
       </div>
     </ScrollspyPatternCard>
   );

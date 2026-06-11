@@ -46,7 +46,8 @@ function isIdentityHeader(
 function renderIdentityHeader(
   header: EnterpriseDropdownMenuIdentityHeader
 ): ReactElement {
-  const fallback = header.avatarFallback ?? header.title.slice(0, 2).toUpperCase();
+  const fallback =
+    header.avatarFallback ?? header.title.slice(0, 2).toUpperCase();
 
   return (
     <DropdownMenuLabel className="p-0 font-normal">
@@ -117,9 +118,13 @@ function renderItemSections({
       {hasGroups
         ? groups.map((group, groupIndex) => (
             <div key={group.key}>
-              {groupIndex > 0 || hasFlatItems ? <DropdownMenuSeparator /> : null}
+              {groupIndex > 0 || hasFlatItems ? (
+                <DropdownMenuSeparator />
+              ) : null}
               {group.label ? (
-                <DropdownMenuLabel className={ENTERPRISE_DROPDOWN_GROUP_LABEL_CLASS}>
+                <DropdownMenuLabel
+                  className={ENTERPRISE_DROPDOWN_GROUP_LABEL_CLASS}
+                >
                   {group.label}
                 </DropdownMenuLabel>
               ) : null}
@@ -149,6 +154,20 @@ function renderItemSections({
   );
 }
 
+function resolveDropdownHeader(
+  header: EnterpriseDropdownMenuProps["header"]
+): ReactNode {
+  if (!header) {
+    return null;
+  }
+
+  if (isIdentityHeader(header)) {
+    return renderIdentityHeader(header);
+  }
+
+  return header;
+}
+
 export function EnterpriseDropdownMenu({
   align = "end",
   contentClassName,
@@ -159,11 +178,7 @@ export function EnterpriseDropdownMenu({
   sideOffset = 4,
   trigger,
 }: EnterpriseDropdownMenuProps): ReactElement {
-  const headerNode = header
-    ? isIdentityHeader(header)
-      ? renderIdentityHeader(header)
-      : header
-    : null;
+  const headerNode = resolveDropdownHeader(header);
 
   const itemSections = renderItemSections({ footerItems, groups, items });
   const showHeaderSeparator = Boolean(headerNode && itemSections);

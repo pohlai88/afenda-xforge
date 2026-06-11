@@ -134,6 +134,20 @@ export const createContractRoute =
 
         try {
           const data = contract.success.schema.parse(result.data);
+          const responseHeaders = new Headers(result.headers ?? {});
+          const resolvedContentType =
+            responseHeaders.get("content-type") ??
+            contract.success.contentType ??
+            "application/json";
+
+          if (resolvedContentType !== "application/json") {
+            responseHeaders.set("content-type", resolvedContentType);
+
+            return new Response(String(data), {
+              headers: responseHeaders,
+              status: result.status ?? contract.success.status,
+            });
+          }
 
           return createApiSuccessResponse(data, {
             headers: result.headers,

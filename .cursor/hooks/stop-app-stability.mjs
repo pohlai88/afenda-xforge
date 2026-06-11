@@ -8,7 +8,7 @@ import { readFileSync } from "node:fs";
 
 const APP_SCOPE = "apps/app";
 const STABILITY_CMD = "pnpm --filter app check:stability";
-const MAX_OUTPUT_CHARS = 8_000;
+const MAX_OUTPUT_CHARS = 8000;
 
 function readStdin() {
   try {
@@ -117,8 +117,10 @@ log(`apps/app changed; running check:stability (loop ${loopCount})`);
 
 const result = runStability(repoRoot);
 const combined = truncate(
-  [result.stdout ?? "", result.stderr ?? ""].filter(Boolean).join("\n").trim() ||
-    `check:stability exited with code ${result.status ?? "unknown"}`
+  [result.stdout ?? "", result.stderr ?? ""]
+    .filter(Boolean)
+    .join("\n")
+    .trim() || `check:stability exited with code ${result.status ?? "unknown"}`
 );
 
 if (result.status === 0 && !result.error) {
@@ -128,7 +130,9 @@ if (result.status === 0 && !result.error) {
 }
 
 const exitCode = result.status ?? 1;
-const errorNote = result.error ? `\n\nSpawn error: ${result.error.message}` : "";
+const errorNote = result.error
+  ? `\n\nSpawn error: ${result.error.message}`
+  : "";
 
 log(`check:stability failed (exit ${exitCode})`);
 

@@ -1,19 +1,19 @@
 import "server-only";
 
-import type {
+export type {
   HrOrgRepositoryScope,
   HrOrgRepositoryState,
 } from "./repository.shared.ts";
-import {
+export {
   createHrOrgRecordId,
   emptyHrOrgRepositoryState,
+} from "./repository.shared.ts";
+
+import {
   normalizeScope,
   resolveRepositoryScope,
   shouldUseDatabaseRepository,
 } from "./repository.shared.ts";
-
-export { createHrOrgRecordId, emptyHrOrgRepositoryState };
-export type { HrOrgRepositoryScope, HrOrgRepositoryState };
 
 export const loadHrOrgRepository = async (
   scope?: HrOrgRepositoryScope

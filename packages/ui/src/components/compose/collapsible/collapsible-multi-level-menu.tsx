@@ -40,7 +40,11 @@ export function CollapsibleMultiLevelMenu() {
                 </p>
               </div>
             </div>
-            <Button aria-label="Open navigation menu" variant="ghost" size="icon-sm">
+            <Button
+              aria-label="Open navigation menu"
+              variant="ghost"
+              size="icon-sm"
+            >
               <Sparkles className="size-4" />
             </Button>
           </div>

@@ -73,6 +73,13 @@ export function DocumentsWorkspaceShell({
       handlers["crud.create"] = () => createRef.current?.();
     }
 
+    if (canWrite && activeSurface === "grid") {
+      handlers["crud.create"] = () => {
+        setActiveSurface("form");
+        createRef.current?.();
+      };
+    }
+
     if (activeSurface === "grid" && selectedDocumentId) {
       handlers["crud.edit"] = () => {
         router.push(`/hr/documents/${selectedDocumentId}`);
@@ -106,12 +113,21 @@ export function DocumentsWorkspaceShell({
       return null;
     }
 
+    let targetType: "form" | "record" | "surface";
+    if (activeSurface === "form") {
+      targetType = "form";
+    } else if (selectedDocumentId) {
+      targetType = "record";
+    } else {
+      targetType = "surface";
+    }
+
     return {
       targetId:
         activeSurface === "form"
           ? "documents-upload-form"
           : (selectedDocumentId ?? "documents-grid"),
-      targetType: activeSurface === "form" ? "form" : "record",
+      targetType,
       handlers,
     };
   }, [activeSurface, canWrite, requestHeaders, router, selectedDocumentId]);

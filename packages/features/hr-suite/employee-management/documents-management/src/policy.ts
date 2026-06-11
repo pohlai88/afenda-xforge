@@ -60,7 +60,9 @@ export function canReadDocumentsManagementAudit(
 export function canExecuteDocumentsManagementRetention(
   context?: DocumentsManagementPolicyContext
 ): boolean {
-  return canWriteDocumentsManagement(context) && Boolean(context?.canAdminRetention);
+  return (
+    canWriteDocumentsManagement(context) && Boolean(context?.canAdminRetention)
+  );
 }
 
 export function canSelfAcknowledgeDocumentsManagement(
@@ -101,7 +103,9 @@ export function requireDocumentsManagementRetentionAccess(
   context?: DocumentsManagementPolicyContext
 ): void {
   if (!canExecuteDocumentsManagementRetention(context)) {
-    throw new Error("Retention execution access denied for documents management");
+    throw new Error(
+      "Retention execution access denied for documents management"
+    );
   }
 }
 

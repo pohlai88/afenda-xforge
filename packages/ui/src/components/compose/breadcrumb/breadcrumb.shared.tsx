@@ -1,15 +1,15 @@
 "use client";
 
-import * as React from "react";
 import type * as ReactTypes from "react";
+import * as React from "react";
 
 import {
-  Breadcrumb as BreadcrumbRoot,
   BreadcrumbEllipsis,
   BreadcrumbItem,
   BreadcrumbLink,
   BreadcrumbList,
   BreadcrumbPage,
+  Breadcrumb as BreadcrumbRoot,
   BreadcrumbSeparator,
 } from "../../ui-shadcn/breadcrumb";
 import {
@@ -30,12 +30,7 @@ function Breadcrumb({
 }: ReactTypes.ComponentProps<typeof BreadcrumbRoot>) {
   const contextLabel = React.useContext(BreadcrumbNavLabelContext);
 
-  return (
-    <BreadcrumbRoot
-      aria-label={ariaLabel ?? contextLabel}
-      {...props}
-    />
-  );
+  return <BreadcrumbRoot aria-label={ariaLabel ?? contextLabel} {...props} />;
 }
 
 function BreadcrumbPatternCard({
@@ -52,7 +47,9 @@ function BreadcrumbPatternCard({
       <Card>
         <CardHeader>
           <CardTitle>{title}</CardTitle>
-          {description ? <CardDescription>{description}</CardDescription> : null}
+          {description ? (
+            <CardDescription>{description}</CardDescription>
+          ) : null}
         </CardHeader>
         <CardContent>{children}</CardContent>
       </Card>
