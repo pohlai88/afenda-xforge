@@ -1,0 +1,27 @@
+---
+description: Block stupid agent behavior — answer first, smallest layer, no drive-by refactors
+alwaysApply: true
+---
+
+# Block Stupid Agent Behavior
+
+## Answer before you build
+
+- Yes/no and advice questions get a **direct answer first**.
+- Do not skip straight to code.
+- Do not refactor unrelated files while "helping".
+
+## Smallest layer (visual / UX requests)
+
+1. `apps/app` wiring or `apps/storybook` previews
+2. `@repo/metadata-ui` for entity surfaces
+3. `packages/ui/.../compose/workspace/` — **ask the human first**
+
+## Stupid patterns we already hit once — do not repeat
+
+- Rewriting `workspace-memory-lane.tsx` for a polish pass
+- Flattening `workspace-shell.surfaces.ts` for Storybook contrast
+- Changing `sidebarVariant` defaults to match an experiment
+- `git restore` on untracked WIP when they wanted their work kept
+
+If scope is wrong: stop, explain, ask which layer to change.

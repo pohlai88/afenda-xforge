@@ -1,7 +1,7 @@
 import "server-only";
 
 import type { CustomizationContract } from "@repo/customization/contracts";
-import { loadDashboardMetadataCustomizations } from "../(authenticated)/dashboard/_customizations.ts";
+import { loadDashboardMetadataCustomizations } from "../[locale]/(authenticated)/dashboard/_customizations.ts";
 
 export type EntityCustomizationLayers = {
   company: CustomizationContract | null;

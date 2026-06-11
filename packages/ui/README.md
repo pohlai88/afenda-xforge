@@ -34,7 +34,13 @@ Source layout:
 - `src/components/compose/*` for generic composition patterns and registry metadata
 - `src/components/*` for generic controls and examples
 - `src/lib/*` for local helpers
-- `src/styles/globals.css` for package-local token documentation
+- `src/styles/globals.css` for generated design tokens (see also [`src/styles/README.md`](src/styles/README.md))
+
+### CSS and shadcn CLI
+
+- `packages/ui/src/styles/globals.css` is **generated** by `@repo/design-system` (`pnpm --filter @repo/design-system globals:css`).
+- Use `npx shadcn@latest add <component>` for TSX only. Do **not** run `shadcn init -f` against CSS — it will fight the generator.
+- Token or theme changes belong in `@repo/design-system` → regenerate globals.
 
 Dependency direction:
 

@@ -2,7 +2,7 @@ import { hrDocumentEntityMetadata } from "@repo/features-employee-management-doc
 import { render, screen } from "@testing-library/react";
 import { describe, expect, it } from "vitest";
 import { createAppMetadataContext } from "../app/_lib/metadata-context.ts";
-import { HrHubView } from "../app/(authenticated)/hr/hr-hub-view.tsx";
+import { HrHubView } from "../app/[locale]/(authenticated)/hr/hr-hub-view.tsx";
 
 describe("HrHubView", () => {
   it("renders metadata-ui stat, list, timeline, and form sections", () => {

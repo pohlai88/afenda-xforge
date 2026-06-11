@@ -49,6 +49,8 @@ export function renderGlobalsCss(): string {
   return [
     GENERATED_BANNER.trimEnd(),
     '@import "tailwindcss";',
+    '@import "tw-animate-css";',
+    '@import "shadcn/tailwind.css";',
     "",
     ...GLOBALS_CSS_SOURCE_GLOBS.map((source) => `@source "${source}";`),
     "",

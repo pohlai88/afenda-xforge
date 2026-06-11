@@ -34,6 +34,8 @@
   },
   "dependencies": {
     "@repo/design-system": "workspace:*",
+    "@repo/features-employee-management-documents-management": "workspace:*",
+    "@repo/features-system-admin-control-plane": "workspace:*",
     "@repo/metadata": "workspace:*",
     "@repo/metadata-ui": "workspace:*",
     "@repo/ui": "workspace:*",
@@ -55,7 +57,7 @@
     "axe-playwright": "catalog:",
     "playwright": "1.60.0",
     "tailwindcss": "catalog:",
-    "tw-animate-css": "catalog:",
-    "typescript": "catalog:"
+    "typescript": "catalog:",
+    "vite": "catalog:"
   }
 }

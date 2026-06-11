@@ -1,7 +1,7 @@
 import { render, screen } from "@testing-library/react";
 import { describe, expect, it } from "vitest";
 import { createAppMetadataContext } from "../app/_lib/metadata-context.ts";
-import { AssistantView } from "../app/(authenticated)/assistant/assistant-view.tsx";
+import { AssistantView } from "../app/[locale]/(authenticated)/assistant/assistant-view.tsx";
 
 describe("AssistantView", () => {
   it("renders metadata-ui stat sections without KpiCard", () => {

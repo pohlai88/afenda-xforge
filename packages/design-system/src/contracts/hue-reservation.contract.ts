@@ -1,5 +1,5 @@
 export const xforgeColorSystemV3 = {
-  brand: { primary: 198, secondary: 248, accent: 72 },
+  brand: { primary: 198, secondary: 250, accent: 68 },
   status: { success: 145, warning: 50, destructive: 27, info: 230 },
   lanes: {
     money: 160,
@@ -12,11 +12,11 @@ export const xforgeColorSystemV3 = {
   },
   charts: {
     chart1: 198,
-    chart2: 285,
-    chart3: 72,
-    chart4: 155,
-    chart5: 25,
-    chart6: 230,
+    chart2: 250,
+    chart3: 160,
+    chart4: 68,
+    chart5: 285,
+    chart6: 212,
     chart7: 330,
   },
 } as const;

@@ -1,5 +1,11 @@
 import { THEME_PRESETS } from "../contracts/theme-preset.contract";
 import {
+  BASE_COLOR_TOKENS,
+  BRAND_COLOR_TOKENS,
+  SIDEBAR_COLOR_TOKENS,
+  STATUS_COLOR_TOKENS,
+} from "../contracts/color.contract";
+import {
   GLOBALS_CSS_ACTIVE_LANE_DECLARATIONS,
   GLOBALS_CSS_LANE_DARK_DECLARATIONS,
   GLOBALS_CSS_LANE_ROOT_DECLARATIONS,
@@ -9,6 +15,14 @@ import { CHART_DARK_DECLARATIONS, CHART_LIGHT_DECLARATIONS } from "./chart-token
 import { SURFACE_COLOR_TOKENS } from "./color-tokens";
 import { ANIMATION_TOKENS } from "./motion-tokens";
 import { RADIUS_TOKENS } from "./radius-tokens";
+import {
+  SIDEBAR_THEME_INLINE_DECLARATIONS,
+  sidebarRootDeclarations,
+} from "./sidebar-token-aliases";
+import {
+  SIDEBAR_DARK_DECLARATIONS,
+  SIDEBAR_LIGHT_DECLARATIONS,
+} from "./sidebar-tokens";
 import {
   STATUS_DARK_DECLARATIONS,
   STATUS_LIGHT_DECLARATIONS,
@@ -33,6 +47,19 @@ export const GLOBALS_CSS_SOURCE_GLOBS = [
   "../index.ts",
 ] as const;
 
+/** shadcn CLI v4 multiplicative radius scale from `--radius`. */
+export const GLOBALS_CSS_RADIUS_THEME_DECLARATIONS: readonly CssDeclaration[] = [
+  ["--radius-sm", "calc(var(--radius) * 0.6)"],
+  ["--radius-md", "calc(var(--radius) * 0.8)"],
+  ["--radius-lg", "var(--radius)"],
+  ["--radius-xl", "calc(var(--radius) * 1.4)"],
+  ["--radius-2xl", "calc(var(--radius) * 1.8)"],
+  ["--radius-3xl", "calc(var(--radius) * 2.2)"],
+  ["--radius-4xl", "calc(var(--radius) * 2.6)"],
+  ["--radius-control", "var(--radius-control)"],
+  ["--radius-panel", "var(--radius-panel)"],
+] as const;
+
 export const GLOBALS_CSS_ROOT_DECLARATIONS: readonly CssDeclaration[] = [
   [
     "--brand-primary",
@@ -53,50 +80,40 @@ export const GLOBALS_CSS_ROOT_DECLARATIONS: readonly CssDeclaration[] = [
     "--brand-accent",
     tenantBrandVar("--tenant-accent", XFORGE_PRESET.brand.light.accent),
   ],
-  ["--background", "oklch(0.982 0.004 255)"],
-  ["--foreground", "oklch(0.205 0.018 264)"],
-  ["--card", "oklch(0.998 0.002 255)"],
-  ["--card-foreground", "oklch(0.205 0.018 264)"],
-  ["--popover", "oklch(0.998 0.002 255)"],
-  ["--popover-foreground", "oklch(0.205 0.018 264)"],
-  ["--surface", "oklch(0.99 0.003 255)"],
-  ["--surface-foreground", "oklch(0.234 0.02 264)"],
-  ["--surface-muted", "oklch(0.955 0.007 255)"],
-  ["--surface-accent", "oklch(0.932 0.018 198)"],
+  ["--background", "oklch(0.985 0.003 258)"],
+  ["--foreground", "oklch(0.20 0.015 258)"],
+  ["--card", "oklch(0.995 0.002 258)"],
+  ["--card-foreground", "oklch(0.20 0.015 258)"],
+  ["--popover", "oklch(0.995 0.002 258)"],
+  ["--popover-foreground", "oklch(0.20 0.015 258)"],
+  ["--surface", "oklch(0.988 0.004 258)"],
+  ["--surface-foreground", "oklch(0.22 0.016 258)"],
+  ["--surface-muted", "oklch(0.965 0.006 258)"],
+  ["--surface-accent", "oklch(0.948 0.012 198)"],
   ["--primary", "var(--brand-primary)"],
   ["--primary-foreground", "var(--brand-primary-foreground)"],
-  ["--secondary", "oklch(0.948 0.011 254)"],
-  ["--secondary-foreground", "oklch(0.267 0.023 264)"],
-  ["--muted", "oklch(0.958 0.007 255)"],
-  ["--muted-foreground", "oklch(0.48 0.024 264)"],
-  ["--accent", "oklch(0.936 0.018 198)"],
-  ["--accent-foreground", "oklch(0.245 0.029 218)"],
+  ["--secondary", "oklch(0.955 0.008 258)"],
+  ["--secondary-foreground", "oklch(0.28 0.018 258)"],
+  ["--muted", "oklch(0.965 0.006 258)"],
+  ["--muted-foreground", "oklch(0.45 0.020 258)"],
+  ["--accent", "oklch(0.952 0.012 198)"],
+  ["--accent-foreground", "oklch(0.22 0.025 198)"],
   ...STATUS_LIGHT_DECLARATIONS,
-  ["--border", "oklch(0.887 0.013 255)"],
-  ["--input", "oklch(0.887 0.013 255)"],
-  ["--ring", "oklch(0.55 0.02 264)"],
+  ["--border", "oklch(0.905 0.010 258)"],
+  ["--input", "oklch(0.905 0.010 258)"],
+  ["--ring", "oklch(0.50 0.018 258)"],
   ["--ring-brand", "var(--brand-primary)"],
   ...CHART_LIGHT_DECLARATIONS,
   ["--radius", "0.625rem"],
   ["--radius-control", "0.5rem"],
   ["--radius-panel", "0.75rem"],
-  ["--radius-2xl", "1rem"],
-  ["--radius-3xl", "1.25rem"],
-  ["--radius-4xl", "1.5rem"],
   ["--density-control-height", "2.25rem"],
   ["--density-table-row-height", "2.75rem"],
   ["--elevation-xs", "0 1px 1px oklch(0.1 0.01 260 / 0.05)"],
   ["--elevation-sm", "0 1px 2px oklch(0.1 0.01 260 / 0.07)"],
   ["--elevation-md", "0 10px 28px oklch(0.1 0.01 260 / 0.08)"],
   ["--elevation-lane-active-glow", "0 0 16px var(--lane-active-glow)"],
-  ["--sidebar", "var(--surface)"],
-  ["--sidebar-foreground", "var(--surface-foreground)"],
-  ["--sidebar-primary", "var(--primary)"],
-  ["--sidebar-primary-foreground", "var(--primary-foreground)"],
-  ["--sidebar-accent", "var(--surface-accent)"],
-  ["--sidebar-accent-foreground", "var(--accent-foreground)"],
-  ["--sidebar-border", "var(--border)"],
-  ["--sidebar-ring", "var(--ring)"],
+  ...sidebarRootDeclarations(SIDEBAR_LIGHT_DECLARATIONS),
   ...GLOBALS_CSS_LANE_ROOT_DECLARATIONS,
   ...GLOBALS_CSS_ACTIVE_LANE_DECLARATIONS,
 ] as const;
@@ -121,41 +138,34 @@ export const GLOBALS_CSS_DARK_DECLARATIONS: readonly CssDeclaration[] = [
     "--brand-accent",
     tenantBrandVar("--tenant-accent", XFORGE_PRESET.brand.dark.accent),
   ],
-  ["--background", "oklch(0.17 0.014 264)"],
-  ["--foreground", "oklch(0.958 0.005 258)"],
-  ["--card", "oklch(0.205 0.016 264)"],
-  ["--card-foreground", "oklch(0.958 0.005 258)"],
-  ["--popover", "oklch(0.205 0.016 264)"],
-  ["--popover-foreground", "oklch(0.958 0.005 258)"],
-  ["--surface", "oklch(0.218 0.016 264)"],
-  ["--surface-foreground", "oklch(0.948 0.006 258)"],
-  ["--surface-muted", "oklch(0.274 0.016 264)"],
-  ["--surface-accent", "oklch(0.305 0.027 198)"],
+  ["--background", "oklch(0.155 0.012 258)"],
+  ["--foreground", "oklch(0.935 0.006 258)"],
+  ["--card", "oklch(0.195 0.013 258)"],
+  ["--card-foreground", "oklch(0.935 0.006 258)"],
+  ["--popover", "oklch(0.195 0.013 258)"],
+  ["--popover-foreground", "oklch(0.935 0.006 258)"],
+  ["--surface", "oklch(0.205 0.013 258)"],
+  ["--surface-foreground", "oklch(0.92 0.006 258)"],
+  ["--surface-muted", "oklch(0.255 0.013 258)"],
+  ["--surface-accent", "oklch(0.28 0.022 198)"],
   ["--primary", "var(--brand-primary)"],
   ["--primary-foreground", "var(--brand-primary-foreground)"],
-  ["--secondary", "oklch(0.288 0.018 264)"],
-  ["--secondary-foreground", "oklch(0.958 0.005 258)"],
-  ["--muted", "oklch(0.268 0.016 264)"],
-  ["--muted-foreground", "oklch(0.738 0.014 260)"],
-  ["--accent", "oklch(0.31 0.027 198)"],
-  ["--accent-foreground", "oklch(0.958 0.005 258)"],
+  ["--secondary", "oklch(0.26 0.014 258)"],
+  ["--secondary-foreground", "oklch(0.935 0.006 258)"],
+  ["--muted", "oklch(0.25 0.013 258)"],
+  ["--muted-foreground", "oklch(0.65 0.012 258)"],
+  ["--accent", "oklch(0.28 0.020 198)"],
+  ["--accent-foreground", "oklch(0.935 0.006 258)"],
   ...STATUS_DARK_DECLARATIONS,
-  ["--border", "oklch(0.322 0.019 264)"],
-  ["--input", "oklch(0.322 0.019 264)"],
-  ["--ring", "oklch(0.72 0.02 260)"],
+  ["--border", "oklch(0.30 0.014 258)"],
+  ["--input", "oklch(0.30 0.014 258)"],
+  ["--ring", "oklch(0.68 0.015 258)"],
   ["--ring-brand", "var(--brand-primary)"],
   ...CHART_DARK_DECLARATIONS,
   ["--elevation-xs", "0 1px 1px oklch(0 0 0 / 0.2)"],
   ["--elevation-sm", "0 1px 2px oklch(0 0 0 / 0.24)"],
   ["--elevation-md", "0 18px 48px oklch(0 0 0 / 0.26)"],
-  ["--sidebar", "var(--surface)"],
-  ["--sidebar-foreground", "var(--surface-foreground)"],
-  ["--sidebar-primary", "var(--primary)"],
-  ["--sidebar-primary-foreground", "var(--primary-foreground)"],
-  ["--sidebar-accent", "var(--surface-accent)"],
-  ["--sidebar-accent-foreground", "var(--accent-foreground)"],
-  ["--sidebar-border", "var(--border)"],
-  ["--sidebar-ring", "var(--ring)"],
+  ...sidebarRootDeclarations(SIDEBAR_DARK_DECLARATIONS),
   ...GLOBALS_CSS_LANE_DARK_DECLARATIONS,
 ] as const;
 
@@ -172,59 +182,23 @@ export const GLOBALS_CSS_COMFORTABLE_DENSITY_DECLARATIONS: readonly CssDeclarati
     ["--density-table-row-height", "3.25rem"],
   ] as const;
 
+function colorThemeInlineDeclarations(
+  tokens: readonly string[]
+): readonly CssDeclaration[] {
+  return tokens.map((token) => [`--color-${token}`, `var(--${token})`] as const);
+}
+
 export const GLOBALS_CSS_THEME_DECLARATIONS: readonly CssDeclaration[] = [
-  ["--color-background", "var(--background)"],
-  ["--color-foreground", "var(--foreground)"],
+  ...colorThemeInlineDeclarations(BASE_COLOR_TOKENS),
+  ...colorThemeInlineDeclarations(BRAND_COLOR_TOKENS),
+  ...colorThemeInlineDeclarations(STATUS_COLOR_TOKENS),
+  ...SIDEBAR_THEME_INLINE_DECLARATIONS,
   ["--font-sans", "ui-sans-serif, system-ui, sans-serif"],
   [
     "--font-mono",
     `ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono",
     "Courier New", monospace`,
   ],
-  ["--color-ring", "var(--ring)"],
-  ["--color-input", "var(--input)"],
-  ["--color-border", "var(--border)"],
-  ["--color-surface", "var(--surface)"],
-  ["--color-surface-foreground", "var(--surface-foreground)"],
-  ["--color-surface-muted", "var(--surface-muted)"],
-  ["--color-surface-accent", "var(--surface-accent)"],
-  ["--color-destructive", "var(--destructive)"],
-  ["--color-destructive-foreground", "var(--destructive-foreground)"],
-  ["--color-destructive-muted", "var(--destructive-muted)"],
-  [
-    "--color-destructive-muted-foreground",
-    "var(--destructive-muted-foreground)",
-  ],
-  ["--color-destructive-border", "var(--destructive-border)"],
-  ["--color-invert", "var(--invert)"],
-  ["--color-invert-foreground", "var(--invert-foreground)"],
-  ["--color-success", "var(--success)"],
-  ["--color-success-foreground", "var(--success-foreground)"],
-  ["--color-success-muted", "var(--success-muted)"],
-  ["--color-success-muted-foreground", "var(--success-muted-foreground)"],
-  ["--color-success-border", "var(--success-border)"],
-  ["--color-warning", "var(--warning)"],
-  ["--color-warning-foreground", "var(--warning-foreground)"],
-  ["--color-warning-muted", "var(--warning-muted)"],
-  ["--color-warning-muted-foreground", "var(--warning-muted-foreground)"],
-  ["--color-warning-border", "var(--warning-border)"],
-  ["--color-info", "var(--info)"],
-  ["--color-info-foreground", "var(--info-foreground)"],
-  ["--color-info-muted", "var(--info-muted)"],
-  ["--color-info-muted-foreground", "var(--info-muted-foreground)"],
-  ["--color-info-border", "var(--info-border)"],
-  ["--color-accent-foreground", "var(--accent-foreground)"],
-  ["--color-accent", "var(--accent)"],
-  ["--color-muted-foreground", "var(--muted-foreground)"],
-  ["--color-muted", "var(--muted)"],
-  ["--color-secondary-foreground", "var(--secondary-foreground)"],
-  ["--color-secondary", "var(--secondary)"],
-  ["--color-primary-foreground", "var(--primary-foreground)"],
-  ["--color-primary", "var(--primary)"],
-  ["--color-popover-foreground", "var(--popover-foreground)"],
-  ["--color-popover", "var(--popover)"],
-  ["--color-card-foreground", "var(--card-foreground)"],
-  ["--color-card", "var(--card)"],
   ["--color-chart-1", "var(--chart-1)"],
   ["--color-chart-2", "var(--chart-2)"],
   ["--color-chart-3", "var(--chart-3)"],
@@ -232,23 +206,7 @@ export const GLOBALS_CSS_THEME_DECLARATIONS: readonly CssDeclaration[] = [
   ["--color-chart-5", "var(--chart-5)"],
   ["--color-chart-6", "var(--chart-6)"],
   ["--color-chart-7", "var(--chart-7)"],
-  ["--color-sidebar", "var(--sidebar)"],
-  ["--color-sidebar-foreground", "var(--sidebar-foreground)"],
-  ["--color-sidebar-primary", "var(--sidebar-primary)"],
-  ["--color-sidebar-primary-foreground", "var(--sidebar-primary-foreground)"],
-  ["--color-sidebar-accent", "var(--sidebar-accent)"],
-  ["--color-sidebar-accent-foreground", "var(--sidebar-accent-foreground)"],
-  ["--color-sidebar-border", "var(--sidebar-border)"],
-  ["--color-sidebar-ring", "var(--sidebar-ring)"],
-  ["--radius-sm", "calc(var(--radius) - 0.25rem)"],
-  ["--radius-md", "calc(var(--radius) - 0.125rem)"],
-  ["--radius-lg", "var(--radius)"],
-  ["--radius-xl", "calc(var(--radius) + 0.25rem)"],
-  ["--radius-2xl", "var(--radius-2xl)"],
-  ["--radius-3xl", "var(--radius-3xl)"],
-  ["--radius-4xl", "var(--radius-4xl)"],
-  ["--radius-control", "var(--radius-control)"],
-  ["--radius-panel", "var(--radius-panel)"],
+  ...GLOBALS_CSS_RADIUS_THEME_DECLARATIONS,
   ["--animate-shimmer", "shimmer 1.8s linear infinite"],
   ["--shadow-xs", "var(--elevation-xs)"],
   ["--shadow-sm", "var(--elevation-sm)"],
@@ -277,18 +235,82 @@ export const GLOBALS_CSS_UTILITIES = [
   ["row-density", "min-height: var(--density-table-row-height);"],
 ] as const;
 
+function declarationNames(
+  declarations: readonly CssDeclaration[]
+): Set<string> {
+  return new Set(declarations.map(([name]) => name));
+}
+
+function themeColorNames(
+  declarations: readonly CssDeclaration[]
+): Set<string> {
+  return new Set(
+    declarations
+      .map(([name]) => name)
+      .filter((name) => name.startsWith("--color-"))
+      .map((name) => name.replace(/^--color-/, ""))
+  );
+}
+
 export function validateGlobalsCssTokens(): void {
   if (
     SURFACE_COLOR_TOKENS.length !== 4 ||
     !SURFACE_COLOR_TOKENS.includes("surface") ||
-    !RADIUS_TOKENS.includes("2xl") ||
-    !RADIUS_TOKENS.includes("3xl") ||
-    !RADIUS_TOKENS.includes("4xl") ||
     ANIMATION_TOKENS[0] !== "shimmer" ||
     !FONT_FEATURE_TOKENS.includes("rlig") ||
     !FONT_FEATURE_TOKENS.includes("calt") ||
     !TEXT_UTILITY_TOKENS.includes("text-tabular")
   ) {
     throw new Error("globals CSS tokens do not match the design-system contract");
+  }
+
+  const rootNames = declarationNames(GLOBALS_CSS_ROOT_DECLARATIONS);
+  const darkNames = declarationNames(GLOBALS_CSS_DARK_DECLARATIONS);
+  const themeNames = declarationNames(GLOBALS_CSS_THEME_DECLARATIONS);
+  const themeColors = themeColorNames(GLOBALS_CSS_THEME_DECLARATIONS);
+
+  const semanticColorTokens = [
+    ...BASE_COLOR_TOKENS,
+    ...BRAND_COLOR_TOKENS,
+    ...STATUS_COLOR_TOKENS,
+    ...SIDEBAR_COLOR_TOKENS,
+  ];
+
+  for (const token of semanticColorTokens) {
+    const cssVar = `--${token}`;
+
+    if (!rootNames.has(cssVar)) {
+      throw new Error(`globals CSS missing :root declaration for ${cssVar}`);
+    }
+
+    if (!darkNames.has(cssVar)) {
+      throw new Error(`globals CSS missing .dark declaration for ${cssVar}`);
+    }
+
+    if (!themeColors.has(token)) {
+      throw new Error(`globals CSS missing @theme inline mapping for ${token}`);
+    }
+  }
+
+  for (const token of RADIUS_TOKENS) {
+    const themeVar = `--radius-${token}`;
+
+    if (!themeNames.has(themeVar)) {
+      throw new Error(`globals CSS missing @theme inline mapping for ${themeVar}`);
+    }
+  }
+
+  for (const token of SIDEBAR_COLOR_TOKENS) {
+    const cssVar = `--${token}`;
+
+    if (!rootNames.has(cssVar) || !darkNames.has(cssVar)) {
+      throw new Error(`globals CSS sidebar alias missing for ${cssVar}`);
+    }
+  }
+
+  for (const [themeVar] of laneThemeInlineDeclarations()) {
+    if (!themeNames.has(themeVar)) {
+      throw new Error(`globals CSS missing @theme inline mapping for ${themeVar}`);
+    }
   }
 }

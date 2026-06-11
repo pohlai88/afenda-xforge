@@ -2,7 +2,7 @@ import { hrDocumentEntityMetadata } from "@repo/features-employee-management-doc
 import { render, screen } from "@testing-library/react";
 import { describe, expect, it } from "vitest";
 import { createAppMetadataContext } from "../app/_lib/metadata-context.ts";
-import { DocumentUploadForm } from "../app/(authenticated)/hr/documents/document-upload-form.tsx";
+import { DocumentUploadForm } from "../app/[locale]/(authenticated)/hr/documents/document-upload-form.tsx";
 
 describe("DocumentUploadForm", () => {
   it("renders metadata-driven upload fields", () => {

@@ -1,0 +1,32 @@
+{
+  "auth": {
+    "forbidden": "Ban khong co quyen thuc hien thao tac nay",
+    "login": "Dang nhap",
+    "logout": "Dang xuat",
+    "sessionExpired": "Phien dang nhap da het han. Vui long dang nhap lai.",
+    "unauthorized": "Vui long dang nhap de tiep tuc"
+  },
+  "common": {
+    "actions": "Thao tac",
+    "cancel": "Huy",
+    "close": "Dong",
+    "confirm": "Xac nhan",
+    "create": "Tao moi",
+    "delete": "Xoa",
+    "edit": "Sua",
+    "error": "Loi",
+    "loading": "Dang tai...",
+    "noData": "Khong co du lieu",
+    "save": "Luu",
+    "search": "Tim kiem",
+    "success": "Thanh cong"
+  },
+  "validation": {
+    "email": "Email khong hop le",
+    "maxLength": "Toi da {{max}} ky tu",
+    "minLength": "Toi thieu {{min}} ky tu",
+    "numberInvalid": "Gia tri so khong hop le",
+    "phone": "So dien thoai khong hop le",
+    "required": "Truong nay la bat buoc"
+  }
+}

@@ -2,6 +2,40 @@
 
 This repo follows the XForge architecture contract. When instructions conflict with implementation drift, update the implementation to match the architecture.
 
+## Stupid agent behaviors — do not do these
+
+These are documented so agents stop repeating the same mistakes. This is **behavior guidance**, not a file-lock system.
+
+1. **Touching our workspace framework for the wrong reason** — do not edit `packages/ui/src/components/compose/workspace/**` to fix Theme Studio, Storybook, branding previews, or visual polish. That layer is ours. Fix at app wiring or preview layer first.
+2. **Skipping the answer** — if we ask yes/no or advice, answer in text before writing code.
+3. **Over-scoping** — a layout/visual request is not permission to refactor shared compose, surfaces, typography, memory lane, or defaults.
+4. **Destructive git on WIP** — no `git restore`, `git checkout --`, or `git clean` on our untracked work unless we explicitly say so.
+
+See `.cursor/rules/` for the same guardrails.
+
+## Our workspace framework
+
+**Human-owned.** Agents ask before changing `packages/ui/src/components/compose/workspace/**`.
+
+### Allowed layers for UI / visual / Storybook work
+
+| Layer | Path |
+|-------|------|
+| App workspace wiring | `apps/app/app/_components/workspace/` |
+| Authenticated shell wiring | `apps/app/app/_components/authenticated-*.tsx` |
+| Theme Studio previews | `apps/app/app/theme-studio/` |
+| Storybook | `apps/storybook/` |
+| Entity/metadata surfaces | App routes + `@repo/metadata-ui` (see wiring plan) |
+
+### Mandatory agent behavior
+
+1. **Answer the question first** — advice and yes/no questions get a direct answer before any code.
+2. **Smallest layer** — never "fix" previews by refactoring `@repo/ui` workspace compose.
+3. **No destructive git on WIP** — do not `git restore`, `git checkout --`, or `git clean` on user untracked work without explicit instruction.
+4. **Ask before framework edits** — *"This requires changing `<file>` in workspace compose. Approve?"*
+
+See also: `.cursor/rules/agent-discipline.mdc`, `.cursor/rules/ui-layer-ownership.mdc`.
+
 ## Source Of Truth
 
 - `skills/reference/architecture.md` defines system governance, dependency direction, tenant/company rules, execution, audit, permissions, and metadata limits.

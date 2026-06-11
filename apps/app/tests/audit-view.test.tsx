@@ -2,7 +2,7 @@ import { auditEventMetadata } from "@repo/features-system-admin-control-plane/me
 import { render, screen } from "@testing-library/react";
 import { describe, expect, it } from "vitest";
 import { createAppMetadataContext } from "../app/_lib/metadata-context.ts";
-import { AuditView } from "../app/(authenticated)/audit/audit-view.tsx";
+import { AuditView } from "../app/[locale]/(authenticated)/audit/audit-view.tsx";
 
 const createAuditContext = () =>
   createAppMetadataContext({

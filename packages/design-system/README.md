@@ -28,3 +28,15 @@ Enterprise vocabulary currently includes:
 - component variant contracts consumed by `@repo/ui`
 
 Use `pnpm --filter @repo/design-system globals:css` to refresh `packages/ui/src/styles/globals.css`, and `globals:css:check` in CI to enforce drift-free sync.
+
+Generated globals import `tailwindcss`, `tw-animate-css`, and `shadcn/tailwind.css`, then Afenda `:root` / `.dark` tokens and `@theme inline` mappings.
+
+### Sidebar chrome policy
+
+Sidebar / menu chrome uses a dedicated editorial frame (`sidebar-tokens.ts`):
+
+- `--sidebar` — slightly deeper than `--background` (navigation rail)
+- `--sidebar-accent` — restrained brand wash for hover/active (menu accent)
+- `--sidebar-primary` → `--primary` (active nav marker)
+
+Menu vocabulary maps to sidebar tokens (`bg-sidebar`, `bg-sidebar-accent`). Split surfaces only for floating sidebar or marketing shells — update `sidebar-tokens.ts` and `SIDEBAR_COLOR_TOKENS`.

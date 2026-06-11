@@ -2,7 +2,7 @@ import { hrDocumentEntityMetadata } from "@repo/features-employee-management-doc
 import { render, screen } from "@testing-library/react";
 import { describe, expect, it } from "vitest";
 import { createAppMetadataContext } from "../app/_lib/metadata-context.ts";
-import { DocumentDetailView } from "../app/(authenticated)/hr/documents/document-detail-view.tsx";
+import { DocumentDetailView } from "../app/[locale]/(authenticated)/hr/documents/document-detail-view.tsx";
 
 const createDetailContext = () =>
   createAppMetadataContext({

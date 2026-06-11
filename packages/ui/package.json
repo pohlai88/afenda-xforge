@@ -76,7 +76,9 @@
     "react-resizable-panels": "^4",
     "recharts": "3.8.0",
     "sonner": "catalog:",
+    "shadcn": "catalog:",
     "tailwind-merge": "catalog:",
+    "tw-animate-css": "catalog:",
     "vaul": "1.1.2",
     "zod": "catalog:"
   },

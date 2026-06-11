@@ -895,6 +895,43 @@ export const composeRegistryGroups = [
       ),
     ],
   }),
+  group({
+    name: "workspace",
+    title: "Workspace",
+    description:
+      "Application chrome for ERP shells: app topbar, sidebar rail, context switchers, and site content regions.",
+    kind: "layout",
+    metadataRoles: ["layout", "navigation", "section"],
+    capabilities: ["controlled", "density"],
+    readiness: "preview-only",
+    patterns: [
+      pattern(
+        "full-shell",
+        "Full Shell",
+        "Complete workspace assembly with sidebar and site column.",
+      ),
+      pattern(
+        "app-nav-topbar",
+        "App Nav Topbar",
+        "Tenant context breadcrumb switchers.",
+      ),
+      pattern(
+        "sidebar-rail",
+        "Sidebar Rail",
+        "Module navigation with user footer.",
+      ),
+      pattern(
+        "context-switchers",
+        "Context Switchers",
+        "Organization, department, team, and project switchers.",
+      ),
+      pattern(
+        "site-chrome",
+        "Site Chrome",
+        "Site topbar and scrollable content canvas.",
+      ),
+    ],
+  }),
 ] as const satisfies readonly ComposeRegistryGroup[];
 
 export type ComposeRegistryGroupName =

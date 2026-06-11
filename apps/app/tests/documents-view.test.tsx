@@ -2,7 +2,7 @@ import { hrDocumentEntityMetadata } from "@repo/features-employee-management-doc
 import { render, screen } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
 import { createAppMetadataContext } from "../app/_lib/metadata-context.ts";
-import { DocumentsView } from "../app/(authenticated)/hr/documents/documents-view.tsx";
+import { DocumentsView } from "../app/[locale]/(authenticated)/hr/documents/documents-view.tsx";
 
 vi.mock("next/navigation", () => ({
   useRouter: () => ({

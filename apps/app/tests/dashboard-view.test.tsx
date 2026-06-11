@@ -2,8 +2,8 @@ import { companyMetadata } from "@repo/features-master-data-companies/metadata";
 import { customerMetadata } from "@repo/features-master-data-customers/metadata";
 import { render, screen } from "@testing-library/react";
 import { describe, expect, it } from "vitest";
-import type { DashboardSectionState } from "../app/(authenticated)/dashboard/dashboard-view.tsx";
-import { DashboardView } from "../app/(authenticated)/dashboard/dashboard-view.tsx";
+import type { DashboardSectionState } from "../app/[locale]/(authenticated)/dashboard/dashboard-view.tsx";
+import { DashboardView } from "../app/[locale]/(authenticated)/dashboard/dashboard-view.tsx";
 import { createAppMetadataContext } from "../app/_lib/metadata-context.ts";
 
 const createDashboardContext = () =>

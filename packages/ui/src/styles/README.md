@@ -5,7 +5,7 @@
 It is generated from `@repo/design-system` token contracts. Do not edit it manually — run `pnpm --filter @repo/design-system globals:css` instead.
 
 It owns:
-- `@import "tailwindcss"`
+- `@import "tailwindcss"`, `@import "tw-animate-css"`, `@import "shadcn/tailwind.css"`
 - `@source` declarations for the UI source tree
 - `@theme inline` token mapping
 - light and dark semantic variables

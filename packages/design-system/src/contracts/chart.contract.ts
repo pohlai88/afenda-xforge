@@ -16,11 +16,11 @@ export type ChartColorToken = (typeof CHART_COLOR_TOKENS)[number];
 
 export const CHART_HUES = {
   "chart-1": 198,
-  "chart-2": 285,
-  "chart-3": 72,
-  "chart-4": 155,
-  "chart-5": 25,
-  "chart-6": 230,
+  "chart-2": 250,
+  "chart-3": 160,
+  "chart-4": 68,
+  "chart-5": 285,
+  "chart-6": 212,
   "chart-7": 330,
 } as const satisfies Record<ChartColorToken, number>;
 

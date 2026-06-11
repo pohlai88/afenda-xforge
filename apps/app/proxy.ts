@@ -18,8 +18,17 @@ import {
   assessErpRequestBoundary,
   createSecurityMiddleware,
 } from "@repo/security";
+import createIntlMiddleware from "next-intl/middleware";
 import type { NextRequest } from "next/server";
 import { NextResponse } from "next/server";
+import {
+  localePrefixFromPathname,
+  stripLocalePrefix,
+  withLocalePrefix,
+} from "./i18n/locale-path";
+import { routing } from "./i18n/routing";
+
+const handleI18nRouting = createIntlMiddleware(routing);
 
 const evaluateSecurity = createSecurityMiddleware();
 
@@ -80,25 +89,37 @@ const resolveAuthRedirect = (
     return null;
   }
 
-  if (isProtectedAppPath(pathname) && !isAuthenticated) {
+  const pathnameWithoutLocale = stripLocalePrefix(pathname);
+  const localePrefix = localePrefixFromPathname(pathname);
+
+  if (isProtectedAppPath(pathnameWithoutLocale) && !isAuthenticated) {
     return createRedirectResponse(
       request,
-      buildSignInPath(`${pathname}${search}`)
+      withLocalePrefix(
+        buildSignInPath(`${pathnameWithoutLocale}${search}`),
+        localePrefix
+      )
     );
   }
 
-  if (isGuestOnlyPath(pathname) && isAuthenticated) {
+  if (isGuestOnlyPath(pathnameWithoutLocale) && isAuthenticated) {
     const next = request.nextUrl.searchParams.get("next");
     const redirectTo = resolvePostAuthRedirectPath(
       next,
       DEFAULT_AUTHENTICATED_REDIRECT_PATH
     );
 
-    return createRedirectResponse(request, redirectTo);
+    return createRedirectResponse(
+      request,
+      withLocalePrefix(redirectTo, localePrefix)
+    );
   }
 
   return null;
 };
+
+const shouldSkipIntlRouting = (pathname: string): boolean =>
+  pathname.startsWith("/api") || pathname.startsWith("/auth");
 
 export async function proxy(request: NextRequest): Promise<NextResponse> {
   const context = createProxyContext(request);
@@ -109,7 +130,19 @@ export async function proxy(request: NextRequest): Promise<NextResponse> {
     return applyProxyResponseHeaders(preflightResponse, context, proxyHeaders);
   }
 
-  const baseResponse = createProxyBaseResponse(request, context);
+  const pathname = request.nextUrl.pathname;
+  let intlResponse: NextResponse | undefined;
+
+  if (!shouldSkipIntlRouting(pathname)) {
+    intlResponse = handleI18nRouting(request);
+
+    if (intlResponse.status >= 300 && intlResponse.status < 400) {
+      return intlResponse;
+    }
+  }
+
+  const baseResponse =
+    intlResponse ?? createProxyBaseResponse(request, context);
   const authResult = await authMiddleware(request);
   const assessment = await evaluateSecurity(request);
   const boundary = assessErpRequestBoundary(request, {
@@ -191,5 +224,8 @@ export async function proxy(request: NextRequest): Promise<NextResponse> {
 }
 
 export const config = {
-  matcher: ["/((?!_next/static|_next/image|favicon.ico).*)", "/api(.*)"],
+  matcher: [
+    "/((?!api|trpc|_next|_vercel|.*\\..*).*)",
+    "/api(.*)",
+  ],
 };

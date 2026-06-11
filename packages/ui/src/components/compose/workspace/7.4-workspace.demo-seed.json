@@ -1,0 +1,135 @@
+{
+  "version": 1,
+  "user": {
+    "name": "Brand Lead",
+    "email": "brand.lead@vietnamfeed.com",
+    "avatar": null
+  },
+  "navigation": {
+    "modules": [
+      { "id": "dashboard", "label": "Dashboard", "active": true },
+      { "id": "orders", "label": "Orders", "active": false },
+      { "id": "inventory", "label": "Inventory", "active": false },
+      { "id": "reports", "label": "Reports", "active": false }
+    ],
+    "features": [
+      { "id": "search", "label": "Search" },
+      { "id": "notifications", "label": "Notifications" },
+      { "id": "settings", "label": "Settings" }
+    ]
+  },
+  "selection": {
+    "organizationId": "org-vietnam-feed",
+    "departmentId": "dept-operations",
+    "teamId": "team-hanoi-hq",
+    "projectId": "project-erp-rollout"
+  },
+  "organizations": [
+    {
+      "id": "org-vietnam-feed",
+      "name": "Vietnam Feed",
+      "subtitle": "Enterprise tenant",
+      "icon": "building-2",
+      "departments": [
+        {
+          "id": "dept-operations",
+          "name": "Operations",
+          "subtitle": "Core ERP",
+          "icon": "briefcase",
+          "teams": [
+            {
+              "id": "team-hanoi-hq",
+              "name": "Hanoi HQ",
+              "subtitle": "Primary team",
+              "icon": "users",
+              "plan": "Enterprise",
+              "projects": [
+                {
+                  "id": "project-erp-rollout",
+                  "name": "ERP Rollout",
+                  "subtitle": "Q2 milestone",
+                  "icon": "folder-kanban"
+                },
+                {
+                  "id": "project-brand-studio",
+                  "name": "Brand Studio",
+                  "subtitle": "Theme QA",
+                  "icon": "folder-kanban"
+                }
+              ]
+            },
+            {
+              "id": "team-danang-ops",
+              "name": "Da Nang Ops",
+              "subtitle": "Regional hub",
+              "icon": "users",
+              "plan": "Growth",
+              "projects": [
+                {
+                  "id": "project-logistics-hub",
+                  "name": "Logistics Hub",
+                  "subtitle": "Warehouse rollout",
+                  "icon": "folder-kanban"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "dept-finance",
+          "name": "Finance",
+          "subtitle": "Ledger & compliance",
+          "icon": "briefcase",
+          "teams": [
+            {
+              "id": "team-finance-core",
+              "name": "Finance Core",
+              "subtitle": "Shared services",
+              "icon": "users",
+              "plan": "Enterprise",
+              "projects": [
+                {
+                  "id": "project-close-automation",
+                  "name": "Close Automation",
+                  "subtitle": "Month-end pipeline",
+                  "icon": "folder-kanban"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "org-demo-sandbox",
+      "name": "Demo Org",
+      "subtitle": "Sandbox tenant",
+      "icon": "layout-dashboard",
+      "departments": [
+        {
+          "id": "dept-preview",
+          "name": "Preview",
+          "subtitle": "Storybook lane",
+          "icon": "briefcase",
+          "teams": [
+            {
+              "id": "team-preview",
+              "name": "Preview Team",
+              "subtitle": "Design QA",
+              "icon": "users",
+              "plan": "Trial",
+              "projects": [
+                {
+                  "id": "project-theme-qa",
+                  "name": "Theme QA",
+                  "subtitle": "Design review",
+                  "icon": "folder-kanban"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,11 @@
+{
+  "version": 1,
+  "hooks": {
+    "sessionStart": [
+      {
+        "type": "prompt",
+        "prompt": "You are working in afenda-Xforge. Read AGENTS.md and .cursor/rules/ before acting. Stupid agent behaviors to avoid: (1) editing packages/ui/src/components/compose/workspace/ to fix previews or polish — use apps/app or apps/storybook instead; (2) implementing before answering direct questions; (3) git restore/clean on user WIP without explicit ask; (4) refactoring shared framework when the user only asked about look/feel. If a task touches workspace compose, ask first."
+      }
+    ]
+  }
+}

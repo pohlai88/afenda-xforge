@@ -1,5 +1,4 @@
 @import "@repo/ui/styles/globals.css";
-@import "tw-animate-css";
 
 @source "./**/*.{ts,tsx}";
 @source "../../../packages/metadata-ui/src/**/*.{ts,tsx}";

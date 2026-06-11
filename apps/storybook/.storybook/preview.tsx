@@ -91,6 +91,7 @@ const preview: Preview = {
           ["UI", "Compose", "Form"],
           ["UI", "Compose", "Data"],
           ["UI", "Compose", "Navigation"],
+          ["UI", "Compose", "Workspace"],
           ["UI", "Compose", "Feedback"],
           ["UI", "Compose Registry"],
           ["UI", "Primitives"],

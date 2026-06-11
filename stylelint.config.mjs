@@ -67,6 +67,7 @@ export default {
     "afenda/require-theme-inline": true,
     "afenda/require-theme-inline-mappings": true,
     "afenda/tailwind-import-only-in-globals": true,
+    "afenda/prefer-neutral-ring": true,
   },
   ignoreFiles: [
     "**/node_modules/**",

@@ -50,6 +50,30 @@ def find_package_json(root: Path) -> Path | None:
     return pkg if pkg.exists() else None
 
 
+def resolve_pnpm_catalog_version(root: Path, dep_name: str, version: str) -> str:
+    """Resolve catalog: protocol to a semver range from pnpm-workspace.yaml."""
+    if not version.startswith('catalog:'):
+        return version
+
+    for search_root in [root, *root.parents]:
+        workspace_file = search_root / 'pnpm-workspace.yaml'
+        if not workspace_file.exists():
+            continue
+
+        with open(workspace_file, encoding='utf-8') as handle:
+            content = handle.read()
+
+        match = re.search(
+            rf'^\s*{re.escape(dep_name)}:\s*(.+)$',
+            content,
+            re.MULTILINE,
+        )
+        if match:
+            return match.group(1).strip()
+
+    return version
+
+
 def check_tailwind_version(root: Path, result: ValidationResult) -> bool:
     """Check if tailwindcss v4+ is installed."""
     pkg_path = find_package_json(root)
@@ -72,7 +96,7 @@ def check_tailwind_version(root: Path, result: ValidationResult) -> bool:
                         fix='bun add tailwindcss@latest @tailwindcss/postcss')
         return False
 
-    version = deps['tailwindcss']
+    version = resolve_pnpm_catalog_version(root, 'tailwindcss', deps['tailwindcss'])
     result.tailwind_version = version
 
     # Parse version (handle ^, ~, >=, etc.)
