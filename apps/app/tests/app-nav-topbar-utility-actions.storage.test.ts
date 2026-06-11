@@ -86,8 +86,8 @@ describe("topbar utilities storage", () => {
   it("writes and reads pinned utilities per tenant and user", () => {
     writePinnedTopbarUtilities(["search", "settings"], testScope);
     expect(readPinnedTopbarUtilities(testScope)).toEqual([
-      "search",
       "settings",
+      "search",
     ]);
   });
 

@@ -31,10 +31,12 @@ import {
   TabsContent,
   TabsList,
   TabsTrigger,
-  Tooltip,
-  TooltipContent,
-  TooltipTrigger,
 } from "@repo/ui";
+import { AppNavTopbarIconTooltip } from "./app-nav-topbar-tooltip.tsx";
+import {
+  APP_NAV_TOPBAR_NOTIFICATIONS_TOOLTIP,
+  APP_NAV_TOPBAR_NOTIFICATION_SETTINGS_TOOLTIP,
+} from "./app-nav-topbar-tooltips.ts";
 import { cn } from "@repo/ui/lib/utils";
 import { Settings2 } from "lucide-react";
 import { useRouter } from "next/navigation";
@@ -242,21 +244,25 @@ function NotificationsPanel({
             </PopoverDescription>
           ) : null}
         </div>
-        <Tooltip>
-          <TooltipTrigger asChild>
-            <Button
-              className={appNavTopbarGhostIconButtonClassName}
-              onClick={onOpenSettings}
-              size="icon"
-              type="button"
-              variant="ghost"
-            >
-              <Settings2 className="size-4" />
-              <span className="sr-only">Notification settings</span>
-            </Button>
-          </TooltipTrigger>
-          <TooltipContent side="bottom">Settings</TooltipContent>
-        </Tooltip>
+        <AppNavTopbarIconTooltip
+          description={
+            APP_NAV_TOPBAR_NOTIFICATION_SETTINGS_TOOLTIP.description
+          }
+          title={APP_NAV_TOPBAR_NOTIFICATION_SETTINGS_TOOLTIP.title}
+        >
+          <Button
+            className={appNavTopbarGhostIconButtonClassName}
+            onClick={onOpenSettings}
+            size="icon"
+            type="button"
+            variant="ghost"
+          >
+            <Settings2 className="size-4" />
+            <span className="sr-only">
+              {APP_NAV_TOPBAR_NOTIFICATION_SETTINGS_TOOLTIP.title}
+            </span>
+          </Button>
+        </AppNavTopbarIconTooltip>
       </PopoverHeader>
 
       <Tabs
@@ -656,17 +662,17 @@ export function AppNavTopbarNotifications({
   if (isMobile) {
     return (
       <Sheet onOpenChange={setIsOpen} open={isOpen}>
-        <Tooltip>
-          <TooltipTrigger asChild>
-            <SheetTrigger asChild>
-              <AppNavTopbarNotificationsTrigger
-                isOpen={isOpen}
-                unreadCount={inbox.unreadCount}
-              />
-            </SheetTrigger>
-          </TooltipTrigger>
-          <TooltipContent side="bottom">Notifications</TooltipContent>
-        </Tooltip>
+        <AppNavTopbarIconTooltip
+          description={APP_NAV_TOPBAR_NOTIFICATIONS_TOOLTIP.description}
+          title={APP_NAV_TOPBAR_NOTIFICATIONS_TOOLTIP.title}
+        >
+          <SheetTrigger asChild>
+            <AppNavTopbarNotificationsTrigger
+              isOpen={isOpen}
+              unreadCount={inbox.unreadCount}
+            />
+          </SheetTrigger>
+        </AppNavTopbarIconTooltip>
         <SheetContent
           className={notificationsSheetContentClassName}
           side="right"
@@ -682,17 +688,17 @@ export function AppNavTopbarNotifications({
 
   return (
     <Popover modal onOpenChange={setIsOpen} open={isOpen}>
-      <Tooltip>
-        <TooltipTrigger asChild>
-          <PopoverTrigger asChild>
-            <AppNavTopbarNotificationsTrigger
-              isOpen={isOpen}
-              unreadCount={inbox.unreadCount}
-            />
-          </PopoverTrigger>
-        </TooltipTrigger>
-        <TooltipContent side="bottom">Notifications</TooltipContent>
-      </Tooltip>
+      <AppNavTopbarIconTooltip
+        description={APP_NAV_TOPBAR_NOTIFICATIONS_TOOLTIP.description}
+        title={APP_NAV_TOPBAR_NOTIFICATIONS_TOOLTIP.title}
+      >
+        <PopoverTrigger asChild>
+          <AppNavTopbarNotificationsTrigger
+            isOpen={isOpen}
+            unreadCount={inbox.unreadCount}
+          />
+        </PopoverTrigger>
+      </AppNavTopbarIconTooltip>
       <PopoverContent
         align="end"
         className={notificationsPopoverContentClassName}

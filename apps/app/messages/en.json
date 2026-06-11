@@ -124,10 +124,6 @@
         "pressToAssign": "Press the key combination you want to assign.",
         "recordTitle": "Record shortcut"
       },
-      "topbarSearch": {
-        "ariaLabel": "Open command palette",
-        "placeholder": "Search..."
-      },
       "commandPalette": {
         "empty": "No matching commands.",
         "groups": {

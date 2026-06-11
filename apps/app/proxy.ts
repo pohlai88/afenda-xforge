@@ -61,8 +61,19 @@ const applyBoundaryResponseState = (
   return response;
 };
 
+const PROTECTED_APP_PREFIXES = [
+  "/admin",
+  "/assistant",
+  "/audit",
+  "/dashboard",
+  "/hr",
+  "/settings",
+] as const;
+
 const isProtectedAppPath = (pathname: string): boolean =>
-  pathname === "/dashboard" || pathname.startsWith("/dashboard/");
+  PROTECTED_APP_PREFIXES.some(
+    (prefix) => pathname === prefix || pathname.startsWith(`${prefix}/`)
+  );
 
 const isGuestOnlyPath = (pathname: string): boolean =>
   pathname === "/sign-in" ||
@@ -129,6 +140,9 @@ const shouldSkipIntlRouting = (pathname: string): boolean =>
 export async function proxy(request: NextRequest): Promise<NextResponse> {
   const packageRequest = toPackageNextRequest(request);
   const context = createProxyContext(packageRequest);
+  // Client-supplied tenant/user identifiers are never authoritative.
+  context.tenantId = undefined;
+  context.userId = undefined;
   const proxyHeaders = createProxyHeaders(packageRequest);
   const preflightResponse = createPreflightResponse(packageRequest);
 

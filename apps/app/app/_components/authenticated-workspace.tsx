@@ -12,6 +12,7 @@ import {
 } from "./authenticated-workspace-nav.ts";
 import { WorkspaceShortcutsDispatcher } from "./workspace/keyboard-shortcuts/keyboard-shortcuts-provider.tsx";
 import { resolveActiveFeatureId } from "./workspace/path-utils.ts";
+import { AppNavTopbarSidebarTrigger } from "./workspace/app-nav-topbar-sidebar-trigger.tsx";
 import { WorkspaceFrame } from "./workspace/workspace-frame.tsx";
 
 type AuthenticatedWorkspaceProps = {
@@ -32,6 +33,7 @@ export function AuthenticatedWorkspace({
     <WorkspaceFrame
       appNavTopbar={{
         actions: <AuthenticatedAppNavTopbarActions />,
+        sidebarTrigger: <AppNavTopbarSidebarTrigger />,
       }}
       collapsible="icon"
       contentPadded

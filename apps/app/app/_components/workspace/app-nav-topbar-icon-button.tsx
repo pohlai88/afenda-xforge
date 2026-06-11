@@ -1,36 +1,37 @@
 "use client";
 
-import { Button, Tooltip, TooltipContent, TooltipTrigger } from "@repo/ui";
+import { Button } from "@repo/ui";
 import type { ReactElement, ReactNode } from "react";
 import { appNavTopbarGhostIconButtonClassName } from "./app-nav-topbar-chrome.ts";
+import {
+  AppNavTopbarIconTooltip,
+  type AppNavTopbarTooltipCopy,
+} from "./app-nav-topbar-tooltip.tsx";
 
 export function AppNavTopbarIconButton({
   children,
   disabled,
-  label,
+  description,
   onClick,
-}: {
+  title,
+}: AppNavTopbarTooltipCopy & {
   children: ReactNode;
   disabled?: boolean;
-  label: string;
   onClick?: () => void;
 }): ReactElement {
   return (
-    <Tooltip>
-      <TooltipTrigger asChild>
-        <Button
-          className={appNavTopbarGhostIconButtonClassName}
-          disabled={disabled}
-          onClick={onClick}
-          size="icon"
-          type="button"
-          variant="ghost"
-        >
-          {children}
-          <span className="sr-only">{label}</span>
-        </Button>
-      </TooltipTrigger>
-      <TooltipContent side="bottom">{label}</TooltipContent>
-    </Tooltip>
+    <AppNavTopbarIconTooltip description={description} title={title}>
+      <Button
+        className={appNavTopbarGhostIconButtonClassName}
+        disabled={disabled}
+        onClick={onClick}
+        size="icon"
+        type="button"
+        variant="ghost"
+      >
+        {children}
+        <span className="sr-only">{title}</span>
+      </Button>
+    </AppNavTopbarIconTooltip>
   );
 }

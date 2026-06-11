@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { resolveOptionalCompanyId } from "../../../../_runtime-access.ts";
 import { mapWorkspaceShortcutApiError } from "../../../../../lib/workspace-shortcuts/api-errors.ts";
 import { executeTenantKeyboardShortcutPolicyUpdate } from "../../../../../lib/workspace-shortcuts/execution.server.ts";
 import { queryTenantKeyboardShortcutPolicy } from "../../../../../lib/workspace-shortcuts/queries.server.ts";
@@ -6,8 +7,9 @@ import { tenantKeyboardShortcutPolicyPostSchema } from "../../../../../lib/works
 
 export async function GET(request: Request): Promise<NextResponse> {
   try {
+    const companyId = await resolveOptionalCompanyId();
     const payload = await queryTenantKeyboardShortcutPolicy({
-      companyId: request.headers.get("x-company-id")?.trim() || undefined,
+      companyId,
       requestId: request.headers.get("x-request-id")?.trim() ?? undefined,
     });
 
@@ -25,8 +27,9 @@ export async function POST(request: Request): Promise<NextResponse> {
     const body = tenantKeyboardShortcutPolicyPostSchema.parse(
       await request.json()
     );
+    const companyId = await resolveOptionalCompanyId();
     const payload = await executeTenantKeyboardShortcutPolicyUpdate(body, {
-      companyId: request.headers.get("x-company-id")?.trim() || undefined,
+      companyId,
       requestId: request.headers.get("x-request-id")?.trim() ?? undefined,
     });
 

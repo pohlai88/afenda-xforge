@@ -14,6 +14,7 @@ import {
   DropdownMenuTrigger,
 } from "../../ui-shadcn/dropdown-menu";
 import { SidebarTrigger } from "../../ui-shadcn/sidebar";
+import { TooltipProvider } from "../../ui-shadcn/tooltip";
 import { WorkspaceAppNavTopbarBrand } from "./1.2-workspace-app-nav-topbar-brand.tsx";
 import type { WorkspaceNavContextScope } from "./5.4-workspace-rail.types.ts";
 import {
@@ -36,6 +37,8 @@ export type WorkspaceAppNavTopbarProps = {
   brand?: ReactElement;
   brandHomeHref?: string;
   className?: string;
+  /** Replaces the default sidebar panel trigger (e.g. for app-layer tooltips). */
+  sidebarTrigger?: ReactNode;
   showSidebarTrigger?: boolean;
   switchers?: readonly WorkspaceNavContextSwitcherProps[];
 };
@@ -129,28 +132,32 @@ export function WorkspaceAppNavTopbar({
   brand,
   brandHomeHref,
   className,
+  sidebarTrigger,
   showSidebarTrigger = true,
   switchers = [],
 }: WorkspaceAppNavTopbarProps): ReactElement {
   return (
-    <div
-      className={cn(
-        "sticky top-0 z-50 flex shrink-0 items-center gap-1 antialiased",
-        WORKSPACE_SHELL_SPACE.appTopbarSurface,
-        WORKSPACE_SHELL_SPACE.shellInsetX,
-        className,
-      )}
-      data-slot="workspace-app-nav-topbar"
-      style={{ height: WORKSPACE_SHELL_CHROME_HEIGHT }}
-    >
-      {showSidebarTrigger ? (
-        <SidebarTrigger
-          className={cn(
-            WORKSPACE_SHELL_SPACE.iconButton,
-            "shrink-0 text-muted-foreground hover:bg-sidebar-accent hover:text-sidebar-foreground",
-          )}
-        />
-      ) : null}
+    <TooltipProvider delayDuration={0}>
+      <div
+        className={cn(
+          "sticky top-0 z-50 flex shrink-0 items-center gap-1 antialiased",
+          WORKSPACE_SHELL_SPACE.appTopbarSurface,
+          WORKSPACE_SHELL_SPACE.shellInsetX,
+          className,
+        )}
+        data-slot="workspace-app-nav-topbar"
+        style={{ height: WORKSPACE_SHELL_CHROME_HEIGHT }}
+      >
+      {showSidebarTrigger
+        ? (sidebarTrigger ?? (
+            <SidebarTrigger
+              className={cn(
+                WORKSPACE_SHELL_SPACE.iconButton,
+                "shrink-0 text-muted-foreground hover:bg-sidebar-accent hover:text-sidebar-foreground",
+              )}
+            />
+          ))
+        : null}
       {brand ?? <WorkspaceAppNavTopbarBrand homeHref={brandHomeHref} />}
       {switchers.length > 0 ? (
         <nav
@@ -176,6 +183,7 @@ export function WorkspaceAppNavTopbar({
       {actions ? (
         <div className="ms-auto flex shrink-0 items-center">{actions}</div>
       ) : null}
-    </div>
+      </div>
+    </TooltipProvider>
   );
 }

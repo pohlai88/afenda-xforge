@@ -5,6 +5,7 @@ import { usePathname } from "next/navigation";
 import type { ReactElement, ReactNode } from "react";
 import { resolveProductDefaults } from "../../../../lib/workspace-shortcuts/resolve-shortcuts.ts";
 import { AppNavTopbarActions } from "../../../_components/workspace/app-nav-topbar-actions.tsx";
+import { AppNavTopbarSidebarTrigger } from "../../../_components/workspace/app-nav-topbar-sidebar-trigger.tsx";
 import { THEME_STUDIO_NAV_ACTION_GROUPS } from "../../../_components/workspace/app-nav-topbar-nav-actions.demo.ts";
 import { AppNavTopbarThemeToggle } from "../../../_components/workspace/app-nav-topbar-theme-toggle.tsx";
 import { WorkspaceShortcutsDispatcher } from "../../../_components/workspace/keyboard-shortcuts/keyboard-shortcuts-provider.tsx";
@@ -57,6 +58,7 @@ export function ThemeStudioWorkspace({
       <WorkspaceFrame
         appNavTopbar={{
           actions: <ThemeStudioTopbarActions />,
+          sidebarTrigger: <AppNavTopbarSidebarTrigger />,
           switchers: [
             {
               defaultOptionId: THEME_STUDIO_ORGANIZATIONS[0]?.id,

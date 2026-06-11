@@ -10,7 +10,7 @@ import {
   LineChart,
   MessageSquareWarning,
   MessagesSquare,
-  Search,
+  ScanSearch,
   Settings2,
   type LucideIcon,
 } from "lucide-react";
@@ -46,6 +46,7 @@ export type AppNavTopbarUtilityActionKind =
 
 export type AppNavTopbarUtilityDefinition = {
   action: AppNavTopbarUtilityActionKind;
+  description: string;
   id: AppNavTopbarUtilityId;
   label: string;
   icon: LucideIcon;
@@ -55,81 +56,94 @@ export const APP_NAV_TOPBAR_UTILITY_CATALOG: readonly AppNavTopbarUtilityDefinit
   [
     {
       action: "help",
+      description: "Open help and support resources.",
       id: "help",
       label: "Help",
       icon: CircleQuestionMark,
     },
     {
       action: "stub",
+      description: "Tips and guided suggestions.",
       id: "advisor-center",
       label: "Advisor center",
       icon: Lightbulb,
     },
     {
       action: "keyboard-shortcuts",
+      description: "View and customize workspace shortcuts.",
       id: "keyboard-shortcuts",
       label: "Keyboard shortcuts",
       icon: Keyboard,
     },
     {
       action: "stub",
+      description: "Check connectivity and service health.",
       id: "network-diagnosis",
       label: "Network diagnosis",
       icon: Activity,
     },
     {
       action: "stub",
+      description: "Open team messages and chats.",
       id: "messenger",
       label: "Messenger",
       icon: MessagesSquare,
     },
     {
-      action: "command-palette",
-      id: "search",
-      label: "Quick search",
-      icon: Search,
-    },
-    {
       action: "stub",
+      description: "View your schedule and events.",
       id: "calendar",
       label: "Calendar",
       icon: Calendar,
     },
     {
       action: "stub",
+      description: "Track tasks and follow-ups.",
       id: "clipboard-list",
       label: "Tasks",
       icon: ClipboardList,
     },
     {
       action: "stub",
+      description: "Open analytics and reports.",
       id: "line-chart",
       label: "Analytics",
       icon: LineChart,
     },
     {
       action: "settings-appearance",
+      description: "Workspace appearance and preferences.",
       id: "settings",
       label: "Workspace settings",
       icon: Settings2,
     },
     {
       action: "feedback-menu",
+      description: "Send bugs or product ideas.",
       id: "feedback",
       label: "Feedback",
       icon: MessageSquareWarning,
     },
     {
       action: "stub",
+      description: "Manage files and backups.",
       id: "storage-backup",
       label: "Storage and backup",
       icon: DatabaseBackup,
     },
     {
       action: "notifications-menu",
+      description: "Alerts, inbox, and notification settings.",
       id: "notifications",
       label: "Notifications",
       icon: Bell,
+    },
+    {
+      action: "command-palette",
+      description: "Search commands and navigate the workspace.",
+      id: "search",
+      label: "Quick search",
+      icon: ScanSearch,
     },
   ];
 
@@ -139,6 +153,7 @@ export const APP_NAV_TOPBAR_UTILITY_DEFAULT_PINNED: readonly AppNavTopbarUtility
     "network-diagnosis",
     "messenger",
     "notifications",
+    "search",
   ];
 
 const utilityCatalogById = new Map(

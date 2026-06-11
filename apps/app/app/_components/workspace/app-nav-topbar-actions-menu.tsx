@@ -16,6 +16,7 @@ import type {
   AppNavTopbarNavActionItem,
 } from "./app-nav-topbar-nav-actions.tsx";
 import { AppNavTopbarNavActions } from "./app-nav-topbar-nav-actions.tsx";
+import { APP_NAV_TOPBAR_ACCOUNT_MENU_TOOLTIP } from "./app-nav-topbar-tooltips.ts";
 
 export type AppNavTopbarActionsMenuProps = {
   email?: string;
@@ -109,6 +110,7 @@ export function AppNavTopbarActionsMenu({
       groups={resolvedGroups}
       header={{ email, name }}
       triggerLabel={triggerLabel}
+      triggerTooltip={APP_NAV_TOPBAR_ACCOUNT_MENU_TOOLTIP}
     />
   );
 }

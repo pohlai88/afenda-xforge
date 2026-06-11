@@ -13,9 +13,6 @@ import {
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
-  Tooltip,
-  TooltipContent,
-  TooltipTrigger,
 } from "@repo/ui";
 import { cn } from "@repo/ui/lib/utils";
 import { MoreHorizontal } from "lucide-react";
@@ -25,6 +22,8 @@ import {
   appNavTopbarGhostIconButtonClassName,
   appNavTopbarIconClassName,
 } from "./app-nav-topbar-chrome.ts";
+import { AppNavTopbarIconTooltip } from "./app-nav-topbar-tooltip.tsx";
+import type { AppNavTopbarTooltipCopy } from "./app-nav-topbar-tooltip.tsx";
 
 export type AppNavTopbarNavActionItem = {
   destructive?: boolean;
@@ -48,6 +47,7 @@ export type AppNavTopbarNavActionsProps = {
     name?: string;
   };
   triggerLabel?: string;
+  triggerTooltip?: AppNavTopbarTooltipCopy;
 };
 
 function AppNavTopbarNavActionRow({
@@ -81,6 +81,7 @@ export function AppNavTopbarNavActions({
   groups,
   header,
   triggerLabel = "Actions",
+  triggerTooltip,
 }: AppNavTopbarNavActionsProps): ReactElement {
   const [open, setOpen] = useState(false);
   const visibleGroups = groups.filter((group) => group.items.length > 0);
@@ -88,26 +89,28 @@ export function AppNavTopbarNavActions({
 
   return (
     <Popover onOpenChange={setOpen} open={open}>
-      <Tooltip>
-        <TooltipTrigger asChild>
-          <PopoverTrigger asChild>
-            <Button
-              aria-haspopup="dialog"
-              className={cn(
-                appNavTopbarGhostIconButtonClassName,
-                "data-[state=open]:bg-accent"
-              )}
-              size="icon"
-              type="button"
-              variant="ghost"
-            >
-              <MoreHorizontal className={appNavTopbarIconClassName} />
-              <span className="sr-only">{triggerLabel}</span>
-            </Button>
-          </PopoverTrigger>
-        </TooltipTrigger>
-        <TooltipContent side="bottom">{triggerLabel}</TooltipContent>
-      </Tooltip>
+      <AppNavTopbarIconTooltip
+        description={triggerTooltip?.description}
+        title={triggerTooltip?.title ?? triggerLabel}
+      >
+        <PopoverTrigger asChild>
+          <Button
+            aria-haspopup="dialog"
+            className={cn(
+              appNavTopbarGhostIconButtonClassName,
+              "data-[state=open]:bg-accent"
+            )}
+            size="icon"
+            type="button"
+            variant="ghost"
+          >
+            <MoreHorizontal className={appNavTopbarIconClassName} />
+            <span className="sr-only">
+              {triggerTooltip?.title ?? triggerLabel}
+            </span>
+          </Button>
+        </PopoverTrigger>
+      </AppNavTopbarIconTooltip>
       <PopoverContent
         align="end"
         className="w-56 overflow-hidden rounded-lg p-0"

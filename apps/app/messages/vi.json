@@ -124,10 +124,6 @@
         "pressToAssign": "Nhan to hop phim ban muon gan.",
         "recordTitle": "Ghi phim tat"
       },
-      "topbarSearch": {
-        "ariaLabel": "Mo bang lenh",
-        "placeholder": "Tim kiem..."
-      },
       "commandPalette": {
         "empty": "Khong co lenh phu hop.",
         "groups": {

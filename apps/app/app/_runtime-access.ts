@@ -1,6 +1,7 @@
 import "server-only";
 
 import {
+  getActiveCompanyGrant,
   requireActiveCompanyAccess,
   requireActiveTenantAccess,
 } from "@repo/auth/server";
@@ -41,6 +42,16 @@ export const resolveRuntimeTenantAccess =
       userEmail: access.user.email ?? null,
     };
   };
+
+export const resolveOptionalCompanyId = async (): Promise<string | undefined> => {
+  try {
+    const grant = await getActiveCompanyGrant();
+
+    return grant?.companyId;
+  } catch {
+    return undefined;
+  }
+};
 
 export const resolveRuntimeCompanyAccess =
   async (): Promise<RuntimeCompanyAccess> => {

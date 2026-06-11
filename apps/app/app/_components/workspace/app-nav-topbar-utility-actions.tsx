@@ -10,9 +10,6 @@ import {
   PopoverTitle,
   PopoverTrigger,
   toast,
-  Tooltip,
-  TooltipContent,
-  TooltipTrigger,
 } from "@repo/ui";
 import { cn } from "@repo/ui/lib/utils";
 import {
@@ -43,6 +40,8 @@ import {
   appNavTopbarGhostIconButtonClassName,
   appNavTopbarIconClassName,
 } from "./app-nav-topbar-chrome.ts";
+import { AppNavTopbarIconTooltip } from "./app-nav-topbar-tooltip.tsx";
+import { APP_NAV_TOPBAR_UTILITIES_WIDGET_TOOLTIP } from "./app-nav-topbar-tooltips.ts";
 import {
   APP_NAV_TOPBAR_UTILITY_CATALOG,
   APP_NAV_TOPBAR_UTILITY_DEFAULT_PINNED,
@@ -63,7 +62,6 @@ import {
   type AppNavTopbarUtilitiesState,
   type TopbarUtilitiesScope,
 } from "./app-nav-topbar-utility-actions.storage.ts";
-import { AppNavTopbarCommandSearch } from "./app-nav-topbar-command-search.tsx";
 import { useWorkspaceShortcuts } from "./keyboard-shortcuts/use-keyboard-shortcuts.tsx";
 
 export type AppNavTopbarUtilityActionsProps = {
@@ -327,19 +325,21 @@ function AppNavTopbarPinnedUtilitiesBar({
     });
   };
 
+  if (visibleIds.length === 0) {
+    return null;
+  }
+
   return (
-    <div className="flex items-center gap-0.5">
-      {visibleIds.length > 0 ? (
-        <AppNavTopbarHorizontalUtilitySortable
-          ids={visibleIds}
-          onReorder={handleReorder}
-        >
-          <div
-            aria-label="Pinned utilities"
-            className="flex items-center gap-0.5"
-            role="group"
-          >
-            {visibleIds.map((utilityId) => {
+    <AppNavTopbarHorizontalUtilitySortable
+      ids={visibleIds}
+      onReorder={handleReorder}
+    >
+      <div
+        aria-label="Pinned utilities"
+        className="flex items-center gap-0.5"
+        role="group"
+      >
+        {visibleIds.map((utilityId) => {
               const definition = getAppNavTopbarUtilityDefinition(utilityId);
 
               if (utilityId === "notifications") {
@@ -364,26 +364,28 @@ function AppNavTopbarPinnedUtilitiesBar({
                   id={utilityId}
                   key={utilityId}
                 >
-                  <Button
-                    className={appNavTopbarGhostIconButtonClassName}
-                    onClick={() => {
-                      onUtilityAction(utilityId);
-                    }}
-                    size="icon"
-                    type="button"
-                    variant="ghost"
+                  <AppNavTopbarIconTooltip
+                    description={definition.description}
+                    title={definition.label}
                   >
-                    {renderAppNavTopbarUtilityIcon(utilityId)}
-                    <span className="sr-only">{definition.label}</span>
-                  </Button>
+                    <Button
+                      className={appNavTopbarGhostIconButtonClassName}
+                      onClick={() => {
+                        onUtilityAction(utilityId);
+                      }}
+                      size="icon"
+                      type="button"
+                      variant="ghost"
+                    >
+                      {renderAppNavTopbarUtilityIcon(utilityId)}
+                      <span className="sr-only">{definition.label}</span>
+                    </Button>
+                  </AppNavTopbarIconTooltip>
                 </AppNavTopbarSortableHorizontalItem>
               );
-            })}
-          </div>
-        </AppNavTopbarHorizontalUtilitySortable>
-      ) : null}
-      <AppNavTopbarCommandSearch />
-    </div>
+        })}
+      </div>
+    </AppNavTopbarHorizontalUtilitySortable>
   );
 }
 
@@ -468,26 +470,28 @@ function AppNavTopbarUtilitiesWidget({
 
   return (
     <Popover modal={false} onOpenChange={setOpen} open={open}>
-      <Tooltip>
-        <TooltipTrigger asChild>
-          <PopoverTrigger asChild>
-            <Button
-              aria-haspopup="dialog"
-              className={cn(
-                appNavTopbarGhostIconButtonClassName,
-                "data-[state=open]:bg-accent"
-              )}
-              size="icon"
-              type="button"
-              variant="ghost"
-            >
-              <LayoutDashboard className={appNavTopbarIconClassName} />
-              <span className="sr-only">Utilities</span>
-            </Button>
-          </PopoverTrigger>
-        </TooltipTrigger>
-        <TooltipContent side="bottom">Utilities</TooltipContent>
-      </Tooltip>
+      <AppNavTopbarIconTooltip
+        description={APP_NAV_TOPBAR_UTILITIES_WIDGET_TOOLTIP.description}
+        title={APP_NAV_TOPBAR_UTILITIES_WIDGET_TOOLTIP.title}
+      >
+        <PopoverTrigger asChild>
+          <Button
+            aria-haspopup="dialog"
+            className={cn(
+              appNavTopbarGhostIconButtonClassName,
+              "data-[state=open]:bg-accent"
+            )}
+            size="icon"
+            type="button"
+            variant="ghost"
+          >
+            <LayoutDashboard className={appNavTopbarIconClassName} />
+            <span className="sr-only">
+              {APP_NAV_TOPBAR_UTILITIES_WIDGET_TOOLTIP.title}
+            </span>
+          </Button>
+        </PopoverTrigger>
+      </AppNavTopbarIconTooltip>
       <PopoverContent align="end" className="w-72 p-0" sideOffset={4}>
         <PopoverHeader className="border-b px-4 py-3">
           <PopoverTitle className="text-sm">Utilities widget</PopoverTitle>
@@ -585,26 +589,30 @@ function AppNavTopbarFeedbackMenu({
   return (
     <Popover onOpenChange={resolvedOnOpenChange} open={resolvedOpen}>
       {showTrigger ? (
-        <Tooltip>
-          <TooltipTrigger asChild>
-            <PopoverTrigger asChild>
-              <Button
-                aria-haspopup="dialog"
-                className={cn(
-                  appNavTopbarGhostIconButtonClassName,
-                  "data-[state=open]:bg-accent"
-                )}
-                size="icon"
-                type="button"
-                variant="ghost"
-              >
-                <MessageSquareWarning className={appNavTopbarIconClassName} />
-                <span className="sr-only">Feedback</span>
-              </Button>
-            </PopoverTrigger>
-          </TooltipTrigger>
-          <TooltipContent side="bottom">Feedback</TooltipContent>
-        </Tooltip>
+        <AppNavTopbarIconTooltip
+          description={
+            getAppNavTopbarUtilityDefinition("feedback").description
+          }
+          title={getAppNavTopbarUtilityDefinition("feedback").label}
+        >
+          <PopoverTrigger asChild>
+            <Button
+              aria-haspopup="dialog"
+              className={cn(
+                appNavTopbarGhostIconButtonClassName,
+                "data-[state=open]:bg-accent"
+              )}
+              size="icon"
+              type="button"
+              variant="ghost"
+            >
+              <MessageSquareWarning className={appNavTopbarIconClassName} />
+              <span className="sr-only">
+                {getAppNavTopbarUtilityDefinition("feedback").label}
+              </span>
+            </Button>
+          </PopoverTrigger>
+        </AppNavTopbarIconTooltip>
       ) : (
         <PopoverTrigger asChild>
           <button

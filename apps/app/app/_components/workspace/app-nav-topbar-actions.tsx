@@ -6,7 +6,6 @@ import type {
   MetadataRenderContext,
 } from "@repo/metadata-ui/contracts";
 import { createMetadataRenderContext } from "@repo/metadata-ui/contracts";
-import { TooltipProvider } from "@repo/ui";
 import type { ReactElement, ReactNode } from "react";
 import { AppNavTopbarActionsMenu } from "./app-nav-topbar-actions-menu.tsx";
 import type { AppNavTopbarNavActionGroup } from "./app-nav-topbar-nav-actions.tsx";
@@ -95,21 +94,19 @@ export function AppNavTopbarActions({
   );
 
   return (
-    <TooltipProvider delayDuration={0}>
-      <div className="flex shrink-0 items-center gap-0.5">
-        {utilityActions ? (
-          topbarActions
-        ) : (
-          <AppNavTopbarUtilitiesProvider
-            onHelpClick={onHelpClick}
-            preview={previewUtilities}
-            tenantId={tenantId}
-            userId={userId}
-          >
-            {topbarActions}
-          </AppNavTopbarUtilitiesProvider>
-        )}
-      </div>
-    </TooltipProvider>
+    <div className="flex shrink-0 items-center gap-0.5">
+      {utilityActions ? (
+        topbarActions
+      ) : (
+        <AppNavTopbarUtilitiesProvider
+          onHelpClick={onHelpClick}
+          preview={previewUtilities}
+          tenantId={tenantId}
+          userId={userId}
+        >
+          {topbarActions}
+        </AppNavTopbarUtilitiesProvider>
+      )}
+    </div>
   );
 }

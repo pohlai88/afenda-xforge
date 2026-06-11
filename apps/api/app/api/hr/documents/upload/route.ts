@@ -90,6 +90,15 @@ export async function POST(request: Request): Promise<Response> {
     }
 
     if (body.type === "blob.upload-completed") {
+      const writeContext = await createDocumentsManagementWriteContext(request);
+
+      if (!canWriteDocumentsManagement(writeContext)) {
+        return NextResponse.json(
+          { ok: false, error: "Write access denied" },
+          { status: 403 }
+        );
+      }
+
       const response = await uploadDocumentsManagementBlobToken({
         body,
         onBeforeGenerateToken: async () => ({

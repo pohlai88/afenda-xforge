@@ -9,6 +9,13 @@ const executionMocks = vi.hoisted(() => ({
   executeTenantKeyboardShortcutPolicyUpdate: vi.fn(),
 }));
 
+const runtimeMocks = vi.hoisted(() => ({
+  resolveOptionalCompanyId: vi.fn(),
+}));
+
+vi.mock("../app/_runtime-access.ts", () => ({
+  resolveOptionalCompanyId: runtimeMocks.resolveOptionalCompanyId,
+}));
 vi.mock("../lib/workspace-shortcuts/execution.server.ts", () => executionMocks);
 vi.mock("../lib/workspace-shortcuts/queries.server.ts", () => queryMocks);
 
@@ -18,6 +25,7 @@ import { resolveProductDefaults } from "../lib/workspace-shortcuts/resolve-short
 describe("/api/admin/tenant/keyboard-shortcuts", () => {
   beforeEach(() => {
     vi.clearAllMocks();
+    runtimeMocks.resolveOptionalCompanyId.mockResolvedValue(undefined);
   });
 
   it("returns tenant policy payload for authorized admins", async () => {

@@ -19,7 +19,7 @@ import {
 import { CSS } from "@dnd-kit/utilities";
 import { cn } from "@repo/ui/lib/utils";
 import type { CSSProperties, ReactElement, ReactNode } from "react";
-import { useState } from "react";
+import { useId, useState } from "react";
 import {
   getAppNavTopbarUtilityDefinition,
   isAppNavTopbarUtilityId,
@@ -47,6 +47,7 @@ export function AppNavTopbarHorizontalUtilitySortable({
   ) => void;
   children: ReactNode;
 }): ReactElement {
+  const dndContextId = useId();
   const sensors = useUtilitySortableSensors();
   const [activeId, setActiveId] = useState<AppNavTopbarUtilityId | null>(null);
 
@@ -84,6 +85,7 @@ export function AppNavTopbarHorizontalUtilitySortable({
   return (
     <DndContext
       collisionDetection={closestCenter}
+      id={dndContextId}
       onDragEnd={handleDragEnd}
       onDragStart={handleDragStart}
       sensors={sensors}
@@ -121,6 +123,7 @@ export function AppNavTopbarVerticalUtilitySortable({
   ) => void;
   children: ReactNode;
 }): ReactElement {
+  const dndContextId = useId();
   const sensors = useUtilitySortableSensors();
   const [activeId, setActiveId] = useState<AppNavTopbarUtilityId | null>(null);
 
@@ -158,6 +161,7 @@ export function AppNavTopbarVerticalUtilitySortable({
   return (
     <DndContext
       collisionDetection={closestCenter}
+      id={dndContextId}
       onDragEnd={handleDragEnd}
       onDragStart={handleDragStart}
       sensors={sensors}
