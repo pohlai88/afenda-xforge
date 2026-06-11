@@ -18,9 +18,14 @@ import {
   toast,
 } from "@repo/ui";
 import type { ReactElement } from "react";
-import { useCallback, useState } from "react";
+import { useCallback, useMemo, useState } from "react";
 import { useRouter } from "@/i18n/navigation";
 import { withCSRFHeader } from "../../../../../lib/csrf.client.ts";
+import { updateCompanyRecord } from "../../../../../lib/master-data/company-api.client.ts";
+import {
+  archiveCustomerRecord,
+  updateCustomerRecord,
+} from "../../../../../lib/master-data/customer-api.client.ts";
 import type {
   FocusedShortcutTarget,
   ShortcutActionId,
@@ -51,7 +56,7 @@ type DashboardEntityDirectoryPanelProps = {
 
 const DashboardEntityDirectoryPanel = ({
   activeEntity,
-  canWrite,
+  canWrite: _canWrite,
   context,
   customizationLayers,
   entityKind,
@@ -105,8 +110,10 @@ const DashboardEntityDirectoryPanel = ({
     >
       {isActive && selectedRowId ? (
         <p className="text-muted-foreground text-xs">
-          Selected row: press F2 to inspect, F8 to archive when the route is
-          exposed.
+          Selected row: press F2 to edit
+          {entityKind === "customers"
+            ? " or F8 to archive."
+            : ". Company archive is pending lifecycle schema support."}
         </p>
       ) : null}
       <EntityMetadataPanel
@@ -132,11 +139,18 @@ type CreateFormState = {
   name: string;
 };
 
+type RecordSheetMode = "create" | "edit";
+
 const emptyCreateForm = (): CreateFormState => ({
   code: "",
   email: "",
   name: "",
 });
+
+const readRowString = (row: DashboardTableRow, key: string): string => {
+  const value = row[key];
+  return typeof value === "string" ? value : "";
+};
 
 export type DashboardEntitySectionsProps = {
   companies: {
@@ -164,13 +178,55 @@ export function DashboardEntitySections({
   const router = useRouter();
   const [activeEntity, setActiveEntity] = useState<EntityKind>("customers");
   const [selectedRowId, setSelectedRowId] = useState<string | null>(null);
-  const [createOpen, setCreateOpen] = useState(false);
-  const [createForm, setCreateForm] =
+  const [sheetMode, setSheetMode] = useState<RecordSheetMode>("create");
+  const [sheetOpen, setSheetOpen] = useState(false);
+  const [recordForm, setRecordForm] =
     useState<CreateFormState>(emptyCreateForm);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const activeCanWrite =
     activeEntity === "customers" ? customers.canWrite : companies.canWrite;
+
+  const selectedRow = useMemo((): DashboardTableRow | null => {
+    if (!selectedRowId) {
+      return null;
+    }
+
+    const state =
+      activeEntity === "customers" ? customers.state : companies.state;
+
+    if (state.status !== "ready") {
+      return null;
+    }
+
+    return state.data.items.find((row) => row.id === selectedRowId) ?? null;
+  }, [activeEntity, companies.state, customers.state, selectedRowId]);
+
+  const openCreateSheet = useCallback(() => {
+    setSheetMode("create");
+    setRecordForm(emptyCreateForm());
+    setSheetOpen(true);
+  }, []);
+
+  const openEditSheet = useCallback(() => {
+    if (!selectedRow) {
+      return;
+    }
+
+    setSheetMode("edit");
+    setRecordForm({
+      code: readRowString(selectedRow, "code"),
+      email: readRowString(selectedRow, "email"),
+      name: readRowString(selectedRow, "name"),
+    });
+    setSheetOpen(true);
+  }, [selectedRow]);
+
+  const closeRecordSheet = useCallback(() => {
+    setSheetOpen(false);
+    setRecordForm(emptyCreateForm());
+    setSheetMode("create");
+  }, []);
 
   const submitCreate = useCallback(async () => {
     if (!activeCanWrite) {
@@ -188,13 +244,13 @@ export function DashboardEntitySections({
       const payload =
         activeEntity === "customers"
           ? {
-              code: createForm.code.trim(),
-              email: createForm.email.trim() || undefined,
-              name: createForm.name.trim(),
+              code: recordForm.code.trim(),
+              email: recordForm.email.trim() || undefined,
+              name: recordForm.name.trim(),
             }
           : {
-              code: createForm.code.trim(),
-              name: createForm.name.trim(),
+              code: recordForm.code.trim(),
+              name: recordForm.name.trim(),
             };
 
       const response = await fetch(endpoint, {
@@ -213,8 +269,7 @@ export function DashboardEntitySections({
       toast.message(
         activeEntity === "customers" ? "Customer created." : "Company created."
       );
-      setCreateOpen(false);
-      setCreateForm(emptyCreateForm());
+      closeRecordSheet();
       router.refresh();
     } catch (error) {
       toast.message(
@@ -223,25 +278,142 @@ export function DashboardEntitySections({
     } finally {
       setIsSubmitting(false);
     }
-  }, [activeCanWrite, activeEntity, createForm, router]);
+  }, [activeCanWrite, activeEntity, closeRecordSheet, recordForm, router]);
+
+  const submitEdit = useCallback(async () => {
+    if (!(activeCanWrite && selectedRowId)) {
+      toast.message("You do not have permission to edit this record.");
+      return;
+    }
+
+    if (activeEntity === "companies") {
+      setIsSubmitting(true);
+
+      try {
+        await updateCompanyRecord({
+          companyId: selectedRowId,
+          payload: {
+            code: recordForm.code.trim(),
+            name: recordForm.name.trim(),
+          },
+        });
+
+        toast.message("Company updated.");
+        closeRecordSheet();
+        router.refresh();
+      } catch (error) {
+        toast.message(
+          error instanceof Error ? error.message : "Unable to update record."
+        );
+      } finally {
+        setIsSubmitting(false);
+      }
+
+      return;
+    }
+
+    setIsSubmitting(true);
+
+    try {
+      await updateCustomerRecord({
+        customerId: selectedRowId,
+        payload: {
+          code: recordForm.code.trim(),
+          email: recordForm.email.trim() || undefined,
+          name: recordForm.name.trim(),
+        },
+      });
+
+      toast.message("Customer updated.");
+      closeRecordSheet();
+      router.refresh();
+    } catch (error) {
+      toast.message(
+        error instanceof Error ? error.message : "Unable to update record."
+      );
+    } finally {
+      setIsSubmitting(false);
+    }
+  }, [
+    activeCanWrite,
+    activeEntity,
+    closeRecordSheet,
+    recordForm,
+    router,
+    selectedRowId,
+  ]);
+
+  const submitArchive = useCallback(async () => {
+    if (!(activeCanWrite && selectedRowId)) {
+      toast.message("You do not have permission to archive this record.");
+      return;
+    }
+
+    if (activeEntity === "companies") {
+      toast.message(
+        "Company archive routes are not exposed on the dashboard yet."
+      );
+      return;
+    }
+
+    setIsSubmitting(true);
+
+    try {
+      await archiveCustomerRecord({ customerId: selectedRowId });
+      toast.message("Customer archived.");
+      setSelectedRowId(null);
+      router.refresh();
+    } catch (error) {
+      toast.message(
+        error instanceof Error ? error.message : "Unable to archive record."
+      );
+    } finally {
+      setIsSubmitting(false);
+    }
+  }, [activeCanWrite, activeEntity, router, selectedRowId]);
+
+  const submitRecord = useCallback(async () => {
+    if (sheetMode === "edit") {
+      await submitEdit();
+      return;
+    }
+
+    await submitCreate();
+  }, [sheetMode, submitCreate, submitEdit]);
+
+  const submitButtonLabel = useMemo(() => {
+    if (isSubmitting) {
+      return sheetMode === "edit" ? "Saving..." : "Creating...";
+    }
+
+    return sheetMode === "edit" ? "Save changes" : "Create record";
+  }, [isSubmitting, sheetMode]);
+
+  const handleSheetOpenChange = useCallback((open: boolean) => {
+    setSheetOpen(open);
+
+    if (!open) {
+      setRecordForm(emptyCreateForm());
+      setSheetMode("create");
+    }
+  }, []);
 
   useStableFocusedShortcutTarget((): FocusedShortcutTarget | null => {
     const handlers: Partial<Record<ShortcutActionId, () => void>> = {};
 
-    if (createOpen && activeCanWrite) {
+    if (sheetOpen && activeCanWrite) {
       handlers["crud.save"] = () => {
-        void submitCreate();
+        submitRecord().catch(() => undefined);
       };
       handlers["crud.cancel"] = () => {
-        setCreateOpen(false);
-        setCreateForm(emptyCreateForm());
+        closeRecordSheet();
       };
       handlers["crud.create"] = () => {
-        void submitCreate();
+        submitRecord().catch(() => undefined);
       };
 
       return {
-        targetId: `${activeEntity}-create-form`,
+        targetId: `${activeEntity}-${sheetMode}-form`,
         targetType: "form",
         handlers,
       };
@@ -249,21 +421,16 @@ export function DashboardEntitySections({
 
     if (activeCanWrite) {
       handlers["crud.create"] = () => {
-        setCreateForm(emptyCreateForm());
-        setCreateOpen(true);
+        openCreateSheet();
       };
     }
 
-    if (selectedRowId) {
+    if (selectedRowId && activeCanWrite) {
       handlers["crud.edit"] = () => {
-        toast.message(
-          "Record update routes are not exposed on the dashboard yet. Use the API or assistant lane."
-        );
+        openEditSheet();
       };
       handlers["crud.delete"] = () => {
-        toast.message(
-          "Record archive routes are not exposed on the dashboard yet."
-        );
+        submitArchive().catch(() => undefined);
       };
     }
 
@@ -276,7 +443,18 @@ export function DashboardEntitySections({
       targetType: selectedRowId ? "record" : "surface",
       handlers,
     };
-  }, [activeCanWrite, activeEntity, createOpen, selectedRowId, submitCreate]);
+  }, [
+    activeCanWrite,
+    activeEntity,
+    closeRecordSheet,
+    openCreateSheet,
+    openEditSheet,
+    selectedRowId,
+    sheetMode,
+    sheetOpen,
+    submitArchive,
+    submitRecord,
+  ]);
 
   const handleRowSelect = useCallback(
     (entityKind: EntityKind, row: DashboardTableRow) => {
@@ -325,11 +503,12 @@ export function DashboardEntitySections({
         />
       </AuthenticatedFeatureScope>
 
-      <Sheet onOpenChange={setCreateOpen} open={createOpen}>
+      <Sheet onOpenChange={handleSheetOpenChange} open={sheetOpen}>
         <SheetContent className="gap-0 sm:max-w-md" side="right">
           <SheetHeader className="border-border border-b pb-4">
             <SheetTitle>
-              Create {activeEntity === "customers" ? "customer" : "company"}
+              {sheetMode === "edit" ? "Edit" : "Create"}{" "}
+              {activeEntity === "customers" ? "customer" : "company"}
             </SheetTitle>
             <SheetDescription>
               Press F3 to save or Escape to cancel while this sheet is open.
@@ -337,44 +516,44 @@ export function DashboardEntitySections({
           </SheetHeader>
           <div className="space-y-4 px-4 py-6">
             <div className="space-y-2">
-              <Label htmlFor="dashboard-create-name">Name</Label>
+              <Label htmlFor="dashboard-record-name">Name</Label>
               <Input
-                id="dashboard-create-name"
+                id="dashboard-record-name"
                 onChange={(event) =>
-                  setCreateForm((current) => ({
+                  setRecordForm((current) => ({
                     ...current,
                     name: event.target.value,
                   }))
                 }
-                value={createForm.name}
+                value={recordForm.name}
               />
             </div>
             <div className="space-y-2">
-              <Label htmlFor="dashboard-create-code">Code</Label>
+              <Label htmlFor="dashboard-record-code">Code</Label>
               <Input
-                id="dashboard-create-code"
+                id="dashboard-record-code"
                 onChange={(event) =>
-                  setCreateForm((current) => ({
+                  setRecordForm((current) => ({
                     ...current,
                     code: event.target.value,
                   }))
                 }
-                value={createForm.code}
+                value={recordForm.code}
               />
             </div>
             {activeEntity === "customers" ? (
               <div className="space-y-2">
-                <Label htmlFor="dashboard-create-email">Email</Label>
+                <Label htmlFor="dashboard-record-email">Email</Label>
                 <Input
-                  id="dashboard-create-email"
+                  id="dashboard-record-email"
                   onChange={(event) =>
-                    setCreateForm((current) => ({
+                    setRecordForm((current) => ({
                       ...current,
                       email: event.target.value,
                     }))
                   }
                   type="email"
-                  value={createForm.email}
+                  value={recordForm.email}
                 />
               </div>
             ) : null}
@@ -382,7 +561,7 @@ export function DashboardEntitySections({
           <SheetFooter className="border-border border-t px-4 py-4 sm:flex-row sm:justify-end">
             <Button
               disabled={isSubmitting}
-              onClick={() => setCreateOpen(false)}
+              onClick={closeRecordSheet}
               type="button"
               variant="outline"
             >
@@ -390,10 +569,12 @@ export function DashboardEntitySections({
             </Button>
             <Button
               disabled={isSubmitting}
-              onClick={() => void submitCreate()}
+              onClick={() => {
+                submitRecord().catch(() => undefined);
+              }}
               type="button"
             >
-              {isSubmitting ? "Creating..." : "Create record"}
+              {submitButtonLabel}
             </Button>
           </SheetFooter>
         </SheetContent>

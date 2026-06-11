@@ -4,7 +4,7 @@ import type { CookieOptions } from "@supabase/ssr";
 import { createServerClient } from "@supabase/ssr";
 import type { NextRequest } from "next/server";
 import { NextResponse } from "next/server";
-import { loadAuthKeys } from "./keys.ts";
+import { loadPublicAuthKeys } from "./keys-public.ts";
 
 type SupabaseCookieToSet = {
   name: string;
@@ -34,7 +34,7 @@ export const updateSession = async (
   request: NextRequest
 ): Promise<AuthProxyResult> => {
   const { NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY, NEXT_PUBLIC_SUPABASE_URL } =
-    loadAuthKeys();
+    loadPublicAuthKeys();
 
   if (!(NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY && NEXT_PUBLIC_SUPABASE_URL)) {
     return {

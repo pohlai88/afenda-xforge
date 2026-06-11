@@ -17,7 +17,8 @@ import { and, asc, eq } from "drizzle-orm";
 import { cookies, headers } from "next/headers";
 import { cache } from "react";
 import { resolveTenantSlugFromHost } from "./host.ts";
-import { loadAuthKeys } from "./keys.ts";
+import { loadPublicAuthKeys } from "./keys-public.ts";
+import { loadServerAuthKeys } from "./keys-server.ts";
 
 type SupabaseConfig = {
   publishableKey: string;
@@ -67,7 +68,7 @@ export const ACTIVE_COMPANY_COOKIE_NAME = "xforge_active_company_id";
 
 const getSupabaseConfig = (): SupabaseConfig | null => {
   const { NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY, NEXT_PUBLIC_SUPABASE_URL } =
-    loadAuthKeys();
+    loadPublicAuthKeys();
 
   if (!(NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY && NEXT_PUBLIC_SUPABASE_URL)) {
     return null;
@@ -116,7 +117,7 @@ export const createServiceRoleSupabaseClient =
       NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY,
       NEXT_PUBLIC_SUPABASE_URL,
       SUPABASE_SERVICE_ROLE_KEY,
-    } = loadAuthKeys();
+    } = loadServerAuthKeys();
 
     if (
       !(

@@ -164,6 +164,8 @@ function getFieldClasses(status: FieldStatus): string {
       return "border-destructive-border focus-visible:border-destructive focus-visible:ring-destructive/30";
     case "default":
       return "border-input focus-visible:border-ring focus-visible:ring-ring/50";
+    default:
+      return "border-input focus-visible:border-ring focus-visible:ring-ring/50";
   }
 }
 
@@ -176,6 +178,8 @@ function getHelperClasses(status: FieldStatus): string {
     case "error":
       return "text-destructive-muted-foreground";
     case "default":
+      return "text-muted-foreground";
+    default:
       return "text-muted-foreground";
   }
 }
@@ -506,12 +510,13 @@ function MiniStat({
   tone: "destructive" | "success" | "warning";
   value: string;
 }): ReactElement {
-  const surfaceClass =
-    tone === "success"
-      ? TONE_SURFACE.success
-      : tone === "warning"
-        ? TONE_SURFACE.warning
-        : TONE_SURFACE.destructive;
+  let surfaceClass = TONE_SURFACE.destructive;
+
+  if (tone === "success") {
+    surfaceClass = TONE_SURFACE.success;
+  } else if (tone === "warning") {
+    surfaceClass = TONE_SURFACE.warning;
+  }
 
   return (
     <div className={cn("border p-4", PREVIEW_PANEL_CLASS, surfaceClass)}>

@@ -36,10 +36,23 @@ export const createCustomerBodySchema = z.object({
   name: z.string().trim().min(1).max(120),
 });
 
+export const updateCustomerBodySchema = createCustomerBodySchema;
+
+export const customerIdParamsSchema = z.object({
+  customerId: z.string().uuid(),
+});
+
 export type Customer = z.infer<typeof customerSchema>;
 export type CustomerList = PaginatedList<Customer>;
 export type CreateCustomerBody = z.infer<typeof createCustomerBodySchema>;
+export type UpdateCustomerBody = z.infer<typeof updateCustomerBodySchema>;
+export type CustomerIdParams = z.infer<typeof customerIdParamsSchema>;
 export type ListCustomersQuery = z.infer<typeof listCustomersQuerySchema>;
+
+export const customerApiRoutePaths = {
+  collection: "/api/customers",
+  customer: (customerId: string) => `/api/customers/${customerId}`,
+} as const;
 
 export const listCustomersRouteContract = defineRouteContract({
   audience: "client",
@@ -87,8 +100,7 @@ export const listCustomersRouteContract = defineRouteContract({
 
 export const createCustomerRouteContract = defineRouteContract({
   audience: "client",
-  description:
-    "Creates a customer record once the real execution pipeline is wired in.",
+  description: "Creates a tenant-scoped customer record through the governed execution pipeline.",
   method: "POST",
   operationId: "createCustomer",
   path: "/api/customers",
@@ -119,9 +131,84 @@ export const createCustomerRouteContract = defineRouteContract({
   tags: ["customers"],
 });
 
+export const updateCustomerRouteContract = defineRouteContract({
+  audience: "client",
+  method: "PATCH",
+  operationId: "updateCustomer",
+  path: "/api/customers/{customerId}",
+  request: {
+    body: {
+      schema: updateCustomerBodySchema,
+      openApiSchema: {
+        type: "object",
+        additionalProperties: false,
+        properties: {
+          code: { type: "string" },
+          email: { type: "string", format: "email" },
+          name: { type: "string" },
+        },
+        required: ["code", "name"],
+      },
+    },
+    params: {
+      schema: customerIdParamsSchema,
+      openApiSchema: {
+        type: "object",
+        additionalProperties: false,
+        properties: {
+          customerId: { type: "string", format: "uuid" },
+        },
+        required: ["customerId"],
+      },
+    },
+  },
+  success: {
+    description: "Updated customer",
+    openApiSchema: {
+      $ref: "#/components/schemas/Customer",
+    },
+    schema: customerSchema,
+    status: 200,
+  },
+  summary: "Update a customer",
+  tags: ["customers"],
+});
+
+export const archiveCustomerRouteContract = defineRouteContract({
+  audience: "client",
+  method: "DELETE",
+  operationId: "archiveCustomer",
+  path: "/api/customers/{customerId}",
+  request: {
+    params: {
+      schema: customerIdParamsSchema,
+      openApiSchema: {
+        type: "object",
+        additionalProperties: false,
+        properties: {
+          customerId: { type: "string", format: "uuid" },
+        },
+        required: ["customerId"],
+      },
+    },
+  },
+  success: {
+    description: "Archived customer",
+    openApiSchema: {
+      $ref: "#/components/schemas/Customer",
+    },
+    schema: customerSchema,
+    status: 200,
+  },
+  summary: "Archive a customer",
+  tags: ["customers"],
+});
+
 export const customerRouteContracts = [
   listCustomersRouteContract,
   createCustomerRouteContract,
+  updateCustomerRouteContract,
+  archiveCustomerRouteContract,
 ] as const;
 
 export const customerOpenApiSchemas = {

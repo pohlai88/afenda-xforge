@@ -18,4 +18,11 @@ storybook-static
 apps/email/.react-email/
 docs/runtime/
 
+# Playwright
+**/test-results/
+playwright-report/
+
+# Cursor local debug output (tracked config under .cursor/ stays committed)
+**/.cursor/debug-*.log
+
 .vercel

@@ -296,6 +296,21 @@ export function DataGridPreview(): ReactElement {
     });
   };
 
+  const resolveSelectAllChecked = (
+    allSelected: boolean,
+    someSelected: boolean
+  ): boolean | "indeterminate" => {
+    if (allSelected) {
+      return true;
+    }
+
+    if (someSelected) {
+      return "indeterminate";
+    }
+
+    return false;
+  };
+
   const toggleAllVisible = (checked: boolean): void => {
     setSelectedIds((current) => {
       const next = new Set(current);
@@ -406,13 +421,10 @@ export function DataGridPreview(): ReactElement {
                   <TableHead className="w-10">
                     <Checkbox
                       aria-label="Select all visible records"
-                      checked={
-                        allVisibleSelected
-                          ? true
-                          : someVisibleSelected
-                            ? "indeterminate"
-                            : false
-                      }
+                      checked={resolveSelectAllChecked(
+                        allVisibleSelected,
+                        someVisibleSelected
+                      )}
                       onCheckedChange={(checked) =>
                         toggleAllVisible(checked === true)
                       }

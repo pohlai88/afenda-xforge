@@ -45,7 +45,7 @@ export function AppNavTopbarThemeMenu(): ReactElement {
           key: "light",
           label: "Light",
           onSelect: () => {
-            void applyColorMode("light");
+            applyColorMode("light").catch(() => undefined);
           },
         },
         {
@@ -53,7 +53,7 @@ export function AppNavTopbarThemeMenu(): ReactElement {
           key: "dark",
           label: "Dark",
           onSelect: () => {
-            void applyColorMode("dark");
+            applyColorMode("dark").catch(() => undefined);
           },
         },
         {
@@ -61,7 +61,7 @@ export function AppNavTopbarThemeMenu(): ReactElement {
           key: "system",
           label: "System",
           onSelect: () => {
-            void applyColorMode("system");
+            applyColorMode("system").catch(() => undefined);
           },
         },
       ]}

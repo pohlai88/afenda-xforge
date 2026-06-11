@@ -3,10 +3,13 @@ import type {
   Customer,
   CustomerList,
   ListCustomersQuery,
+  UpdateCustomerBody,
 } from "@repo/features-master-data-customers/contract";
 import {
+  archiveCustomer,
   createCustomer,
   listCustomers,
+  updateCustomer,
 } from "@repo/features-master-data-customers/server";
 import { permissionCatalog, requirePermission } from "@repo/permissions";
 import {
@@ -48,6 +51,43 @@ export const createCustomerForTenant = async (
       customerNotificationPostCommitHook,
       linearCustomerSyncPostCommitHook,
     ],
+    operationId: access.operationId,
+    requestId: access.requestId,
+    tenantId: access.tenantId,
+    userId: access.actorId,
+  });
+};
+
+export const updateCustomerForTenant = async (
+  customerId: string,
+  body: UpdateCustomerBody
+): Promise<Customer> => {
+  const access = await resolveRuntimeTenantAccess();
+
+  return updateCustomer(
+    {
+      ...body,
+      customerId,
+    },
+    {
+      customerId,
+      grantedPermissions: access.grantedPermissions,
+      operationId: access.operationId,
+      requestId: access.requestId,
+      tenantId: access.tenantId,
+      userId: access.actorId,
+    }
+  );
+};
+
+export const archiveCustomerForTenant = async (
+  customerId: string
+): Promise<Customer> => {
+  const access = await resolveRuntimeTenantAccess();
+
+  return archiveCustomer({
+    customerId,
+    grantedPermissions: access.grantedPermissions,
     operationId: access.operationId,
     requestId: access.requestId,
     tenantId: access.tenantId,

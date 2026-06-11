@@ -35,6 +35,7 @@ export function AuthenticatedWorkspace({
       }}
       collapsible="icon"
       contentPadded
+      enableSidebarKeyboardShortcut={false}
       sidebar={<AuthenticatedSidebar />}
       sidebarWrapper={(sidebar) => (
         <AuthenticatedFeatureScope featureId={activeFeatureId}>

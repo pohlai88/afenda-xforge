@@ -26,6 +26,7 @@ type WorkspaceFrameProps = {
   contentClassName?: string;
   contentPadded?: boolean;
   defaultOpen?: boolean;
+  enableSidebarKeyboardShortcut?: boolean;
   sidebar: ReactNode;
   sidebarClassName?: string;
   sidebarVariant?: ComponentProps<typeof WorkspaceAppSidebar>["variant"];
@@ -45,6 +46,7 @@ export function WorkspaceFrame({
   contentClassName,
   contentPadded = false,
   defaultOpen = true,
+  enableSidebarKeyboardShortcut = true,
   sidebar,
   sidebarClassName,
   sidebarVariant = "inset",
@@ -80,6 +82,7 @@ export function WorkspaceFrame({
       <WorkspaceShellProvider
         className={cn("h-svh overflow-hidden", className)}
         defaultOpen={defaultOpen}
+        enableSidebarKeyboardShortcut={enableSidebarKeyboardShortcut}
         sidebarWidth={sidebarWidth}
       >
         {resolvedSidebar}
@@ -92,6 +95,7 @@ export function WorkspaceFrame({
     <WorkspaceShellProvider
       className={cn("flex h-svh flex-col overflow-hidden", className)}
       defaultOpen={defaultOpen}
+      enableSidebarKeyboardShortcut={enableSidebarKeyboardShortcut}
       sidebarWidth={sidebarWidth}
       style={
         {

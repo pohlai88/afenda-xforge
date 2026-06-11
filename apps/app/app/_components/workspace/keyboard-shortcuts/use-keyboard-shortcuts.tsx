@@ -12,7 +12,6 @@ import {
 } from "react";
 import type {
   FocusedShortcutTarget,
-  ShortcutActionId,
   WorkspaceShortcutsPayload,
 } from "../../../../lib/workspace-shortcuts/contract.ts";
 import { WORKSPACE_KEYBOARD_SHORTCUTS_BROADCAST_CHANNEL } from "../../../../lib/workspace-shortcuts/contract.ts";
@@ -67,7 +66,7 @@ export function WorkspaceShortcutsProvider({
 
   useEffect(() => {
     const onFocus = (): void => {
-      void refreshPayload();
+      refreshPayload().catch(() => undefined);
     };
 
     window.addEventListener("focus", onFocus);
@@ -83,7 +82,7 @@ export function WorkspaceShortcutsProvider({
     );
 
     channel.onmessage = (): void => {
-      void refreshPayload();
+      refreshPayload().catch(() => undefined);
     };
 
     return () => {
@@ -176,4 +175,4 @@ export function useRegisterFocusedShortcutTarget(
   }, [registerFocusedTarget, target]);
 }
 
-export type { ShortcutActionId };
+export type { ShortcutActionId } from "../../../../lib/workspace-shortcuts/contract.ts";

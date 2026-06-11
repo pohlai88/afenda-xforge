@@ -1,13 +1,37 @@
-import type {
-  NotificationInboxEntry,
-  NotificationInboxListResult,
-} from "@repo/notifications";
+"use client";
+
+import type { NotificationInboxListResult } from "@repo/notifications";
+import { z } from "zod";
 
 type InboxMutationAction =
   | { action: "archive-all" }
   | { action: "mark-all-read" }
   | { action: "mark-read"; id: string }
   | { action: "mark-seen"; ids: readonly string[] };
+
+const notificationInboxEntrySchema = z
+  .object({
+    archivedAt: z.string().nullable(),
+    companyId: z.string().nullable(),
+    createdAt: z.string(),
+    dispatchedAt: z.string(),
+    event: z.string(),
+    id: z.string().uuid(),
+    notificationId: z.string(),
+    payload: z.record(z.string(), z.unknown()),
+    readAt: z.string().nullable(),
+    seenAt: z.string().nullable(),
+    tenantId: z.string(),
+    topic: z.string(),
+    updatedAt: z.string(),
+    userId: z.string(),
+  })
+  .passthrough();
+
+const notificationInboxListResultSchema = z.object({
+  items: z.array(notificationInboxEntrySchema),
+  unreadCount: z.number().int().nonnegative(),
+});
 
 const parseError = async (response: Response): Promise<string> => {
   try {
@@ -44,7 +68,14 @@ export async function fetchNotificationInbox(
     throw new Error(await parseError(response));
   }
 
-  return (await response.json()) as NotificationInboxListResult;
+  const payload: unknown = await response.json();
+  const parsed = notificationInboxListResultSchema.safeParse(payload);
+
+  if (!parsed.success) {
+    throw new Error("Notification inbox response was invalid");
+  }
+
+  return parsed.data;
 }
 
 export async function mutateNotificationInbox(
@@ -61,4 +92,7 @@ export async function mutateNotificationInbox(
   }
 }
 
-export type { NotificationInboxEntry, NotificationInboxListResult };
+export type {
+  NotificationInboxEntry,
+  NotificationInboxListResult,
+} from "@repo/notifications";

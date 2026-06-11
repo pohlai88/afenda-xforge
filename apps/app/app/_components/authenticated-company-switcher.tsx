@@ -24,6 +24,46 @@ function toWorkspaceTeam(company: Company): WorkspaceNavTeam {
   };
 }
 
+type CompaniesLoadResult = {
+  activeTeamId?: string;
+  teams: readonly WorkspaceNavTeam[];
+};
+
+async function fetchCompaniesState(): Promise<CompaniesLoadResult> {
+  const [companiesResponse, activeResponse] = await Promise.all([
+    fetch("/api/companies?pageSize=100"),
+    fetch("/api/companies/active"),
+  ]);
+
+  if (!companiesResponse.ok) {
+    return { teams: [] };
+  }
+
+  const companiesPayload = (await companiesResponse.json()) as {
+    data?: { items?: Company[] };
+  };
+  const companyItems = companiesPayload.data?.items ?? [];
+
+  if (companyItems.length === 0) {
+    return { teams: [] };
+  }
+
+  const mappedTeams = companyItems.map(toWorkspaceTeam);
+  let activeTeamId = mappedTeams[0]?.id;
+
+  if (activeResponse.ok) {
+    const activePayload = (await activeResponse.json()) as {
+      data?: Company;
+    };
+
+    if (activePayload.data?.id) {
+      activeTeamId = activePayload.data.id;
+    }
+  }
+
+  return { activeTeamId, teams: mappedTeams };
+}
+
 export function AuthenticatedCompanySwitcher(): ReactElement | null {
   const router = useRouter();
   const [activeTeamId, setActiveTeamId] = useState<string | undefined>();
@@ -37,45 +77,17 @@ export function AuthenticatedCompanySwitcher(): ReactElement | null {
 
     const loadCompanies = async (): Promise<void> => {
       try {
-        const [companiesResponse, activeResponse] = await Promise.all([
-          fetch("/api/companies?pageSize=100"),
-          fetch("/api/companies/active"),
-        ]);
+        const result = await fetchCompaniesState();
 
         if (cancelled) {
           return;
         }
 
-        if (!companiesResponse.ok) {
-          setTeams([]);
-          return;
+        setTeams(result.teams);
+
+        if (result.activeTeamId) {
+          setActiveTeamId(result.activeTeamId);
         }
-
-        const companiesPayload = (await companiesResponse.json()) as {
-          data?: { items?: Company[] };
-        };
-        const companyItems = companiesPayload.data?.items ?? [];
-
-        if (companyItems.length === 0) {
-          setTeams([]);
-          return;
-        }
-
-        const mappedTeams = companyItems.map(toWorkspaceTeam);
-        setTeams(mappedTeams);
-
-        if (activeResponse.ok) {
-          const activePayload = (await activeResponse.json()) as {
-            data?: Company;
-          };
-
-          if (activePayload.data?.id) {
-            setActiveTeamId(activePayload.data.id);
-            return;
-          }
-        }
-
-        setActiveTeamId(mappedTeams[0]?.id);
       } catch {
         if (!cancelled) {
           setTeams([]);
@@ -83,7 +95,7 @@ export function AuthenticatedCompanySwitcher(): ReactElement | null {
       }
     };
 
-    void loadCompanies();
+    loadCompanies().catch(() => undefined);
 
     return () => {
       cancelled = true;
@@ -126,7 +138,7 @@ export function AuthenticatedCompanySwitcher(): ReactElement | null {
       activeTeamId={activeTeamId}
       menuLabel="Companies"
       onTeamChange={(team) => {
-        void handleTeamChange(team);
+        handleTeamChange(team).catch(() => undefined);
       }}
       showShortcuts={teams.length > 1 && teams.length <= 9}
       teams={teams}

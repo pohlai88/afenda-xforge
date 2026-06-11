@@ -83,7 +83,7 @@ export function DocumentsWorkspaceShell({
           return;
         }
 
-        void deleteHrDocument({
+        deleteHrDocument({
           documentId: selectedDocumentId,
           requestHeaders,
         })

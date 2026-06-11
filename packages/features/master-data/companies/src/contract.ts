@@ -36,6 +36,12 @@ export const updateActiveCompanyBodySchema = z.object({
   name: z.string().trim().min(1).max(120),
 });
 
+export const updateCompanyBodySchema = updateActiveCompanyBodySchema;
+
+export const companyIdParamsSchema = z.object({
+  companyId: z.string().uuid(),
+});
+
 export type Company = z.infer<typeof companySchema>;
 export type CompanyList = PaginatedList<Company>;
 export type CreateCompanyBody = z.infer<typeof createCompanyBodySchema>;
@@ -43,6 +49,13 @@ export type ListCompaniesQuery = z.infer<typeof listCompaniesQuerySchema>;
 export type UpdateActiveCompanyBody = z.infer<
   typeof updateActiveCompanyBodySchema
 >;
+export type UpdateCompanyBody = z.infer<typeof updateCompanyBodySchema>;
+export type CompanyIdParams = z.infer<typeof companyIdParamsSchema>;
+
+export const companyApiRoutePaths = {
+  collection: "/api/companies",
+  company: (companyId: string) => `/api/companies/${companyId}`,
+} as const;
 
 export const listCompaniesRouteContract = defineRouteContract({
   audience: "client",
@@ -167,11 +180,54 @@ export const updateActiveCompanyRouteContract = defineRouteContract({
   tags: ["companies"],
 });
 
+export const updateCompanyRouteContract = defineRouteContract({
+  audience: "client",
+  method: "PATCH",
+  operationId: "updateCompany",
+  path: "/api/companies/{companyId}",
+  request: {
+    body: {
+      schema: updateCompanyBodySchema,
+      openApiSchema: {
+        type: "object",
+        additionalProperties: false,
+        properties: {
+          code: { type: "string" },
+          name: { type: "string" },
+        },
+        required: ["code", "name"],
+      },
+    },
+    params: {
+      schema: companyIdParamsSchema,
+      openApiSchema: {
+        type: "object",
+        additionalProperties: false,
+        properties: {
+          companyId: { type: "string", format: "uuid" },
+        },
+        required: ["companyId"],
+      },
+    },
+  },
+  success: {
+    description: "Updated company",
+    openApiSchema: {
+      $ref: "#/components/schemas/Company",
+    },
+    schema: companySchema,
+    status: 200,
+  },
+  summary: "Update a company",
+  tags: ["companies"],
+});
+
 export const companyRouteContracts = [
   listCompaniesRouteContract,
   createCompanyRouteContract,
   getActiveCompanyRouteContract,
   updateActiveCompanyRouteContract,
+  updateCompanyRouteContract,
 ] as const;
 
 export const companyOpenApiSchemas = {

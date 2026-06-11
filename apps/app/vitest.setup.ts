@@ -1,9 +1,15 @@
 import "@testing-library/jest-dom/vitest";
 
 class ResizeObserverMock {
-  observe(): void {}
-  unobserve(): void {}
-  disconnect(): void {}
+  observe(): void {
+    /* ResizeObserver mock */
+  }
+  unobserve(): void {
+    /* ResizeObserver mock */
+  }
+  disconnect(): void {
+    /* ResizeObserver mock */
+  }
 }
 
 globalThis.ResizeObserver = ResizeObserverMock;
@@ -11,8 +17,12 @@ globalThis.ResizeObserver = ResizeObserverMock;
 Object.defineProperty(window, "matchMedia", {
   writable: true,
   value: (query: string) => ({
-    addEventListener: () => {},
-    removeEventListener: () => {},
+    addEventListener: () => {
+      /* matchMedia mock */
+    },
+    removeEventListener: () => {
+      /* matchMedia mock */
+    },
     dispatchEvent: () => false,
     matches: false,
     media: query,

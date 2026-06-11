@@ -8,9 +8,9 @@ import {
   addTag,
   createOpenApiDocument,
 } from "@repo/openapi";
+import { registerWorkspaceShortcutsOpenApi } from "../../../lib/workspace-shortcuts/openapi.server.ts";
 import { registerAuditOpenApi } from "../audit/_spec.ts";
 import { registerAuditExportOpenApi } from "../audit/export/contract.ts";
-import { registerWorkspaceShortcutsOpenApi } from "../../../lib/workspace-shortcuts/openapi.server.ts";
 
 const version: string =
   process.env.VERCEL_GIT_COMMIT_SHA?.slice(0, 7) ??

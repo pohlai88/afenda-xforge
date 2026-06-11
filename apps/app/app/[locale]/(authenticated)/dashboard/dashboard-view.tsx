@@ -84,6 +84,23 @@ const resolveDashboardKpiValue = (
   return tenantRole;
 };
 
+const resolveKpiDescription = (
+  key: string,
+  defaultDescription: string,
+  customerPlural: string,
+  companyPlural: string
+): string => {
+  if (key === "dashboard-kpi-customers") {
+    return customerPlural;
+  }
+
+  if (key === "dashboard-kpi-companies") {
+    return companyPlural;
+  }
+
+  return defaultDescription;
+};
+
 export function DashboardView({
   activity,
   companies,
@@ -104,12 +121,12 @@ export function DashboardView({
     permissionCatalog.companies.write
   );
   const kpiSections = dashboardOverviewKpiSectionTemplates.map((template) => ({
-    description:
-      template.key === "dashboard-kpi-customers"
-        ? customerLabels.plural
-        : template.key === "dashboard-kpi-companies"
-          ? companyLabels.plural
-          : template.description,
+    description: resolveKpiDescription(
+      template.key,
+      template.description,
+      customerLabels.plural,
+      companyLabels.plural
+    ),
     key: template.key,
     kind: "stat" as const,
     title: template.title,

@@ -5,12 +5,14 @@ import type {
   CreateCompanyBody,
   ListCompaniesQuery,
   UpdateActiveCompanyBody,
+  UpdateCompanyBody,
 } from "@repo/features-master-data-companies/contract";
 import {
   createCompany,
   getCompany,
   listCompanies,
   updateCompany,
+  updateCompanyById,
 } from "@repo/features-master-data-companies/server";
 import { permissionCatalog, requirePermission } from "@repo/permissions";
 import {
@@ -84,6 +86,23 @@ export const updateActiveCompanyForTenant = async (
     companyId: access.companyId,
     grantedPermissions: access.grantedPermissions,
     grantId: access.grantId,
+    operationId: access.operationId,
+    postCommitHooks: [workdayCompanySyncPostCommitHook],
+    requestId: access.requestId,
+    tenantId: access.tenantId,
+    userId: access.actorId,
+  });
+};
+
+export const updateCompanyForTenant = async (
+  companyId: string,
+  body: UpdateCompanyBody
+): Promise<Company> => {
+  const access = await resolveRuntimeTenantAccess();
+
+  return updateCompanyById(body, {
+    companyId,
+    grantedPermissions: access.grantedPermissions,
     operationId: access.operationId,
     postCommitHooks: [workdayCompanySyncPostCommitHook],
     requestId: access.requestId,

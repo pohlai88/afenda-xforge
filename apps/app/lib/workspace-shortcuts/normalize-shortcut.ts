@@ -142,9 +142,10 @@ export const resolveActionForNormalizedKey = (
   const scopesToSearch = [...new Set([...activeScopes, "global"])];
 
   for (const scope of scopesToSearch) {
-    for (const [actionId, shortcut] of Object.entries(bindings) as Array<
-      [ShortcutActionId, ShortcutBindingEntry]
-    >) {
+    for (const [actionId, shortcut] of Object.entries(bindings) as [
+      ShortcutActionId,
+      ShortcutBindingEntry,
+    ][]) {
       if (shortcut.scope !== scope) {
         continue;
       }

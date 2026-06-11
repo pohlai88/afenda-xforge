@@ -2,9 +2,7 @@ import { permissionCatalog, requirePermission } from "@repo/permissions";
 import { NextResponse } from "next/server";
 import { mapWorkspaceShortcutApiError } from "../../../../../lib/workspace-shortcuts/api-errors.ts";
 import { executeTenantKeyboardShortcutPolicyUpdate } from "../../../../../lib/workspace-shortcuts/execution.server.ts";
-import {
-  readTenantKeyboardShortcutPolicy,
-} from "../../../../../lib/workspace-shortcuts/repository.server.ts";
+import { readTenantKeyboardShortcutPolicy } from "../../../../../lib/workspace-shortcuts/repository.server.ts";
 import { tenantKeyboardShortcutPolicyPostSchema } from "../../../../../lib/workspace-shortcuts/tenant-policy-schema.ts";
 import { requireSystemAdminScope } from "../../../system-admin/_lib/context.ts";
 

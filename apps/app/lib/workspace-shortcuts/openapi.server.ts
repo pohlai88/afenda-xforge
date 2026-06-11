@@ -214,7 +214,11 @@ export const registerWorkspaceShortcutsOpenApi = (
   addSchema(document, "WorkspaceResolvedShortcut", resolvedShortcutSchema);
   addSchema(document, "WorkspaceShortcutPolicy", shortcutPolicySchema);
   addSchema(document, "WorkspaceShortcutOverrides", shortcutOverridesSchema);
-  addSchema(document, "WorkspaceShortcutsPayload", workspaceShortcutsPayloadSchema);
+  addSchema(
+    document,
+    "WorkspaceShortcutsPayload",
+    workspaceShortcutsPayloadSchema
+  );
   addSchema(
     document,
     "TenantKeyboardShortcutPolicySnapshot",
@@ -235,7 +239,11 @@ export const registerWorkspaceShortcutsOpenApi = (
     "TenantKeyboardShortcutPolicyPost",
     tenantKeyboardShortcutPolicyPostSchema
   );
-  addSchema(document, "UserShortcutUpdateResponse", userShortcutUpdateResponseSchema);
+  addSchema(
+    document,
+    "UserShortcutUpdateResponse",
+    userShortcutUpdateResponseSchema
+  );
   addSchema(document, "WorkspaceShortcutErrorResponse", errorResponseSchema);
 
   addOperation(document, "/api/me/keyboard-shortcuts", "get", {
@@ -306,7 +314,8 @@ export const registerWorkspaceShortcutsOpenApi = (
         },
       },
       "422": {
-        description: "Business rule violation (reserved keys, collisions, policy locks)",
+        description:
+          "Business rule violation (reserved keys, collisions, policy locks)",
         content: {
           "application/json": {
             schema: {

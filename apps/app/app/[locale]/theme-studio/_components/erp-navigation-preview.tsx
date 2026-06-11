@@ -26,7 +26,7 @@ import { Input } from "@repo/ui/components/input";
 import { ScrollArea } from "@repo/ui/components/ui/scroll-area";
 import { cn } from "@repo/ui/lib/utils";
 import { SearchIcon } from "lucide-react";
-import type { CSSProperties, ReactElement } from "react";
+import type { CSSProperties, ReactElement, ReactNode } from "react";
 import { useMemo, useState } from "react";
 import {
   ERP_VISUAL_LANE_ORDER,
@@ -212,6 +212,69 @@ export function ErpNavigationPreview(): ReactElement {
     })).filter((group) => group.modules.length > 0);
   }, [commandQuery]);
 
+  const sidebarNavigationContent = useMemo((): ReactNode => {
+    if (railCollapsed) {
+      return (
+        <SidebarGroup className="p-2">
+          <SidebarMenu>
+            {ERP_VISUAL_LANE_ORDER.map((lane) => {
+              const module = ALL_MODULES.find((item) => item.lane === lane);
+              if (!module) {
+                return null;
+              }
+
+              return (
+                <SidebarMenuItem key={lane}>
+                  <SidebarMenuButton
+                    className={cn(
+                      "mx-auto size-12 justify-center p-0",
+                      LANE_SOLID_CLASS[lane],
+                      activeModuleId === module.id &&
+                        "ring-2 ring-sidebar-ring ring-offset-2 ring-offset-sidebar"
+                    )}
+                    onClick={() => setActiveModuleId(module.id)}
+                    size="lg"
+                    tooltip={LANE_SYSTEM_TITLE[lane]}
+                  >
+                    <span className="font-black text-xs uppercase">
+                      {LANE_SYSTEM_TITLE[lane].slice(0, 2)}
+                    </span>
+                  </SidebarMenuButton>
+                </SidebarMenuItem>
+              );
+            })}
+          </SidebarMenu>
+        </SidebarGroup>
+      );
+    }
+
+    if (filteredGroups.length === 0) {
+      return (
+        <p className="p-4 text-center text-muted-foreground text-sm">
+          No modules match your search.
+        </p>
+      );
+    }
+
+    return filteredGroups.map((group) => (
+      <SidebarGroup key={group.title}>
+        <SidebarGroupLabel>{group.title}</SidebarGroupLabel>
+        <SidebarGroupContent>
+          <SidebarMenu>
+            {group.modules.map((module) => (
+              <SidebarModuleItem
+                active={activeModuleId === module.id}
+                key={module.id}
+                module={module}
+                onSelect={() => setActiveModuleId(module.id)}
+              />
+            ))}
+          </SidebarMenu>
+        </SidebarGroupContent>
+      </SidebarGroup>
+    ));
+  }, [activeModuleId, filteredGroups, railCollapsed]);
+
   const sidebarWidth = railCollapsed ? "5rem" : "18rem";
 
   return (
@@ -287,62 +350,7 @@ export function ErpNavigationPreview(): ReactElement {
                 <ScrollArea
                   className={railCollapsed ? "h-[28rem]" : "h-[32rem]"}
                 >
-                  {railCollapsed ? (
-                    <SidebarGroup className="p-2">
-                      <SidebarMenu>
-                        {ERP_VISUAL_LANE_ORDER.map((lane) => {
-                          const module = ALL_MODULES.find(
-                            (item) => item.lane === lane
-                          );
-                          if (!module) {
-                            return null;
-                          }
-
-                          return (
-                            <SidebarMenuItem key={lane}>
-                              <SidebarMenuButton
-                                className={cn(
-                                  "mx-auto size-12 justify-center p-0",
-                                  LANE_SOLID_CLASS[lane],
-                                  activeModuleId === module.id &&
-                                    "ring-2 ring-sidebar-ring ring-offset-2 ring-offset-sidebar"
-                                )}
-                                onClick={() => setActiveModuleId(module.id)}
-                                size="lg"
-                                tooltip={LANE_SYSTEM_TITLE[lane]}
-                              >
-                                <span className="font-black text-xs uppercase">
-                                  {LANE_SYSTEM_TITLE[lane].slice(0, 2)}
-                                </span>
-                              </SidebarMenuButton>
-                            </SidebarMenuItem>
-                          );
-                        })}
-                      </SidebarMenu>
-                    </SidebarGroup>
-                  ) : filteredGroups.length === 0 ? (
-                    <p className="p-4 text-center text-muted-foreground text-sm">
-                      No modules match your search.
-                    </p>
-                  ) : (
-                    filteredGroups.map((group) => (
-                      <SidebarGroup key={group.title}>
-                        <SidebarGroupLabel>{group.title}</SidebarGroupLabel>
-                        <SidebarGroupContent>
-                          <SidebarMenu>
-                            {group.modules.map((module) => (
-                              <SidebarModuleItem
-                                active={activeModuleId === module.id}
-                                key={module.id}
-                                module={module}
-                                onSelect={() => setActiveModuleId(module.id)}
-                              />
-                            ))}
-                          </SidebarMenu>
-                        </SidebarGroupContent>
-                      </SidebarGroup>
-                    ))
-                  )}
+                  {sidebarNavigationContent}
                 </ScrollArea>
               </SidebarContent>
             </Sidebar>

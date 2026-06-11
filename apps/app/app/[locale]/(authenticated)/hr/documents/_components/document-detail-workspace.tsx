@@ -131,13 +131,13 @@ export function DocumentDetailWorkspace({
           return;
         }
 
-        void handleDelete();
+        handleDelete().catch(() => undefined);
       },
     };
 
     if (editOpen) {
       handlers["crud.save"] = () => {
-        void handleSave();
+        handleSave().catch(() => undefined);
       };
     }
 
@@ -198,7 +198,9 @@ export function DocumentDetailWorkspace({
             </Button>
             <Button
               disabled={isSaving}
-              onClick={() => void handleSave()}
+              onClick={() => {
+                handleSave().catch(() => undefined);
+              }}
               type="button"
             >
               {isSaving ? "Saving..." : "Save changes"}

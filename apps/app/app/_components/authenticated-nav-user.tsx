@@ -23,28 +23,31 @@ export function AuthenticatedNavUser(): ReactElement {
   useEffect(() => {
     let cancelled = false;
 
-    void client.auth.getUser().then(({ data }) => {
-      if (cancelled || !data.user) {
-        return;
-      }
+    client.auth
+      .getUser()
+      .then(({ data }) => {
+        if (cancelled || !data.user) {
+          return;
+        }
 
-      const metadata = data.user.user_metadata as Record<
-        string,
-        unknown
-      > | null;
-      const fullName =
-        typeof metadata?.full_name === "string"
-          ? metadata.full_name
-          : undefined;
-      const avatarUrl =
-        typeof metadata?.avatar_url === "string" ? metadata.avatar_url : null;
+        const metadata = data.user.user_metadata as Record<
+          string,
+          unknown
+        > | null;
+        const fullName =
+          typeof metadata?.full_name === "string"
+            ? metadata.full_name
+            : undefined;
+        const avatarUrl =
+          typeof metadata?.avatar_url === "string" ? metadata.avatar_url : null;
 
-      setUser({
-        name: fullName ?? data.user.email?.split("@")[0] ?? "User",
-        email: data.user.email ?? "",
-        avatar: avatarUrl,
-      });
-    });
+        setUser({
+          name: fullName ?? data.user.email?.split("@")[0] ?? "User",
+          email: data.user.email ?? "",
+          avatar: avatarUrl,
+        });
+      })
+      .catch(() => undefined);
 
     return () => {
       cancelled = true;

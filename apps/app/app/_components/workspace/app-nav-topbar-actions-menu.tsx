@@ -86,7 +86,7 @@ export function AppNavTopbarActionsMenu({
               key: "logout",
               label: logoutLoading ? "Signing out..." : "Log out",
               onSelect: () => {
-                void onLogout();
+                onLogout();
               },
             } satisfies EnterpriseDropdownMenuItem,
           ]

@@ -14,17 +14,23 @@ const createRedirect = (request: NextRequest, pathname: string): NextResponse =>
   NextResponse.redirect(new URL(pathname, request.nextUrl.origin));
 
 export async function GET(request: NextRequest): Promise<NextResponse> {
-  const tokenHash = request.nextUrl.searchParams.get("token_hash");
-  const type = request.nextUrl.searchParams.get("type") as VerifyOtpType | null;
-  const next = request.nextUrl.searchParams.get(AUTH_REDIRECT_SEARCH_PARAM);
-  const redirectTo = resolvePostAuthRedirectPath(
-    next,
-    DEFAULT_AUTHENTICATED_REDIRECT_PATH
-  );
+  try {
+    const tokenHash = request.nextUrl.searchParams.get("token_hash");
+    const type = request.nextUrl.searchParams.get(
+      "type"
+    ) as VerifyOtpType | null;
+    const next = request.nextUrl.searchParams.get(AUTH_REDIRECT_SEARCH_PARAM);
+    const redirectTo = resolvePostAuthRedirectPath(
+      next,
+      DEFAULT_AUTHENTICATED_REDIRECT_PATH
+    );
 
-  if (!(tokenHash && type && (await verifyOtpCode({ tokenHash, type })))) {
+    if (!(tokenHash && type && (await verifyOtpCode({ tokenHash, type })))) {
+      return createRedirect(request, `${AUTH_ERROR_PATH}?reason=confirm`);
+    }
+
+    return createRedirect(request, redirectTo);
+  } catch {
     return createRedirect(request, `${AUTH_ERROR_PATH}?reason=confirm`);
   }
-
-  return createRedirect(request, redirectTo);
 }

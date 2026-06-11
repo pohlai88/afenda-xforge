@@ -3,7 +3,7 @@ import "server-only";
 import { randomUUID } from "node:crypto";
 import { writeAuditEvent, writeAuditEventInTransaction } from "@repo/audit";
 import { database } from "@repo/database";
-import { ForbiddenError, BusinessRuleError } from "@repo/errors";
+import { BusinessRuleError, ForbiddenError } from "@repo/errors";
 import type {
   ExecutionDatabaseTransaction,
   ExecutionDomainResult,
@@ -23,9 +23,7 @@ import {
   upsertTenantKeyboardShortcutPolicy,
   upsertUserShortcutOverrides,
 } from "./repository.server.ts";
-import {
-  validateUserOverrides,
-} from "./resolve-shortcuts.ts";
+import { validateUserOverrides } from "./resolve-shortcuts.ts";
 import type { TenantKeyboardShortcutPolicyPost } from "./tenant-policy-schema.ts";
 import { tenantKeyboardShortcutPolicyPostSchema } from "./tenant-policy-schema.ts";
 
@@ -84,7 +82,7 @@ const writeWorkspaceShortcutAuditEvent = (
   return writeAuditEvent(event);
 };
 
-export const executeUserShortcutOverridesUpdate = async (
+export const executeUserShortcutOverridesUpdate = (
   input: ExecuteUserShortcutOverridesInput,
   scope: UserShortcutMutationScope
 ): Promise<WorkspaceShortcutsPayload> => {
@@ -102,7 +100,10 @@ export const executeUserShortcutOverridesUpdate = async (
     }: ExecutionMutationContext<ExecuteUserShortcutOverridesInput>): Promise<
       ExecutionDomainResult<WorkspaceShortcutsPayload>
     > => {
-      const current = await readWorkspaceShortcuts(tenant.tenantId, actor.actorId);
+      const current = await readWorkspaceShortcuts(
+        tenant.tenantId,
+        actor.actorId
+      );
 
       if (!current.policy.allowUserCustomize) {
         throw new ForbiddenError(
@@ -186,7 +187,7 @@ export const executeUserShortcutOverridesUpdate = async (
   return pipeline(input);
 };
 
-export const executeTenantKeyboardShortcutPolicyUpdate = async (
+export const executeTenantKeyboardShortcutPolicyUpdate = (
   input: TenantKeyboardShortcutPolicyPost,
   scope: TenantKeyboardShortcutMutationScope
 ): Promise<TenantKeyboardShortcutPolicyPayload> => {

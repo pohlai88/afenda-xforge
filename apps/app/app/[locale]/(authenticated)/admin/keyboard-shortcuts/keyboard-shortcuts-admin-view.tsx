@@ -281,7 +281,7 @@ export function KeyboardShortcutsAdminView({
                 const checked = lockedActions.includes(definition.actionId);
 
                 return (
-                  <label
+                  <div
                     className="flex items-start gap-3 rounded-md border px-3 py-3"
                     key={definition.actionId}
                   >
@@ -300,7 +300,7 @@ export function KeyboardShortcutsAdminView({
                         {definition.actionId}
                       </span>
                     </span>
-                  </label>
+                  </div>
                 );
               })}
             </CardContent>
@@ -403,7 +403,9 @@ export function KeyboardShortcutsAdminView({
             </Button>
             <Button
               disabled={!dirty || status === "pending"}
-              onClick={() => void savePolicy()}
+              onClick={() => {
+                savePolicy().catch(() => undefined);
+              }}
               type="button"
             >
               Save tenant policy

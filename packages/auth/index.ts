@@ -1,7 +1,7 @@
 /**
  * Client-safe and universal auth surface.
- * Server runtime: `@repo/auth/server`, `@repo/auth/access`, `@repo/auth/proxy`, `@repo/auth/keys`.
- * Client runtime: `@repo/auth/client`, `@repo/auth/provider`, `@repo/auth/components/*`.
+ * Server runtime: `@repo/auth/server`, `@repo/auth/access`, `@repo/auth/proxy`, `@repo/auth/keys/server`.
+ * Client runtime: `@repo/auth/client`, `@repo/auth/provider`, `@repo/auth/components/*`, `@repo/auth/keys/public`.
  */
 export { resolveTenantSlugFromHost } from "./host.ts";
 export {

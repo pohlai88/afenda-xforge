@@ -146,7 +146,7 @@ export const resolveNotificationEmptyStateCopy = (
 export const formatNotificationRelativeTime = (isoDate: string): string => {
   const date = new Date(isoDate);
   const diffMs = date.getTime() - Date.now();
-  const units: Array<[Intl.RelativeTimeFormatUnit, number]> = [
+  const units: [Intl.RelativeTimeFormatUnit, number][] = [
     ["year", 1000 * 60 * 60 * 24 * 365],
     ["month", 1000 * 60 * 60 * 24 * 30],
     ["week", 1000 * 60 * 60 * 24 * 7],

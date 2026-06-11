@@ -58,6 +58,15 @@ type CompanyUpdateContext = CompanyActorScope & {
   requestId?: string;
 };
 
+type CompanyByIdUpdateContext = TenantActorScope & {
+  companyId: string;
+  db?: ExecutionDatabaseTransaction;
+  grantedPermissions: string[];
+  postCommitHooks?: CompanyPostCommitHook<UpdateActiveCompanyBody>[];
+  operationId?: string;
+  requestId?: string;
+};
+
 const mapCompany = (row: {
   code: string;
   id: string;
@@ -69,7 +78,10 @@ const mapCompany = (row: {
 });
 
 const createCompanyPermissionContext = (
-  context: CompanyCreateContext | CompanyUpdateContext,
+  context:
+    | CompanyCreateContext
+    | CompanyUpdateContext
+    | CompanyByIdUpdateContext,
   action: string
 ): PermissionContext => ({
   action,
@@ -122,7 +134,7 @@ const insertCompanyRecord = async (
 
 const updateCompanyRecord = async (
   input: UpdateActiveCompanyBody,
-  context: CompanyUpdateContext
+  context: CompanyUpdateContext | CompanyByIdUpdateContext
 ): Promise<{
   after: Company;
   before: Company;
@@ -344,6 +356,63 @@ export const updateCompany = (
       companyId: context.companyId,
       grantId: context.grantId,
     }),
+    resolveActiveTenant: async () => ({ tenantId: context.tenantId }),
+    requestId: context.requestId ?? randomUUID(),
+    validateInput: async () => undefined,
+    writeAuditEvent: persistCompanyAuditEvent,
+  });
+
+  return pipeline(input);
+};
+
+export const updateCompanyById = (
+  input: UpdateActiveCompanyBody,
+  context: CompanyByIdUpdateContext
+): Promise<Company> => {
+  const pipeline = createExecutionPipeline<UpdateActiveCompanyBody, Company>({
+    executeDomainOperation: async ({
+      db,
+      input: executionInput,
+      actor,
+      tenant,
+    }: ExecutionMutationContext<UpdateActiveCompanyBody>) => {
+      const updatedCompany = await updateCompanyRecord(executionInput, {
+        ...context,
+        db,
+        tenantId: tenant.tenantId,
+        userId: actor.actorId,
+      });
+
+      return {
+        action: "companies.update",
+        after: {
+          company: updatedCompany.after,
+        },
+        before: {
+          company: updatedCompany.before,
+        },
+        reason: "update company",
+        result: updatedCompany.after,
+        targetId: updatedCompany.after.id,
+        targetType: "company",
+      };
+    },
+    permissionContext: () =>
+      createCompanyPermissionContext(context, "companies.update"),
+    permissionRequirement: {
+      allOf: [permissionCatalog.companies.write],
+    },
+    runInTransaction: <T>(
+      run: (db: ExecutionDatabaseTransaction) => Promise<T>
+    ): Promise<T> => database.transaction(run),
+    postCommitHooks: context.postCommitHooks as ExecutionPipelineHooks<
+      UpdateActiveCompanyBody,
+      Company
+    >["postCommitHooks"],
+    operationId: context.operationId ?? context.requestId ?? randomUUID(),
+    requireAuth: async () => ({ actorId: context.userId }),
+    requirePermission,
+    requireTenantMembership: async () => undefined,
     resolveActiveTenant: async () => ({ tenantId: context.tenantId }),
     requestId: context.requestId ?? randomUUID(),
     validateInput: async () => undefined,

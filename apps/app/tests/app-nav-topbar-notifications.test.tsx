@@ -42,7 +42,10 @@ const inboxFixture = {
 };
 
 function mockInboxFetch(
-  handler: (input: RequestInfo | URL, init?: RequestInit) => Promise<Response>
+  handler: (
+    input: RequestInfo | URL,
+    init?: RequestInit
+  ) => Response | Promise<Response>
 ): void {
   vi.stubGlobal("fetch", vi.fn(handler));
 }
@@ -73,7 +76,7 @@ describe("AppNavTopbarNotifications", () => {
     vi.clearAllMocks();
     vi.unstubAllGlobals();
 
-    mockInboxFetch(async (input, init) => {
+    mockInboxFetch((input, init) => {
       const url = String(input);
 
       if (url.includes("/api/me/notifications") && init?.method === "PATCH") {
@@ -182,7 +185,7 @@ describe("AppNavTopbarNotifications", () => {
   });
 
   it("shows metadata-ui empty state when the inbox has no items", async () => {
-    mockInboxFetch(async (input) => {
+    mockInboxFetch((input) => {
       const url = String(input);
 
       if (url.includes("/api/me/notifications")) {
@@ -218,7 +221,7 @@ describe("AppNavTopbarNotifications", () => {
   });
 
   it("preview mode shows empty state without calling the inbox API", async () => {
-    mockInboxFetch(async () => {
+    mockInboxFetch(() => {
       throw new Error("Preview mode should not fetch notifications");
     });
 

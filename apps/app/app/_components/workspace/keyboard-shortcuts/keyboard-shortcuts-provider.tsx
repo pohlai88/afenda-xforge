@@ -17,6 +17,13 @@ import { useWorkspaceShortcuts } from "./use-keyboard-shortcuts.tsx";
 import { WorkspaceCommandPalette } from "./workspace-command-palette.tsx";
 
 const CRUD_FALLBACK_MESSAGE = "No focused record available";
+const CRUD_ACTION_IDS = new Set<ShortcutActionId>([
+  "crud.create",
+  "crud.edit",
+  "crud.save",
+  "crud.delete",
+  "crud.cancel",
+]);
 
 const dispatchCrudAction = (
   actionId: ShortcutActionId,
@@ -33,6 +40,47 @@ const dispatchCrudAction = (
   }
 
   toast.message(CRUD_FALLBACK_MESSAGE);
+};
+
+const handleWorkspaceShortcutAction = (
+  actionId: ShortcutActionId,
+  actions: {
+    openHelp: () => void;
+    setCommandOpen: (open: boolean) => void;
+    toggleSidebar: () => void;
+  }
+): boolean => {
+  switch (actionId) {
+    case "workspace.commandSearch":
+      actions.setCommandOpen(true);
+      return true;
+    case "workspace.openShortcutHelp":
+      actions.openHelp();
+      return true;
+    case "workspace.toggleSidebar":
+      actions.toggleSidebar();
+      return true;
+    default:
+      return false;
+  }
+};
+
+const handleCrudShortcutAction = (
+  actionId: ShortcutActionId,
+  handler: (() => void) | undefined
+): void => {
+  if (actionId === "crud.delete" && handler) {
+    // biome-ignore lint/suspicious/noAlert: native confirm until governed delete dialog exists
+    const confirmed = window.confirm(
+      "Delete the focused record? This action cannot be undone."
+    );
+
+    if (!confirmed) {
+      return;
+    }
+  }
+
+  dispatchCrudAction(actionId, handler);
 };
 
 export function WorkspaceShortcutsHost(): ReactElement {
@@ -77,38 +125,19 @@ export function WorkspaceShortcutsHost(): ReactElement {
       event.preventDefault();
       event.stopPropagation();
 
-      switch (actionId) {
-        case "workspace.commandSearch":
-          setCommandOpen(true);
-          return;
-        case "workspace.openShortcutHelp":
-          openHelp();
-          return;
-        case "workspace.toggleSidebar":
-          toggleSidebar();
-          return;
-        case "crud.create":
-        case "crud.edit":
-        case "crud.save":
-        case "crud.delete":
-        case "crud.cancel": {
-          const handler = focusedTarget?.handlers[actionId];
+      if (
+        handleWorkspaceShortcutAction(actionId, {
+          openHelp,
+          setCommandOpen,
+          toggleSidebar,
+        })
+      ) {
+        return;
+      }
 
-          if (actionId === "crud.delete" && handler) {
-            const confirmed = window.confirm(
-              "Delete the focused record? This action cannot be undone."
-            );
-
-            if (!confirmed) {
-              return;
-            }
-          }
-
-          dispatchCrudAction(actionId, handler);
-          return;
-        }
-        default:
-          return;
+      if (CRUD_ACTION_IDS.has(actionId)) {
+        const handler = focusedTarget?.handlers[actionId];
+        handleCrudShortcutAction(actionId, handler);
       }
     };
 

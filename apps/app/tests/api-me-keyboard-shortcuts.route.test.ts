@@ -97,7 +97,9 @@ describe("/api/me/keyboard-shortcuts", () => {
 
     expect(response.status).toBe(200);
     expect(body.payload).toEqual(savedPayload);
-    expect(executionMocks.executeUserShortcutOverridesUpdate).toHaveBeenCalledWith(
+    expect(
+      executionMocks.executeUserShortcutOverridesUpdate
+    ).toHaveBeenCalledWith(
       { overrides: { "crud.edit": "f6" } },
       {
         requestId: undefined,
@@ -155,7 +157,9 @@ describe("/api/me/keyboard-shortcuts", () => {
     );
 
     expect(response.status).toBe(200);
-    expect(executionMocks.executeUserShortcutOverridesUpdate).toHaveBeenCalledWith(
+    expect(
+      executionMocks.executeUserShortcutOverridesUpdate
+    ).toHaveBeenCalledWith(
       { overrides: { "crud.edit": null } },
       {
         requestId: undefined,

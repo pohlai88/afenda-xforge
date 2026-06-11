@@ -81,6 +81,27 @@ type InferSection<TSection> = TSection extends { schema: infer TSchema }
     : never
   : undefined;
 
+type ContractParams<TContract extends AnyApiRouteContract> =
+  TContract extends ApiRouteContract<infer TParams, infer _TQuery, infer _TBody, infer _TResponse>
+    ? TParams extends z.ZodTypeAny
+      ? z.infer<TParams>
+      : undefined
+    : undefined;
+
+type ContractQuery<TContract extends AnyApiRouteContract> =
+  TContract extends ApiRouteContract<infer _TParams, infer TQuery, infer _TBody, infer _TResponse>
+    ? TQuery extends z.ZodTypeAny
+      ? z.infer<TQuery>
+      : undefined
+    : undefined;
+
+type ContractBody<TContract extends AnyApiRouteContract> =
+  TContract extends ApiRouteContract<infer _TParams, infer _TQuery, infer TBody, infer _TResponse>
+    ? TBody extends z.ZodTypeAny
+      ? z.infer<TBody>
+      : undefined
+    : undefined;
+
 export type ApiRouteContextParams = Record<
   string,
   string | string[] | undefined
@@ -91,18 +112,10 @@ export type ApiRouteContext = {
 };
 
 export type ApiRouteRequest<TContract extends AnyApiRouteContract> = {
-  body: InferSection<
-    TContract["request"] extends { body?: infer TBody } ? TBody : undefined
-  >;
+  body: ContractBody<TContract>;
   logger: AppLogger;
-  params: InferSection<
-    TContract["request"] extends { params?: infer TParams }
-      ? TParams
-      : undefined
-  >;
-  query: InferSection<
-    TContract["request"] extends { query?: infer TQuery } ? TQuery : undefined
-  >;
+  params: ContractParams<TContract>;
+  query: ContractQuery<TContract>;
   request: Request;
   routeContext: ApiRouteContext;
 };

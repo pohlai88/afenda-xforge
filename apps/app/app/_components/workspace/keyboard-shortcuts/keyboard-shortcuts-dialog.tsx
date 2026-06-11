@@ -340,7 +340,9 @@ export function KeyboardShortcutsDialog({
               </Button>
               <Button
                 disabled={saving || pendingCount === 0}
-                onClick={() => void handleSave()}
+                onClick={() => {
+                  handleSave().catch(() => undefined);
+                }}
                 type="button"
               >
                 Save personal shortcuts

@@ -39,7 +39,7 @@ import { cn } from "@repo/ui/lib/utils";
 import { Settings2 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import type { ReactElement } from "react";
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import {
   fetchNotificationInbox,
   mutateNotificationInbox,
@@ -93,6 +93,13 @@ const NOTIFICATION_TABS: readonly {
   { label: "Team", value: "team" },
   { label: "Following", value: "following" },
 ];
+
+const runSideEffect = (task: undefined | Promise<unknown>): void => {
+  Promise.resolve(task).catch(() => undefined);
+};
+
+const resolveInboxErrorMessage = (error: unknown): string =>
+  error instanceof Error ? error.message : "Failed to load notifications";
 
 const MOBILE_MEDIA_QUERY = "(max-width: 767px)";
 
@@ -161,8 +168,8 @@ function NotificationListItem({
 function NotificationListSkeleton(): ReactElement {
   return (
     <div className="space-y-2 px-3 py-2">
-      {Array.from({ length: 3 }, (_, index) => (
-        <div className="flex gap-3" key={index}>
+      {[0, 1, 2].map((slot) => (
+        <div className="flex gap-3" key={`notification-skeleton-${slot}`}>
           <Skeleton className="size-8 shrink-0 rounded-full" />
           <div className="flex-1 space-y-2 py-0.5">
             <Skeleton className="h-3 w-3/4" />
@@ -359,43 +366,74 @@ function useNotificationInbox({
   const [unreadCount, setUnreadCount] = useState(0);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const isOpenRef = useRef(isOpen);
+  const refreshGenerationRef = useRef(0);
+  const markSeenInFlightRef = useRef(new Set<string>());
+
+  isOpenRef.current = isOpen;
 
   const refreshInbox = useCallback(async (): Promise<void> => {
     if (preview) {
       return;
     }
 
+    const generation = ++refreshGenerationRef.current;
     setIsLoading(true);
     setError(null);
 
     try {
       const inbox = await fetchNotificationInbox();
+
+      if (generation !== refreshGenerationRef.current) {
+        return;
+      }
+
       setEntries(inbox.items);
       setUnreadCount(inbox.unreadCount);
     } catch (refreshError) {
-      setError(
-        refreshError instanceof Error
-          ? refreshError.message
-          : "Failed to load notifications"
-      );
+      if (generation !== refreshGenerationRef.current) {
+        return;
+      }
+
+      setError(resolveInboxErrorMessage(refreshError));
     } finally {
-      setIsLoading(false);
+      if (generation === refreshGenerationRef.current) {
+        setIsLoading(false);
+      }
     }
   }, [preview]);
 
   useEffect(() => {
-    if (preview || tenantId === "anonymous" || userId === "anonymous") {
+    if (
+      preview ||
+      tenantId === "anonymous" ||
+      userId === "anonymous" ||
+      isOpen
+    ) {
       return;
     }
 
-    void fetchNotificationInbox()
+    let cancelled = false;
+
+    fetchNotificationInbox()
       .then((inbox) => {
-        setUnreadCount(inbox.unreadCount);
-        if (isOpen) {
-          setEntries(inbox.items);
+        if (cancelled) {
+          return;
         }
+
+        setUnreadCount(inbox.unreadCount);
       })
-      .catch(() => undefined);
+      .catch((fetchError) => {
+        if (cancelled) {
+          return;
+        }
+
+        setError(resolveInboxErrorMessage(fetchError));
+      });
+
+    return () => {
+      cancelled = true;
+    };
   }, [isOpen, preview, tenantId, userId]);
 
   useEffect(() => {
@@ -403,7 +441,7 @@ function useNotificationInbox({
       return;
     }
 
-    void refreshInbox();
+    runSideEffect(refreshInbox());
   }, [isOpen, preview, refreshInbox]);
 
   useEffect(() => {
@@ -418,16 +456,32 @@ function useNotificationInbox({
 
     const unseenIds = entries
       .filter((entry) => entry.seenAt === null)
-      .map((entry) => entry.id);
+      .map((entry) => entry.id)
+      .filter((id) => !markSeenInFlightRef.current.has(id));
 
     if (unseenIds.length === 0) {
       return;
     }
 
-    void mutateNotificationInbox({
-      action: "mark-seen",
-      ids: unseenIds,
-    }).catch(() => undefined);
+    for (const id of unseenIds) {
+      markSeenInFlightRef.current.add(id);
+    }
+
+    runSideEffect(
+      mutateNotificationInbox({
+        action: "mark-seen",
+        ids: unseenIds,
+      }).then(() => {
+        const seenAt = new Date().toISOString();
+        setEntries((current) =>
+          current.map((entry) =>
+            unseenIds.includes(entry.id)
+              ? { ...entry, seenAt: entry.seenAt ?? seenAt }
+              : entry
+          )
+        );
+      })
+    );
   }, [entries, isOpen, preview, tenantId, userId]);
 
   useEffect(() => {
@@ -437,8 +491,8 @@ function useNotificationInbox({
 
     const channel = subscribeToRecipientNotifications({
       onMessage: () => {
-        if (isOpen) {
-          void refreshInbox();
+        if (isOpenRef.current) {
+          runSideEffect(refreshInbox());
           return;
         }
 
@@ -448,9 +502,9 @@ function useNotificationInbox({
     });
 
     return () => {
-      void unsubscribeFromRecipientNotifications(channel);
+      runSideEffect(unsubscribeFromRecipientNotifications(channel));
     };
-  }, [isOpen, preview, refreshInbox, tenantId, userId]);
+  }, [preview, refreshInbox, tenantId, userId]);
 
   const items = useMemo(
     () => entries.map((entry) => toNotificationListItemView(entry)),
@@ -497,7 +551,7 @@ function useNotificationInbox({
       try {
         await mutateNotificationInbox({ action: "mark-read", id });
       } catch {
-        void refreshInbox();
+        runSideEffect(refreshInbox());
       }
     },
     [refreshInbox]
@@ -583,10 +637,16 @@ export function AppNavTopbarNotifications({
       error={inbox.error}
       isLoading={inbox.isLoading}
       items={inbox.items}
-      onArchiveAll={() => void inbox.handleArchiveAll()}
-      onMarkAllRead={() => void inbox.handleMarkAllRead()}
+      onArchiveAll={() => {
+        runSideEffect(inbox.handleArchiveAll());
+      }}
+      onMarkAllRead={() => {
+        runSideEffect(inbox.handleMarkAllRead());
+      }}
       onOpenSettings={() => router.push("/settings/appearance")}
-      onSelectItem={(id) => void inbox.handleSelectItem(id)}
+      onSelectItem={(id) => {
+        runSideEffect(inbox.handleSelectItem(id));
+      }}
       onTabChange={inbox.setActiveTab}
       unreadByTab={inbox.unreadByTab}
       unreadCount={inbox.unreadCount}

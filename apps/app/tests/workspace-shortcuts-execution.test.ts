@@ -49,7 +49,8 @@ describe("workspace shortcut execution pipeline", () => {
     vi.clearAllMocks();
     permissionMocks.requirePermission.mockImplementation(() => undefined);
     transactionMocks.transaction.mockImplementation(
-      async (run: (db: { id: string }) => Promise<unknown>) => run({ id: "tx-1" })
+      async (run: (db: { id: string }) => Promise<unknown>) =>
+        run({ id: "tx-1" })
     );
   });
 

@@ -87,6 +87,7 @@ export function ThemeStudioWorkspace({
             },
           ],
         }}
+        enableSidebarKeyboardShortcut={false}
         sidebar={<ThemeStudioRailSidebar />}
         topBar={
           <WorkspaceNavSiteTopbar

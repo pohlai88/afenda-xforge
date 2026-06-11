@@ -7,6 +7,7 @@ export type WorkspaceShellProviderProps = {
   children: ReactNode;
   className?: string;
   defaultOpen?: boolean;
+  enableSidebarKeyboardShortcut?: boolean;
   sidebarWidth?: string;
   style?: CSSProperties;
 };
@@ -15,6 +16,7 @@ export function WorkspaceShellProvider({
   children,
   className,
   defaultOpen = true,
+  enableSidebarKeyboardShortcut = true,
   sidebarWidth,
   style,
 }: WorkspaceShellProviderProps): ReactElement {
@@ -22,6 +24,7 @@ export function WorkspaceShellProvider({
     <SidebarProvider
       className={className}
       defaultOpen={defaultOpen}
+      enableKeyboardShortcut={enableSidebarKeyboardShortcut}
       style={
         sidebarWidth
           ? ({

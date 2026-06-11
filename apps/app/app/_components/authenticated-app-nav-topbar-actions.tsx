@@ -32,27 +32,30 @@ export function AuthenticatedAppNavTopbarActions(): ReactElement {
   useEffect(() => {
     let cancelled = false;
 
-    void client.auth.getUser().then(({ data }) => {
-      if (cancelled || !data.user) {
-        return;
-      }
+    client.auth
+      .getUser()
+      .then(({ data }) => {
+        if (cancelled || !data.user) {
+          return;
+        }
 
-      const metadata = data.user.user_metadata as Record<
-        string,
-        unknown
-      > | null;
-      const fullName =
-        typeof metadata?.full_name === "string"
-          ? metadata.full_name
-          : undefined;
-      const avatar =
-        typeof metadata?.avatar_url === "string" ? metadata.avatar_url : null;
+        const metadata = data.user.user_metadata as Record<
+          string,
+          unknown
+        > | null;
+        const fullName =
+          typeof metadata?.full_name === "string"
+            ? metadata.full_name
+            : undefined;
+        const avatar =
+          typeof metadata?.avatar_url === "string" ? metadata.avatar_url : null;
 
-      setName(fullName ?? data.user.email?.split("@")[0] ?? "User");
-      setEmail(data.user.email ?? "");
-      setAvatarUrl(avatar);
-      setUserId(data.user.id);
-    });
+        setName(fullName ?? data.user.email?.split("@")[0] ?? "User");
+        setEmail(data.user.email ?? "");
+        setAvatarUrl(avatar);
+        setUserId(data.user.id);
+      })
+      .catch(() => undefined);
 
     return () => {
       cancelled = true;

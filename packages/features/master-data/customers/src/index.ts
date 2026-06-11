@@ -8,6 +8,7 @@ export type {
   Customer,
   CustomerList,
   ListCustomersQuery,
+  UpdateCustomerBody,
 } from "./contract.ts";
 export { customerExecutionSurface } from "./execution/index.ts";
 export { customerFeatureManifest } from "./manifest.ts";

@@ -9,6 +9,7 @@ export function useStableFocusedShortcutTarget(
   factory: () => FocusedShortcutTarget | null,
   deps: DependencyList
 ): void {
-  const target = useMemo(factory, deps);
+  // biome-ignore lint/correctness/useExhaustiveDependencies: caller deps list drives factory recomputation
+  const target = useMemo(factory, [...deps]);
   useRegisterFocusedShortcutTarget(target);
 }

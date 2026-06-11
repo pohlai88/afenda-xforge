@@ -670,7 +670,7 @@ export function DocumentUploadForm({
         fileInputRef.current?.click();
       },
       submit: () => {
-        void submitUploadRef.current();
+        submitUploadRef.current().catch(() => undefined);
       },
     });
   }, [onRegisterShortcutHandlers]);
@@ -722,7 +722,7 @@ export function DocumentUploadForm({
             className="inline-flex h-11 items-center justify-center rounded-md bg-primary px-4 py-2 font-medium text-primary-foreground text-sm transition hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-50"
             disabled={isSubmitting}
             onClick={() => {
-              void submitUpload();
+              submitUpload().catch(() => undefined);
             }}
             type="button"
           >
