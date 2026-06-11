@@ -29,7 +29,7 @@ export async function GET(
   const { documentId } = await params;
   const document = getDocumentsManagementDocumentSummary(
     documentId,
-    createDocumentsManagementReadContext(request)
+    await createDocumentsManagementReadContext(request)
   );
 
   if (!document) {
@@ -39,7 +39,7 @@ export async function GET(
     );
   }
 
-  const readContext = createDocumentsManagementReadContext(request);
+  const readContext = await createDocumentsManagementReadContext(request);
   if (readContext.canViewSensitive) {
     await recordDocumentsManagementDocumentAccess(
       {
@@ -58,7 +58,7 @@ export async function PATCH(
   { params }: RouteParams
 ): Promise<Response> {
   try {
-    const writeContext = createDocumentsManagementWriteContext(request);
+    const writeContext = await createDocumentsManagementWriteContext(request);
 
     if (!canWriteDocumentsManagement(writeContext)) {
       return NextResponse.json(
@@ -102,7 +102,7 @@ export async function DELETE(
   { params }: RouteParams
 ): Promise<Response> {
   try {
-    const writeContext = createDocumentsManagementWriteContext(request);
+    const writeContext = await createDocumentsManagementWriteContext(request);
 
     if (!canWriteDocumentsManagement(writeContext)) {
       return NextResponse.json(

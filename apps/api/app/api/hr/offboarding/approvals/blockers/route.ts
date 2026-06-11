@@ -5,7 +5,7 @@ import { createOffboardingReadContext, getQuery } from "../../_lib/context.ts";
 export async function GET(request: Request) {
   const data = await listOffboardingApprovalBlockers(
     getQuery(request),
-    createOffboardingReadContext(request)
+    await createOffboardingReadContext(request)
   );
 
   return NextResponse.json(data);

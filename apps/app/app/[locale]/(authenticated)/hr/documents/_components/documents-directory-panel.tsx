@@ -6,6 +6,7 @@ import { EntityMetadataPanel } from "@repo/metadata-ui/components";
 import type { MetadataRenderContext } from "@repo/metadata-ui/contracts";
 import type { DashboardTableRow } from "@repo/ui";
 import type { ReactElement } from "react";
+import { useTranslations } from "next-intl";
 
 export type DocumentsDirectoryPanelProps = {
   context: MetadataRenderContext;
@@ -38,11 +39,13 @@ export function DocumentsDirectoryPanel({
   selectedDocumentId,
   title,
 }: DocumentsDirectoryPanelProps): ReactElement {
+  const tShortcuts = useTranslations("workspace.keyboardShortcuts");
+
   return (
     <section className="space-y-3">
       {selectedDocumentId ? (
         <p className="text-muted-foreground text-xs">
-          Selected row: press F2 to open the document detail.
+          {tShortcuts("selectedRow.openDocument")}
         </p>
       ) : null}
       <EntityMetadataPanel

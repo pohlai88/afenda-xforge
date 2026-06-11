@@ -6,8 +6,8 @@ import {
   getEmployeeLifecycleQuery,
 } from "../_lib/context.ts";
 
-export function GET(request: Request) {
-  const context = createEmployeeLifecycleReadContext(request);
+export async function GET(request: Request) {
+  const context = await createEmployeeLifecycleReadContext(request);
   const query = getEmployeeLifecycleQuery(request);
   const data = listEmployeeLifecycleAuditTrailEntries(
     query.employeeId,

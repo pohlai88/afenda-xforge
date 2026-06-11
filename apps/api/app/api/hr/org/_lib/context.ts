@@ -1,16 +1,8 @@
 import type { HrOrgReadContext } from "@repo/features-employee-management-organizational-chart-hierarchy";
-
-const header = (request: Request, name: string): string | undefined =>
-  request.headers.get(name)?.trim() || undefined;
-
-const boolHeader = (request: Request, name: string): boolean | undefined => {
-  const value = header(request, name);
-  if (!value) {
-    return;
-  }
-
-  return value === "true" || value === "1";
-};
+import {
+  resolveHrOperatorCapabilities,
+  resolveHrTenantScopedAccess,
+} from "../../_lib/access.ts";
 
 const parseQueryParam = (value: string | undefined): string | undefined => {
   if (value === undefined) {
@@ -21,18 +13,23 @@ const parseQueryParam = (value: string | undefined): string | undefined => {
   return trimmed.length > 0 ? trimmed : undefined;
 };
 
-export const createHrOrgReadContext = (request: Request): HrOrgReadContext => ({
-  actorId: header(request, "x-actor-id"),
-  canRead: boolHeader(request, "x-can-read-organization-structure") ?? true,
-  canViewSensitive:
-    boolHeader(request, "x-can-view-sensitive-organization-structure") ?? false,
-  companyId: header(request, "x-company-id"),
-  grantedCapabilities: header(request, "x-granted-capabilities")
-    ?.split(",")
-    .map((capability) => capability.trim())
-    .filter(Boolean),
-  tenantId: header(request, "x-tenant-id"),
-});
+export const createHrOrgReadContext = async (
+  _request: Request
+): Promise<HrOrgReadContext> => {
+  const { access, companyId } = await resolveHrTenantScopedAccess();
+  const capabilities = resolveHrOperatorCapabilities(access);
+
+  return {
+    actorId: access.actorId,
+    canRead: capabilities.canRead,
+    canViewSensitive: capabilities.canViewSensitive,
+    companyId,
+    grantedCapabilities: capabilities.canRead
+      ? ["hr.organization_structure.read"]
+      : [],
+    tenantId: access.tenantId,
+  };
+};
 
 export const getHrOrgQuery = (
   request: Request

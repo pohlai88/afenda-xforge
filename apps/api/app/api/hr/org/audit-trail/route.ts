@@ -7,7 +7,7 @@ export async function GET(request: Request): Promise<Response> {
   const query = listHrOrgAuditQuerySchema.parse(getHrOrgQuery(request));
   const data = await listHrOrgStructureAuditTrailWindow(
     query,
-    createHrOrgReadContext(request)
+    await createHrOrgReadContext(request)
   );
 
   return NextResponse.json(data);

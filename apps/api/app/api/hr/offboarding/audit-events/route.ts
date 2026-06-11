@@ -11,7 +11,7 @@ import {
 
 export async function POST(request: Request) {
   try {
-    const context = createOffboardingWriteContext(request);
+    const context = await createOffboardingWriteContext(request);
     const denied = ensureOffboardingWriteAccess(context);
     if (denied) {
       return denied;

@@ -26,7 +26,6 @@ export function AuthenticatedAppNavTopbarActions(): ReactElement {
   const [logoutLoading, setLogoutLoading] = useState(false);
   const [name, setName] = useState("User");
   const [email, setEmail] = useState("");
-  const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
   const [userId, setUserId] = useState("anonymous");
 
   useEffect(() => {
@@ -47,12 +46,8 @@ export function AuthenticatedAppNavTopbarActions(): ReactElement {
           typeof metadata?.full_name === "string"
             ? metadata.full_name
             : undefined;
-        const avatar =
-          typeof metadata?.avatar_url === "string" ? metadata.avatar_url : null;
-
         setName(fullName ?? data.user.email?.split("@")[0] ?? "User");
         setEmail(data.user.email ?? "");
-        setAvatarUrl(avatar);
         setUserId(data.user.id);
       })
       .catch(() => undefined);
@@ -95,7 +90,7 @@ export function AuthenticatedAppNavTopbarActions(): ReactElement {
   ];
 
   const handleUserMenuAction = (action: MetadataActionContract): void => {
-    if (action.key === "account") {
+    if (action.key === "account" || action.key === "notifications") {
       router.push("/settings/appearance");
     }
   };
@@ -104,15 +99,16 @@ export function AuthenticatedAppNavTopbarActions(): ReactElement {
 
   return (
     <AppNavTopbarActions
-      avatarUrl={avatarUrl}
       logoutLoading={logoutLoading}
       notificationsMenu={
         <AppNavTopbarNotifications tenantId={tenantId} userId={userId} />
       }
-      onKeyboardShortcutsClick={openHelp}
+      onHelpClick={openHelp}
       onLogout={handleLogout}
       onUserMenuAction={handleUserMenuAction}
+      tenantId={tenantId}
       userEmail={email}
+      userId={userId}
       userMenuActions={userMenuActions}
       userMenuContext={createAppMetadataContext({
         featureId: "workspace",

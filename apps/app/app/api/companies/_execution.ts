@@ -36,6 +36,8 @@ export const listCompaniesForTenant = async (
   );
 
   return listCompanies(query, {
+    grantedPermissions: access.grantedPermissions,
+    requestId: access.requestId,
     tenantId: access.tenantId,
     userId: access.actorId,
   });

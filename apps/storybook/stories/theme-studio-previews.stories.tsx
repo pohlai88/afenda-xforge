@@ -1,14 +1,14 @@
 import { DEFAULT_TENANT_BRANDING_SETTINGS } from "@repo/design-system";
 import type { Meta, StoryObj } from "@storybook/react";
 
-import { AnalyticsPreview } from "../../app/app/theme-studio/_components/analytics-preview.tsx";
-import { DataGridPreview } from "../../app/app/theme-studio/_components/data-grid-preview.tsx";
-import { ErpNavigationPreview } from "../../app/app/theme-studio/_components/erp-navigation-preview.tsx";
-import { ExecutiveDashboardPreview } from "../../app/app/theme-studio/_components/executive-dashboard-preview.tsx";
-import { FormExperiencePreview } from "../../app/app/theme-studio/_components/form-experience-preview.tsx";
-import { NexusLynxPreview } from "../../app/app/theme-studio/_components/nexus-lynx-preview.tsx";
-import { ThemeStudioPreviewRoot } from "../../app/app/theme-studio/_components/theme-studio-preview-root.tsx";
-import { THEME_STUDIO_PAGES } from "../../app/app/theme-studio/_components/theme-studio-routes.ts";
+import { AnalyticsPreview } from "../../app/app/[locale]/theme-studio/_components/analytics-preview.tsx";
+import { DataGridPreview } from "../../app/app/[locale]/theme-studio/_components/data-grid-preview.tsx";
+import { ErpNavigationPreview } from "../../app/app/[locale]/theme-studio/_components/erp-navigation-preview.tsx";
+import { ExecutiveDashboardPreview } from "../../app/app/[locale]/theme-studio/_components/executive-dashboard-preview.tsx";
+import { FormExperiencePreview } from "../../app/app/[locale]/theme-studio/_components/form-experience-preview.tsx";
+import { NexusLynxPreview } from "../../app/app/[locale]/theme-studio/_components/nexus-lynx-preview.tsx";
+import { ThemeStudioPreviewRoot } from "../../app/app/[locale]/theme-studio/_components/theme-studio-preview-root.tsx";
+import { THEME_STUDIO_PAGES } from "../../app/app/[locale]/theme-studio/_components/theme-studio-routes.ts";
 
 const meta = {
   title: "Theme Studio",

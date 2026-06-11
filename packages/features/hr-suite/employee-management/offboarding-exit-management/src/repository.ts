@@ -2,10 +2,9 @@ import "server-only";
 
 import { createRequire } from "node:module";
 import type { OffboardingRepositoryState } from "./contracts/index.ts";
-
+import type { OffboardingRepositoryScope } from "./repository.shared.ts";
 export type { OffboardingRepositoryScope } from "./repository.shared.ts";
 export { createOffboardingRepositoryId } from "./repository.shared.ts";
-
 import { shouldUseDatabaseRepository } from "./repository.shared.ts";
 
 type OffboardingFileRepositoryModule = typeof import("./repository.file.ts");

@@ -5,7 +5,7 @@ import type {
   TenantBrandingSettings,
 } from "@repo/design-system";
 import { validateTenantBrandingColors } from "@repo/design-system";
-import type { TenantAdminSettingsSnapshot } from "@repo/features-system-admin-control-plane/server";
+import type { TenantAdminSettingsSnapshot } from "@repo/features-system-admin-control-plane/contract";
 import { Badge } from "@repo/ui/components/badge";
 import { Button } from "@repo/ui/components/button";
 import {

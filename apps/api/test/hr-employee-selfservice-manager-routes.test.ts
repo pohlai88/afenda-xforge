@@ -8,6 +8,10 @@ import {
   createEmployeeSelfservicePortal,
   submitEmployeeSelfservicePortalProfileUpdateRequest,
 } from "@repo/features-employee-management-employee-selfservice-portal/server";
+import {
+  installTestEssRuntimeTenantAccess,
+  uninstallTestRuntimeTenantAccess,
+} from "./_runtime-access-fixture.ts";
 import { createHrEmployeeRecordAction } from "../../../packages/features/hr-suite/employee-management/employee-records-management/src/actions.server.ts";
 import {
   resetHrEmployeeRecordsRepositoryForTesting,
@@ -25,18 +29,6 @@ let sandboxDirectory = "";
 let employeeId = "";
 let managerEmployeeId = "";
 let fixtureSuffix = "";
-
-const baseManagerHeaders = {
-  "x-can-read-all-employee-selfservice-portal": "true",
-  "x-can-read-employee-selfservice-portal": "true",
-  "x-can-view-sensitive-employee-selfservice-portal": "true",
-  "x-can-write-employee-selfservice-portal": "true",
-  "x-company-id": "company-1",
-  "x-organization-id": "org-1",
-  "x-request-id": "manager-request-1",
-  "x-tenant-id": "tenant-1",
-  "x-user-id": "manager-user",
-};
 
 beforeEach(() => {
   sandboxDirectory = mkdtempSync(join(tmpdir(), "api-ess-manager-"));
@@ -103,9 +95,18 @@ beforeEach(() => {
       userId: "hr-admin",
     }
   );
+
+  installTestEssRuntimeTenantAccess({
+    actorEmployeeId: managerEmployeeId,
+    actorId: "manager-user",
+    companyId: "company-1",
+    organizationId: "org-1",
+    tenantId: "tenant-1",
+  });
 });
 
 afterEach(() => {
+  uninstallTestRuntimeTenantAccess();
   rmSync(sandboxDirectory, { force: true, recursive: true });
 });
 
@@ -121,8 +122,6 @@ const buildManagerRequest = (
         : JSON.stringify(init.bodyObject),
     headers: {
       "content-type": "application/json",
-      ...baseManagerHeaders,
-      "x-actor-employee-id": managerEmployeeId,
       ...(init?.headers ?? {}),
     },
   });

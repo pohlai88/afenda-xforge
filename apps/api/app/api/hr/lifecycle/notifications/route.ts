@@ -11,8 +11,8 @@ import {
   getEmployeeLifecycleQuery,
 } from "../_lib/context.ts";
 
-export function GET(request: Request) {
-  const context = createEmployeeLifecycleReadContext(request);
+export async function GET(request: Request) {
+  const context = await createEmployeeLifecycleReadContext(request);
   const query = getEmployeeLifecycleQuery(request);
   const scope = createEmployeeLifecycleRepositoryScope(context);
   const data = listEnqueuedEmployeeLifecycleNotificationIntents(scope).filter(
@@ -23,7 +23,7 @@ export function GET(request: Request) {
 }
 
 export async function POST(request: Request) {
-  const context = createEmployeeLifecycleWriteContext(request);
+  const context = await createEmployeeLifecycleWriteContext(request);
   const body = (await request.json()) as Record<string, unknown>;
   const scope = createEmployeeLifecycleRepositoryScope(context);
   const employeeId =

@@ -11,7 +11,7 @@ import {
 } from "../_lib/context.ts";
 
 export async function POST(request: Request) {
-  const context = createEmployeeLifecycleWriteContext(request);
+  const context = await createEmployeeLifecycleWriteContext(request);
   const body = employeeLifecycleTransitionRequestSchema.parse(
     await request.json()
   );
@@ -20,7 +20,7 @@ export async function POST(request: Request) {
   const overview = getEmployeeLifecycleOverviewEntry(
     body.employeeId,
     scope,
-    createEmployeeLifecycleReadContext(request)
+    await createEmployeeLifecycleReadContext(request)
   );
 
   return NextResponse.json({

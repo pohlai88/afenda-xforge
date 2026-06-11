@@ -11,7 +11,7 @@ import {
 
 export async function GET(request: Request) {
   try {
-    const context = createOffboardingReadContext(request);
+    const context = await createOffboardingReadContext(request);
     const denied = ensureOffboardingReadAccess(context);
     if (denied) {
       return denied;

@@ -124,6 +124,8 @@ const loadCompanies = async (
           pageSize: 5,
         },
         {
+          grantedPermissions: access.grantedPermissions,
+          requestId: access.requestId,
           tenantId: access.tenantId,
           userId: access.actorId,
         }

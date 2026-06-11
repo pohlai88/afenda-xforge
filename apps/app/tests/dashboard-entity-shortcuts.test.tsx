@@ -1,11 +1,22 @@
 import { companyMetadata } from "@repo/features-master-data-companies/metadata";
 import { customerMetadata } from "@repo/features-master-data-customers/metadata";
 import { act, render, screen } from "@testing-library/react";
+import { NextIntlClientProvider } from "next-intl";
+import type { ReactNode } from "react";
 import { describe, expect, it, vi } from "vitest";
 import { createAppMetadataContext } from "../app/_lib/metadata-context.ts";
 import { DashboardEntitySections } from "../app/[locale]/(authenticated)/dashboard/_components/dashboard-entity-sections.tsx";
 import type { DashboardSectionState } from "../app/[locale]/(authenticated)/dashboard/dashboard-view.tsx";
 import type { FocusedShortcutTarget } from "../lib/workspace-shortcuts/contract.ts";
+import enMessages from "../messages/en.json";
+
+function IntlWrapper({ children }: { children: ReactNode }) {
+  return (
+    <NextIntlClientProvider locale="en" messages={enMessages}>
+      {children}
+    </NextIntlClientProvider>
+  );
+}
 
 const registerFocusedTarget = vi.fn();
 const refresh = vi.fn();
@@ -126,7 +137,8 @@ describe("DashboardEntitySections shortcuts", () => {
     registerFocusedTarget.mockClear();
 
     render(
-      <DashboardEntitySections
+      <IntlWrapper>
+        <DashboardEntitySections
         companies={{
           canWrite: true,
           metadata: companyMetadata,
@@ -154,6 +166,7 @@ describe("DashboardEntitySections shortcuts", () => {
           title: "Customers",
         }}
       />
+      </IntlWrapper>
     );
 
     act(() => {
@@ -172,7 +185,8 @@ describe("DashboardEntitySections shortcuts", () => {
     registerFocusedTarget.mockClear();
 
     render(
-      <DashboardEntitySections
+      <IntlWrapper>
+        <DashboardEntitySections
         companies={{
           canWrite: true,
           metadata: companyMetadata,
@@ -200,6 +214,7 @@ describe("DashboardEntitySections shortcuts", () => {
           title: "Customers",
         }}
       />
+      </IntlWrapper>
     );
 
     act(() => {

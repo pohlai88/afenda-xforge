@@ -22,7 +22,7 @@ export async function GET(
   const { portalRecordId } = await params;
   const record = getEmployeeSelfservicePortal(
     portalRecordId,
-    createEmployeeSelfservicePortalReadContext(request)
+    await createEmployeeSelfservicePortalReadContext(request)
   );
 
   if (!record) {
@@ -57,7 +57,7 @@ export async function PATCH(
         ...(body as Record<string, unknown>),
         id: portalRecordId,
       },
-      createEmployeeSelfservicePortalWriteContext(request)
+      await createEmployeeSelfservicePortalWriteContext(request)
     );
 
     return NextResponse.json(record);

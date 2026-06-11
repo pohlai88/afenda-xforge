@@ -7,7 +7,7 @@ import {
 } from "../../_lib/context.ts";
 
 export async function POST(request: Request) {
-  const context = createEmployeeLifecycleWriteContext(request);
+  const context = await createEmployeeLifecycleWriteContext(request);
   const body = runEmployeeLifecycleAutomationInputSchema.parse(
     (await request.json()) as unknown
   );

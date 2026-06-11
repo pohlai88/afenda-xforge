@@ -8,6 +8,10 @@ export default defineConfig({
   resolve: {
     alias: {
       "@": appRoot,
+      "src/lib/utils": path.resolve(
+        appRoot,
+        "../../packages/ui/src/lib/utils.ts"
+      ),
       "@repo/errors": path.resolve(appRoot, "../../packages/errors/index.ts"),
       "@repo/permissions": path.resolve(
         appRoot,
@@ -20,6 +24,7 @@ export default defineConfig({
   },
   test: {
     environment: "jsdom",
+    exclude: ["**/node_modules/**", "**/tests/e2e/**"],
     globals: true,
     setupFiles: ["./vitest.setup.ts"],
   },

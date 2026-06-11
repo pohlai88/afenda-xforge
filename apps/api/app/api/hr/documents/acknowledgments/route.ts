@@ -11,12 +11,12 @@ import {
   getDocumentsManagementQuery,
 } from "../_lib/context.ts";
 
-export function GET(request: Request): Response {
+export async function GET(request: Request): Promise<Response> {
   try {
     return NextResponse.json(
       listDocumentsManagementPolicyAcknowledgmentSummaries(
         getDocumentsManagementQuery(request),
-        createDocumentsManagementReadContext(request)
+        await createDocumentsManagementReadContext(request)
       )
     );
   } catch {
@@ -29,7 +29,7 @@ export function GET(request: Request): Response {
 
 export async function POST(request: Request): Promise<Response> {
   try {
-    const writeContext = createDocumentsManagementWriteContext(request);
+    const writeContext = await createDocumentsManagementWriteContext(request);
     const body = await request.json();
     const acknowledged = await acknowledgeDocumentsManagementPolicy(
       acknowledgeDocumentsManagementPolicyInputSchema.parse(body),

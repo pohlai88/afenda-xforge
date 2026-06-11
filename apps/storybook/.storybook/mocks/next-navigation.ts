@@ -35,3 +35,7 @@ export function useParams(): Record<string, string | string[]> {
 export function redirect(): never {
   throw new Error("redirect is not available in Storybook");
 }
+
+export function permanentRedirect(): never {
+  throw new Error("permanentRedirect is not available in Storybook");
+}

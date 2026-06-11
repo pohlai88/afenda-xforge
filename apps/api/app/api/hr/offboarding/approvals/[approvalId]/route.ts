@@ -41,7 +41,7 @@ export async function GET(
   const { approvalId } = await context.params;
   const data = await getOffboardingApprovalById(
     approvalId,
-    createOffboardingReadContext(request)
+    await createOffboardingReadContext(request)
   );
 
   return NextResponse.json(data, { status: data ? 200 : 404 });
@@ -53,7 +53,7 @@ export async function PATCH(
 ) {
   const { approvalId } = await context.params;
   const body = (await request.json()) as ApprovalActionRequest;
-  const writeContext = createOffboardingWriteContext(request);
+  const writeContext = await createOffboardingWriteContext(request);
 
   let result: Awaited<ReturnType<typeof submitOffboardingApprovalStep>>;
   switch (body.action) {

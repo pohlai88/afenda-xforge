@@ -31,14 +31,12 @@ export function DocumentDetailWorkspace({
   documentDescription,
   documentId,
   documentTitle,
-  requestHeaders,
   children,
 }: {
   canWrite: boolean;
   documentDescription?: string | null;
   documentId: string;
   documentTitle: string;
-  requestHeaders: Readonly<Record<string, string>>;
   children: ReactNode;
 }): ReactElement {
   const router = useRouter();
@@ -64,7 +62,6 @@ export function DocumentDetailWorkspace({
             description.trim().length > 0 ? description.trim() : null,
           title: title.trim(),
         },
-        requestHeaders,
       });
       toast.message("Document updated.");
       setEditOpen(false);
@@ -76,7 +73,7 @@ export function DocumentDetailWorkspace({
     } finally {
       setIsSaving(false);
     }
-  }, [canWrite, description, documentId, requestHeaders, router, title]);
+  }, [canWrite, description, documentId, router, title]);
 
   const handleDelete = useCallback(async () => {
     if (!canWrite) {
@@ -89,7 +86,6 @@ export function DocumentDetailWorkspace({
     try {
       await deleteHrDocument({
         documentId,
-        requestHeaders,
       });
       toast.message("Document deleted.");
       router.push("/hr/documents");
@@ -100,7 +96,7 @@ export function DocumentDetailWorkspace({
     } finally {
       setIsDeleting(false);
     }
-  }, [canWrite, documentId, requestHeaders, router]);
+  }, [canWrite, documentId, router]);
 
   useStableFocusedShortcutTarget((): FocusedShortcutTarget => {
     const handlers: Partial<Record<ShortcutActionId, () => void>> = {

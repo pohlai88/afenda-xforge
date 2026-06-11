@@ -17,6 +17,11 @@ const permissionMocks = vi.hoisted(() => ({
   requirePermission: vi.fn(),
 }));
 
+const authMocks = vi.hoisted(() => ({
+  requireActiveTenantAccess: vi.fn(),
+  requireActiveTenantMembership: vi.fn(),
+}));
+
 const transactionMocks = vi.hoisted(() => ({
   transaction: vi.fn(),
 }));
@@ -30,23 +35,49 @@ vi.mock("@repo/permissions", () => ({
     },
   },
   requirePermission: permissionMocks.requirePermission,
+  resolvePermissionsForTenantRole: () => ["system-admin.tenant-settings.write"],
 }));
 vi.mock("@repo/database", () => ({
   database: {
     transaction: transactionMocks.transaction,
   },
 }));
-vi.mock("../lib/workspace-shortcuts/repository.server", () => repositoryMocks);
+vi.mock(
+  "../../../packages/features/workspace/keyboard-shortcuts/src/repository.server.ts",
+  () => repositoryMocks
+);
 
+import { bindKeyboardShortcutsAuth } from "../../../packages/features/workspace/keyboard-shortcuts/src/auth-bindings.server.ts";
 import {
   executeTenantKeyboardShortcutPolicyUpdate,
   executeUserShortcutOverridesUpdate,
-} from "../lib/workspace-shortcuts/execution.server.ts";
+} from "../../../packages/features/workspace/keyboard-shortcuts/src/execution.server.ts";
 import { resolveProductDefaults } from "../lib/workspace-shortcuts/resolve-shortcuts.ts";
 
 describe("workspace shortcut execution pipeline", () => {
   beforeEach(() => {
     vi.clearAllMocks();
+    bindKeyboardShortcutsAuth({
+      requireActiveTenantAccess: authMocks.requireActiveTenantAccess,
+      requireActiveTenantMembership: authMocks.requireActiveTenantMembership,
+    });
+    authMocks.requireActiveTenantMembership.mockResolvedValue({
+      id: "membership-1",
+      role: "admin",
+      tenantId: "tenant-001",
+      userId: "user-001",
+    });
+    authMocks.requireActiveTenantAccess.mockResolvedValue({
+      membership: {
+        id: "membership-1",
+        role: "admin",
+        tenantId: "tenant-001",
+        userId: "user-001",
+      },
+      user: {
+        id: "user-001",
+      },
+    });
     permissionMocks.requirePermission.mockImplementation(() => undefined);
     transactionMocks.transaction.mockImplementation(
       async (run: (db: { id: string }) => Promise<unknown>) =>
@@ -71,12 +102,17 @@ describe("workspace shortcut execution pipeline", () => {
       { overrides: { "crud.edit": "f6" } },
       {
         requestId: "req-user-1",
-        tenantId: "tenant-001",
-        userId: "user-001",
       }
     );
 
     expect(result).toEqual(saved);
+    expect(authMocks.requireActiveTenantMembership).toHaveBeenCalled();
+    expect(repositoryMocks.upsertUserShortcutOverrides).toHaveBeenCalledWith(
+      "tenant-001",
+      "user-001",
+      { "crud.edit": "f6" },
+      { id: "tx-1" }
+    );
     expect(auditMocks.writeAuditEventInTransaction).toHaveBeenCalledWith(
       { id: "tx-1" },
       expect.objectContaining({
@@ -96,10 +132,7 @@ describe("workspace shortcut execution pipeline", () => {
     await expect(
       executeUserShortcutOverridesUpdate(
         { overrides: { "crud.edit": "f6" } },
-        {
-          tenantId: "tenant-001",
-          userId: "user-001",
-        }
+        {}
       )
     ).rejects.toBeInstanceOf(ForbiddenError);
   });
@@ -118,10 +151,7 @@ describe("workspace shortcut execution pipeline", () => {
     await expect(
       executeUserShortcutOverridesUpdate(
         { overrides: { "crud.save": "f5" } },
-        {
-          tenantId: "tenant-001",
-          userId: "user-001",
-        }
+        {}
       )
     ).rejects.toMatchObject({
       message: expect.stringContaining("reserved"),
@@ -159,15 +189,22 @@ describe("workspace shortcut execution pipeline", () => {
         lockedActions: ["crud.delete"],
       },
       {
-        grantedPermissions: ["system-admin.tenant-settings.write"],
         requestId: "req-admin-1",
-        tenantId: "tenant-001",
-        userId: "user-001",
       }
     );
 
     expect(result).toEqual(saved);
+    expect(authMocks.requireActiveTenantAccess).toHaveBeenCalled();
     expect(permissionMocks.requirePermission).toHaveBeenCalled();
+    expect(repositoryMocks.upsertTenantKeyboardShortcutPolicy).toHaveBeenCalledWith(
+      "tenant-001",
+      {
+        allowUserCustomize: false,
+        allowFnKeyBindings: false,
+        lockedActions: ["crud.delete"],
+      },
+      { id: "tx-1" }
+    );
     expect(auditMocks.writeAuditEventInTransaction).toHaveBeenCalledWith(
       { id: "tx-1" },
       expect.objectContaining({

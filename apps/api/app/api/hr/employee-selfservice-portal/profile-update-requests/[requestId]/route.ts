@@ -15,7 +15,7 @@ export async function GET(
   const { requestId } = await params;
   const requestView = getEmployeeSelfservicePortalProfileUpdateRequestView(
     requestId,
-    createEmployeeSelfservicePortalReadContext(request)
+    await createEmployeeSelfservicePortalReadContext(request)
   );
 
   if (!requestView) {

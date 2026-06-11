@@ -6,6 +6,12 @@ import { resolve } from "node:path";
 import { afterEach, beforeEach, test } from "node:test";
 import { createEmployeeSelfservicePortal } from "@repo/features-employee-management-employee-selfservice-portal/server";
 import {
+  installTestEssRuntimeTenantAccess,
+  TEST_COMPANY_ID,
+  TEST_TENANT_ID,
+  uninstallTestRuntimeTenantAccess,
+} from "./_runtime-access-fixture.ts";
+import {
   resetEmployeeSelfservicePortalRepositoryForTesting,
   setEmployeeSelfservicePortalRepositoryPathForTesting,
 } from "../../../packages/features/hr-suite/employee-management/employee-selfservice-portal/src/repository.ts";
@@ -21,31 +27,20 @@ import { GET as getLeaveBalancesRoute } from "../app/api/hr/employee-selfservice
 let essRepositoryPath = "";
 
 const scope = {
-  companyId: "company-a",
-  tenantId: "tenant-a",
-};
-
-const baseHeaders = {
-  "x-actor-employee-id": "employee-1",
-  "x-can-read-employee-selfservice-portal": "true",
-  "x-can-write-employee-selfservice-portal": "true",
-  "x-company-id": scope.companyId,
-  "x-organization-id": "org-a",
-  "x-request-id": "request-a",
-  "x-tenant-id": scope.tenantId,
-  "x-user-id": "employee-user",
+  companyId: TEST_COMPANY_ID,
+  tenantId: TEST_TENANT_ID,
 };
 
 const buildRequest = (path: string, init: RequestInit = {}): Request =>
-  new Request(`http://localhost${path}`, {
-    ...init,
-    headers: {
-      ...baseHeaders,
-      ...(init.headers ?? {}),
-    },
-  });
+  new Request(`http://localhost${path}`, init);
 
 beforeEach(() => {
+  installTestEssRuntimeTenantAccess({
+    actorEmployeeId: "employee-1",
+    actorId: "employee-user",
+    tenantId: scope.tenantId,
+    userEmail: "employee.one@example.com",
+  });
   essRepositoryPath = resolve(
     tmpdir(),
     `afenda-api-ess-leave-${randomUUID()}.json`
@@ -113,6 +108,7 @@ beforeEach(() => {
 });
 
 afterEach(() => {
+  uninstallTestRuntimeTenantAccess();
   rmSync(essRepositoryPath, { force: true });
   resetLeaveAttendanceManagementStoresForTesting();
 });

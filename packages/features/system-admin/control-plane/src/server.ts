@@ -19,7 +19,7 @@ export {
   readTenantAdminSettingsForTenant,
   readTenantBrandingForTenant,
 } from "./domains/tenant-settings/queries.ts";
-export type { TenantAdminSettingsSnapshot } from "./domains/tenant-settings/repository.server.ts";
+export type { TenantAdminSettingsSnapshot } from "./domains/tenant-settings/contract.ts";
 export {
   listSystemAdminSections,
   readSystemAdminOverview,

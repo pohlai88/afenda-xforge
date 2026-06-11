@@ -1,14 +1,15 @@
-import { render, screen } from "@testing-library/react";
 import { NextIntlClientProvider } from "next-intl";
+import { render, screen } from "@testing-library/react";
 import type { ReactElement } from "react";
 import { describe, expect, it } from "vitest";
-import { ShortcutFnKeyBadge } from "../app/_components/workspace/keyboard-shortcuts/shortcut-source-badge.tsx";
+import { ShortcutFnKeyBadge } from "../app/_components/workspace/keyboard-shortcuts/shortcut-meta-badges.tsx";
 import enMessages from "../messages/en.json";
+import { TooltipProvider } from "@repo/ui";
 
 function renderWithIntl(ui: ReactElement) {
   return render(
     <NextIntlClientProvider locale="en" messages={enMessages}>
-      {ui}
+      <TooltipProvider>{ui}</TooltipProvider>
     </NextIntlClientProvider>
   );
 }

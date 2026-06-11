@@ -24,7 +24,7 @@ import {
 
 export async function GET(request: Request) {
   try {
-    const context = createOffboardingReadContext(request);
+    const context = await createOffboardingReadContext(request);
     const denied = ensureOffboardingReadAccess(context);
     if (denied) {
       return denied;
@@ -44,7 +44,7 @@ export async function GET(request: Request) {
 
 export async function POST(request: Request) {
   try {
-    const context = createOffboardingWriteContext(request);
+    const context = await createOffboardingWriteContext(request);
     const denied = ensureOffboardingWriteAccess(context);
     if (denied) {
       return denied;

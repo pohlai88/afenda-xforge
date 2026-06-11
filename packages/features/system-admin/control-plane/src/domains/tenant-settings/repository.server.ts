@@ -9,6 +9,7 @@ import {
 import { themePresetNameSchema } from "@repo/design-system/contracts/theme-preset.contract";
 import { assertValidTenantBrandingColors } from "@repo/design-system/resolution";
 import { eq } from "drizzle-orm";
+import type { TenantAdminSettingsSnapshot } from "./contract.ts";
 import type { TenantAdminSettingUpdateShape } from "./schema.ts";
 
 type TenantSettingsRow = typeof tenantSettings.$inferSelect;
@@ -86,15 +87,6 @@ export const readTenantBrandingSettings = async (
 ): Promise<TenantBrandingSettings> => {
   const row = await ensureTenantSettingsRow(tenantId);
   return mapRowToBranding(row);
-};
-
-export type TenantAdminSettingsSnapshot = {
-  branding: TenantBrandingSettings;
-  customizationMode: string | null;
-  defaultLocale: string;
-  defaultTimezone: string;
-  displayName: string | null;
-  tenantId: string;
 };
 
 export const readTenantAdminSettings = async (

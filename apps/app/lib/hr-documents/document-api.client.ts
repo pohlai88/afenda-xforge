@@ -3,8 +3,6 @@
 import { documentsManagementApiRoutePaths } from "@repo/features-employee-management-documents-management/contracts";
 import { withCSRFHeader } from "../csrf.client.ts";
 
-export type HrDocumentRequestHeaders = Readonly<Record<string, string>>;
-
 type DocumentsApiError = {
   error?: string;
   ok?: boolean;
@@ -22,7 +20,6 @@ const parseApiError = async (response: Response): Promise<string> => {
 export const updateHrDocument = async (input: {
   documentId: string;
   payload: Record<string, unknown>;
-  requestHeaders: HrDocumentRequestHeaders;
 }): Promise<void> => {
   const response = await fetch(
     documentsManagementApiRoutePaths.document(input.documentId),
@@ -33,7 +30,6 @@ export const updateHrDocument = async (input: {
       }),
       headers: withCSRFHeader({
         "content-type": "application/json",
-        ...input.requestHeaders,
       }),
       method: "PATCH",
     }
@@ -47,7 +43,6 @@ export const updateHrDocument = async (input: {
 export const deleteHrDocument = async (input: {
   documentId: string;
   reason?: string | null;
-  requestHeaders: HrDocumentRequestHeaders;
 }): Promise<void> => {
   const response = await fetch(
     documentsManagementApiRoutePaths.document(input.documentId),
@@ -58,7 +53,6 @@ export const deleteHrDocument = async (input: {
       }),
       headers: withCSRFHeader({
         "content-type": "application/json",
-        ...input.requestHeaders,
       }),
       method: "DELETE",
     }

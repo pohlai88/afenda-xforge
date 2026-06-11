@@ -314,6 +314,9 @@ importers:
       '@repo/database':
         specifier: workspace:*
         version: link:../../packages/database
+      '@repo/errors':
+        specifier: workspace:*
+        version: link:../../packages/errors
       '@repo/features-employee-management-compliance-regulatory-tracking':
         specifier: workspace:*
         version: link:../../packages/features/hr-suite/employee-management/compliance-regulatory-tracking
@@ -353,6 +356,9 @@ importers:
       '@repo/integrations-workday':
         specifier: workspace:*
         version: link:../../packages/integrations/workday
+      '@repo/logger':
+        specifier: workspace:*
+        version: link:../../packages/logger
       '@repo/next-config':
         specifier: workspace:*
         version: link:../../packages/next-config
@@ -386,6 +392,12 @@ importers:
       react-dom:
         specifier: 'catalog:'
         version: 19.2.7(react@19.2.7)
+      server-only:
+        specifier: 'catalog:'
+        version: 0.0.1
+      zod:
+        specifier: 4.3.6
+        version: 4.3.6
     devDependencies:
       '@repo/typescript-config':
         specifier: workspace:*
@@ -414,6 +426,15 @@ importers:
 
   apps/app:
     dependencies:
+      '@dnd-kit/core':
+        specifier: ^6
+        version: 6.3.1(react-dom@19.2.7(react@19.2.7))(react@19.2.7)
+      '@dnd-kit/sortable':
+        specifier: ^10
+        version: 10.0.0(@dnd-kit/core@6.3.1(react-dom@19.2.7(react@19.2.7))(react@19.2.7))(react@19.2.7)
+      '@dnd-kit/utilities':
+        specifier: ^3
+        version: 3.2.2(react@19.2.7)
       '@repo/ai':
         specifier: workspace:*
         version: link:../../packages/ai
@@ -465,6 +486,9 @@ importers:
       '@repo/features-system-admin-control-plane':
         specifier: workspace:*
         version: link:../../packages/features/system-admin/control-plane
+      '@repo/features-workspace-keyboard-shortcuts':
+        specifier: workspace:*
+        version: link:../../packages/features/workspace/keyboard-shortcuts
       '@repo/health':
         specifier: workspace:*
         version: link:../../packages/health
@@ -527,7 +551,7 @@ importers:
         version: 16.2.7(@babel/core@7.29.7)(@opentelemetry/api@1.9.1)(@playwright/test@1.52.0)(babel-plugin-macros@3.1.0)(react-dom@19.2.7(react@19.2.7))(react@19.2.7)(sass@1.77.4)
       next-intl:
         specifier: 'catalog:'
-        version: 4.13.0(next@16.2.7(@babel/core@7.29.7)(@opentelemetry/api@1.9.1)(@playwright/test@1.52.0)(babel-plugin-macros@3.1.0)(react-dom@19.2.7(react@19.2.7))(react@19.2.7)(sass@1.77.4))(react@19.2.7)(typescript@5.9.3)
+        version: 4.13.0(next@16.2.7(@opentelemetry/api@1.9.1)(@playwright/test@1.52.0)(react-dom@19.2.7(react@19.2.7))(react@19.2.7)(sass@1.77.4))(react@19.2.7)(typescript@5.9.3)
       next-themes:
         specifier: 'catalog:'
         version: 0.4.6(react-dom@19.2.7(react@19.2.7))(react@19.2.7)
@@ -640,7 +664,7 @@ importers:
         version: 10.4.3(@types/react-dom@19.2.3(@types/react@19.2.17))(@types/react@19.2.17)(esbuild@0.28.0)(react-dom@19.2.7(react@19.2.7))(react@19.2.7)(rollup@4.61.1)(storybook@10.4.3(@testing-library/dom@10.4.1)(@types/react@19.2.17)(prettier@3.8.3)(react-dom@19.2.7(react@19.2.7))(react@19.2.7))(typescript@5.9.3)(vite@8.0.16(@types/node@25.9.2)(esbuild@0.28.0)(jiti@2.7.0)(sass@1.77.4)(terser@5.48.0)(tsx@4.22.4)(yaml@2.9.0))(webpack@5.107.2(@swc/core@1.15.41)(esbuild@0.28.0)(postcss@8.5.15))
       next-intl:
         specifier: 'catalog:'
-        version: 4.13.0(next@16.2.7(@babel/core@7.29.7)(@opentelemetry/api@1.9.1)(@playwright/test@1.52.0)(babel-plugin-macros@3.1.0)(react-dom@19.2.7(react@19.2.7))(react@19.2.7)(sass@1.77.4))(react@19.2.7)(typescript@5.9.3)
+        version: 4.13.0(next@16.2.7(@opentelemetry/api@1.9.1)(@playwright/test@1.52.0)(react-dom@19.2.7(react@19.2.7))(react@19.2.7)(sass@1.77.4))(react@19.2.7)(typescript@5.9.3)
       react:
         specifier: 'catalog:'
         version: 19.2.7
@@ -2007,6 +2031,9 @@ importers:
       '@repo/audit':
         specifier: workspace:*
         version: link:../../../audit
+      '@repo/auth':
+        specifier: workspace:*
+        version: link:../../../auth
       '@repo/database':
         specifier: workspace:*
         version: link:../../../database
@@ -2375,6 +2402,55 @@ importers:
       tsx:
         specifier: 'catalog:'
         version: 4.22.4
+      typescript:
+        specifier: 'catalog:'
+        version: 5.9.3
+
+  packages/features/workspace/keyboard-shortcuts:
+    dependencies:
+      '@repo/audit':
+        specifier: workspace:*
+        version: link:../../../audit
+      '@repo/auth':
+        specifier: workspace:*
+        version: link:../../../auth
+      '@repo/database':
+        specifier: workspace:*
+        version: link:../../../database
+      '@repo/errors':
+        specifier: workspace:*
+        version: link:../../../errors
+      '@repo/execution':
+        specifier: workspace:*
+        version: link:../../../execution
+      '@repo/features-system-admin-control-plane':
+        specifier: workspace:*
+        version: link:../../system-admin/control-plane
+      '@repo/openapi':
+        specifier: workspace:*
+        version: link:../../../openapi
+      '@repo/permissions':
+        specifier: workspace:*
+        version: link:../../../permissions
+      drizzle-orm:
+        specifier: 'catalog:'
+        version: 0.45.2(@opentelemetry/api@1.9.1)(@upstash/redis@1.38.0)(postgres@3.4.9)
+      next:
+        specifier: 'catalog:'
+        version: 16.2.7(@babel/core@7.29.7)(@opentelemetry/api@1.9.1)(@playwright/test@1.52.0)(babel-plugin-macros@3.1.0)(react-dom@19.2.7(react@19.2.7))(react@19.2.7)(sass@1.77.4)
+      server-only:
+        specifier: 'catalog:'
+        version: 0.0.1
+      zod:
+        specifier: 4.3.6
+        version: 4.3.6
+    devDependencies:
+      '@repo/typescript-config':
+        specifier: workspace:*
+        version: link:../../../typescript-config
+      '@types/node':
+        specifier: 'catalog:'
+        version: 25.9.2
       typescript:
         specifier: 'catalog:'
         version: 5.9.3
@@ -21737,7 +21813,7 @@ snapshots:
 
   next-intl-swc-plugin-extractor@4.13.0: {}
 
-  next-intl@4.13.0(next@16.2.7(@babel/core@7.29.7)(@opentelemetry/api@1.9.1)(@playwright/test@1.52.0)(babel-plugin-macros@3.1.0)(react-dom@19.2.7(react@19.2.7))(react@19.2.7)(sass@1.77.4))(react@19.2.7)(typescript@5.9.3):
+  next-intl@4.13.0(next@16.2.7(@opentelemetry/api@1.9.1)(@playwright/test@1.52.0)(react-dom@19.2.7(react@19.2.7))(react@19.2.7)(sass@1.77.4))(react@19.2.7)(typescript@5.9.3):
     dependencies:
       '@formatjs/intl-localematcher': 0.8.10
       '@parcel/watcher': 2.5.6

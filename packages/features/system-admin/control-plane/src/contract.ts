@@ -28,6 +28,7 @@ import {
   tenantSettingsCapabilities,
   tenantSettingsRouteContracts,
 } from "./domains/tenant-settings/contract.ts";
+export type { TenantAdminSettingsSnapshot } from "./domains/tenant-settings/contract.ts";
 
 export const systemAdminCapabilities = {
   ...auditCapabilities,

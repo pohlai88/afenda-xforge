@@ -11,12 +11,12 @@ import {
   createEmployeeSelfservicePortalWriteContext,
 } from "../../_lib/context.ts";
 
-const buildDocumentsReadContext = (
+const buildDocumentsReadContext = async (
   request: Request
-): Parameters<
-  typeof listDocumentsManagementPolicyAcknowledgmentSummaries
->[1] => {
-  const essContext = createEmployeeSelfservicePortalReadContext(request);
+): Promise<
+  Parameters<typeof listDocumentsManagementPolicyAcknowledgmentSummaries>[1]
+> => {
+  const essContext = await createEmployeeSelfservicePortalReadContext(request);
 
   return {
     actorEmployeeId: essContext.actorEmployeeId,
@@ -33,8 +33,8 @@ const buildDocumentsReadContext = (
   };
 };
 
-export function GET(request: Request): Response {
-  const essContext = createEmployeeSelfservicePortalReadContext(request);
+export async function GET(request: Request): Promise<Response> {
+  const essContext = await createEmployeeSelfservicePortalReadContext(request);
 
   if (!(essContext.canRead && essContext.actorEmployeeId)) {
     return NextResponse.json([], { status: 200 });
@@ -42,7 +42,7 @@ export function GET(request: Request): Response {
 
   const summaries = listDocumentsManagementPolicyAcknowledgmentSummaries(
     { employeeId: essContext.actorEmployeeId },
-    buildDocumentsReadContext(request)
+    await buildDocumentsReadContext(request)
   );
 
   recordEmployeeSelfservicePortalAuditEvent({
@@ -65,7 +65,7 @@ export function GET(request: Request): Response {
 
 export async function POST(request: Request): Promise<Response> {
   try {
-    const essContext = createEmployeeSelfservicePortalWriteContext(request);
+    const essContext = await createEmployeeSelfservicePortalWriteContext(request);
     const acknowledged = await acknowledgeDocumentsManagementPolicy(
       acknowledgeDocumentsManagementPolicyInputSchema.parse(
         await request.json()

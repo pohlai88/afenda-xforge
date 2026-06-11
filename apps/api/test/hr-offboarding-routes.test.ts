@@ -21,16 +21,15 @@ import {
   POST as postCasesRoute,
 } from "../app/api/hr/offboarding/cases/route.ts";
 import { GET as getOverviewRoute } from "../app/api/hr/offboarding/overview/route.ts";
+import {
+  installTestDeniedHrRuntimeTenantAccess,
+  installTestRuntimeTenantAccess,
+  TEST_TENANT_ID,
+  uninstallTestRuntimeTenantAccess,
+} from "./_runtime-access-fixture.ts";
 
 let sandboxDirectory: string;
 let employeeSuffix = "";
-
-const baseHeaders = {
-  "x-can-read-offboarding": "true",
-  "x-can-write-offboarding": "true",
-  "x-company-id": "company-a",
-  "x-tenant-id": "tenant-a",
-};
 
 const buildRequest = (
   path: string,
@@ -42,7 +41,7 @@ const buildRequest = (
 ): Request =>
   new Request(`http://localhost${path}`, {
     body: options?.body,
-    headers: options?.headers ?? baseHeaders,
+    headers: options?.headers,
     method: options?.method,
   });
 
@@ -54,12 +53,14 @@ const resetOffboardingRouteRepository = async (): Promise<void> => {
 };
 
 beforeEach(async () => {
+  installTestRuntimeTenantAccess({ tenantId: TEST_TENANT_ID });
   sandboxDirectory = mkdtempSync(join(tmpdir(), "api-offboarding-routes-"));
   employeeSuffix = randomUUID().slice(0, 8);
   await resetOffboardingRouteRepository();
 });
 
 afterEach(() => {
+  uninstallTestRuntimeTenantAccess();
   rmSync(sandboxDirectory, { force: true, recursive: true });
 });
 
@@ -67,12 +68,11 @@ test("returns overview for trusted reads and blocks untrusted reads", async () =
   const allowedResponse = await getOverviewRoute(
     buildRequest("/api/hr/offboarding/overview")
   );
+
+  installTestDeniedHrRuntimeTenantAccess();
+
   const deniedResponse = await getOverviewRoute(
-    buildRequest("/api/hr/offboarding/overview", {
-      headers: {
-        "x-can-read-offboarding": "true",
-      },
-    })
+    buildRequest("/api/hr/offboarding/overview")
   );
 
   assert.equal(allowedResponse.status, 200);
@@ -103,7 +103,6 @@ test("validates cases query and create semantics at the route edge", async () =>
         effectiveSeparationDate: "2026-07-15T00:00:00.000Z",
       }),
       headers: {
-        ...baseHeaders,
         "content-type": "application/json",
       },
       method: "POST",
@@ -116,12 +115,18 @@ test("validates cases query and create semantics at the route edge", async () =>
         employeeId: "",
       }),
       headers: {
-        ...baseHeaders,
         "content-type": "application/json",
       },
       method: "POST",
     })
   );
+
+  const invalidQueryResponse = await getCasesRoute(
+    buildRequest("/api/hr/offboarding/cases?page=not-a-number")
+  );
+
+  installTestDeniedHrRuntimeTenantAccess();
+
   const deniedCreateResponse = await postCasesRoute(
     buildRequest("/api/hr/offboarding/cases", {
       body: JSON.stringify({
@@ -132,15 +137,10 @@ test("validates cases query and create semantics at the route edge", async () =>
         effectiveSeparationDate: "2026-07-18T00:00:00.000Z",
       }),
       headers: {
-        ...baseHeaders,
         "content-type": "application/json",
-        "x-can-write-offboarding": "false",
       },
       method: "POST",
     })
-  );
-  const invalidQueryResponse = await getCasesRoute(
-    buildRequest("/api/hr/offboarding/cases?page=not-a-number")
   );
 
   assert.equal(createResponse.status, 201);
@@ -172,7 +172,7 @@ test("distinguishes case detail not-found, unauthorized, and patch validation pa
       canRead: true,
       canWrite: true,
       companyId: "company-a",
-      tenantId: "tenant-a",
+      tenantId: TEST_TENANT_ID,
     }
   );
 
@@ -190,16 +190,18 @@ test("distinguishes case detail not-found, unauthorized, and patch validation pa
       params: Promise.resolve({ caseId: "missing" }),
     }
   );
+
+  installTestDeniedHrRuntimeTenantAccess();
+
   const deniedDetailResponse = await getCaseDetailRoute(
-    buildRequest(`/api/hr/offboarding/cases/${opened.targetId}`, {
-      headers: {
-        "x-can-read-offboarding": "true",
-      },
-    }),
+    buildRequest(`/api/hr/offboarding/cases/${opened.targetId}`),
     {
       params: Promise.resolve({ caseId: opened.targetId }),
     }
   );
+
+  installTestRuntimeTenantAccess({ tenantId: TEST_TENANT_ID });
+
   const patchResponse = await patchCaseDetailRoute(
     buildRequest(`/api/hr/offboarding/cases/${opened.targetId}`, {
       body: JSON.stringify({
@@ -207,7 +209,6 @@ test("distinguishes case detail not-found, unauthorized, and patch validation pa
         waivedNoticeReason: "Approved waiver",
       }),
       headers: {
-        ...baseHeaders,
         "content-type": "application/json",
       },
       method: "PATCH",
@@ -222,7 +223,6 @@ test("distinguishes case detail not-found, unauthorized, and patch validation pa
         requiredNoticeDays: 0,
       }),
       headers: {
-        ...baseHeaders,
         "content-type": "application/json",
       },
       method: "PATCH",
@@ -231,6 +231,9 @@ test("distinguishes case detail not-found, unauthorized, and patch validation pa
       params: Promise.resolve({ caseId: opened.targetId }),
     }
   );
+
+  installTestDeniedHrRuntimeTenantAccess();
+
   const deniedPatchResponse = await patchCaseDetailRoute(
     buildRequest(`/api/hr/offboarding/cases/${opened.targetId}`, {
       body: JSON.stringify({
@@ -238,9 +241,7 @@ test("distinguishes case detail not-found, unauthorized, and patch validation pa
         waivedNoticeReason: "No write permission",
       }),
       headers: {
-        ...baseHeaders,
         "content-type": "application/json",
-        "x-can-write-offboarding": "false",
       },
       method: "PATCH",
     }),
@@ -269,7 +270,6 @@ test("normalizes audit trail reads and audit event writes", async () => {
         summary: "Reviewed offboarding case",
       }),
       headers: {
-        ...baseHeaders,
         "content-type": "application/json",
       },
       method: "POST",
@@ -280,12 +280,11 @@ test("normalizes audit trail reads and audit event writes", async () => {
       "/api/hr/offboarding/audit-trail?action=hr.offboarding.case.reviewed"
     )
   );
+
+  installTestDeniedHrRuntimeTenantAccess();
+
   const deniedListResponse = await getAuditTrailRoute(
-    buildRequest("/api/hr/offboarding/audit-trail", {
-      headers: {
-        "x-can-read-offboarding": "true",
-      },
-    })
+    buildRequest("/api/hr/offboarding/audit-trail")
   );
 
   assert.equal(writeResponse.status, 201);

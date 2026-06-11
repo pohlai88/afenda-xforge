@@ -18,14 +18,14 @@ import {
 
 const MAX_SERVER_SIDE_UPLOAD_BYTES = 4.5 * 1024 * 1024;
 
-export function GET(request: Request): Response {
+export async function GET(request: Request): Promise<Response> {
   try {
     const query = getDocumentsManagementQuery(request);
 
     return NextResponse.json(
       listDocumentsManagementDocumentSummaries(
         query,
-        createDocumentsManagementReadContext(request)
+        await createDocumentsManagementReadContext(request)
       )
     );
   } catch {
@@ -126,7 +126,7 @@ const buildDocumentsManagementBlobKey = ({
 
 export async function POST(request: Request): Promise<Response> {
   try {
-    const writeContext = createDocumentsManagementWriteContext(request);
+    const writeContext = await createDocumentsManagementWriteContext(request);
 
     if (!canWriteDocumentsManagement(writeContext)) {
       return NextResponse.json(

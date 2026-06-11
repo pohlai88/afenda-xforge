@@ -4,7 +4,7 @@ import { NextResponse } from "next/server";
 import { createEmployeeSelfservicePortalReadContext } from "../_lib/context.ts";
 import { employeeSelfservicePortalErrorResponse } from "../_lib/errors.ts";
 
-export function GET(request: Request): Response {
+export async function GET(request: Request): Promise<Response> {
   try {
     const url = new URL(request.url);
     const query = listEmployeeSelfservicePortalAuditQuerySchema.parse({
@@ -22,7 +22,7 @@ export function GET(request: Request): Response {
     return NextResponse.json(
       listEmployeeSelfservicePortalAuditTrailEvents(
         query,
-        createEmployeeSelfservicePortalReadContext(request)
+        await createEmployeeSelfservicePortalReadContext(request)
       )
     );
   } catch (error) {

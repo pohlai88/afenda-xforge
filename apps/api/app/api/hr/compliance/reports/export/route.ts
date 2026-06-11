@@ -5,7 +5,7 @@ import { createComplianceWriteContext } from "../../_lib/context.ts";
 export async function POST(request: Request) {
   const result = await exportComplianceReport(
     await request.json(),
-    createComplianceWriteContext(request)
+    await createComplianceWriteContext(request)
   );
 
   if ("ok" in result) {

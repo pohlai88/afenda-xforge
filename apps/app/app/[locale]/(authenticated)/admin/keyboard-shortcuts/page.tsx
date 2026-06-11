@@ -4,7 +4,7 @@ import { permissionCatalog, requirePermission } from "@repo/permissions";
 import { getTranslations } from "next-intl/server";
 import type { ReactElement } from "react";
 import { Link } from "@/i18n/navigation";
-import { readTenantKeyboardShortcutPolicy } from "../../../../../lib/workspace-shortcuts/repository.server.ts";
+import { queryTenantKeyboardShortcutPolicy } from "../../../../../lib/workspace-shortcuts/queries.server.ts";
 import { AuthenticatedFeatureScope } from "../../../../_components/authenticated-feature-scope.tsx";
 import {
   createRuntimePermissionContext,
@@ -46,9 +46,7 @@ export default async function KeyboardShortcutsAdminPage(): Promise<ReactElement
       { allOf: [permissionCatalog.systemAdmin.tenantSettingsRead] }
     );
 
-    const initialPayload = await readTenantKeyboardShortcutPolicy(
-      access.tenantId
-    );
+    const initialPayload = await queryTenantKeyboardShortcutPolicy();
 
     return (
       <AuthenticatedFeatureScope featureId={KEYBOARD_SHORTCUTS_FEATURE_ID}>

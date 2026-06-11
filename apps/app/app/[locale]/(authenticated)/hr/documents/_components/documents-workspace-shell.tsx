@@ -29,10 +29,10 @@ type DocumentsWorkspaceShellProps = {
   emptyTitle?: string;
   loadedDocumentCount: number;
   metadata: EntityMetadata;
-  requestHeaders: Readonly<Record<string, string>>;
   rows: readonly DashboardTableRow[];
   searchPlaceholder?: string;
   storageProvider: StorageProviderKind;
+  tenantId: string;
 };
 
 type ActiveSurface = "form" | "grid";
@@ -48,10 +48,10 @@ export function DocumentsWorkspaceShell({
   emptyTitle,
   loadedDocumentCount,
   metadata,
-  requestHeaders,
   rows,
   searchPlaceholder,
   storageProvider,
+  tenantId,
 }: DocumentsWorkspaceShellProps): ReactElement {
   const router = useRouter();
   const [selectedDocumentId, setSelectedDocumentId] = useState<string | null>(
@@ -92,7 +92,6 @@ export function DocumentsWorkspaceShell({
 
         deleteHrDocument({
           documentId: selectedDocumentId,
-          requestHeaders,
         })
           .then(() => {
             toast.message("Document deleted.");
@@ -130,7 +129,7 @@ export function DocumentsWorkspaceShell({
       targetType,
       handlers,
     };
-  }, [activeSurface, canWrite, requestHeaders, router, selectedDocumentId]);
+  }, [activeSurface, canWrite, router, selectedDocumentId]);
 
   const handleRowSelect = useCallback((row: DashboardTableRow) => {
     if (typeof row.id !== "string" || row.id.length === 0) {
@@ -166,8 +165,8 @@ export function DocumentsWorkspaceShell({
             customizationLayers={customizationLayers}
             metadata={metadata}
             onRegisterShortcutHandlers={registerShortcutHandlers}
-            requestHeaders={requestHeaders}
             storageProvider={storageProvider}
+            tenantId={tenantId}
           />
         </div>
       ) : null}

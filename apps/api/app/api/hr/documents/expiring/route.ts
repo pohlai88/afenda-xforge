@@ -6,14 +6,14 @@ import {
   getDocumentsManagementQuery,
 } from "../_lib/context.ts";
 
-export function GET(request: Request): Response {
+export async function GET(request: Request): Promise<Response> {
   try {
     const query = getDocumentsManagementQuery(request);
 
     return NextResponse.json(
       listDocumentsManagementExpiringDocuments(
         query,
-        createDocumentsManagementReadContext(request)
+        await createDocumentsManagementReadContext(request)
       )
     );
   } catch {

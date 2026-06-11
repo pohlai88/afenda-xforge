@@ -3,15 +3,17 @@ import { useEffect } from "react";
 import { expect, userEvent, within } from "storybook/test";
 import { KeyboardShortcutsDialog } from "../../app/app/_components/workspace/keyboard-shortcuts/keyboard-shortcuts-dialog.tsx";
 import { ShortcutCapturePopover } from "../../app/app/_components/workspace/keyboard-shortcuts/shortcut-capture-popover.tsx";
+import { ShortcutKeyDisplay } from "../../app/app/_components/workspace/keyboard-shortcuts/shortcut-key-display.tsx";
 import {
-  ShortcutBadgeGroup,
   ShortcutFnKeyBadge,
+  ShortcutMetaBadgeGroup,
   ShortcutReliabilityBadge,
   ShortcutSourceBadge,
-} from "../../app/app/_components/workspace/keyboard-shortcuts/shortcut-source-badge.tsx";
+} from "../../app/app/_components/workspace/keyboard-shortcuts/shortcut-meta-badges.tsx";
 import { useWorkspaceShortcuts } from "../../app/app/_components/workspace/keyboard-shortcuts/use-keyboard-shortcuts.tsx";
 import { KeyboardShortcutsAdminView } from "../../app/app/[locale]/(authenticated)/admin/keyboard-shortcuts/keyboard-shortcuts-admin-view.tsx";
-import { resolveProductDefaults } from "../../app/app/lib/workspace-shortcuts/resolve-shortcuts.ts";
+import type { ResolvedShortcut } from "../../app/lib/workspace-shortcuts/contract.ts";
+import { resolveProductDefaults } from "../../app/lib/workspace-shortcuts/resolve-shortcuts.ts";
 
 import {
   createTenantPolicyFixture,
@@ -21,6 +23,40 @@ import {
 
 const defaultPayload = resolveProductDefaults();
 const sampleShortcut = defaultPayload.bindings["workspace.openShortcutHelp"];
+
+const badgeFixtures: ResolvedShortcut[] = [
+  {
+    ...sampleShortcut,
+    locked: false,
+    source: "product",
+  },
+  {
+    ...sampleShortcut,
+    actionId: "crud.edit",
+    locked: false,
+    source: "tenant",
+  },
+  {
+    ...sampleShortcut,
+    actionId: "crud.save",
+    locked: false,
+    source: "user",
+  },
+  {
+    ...sampleShortcut,
+    actionId: "crud.delete",
+    locked: true,
+    source: "tenant",
+  },
+  {
+    ...sampleShortcut,
+    actionId: "workspace.commandSearch",
+    browserConflict: true,
+    locked: true,
+    reliability: "low",
+    source: "product",
+  },
+];
 
 const meta = {
   title: "Workspace/Keyboard Shortcuts",
@@ -38,22 +74,52 @@ export const SourceBadges: Story = {
   decorators: [withWorkspaceShortcutsIntl],
   parameters: { layout: "centered" },
   render: () => (
-    <ShortcutBadgeGroup>
+    <ShortcutMetaBadgeGroup>
       <ShortcutSourceBadge shortcut={sampleShortcut} />
       <ShortcutFnKeyBadge normalized="f1" />
       <ShortcutReliabilityBadge shortcut={sampleShortcut} />
-    </ShortcutBadgeGroup>
+    </ShortcutMetaBadgeGroup>
+  ),
+};
+
+export const BadgeMatrix: Story = {
+  decorators: [withWorkspaceShortcutsIntl],
+  parameters: { layout: "padded" },
+  render: () => (
+    <div className="flex flex-col gap-4">
+      {badgeFixtures.map((shortcut) => (
+        <ShortcutMetaBadgeGroup key={shortcut.actionId}>
+          <ShortcutSourceBadge shortcut={shortcut} />
+          <ShortcutFnKeyBadge normalized={shortcut.binding.normalized} />
+          <ShortcutReliabilityBadge shortcut={shortcut} />
+        </ShortcutMetaBadgeGroup>
+      ))}
+    </div>
+  ),
+};
+
+export const KeyCaps: Story = {
+  decorators: [withWorkspaceShortcutsIntl],
+  parameters: { layout: "centered" },
+  render: () => (
+    <div className="flex flex-col gap-4">
+      <ShortcutKeyDisplay normalized="mod+k" />
+      <ShortcutKeyDisplay normalized="f1" secondaryNormalized="mod+/" />
+      <ShortcutKeyDisplay normalized="f2" />
+    </div>
   ),
 };
 
 function OpenHelpDialogStory() {
-  const { setHelpOpen } = useWorkspaceShortcuts();
+  const { helpOpen, setHelpOpen } = useWorkspaceShortcuts();
 
   useEffect(() => {
     setHelpOpen(true);
   }, [setHelpOpen]);
 
-  return <KeyboardShortcutsDialog onOpenChange={setHelpOpen} open />;
+  return (
+    <KeyboardShortcutsDialog onOpenChange={setHelpOpen} open={helpOpen} />
+  );
 }
 
 export const HelpDialog: Story = {
@@ -80,6 +146,65 @@ export const CapturePopover: Story = {
       value="f3"
     />
   ),
+};
+
+export const CapturePopoverReservedKey: Story = {
+  decorators: [withWorkspaceShortcutsIntl],
+  parameters: { layout: "centered" },
+  render: () => (
+    <ShortcutCapturePopover
+      actionId="crud.save"
+      actionLabel="Save current draft"
+      allowFnKeyBindings
+      onCapture={() => undefined}
+      value="f3"
+    />
+  ),
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    const body = within(canvasElement.ownerDocument.body);
+
+    await userEvent.click(canvas.getByRole("button", { name: /press keys/i }));
+    await userEvent.keyboard("{F5}");
+
+    await expect(
+      body.getByText(/reserved by the browser/i)
+    ).toBeVisible();
+  },
+};
+
+function PolicyDisabledHelpStory() {
+  const { helpOpen, setHelpOpen } = useWorkspaceShortcuts();
+
+  useEffect(() => {
+    setHelpOpen(true);
+  }, [setHelpOpen]);
+
+  return (
+    <KeyboardShortcutsDialog onOpenChange={setHelpOpen} open={helpOpen} />
+  );
+}
+
+export const HelpDialogPolicyDisabled: Story = {
+  decorators: [withWorkspaceShortcutsIntl],
+  parameters: {
+    layout: "centered",
+    shortcutsPayload: {
+      ...defaultPayload,
+      policy: {
+        ...defaultPayload.policy,
+        allowUserCustomize: false,
+      },
+    },
+  },
+  render: () => <PolicyDisabledHelpStory />,
+  play: async ({ canvasElement }) => {
+    const body = within(canvasElement.ownerDocument.body);
+
+    await expect(
+      body.getByText(/personal customization is disabled by your organization/i)
+    ).toBeVisible();
+  },
 };
 
 export const AdminPolicyReadOnly: Story = {

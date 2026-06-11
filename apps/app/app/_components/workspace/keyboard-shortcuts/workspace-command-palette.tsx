@@ -21,16 +21,17 @@ import {
 } from "lucide-react";
 import { useTranslations } from "next-intl";
 import type { ComponentType, ReactElement } from "react";
-import { useCallback, useMemo } from "react";
+import { useMemo } from "react";
 import { useRouter } from "@/i18n/navigation";
 import type {
   ShortcutActionId,
   WorkspaceShortcutsPayload,
 } from "../../../../lib/workspace-shortcuts/contract.ts";
 import { CRUD_SHORTCUT_ACTIONS } from "../../../../lib/workspace-shortcuts/contract.ts";
-import { formatShortcutLabel } from "../../../../lib/workspace-shortcuts/format-shortcut.ts";
 import { PRODUCT_SHORTCUT_DEFINITIONS } from "../../../../lib/workspace-shortcuts/product-defaults.ts";
 import { AUTHENTICATED_NAV_ITEMS } from "../../authenticated-workspace-nav.ts";
+import { shortcutActionMessageKey } from "./shortcut-i18n.ts";
+import { ShortcutKeyDisplay } from "./shortcut-key-display.tsx";
 import { useWorkspaceShortcuts } from "./use-keyboard-shortcuts.tsx";
 
 const WORKSPACE_COMMAND_ACTIONS = [
@@ -75,12 +76,6 @@ export function WorkspaceCommandPalette({
     command();
   };
 
-  const formatBinding = useCallback(
-    (actionId: ShortcutActionId): string =>
-      formatShortcutLabel(payload.bindings[actionId].binding.normalized),
-    [payload.bindings]
-  );
-
   const crudCommands = useMemo(
     () =>
       PRODUCT_SHORTCUT_DEFINITIONS.filter((definition) =>
@@ -88,20 +83,20 @@ export function WorkspaceCommandPalette({
       ).map((definition) => ({
         actionId: definition.actionId,
         disabled: focusedHandlers[definition.actionId] === undefined,
-        label: tActions(definition.actionId.replaceAll(".", "_")),
-        shortcut: formatBinding(definition.actionId),
+        label: tActions(shortcutActionMessageKey(definition.actionId)),
+        normalized: payload.bindings[definition.actionId].binding.normalized,
       })),
-    [focusedHandlers, formatBinding, tActions]
+    [focusedHandlers, payload.bindings, tActions]
   );
 
   const workspaceCommands = useMemo(
     () =>
       WORKSPACE_COMMAND_ACTIONS.map((actionId) => ({
         actionId,
-        label: tActions(actionId.replaceAll(".", "_")),
-        shortcut: formatBinding(actionId),
+        label: tActions(shortcutActionMessageKey(actionId)),
+        normalized: payload.bindings[actionId].binding.normalized,
       })),
-    [formatBinding, tActions]
+    [payload.bindings, tActions]
   );
 
   return (
@@ -144,7 +139,9 @@ export function WorkspaceCommandPalette({
                 <Keyboard className="size-4" />
               )}
               {command.label}
-              <CommandShortcut>{command.shortcut}</CommandShortcut>
+              <CommandShortcut>
+                <ShortcutKeyDisplay normalized={command.normalized} />
+              </CommandShortcut>
             </CommandItem>
           ))}
         </CommandGroup>
@@ -165,7 +162,9 @@ export function WorkspaceCommandPalette({
               >
                 {Icon ? <Icon className="size-4" /> : null}
                 {command.label}
-                <CommandShortcut>{command.shortcut}</CommandShortcut>
+                <CommandShortcut>
+                  <ShortcutKeyDisplay normalized={command.normalized} />
+                </CommandShortcut>
               </CommandItem>
             );
           })}

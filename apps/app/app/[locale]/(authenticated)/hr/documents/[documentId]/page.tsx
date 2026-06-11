@@ -79,7 +79,6 @@ export default async function HrDocumentDetailPage({
       documentDescription={data.document.description}
       documentId={data.document.id}
       documentTitle={data.document.title}
-      requestHeaders={data.headerSet}
     >
       <DocumentDetailView
         context={context}

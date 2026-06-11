@@ -1,17 +1,6 @@
 import type { EmployeeLifecycleManagementPolicyContext } from "@repo/features-employee-management-employee-lifecycle-management/policy";
 import type { EmployeeLifecycleRepositoryScope } from "@repo/features-employee-management-employee-lifecycle-management/repository";
-
-const header = (request: Request, name: string): string | undefined =>
-  request.headers.get(name)?.trim() || undefined;
-
-const boolHeader = (request: Request, name: string): boolean | undefined => {
-  const value = header(request, name);
-  if (!value) {
-    return;
-  }
-
-  return value === "true" || value === "1";
-};
+import { resolveHrTenantScopedAccess } from "../../_lib/access.ts";
 
 export type EmployeeLifecycleApiReadContext =
   EmployeeLifecycleManagementPolicyContext;
@@ -22,25 +11,33 @@ export type EmployeeLifecycleApiWriteContext =
     actorId?: string;
   };
 
-export const createEmployeeLifecycleReadContext = (
-  request: Request
-): EmployeeLifecycleApiReadContext => ({
-  canRead: boolHeader(request, "x-can-read-employee-lifecycle") ?? true,
-  canViewSensitive:
-    boolHeader(request, "x-can-view-sensitive-employee-lifecycle") ?? false,
-  companyId: header(request, "x-company-id"),
-  tenantId: header(request, "x-tenant-id"),
-  actorId: header(request, "x-actor-id"),
-  requestId: header(request, "x-request-id"),
-});
+export const createEmployeeLifecycleReadContext = async (
+  _request: Request
+): Promise<EmployeeLifecycleApiReadContext> => {
+  const { access, capabilities, companyId } =
+    await resolveHrTenantScopedAccess();
 
-export const createEmployeeLifecycleWriteContext = (
+  return {
+    actorId: access.actorId,
+    canRead: capabilities.canRead,
+    canViewSensitive: capabilities.canViewSensitive,
+    companyId,
+    requestId: access.requestId,
+    tenantId: access.tenantId,
+  };
+};
+
+export const createEmployeeLifecycleWriteContext = async (
   request: Request
-): EmployeeLifecycleApiWriteContext => ({
-  ...createEmployeeLifecycleReadContext(request),
-  canWrite: boolHeader(request, "x-can-write-employee-lifecycle") ?? true,
-  actorId: header(request, "x-actor-id") ?? "api",
-});
+): Promise<EmployeeLifecycleApiWriteContext> => {
+  const readContext = await createEmployeeLifecycleReadContext(request);
+
+  return {
+    ...readContext,
+    canWrite: readContext.canRead ?? false,
+    actorId: readContext.actorId,
+  };
+};
 
 export const createEmployeeLifecycleRepositoryScope = (
   context: EmployeeLifecycleManagementPolicyContext

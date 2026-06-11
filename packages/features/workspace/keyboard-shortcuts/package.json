@@ -1,0 +1,42 @@
+{
+  "name": "@repo/features-workspace-keyboard-shortcuts",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "exports": {
+    ".": "./src/index.ts",
+    "./contract": "./src/contract.ts",
+    "./manifest": "./src/manifest.ts",
+    "./schema": "./src/schema.ts",
+    "./server": "./src/server.ts",
+    "./package.json": "./package.json"
+  },
+  "files": [
+    "src",
+    "package.json"
+  ],
+  "scripts": {
+    "lint": "biome check .",
+    "format": "biome format --write .",
+    "clean": "git clean -xdf .cache .turbo dist node_modules",
+    "typecheck": "tsc --noEmit --emitDeclarationOnly false"
+  },
+  "dependencies": {
+    "@repo/audit": "workspace:*",
+    "@repo/auth": "workspace:*",
+    "@repo/database": "workspace:*",
+    "@repo/errors": "workspace:*",
+    "@repo/execution": "workspace:*",
+    "@repo/features-system-admin-control-plane": "workspace:*",
+    "@repo/openapi": "workspace:*",
+    "@repo/permissions": "workspace:*",
+    "drizzle-orm": "catalog:",
+    "server-only": "catalog:",
+    "zod": "catalog:"
+  },
+  "devDependencies": {
+    "@repo/typescript-config": "workspace:*",
+    "@types/node": "catalog:",
+    "typescript": "catalog:"
+  }
+}

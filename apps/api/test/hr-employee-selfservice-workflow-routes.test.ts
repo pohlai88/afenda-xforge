@@ -8,6 +8,12 @@ import {
   submitEmployeeSelfservicePortalProfileUpdateRequest,
 } from "@repo/features-employee-management-employee-selfservice-portal/server";
 import {
+  installTestEssRuntimeTenantAccess,
+  TEST_COMPANY_ID,
+  TEST_TENANT_ID,
+  uninstallTestRuntimeTenantAccess,
+} from "./_runtime-access-fixture.ts";
+import {
   resetComplianceRepositoryForTesting,
   saveComplianceRepository,
   setComplianceRepositoryPathForTesting,
@@ -52,27 +58,22 @@ import { GET as getTasksRoute } from "../app/api/hr/employee-selfservice-portal/
 let sandboxDirectory = "";
 
 const scope = {
-  companyId: "company-a",
-  tenantId: "tenant-a",
+  companyId: TEST_COMPANY_ID,
+  tenantId: TEST_TENANT_ID,
 };
 
 const now = new Date("2026-06-10T00:00:00.000Z");
 
-const baseHeaders = {
-  "x-actor-employee-id": "employee-1",
-  "x-can-read-employee-selfservice-portal": "true",
-  "x-can-write-employee-selfservice-portal": "true",
-  "x-company-id": scope.companyId,
-  "x-organization-id": "org-a",
-  "x-request-id": "request-a",
-  "x-tenant-id": scope.tenantId,
-  "x-user-id": "employee-user",
-};
-
 const buildRequest = (path: string): Request =>
-  new Request(`http://localhost${path}`, { headers: baseHeaders });
+  new Request(`http://localhost${path}`);
 
 beforeEach(async () => {
+  installTestEssRuntimeTenantAccess({
+    actorEmployeeId: "employee-1",
+    actorId: "employee-user",
+    tenantId: scope.tenantId,
+    userEmail: "employee.one@example.com",
+  });
   sandboxDirectory = mkdtempSync(join(tmpdir(), "api-ess-workflow-"));
 
   setEmployeeSelfservicePortalRepositoryPathForTesting(
@@ -347,6 +348,7 @@ beforeEach(async () => {
 });
 
 afterEach(() => {
+  uninstallTestRuntimeTenantAccess();
   rmSync(sandboxDirectory, { force: true, recursive: true });
 });
 

@@ -3,17 +3,51 @@ import type {
   ListDocumentsManagementQuery,
 } from "@repo/features-employee-management-documents-management";
 import { listDocumentsManagementQuerySchema } from "@repo/features-employee-management-documents-management";
+import { resolveHrTenantScopedAccess } from "../../_lib/access.ts";
 
-const header = (request: Request, name: string): string | undefined =>
-  request.headers.get(name)?.trim() || undefined;
+export type DocumentsManagementApiReadContext =
+  DocumentsManagementPolicyContext;
 
-const boolHeader = (request: Request, name: string): boolean | undefined => {
-  const value = header(request, name);
-  if (!value) {
-    return;
-  }
+export type DocumentsManagementApiWriteContext =
+  DocumentsManagementPolicyContext;
 
-  return value === "true" || value === "1";
+export const createDocumentsManagementReadContext = async (
+  _request: Request
+): Promise<DocumentsManagementApiReadContext> => {
+  const { access, capabilities, companyId } =
+    await resolveHrTenantScopedAccess();
+
+  return {
+    actorId: access.actorId,
+    canAdminRetention: capabilities.canWrite,
+    canDownload: capabilities.canDownload,
+    canRead: capabilities.canRead,
+    canReadAudit: capabilities.canRead,
+    canSelfAcknowledge: capabilities.canWrite,
+    canViewSensitive: capabilities.canViewSensitive,
+    companyId,
+    requestId: access.requestId,
+    tenantId: access.tenantId,
+    userId: access.actorId,
+  };
+};
+
+export const createDocumentsManagementWriteContext = async (
+  request: Request
+): Promise<DocumentsManagementApiWriteContext> => {
+  const { access, capabilities, companyId } =
+    await resolveHrTenantScopedAccess();
+  const readContext = await createDocumentsManagementReadContext(request);
+
+  return {
+    ...readContext,
+    actorId: access.actorId,
+    canWrite: capabilities.canWrite,
+    companyId,
+    requestId: access.requestId,
+    tenantId: access.tenantId,
+    userId: access.actorId,
+  };
 };
 
 const parseBooleanQueryValue = (
@@ -33,55 +67,6 @@ const parseBooleanQueryValue = (
 
   return value;
 };
-
-export type DocumentsManagementApiReadContext =
-  DocumentsManagementPolicyContext;
-
-export type DocumentsManagementApiWriteContext =
-  DocumentsManagementPolicyContext;
-
-export const createDocumentsManagementReadContext = (
-  request: Request
-): DocumentsManagementApiReadContext => ({
-  actorEmployeeId: header(request, "x-actor-employee-id"),
-  actorId: header(request, "x-actor-id"),
-  canAdminRetention:
-    boolHeader(request, "x-can-admin-retention-documents") ?? false,
-  canDownload: boolHeader(request, "x-can-download-documents") ?? false,
-  canRead: boolHeader(request, "x-can-read-documents") ?? true,
-  canReadAudit: boolHeader(request, "x-can-read-document-audit") ?? false,
-  canSelfAcknowledge:
-    boolHeader(request, "x-can-self-acknowledge-documents") ?? false,
-  canViewSensitive:
-    boolHeader(request, "x-can-view-sensitive-documents") ?? false,
-  companyId: header(request, "x-company-id"),
-  organizationId: header(request, "x-organization-id"),
-  requestId: header(request, "x-request-id"),
-  tenantId: header(request, "x-tenant-id"),
-  userId: header(request, "x-user-id"),
-});
-
-export const createDocumentsManagementWriteContext = (
-  request: Request
-): DocumentsManagementApiWriteContext => ({
-  actorId: header(request, "x-actor-id"),
-  actorEmployeeId: header(request, "x-actor-employee-id"),
-  canAdminRetention:
-    boolHeader(request, "x-can-admin-retention-documents") ?? false,
-  canDownload: boolHeader(request, "x-can-download-documents") ?? false,
-  canRead: boolHeader(request, "x-can-read-documents") ?? true,
-  canReadAudit: boolHeader(request, "x-can-read-document-audit") ?? false,
-  canSelfAcknowledge:
-    boolHeader(request, "x-can-self-acknowledge-documents") ?? false,
-  canViewSensitive:
-    boolHeader(request, "x-can-view-sensitive-documents") ?? false,
-  canWrite: boolHeader(request, "x-can-write-documents") ?? false,
-  companyId: header(request, "x-company-id"),
-  organizationId: header(request, "x-organization-id"),
-  requestId: header(request, "x-request-id"),
-  tenantId: header(request, "x-tenant-id"),
-  userId: header(request, "x-user-id"),
-});
 
 export const getDocumentsManagementQuery = (
   request: Request

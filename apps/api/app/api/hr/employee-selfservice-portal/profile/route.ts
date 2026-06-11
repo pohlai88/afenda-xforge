@@ -2,13 +2,13 @@ import { getEmployeeSelfservicePortalProfile } from "@repo/features-employee-man
 import { NextResponse } from "next/server";
 import { createEmployeeSelfservicePortalReadContext } from "../_lib/context.ts";
 
-export function GET(request: Request): Response {
+export async function GET(request: Request): Promise<Response> {
   const url = new URL(request.url);
   const profile = getEmployeeSelfservicePortalProfile(
     {
       employeeId: url.searchParams.get("employeeId") ?? undefined,
     },
-    createEmployeeSelfservicePortalReadContext(request)
+    await createEmployeeSelfservicePortalReadContext(request)
   );
 
   if (!profile) {

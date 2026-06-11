@@ -69,7 +69,7 @@ export async function GET(
 ): Promise<Response> {
   const { employeeId } = await params;
   const url = new URL(request.url);
-  const readContext = createHrRecordsReadContext(request);
+  const readContext = await createHrRecordsReadContext(request);
   const assignments = listHrEmployeeAssignments(
     {
       employeeId,
@@ -113,7 +113,7 @@ export async function POST(
   });
   const result = recordHrEmployeeAssignment(
     parsed,
-    createHrRecordsWriteContext(request)
+    await createHrRecordsWriteContext(request)
   );
 
   return NextResponse.json(result, {

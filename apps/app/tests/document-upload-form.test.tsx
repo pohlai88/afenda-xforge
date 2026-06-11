@@ -15,8 +15,8 @@ describe("DocumentUploadForm", () => {
           userId: "user-001",
         })}
         metadata={hrDocumentEntityMetadata}
-        requestHeaders={{}}
         storageProvider="blob"
+        tenantId="tenant-001"
       />
     );
 

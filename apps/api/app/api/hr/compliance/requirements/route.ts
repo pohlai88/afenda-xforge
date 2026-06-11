@@ -5,7 +5,7 @@ import { createComplianceReadContext, getQuery } from "../_lib/context.ts";
 export async function GET(request: Request) {
   const data = await listComplianceRequirementsRecords(
     getQuery(request),
-    createComplianceReadContext(request)
+    await createComplianceReadContext(request)
   );
 
   return NextResponse.json(data);

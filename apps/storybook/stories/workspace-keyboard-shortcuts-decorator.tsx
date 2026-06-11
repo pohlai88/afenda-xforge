@@ -1,4 +1,5 @@
 import { DEFAULT_TENANT_BRANDING_SETTINGS } from "@repo/design-system";
+import { TooltipProvider } from "@repo/ui";
 import type { Decorator } from "@storybook/react";
 import { NextIntlClientProvider } from "next-intl";
 import type { ReactNode } from "react";
@@ -8,8 +9,8 @@ import { ThemeStudioWorkspace } from "../../app/app/[locale]/theme-studio/_compo
 import type {
   TenantKeyboardShortcutPolicyPayload,
   WorkspaceShortcutsPayload,
-} from "../../app/app/lib/workspace-shortcuts/contract.ts";
-import { resolveProductDefaults } from "../../app/app/lib/workspace-shortcuts/resolve-shortcuts.ts";
+} from "../../app/lib/workspace-shortcuts/contract.ts";
+import { resolveProductDefaults } from "../../app/lib/workspace-shortcuts/resolve-shortcuts.ts";
 import enMessages from "../../app/messages/en.json";
 
 export function WorkspaceShortcutsStoryRoot({
@@ -21,9 +22,11 @@ export function WorkspaceShortcutsStoryRoot({
 }): ReactNode {
   return (
     <NextIntlClientProvider locale="en" messages={enMessages}>
-      <WorkspaceShortcutsRoot payload={payload}>
-        {children}
-      </WorkspaceShortcutsRoot>
+      <TooltipProvider delayDuration={300}>
+        <WorkspaceShortcutsRoot payload={payload}>
+          {children}
+        </WorkspaceShortcutsRoot>
+      </TooltipProvider>
     </NextIntlClientProvider>
   );
 }
@@ -43,11 +46,13 @@ export const withWorkspaceShortcutsIntl: Decorator = (Story, context) => {
 
 export const withWorkspaceShortcutsShell: Decorator = (Story) => (
   <NextIntlClientProvider locale="en" messages={enMessages}>
-    <ThemeStudioPreviewRoot branding={DEFAULT_TENANT_BRANDING_SETTINGS}>
-      <ThemeStudioWorkspace>
-        <Story />
-      </ThemeStudioWorkspace>
-    </ThemeStudioPreviewRoot>
+    <TooltipProvider delayDuration={300}>
+      <ThemeStudioPreviewRoot branding={DEFAULT_TENANT_BRANDING_SETTINGS}>
+        <ThemeStudioWorkspace>
+          <Story />
+        </ThemeStudioWorkspace>
+      </ThemeStudioPreviewRoot>
+    </TooltipProvider>
   </NextIntlClientProvider>
 );
 

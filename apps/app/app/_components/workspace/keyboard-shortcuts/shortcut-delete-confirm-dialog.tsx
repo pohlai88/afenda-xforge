@@ -35,7 +35,7 @@ export function ShortcutDeleteConfirmDialog({
         <AlertDialogFooter>
           <AlertDialogCancel>{tCommon("cancel")}</AlertDialogCancel>
           <AlertDialogAction onClick={onConfirm} variant="destructive">
-            {tCommon("delete")}
+            {tCommon("confirm")}
           </AlertDialogAction>
         </AlertDialogFooter>
       </AlertDialogContent>

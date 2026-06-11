@@ -16,7 +16,7 @@ export async function POST(request: Request, context: RouteContext) {
       ...body,
       filingId,
     },
-    createComplianceWriteContext(request)
+    await createComplianceWriteContext(request)
   );
 
   return NextResponse.json(result, { status: result.ok ? 200 : 400 });

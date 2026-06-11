@@ -32,7 +32,6 @@ import type {
   TenantKeyboardShortcutPolicyPayload,
 } from "../../../../../lib/workspace-shortcuts/contract.ts";
 import { WORKSPACE_KEYBOARD_SHORTCUTS_BROADCAST_CHANNEL } from "../../../../../lib/workspace-shortcuts/contract.ts";
-import { formatShortcutLabel } from "../../../../../lib/workspace-shortcuts/format-shortcut.ts";
 import {
   persistTenantKeyboardShortcutPolicy,
   validatePendingTenantPolicy,
@@ -44,6 +43,7 @@ import {
 } from "../../../../../lib/workspace-shortcuts/product-defaults.ts";
 import { ShortcutCapturePopover } from "../../../../_components/workspace/keyboard-shortcuts/shortcut-capture-popover.tsx";
 import { shortcutActionMessageKey } from "../../../../_components/workspace/keyboard-shortcuts/shortcut-i18n.ts";
+import { ShortcutKeyDisplay } from "../../../../_components/workspace/keyboard-shortcuts/shortcut-key-display.tsx";
 
 type SaveStatus = "idle" | "pending" | "success" | "error";
 
@@ -353,15 +353,21 @@ export function KeyboardShortcutsAdminView({
                               shortcutActionMessageKey(definition.actionId)
                             )}
                           </p>
-                          <p className="text-muted-foreground text-xs">
-                            {formatShortcutLabel(effectiveNormalized)}
-                            {pendingValue === undefined
-                              ? null
-                              : ` · ${t("organizationOverrides.pendingHint")}`}
-                            {isLocked
-                              ? ` · ${t("organizationOverrides.lockedHint")}`
-                              : null}
-                          </p>
+                          <div className="flex flex-wrap items-center gap-2">
+                            <ShortcutKeyDisplay
+                              normalized={effectiveNormalized}
+                            />
+                            {pendingValue === undefined ? null : (
+                              <Badge className="font-normal" variant="secondary">
+                                {t("organizationOverrides.pendingHint")}
+                              </Badge>
+                            )}
+                            {isLocked ? (
+                              <Badge className="font-normal" variant="outline">
+                                {t("organizationOverrides.lockedHint")}
+                              </Badge>
+                            ) : null}
+                          </div>
                         </div>
                         {canWrite ? (
                           <div className="flex items-center gap-2">

@@ -15,6 +15,10 @@ export const tenantAdminSettingsReadSchema = z
   })
   .strict();
 
+export type TenantAdminSettingsSnapshot = z.infer<
+  typeof tenantAdminSettingsReadSchema
+>;
+
 export const tenantSettingsCapabilities = {
   tenantSettingsRead: "system-admin.tenant-settings.read",
   tenantSettingsWrite: "system-admin.tenant-settings.write",

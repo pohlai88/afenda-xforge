@@ -7,7 +7,7 @@ export async function GET(request: Request): Promise<Response> {
   const query = listHrOrgHeadcountQuerySchema.parse(getHrOrgQuery(request));
   const data = await listHrOrgHeadcountWindow(
     query,
-    createHrOrgReadContext(request)
+    await createHrOrgReadContext(request)
   );
 
   return NextResponse.json(data);

@@ -77,7 +77,7 @@
       "actions": {
         "crud_cancel": "Huy chinh sua",
         "crud_create": "Tao ban ghi moi",
-        "crud_delete": "Xoa ban ghi dang chon",
+        "crud_delete": "Luu tru hoac xoa ban ghi dang chon",
         "crud_edit": "Sua ban ghi dang chon",
         "crud_save": "Luu ban nhap hien tai",
         "workspace_commandSearch": "Mo bang lenh",
@@ -109,12 +109,24 @@
       },
       "capture": {
         "assign": "Gan phim",
+        "errors": {
+          "cancelled": "Da huy ghi phim.",
+          "collision": "Phim xung dot voi {actionId} ({label}).",
+          "fnKeysDisabled": "Phim chuc nang bi tat boi chinh sach to chuc.",
+          "fnLockRequired": "Tat Fn lock de gan phim chuc nang.",
+          "notAllowedForAction": "Phim nay khong the gan cho hanh dong nay.",
+          "reservedBrowserKey": "F5, F11 va F12 duoc trinh duyet giu lai."
+        },
         "fnLockHint": "Tat Fn lock cho phim F",
         "listening": "Dang lang nghe…",
         "pressEsc": "Nhan Esc de huy ma khong luu.",
         "pressKeys": "Nhan phim",
         "pressToAssign": "Nhan to hop phim ban muon gan.",
         "recordTitle": "Ghi phim tat"
+      },
+      "topbarSearch": {
+        "ariaLabel": "Mo bang lenh",
+        "placeholder": "Tim kiem..."
       },
       "commandPalette": {
         "empty": "Khong co lenh phu hop.",
@@ -129,8 +141,8 @@
         "noFocusedRecord": "Khong co ban ghi dang chon"
       },
       "deleteConfirm": {
-        "description": "Xoa ban ghi dang chon? Hanh dong nay khong the hoan tac.",
-        "title": "Xoa ban ghi dang chon?"
+        "description": "Ban ghi master data se duoc luu tru. Mot so man hinh khac co the xoa vinh vien.",
+        "title": "Luu tru hoac xoa ban ghi dang chon?"
       },
       "description": "Phim lenh workspace duoc giai quyet tu server. Tat Fn lock de dung phim chuc nang nhu Excel.",
       "discardConfirm": {
@@ -144,14 +156,22 @@
         "crudDescription": "Phim CRUD thuc thi tren ban ghi hoac form dang chon.",
         "globalDescription": "Lenh workspace toan cuc.",
         "help": "Tro giup",
+        "helpDescription": "Phim tro giup mo hop thoai nay hoac phim thay the neu co.",
         "navigation": "Dieu huong"
       },
-      "noPendingChanges": "Khong co thay doi cho",
+      "noPendingChanges": "Khong co thay doi cho luu",
       "noSearchResults": "Khong co phim tat phu hop trong nhom nay.",
+      "orSeparator": "hoac",
       "policyDisabled": "To chuc da tat tuy chinh ca nhan. Phim hien thi o day chi doc.",
       "savePersonal": "Luu phim tat ca nhan",
+      "saveFailed": "Khong the luu phim tat",
       "saveSuccess": "Da luu phim tat",
       "searchPlaceholder": "Tim lenh hoac phim…",
+      "selectedRow": {
+        "editOnly": "Ban ghi dang chon: nhan F2 de sua.",
+        "editOrArchive": "Ban ghi dang chon: nhan F2 de sua hoac F8 de luu tru.",
+        "openDocument": "Ban ghi dang chon: nhan F2 de mo chi tiet tai lieu."
+      },
       "title": "Phim tat",
       "unsavedChanges": "{count, plural, one {# thay doi chua luu} other {# thay doi chua luu}}"
     }

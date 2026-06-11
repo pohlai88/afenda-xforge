@@ -77,7 +77,7 @@
       "actions": {
         "crud_cancel": "Cancel edit",
         "crud_create": "Create new record",
-        "crud_delete": "Delete focused record",
+        "crud_delete": "Archive or delete focused record",
         "crud_edit": "Edit focused record",
         "crud_save": "Save current draft",
         "workspace_commandSearch": "Open command palette",
@@ -109,12 +109,24 @@
       },
       "capture": {
         "assign": "Assign",
+        "errors": {
+          "cancelled": "Capture cancelled.",
+          "collision": "Binding conflicts with {actionId} ({label}).",
+          "fnKeysDisabled": "Function key bindings are disabled by organization policy.",
+          "fnLockRequired": "Turn Fn lock off to bind function keys.",
+          "notAllowedForAction": "That shortcut cannot be assigned to this action.",
+          "reservedBrowserKey": "F5, F11, and F12 are reserved by the browser."
+        },
         "fnLockHint": "Fn lock off for F-keys",
         "listening": "Listening…",
         "pressEsc": "Press Esc to cancel without saving.",
         "pressKeys": "Press keys",
         "pressToAssign": "Press the key combination you want to assign.",
         "recordTitle": "Record shortcut"
+      },
+      "topbarSearch": {
+        "ariaLabel": "Open command palette",
+        "placeholder": "Search..."
       },
       "commandPalette": {
         "empty": "No matching commands.",
@@ -129,8 +141,8 @@
         "noFocusedRecord": "No focused record available"
       },
       "deleteConfirm": {
-        "description": "Delete the focused record? This action cannot be undone.",
-        "title": "Delete focused record?"
+        "description": "Master data rows are archived. Other surfaces may permanently delete items.",
+        "title": "Archive or delete focused record?"
       },
       "description": "Server-resolved workspace command bindings. Turn Fn lock off to use function keys like Excel.",
       "discardConfirm": {
@@ -144,14 +156,22 @@
         "crudDescription": "CRUD keys dispatch to the focused record or form.",
         "globalDescription": "Global workspace commands.",
         "help": "Help",
+        "helpDescription": "Help keys open this dialog or secondary bindings when available.",
         "navigation": "Navigation"
       },
       "noPendingChanges": "No pending changes",
       "noSearchResults": "No shortcuts match your search in this group.",
+      "orSeparator": "or",
       "policyDisabled": "Personal customization is disabled by your organization. Bindings shown here are read-only.",
       "savePersonal": "Save personal shortcuts",
+      "saveFailed": "Unable to save keyboard shortcuts",
       "saveSuccess": "Keyboard shortcuts saved",
       "searchPlaceholder": "Search commands or keys…",
+      "selectedRow": {
+        "editOnly": "Selected row: press F2 to edit.",
+        "editOrArchive": "Selected row: press F2 to edit or F8 to archive.",
+        "openDocument": "Selected row: press F2 to open the document detail."
+      },
       "title": "Keyboard shortcuts",
       "unsavedChanges": "{count, plural, one {# unsaved change} other {# unsaved changes}}"
     }

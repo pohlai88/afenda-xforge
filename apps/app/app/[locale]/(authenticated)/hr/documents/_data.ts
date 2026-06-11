@@ -1,16 +1,19 @@
 import type {
   DocumentsManagementDocumentProjection,
   DocumentsManagementDocumentSummaryProjection,
-  DocumentsManagementPolicyContext,
 } from "@repo/features-employee-management-documents-management";
 import {
   canReadDocumentsManagement,
   getDocumentsManagementDocument,
   hrTenantDocumentDownloadPath,
   listDocumentsManagementDocumentSummaries,
+  recordDocumentsManagementDocumentAccess,
 } from "@repo/features-employee-management-documents-management";
-import type { RuntimeTenantAccess } from "../../../../_runtime-access.ts";
 import { resolveRuntimeTenantAccess } from "../../../../_runtime-access.ts";
+import {
+  createDocumentsManagementPolicyContext,
+  resolveHrDocumentsRuntimeAccess,
+} from "../../../../api/hr/documents/_context.ts";
 
 type LoadState<T> =
   | {
@@ -26,19 +29,17 @@ type LoadState<T> =
     };
 
 export type HrDocumentsAccess = {
+  canDownload: boolean;
   canRead: boolean;
   canViewSensitive: boolean;
   canWrite: boolean;
 };
-
-export type HrDocumentsHeaderSet = Readonly<Record<string, string>>;
 
 export type HrDocumentsPageData = {
   access: HrDocumentsAccess;
   actorId: string;
   documents: readonly DocumentsManagementDocumentSummaryProjection[];
   grantedPermissions: readonly string[];
-  headerSet: HrDocumentsHeaderSet;
   loadedDocumentCount: number;
   tenantId: string;
   tenantRole: string;
@@ -54,7 +55,6 @@ export type HrDocumentDetailData = {
   document: DocumentsManagementDocumentProjection;
   downloadPath: string;
   grantedPermissions: readonly string[];
-  headerSet: HrDocumentsHeaderSet;
   tenantId: string;
   tenantRole: string;
   userEmail: string | null;
@@ -62,52 +62,6 @@ export type HrDocumentDetailData = {
 
 const DOCUMENTS_PAGE_SIZE = 50;
 const EXPIRING_WINDOW_DAYS = 30;
-const HR_DOCUMENT_ROLES = new Set(["admin", "manager", "owner"]);
-const HR_DOCUMENT_SENSITIVE_ROLES = new Set(["admin", "owner"]);
-
-const isDocumentsManagementRoleAllowed = (role: string): boolean =>
-  HR_DOCUMENT_ROLES.has(role);
-
-const canViewSensitiveDocuments = (role: string): boolean =>
-  HR_DOCUMENT_SENSITIVE_ROLES.has(role);
-
-const createDocumentsManagementAccess = (
-  access: RuntimeTenantAccess
-): HrDocumentsAccess => ({
-  canRead: isDocumentsManagementRoleAllowed(access.role),
-  canViewSensitive: canViewSensitiveDocuments(access.role),
-  canWrite: isDocumentsManagementRoleAllowed(access.role),
-});
-
-const createDocumentsManagementPolicyContext = (
-  access: RuntimeTenantAccess
-): DocumentsManagementPolicyContext => {
-  const runtimeAccess = createDocumentsManagementAccess(access);
-
-  return {
-    actorId: access.actorId,
-    canRead: runtimeAccess.canRead,
-    canViewSensitive: runtimeAccess.canViewSensitive,
-    canWrite: runtimeAccess.canWrite,
-    requestId: access.requestId,
-    tenantId: access.tenantId,
-  };
-};
-
-const createDocumentsManagementHeaderSet = (
-  access: RuntimeTenantAccess
-): HrDocumentsHeaderSet => {
-  const runtimeAccess = createDocumentsManagementAccess(access);
-
-  return {
-    "x-actor-id": access.actorId,
-    "x-can-read-documents": String(runtimeAccess.canRead),
-    "x-can-view-sensitive-documents": String(runtimeAccess.canViewSensitive),
-    "x-can-write-documents": String(runtimeAccess.canWrite),
-    "x-request-id": access.requestId ?? "",
-    "x-tenant-id": access.tenantId,
-  };
-};
 
 const countExpiringSoonDocuments = (
   documents: readonly DocumentsManagementDocumentSummaryProjection[]
@@ -134,7 +88,7 @@ export const loadHrDocumentsPageData = async (): Promise<
   LoadState<HrDocumentsPageData>
 > => {
   const access = await resolveRuntimeTenantAccess();
-  const runtimeAccess = createDocumentsManagementAccess(access);
+  const runtimeAccess = resolveHrDocumentsRuntimeAccess(access);
 
   if (!runtimeAccess.canRead) {
     return {
@@ -160,12 +114,16 @@ export const loadHrDocumentsPageData = async (): Promise<
 
     return {
       data: {
-        access: runtimeAccess,
+        access: {
+          canDownload: runtimeAccess.canDownload,
+          canRead: runtimeAccess.canRead,
+          canViewSensitive: runtimeAccess.canViewSensitive,
+          canWrite: runtimeAccess.canWrite,
+        },
         actorId: access.actorId,
         documents,
         expiringSoonDocumentCount: countExpiringSoonDocuments(documents),
         grantedPermissions: access.grantedPermissions,
-        headerSet: createDocumentsManagementHeaderSet(access),
         loadedDocumentCount: documents.length,
         mandatoryDocumentCount: documents.filter(
           (document) => document.mandatory
@@ -188,7 +146,7 @@ export const loadHrDocumentDetailPageData = async (
   documentId: string
 ): Promise<LoadState<HrDocumentDetailData>> => {
   const access = await resolveRuntimeTenantAccess();
-  const runtimeAccess = createDocumentsManagementAccess(access);
+  const runtimeAccess = resolveHrDocumentsRuntimeAccess(access);
 
   if (!runtimeAccess.canRead) {
     return {
@@ -207,14 +165,28 @@ export const loadHrDocumentDetailPageData = async (
       };
     }
 
+    if (context.canViewSensitive) {
+      await recordDocumentsManagementDocumentAccess(
+        {
+          action: "read_sensitive",
+          documentId,
+        },
+        context
+      );
+    }
+
     return {
       data: {
-        access: runtimeAccess,
+        access: {
+          canDownload: runtimeAccess.canDownload,
+          canRead: runtimeAccess.canRead,
+          canViewSensitive: runtimeAccess.canViewSensitive,
+          canWrite: runtimeAccess.canWrite,
+        },
         actorId: access.actorId,
         document,
         downloadPath: hrTenantDocumentDownloadPath(document.id),
         grantedPermissions: access.grantedPermissions,
-        headerSet: createDocumentsManagementHeaderSet(access),
         tenantId: access.tenantId,
         tenantRole: access.role,
         userEmail: access.userEmail,

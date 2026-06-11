@@ -22,7 +22,7 @@ const isRetentionAction = (
   value === "archive" ||
   value === "anonymize";
 
-export function GET(request: Request): Response {
+export async function GET(request: Request): Promise<Response> {
   try {
     const url = new URL(request.url);
     const action = url.searchParams.get("action") ?? undefined;
@@ -39,7 +39,7 @@ export function GET(request: Request): Response {
     return NextResponse.json(
       listDocumentsManagementRetentionCandidates(
         query,
-        createDocumentsManagementReadContext(request)
+        await createDocumentsManagementReadContext(request)
       )
     );
   } catch {
@@ -52,7 +52,7 @@ export function GET(request: Request): Response {
 
 export async function POST(request: Request): Promise<Response> {
   try {
-    const writeContext = createDocumentsManagementWriteContext(request);
+    const writeContext = await createDocumentsManagementWriteContext(request);
 
     if (!canExecuteDocumentsManagementRetention(writeContext)) {
       return NextResponse.json(

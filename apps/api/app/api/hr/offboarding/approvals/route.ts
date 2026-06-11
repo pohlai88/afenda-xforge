@@ -12,7 +12,7 @@ import {
 export async function GET(request: Request) {
   const data = await listOffboardingApprovalRecords(
     getQuery(request),
-    createOffboardingReadContext(request)
+    await createOffboardingReadContext(request)
   );
 
   return NextResponse.json(data);
@@ -24,7 +24,7 @@ export async function POST(request: Request) {
   >[0];
   const result = await upsertOffboardingApprovalStep(
     body,
-    createOffboardingWriteContext(request)
+    await createOffboardingWriteContext(request)
   );
 
   return NextResponse.json(result, { status: result.ok ? 200 : 404 });

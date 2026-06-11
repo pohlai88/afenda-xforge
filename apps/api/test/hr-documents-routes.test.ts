@@ -3,6 +3,11 @@ import { mkdtempSync, rmSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { afterEach, beforeEach, test } from "node:test";
+import {
+  installTestRuntimeTenantAccess,
+  TEST_TENANT_ID,
+  uninstallTestRuntimeTenantAccess,
+} from "./_runtime-access-fixture.ts";
 
 import {
   registerDocumentsManagementDocument,
@@ -39,24 +44,8 @@ import { POST as postDocumentUploadRoute } from "../app/api/hr/documents/upload/
 let sandboxDirectory: string;
 let blobContents: Map<string, { contentType: string; payload: Uint8Array }>;
 
-const baseHeaders = {
-  "x-can-download-documents": "true",
-  "x-can-read-documents": "true",
-  "x-company-id": "company-a",
-  "x-tenant-id": "tenant-a",
-};
-
-const deniedHeaders = {
-  "x-can-download-documents": "false",
-  "x-can-read-documents": "false",
-  "x-company-id": "company-a",
-  "x-tenant-id": "tenant-a",
-};
-
-const buildRequest = (
-  path: string,
-  headers: Record<string, string> = baseHeaders
-): Request => new Request(`http://localhost${path}`, { headers });
+const buildRequest = (path: string): Request =>
+  new Request(`http://localhost${path}`);
 
 const daysFromNow = (days: number): Date => {
   const date = new Date();
@@ -65,6 +54,7 @@ const daysFromNow = (days: number): Date => {
 };
 
 beforeEach(() => {
+  installTestRuntimeTenantAccess({ tenantId: TEST_TENANT_ID });
   sandboxDirectory = mkdtempSync(join(tmpdir(), "api-documents-routes-"));
   const repositoryPath = join(sandboxDirectory, "repository.json");
   blobContents = new Map();
@@ -143,6 +133,7 @@ beforeEach(() => {
 });
 
 afterEach(() => {
+  uninstallTestRuntimeTenantAccess();
   restoreDocumentsManagementDatabaseAuditWriter();
   resetDocumentsManagementBlobClientForTesting();
   resetDocumentsManagementStorageProviderForTesting();
@@ -298,11 +289,16 @@ test("serves document list, detail, readiness, and expiring routes", async () =>
 });
 
 test("fails closed for invalid queries and denied reads", async () => {
+  installTestRuntimeTenantAccess({
+    role: "viewer",
+    grantedPermissions: [],
+  });
+
   const deniedListResponse = await getDocumentsRoute(
-    buildRequest("/api/hr/documents", deniedHeaders)
+    buildRequest("/api/hr/documents")
   );
   const deniedDetailResponse = await getDocumentRoute(
-    buildRequest("/api/hr/documents/example", deniedHeaders),
+    buildRequest("/api/hr/documents/example"),
     {
       params: Promise.resolve({ documentId: "example" }),
     }
@@ -342,10 +338,6 @@ test("uploads a document through the API and downloads the stored binary", async
   const uploadResponse = await postDocumentsRoute(
     new Request("http://localhost/api/hr/documents", {
       body: formData,
-      headers: {
-        ...baseHeaders,
-        "x-can-write-documents": "true",
-      },
       method: "POST",
     })
   );
@@ -402,9 +394,7 @@ test("issues a blob client upload token for direct browser uploads", async () =>
         type: "blob.generate-client-token",
       }),
       headers: {
-        ...baseHeaders,
         "content-type": "application/json",
-        "x-can-write-documents": "true",
       },
       method: "POST",
     })
@@ -455,7 +445,6 @@ test("acknowledges blob upload completion without duplicating registration", asy
         type: "blob.upload-completed",
       }),
       headers: {
-        ...baseHeaders,
         "content-type": "application/json",
       },
       method: "POST",
@@ -499,10 +488,6 @@ test("registers a document from a pre-uploaded storage reference", async () => {
   const uploadResponse = await postDocumentsRoute(
     new Request("http://localhost/api/hr/documents", {
       body: formData,
-      headers: {
-        ...baseHeaders,
-        "x-can-write-documents": "true",
-      },
       method: "POST",
     })
   );
@@ -568,10 +553,6 @@ test("surfaces blob storage failures as service-unavailable responses", async ()
   const uploadResponse = await postDocumentsRoute(
     new Request("http://localhost/api/hr/documents", {
       body: formData,
-      headers: {
-        ...baseHeaders,
-        "x-can-write-documents": "true",
-      },
       method: "POST",
     })
   );
@@ -640,9 +621,7 @@ test("updates and deletes documents through document detail routes", async () =>
         title: "Updated Title",
       }),
       headers: {
-        ...baseHeaders,
         "content-type": "application/json",
-        "x-can-write-documents": "true",
       },
       method: "PATCH",
     }),
@@ -659,9 +638,7 @@ test("updates and deletes documents through document detail routes", async () =>
     new Request(`http://localhost/api/hr/documents/${registeredDocument.id}`, {
       body: JSON.stringify({ reason: "Test cleanup" }),
       headers: {
-        ...baseHeaders,
         "content-type": "application/json",
-        "x-can-write-documents": "true",
       },
       method: "DELETE",
     }),

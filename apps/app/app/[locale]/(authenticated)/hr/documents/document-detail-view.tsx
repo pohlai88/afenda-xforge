@@ -204,11 +204,13 @@ export function DocumentDetailView({
               <Button asChild variant="outline">
                 <Link href="/hr/documents">Back to documents</Link>
               </Button>
-              <Button asChild>
-                <a download href={data.downloadPath}>
-                  Download file
-                </a>
-              </Button>
+              {data.access.canDownload ? (
+                <Button asChild>
+                  <a download href={data.downloadPath}>
+                    Download file
+                  </a>
+                </Button>
+              ) : null}
             </div>
           </div>
 

@@ -9,7 +9,7 @@ export async function GET(request: Request): Promise<Response> {
   );
   const data = await listHrOrgReportingLinesWindow(
     query,
-    createHrOrgReadContext(request)
+    await createHrOrgReadContext(request)
   );
 
   return NextResponse.json(data);

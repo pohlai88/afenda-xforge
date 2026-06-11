@@ -34,7 +34,7 @@ export async function GET(
   context: RouteContext
 ): Promise<Response> {
   const { documentId } = await context.params;
-  const readContext = createDocumentsManagementReadContext(request);
+  const readContext = await createDocumentsManagementReadContext(request);
 
   if (!canDownloadDocumentsManagement(readContext)) {
     return Response.json(

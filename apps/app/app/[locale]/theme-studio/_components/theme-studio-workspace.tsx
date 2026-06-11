@@ -6,7 +6,6 @@ import type { ReactElement, ReactNode } from "react";
 import { resolveProductDefaults } from "../../../../lib/workspace-shortcuts/resolve-shortcuts.ts";
 import { AppNavTopbarActions } from "../../../_components/workspace/app-nav-topbar-actions.tsx";
 import { THEME_STUDIO_NAV_ACTION_GROUPS } from "../../../_components/workspace/app-nav-topbar-nav-actions.demo.ts";
-import { AppNavTopbarNotifications } from "../../../_components/workspace/app-nav-topbar-notifications.tsx";
 import { AppNavTopbarThemeToggle } from "../../../_components/workspace/app-nav-topbar-theme-toggle.tsx";
 import { WorkspaceShortcutsDispatcher } from "../../../_components/workspace/keyboard-shortcuts/keyboard-shortcuts-provider.tsx";
 import { useWorkspaceShortcuts } from "../../../_components/workspace/keyboard-shortcuts/use-keyboard-shortcuts.tsx";
@@ -36,14 +35,8 @@ function ThemeStudioTopbarActions(): ReactElement {
   return (
     <AppNavTopbarActions
       navActionGroups={THEME_STUDIO_NAV_ACTION_GROUPS}
-      notificationsMenu={
-        <AppNavTopbarNotifications
-          preview
-          tenantId={THEME_STUDIO_DEMO_CONTEXT.tenantId}
-          userId={THEME_STUDIO_DEMO_CONTEXT.userId}
-        />
-      }
-      onKeyboardShortcutsClick={openHelp}
+      onHelpClick={openHelp}
+      previewUtilities
       themeMenu={<AppNavTopbarThemeToggle />}
       userEmail={THEME_STUDIO_DEMO_USER.email}
       userName={THEME_STUDIO_DEMO_USER.name}

@@ -5,6 +5,12 @@ import { join } from "node:path";
 import { afterEach, beforeEach, test } from "node:test";
 import { createEmployeeSelfservicePortal } from "@repo/features-employee-management-employee-selfservice-portal/server";
 import {
+  installTestEssRuntimeTenantAccess,
+  TEST_COMPANY_ID,
+  TEST_TENANT_ID,
+  uninstallTestRuntimeTenantAccess,
+} from "./_runtime-access-fixture.ts";
+import {
   resetDocumentsManagementAuditWriterForTesting,
   restoreDocumentsManagementDatabaseAuditWriter,
 } from "../../../packages/features/hr-suite/employee-management/documents-management/src/audit.ts";
@@ -36,8 +42,8 @@ let sandboxDirectory: string;
 let acknowledgmentObligationId = "";
 
 const documentsContext = {
-  companyId: "company-a",
-  tenantId: "tenant-a",
+  companyId: TEST_COMPANY_ID,
+  tenantId: TEST_TENANT_ID,
 };
 
 const defaultRetention = {
@@ -79,27 +85,16 @@ const seedDocument = (input: {
     documentsContext
   );
 
-const baseHeaders = {
-  "x-actor-employee-id": "employee-1",
-  "x-can-read-employee-selfservice-portal": "true",
-  "x-can-write-employee-selfservice-portal": "true",
-  "x-company-id": "company-a",
-  "x-organization-id": "org-a",
-  "x-request-id": "request-a",
-  "x-tenant-id": "tenant-a",
-  "x-user-id": "employee-user",
-};
-
 const buildRequest = (path: string, init: RequestInit = {}): Request =>
-  new Request(`http://localhost${path}`, {
-    ...init,
-    headers: {
-      ...baseHeaders,
-      ...(init.headers ?? {}),
-    },
-  });
+  new Request(`http://localhost${path}`, init);
 
 beforeEach(() => {
+  installTestEssRuntimeTenantAccess({
+    actorEmployeeId: "employee-1",
+    actorId: "employee-user",
+    tenantId: TEST_TENANT_ID,
+    userEmail: "employee.one@example.com",
+  });
   sandboxDirectory = mkdtempSync(join(tmpdir(), "api-ess-routes-"));
   setEmployeeSelfservicePortalRepositoryPathForTesting(
     join(sandboxDirectory, "ess-repository.json")
@@ -121,8 +116,8 @@ beforeEach(() => {
     },
     {
       canWrite: true,
-      companyId: "company-a",
-      tenantId: "tenant-a",
+      companyId: TEST_COMPANY_ID,
+      tenantId: TEST_TENANT_ID,
       userId: "hr-admin",
     }
   );
@@ -172,6 +167,7 @@ beforeEach(() => {
 });
 
 afterEach(() => {
+  uninstallTestRuntimeTenantAccess();
   restoreDocumentsManagementDatabaseAuditWriter();
   rmSync(sandboxDirectory, { force: true, recursive: true });
 });

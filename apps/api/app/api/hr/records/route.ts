@@ -10,7 +10,7 @@ import { listHrEmployeeRecordsForApi } from "./_lib/search.ts";
 export async function GET(request: Request): Promise<Response> {
   const records = await listHrEmployeeRecordsForApi(
     request,
-    createHrRecordsReadContext(request)
+    await createHrRecordsReadContext(request)
   );
 
   return NextResponse.json(records);
@@ -22,7 +22,7 @@ export async function POST(request: Request): Promise<Response> {
 
     const result = await createHrEmployeeRecord(
       body,
-      createHrRecordsWriteContext(request)
+      await createHrRecordsWriteContext(request)
     );
 
     return NextResponse.json(result, {

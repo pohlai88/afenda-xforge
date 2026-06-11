@@ -1,23 +1,16 @@
 import { BusinessRuleError, ForbiddenError } from "@repo/errors";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
-const authMocks = vi.hoisted(() => ({
-  requireActiveTenantMembership: vi.fn(),
-}));
-
-const repositoryMocks = vi.hoisted(() => ({
-  readWorkspaceShortcuts: vi.fn(),
+const queryMocks = vi.hoisted(() => ({
+  queryWorkspaceShortcuts: vi.fn(),
 }));
 
 const executionMocks = vi.hoisted(() => ({
   executeUserShortcutOverridesUpdate: vi.fn(),
 }));
 
-vi.mock("@repo/auth/server", () => authMocks);
 vi.mock("../lib/workspace-shortcuts/execution.server.ts", () => executionMocks);
-vi.mock("../lib/workspace-shortcuts/repository.server", () => ({
-  readWorkspaceShortcuts: repositoryMocks.readWorkspaceShortcuts,
-}));
+vi.mock("../lib/workspace-shortcuts/queries.server.ts", () => queryMocks);
 
 import { GET, POST } from "../app/api/me/keyboard-shortcuts/route.ts";
 import { resolveProductDefaults } from "../lib/workspace-shortcuts/resolve-shortcuts.ts";
@@ -25,41 +18,36 @@ import { resolveProductDefaults } from "../lib/workspace-shortcuts/resolve-short
 describe("/api/me/keyboard-shortcuts", () => {
   beforeEach(() => {
     vi.clearAllMocks();
-    authMocks.requireActiveTenantMembership.mockResolvedValue({
-      id: "membership-1",
-      role: "admin",
-      tenantId: "tenant-001",
-      userId: "user-001",
-    });
   });
 
   it("returns merged workspace shortcuts for the active tenant membership", async () => {
     const payload = resolveProductDefaults();
-    repositoryMocks.readWorkspaceShortcuts.mockResolvedValue(payload);
+    queryMocks.queryWorkspaceShortcuts.mockResolvedValue(payload);
 
-    const response = await GET();
+    const response = await GET(
+      new Request("http://localhost/api/me/keyboard-shortcuts")
+    );
     const body = await response.json();
 
     expect(response.status).toBe(200);
     expect(body).toEqual(payload);
-    expect(repositoryMocks.readWorkspaceShortcuts).toHaveBeenCalledWith(
-      "tenant-001",
-      "user-001"
-    );
+    expect(queryMocks.queryWorkspaceShortcuts).toHaveBeenCalledWith({
+      requestId: undefined,
+    });
   });
 
-  it("falls back to product defaults when repository read fails", async () => {
-    repositoryMocks.readWorkspaceShortcuts.mockRejectedValue(
+  it("returns a mapped error when repository read fails", async () => {
+    queryMocks.queryWorkspaceShortcuts.mockRejectedValue(
       new Error("missing table")
     );
 
-    const response = await GET();
+    const response = await GET(
+      new Request("http://localhost/api/me/keyboard-shortcuts")
+    );
     const body = await response.json();
 
-    expect(response.status).toBe(200);
-    expect(body.bindings["workspace.commandSearch"].binding.normalized).toBe(
-      "mod+k"
-    );
+    expect(response.status).toBe(500);
+    expect(body.error).toBe("Keyboard shortcut resolution failed");
   });
 
   it("rejects POST when user customization is disabled", async () => {
@@ -103,8 +91,6 @@ describe("/api/me/keyboard-shortcuts", () => {
       { overrides: { "crud.edit": "f6" } },
       {
         requestId: undefined,
-        tenantId: "tenant-001",
-        userId: "user-001",
       }
     );
   });
@@ -163,8 +149,6 @@ describe("/api/me/keyboard-shortcuts", () => {
       { overrides: { "crud.edit": null } },
       {
         requestId: undefined,
-        tenantId: "tenant-001",
-        userId: "user-001",
       }
     );
   });

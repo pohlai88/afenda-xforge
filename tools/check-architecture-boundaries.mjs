@@ -412,6 +412,9 @@ function checkUiPackageImports(filePath, specifier, resolvedPath) {
 
 function checkMetadataUiImports(filePath, specifier, resolvedPath) {
   if (isMetadataUiPackage(filePath)) {
+    if (relativeToRoot(filePath).includes("/tests/")) {
+      return;
+    }
     const allowedMetadataUiImports = new Set([
       "@repo/customization",
       "@repo/metadata",

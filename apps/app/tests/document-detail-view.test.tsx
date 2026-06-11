@@ -20,6 +20,7 @@ describe("DocumentDetailView", () => {
         customizationLayers={{ company: null, tenant: null }}
         data={{
           access: {
+            canDownload: true,
             canRead: true,
             canViewSensitive: true,
             canWrite: false,
@@ -62,7 +63,6 @@ describe("DocumentDetailView", () => {
           },
           downloadPath: "/api/hr/documents/doc-001/download",
           grantedPermissions: ["hr.documents.read"],
-          headerSet: {},
           tenantId: "tenant-001",
           tenantRole: "admin",
           userEmail: "owner@tenant.test",

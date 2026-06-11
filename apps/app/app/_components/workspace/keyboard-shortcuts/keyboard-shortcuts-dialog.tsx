@@ -25,8 +25,6 @@ import {
   DialogHeader,
   DialogTitle,
   Input,
-  Kbd,
-  KbdGroup,
   ScrollArea,
   Separator,
   Tabs,
@@ -34,6 +32,7 @@ import {
   TabsList,
   TabsTrigger,
   toast,
+  TooltipProvider,
 } from "@repo/ui";
 import { Keyboard, Search } from "lucide-react";
 import { useTranslations } from "next-intl";
@@ -46,7 +45,7 @@ import type {
   ShortcutOverridePatch,
   WorkspaceShortcutsPayload,
 } from "../../../../lib/workspace-shortcuts/contract.ts";
-import { formatShortcutLabel } from "../../../../lib/workspace-shortcuts/format-shortcut.ts";
+import { WORKSPACE_KEYBOARD_SHORTCUTS_BROADCAST_CHANNEL } from "../../../../lib/workspace-shortcuts/contract.ts";
 import {
   persistShortcutOverrides,
   validatePendingUserOverrides,
@@ -58,37 +57,16 @@ import {
 import { PRODUCT_SHORTCUT_DEFINITIONS } from "../../../../lib/workspace-shortcuts/product-defaults.ts";
 import { ShortcutCapturePopover } from "./shortcut-capture-popover.tsx";
 import { shortcutActionMessageKey } from "./shortcut-i18n.ts";
+import { ShortcutKeyDisplay } from "./shortcut-key-display.tsx";
 import {
-  ShortcutBadgeGroup,
   ShortcutFnKeyBadge,
+  ShortcutMetaBadgeGroup,
   ShortcutReliabilityBadge,
   ShortcutSourceBadge,
-} from "./shortcut-source-badge.tsx";
+} from "./shortcut-meta-badges.tsx";
 import { useWorkspaceShortcuts } from "./use-keyboard-shortcuts.tsx";
 
 const GROUP_ORDER: readonly ShortcutGroup[] = ["navigation", "crud", "help"];
-
-function ShortcutKeyDisplay({
-  shortcut,
-}: {
-  shortcut: ResolvedShortcut;
-}): ReactElement {
-  const labels = [shortcut.binding.label];
-
-  if (shortcut.secondaryBinding) {
-    labels.push(shortcut.secondaryBinding.label);
-  }
-
-  return (
-    <div>
-      <KbdGroup>
-        {labels.map((label) => (
-          <Kbd key={label}>{label}</Kbd>
-        ))}
-      </KbdGroup>
-    </div>
-  );
-}
 
 function ShortcutRow({
   canCustomize,
@@ -112,17 +90,6 @@ function ShortcutRow({
   const tCommon = useTranslations("common");
   const actionLabel = tActions(shortcutActionMessageKey(row.actionId));
   const pendingValue = pendingOverrides[row.actionId];
-  const displayShortcut =
-    pendingValue === undefined
-      ? row
-      : {
-          ...row,
-          binding: {
-            ...row.binding,
-            normalized: effectiveNormalized,
-            label: formatShortcutLabel(effectiveNormalized),
-          },
-        };
   const hasPendingChange = pendingValue !== undefined;
 
   return (
@@ -135,17 +102,20 @@ function ShortcutRow({
           ) : null}
         </div>
         <div className="flex flex-wrap items-center gap-2">
-          <ShortcutBadgeGroup>
+          <ShortcutMetaBadgeGroup>
             <ShortcutSourceBadge shortcut={row} />
             <ShortcutFnKeyBadge normalized={effectiveNormalized} />
             <ShortcutReliabilityBadge shortcut={row} />
-          </ShortcutBadgeGroup>
+          </ShortcutMetaBadgeGroup>
         </div>
       </div>
       <div className="flex shrink-0 items-center gap-2">
         {canCustomize && !row.locked ? (
           <>
-            <ShortcutKeyDisplay shortcut={displayShortcut} />
+            <ShortcutKeyDisplay
+              normalized={effectiveNormalized}
+              secondaryNormalized={row.secondaryBinding?.normalized}
+            />
             <ShortcutCapturePopover
               actionId={row.actionId}
               actionLabel={actionLabel}
@@ -165,7 +135,10 @@ function ShortcutRow({
             ) : null}
           </>
         ) : (
-          <ShortcutKeyDisplay shortcut={displayShortcut} />
+          <ShortcutKeyDisplay
+            normalized={effectiveNormalized}
+            secondaryNormalized={row.secondaryBinding?.normalized}
+          />
         )}
       </div>
     </div>
@@ -211,7 +184,6 @@ export function KeyboardShortcutsDialog({
 
               return (
                 actionLabel.toLowerCase().includes(normalizedQuery) ||
-                row.description.toLowerCase().includes(normalizedQuery) ||
                 row.binding.label.toLowerCase().includes(normalizedQuery) ||
                 row.secondaryBinding?.label
                   .toLowerCase()
@@ -285,6 +257,16 @@ export function KeyboardShortcutsDialog({
       setPayload(result.payload);
       setPendingOverrides({});
       toast.message(t("saveSuccess"));
+
+      if (typeof BroadcastChannel !== "undefined") {
+        new BroadcastChannel(
+          WORKSPACE_KEYBOARD_SHORTCUTS_BROADCAST_CHANNEL
+        ).postMessage({
+          type: "user-overrides-updated",
+        });
+      }
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : t("saveFailed"));
     } finally {
       setSaving(false);
     }
@@ -346,7 +328,8 @@ export function KeyboardShortcutsDialog({
             </TabsList>
 
             <ScrollArea className="mt-4 max-h-[46vh] pr-3">
-              {GROUP_ORDER.map((group) => (
+              <TooltipProvider delayDuration={300}>
+                {GROUP_ORDER.map((group) => (
                 <TabsContent
                   className="mt-0 space-y-3"
                   key={group}
@@ -360,7 +343,9 @@ export function KeyboardShortcutsDialog({
                       <CardDescription>
                         {group === "crud"
                           ? t("groups.crudDescription")
-                          : t("groups.globalDescription")}
+                          : group === "help"
+                            ? t("groups.helpDescription")
+                            : t("groups.globalDescription")}
                       </CardDescription>
                     </CardHeader>
                     <CardContent className="divide-y p-0">
@@ -393,6 +378,7 @@ export function KeyboardShortcutsDialog({
                   </Card>
                 </TabsContent>
               ))}
+              </TooltipProvider>
             </ScrollArea>
           </Tabs>
 

@@ -22,9 +22,9 @@ const parseQuery = (request: Request) => {
   });
 };
 
-export function GET(request: Request): Response {
+export async function GET(request: Request): Promise<Response> {
   try {
-    const essContext = createEmployeeSelfservicePortalReadContext(request);
+    const essContext = await createEmployeeSelfservicePortalReadContext(request);
 
     if (!(essContext.canRead && essContext.actorEmployeeId)) {
       return NextResponse.json([], { status: 200 });

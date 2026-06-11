@@ -19,6 +19,7 @@ import {
 } from "@repo/ui";
 import type { ReactElement } from "react";
 import { useCallback, useMemo, useState } from "react";
+import { useTranslations } from "next-intl";
 import { useRouter } from "@/i18n/navigation";
 import { withCSRFHeader } from "../../../../../lib/csrf.client.ts";
 import {
@@ -72,6 +73,7 @@ const DashboardEntityDirectoryPanel = ({
   title,
 }: DashboardEntityDirectoryPanelProps): ReactElement => {
   const isActive = activeEntity === entityKind;
+  const tShortcuts = useTranslations("workspace.keyboardShortcuts");
 
   if (state.status === "forbidden") {
     return (
@@ -113,10 +115,9 @@ const DashboardEntityDirectoryPanel = ({
     >
       {isActive && selectedRowId ? (
         <p className="text-muted-foreground text-xs">
-          Selected row: press F2 to edit
           {entityKind === "customers" || entityKind === "companies"
-            ? " or F8 to archive."
-            : "."}
+            ? tShortcuts("selectedRow.editOrArchive")
+            : tShortcuts("selectedRow.editOnly")}
         </p>
       ) : null}
       <EntityMetadataPanel

@@ -27,6 +27,7 @@ describe("DocumentsView", () => {
           context={createDocumentsContext()}
           data={{
             access: {
+              canDownload: true,
               canRead: true,
               canViewSensitive: true,
               canWrite: true,
@@ -51,9 +52,6 @@ describe("DocumentsView", () => {
             ],
             expiringSoonDocumentCount: 0,
             grantedPermissions: ["hr.documents.read"],
-            headerSet: {
-              "x-tenant-id": "tenant-001",
-            },
             loadedDocumentCount: 1,
             mandatoryDocumentCount: 1,
             tenantId: "tenant-001",
@@ -84,6 +82,7 @@ describe("DocumentsView", () => {
           context={createDocumentsContext()}
           data={{
             access: {
+              canDownload: false,
               canRead: true,
               canViewSensitive: false,
               canWrite: false,
@@ -92,7 +91,6 @@ describe("DocumentsView", () => {
             documents: [],
             expiringSoonDocumentCount: 0,
             grantedPermissions: ["hr.documents.read"],
-            headerSet: {},
             loadedDocumentCount: 0,
             mandatoryDocumentCount: 0,
             tenantId: "tenant-001",

@@ -2,42 +2,68 @@ import type {
   ComplianceReadContext,
   ComplianceWriteContext,
 } from "@repo/features-employee-management-compliance-regulatory-tracking";
+import {
+  filterHrCapabilityPermissions,
+  resolveHrOperatorCapabilities,
+  resolveHrTenantScopedAccess,
+} from "../../_lib/access.ts";
 
-const header = (request: Request, name: string): string | undefined =>
-  request.headers.get(name)?.trim() || undefined;
+export const createComplianceReadContext = async (
+  _request: Request
+): Promise<ComplianceReadContext & { tenantId?: string }> => {
+  const { access, companyId } = await resolveHrTenantScopedAccess();
+  const capabilities = resolveHrOperatorCapabilities(access);
+  const grantedCapabilities = filterHrCapabilityPermissions(
+    access.grantedPermissions,
+    "hr.compliance."
+  );
 
-const boolHeader = (request: Request, name: string): boolean | undefined => {
-  const value = header(request, name);
-  if (!value) {
-    return;
-  }
-
-  return value === "true" || value === "1";
+  return {
+    canRead: capabilities.canRead || grantedCapabilities.length > 0,
+    canViewSensitive:
+      capabilities.canViewSensitive ||
+      grantedCapabilities.includes("hr.compliance.evidence.sensitive.read"),
+    companyId,
+    grantedCapabilities,
+    tenantId: access.tenantId,
+  };
 };
 
-export const createComplianceReadContext = (
+export const createComplianceWriteContext = async (
   request: Request
-): ComplianceReadContext & { tenantId?: string } => ({
-  canRead: boolHeader(request, "x-can-read-compliance") ?? true,
-  canViewSensitive: boolHeader(request, "x-can-view-sensitive") ?? false,
-  companyId: header(request, "x-company-id"),
-  tenantId: header(request, "x-tenant-id"),
-});
+): Promise<
+  ComplianceWriteContext & {
+    actorId?: string;
+    canWrite?: boolean;
+    tenantId?: string;
+  }
+> => {
+  const readContext = await createComplianceReadContext(request);
+  const { access } = await resolveHrTenantScopedAccess();
+  const capabilities = resolveHrOperatorCapabilities(access);
+  const grantedCapabilities = filterHrCapabilityPermissions(
+    access.grantedPermissions,
+    "hr.compliance."
+  );
+  const canWrite =
+    capabilities.canWrite ||
+    grantedCapabilities.some((capability) => capability.endsWith(".write"));
 
-export const createComplianceWriteContext = (
-  request: Request
-): ComplianceWriteContext & {
-  actorId?: string;
-  canWrite?: boolean;
-  tenantId?: string;
-} => ({
-  actorId: header(request, "x-actor-id") ?? "api",
-  canRead: true,
-  canViewSensitive: boolHeader(request, "x-can-view-sensitive") ?? false,
-  canWrite: boolHeader(request, "x-can-write-compliance") ?? true,
-  companyId: header(request, "x-company-id"),
-  tenantId: header(request, "x-tenant-id"),
-});
+  return {
+    actorId: access.actorId,
+    canRead: readContext.canRead,
+    canViewSensitive: readContext.canViewSensitive,
+    canWrite,
+    companyId: readContext.companyId,
+    tenantId: access.tenantId,
+    grantedCapabilities,
+  } as ComplianceWriteContext & {
+    actorId?: string;
+    canWrite?: boolean;
+    tenantId?: string;
+    grantedCapabilities?: string[];
+  };
+};
 
 export const getQuery = (request: Request): Record<string, string | number> => {
   const url = new URL(request.url);

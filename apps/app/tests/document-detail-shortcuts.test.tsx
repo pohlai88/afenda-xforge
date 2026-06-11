@@ -87,7 +87,6 @@ describe("DocumentDetailWorkspace shortcuts", () => {
         documentDescription="Policy handbook"
         documentId="doc-123"
         documentTitle="Employee Handbook"
-        requestHeaders={{ "x-tenant-id": "tenant-001" }}
       >
         <div>detail</div>
       </DocumentDetailWorkspace>
@@ -116,7 +115,6 @@ describe("DocumentDetailWorkspace shortcuts", () => {
         documentDescription="Policy handbook"
         documentId="doc-123"
         documentTitle="Employee Handbook"
-        requestHeaders={{ "x-tenant-id": "tenant-001" }}
       >
         <div>detail</div>
       </DocumentDetailWorkspace>

@@ -5,6 +5,7 @@ import { transformWithEsbuild } from "vite";
 
 const storybookDirectory = dirname(fileURLToPath(import.meta.url));
 const monorepoRoot = join(storybookDirectory, "../../..");
+const appRoot = join(monorepoRoot, "apps/app");
 
 const appTsxPattern = /\/apps\/app\/.*\.tsx$/;
 
@@ -69,8 +70,13 @@ const config: StorybookConfig = {
       ...config.resolve,
       alias: {
         ...(config.resolve?.alias as Record<string, string> | undefined),
+        "@": appRoot,
         "next/link": join(storybookDirectory, "mocks/next-link.tsx"),
         "next/navigation": join(storybookDirectory, "mocks/next-navigation.ts"),
+        "@/i18n/navigation": join(
+          storybookDirectory,
+          "mocks/i18n-navigation.ts"
+        ),
       },
     };
 

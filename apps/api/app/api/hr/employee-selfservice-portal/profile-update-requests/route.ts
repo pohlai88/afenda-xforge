@@ -13,7 +13,7 @@ import {
 } from "../_lib/context.ts";
 import { employeeSelfservicePortalErrorResponse } from "../_lib/errors.ts";
 
-export function GET(request: Request): Response {
+export async function GET(request: Request): Promise<Response> {
   try {
     const url = new URL(request.url);
     const query =
@@ -31,7 +31,7 @@ export function GET(request: Request): Response {
     return NextResponse.json(
       listEmployeeSelfservicePortalProfileUpdateRequestViews(
         query,
-        createEmployeeSelfservicePortalReadContext(request)
+        await createEmployeeSelfservicePortalReadContext(request)
       )
     );
   } catch (error) {
@@ -59,7 +59,7 @@ export async function POST(request: Request): Promise<Response> {
     return NextResponse.json(
       submitEmployeeSelfservicePortalProfileUpdateRequest(
         parsedInput,
-        createEmployeeSelfservicePortalWriteContext(request)
+        await createEmployeeSelfservicePortalWriteContext(request)
       ),
       { status: 201 }
     );

@@ -10,7 +10,7 @@ import {
 } from "./_lib/context.ts";
 import { employeeSelfservicePortalErrorResponse } from "./_lib/errors.ts";
 
-export function GET(request: Request): Response {
+export async function GET(request: Request): Promise<Response> {
   try {
     const url = new URL(request.url);
 
@@ -32,7 +32,7 @@ export function GET(request: Request): Response {
             | "suspended"
             | null) ?? undefined,
       },
-      createEmployeeSelfservicePortalReadContext(request)
+      await createEmployeeSelfservicePortalReadContext(request)
     );
 
     return NextResponse.json(records);
@@ -59,7 +59,7 @@ export async function POST(request: Request): Promise<Response> {
 
     const record = createEmployeeSelfservicePortal(
       parsedInput,
-      createEmployeeSelfservicePortalWriteContext(request)
+      await createEmployeeSelfservicePortalWriteContext(request)
     );
 
     return NextResponse.json(record, { status: 201 });

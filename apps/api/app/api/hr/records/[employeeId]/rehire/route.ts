@@ -31,7 +31,7 @@ export async function POST(
   });
   const result = await rehireHrEmployeeRecord(
     parsed,
-    createHrRecordsWriteContext(request)
+    await createHrRecordsWriteContext(request)
   );
 
   return NextResponse.json(result, {

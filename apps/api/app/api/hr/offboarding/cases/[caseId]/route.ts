@@ -36,7 +36,7 @@ export async function GET(
   context: { params: Promise<{ caseId: string }> }
 ) {
   try {
-    const readContext = createOffboardingReadContext(request);
+    const readContext = await createOffboardingReadContext(request);
     const denied = ensureOffboardingReadAccess(readContext);
     if (denied) {
       return denied;
@@ -72,7 +72,7 @@ export async function PATCH(
   context: { params: Promise<{ caseId: string }> }
 ) {
   try {
-    const writeContext = createOffboardingWriteContext(request);
+    const writeContext = await createOffboardingWriteContext(request);
     const denied = ensureOffboardingWriteAccess(writeContext);
     if (denied) {
       return denied;

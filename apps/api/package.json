@@ -17,6 +17,8 @@
     "@repo/audit": "workspace:*",
     "@repo/auth": "workspace:*",
     "@repo/database": "workspace:*",
+    "@repo/errors": "workspace:*",
+    "@repo/logger": "workspace:*",
     "@repo/features-employee-management-compliance-regulatory-tracking": "workspace:*",
     "@repo/features-employee-management-documents-management": "workspace:*",
     "@repo/features-employee-management-employee-lifecycle-management": "workspace:*",
@@ -40,7 +42,9 @@
     "drizzle-orm": "catalog:",
     "next": "catalog:",
     "react": "catalog:",
-    "react-dom": "catalog:"
+    "react-dom": "catalog:",
+    "server-only": "catalog:",
+    "zod": "catalog:"
   },
   "devDependencies": {
     "@repo/typescript-config": "workspace:*",

@@ -1,7 +1,7 @@
 import "server-only";
 
 import type { TenantBrandingSettings } from "@repo/design-system/contracts/tenant-branding.contract";
-import type { TenantAdminSettingsSnapshot } from "./repository.server.ts";
+import type { TenantAdminSettingsSnapshot } from "./contract.ts";
 import {
   readTenantAdminSettings,
   readTenantBrandingSettings,

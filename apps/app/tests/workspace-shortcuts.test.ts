@@ -264,7 +264,7 @@ describe("validateCapturedShortcut", () => {
 
     expect(result).toEqual({
       ok: false,
-      reason: "Capture cancelled.",
+      code: "cancelled",
       cancel: true,
     });
   });
@@ -279,7 +279,7 @@ describe("validateCapturedShortcut", () => {
 
     expect(result.ok).toBe(false);
     if (!result.ok) {
-      expect(result.reason).toContain("reserved");
+      expect(result.code).toBe("reservedBrowserKey");
     }
   });
 });
@@ -368,6 +368,7 @@ describe("scope resolution", () => {
   });
 
   it("derives active scopes from focused targets", () => {
+    expect(resolveActiveShortcutScopes(null)).toEqual(["workspace", "global"]);
     expect(
       resolveActiveShortcutScopes({
         targetId: "row-1",
@@ -416,7 +417,10 @@ describe("capture collision validation", () => {
       validateCaptureCollision("crud.edit", "f3", payload, {
         "crud.edit": "f3",
       })
-    ).toMatch(/conflicts with crud\.save/i);
+    ).toEqual({
+      actionId: "crud.save",
+      label: expect.any(String),
+    });
   });
 });
 

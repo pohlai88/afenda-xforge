@@ -8,6 +8,7 @@ export {
   updateEmployeeSelfservicePortalRecord as updateEmployeeSelfservicePortal,
 } from "./actions.ts";
 export { recordEmployeeSelfservicePortalAuditEvent } from "./audit.ts";
+export { listEmployeeSelfservicePortalRepositoryRecords } from "./repository.ts";
 export {
   employeeSelfservicePortalFeatureId,
   employeeSelfservicePortalRouteContracts,

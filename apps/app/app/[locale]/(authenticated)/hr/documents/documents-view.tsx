@@ -162,8 +162,8 @@ export function DocumentsView({
                   Tenant view is ready
                 </h2>
                 <p className="text-muted-foreground text-sm">
-                  Upload headers are synthesized from the authenticated runtime
-                  access object.
+                  Upload and download calls use same-origin API routes with
+                  server-resolved tenant access.
                 </p>
               </div>
               <StatusBadge tone={data.access.canRead ? "success" : "danger"}>
@@ -203,7 +203,7 @@ export function DocumentsView({
           emptyTitle="No documents"
           loadedDocumentCount={data.loadedDocumentCount}
           metadata={metadata}
-          requestHeaders={data.headerSet}
+          tenantId={data.tenantId}
           rows={toDocumentTableRows(data.documents)}
           searchPlaceholder="Search documents..."
           storageProvider={storageProvider}

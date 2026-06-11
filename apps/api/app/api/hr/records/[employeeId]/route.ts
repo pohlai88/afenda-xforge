@@ -23,7 +23,7 @@ export async function GET(
   { params }: RouteParams
 ): Promise<Response> {
   const { employeeId } = await params;
-  const readContext = createHrRecordsReadContext(request);
+  const readContext = await createHrRecordsReadContext(request);
   const record = getHrEmployeeRecord(employeeId, readContext);
 
   if (!record) {
@@ -60,7 +60,7 @@ export async function PATCH(
   });
   const result = await updateHrEmployeeRecord(
     parsed,
-    createHrRecordsWriteContext(request)
+    await createHrRecordsWriteContext(request)
   );
 
   return NextResponse.json(result, {

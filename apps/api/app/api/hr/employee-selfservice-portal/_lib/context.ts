@@ -6,21 +6,33 @@ import {
   configureEmployeeSelfservicePortalEmployeeRecordsIntegration,
   configureEmployeeSelfservicePortalLeaveAttendanceIntegration,
 } from "@repo/features-employee-management-employee-selfservice-portal/server";
+import { permissionCatalog } from "@repo/permissions";
 import {
   listLeaveAttendanceManagementLeaveApplications,
   listLeaveAttendanceManagementLeaveBalances,
-} from "../../../../../../../packages/features/hr-suite/time-attendance/leave-attendance-management/src/server.ts";
+} from "@repo/features-time-attendance-leave-attendance-management/server";
+import { listEmployeeSelfservicePortalRepositoryRecords } from "@repo/features-employee-management-employee-selfservice-portal/server";
+import { resolveHrTenantScopedAccess } from "../../_lib/access.ts";
+import type { RuntimeTenantAccess } from "../../../../_runtime-access.ts";
 
-const header = (request: Request, name: string): string | undefined =>
-  request.headers.get(name)?.trim() || undefined;
-
-const boolHeader = (request: Request, name: string): boolean | undefined => {
-  const value = header(request, name);
-  if (!value) {
-    return;
+const resolveActorEmployeeId = (access: RuntimeTenantAccess): string | undefined => {
+  if (access.actorEmployeeId?.trim()) {
+    return access.actorEmployeeId.trim();
   }
 
-  return value === "true" || value === "1";
+  const normalizedEmail = access.userEmail?.trim().toLowerCase();
+
+  if (!normalizedEmail) {
+    return undefined;
+  }
+
+  const portalRecord = listEmployeeSelfservicePortalRepositoryRecords().find(
+    (record) =>
+      record.tenantId === access.tenantId &&
+      record.workEmail?.trim().toLowerCase() === normalizedEmail
+  );
+
+  return portalRecord?.employeeId;
 };
 
 export type EmployeeSelfservicePortalApiReadContext = {
@@ -103,29 +115,60 @@ configureEmployeeSelfservicePortalLeaveAttendanceIntegration({
     listLeaveAttendanceManagementLeaveBalances(query, context),
 });
 
-export const createEmployeeSelfservicePortalReadContext = (
-  request: Request
-): EmployeeSelfservicePortalApiReadContext => ({
-  actorEmployeeId: header(request, "x-actor-employee-id"),
-  actorId: header(request, "x-actor-id"),
-  canRead:
-    boolHeader(request, "x-can-read-employee-selfservice-portal") ?? false,
-  canReadAll:
-    boolHeader(request, "x-can-read-all-employee-selfservice-portal") ?? false,
-  canViewSensitive:
-    boolHeader(request, "x-can-view-sensitive-employee-selfservice-portal") ??
-    false,
-  companyId: header(request, "x-company-id"),
-  organizationId: header(request, "x-organization-id"),
-  requestId: header(request, "x-request-id"),
-  tenantId: header(request, "x-tenant-id"),
-  userId: header(request, "x-user-id"),
-});
+const hasPermission = (
+  grantedPermissions: readonly string[],
+  permission: string
+): boolean => grantedPermissions.includes(permission);
 
-export const createEmployeeSelfservicePortalWriteContext = (
+export const createEmployeeSelfservicePortalReadContext = async (
+  _request: Request
+): Promise<EmployeeSelfservicePortalApiReadContext> => {
+  const { access, companyId } = await resolveHrTenantScopedAccess();
+  const canRead =
+    hasPermission(
+      access.grantedPermissions,
+      permissionCatalog.hrEmployeeSelfservicePortal.profileRead
+    ) ||
+    hasPermission(
+      access.grantedPermissions,
+      permissionCatalog.hrEmployeeSelfservicePortal.recordsRead
+    );
+  const canReadAll = hasPermission(
+    access.grantedPermissions,
+    permissionCatalog.hrEmployeeSelfservicePortal.recordsReadAll
+  );
+  const canViewSensitive = hasPermission(
+    access.grantedPermissions,
+    permissionCatalog.hrEmployeeSelfservicePortal.sensitiveRead
+  );
+
+  const actorEmployeeId = resolveActorEmployeeId(access);
+
+  return {
+    actorEmployeeId,
+    actorId: access.actorId,
+    canRead,
+    canReadAll,
+    canViewSensitive,
+    companyId,
+    organizationId: access.organizationId ?? access.tenantId,
+    requestId: access.requestId,
+    tenantId: access.tenantId,
+    userId: access.actorId,
+  };
+};
+
+export const createEmployeeSelfservicePortalWriteContext = async (
   request: Request
-): EmployeeSelfservicePortalApiWriteContext => ({
-  ...createEmployeeSelfservicePortalReadContext(request),
-  canWrite:
-    boolHeader(request, "x-can-write-employee-selfservice-portal") ?? false,
-});
+): Promise<EmployeeSelfservicePortalApiWriteContext> => {
+  const readContext = await createEmployeeSelfservicePortalReadContext(request);
+  const { access } = await resolveHrTenantScopedAccess();
+
+  return {
+    ...readContext,
+    canWrite: hasPermission(
+      access.grantedPermissions,
+      permissionCatalog.hrEmployeeSelfservicePortal.write
+    ),
+  };
+};

@@ -36,7 +36,7 @@ export async function POST(
     return NextResponse.json(
       rejectEmployeeSelfservicePortalProfileUpdateRequest(
         parsedInput,
-        createEmployeeSelfservicePortalWriteContext(request)
+        await createEmployeeSelfservicePortalWriteContext(request)
       )
     );
   } catch (error) {

@@ -5,8 +5,8 @@ import {
   createEmployeeLifecycleRepositoryScope,
 } from "../_lib/context.ts";
 
-export function GET(request: Request) {
-  const context = createEmployeeLifecycleReadContext(request);
+export async function GET(request: Request) {
+  const context = await createEmployeeLifecycleReadContext(request);
   const data = listEmployeeLifecycleStageSummaries(
     createEmployeeLifecycleRepositoryScope(context),
     context

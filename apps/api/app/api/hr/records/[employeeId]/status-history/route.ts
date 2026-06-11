@@ -63,7 +63,7 @@ export async function GET(
 ): Promise<Response> {
   const { employeeId } = await params;
   const url = new URL(request.url);
-  const readContext = createHrRecordsReadContext(request);
+  const readContext = await createHrRecordsReadContext(request);
   const statusRaw = toOptionalString(url.searchParams.get("status"));
   const status =
     statusRaw && hrRecordsEmploymentStatusSchema.safeParse(statusRaw).success

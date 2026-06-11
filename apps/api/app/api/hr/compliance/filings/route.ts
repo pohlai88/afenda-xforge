@@ -12,7 +12,7 @@ import {
 export async function GET(request: Request) {
   const data = await listComplianceFilingsRecords(
     getQuery(request),
-    createComplianceReadContext(request)
+    await createComplianceReadContext(request)
   );
 
   return NextResponse.json(data);
@@ -21,7 +21,7 @@ export async function GET(request: Request) {
 export async function POST(request: Request) {
   const result = await recordComplianceFiling(
     await request.json(),
-    createComplianceWriteContext(request)
+    await createComplianceWriteContext(request)
   );
 
   return NextResponse.json(result, { status: result.ok ? 201 : 400 });

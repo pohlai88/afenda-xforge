@@ -5,7 +5,6 @@ import {
   AlertDescription,
   Badge,
   Button,
-  Kbd,
   Popover,
   PopoverContent,
   PopoverTrigger,
@@ -19,7 +18,6 @@ import type {
   ShortcutOverridePatch,
   WorkspaceShortcutsPayload,
 } from "../../../../lib/workspace-shortcuts/contract.ts";
-import { formatShortcutLabel } from "../../../../lib/workspace-shortcuts/format-shortcut.ts";
 import {
   isMediaKeyBinding,
   normalizeKeyboardEvent,
@@ -27,6 +25,7 @@ import {
 } from "../../../../lib/workspace-shortcuts/normalize-shortcut.ts";
 import { validateCapturedShortcut } from "../../../../lib/workspace-shortcuts/validate-capture.ts";
 import { validateCaptureCollision } from "../../../../lib/workspace-shortcuts/validate-capture-collision.ts";
+import { ShortcutInlineKeyCaps, ShortcutKeyDisplay } from "./shortcut-key-display.tsx";
 import { useWorkspaceShortcuts } from "./use-keyboard-shortcuts.tsx";
 
 export function ShortcutCapturePopover({
@@ -101,7 +100,8 @@ export function ShortcutCapturePopover({
           return;
         }
 
-        setHint(validation.reason);
+        const errorCode = validation.code;
+        setHint(t(`errors.${errorCode}`));
         return;
       }
 
@@ -117,7 +117,12 @@ export function ShortcutCapturePopover({
         );
 
         if (collision) {
-          setHint(collision);
+          setHint(
+            t("errors.collision", {
+              actionId: collision.actionId,
+              label: collision.label,
+            })
+          );
           return;
         }
       }
@@ -137,6 +142,7 @@ export function ShortcutCapturePopover({
     open,
     pendingOverrides,
     recording,
+    t,
     tBadges,
   ]);
 
@@ -154,7 +160,7 @@ export function ShortcutCapturePopover({
       <PopoverTrigger asChild>
         <Button disabled={disabled} size="sm" type="button" variant="outline">
           <Keyboard className="mr-1.5 size-3.5" />
-          {value ? formatShortcutLabel(value) : t("assign")}
+          {value ? <ShortcutInlineKeyCaps normalized={value} /> : t("assign")}
         </Button>
       </PopoverTrigger>
       <PopoverContent align="end" className="w-80 space-y-3">
@@ -164,11 +170,15 @@ export function ShortcutCapturePopover({
             {actionLabel ?? actionId}
           </p>
         </div>
-        <div className="flex min-h-10 items-center justify-center rounded-md border border-dashed bg-muted/40 px-3">
+        <div className="flex min-h-10 items-center justify-center rounded-md border border-dashed border-border bg-muted/40 px-3">
           {recording ? (
-            <Kbd className="animate-pulse">{t("listening")}</Kbd>
+            <span className="animate-pulse font-medium text-muted-foreground text-xs">
+              {t("listening")}
+            </span>
+          ) : value ? (
+            <ShortcutKeyDisplay normalized={value} />
           ) : (
-            <Kbd>{value ? formatShortcutLabel(value) : t("pressKeys")}</Kbd>
+            <span className="text-muted-foreground text-xs">{t("pressKeys")}</span>
           )}
         </div>
         <p className="text-muted-foreground text-xs">

@@ -2,54 +2,57 @@ import type {
   OffboardingReadContext,
   OffboardingWriteContext,
 } from "@repo/features-employee-management-offboarding-exit-management";
+import {
+  filterHrCapabilityPermissions,
+  resolveHrOperatorCapabilities,
+  resolveHrTenantScopedAccess,
+} from "../../_lib/access.ts";
 
-const header = (request: Request, name: string): string | undefined =>
-  request.headers.get(name)?.trim() || undefined;
+export const createOffboardingReadContext = async (
+  _request: Request
+): Promise<OffboardingReadContext & { tenantId?: string }> => {
+  const { access, companyId } = await resolveHrTenantScopedAccess();
+  const capabilities = resolveHrOperatorCapabilities(access);
+  const grantedCapabilities = filterHrCapabilityPermissions(
+    access.grantedPermissions,
+    "hr.offboarding."
+  );
 
-const boolHeader = (request: Request, name: string): boolean | undefined => {
-  const value = header(request, name);
-  if (!value) {
-    return;
-  }
-
-  return value === "true" || value === "1";
+  return {
+    canRead: capabilities.canRead || grantedCapabilities.length > 0,
+    canViewSensitive:
+      capabilities.canViewSensitive ||
+      grantedCapabilities.includes("hr.offboarding.sensitive.read"),
+    companyId,
+    grantedCapabilities,
+    tenantId: access.tenantId,
+  };
 };
 
-const listHeader = (request: Request, name: string): string[] | undefined => {
-  const value = header(request, name);
-  if (!value) {
-    return;
-  }
+export const createOffboardingWriteContext = async (
+  request: Request
+): Promise<OffboardingWriteContext & { actorId?: string; tenantId?: string }> => {
+  const readContext = await createOffboardingReadContext(request);
+  const { access } = await resolveHrTenantScopedAccess();
+  const capabilities = resolveHrOperatorCapabilities(access);
+  const grantedCapabilities = filterHrCapabilityPermissions(
+    access.grantedPermissions,
+    "hr.offboarding."
+  );
+  const canWrite =
+    capabilities.canWrite ||
+    grantedCapabilities.some((capability) => capability.endsWith(".write"));
 
-  const entries = value
-    .split(",")
-    .map((entry) => entry.trim())
-    .filter(Boolean);
-
-  return entries.length > 0 ? entries : undefined;
+  return {
+    actorId: access.actorId,
+    canRead: readContext.canRead,
+    canViewSensitive: readContext.canViewSensitive,
+    canWrite,
+    companyId: readContext.companyId,
+    grantedCapabilities,
+    tenantId: access.tenantId,
+  };
 };
-
-export const createOffboardingReadContext = (
-  request: Request
-): OffboardingReadContext & { tenantId?: string } => ({
-  canRead: boolHeader(request, "x-can-read-offboarding"),
-  canViewSensitive: boolHeader(request, "x-can-view-sensitive") ?? false,
-  companyId: header(request, "x-company-id"),
-  grantedCapabilities: listHeader(request, "x-offboarding-capabilities"),
-  tenantId: header(request, "x-tenant-id"),
-});
-
-export const createOffboardingWriteContext = (
-  request: Request
-): OffboardingWriteContext & { actorId?: string; tenantId?: string } => ({
-  actorId: header(request, "x-actor-id") ?? "api",
-  canRead: boolHeader(request, "x-can-read-offboarding"),
-  canViewSensitive: boolHeader(request, "x-can-view-sensitive") ?? false,
-  canWrite: boolHeader(request, "x-can-write-offboarding"),
-  companyId: header(request, "x-company-id"),
-  grantedCapabilities: listHeader(request, "x-offboarding-capabilities"),
-  tenantId: header(request, "x-tenant-id"),
-});
 
 export const getQuery = (request: Request): Record<string, string | number> => {
   const url = new URL(request.url);

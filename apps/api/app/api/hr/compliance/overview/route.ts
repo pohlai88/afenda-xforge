@@ -4,7 +4,7 @@ import { createComplianceReadContext } from "../_lib/context.ts";
 
 export async function GET(request: Request) {
   const data = await getComplianceOverviewSnapshot(
-    createComplianceReadContext(request)
+    await createComplianceReadContext(request)
   );
 
   return NextResponse.json(data);

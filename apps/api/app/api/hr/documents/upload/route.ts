@@ -58,7 +58,7 @@ export async function POST(request: Request): Promise<Response> {
     const body = buildUploadRequestBody(await request.json());
 
     if (body.type === "blob.generate-client-token") {
-      const writeContext = createDocumentsManagementWriteContext(request);
+      const writeContext = await createDocumentsManagementWriteContext(request);
 
       if (!canWriteDocumentsManagement(writeContext)) {
         return NextResponse.json(
@@ -112,7 +112,7 @@ export async function POST(request: Request): Promise<Response> {
       return NextResponse.json(response);
     }
 
-    const writeContext = createDocumentsManagementWriteContext(request);
+    const writeContext = await createDocumentsManagementWriteContext(request);
 
     if (!canWriteDocumentsManagement(writeContext)) {
       return NextResponse.json(

@@ -62,8 +62,8 @@ type DocumentUploadFormProps = {
     create: () => void;
     submit: () => void;
   }) => void;
-  requestHeaders: Readonly<Record<string, string>>;
   storageProvider: StorageProviderKind;
+  tenantId: string;
 };
 
 type DocumentFormState = {
@@ -227,17 +227,15 @@ const buildRegistrationFormData = ({
 const registerUploadedDocument = async ({
   file,
   formState,
-  requestHeaders,
   storagePath,
 }: {
   file: File;
   formState: DocumentFormState;
-  requestHeaders: Readonly<Record<string, string>>;
   storagePath: string;
 }): Promise<CreatedDocument> => {
   const response = await fetch("/api/hr/documents", {
     body: buildRegistrationFormData({ file, formState, storagePath }),
-    headers: withCSRFHeader(requestHeaders),
+    headers: withCSRFHeader({}),
     method: "POST",
   });
   const payload = await parseCreatedDocument(response);
@@ -256,12 +254,10 @@ const registerUploadedDocument = async ({
 const requestStorageUploadSession = async ({
   file,
   formState,
-  requestHeaders,
   storagePath,
 }: {
   file: File;
   formState: DocumentFormState;
-  requestHeaders: Readonly<Record<string, string>>;
   storagePath: string;
 }): Promise<StorageUploadSessionResponse> => {
   const response = await fetch("/api/hr/documents/upload", {
@@ -275,7 +271,6 @@ const requestStorageUploadSession = async ({
       type: "storage.generate-client-upload-session",
     }),
     headers: withCSRFHeader({
-      ...requestHeaders,
       "content-type": "application/json",
     }),
     method: "POST",
@@ -299,18 +294,16 @@ const requestStorageUploadSession = async ({
 const uploadDocumentThroughServer = async ({
   file,
   formState,
-  requestHeaders,
 }: {
   file: File;
   formState: DocumentFormState;
-  requestHeaders: Readonly<Record<string, string>>;
 }): Promise<UploadResultState> => {
   const metadata = toFormData(formState);
   metadata.set("file", file);
 
   const response = await fetch("/api/hr/documents", {
     body: metadata,
-    headers: withCSRFHeader(requestHeaders),
+    headers: withCSRFHeader({}),
     method: "POST",
   });
   const payload = await parseCreatedDocument(response);
@@ -333,25 +326,21 @@ const uploadDocumentThroughServer = async ({
 const uploadDocumentThroughBlob = async ({
   file,
   formState,
-  requestHeaders,
   setProgress,
+  tenantId,
 }: {
   file: File;
   formState: DocumentFormState;
-  requestHeaders: Readonly<Record<string, string>>;
   setProgress: (progress: UploadProgressState) => void;
+  tenantId: string;
 }): Promise<UploadResultState> => {
-  const blobPath = buildBlobPath(
-    formState.employeeId,
-    file.name,
-    requestHeaders["x-tenant-id"]
-  );
+  const blobPath = buildBlobPath(formState.employeeId, file.name, tenantId);
   const uploadedBlob: PutBlobResult = await upload(blobPath, file, {
     access: "private",
     clientPayload: buildClientUploadPayload(formState, file),
     contentType: file.type || undefined,
     handleUploadUrl: "/api/hr/documents/upload",
-    headers: withCSRFHeader(requestHeaders),
+    headers: withCSRFHeader({}),
     onUploadProgress: ({ loaded, percentage, total }) => {
       setProgress({ loaded, percentage, total });
     },
@@ -359,7 +348,6 @@ const uploadDocumentThroughBlob = async ({
   const createdDocument = await registerUploadedDocument({
     file,
     formState,
-    requestHeaders,
     storagePath: uploadedBlob.pathname,
   });
 
@@ -374,23 +362,22 @@ const uploadDocumentThroughBlob = async ({
 const uploadDocumentThroughSupabase = async ({
   file,
   formState,
-  requestHeaders,
   setProgress,
+  tenantId,
 }: {
   file: File;
   formState: DocumentFormState;
-  requestHeaders: Readonly<Record<string, string>>;
   setProgress: (progress: UploadProgressState) => void;
+  tenantId: string;
 }): Promise<UploadResultState> => {
   const storagePath = buildBlobPath(
     formState.employeeId,
     file.name,
-    requestHeaders["x-tenant-id"]
+    tenantId
   );
   const session = await requestStorageUploadSession({
     file,
     formState,
-    requestHeaders,
     storagePath,
   });
 
@@ -423,7 +410,6 @@ const uploadDocumentThroughSupabase = async ({
   const createdDocument = await registerUploadedDocument({
     file,
     formState,
-    requestHeaders,
     storagePath: session.path,
   });
 
@@ -437,23 +423,22 @@ const uploadDocumentThroughSupabase = async ({
 const uploadDocumentThroughR2 = async ({
   file,
   formState,
-  requestHeaders,
   setProgress,
+  tenantId,
 }: {
   file: File;
   formState: DocumentFormState;
-  requestHeaders: Readonly<Record<string, string>>;
   setProgress: (progress: UploadProgressState) => void;
+  tenantId: string;
 }): Promise<UploadResultState> => {
   const storagePath = buildBlobPath(
     formState.employeeId,
     file.name,
-    requestHeaders["x-tenant-id"]
+    tenantId
   );
   const session = await requestStorageUploadSession({
     file,
     formState,
-    requestHeaders,
     storagePath,
   });
 
@@ -482,7 +467,6 @@ const uploadDocumentThroughR2 = async ({
   const createdDocument = await registerUploadedDocument({
     file,
     formState,
-    requestHeaders,
     storagePath: session.key,
   });
 
@@ -548,8 +532,8 @@ export function DocumentUploadForm({
   customizationLayers,
   metadata,
   onRegisterShortcutHandlers,
-  requestHeaders,
   storageProvider,
+  tenantId,
 }: DocumentUploadFormProps): ReactElement {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [formState, setFormState] =
@@ -623,28 +607,27 @@ export function DocumentUploadForm({
         uploadResult = await uploadDocumentThroughServer({
           file,
           formState,
-          requestHeaders,
         });
       } else if (storageProvider === "blob") {
         uploadResult = await uploadDocumentThroughBlob({
           file,
           formState,
-          requestHeaders,
           setProgress,
+          tenantId,
         });
       } else if (storageProvider === "supabase") {
         uploadResult = await uploadDocumentThroughSupabase({
           file,
           formState,
-          requestHeaders,
           setProgress,
+          tenantId,
         });
       } else {
         uploadResult = await uploadDocumentThroughR2({
           file,
           formState,
-          requestHeaders,
           setProgress,
+          tenantId,
         });
       }
 

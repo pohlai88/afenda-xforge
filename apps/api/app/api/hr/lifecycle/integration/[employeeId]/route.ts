@@ -16,7 +16,7 @@ type RouteContext = {
 };
 
 export async function GET(request: Request, context: RouteContext) {
-  const readContext = createEmployeeLifecycleReadContext(request);
+  const readContext = await createEmployeeLifecycleReadContext(request);
   const { employeeId } = await context.params;
   const scope = createEmployeeLifecycleRepositoryScope(readContext);
 

@@ -1,37 +1,16 @@
 import { ForbiddenError } from "@repo/errors";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
-const authMocks = vi.hoisted(() => ({
-  requireSystemAdminScope: vi.fn(),
-}));
-
-const permissionMocks = vi.hoisted(() => ({
-  requirePermission: vi.fn(),
-}));
-
-const repositoryMocks = vi.hoisted(() => ({
-  readTenantKeyboardShortcutPolicy: vi.fn(),
+const queryMocks = vi.hoisted(() => ({
+  queryTenantKeyboardShortcutPolicy: vi.fn(),
 }));
 
 const executionMocks = vi.hoisted(() => ({
   executeTenantKeyboardShortcutPolicyUpdate: vi.fn(),
 }));
 
-vi.mock("../app/api/system-admin/_lib/context.ts", () => authMocks);
-vi.mock("@repo/permissions", () => ({
-  permissionCatalog: {
-    systemAdmin: {
-      tenantSettingsRead: "system-admin.tenant-settings.read",
-      tenantSettingsWrite: "system-admin.tenant-settings.write",
-    },
-  },
-  requirePermission: permissionMocks.requirePermission,
-}));
 vi.mock("../lib/workspace-shortcuts/execution.server.ts", () => executionMocks);
-vi.mock("../lib/workspace-shortcuts/repository.server", () => ({
-  readTenantKeyboardShortcutPolicy:
-    repositoryMocks.readTenantKeyboardShortcutPolicy,
-}));
+vi.mock("../lib/workspace-shortcuts/queries.server.ts", () => queryMocks);
 
 import { GET, POST } from "../app/api/admin/tenant/keyboard-shortcuts/route.ts";
 import { resolveProductDefaults } from "../lib/workspace-shortcuts/resolve-shortcuts.ts";
@@ -39,18 +18,6 @@ import { resolveProductDefaults } from "../lib/workspace-shortcuts/resolve-short
 describe("/api/admin/tenant/keyboard-shortcuts", () => {
   beforeEach(() => {
     vi.clearAllMocks();
-    authMocks.requireSystemAdminScope.mockResolvedValue({
-      companyId: undefined,
-      grantedPermissions: [
-        "system-admin.tenant-settings.read",
-        "system-admin.tenant-settings.write",
-      ],
-      operationId: "op-001",
-      requestId: "req-001",
-      tenantId: "tenant-001",
-      userId: "user-001",
-    });
-    permissionMocks.requirePermission.mockImplementation(() => undefined);
   });
 
   it("returns tenant policy payload for authorized admins", async () => {
@@ -63,7 +30,7 @@ describe("/api/admin/tenant/keyboard-shortcuts", () => {
       },
       preview: resolveProductDefaults(),
     };
-    repositoryMocks.readTenantKeyboardShortcutPolicy.mockResolvedValue(payload);
+    queryMocks.queryTenantKeyboardShortcutPolicy.mockResolvedValue(payload);
 
     const response = await GET(
       new Request("http://localhost/api/admin/tenant/keyboard-shortcuts")
@@ -75,11 +42,11 @@ describe("/api/admin/tenant/keyboard-shortcuts", () => {
   });
 
   it("returns 403 when tenant settings read is forbidden", async () => {
-    permissionMocks.requirePermission.mockImplementation(() => {
-      throw new ForbiddenError(
-        "Missing required permission(s) for tenant settings read"
-      );
-    });
+    queryMocks.queryTenantKeyboardShortcutPolicy.mockRejectedValue(
+      new ForbiddenError(
+        "Missing required permission(s) for system-admin.tenant-settings.read"
+      )
+    );
 
     const response = await GET(
       new Request("http://localhost/api/admin/tenant/keyboard-shortcuts")
@@ -122,7 +89,10 @@ describe("/api/admin/tenant/keyboard-shortcuts", () => {
           lockedActions: ["crud.delete"],
           overrides: { "crud.save": "f6" },
         }),
-        headers: { "content-type": "application/json" },
+        headers: {
+          "content-type": "application/json",
+          "x-request-id": "req-001",
+        },
         method: "POST",
       })
     );
@@ -141,14 +111,7 @@ describe("/api/admin/tenant/keyboard-shortcuts", () => {
       },
       {
         companyId: undefined,
-        grantedPermissions: [
-          "system-admin.tenant-settings.read",
-          "system-admin.tenant-settings.write",
-        ],
-        operationId: "op-001",
         requestId: "req-001",
-        tenantId: "tenant-001",
-        userId: "user-001",
       }
     );
   });
