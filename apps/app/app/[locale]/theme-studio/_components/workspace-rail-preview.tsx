@@ -7,12 +7,10 @@ export function WorkspaceRailPreview(): ReactElement {
   return (
     <div className="space-y-6">
       <p className="max-w-3xl text-muted-foreground text-sm leading-6">
-        This route renders the full workspace shell from{" "}
-        <code className="text-foreground">
-          @repo/ui/components/compose/workspace
-        </code>{" "}
-        via <code className="text-foreground">WorkspaceFrame</code>. Use the
-        chrome around this canvas — not a second shell inside the page.
+        This route renders the production app nav sidebar inside{" "}
+        <code className="text-foreground">WorkspaceFrame</code> — same blocks as
+        the authenticated shell. Validate chrome here; do not nest a second
+        shell in this canvas.
       </p>
 
       <section className="space-y-4 border-border border-t pt-6">
@@ -23,24 +21,28 @@ export function WorkspaceRailPreview(): ReactElement {
             <span>Org / department / team / project switchers</span>
           </li>
           <li className="flex items-start gap-2">
-            <Badge variant="outline">nav-main</Badge>
-            <span>Theme Studio preview routes in the sidebar</span>
+            <Badge variant="outline">the-orbit</Badge>
+            <span>KPI ring, load %, progress, and status badge</span>
           </li>
           <li className="flex items-start gap-2">
-            <Badge variant="outline">nav-secondary</Badge>
-            <span>Feature shortcuts for tokens and lanes</span>
+            <Badge variant="outline">infrastructure</Badge>
+            <span>Eisenhower tabs + Lynx, integration, audit, analysis, portal</span>
+          </li>
+          <li className="flex items-start gap-2">
+            <Badge variant="outline">resources</Badge>
+            <span>Organization, department, team, press, career</span>
+          </li>
+          <li className="flex items-start gap-2">
+            <Badge variant="outline">site-sidebar</Badge>
+            <span>Dev block 1 — preview surfaces and token/lane work</span>
           </li>
           <li className="flex items-start gap-2">
             <Badge variant="outline">site-topbar</Badge>
-            <span>Active preview label and theme toggle</span>
-          </li>
-          <li className="flex items-start gap-2">
-            <Badge variant="outline">site-content</Badge>
-            <span>This panel — flat canvas below the site topbar</span>
+            <span>Site sidebar trigger, scope label, and theme toggle</span>
           </li>
           <li className="flex items-start gap-2">
             <Badge variant="outline">nav-user</Badge>
-            <span>Profile menu in the sidebar footer</span>
+            <span>Demo profile menu in the sidebar footer</span>
           </li>
         </ul>
       </section>

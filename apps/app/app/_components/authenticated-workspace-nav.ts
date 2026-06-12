@@ -1,4 +1,5 @@
 import {
+  AppWindow,
   BarChart3,
   Bot,
   Briefcase,
@@ -6,10 +7,8 @@ import {
   Building2,
   Cpu,
   FileText,
-  Gauge,
   Grid2x2,
   Keyboard,
-  AppWindow,
   LayoutDashboard,
   Link2,
   Newspaper,
@@ -22,31 +21,18 @@ import type { WorkspaceNavGroup } from "./workspace/types.ts";
 
 export const AUTHENTICATED_ORBIT_NAV: WorkspaceNavGroup = {
   label: "The Orbit",
-  items: [
-    {
-      href: "/orbit",
-      icon: Gauge,
-      label: "The Orbit",
-      featureId: "workspace.orbit",
-      description: "Today's workload signal",
-    },
-  ],
+  items: [],
 };
 
-export const AUTHENTICATED_INFRASTRUCTURE_NAV: WorkspaceNavGroup = {
+export const AUTHENTICATED_INFRASTRUCTURE_LINKS: WorkspaceNavGroup = {
   label: "Infrastructure",
   items: [
-    {
-      href: "/infrastructure/matrix",
-      icon: Grid2x2,
-      label: "Eisenhower matrix",
-      featureId: "workspace.infrastructure.matrix",
-    },
     {
       href: "/infrastructure/lynx",
       icon: Cpu,
       label: "Lynx",
       featureId: "workspace.infrastructure.lynx",
+      description: "The machine — reasoning and evidence",
     },
     {
       href: "/infrastructure/integration",
@@ -111,6 +97,13 @@ export const AUTHENTICATED_RESOURCES_NAV: WorkspaceNavGroup = {
   ],
 };
 
+/** App nav sidebar — three metadata blocks only. */
+export const AUTHENTICATED_SIDEBAR_NAV_GROUPS = [
+  AUTHENTICATED_ORBIT_NAV,
+  AUTHENTICATED_INFRASTRUCTURE_LINKS,
+  AUTHENTICATED_RESOURCES_NAV,
+] as const;
+
 export const AUTHENTICATED_WORKSPACE_NAV: WorkspaceNavGroup = {
   label: "Workspace",
   items: [
@@ -165,12 +158,33 @@ export const AUTHENTICATED_SETTINGS_NAV: WorkspaceNavGroup = {
   ],
 };
 
+/** Orbit route for feature scope when workload block is active. */
+export const AUTHENTICATED_ORBIT_ROUTE = {
+  href: "/orbit",
+  icon: Grid2x2,
+  label: "The Orbit",
+  featureId: "workspace.orbit",
+} as const;
+
+export const AUTHENTICATED_MATRIX_ROUTE = {
+  href: "/infrastructure/matrix",
+  icon: Grid2x2,
+  label: "Eisenhower matrix",
+  featureId: "workspace.infrastructure.matrix",
+} as const;
+
+/** All routable surfaces for feature scope resolution (includes routes not on the sidebar). */
 export const AUTHENTICATED_NAV_GROUPS = [
-  AUTHENTICATED_ORBIT_NAV,
-  AUTHENTICATED_INFRASTRUCTURE_NAV,
-  AUTHENTICATED_RESOURCES_NAV,
-  AUTHENTICATED_WORKSPACE_NAV,
-  AUTHENTICATED_SETTINGS_NAV,
+  ...AUTHENTICATED_SIDEBAR_NAV_GROUPS,
+  {
+    label: "Routes",
+    items: [
+      AUTHENTICATED_ORBIT_ROUTE,
+      AUTHENTICATED_MATRIX_ROUTE,
+      ...AUTHENTICATED_WORKSPACE_NAV.items,
+      ...AUTHENTICATED_SETTINGS_NAV.items,
+    ],
+  },
 ] as const;
 
 export const AUTHENTICATED_NAV_ITEMS = AUTHENTICATED_NAV_GROUPS.flatMap(

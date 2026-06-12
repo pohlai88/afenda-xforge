@@ -3,46 +3,14 @@
 import { Badge } from "@repo/ui";
 import { cn } from "@repo/ui/lib/utils";
 import type { ReactElement } from "react";
-
-type OrbitLoadStatus = "high" | "balanced" | "low";
-
-const workload: {
-  capacityPercent: number;
-  focus: string;
-  meetingsToday: number;
-  openTasks: number;
-  status: OrbitLoadStatus;
-} = {
-  capacityPercent: 72,
-  focus: "Ship infrastructure matrix scaffold",
-  openTasks: 14,
-  meetingsToday: 3,
-  status: "high",
-};
-
-const statusTone: Record<
-  OrbitLoadStatus,
-  { label: string; ring: string; badge: string }
-> = {
-  high: {
-    label: "High load",
-    ring: "from-amber-400 via-orange-500 to-red-500",
-    badge: "bg-amber-500/15 text-amber-700 dark:text-amber-300",
-  },
-  balanced: {
-    label: "Balanced",
-    ring: "from-emerald-400 via-teal-500 to-cyan-500",
-    badge: "bg-emerald-500/15 text-emerald-700 dark:text-emerald-300",
-  },
-  low: {
-    label: "Light day",
-    ring: "from-sky-400 via-blue-500 to-indigo-500",
-    badge: "bg-sky-500/15 text-sky-700 dark:text-sky-300",
-  },
-};
+import {
+  ORBIT_STATUS_TONE,
+  ORBIT_WORKLOAD_SNAPSHOT,
+} from "../../../_components/workspace/orbit-workload.constants.ts";
 
 export function OrbitView(): ReactElement {
-  const tone = statusTone[workload.status];
+  const workload = ORBIT_WORKLOAD_SNAPSHOT;
+  const tone = ORBIT_STATUS_TONE[workload.status];
 
   return (
     <div className="grid gap-6 lg:grid-cols-[minmax(0,280px)_1fr]">

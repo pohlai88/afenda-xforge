@@ -18,6 +18,7 @@ import type {
   ReactNode,
 } from "react";
 import { SiteContentSidebarShell } from "./site-content-sidebar-shell.tsx";
+import { APP_NAV_SIDEBAR_SHELL_CLASS } from "./app-nav-sidebar-shell.classes.ts";
 import {
   APP_SIDEBAR_BEHAVIOR_STORAGE_KEY,
 } from "./sidebar-behavior.constants.ts";
@@ -67,7 +68,7 @@ export function WorkspaceFrame({
 }: WorkspaceFrameProps): ReactElement {
   const sidebarNode = (
     <WorkspaceAppSidebar
-      className={sidebarClassName}
+      className={cn(APP_NAV_SIDEBAR_SHELL_CLASS, sidebarClassName)}
       collapsible={collapsible}
       variant={sidebarVariant}
     >

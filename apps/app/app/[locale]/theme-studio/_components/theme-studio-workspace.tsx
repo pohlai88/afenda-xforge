@@ -1,7 +1,6 @@
 "use client";
 
 import { WorkspaceNavSiteTopbar } from "@repo/ui/components/compose/workspace";
-import { usePathname } from "next/navigation";
 import type { ReactElement, ReactNode } from "react";
 import { resolveProductDefaults } from "../../../../lib/workspace-shortcuts/resolve-shortcuts.ts";
 import { AppNavTopbarActions } from "../../../_components/workspace/app-nav-topbar-actions.tsx";
@@ -14,7 +13,6 @@ import { SiteNavSidebarTrigger } from "../../../_components/workspace/site-nav-s
 import { WorkspaceFrame } from "../../../_components/workspace/workspace-frame.tsx";
 import { WorkspaceShortcutsRoot } from "../../../_components/workspace-shortcuts-root.tsx";
 import {
-  THEME_STUDIO_DEMO_CONTEXT,
   THEME_STUDIO_DEMO_USER,
   THEME_STUDIO_DEPARTMENTS,
   THEME_STUDIO_ORGANIZATIONS,
@@ -23,10 +21,6 @@ import {
 } from "./theme-studio-rail.constants.ts";
 import { ThemeStudioRailSidebar } from "./theme-studio-rail-sidebar.tsx";
 import { ThemeStudioSiteContentNavSidebar } from "./theme-studio-site-content-nav-sidebar.tsx";
-import {
-  isThemeStudioPathActive,
-  THEME_STUDIO_PAGES,
-} from "./theme-studio-routes.ts";
 
 type ThemeStudioWorkspaceProps = {
   children: ReactNode;
@@ -50,11 +44,6 @@ function ThemeStudioTopbarActions(): ReactElement {
 export function ThemeStudioWorkspace({
   children,
 }: ThemeStudioWorkspaceProps): ReactElement {
-  const pathname = usePathname();
-  const activePage = THEME_STUDIO_PAGES.find((page) =>
-    isThemeStudioPathActive(pathname, page.href)
-  );
-
   return (
     <WorkspaceShortcutsRoot payload={resolveProductDefaults()}>
       <WorkspaceFrame
@@ -85,6 +74,7 @@ export function ThemeStudioWorkspace({
           ],
         }}
         collapsible="icon"
+        contentPadded
         enableSidebarKeyboardShortcut={false}
         sidebar={<ThemeStudioRailSidebar />}
         siteContentSidebar={<ThemeStudioSiteContentNavSidebar />}
@@ -92,7 +82,8 @@ export function ThemeStudioWorkspace({
           <WorkspaceNavSiteTopbar
             leading={<SiteNavSidebarTrigger />}
             scopeLabel="WORKSPACE RAIL"
-            title={activePage?.label ?? "Preview pages"}
+            title="App nav sidebar"
+            description="The Orbit · Infrastructure · Resources"
           />
         }
       >
