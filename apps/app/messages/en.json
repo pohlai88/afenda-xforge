@@ -81,6 +81,9 @@
         "crud_edit": "Edit focused record",
         "crud_save": "Save current draft",
         "workspace_commandSearch": "Open command palette",
+        "workspace_newTodo": "New to-do item",
+        "workspace_newProject": "New project scope",
+        "workspace_openLynx": "Open Lynx",
         "workspace_openShortcutHelp": "Open keyboard shortcuts help",
         "workspace_toggleSidebar": "Toggle sidebar"
       },

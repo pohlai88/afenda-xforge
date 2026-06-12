@@ -6,6 +6,13 @@ const mockOpenHelp = vi.fn();
 const mockSetCommandOpen = vi.fn();
 const mockDispatchCrudAction = vi.fn();
 const mockToggleSidebar = vi.fn();
+const mockRouterPush = vi.fn();
+
+vi.mock("@/i18n/navigation", () => ({
+  useRouter: () => ({
+    push: mockRouterPush,
+  }),
+}));
 
 vi.mock("@repo/ui/components/ui/sidebar", () => ({
   useSidebar: () => ({
@@ -82,6 +89,24 @@ describe("WorkspaceShortcutsHost", () => {
     );
 
     expect(mockOpenHelp).toHaveBeenCalledTimes(1);
+  });
+
+  it("navigates to Lynx when the open Lynx binding is pressed", () => {
+    mockRouterPush.mockClear();
+
+    render(<WorkspaceShortcutsHost />);
+
+    window.dispatchEvent(
+      new KeyboardEvent("keydown", {
+        bubbles: true,
+        cancelable: true,
+        code: "KeyL",
+        ctrlKey: true,
+        key: "l",
+      })
+    );
+
+    expect(mockRouterPush).toHaveBeenCalledWith("/infrastructure/lynx");
   });
 
   it("opens the command palette when the search binding is pressed", () => {

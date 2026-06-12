@@ -14,7 +14,7 @@ const supabaseMocks = vi.hoisted(() => ({
   unsubscribeFromRecipientNotifications: vi.fn(),
 }));
 
-vi.mock("next/navigation", () => ({
+vi.mock("@/i18n/navigation", () => ({
   useRouter: () => routerMocks,
 }));
 

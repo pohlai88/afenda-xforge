@@ -19,7 +19,7 @@ import {
   TabsList,
   TabsTrigger,
 } from "@repo/ui/components/ui/tabs";
-import { useRouter } from "next/navigation";
+import { useRouter } from "@/i18n/navigation";
 import type { ReactElement } from "react";
 import { useState } from "react";
 import { useTenantBranding } from "../../../../_components/tenant-branding-context.tsx";

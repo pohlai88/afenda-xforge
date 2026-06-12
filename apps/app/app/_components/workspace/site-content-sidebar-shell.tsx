@@ -3,6 +3,7 @@
 import { Sidebar, SidebarProvider, SidebarRail } from "@repo/ui";
 import { cn } from "@repo/ui/lib/utils";
 import type { CSSProperties, ReactElement, ReactNode } from "react";
+import { SITE_CONTENT_SIDEBAR_SHELL_CLASS } from "./site-content-sidebar-shell.classes.ts";
 import { SITE_SIDEBAR_BEHAVIOR_STORAGE_KEY } from "./sidebar-behavior.constants.ts";
 import {
   SidebarControlProvider,
@@ -40,7 +41,11 @@ export function SiteContentSidebarShell({
           className="flex min-h-0 min-w-0 flex-1 overflow-hidden"
           data-slot="workspace-site-content-body"
         >
-          <Sidebar collapsible="icon" variant="sidebar">
+          <Sidebar
+            className={SITE_CONTENT_SIDEBAR_SHELL_CLASS}
+            collapsible="icon"
+            variant="sidebar"
+          >
             {siteContentSidebar}
             <SidebarRail />
           </Sidebar>

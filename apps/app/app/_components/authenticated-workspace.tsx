@@ -1,6 +1,6 @@
 "use client";
 
-import { usePathname } from "next/navigation";
+import { usePathname } from "@/i18n/navigation";
 import type { ReactElement, ReactNode } from "react";
 import { AuthenticatedAppNavTopbarActions } from "./authenticated-app-nav-topbar-actions.tsx";
 import { AuthenticatedFeatureScope } from "./authenticated-feature-scope.tsx";

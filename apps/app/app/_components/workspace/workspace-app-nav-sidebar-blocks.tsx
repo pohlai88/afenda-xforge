@@ -1,52 +1,35 @@
 "use client";
 
-import {
-  SidebarGroup,
-  SidebarGroupContent,
-  SidebarGroupLabel,
-  SidebarSeparator,
-} from "@repo/ui";
+import { SidebarGroup, SidebarGroupContent, SidebarGroupLabel } from "@repo/ui";
 import type { ReactElement } from "react";
-import {
-  AUTHENTICATED_INFRASTRUCTURE_LINKS,
-  AUTHENTICATED_RESOURCES_NAV,
-} from "../authenticated-workspace-nav.ts";
-import { AuthenticatedSidebarMatrixBlock } from "./authenticated-sidebar-matrix-block.tsx";
+import { AUTHENTICATED_APPS_NAV } from "../authenticated-workspace-nav.ts";
 import { AuthenticatedSidebarNavLinks } from "./authenticated-sidebar-nav-links.tsx";
-import { AuthenticatedSidebarOrbitBlock } from "./authenticated-sidebar-orbit-block.tsx";
+import { AuthenticatedSidebarOrbitTrailBlock } from "./authenticated-sidebar-orbit-trail-block.tsx";
+import { AuthenticatedSidebarUtilityActions } from "./authenticated-sidebar-utility-actions.tsx";
+
+const sectionLabelClass =
+  "h-4 px-2 text-[8px] font-semibold uppercase tracking-[0.16em] text-sidebar-foreground/50";
 
 export function WorkspaceAppNavSidebarBlocks(): ReactElement {
   return (
-    <>
-      <SidebarGroup className="min-w-0 p-2">
-        <SidebarGroupLabel>The Orbit</SidebarGroupLabel>
+    <div className="flex min-w-0 flex-col gap-2 py-1">
+      <SidebarGroup className="min-w-0 p-0">
+        <SidebarGroupLabel className={sectionLabelClass}>
+          The workspace
+        </SidebarGroupLabel>
         <SidebarGroupContent className="min-w-0">
-          <AuthenticatedSidebarOrbitBlock />
+          <AuthenticatedSidebarUtilityActions />
         </SidebarGroupContent>
       </SidebarGroup>
 
-      <SidebarSeparator />
+      <AuthenticatedSidebarOrbitTrailBlock />
 
-      <SidebarGroup className="min-w-0 p-2">
-        <SidebarGroupLabel>Infrastructure</SidebarGroupLabel>
-        <SidebarGroupContent className="min-w-0 space-y-2">
-          <AuthenticatedSidebarMatrixBlock />
-          <AuthenticatedSidebarNavLinks
-            items={AUTHENTICATED_INFRASTRUCTURE_LINKS.items}
-          />
-        </SidebarGroupContent>
-      </SidebarGroup>
-
-      <SidebarSeparator />
-
-      <SidebarGroup className="min-w-0 p-2">
-        <SidebarGroupLabel>Resources</SidebarGroupLabel>
+      <SidebarGroup className="min-w-0 p-0">
+        <SidebarGroupLabel className={sectionLabelClass}>Apps</SidebarGroupLabel>
         <SidebarGroupContent className="min-w-0">
-          <AuthenticatedSidebarNavLinks
-            items={AUTHENTICATED_RESOURCES_NAV.items}
-          />
+          <AuthenticatedSidebarNavLinks items={AUTHENTICATED_APPS_NAV.items} />
         </SidebarGroupContent>
       </SidebarGroup>
-    </>
+    </div>
   );
 }

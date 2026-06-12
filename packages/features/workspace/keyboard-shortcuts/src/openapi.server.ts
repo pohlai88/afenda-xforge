@@ -5,6 +5,9 @@ const shortcutActionIdSchema: OpenApiSchemaObject = {
   type: "string",
   enum: [
     "workspace.commandSearch",
+    "workspace.newTodo",
+    "workspace.newProject",
+    "workspace.openLynx",
     "workspace.openShortcutHelp",
     "workspace.toggleSidebar",
     "crud.create",

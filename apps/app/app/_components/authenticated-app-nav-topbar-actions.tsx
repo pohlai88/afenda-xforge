@@ -3,7 +3,7 @@
 import { useAuthClient } from "@repo/auth/provider";
 import type { MetadataActionContract } from "@repo/metadata-ui/contracts";
 import { Bell, CircleUser, CreditCard } from "lucide-react";
-import { useRouter } from "next/navigation";
+import { useRouter } from "@/i18n/navigation";
 import type { ReactElement, ReactNode } from "react";
 import { useEffect, useState } from "react";
 import { createAppMetadataContext } from "../_lib/metadata-context.ts";

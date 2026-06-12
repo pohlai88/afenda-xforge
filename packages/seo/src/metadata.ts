@@ -170,5 +170,10 @@ export const createMetadata = ({
       : undefined,
   };
 
-  return merge({}, defaultMetadata, properties);
+  const metadata = merge({}, defaultMetadata, properties);
+
+  return {
+    ...metadata,
+    metadataBase: defaultMetadata.metadataBase,
+  };
 };

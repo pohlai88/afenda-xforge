@@ -1,5 +1,4 @@
-import { redirect } from "next/navigation";
-import { localizedPath } from "@/i18n/locale-prefix";
+import { redirect } from "@/i18n/navigation";
 import { DEFAULT_THEME_STUDIO_HREF } from "./_components/theme-studio-routes.ts";
 
 type ThemeStudioIndexPageProps = {
@@ -11,5 +10,6 @@ export default async function ThemeStudioIndexPage({
 }: ThemeStudioIndexPageProps): Promise<never> {
   const { locale } = await params;
 
-  redirect(localizedPath(DEFAULT_THEME_STUDIO_HREF, locale));
+  redirect({ href: DEFAULT_THEME_STUDIO_HREF, locale });
+  throw new Error("Theme studio redirect did not complete.");
 }

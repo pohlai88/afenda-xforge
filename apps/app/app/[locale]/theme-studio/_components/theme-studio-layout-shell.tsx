@@ -1,6 +1,6 @@
 "use client";
 
-import { usePathname } from "next/navigation";
+import { usePathname } from "@/i18n/navigation";
 import type { ReactElement, ReactNode } from "react";
 
 import { ThemeStudioShell } from "./theme-studio-shell.tsx";

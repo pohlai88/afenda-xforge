@@ -9,8 +9,7 @@ import {
   SidebarMenuItem,
   SidebarSeparator,
 } from "@repo/ui";
-import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { Link, usePathname } from "@/i18n/navigation";
 import type { ReactElement } from "react";
 import { Fragment } from "react";
 import { isPathActive } from "./path-utils.ts";

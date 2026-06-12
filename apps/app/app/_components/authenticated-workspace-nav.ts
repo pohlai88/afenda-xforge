@@ -1,7 +1,6 @@
 import {
   AppWindow,
   BarChart3,
-  Bot,
   Briefcase,
   Building,
   Building2,
@@ -18,11 +17,6 @@ import {
   Users,
 } from "lucide-react";
 import type { WorkspaceNavGroup } from "./workspace/types.ts";
-
-export const AUTHENTICATED_ORBIT_NAV: WorkspaceNavGroup = {
-  label: "The Orbit",
-  items: [],
-};
 
 export const AUTHENTICATED_INFRASTRUCTURE_LINKS: WorkspaceNavGroup = {
   label: "Infrastructure",
@@ -97,11 +91,46 @@ export const AUTHENTICATED_RESOURCES_NAV: WorkspaceNavGroup = {
   ],
 };
 
-/** App nav sidebar — three metadata blocks only. */
+export const AUTHENTICATED_APPS_NAV: WorkspaceNavGroup = {
+  label: "Apps",
+  items: [
+    {
+      href: "/dashboard",
+      icon: LayoutDashboard,
+      label: "Dashboard",
+      featureId: "system-admin.overview",
+    },
+    {
+      href: "/infrastructure/lynx",
+      icon: Cpu,
+      label: "Infrastructure",
+      featureId: "workspace.infrastructure.lynx",
+      description: "Workspace infrastructure, reasoning, and evidence.",
+    },
+    {
+      href: "/resources/organization",
+      icon: Building2,
+      label: "Resources",
+      featureId: "workspace.resources.organization",
+    },
+    {
+      href: "/hr",
+      icon: Users,
+      label: "HR hub",
+      featureId: "hr-suite.employee-management.documents-management",
+    },
+    {
+      href: "/hr/documents",
+      icon: FileText,
+      label: "Documents",
+      featureId: "hr-suite.employee-management.documents-management",
+    },
+  ],
+};
+
+/** App nav sidebar — Codex-style utility, project, app, and settings groups. */
 export const AUTHENTICATED_SIDEBAR_NAV_GROUPS = [
-  AUTHENTICATED_ORBIT_NAV,
-  AUTHENTICATED_INFRASTRUCTURE_LINKS,
-  AUTHENTICATED_RESOURCES_NAV,
+  AUTHENTICATED_APPS_NAV,
 ] as const;
 
 export const AUTHENTICATED_WORKSPACE_NAV: WorkspaceNavGroup = {
@@ -111,12 +140,6 @@ export const AUTHENTICATED_WORKSPACE_NAV: WorkspaceNavGroup = {
       href: "/dashboard",
       icon: LayoutDashboard,
       label: "Dashboard",
-      featureId: "system-admin.overview",
-    },
-    {
-      href: "/assistant",
-      icon: Bot,
-      label: "Assistant",
       featureId: "system-admin.overview",
     },
     {
@@ -181,6 +204,8 @@ export const AUTHENTICATED_NAV_GROUPS = [
     items: [
       AUTHENTICATED_ORBIT_ROUTE,
       AUTHENTICATED_MATRIX_ROUTE,
+      ...AUTHENTICATED_INFRASTRUCTURE_LINKS.items,
+      ...AUTHENTICATED_RESOURCES_NAV.items,
       ...AUTHENTICATED_WORKSPACE_NAV.items,
       ...AUTHENTICATED_SETTINGS_NAV.items,
     ],

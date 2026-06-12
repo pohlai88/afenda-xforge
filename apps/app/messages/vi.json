@@ -81,6 +81,9 @@
         "crud_edit": "Sua ban ghi dang chon",
         "crud_save": "Luu ban nhap hien tai",
         "workspace_commandSearch": "Mo bang lenh",
+        "workspace_newTodo": "Tao viec can lam",
+        "workspace_newProject": "Tao du an",
+        "workspace_openLynx": "Mo Lynx",
         "workspace_openShortcutHelp": "Mo tro giup phim tat",
         "workspace_toggleSidebar": "Bat/tat thanh ben"
       },

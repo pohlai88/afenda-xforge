@@ -4,7 +4,7 @@ import type { Company } from "@repo/features-master-data-companies/contract";
 import type { WorkspaceNavTeam } from "@repo/ui/components/compose/workspace";
 import { WorkspaceNavTeamSwitcher } from "@repo/ui/components/compose/workspace";
 import { Building2 } from "lucide-react";
-import { useRouter } from "next/navigation";
+import { useRouter } from "@/i18n/navigation";
 import type { ReactElement } from "react";
 import { useEffect, useState } from "react";
 

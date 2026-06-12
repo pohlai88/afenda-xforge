@@ -10,7 +10,7 @@ import type { ReactElement, ReactNode } from "react";
 
 /** App nav sidebar only — no horizontal scroll; quiet vertical rail. */
 const appNavSidebarScrollAreaClass =
-  "h-full min-h-0 [&_[data-slot=scroll-area-viewport]]:overflow-x-hidden [&_[data-slot=scroll-area-scrollbar][data-orientation=horizontal]]:hidden [&_[data-slot=scroll-area-scrollbar][data-orientation=vertical]]:w-1 [&_[data-slot=scroll-area-scrollbar][data-orientation=vertical]]:border-0 [&_[data-slot=scroll-area-scrollbar][data-orientation=vertical]]:bg-transparent [&_[data-slot=scroll-area-scrollbar][data-orientation=vertical]]:opacity-0 hover:[&_[data-slot=scroll-area-scrollbar][data-orientation=vertical]]:opacity-100 [&_[data-slot=scroll-area-thumb]]:bg-border/25 hover:[&_[data-slot=scroll-area-thumb]]:bg-border/45";
+  "h-full min-h-0 w-full min-w-0 [&_[data-slot=scroll-area-viewport]]:overflow-x-hidden [&_[data-slot=scroll-area-viewport]]:[scrollbar-width:none] [&_[data-slot=scroll-area-viewport]::-webkit-scrollbar]:hidden [&_[data-slot=scroll-area-viewport]>div]:box-border [&_[data-slot=scroll-area-viewport]>div]:w-full [&_[data-slot=scroll-area-viewport]>div]:max-w-full [&_[data-slot=scroll-area-viewport]>div]:min-w-0 [&_[data-slot=scroll-area-scrollbar][data-orientation=horizontal]]:hidden [&_[data-slot=scroll-area-scrollbar][data-orientation=vertical]]:hidden";
 
 type AppNavSidebarContentProps = {
   children: ReactNode;
@@ -29,7 +29,7 @@ export function AppNavSidebarContent({
       <ScrollArea className={appNavSidebarScrollAreaClass}>
         <div
           className={cn(
-            "min-w-0 max-w-full",
+            "box-border w-full min-w-0 max-w-full overflow-x-hidden",
             WORKSPACE_SHELL_SPACE.sidebarRoot,
             WORKSPACE_SHELL_SPACE.sidebarSectionGap,
             WORKSPACE_SHELL_TYPE.sidebarRoot,

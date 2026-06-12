@@ -2,9 +2,8 @@ import { getActiveTenantMembership } from "@repo/auth/server";
 import type { TenantBrandingSettings } from "@repo/design-system";
 import { DEFAULT_TENANT_BRANDING_SETTINGS } from "@repo/design-system";
 import { readTenantBrandingForTenant } from "@repo/features-system-admin-control-plane/server";
-import { redirect } from "next/navigation";
 import type { ReactElement, ReactNode } from "react";
-import { localizedPath } from "@/i18n/locale-prefix";
+import { redirect } from "@/i18n/navigation";
 import { readUserAppearancePreferences } from "../../../lib/user-appearance/repository.server";
 import { queryWorkspaceShortcuts } from "../../../lib/workspace-shortcuts/queries.server.ts";
 import { resolveProductDefaults } from "../../../lib/workspace-shortcuts/resolve-shortcuts.ts";
@@ -25,20 +24,24 @@ export default async function AuthenticatedLayout({
   const membership = await getActiveTenantMembership();
 
   if (!membership) {
-    redirect(localizedPath("/sign-in", locale));
+    redirect({ href: "/sign-in", locale });
+    throw new Error("Redirect to sign-in did not complete.");
   }
 
+  const activeMembership = membership;
   let tenantBranding: TenantBrandingSettings = DEFAULT_TENANT_BRANDING_SETTINGS;
 
   try {
-    tenantBranding = await readTenantBrandingForTenant(membership.tenantId);
+    tenantBranding = await readTenantBrandingForTenant(
+      activeMembership.tenantId
+    );
   } catch {
     tenantBranding = DEFAULT_TENANT_BRANDING_SETTINGS;
   }
 
   const userPreferences = await readUserAppearancePreferences(
-    membership.tenantId,
-    membership.userId
+    activeMembership.tenantId,
+    activeMembership.userId
   );
 
   let workspaceShortcuts = resolveProductDefaults();
@@ -52,8 +55,8 @@ export default async function AuthenticatedLayout({
   return (
     <TenantBrandingProvider
       tenantBranding={tenantBranding}
-      tenantId={membership.tenantId}
-      userId={membership.userId}
+      tenantId={activeMembership.tenantId}
+      userId={activeMembership.userId}
       userPreferences={userPreferences}
     >
       <WorkspaceShortcutsRoot payload={workspaceShortcuts}>

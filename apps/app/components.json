@@ -19,6 +19,9 @@
     "hooks": "@repo/ui/hooks"
   },
   "registries": {
+    "@aicanvas": {
+      "url": "https://aicanvas.me/r/{name}.json"
+    },
     "@creative-tim": {
       "url": "https://www.creative-tim.com/ui/r/{name}.json",
       "headers": {

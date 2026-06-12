@@ -4,7 +4,7 @@ import { useAuthClient } from "@repo/auth/provider";
 import type { WorkspaceNavUserProfile } from "@repo/ui/components/compose/workspace";
 import { WorkspaceNavUser } from "@repo/ui/components/compose/workspace";
 import { Bell, CircleUser, CreditCard } from "lucide-react";
-import { useRouter } from "next/navigation";
+import { useRouter } from "@/i18n/navigation";
 import type { ReactElement } from "react";
 import { useEffect, useState } from "react";
 

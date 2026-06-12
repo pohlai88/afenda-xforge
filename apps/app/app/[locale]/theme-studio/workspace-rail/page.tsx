@@ -1,7 +1,7 @@
 import type { ReactElement } from "react";
 
-import { WorkspaceRailPreview } from "../_components/workspace-rail-preview.tsx";
+import { HrSuiteSitePreview } from "../_components/hr-suite-site-preview.tsx";
 
 export default function WorkspaceRailPreviewPage(): ReactElement {
-  return <WorkspaceRailPreview />;
+  return <HrSuiteSitePreview />;
 }

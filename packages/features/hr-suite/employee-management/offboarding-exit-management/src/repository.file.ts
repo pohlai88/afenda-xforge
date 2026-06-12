@@ -8,7 +8,6 @@ import {
   renameSync,
   writeFileSync,
 } from "node:fs";
-import { tmpdir } from "node:os";
 import { dirname, resolve } from "node:path";
 import type { OffboardingRepositoryState } from "./contracts/index.ts";
 import type { OffboardingRepositoryScope } from "./repository.shared.ts";
@@ -19,15 +18,34 @@ import {
 } from "./repository.shared.ts";
 import { offboardingRepositoryStateSchema } from "./schema.ts";
 
-let repositoryFilePath: string =
-  process.env.AFENDA_OFFBOARDING_EXIT_MANAGEMENT_REPOSITORY_PATH ??
-  process.env.AFENDA_OFFBOARDING_EXIT_MANAGEMENT_STORE_PATH ??
-  resolve(
-    /* turbopackIgnore: true */ tmpdir(),
-    "afenda",
-    "hr-suite",
-    "offboarding-exit-management.repository.json"
-  );
+const defaultRepositoryPath = resolve(
+  /* turbopackIgnore: true */ process.cwd(),
+  ".cache",
+  "hr-suite",
+  "offboarding-exit-management.repository.json"
+);
+
+type OffboardingRepositoryRuntimeState = {
+  repositoryFilePath: string;
+};
+
+const offboardingRepositoryStateKey = Symbol.for(
+  "afenda.offboarding-exit-management.repository-state"
+);
+
+const globalOffboardingRepositoryState = globalThis as typeof globalThis & {
+  [offboardingRepositoryStateKey]?: OffboardingRepositoryRuntimeState;
+};
+
+globalOffboardingRepositoryState[offboardingRepositoryStateKey] ??= {
+  repositoryFilePath:
+    process.env.AFENDA_OFFBOARDING_EXIT_MANAGEMENT_REPOSITORY_PATH ??
+    process.env.AFENDA_OFFBOARDING_EXIT_MANAGEMENT_STORE_PATH ??
+    defaultRepositoryPath,
+};
+
+const runtimeState =
+  globalOffboardingRepositoryState[offboardingRepositoryStateKey];
 
 const serializeState = (state: OffboardingRepositoryState): string =>
   JSON.stringify(state, (_key, value) =>
@@ -35,33 +53,36 @@ const serializeState = (state: OffboardingRepositoryState): string =>
   );
 
 const ensureRepositoryDirectory = (): void => {
-  mkdirSync(dirname(repositoryFilePath), { recursive: true });
+  mkdirSync(dirname(runtimeState.repositoryFilePath), { recursive: true });
 };
 
 const readStateFromDisk = (): OffboardingRepositoryState => {
-  if (!existsSync(repositoryFilePath)) {
+  if (!existsSync(runtimeState.repositoryFilePath)) {
     return emptyState();
   }
 
   return offboardingRepositoryStateSchema.parse(
-    JSON.parse(readFileSync(repositoryFilePath, "utf8")) as unknown
+    JSON.parse(readFileSync(runtimeState.repositoryFilePath, "utf8")) as unknown
   );
 };
 
 const persistState = (state: OffboardingRepositoryState): void => {
   ensureRepositoryDirectory();
-  const temporaryPath = `${repositoryFilePath}.${process.pid}.${randomUUID()}.tmp`;
+  const temporaryPath = `${runtimeState.repositoryFilePath}.${process.pid}.${randomUUID()}.tmp`;
   writeFileSync(temporaryPath, serializeState(state), "utf8");
-  renameSync(temporaryPath, repositoryFilePath);
+  renameSync(temporaryPath, runtimeState.repositoryFilePath);
 };
 
-export const getOffboardingRepositoryPath = (): string => repositoryFilePath;
+export const getOffboardingRepositoryPath = (): string =>
+  runtimeState.repositoryFilePath;
 
 export const setOffboardingRepositoryPathForTesting = (
   nextPath: string
 ): void => {
   process.env.AFENDA_OFFBOARDING_EXIT_MANAGEMENT_REPOSITORY_MODE = "file";
-  repositoryFilePath = resolve(/* turbopackIgnore: true */ nextPath);
+  runtimeState.repositoryFilePath = resolve(
+    /* turbopackIgnore: true */ nextPath
+  );
 };
 
 export const resetOffboardingFileRepositoryForTesting =

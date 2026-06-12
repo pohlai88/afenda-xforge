@@ -91,7 +91,13 @@ export function SidebarHoverController({
       return;
     }
 
-    if (mode === "collapsed" || mode === "hover") {
+    if (mode === "collapsed") {
+      setOpen(false);
+      return;
+    }
+
+    // Hover mode: collapse on mode change only; pointer handlers own expand/collapse.
+    if (mode === "hover") {
       setOpen(false);
     }
   }, [isMobile, mode]);

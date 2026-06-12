@@ -9,6 +9,9 @@ import { FormExperiencePreview } from "../../app/app/[locale]/theme-studio/_comp
 import { NexusLynxPreview } from "../../app/app/[locale]/theme-studio/_components/nexus-lynx-preview.tsx";
 import { ThemeStudioPreviewRoot } from "../../app/app/[locale]/theme-studio/_components/theme-studio-preview-root.tsx";
 import { THEME_STUDIO_PAGES } from "../../app/app/[locale]/theme-studio/_components/theme-studio-routes.ts";
+import { WorkspaceRailPreview } from "../../app/app/[locale]/theme-studio/_components/workspace-rail-preview.tsx";
+
+import { withThemeStudioWorkspace } from "./theme-studio-decorator.tsx";
 
 const meta = {
   title: "Theme Studio",
@@ -62,4 +65,13 @@ export const Preview05NexusLynx: Story = {
 export const Preview06Analytics: Story = {
   name: `06 · Analytics (${THEME_STUDIO_PAGES[5]?.weight ?? "5%"})`,
   render: () => <AnalyticsPreview />,
+};
+
+export const Preview07WorkspaceRail: Story = {
+  name: `07 · Workspace Rail (${THEME_STUDIO_PAGES[6]?.weight ?? "—"})`,
+  decorators: [withThemeStudioWorkspace],
+  parameters: {
+    themeStudioPath: "/theme-studio/workspace-rail",
+  },
+  render: () => <WorkspaceRailPreview />,
 };

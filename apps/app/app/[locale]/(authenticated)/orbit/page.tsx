@@ -6,7 +6,7 @@ import { OrbitView } from "./orbit-view.tsx";
 export default function OrbitPage(): ReactElement {
   return (
     <FeatureScaffold
-      description="Critical workload signal for today — status, capacity, and focus in one orbit."
+      description="Static orbit scaffold — system condition, next SLA, and SLA health."
       featureId={WORKSPACE_ORBIT_FEATURE_ID}
       title="The Orbit"
     >

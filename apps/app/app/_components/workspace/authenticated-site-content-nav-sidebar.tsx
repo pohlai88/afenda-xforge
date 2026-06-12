@@ -1,6 +1,6 @@
 "use client";
 
-import { usePathname } from "next/navigation";
+import { usePathname } from "@/i18n/navigation";
 import type { ReactElement } from "react";
 import { AUTHENTICATED_SIDEBAR_NAV_GROUPS } from "../authenticated-workspace-nav.ts";
 import { isPathActive } from "./path-utils.ts";

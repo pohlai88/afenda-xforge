@@ -222,15 +222,15 @@ export function AuthenticatedSidebarMatrixBlock(): ReactElement {
             />
           ))}
         </div>
-        <div className="flex min-w-0 items-center gap-1">
+        <div className="flex min-w-0 flex-col gap-1">
           <Input
-            className="h-7 min-w-0 flex-1 text-[10px]"
+            className="h-7 min-w-0 w-full text-[10px]"
             onChange={(event) => setLabelColor(event.target.value)}
             placeholder="custom"
             value={labelColor}
           />
           <Button
-            className="h-7 shrink-0 px-2 text-[10px]"
+            className="h-7 w-full text-[10px]"
             onClick={addCustomColor}
             type="button"
             variant="outline"

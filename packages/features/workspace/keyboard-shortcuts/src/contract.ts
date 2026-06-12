@@ -1,5 +1,8 @@
 export type ShortcutActionId =
   | "workspace.commandSearch"
+  | "workspace.newTodo"
+  | "workspace.newProject"
+  | "workspace.openLynx"
   | "workspace.openShortcutHelp"
   | "workspace.toggleSidebar"
   | "crud.create"
@@ -94,6 +97,9 @@ export type FocusedShortcutTarget = {
 
 export const SHORTCUT_ACTION_IDS = [
   "workspace.commandSearch",
+  "workspace.newTodo",
+  "workspace.newProject",
+  "workspace.openLynx",
   "workspace.openShortcutHelp",
   "workspace.toggleSidebar",
   "crud.create",
@@ -105,6 +111,9 @@ export const SHORTCUT_ACTION_IDS = [
 
 export const GLOBAL_ALLOWED_IN_TEXT_ENTRY = new Set<ShortcutActionId>([
   "workspace.commandSearch",
+  "workspace.newTodo",
+  "workspace.newProject",
+  "workspace.openLynx",
   "workspace.openShortcutHelp",
 ]);
 

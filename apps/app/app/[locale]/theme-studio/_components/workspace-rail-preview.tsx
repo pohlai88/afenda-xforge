@@ -22,7 +22,7 @@ export function WorkspaceRailPreview(): ReactElement {
           </li>
           <li className="flex items-start gap-2">
             <Badge variant="outline">the-orbit</Badge>
-            <span>KPI ring, load %, progress, and status badge</span>
+            <span>System pulse, next SLA, workload pressure, and SLA meter</span>
           </li>
           <li className="flex items-start gap-2">
             <Badge variant="outline">infrastructure</Badge>

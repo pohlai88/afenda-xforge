@@ -39,7 +39,7 @@ import {
 } from "./app-nav-topbar-tooltips.ts";
 import { cn } from "@repo/ui/lib/utils";
 import { Settings2 } from "lucide-react";
-import { useRouter } from "next/navigation";
+import { useRouter } from "@/i18n/navigation";
 import type { ReactElement } from "react";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import {

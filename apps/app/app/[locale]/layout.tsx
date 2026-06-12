@@ -26,7 +26,12 @@ const appSitePreset = createAppSitePreset(
   process.env.NEXT_PUBLIC_APP_URL ?? "http://localhost:3000"
 );
 
-export const metadata: Metadata = appSitePreset.metadata;
+export const metadata: Metadata = {
+  ...appSitePreset.metadata,
+  metadataBase: new URL(
+    process.env.NEXT_PUBLIC_APP_URL ?? "http://localhost:3000"
+  ),
+};
 
 type LocaleLayoutProps = {
   children: ReactNode;

@@ -20,8 +20,7 @@ import {
 import { Badge } from "@repo/ui/components/badge";
 import { cn } from "@repo/ui/lib/utils";
 import { PaletteIcon } from "lucide-react";
-import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { Link, usePathname } from "@/i18n/navigation";
 import type { CSSProperties, ReactElement, ReactNode } from "react";
 import type { ThemeStudioPage } from "./theme-studio-routes.ts";
 import {
