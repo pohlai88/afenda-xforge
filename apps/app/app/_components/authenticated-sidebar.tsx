@@ -6,7 +6,10 @@ import { AuthenticatedCompanySwitcher } from "./authenticated-company-switcher.t
 import { AuthenticatedNavUser } from "./authenticated-nav-user.tsx";
 import { AppNavSidebarContent } from "./workspace/app-nav-sidebar-content.tsx";
 import { AuthenticatedSidebarSettingsLink } from "./workspace/authenticated-sidebar-settings-link.tsx";
-import { WorkspaceAppNavSidebarBlocks } from "./workspace/workspace-app-nav-sidebar-blocks.tsx";
+import {
+  WorkspaceSidebarPinnedBlock,
+  WorkspaceSidebarScrollBlocks,
+} from "./workspace/workspace-app-nav-sidebar-blocks.tsx";
 
 export function AuthenticatedSidebar(): ReactElement {
   return (
@@ -15,8 +18,11 @@ export function AuthenticatedSidebar(): ReactElement {
         <AuthenticatedCompanySwitcher />
       </SidebarHeader>
 
-      <AppNavSidebarContent className="gap-0">
-        <WorkspaceAppNavSidebarBlocks />
+      <AppNavSidebarContent
+        className="gap-0"
+        pinned={<WorkspaceSidebarPinnedBlock />}
+      >
+        <WorkspaceSidebarScrollBlocks />
       </AppNavSidebarContent>
 
       <SidebarFooter className="gap-2 p-2">

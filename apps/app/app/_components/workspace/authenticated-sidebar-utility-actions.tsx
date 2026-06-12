@@ -2,7 +2,6 @@
 
 import {
   Kbd,
-  KbdGroup,
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
@@ -19,23 +18,18 @@ import { formatShortcutKeyTokens } from "../../../lib/workspace-shortcuts/format
 import { useOptionalWorkspaceShortcuts } from "./keyboard-shortcuts/use-keyboard-shortcuts.tsx";
 import { ORBIT_TRAIL_FOCUS_EVENT } from "./orbit-trail.ts";
 
-function UtilityShortcutHint({ normalized }: { normalized: string }): ReactElement {
-  const tokens = formatShortcutKeyTokens(normalized).map((token) =>
-    token === "Ctrl/Cmd" ? "Ctrl" : token
-  );
+function formatUtilityShortcutHint(normalized: string): string {
+  return formatShortcutKeyTokens(normalized)
+    .map((token) => (token === "Ctrl/Cmd" ? "Ctrl" : token))
+    .join("+");
+}
 
+function UtilityShortcutHint({ normalized }: { normalized: string }): ReactElement {
   return (
-    <span className="pointer-events-none absolute top-0.5 right-1 flex items-center gap-0.5 opacity-0 transition-opacity group-hover/menu-item:opacity-100 group-focus-within/menu-item:opacity-100 group-data-[collapsible=icon]:hidden">
-      <KbdGroup>
-        {tokens.map((token) => (
-          <Kbd
-            className="h-4 min-h-4 px-1 font-mono text-[9px] leading-none text-sidebar-foreground/65 shadow-none bg-sidebar-border/40 dark:bg-sidebar-border/25"
-            key={token}
-          >
-            {token}
-          </Kbd>
-        ))}
-      </KbdGroup>
+    <span className="pointer-events-none absolute top-1/2 right-1 -translate-y-1/2 opacity-0 transition-opacity group-hover/menu-item:opacity-100 group-focus-within/menu-item:opacity-100 group-data-[collapsible=icon]:hidden">
+      <Kbd className="h-4 min-h-4 px-1 font-mono text-[9px] leading-none text-sidebar-foreground/65 shadow-none bg-sidebar-border/40 dark:bg-sidebar-border/25">
+        {formatUtilityShortcutHint(normalized)}
+      </Kbd>
     </span>
   );
 }
@@ -70,7 +64,7 @@ export function AuthenticatedSidebarUtilityActions(): ReactElement {
           size="sm"
         >
           <ListTodo className="size-3.5" />
-          <span className="font-medium text-[10px] leading-4">New To-Do</span>
+          <span className="text-[10px] leading-4">New To-Do</span>
         </SidebarMenuButton>
         <UtilityShortcutHint normalized="mod+n" />
       </SidebarMenuItem>

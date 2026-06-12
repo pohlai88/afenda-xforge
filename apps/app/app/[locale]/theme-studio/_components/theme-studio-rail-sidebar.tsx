@@ -7,14 +7,20 @@ import {
 import type { ReactElement } from "react";
 
 import { AppNavSidebarContent } from "../../../_components/workspace/app-nav-sidebar-content.tsx";
-import { WorkspaceAppNavSidebarBlocks } from "../../../_components/workspace/workspace-app-nav-sidebar-blocks.tsx";
+import {
+  WorkspaceSidebarPinnedBlock,
+  WorkspaceSidebarScrollBlocks,
+} from "../../../_components/workspace/workspace-app-nav-sidebar-blocks.tsx";
 import { THEME_STUDIO_DEMO_USER } from "./theme-studio-rail.constants.ts";
 
 export function ThemeStudioRailSidebar(): ReactElement {
   return (
     <>
-      <AppNavSidebarContent className="gap-0">
-        <WorkspaceAppNavSidebarBlocks />
+      <AppNavSidebarContent
+        className="gap-0"
+        pinned={<WorkspaceSidebarPinnedBlock />}
+      >
+        <WorkspaceSidebarScrollBlocks />
       </AppNavSidebarContent>
 
       <WorkspaceAppSidebarFooter>

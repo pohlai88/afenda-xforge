@@ -9,6 +9,9 @@
   "pnpm": {
     "overrides": {
       "zod": "4.3.6"
+    },
+    "patchedDependencies": {
+      "next-themes@0.4.6": "patches/next-themes@0.4.6.patch"
     }
   },
   "scripts": {

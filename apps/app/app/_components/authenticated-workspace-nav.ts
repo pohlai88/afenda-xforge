@@ -16,6 +16,7 @@ import {
   Sparkles,
   Users,
 } from "lucide-react";
+import { WORKSPACE_APP_SIDEBAR_NAV_GROUP } from "./workspace/2.2-workspace-app-sidebar-nav.ts";
 import type { WorkspaceNavGroup } from "./workspace/types.ts";
 
 export const AUTHENTICATED_INFRASTRUCTURE_LINKS: WorkspaceNavGroup = {
@@ -91,42 +92,8 @@ export const AUTHENTICATED_RESOURCES_NAV: WorkspaceNavGroup = {
   ],
 };
 
-export const AUTHENTICATED_APPS_NAV: WorkspaceNavGroup = {
-  label: "Apps",
-  items: [
-    {
-      href: "/dashboard",
-      icon: LayoutDashboard,
-      label: "Dashboard",
-      featureId: "system-admin.overview",
-    },
-    {
-      href: "/infrastructure/lynx",
-      icon: Cpu,
-      label: "Infrastructure",
-      featureId: "workspace.infrastructure.lynx",
-      description: "Workspace infrastructure, reasoning, and evidence.",
-    },
-    {
-      href: "/resources/organization",
-      icon: Building2,
-      label: "Resources",
-      featureId: "workspace.resources.organization",
-    },
-    {
-      href: "/hr",
-      icon: Users,
-      label: "HR hub",
-      featureId: "hr-suite.employee-management.documents-management",
-    },
-    {
-      href: "/hr/documents",
-      icon: FileText,
-      label: "Documents",
-      featureId: "hr-suite.employee-management.documents-management",
-    },
-  ],
-};
+export const AUTHENTICATED_APPS_NAV: WorkspaceNavGroup =
+  WORKSPACE_APP_SIDEBAR_NAV_GROUP;
 
 /** App nav sidebar — Codex-style utility, project, app, and settings groups. */
 export const AUTHENTICATED_SIDEBAR_NAV_GROUPS = [

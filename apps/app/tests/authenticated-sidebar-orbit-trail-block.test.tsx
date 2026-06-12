@@ -1,10 +1,12 @@
 import { SidebarProvider } from "@repo/ui";
-import { fireEvent, render, screen, waitFor } from "@testing-library/react";
+import { fireEvent, render, screen, waitFor, within } from "@testing-library/react";
 import type { ReactElement } from "react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { AuthenticatedSidebarOrbitTrailBlock } from "../app/_components/workspace/authenticated-sidebar-orbit-trail-block.tsx";
 import type { OrbitTrailItem } from "../app/_components/workspace/orbit-trail.ts";
 import {
+  ORBIT_SYNTAX_GUIDE_EXAMPLE,
+  ORBIT_SYNTAX_GUIDE_LINES,
   ORBIT_TRAIL_STORAGE_KEY,
   parseOrbitTrailInput,
 } from "../app/_components/workspace/orbit-trail.ts";
@@ -27,8 +29,18 @@ vi.mock("@/i18n/navigation", () => ({
 }));
 
 describe("Orbit Trail parser", () => {
-  it("maps pressure syntax to routine, important, urgent, and critical", () => {
-    expect(parseOrbitTrailInput("/payment review")?.pressure).toBe("routine");
+  it("maps Eisenhower pressure syntax to routine, important, urgent, and critical", () => {
+    expect(parseOrbitTrailInput("R /payment review")?.pressure).toBe("routine");
+    expect(parseOrbitTrailInput("!M /payment review")?.pressure).toBe(
+      "important"
+    );
+    expect(parseOrbitTrailInput("!I /payment review")?.pressure).toBe(
+      "important"
+    );
+    expect(parseOrbitTrailInput("!U /payment review")?.pressure).toBe("urgent");
+    expect(parseOrbitTrailInput("!C /payment review")?.pressure).toBe(
+      "critical"
+    );
     expect(parseOrbitTrailInput("! /payment review")?.pressure).toBe(
       "important"
     );
@@ -58,7 +70,7 @@ describe("AuthenticatedSidebarOrbitTrailBlock", () => {
     window.localStorage.removeItem(ORBIT_TRAIL_STORAGE_KEY);
   });
 
-  it("renders workspace, pinned, projects, and apps sections", () => {
+  it("renders workspace, Eisenhower matrix, and apps sections", async () => {
     render(
       <SidebarProvider>
         <WorkspaceAppNavSidebarBlocks />
@@ -67,88 +79,119 @@ describe("AuthenticatedSidebarOrbitTrailBlock", () => {
 
     const workspace = screen.getByText("The workspace");
     const newTodo = screen.getByRole("button", { name: "New To-Do" });
-    const pinned = screen.getByText("Pinned");
-    const projects = screen.getByText("Projects");
+    const eisenhower = await screen.findByText("EISENHOWER MATRIX (3/30)");
     const apps = screen.getByText("Apps");
 
     expect(workspace.compareDocumentPosition(newTodo)).toBe(
       Node.DOCUMENT_POSITION_FOLLOWING
     );
-    expect(pinned.compareDocumentPosition(projects)).toBe(
-      Node.DOCUMENT_POSITION_FOLLOWING
-    );
-    expect(projects.compareDocumentPosition(apps)).toBe(
+    expect(eisenhower.compareDocumentPosition(apps)).toBe(
       Node.DOCUMENT_POSITION_FOLLOWING
     );
   });
 
-  it("adds an item with Enter when syntax is recognized", async () => {
+  it("does not render a visible add input or syntax hint", () => {
     renderWithSidebar(<AuthenticatedSidebarOrbitTrailBlock />);
 
-    fireEvent.change(screen.getByLabelText("Search or add Orbit Trail item"), {
-      target: { value: "@chatgpt !!! /payment review invoice" },
+    expect(screen.queryByPlaceholderText("Add...")).not.toBeInTheDocument();
+    expect(screen.queryByText("@who ! /where #when")).not.toBeInTheDocument();
+    expect(
+      screen.queryByRole("button", { name: "Add trail" })
+    ).not.toBeInTheDocument();
+  });
+
+  it("adds an item with Enter and applies the active Eisenhower tab pressure", async () => {
+    renderWithSidebar(<AuthenticatedSidebarOrbitTrailBlock />);
+
+    fireEvent.click(screen.getByRole("tab", { name: "!C" }));
+    fireEvent.change(screen.getByLabelText("Add Orbit Trail item"), {
+      target: { value: "@chatgpt /payment review invoice" },
     });
-    fireEvent.keyDown(screen.getByLabelText("Search or add Orbit Trail item"), {
+    fireEvent.keyDown(screen.getByLabelText("Add Orbit Trail item"), {
       key: "Enter",
     });
 
+    const addedRow = (await screen.findByText("ChatGPT payment review invoice"))
+      .closest("li");
+
+    expect(addedRow).not.toBeNull();
     expect(
-      await screen.findByText("ChatGPT payment review invoice")
+      within(addedRow as HTMLElement).getByLabelText("critical pressure")
     ).toBeInTheDocument();
-    expect(screen.getByText("payment")).toBeInTheDocument();
-    expect(screen.getByLabelText("critical pressure")).toBeInTheDocument();
   });
 
   it("force-adds normal words with the top New To-Do action", async () => {
     renderWithSidebar(<WorkspaceAppNavSidebarBlocks />);
 
-    fireEvent.change(screen.getByLabelText("Search or add Orbit Trail item"), {
+    fireEvent.change(screen.getByLabelText("Add Orbit Trail item"), {
       target: { value: "review plain note" },
     });
     fireEvent.click(screen.getByRole("button", { name: "New To-Do" }));
 
     expect(await screen.findByText("review plain note")).toBeInTheDocument();
-    expect(screen.getByText("general")).toBeInTheDocument();
   });
 
-  it("keeps the input expanded-only and avoids a card section wrapper", () => {
-    const { container } = renderWithSidebar(
-      <AuthenticatedSidebarOrbitTrailBlock />
-    );
-    const input = screen.getByLabelText("Search or add Orbit Trail item");
-
-    expect(container.querySelector("section")).not.toBeInTheDocument();
-    expect(input.parentElement).toHaveClass(
-      "group-data-[collapsible=icon]:hidden"
-    );
-  });
-
-  it("filters visible trail items when normal words are typed", async () => {
-    window.localStorage.setItem(
-      ORBIT_TRAIL_STORAGE_KEY,
-      JSON.stringify([
-        makeTrailItem({
-          id: "one",
-          scope: "Payment",
-          title: "Vendor approval",
-        }),
-        makeTrailItem({ id: "two", title: "Payroll check", scope: "HR" }),
-      ])
-    );
-
+  it("pre-seeds each matrix tab for onboarding when storage is empty", async () => {
     renderWithSidebar(<AuthenticatedSidebarOrbitTrailBlock />);
 
-    expect(await screen.findByText("Vendor approval")).toBeInTheDocument();
+    fireEvent.click(screen.getByRole("tab", { name: "!M" }));
+    expect(
+      await screen.findByText("quarterly planning review")
+    ).toBeInTheDocument();
 
-    fireEvent.change(screen.getByLabelText("Search or add Orbit Trail item"), {
-      target: { value: "payroll" },
-    });
+    fireEvent.click(screen.getByRole("tab", { name: "!U" }));
+    expect(
+      await screen.findByText("client follow-up today")
+    ).toBeInTheDocument();
 
-    expect(screen.queryByText("Vendor approval")).not.toBeInTheDocument();
-    expect(screen.getByText("Payroll check")).toBeInTheDocument();
+    fireEvent.click(screen.getByRole("tab", { name: "!C" }));
+    expect(
+      await screen.findByText("RHB AP payment check")
+    ).toBeInTheDocument();
   });
 
-  it("renders only 10 visible open rows", async () => {
+  it("renders Guide tab with syntax guide dropdown", () => {
+    renderWithSidebar(<AuthenticatedSidebarOrbitTrailBlock />);
+
+    expect(screen.getByRole("tab", { name: "Guide syntax" })).toBeInTheDocument();
+    expect(screen.queryByRole("tab", { name: /R Routine/ })).not.toBeInTheDocument();
+    expect(
+      screen.getByText(ORBIT_SYNTAX_GUIDE_EXAMPLE.input)
+    ).toBeInTheDocument();
+    expect(
+      screen.getByText(ORBIT_SYNTAX_GUIDE_EXAMPLE.output)
+    ).toBeInTheDocument();
+
+    for (const line of ORBIT_SYNTAX_GUIDE_LINES) {
+      expect(screen.getByText(line.meaning)).toBeInTheDocument();
+    }
+  });
+
+  it("renders matrix tabs directly under the Eisenhower metadata label", async () => {
+    renderWithSidebar(<AuthenticatedSidebarOrbitTrailBlock />);
+
+    const eisenhower = await screen.findByText("EISENHOWER MATRIX (3/30)");
+    const guideTab = screen.getByRole("tab", { name: "Guide syntax" });
+
+    expect(eisenhower).toHaveClass("px-2", "text-[8px]");
+    expect(eisenhower.compareDocumentPosition(guideTab)).toBe(
+      Node.DOCUMENT_POSITION_FOLLOWING
+    );
+  });
+
+  it("renders Eisenhower matrix label and pressure tabs", async () => {
+    renderWithSidebar(<AuthenticatedSidebarOrbitTrailBlock />);
+
+    expect(
+      await screen.findByText("EISENHOWER MATRIX (3/30)")
+    ).toBeInTheDocument();
+    expect(screen.getByRole("tab", { name: "Guide syntax" })).toBeInTheDocument();
+    expect(screen.getByRole("tab", { name: "!M" })).toBeInTheDocument();
+    expect(screen.getByRole("tab", { name: "!U" })).toBeInTheDocument();
+    expect(screen.getByRole("tab", { name: "!C" })).toBeInTheDocument();
+  });
+
+  it("renders only 10 visible open rows per pressure tab", async () => {
     window.localStorage.setItem(
       ORBIT_TRAIL_STORAGE_KEY,
       JSON.stringify(
@@ -156,6 +199,7 @@ describe("AuthenticatedSidebarOrbitTrailBlock", () => {
           makeTrailItem({
             createdAt: `2026-06-12T00:${String(index).padStart(2, "0")}:00.000Z`,
             id: `item-${index}`,
+            pressure: "important",
             title: `Trail item ${index}`,
           })
         )
@@ -163,13 +207,14 @@ describe("AuthenticatedSidebarOrbitTrailBlock", () => {
     );
 
     renderWithSidebar(<AuthenticatedSidebarOrbitTrailBlock />);
+    fireEvent.click(screen.getByRole("tab", { name: "!M" }));
 
     await waitFor(() => {
       expect(screen.getAllByLabelText(/pressure$/)).toHaveLength(10);
     });
   });
 
-  it("sorts pinned items before non-pinned items", async () => {
+  it("sorts pinned items before non-pinned items in the active tab", async () => {
     window.localStorage.setItem(
       ORBIT_TRAIL_STORAGE_KEY,
       JSON.stringify([
@@ -188,6 +233,7 @@ describe("AuthenticatedSidebarOrbitTrailBlock", () => {
     );
 
     renderWithSidebar(<AuthenticatedSidebarOrbitTrailBlock />);
+    fireEvent.click(screen.getByRole("tab", { name: "!M" }));
 
     const pinned = await screen.findByText("Pinned item");
     const newest = screen.getByText("Newest item");
@@ -195,6 +241,39 @@ describe("AuthenticatedSidebarOrbitTrailBlock", () => {
     expect(pinned.compareDocumentPosition(newest)).toBe(
       Node.DOCUMENT_POSITION_FOLLOWING
     );
+  });
+
+  it("collapses and expands each Eisenhower tab dropdown independently", async () => {
+    window.localStorage.setItem(
+      ORBIT_TRAIL_STORAGE_KEY,
+      JSON.stringify([
+        makeTrailItem({
+          id: "important",
+          title: "Important trail row",
+        }),
+        makeTrailItem({
+          id: "critical",
+          pressure: "critical",
+          title: "Critical trail row",
+        }),
+      ])
+    );
+
+    renderWithSidebar(<AuthenticatedSidebarOrbitTrailBlock />);
+
+    expect(screen.getByText("who / what")).toBeInTheDocument();
+    expect(screen.queryByText("Important trail row")).not.toBeInTheDocument();
+
+    fireEvent.click(screen.getByRole("tab", { name: "!M" }));
+    expect(await screen.findByText("Important trail row")).toBeInTheDocument();
+
+    fireEvent.click(screen.getByRole("tab", { name: "!M" }));
+    expect(screen.queryByText("Important trail row")).not.toBeInTheDocument();
+
+    fireEvent.click(
+      screen.getByRole("tab", { name: "!C" })
+    );
+    expect(await screen.findByText("Critical trail row")).toBeInTheDocument();
   });
 
   it("hides done items from the default sidebar view", async () => {
@@ -207,9 +286,57 @@ describe("AuthenticatedSidebarOrbitTrailBlock", () => {
     );
 
     renderWithSidebar(<AuthenticatedSidebarOrbitTrailBlock />);
+    fireEvent.click(screen.getByRole("tab", { name: "!M" }));
 
     expect(await screen.findByText("Open item")).toBeInTheDocument();
     expect(screen.queryByText("Done item")).not.toBeInTheDocument();
+  });
+
+  it("updates the matrix counter in the metadata label", async () => {
+    window.localStorage.setItem(
+      ORBIT_TRAIL_STORAGE_KEY,
+      JSON.stringify([
+        makeTrailItem({ id: "one", title: "One" }),
+        makeTrailItem({ id: "two", title: "Two" }),
+      ])
+    );
+
+    renderWithSidebar(<AuthenticatedSidebarOrbitTrailBlock />);
+
+    expect(
+      await screen.findByText("EISENHOWER MATRIX (2/30)")
+    ).toBeInTheDocument();
+  });
+
+  it("switches pressure tabs and filters rows by urgency", async () => {
+    window.localStorage.setItem(
+      ORBIT_TRAIL_STORAGE_KEY,
+      JSON.stringify([
+        makeTrailItem({
+          id: "important",
+          pressure: "important",
+          title: "Important follow-up",
+        }),
+        makeTrailItem({
+          id: "critical",
+          pressure: "critical",
+          title: "Critical escalation",
+        }),
+      ])
+    );
+
+    renderWithSidebar(<AuthenticatedSidebarOrbitTrailBlock />);
+
+    fireEvent.click(screen.getByRole("tab", { name: "!M" }));
+    expect(await screen.findByText("Important follow-up")).toBeInTheDocument();
+    expect(screen.queryByText("Critical escalation")).not.toBeInTheDocument();
+
+    fireEvent.click(
+      screen.getByRole("tab", { name: "!C" })
+    );
+
+    expect(await screen.findByText("Critical escalation")).toBeInTheDocument();
+    expect(screen.queryByText("Important follow-up")).not.toBeInTheDocument();
   });
 
   it("exposes pin, complete, and show more actions", async () => {
@@ -219,6 +346,7 @@ describe("AuthenticatedSidebarOrbitTrailBlock", () => {
     );
 
     renderWithSidebar(<AuthenticatedSidebarOrbitTrailBlock />);
+    fireEvent.click(screen.getByRole("tab", { name: "!M" }));
 
     expect(await screen.findByText("Vendor approval")).toBeInTheDocument();
     expect(
@@ -251,10 +379,13 @@ function makeTrailItem(
     done: false,
     id: "trail-item",
     pinned: false,
-    pressure: "routine",
+    pressure: "important",
     rawInput: "Vendor approval",
-    scope: "Payment",
-    scopeKind: "module",
+    scope: "general",
+    scopeKind: "unknown",
+    syntaxKind: "who",
+    syntaxSymbol: "@",
+    syntaxValue: "Vendor approval",
     title: "Vendor approval",
     ...overrides,
   };

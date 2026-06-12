@@ -49,6 +49,9 @@ type WorkspaceFrameProps = {
 const workspaceBodyBelowAppTopbarClass =
   "[--workspace-app-topbar-height:var(--workspace-app-nav-topbar-height,2.75rem)] [&_[data-slot=sidebar-container]]:top-[var(--workspace-app-topbar-height)] [&_[data-slot=sidebar-container]]:h-[calc(100svh-var(--workspace-app-topbar-height))]";
 
+/** Open the site column to the viewport edge — no trailing hairline. */
+const workspaceSiteContentShellClass = "border-e-0";
+
 export function WorkspaceFrame({
   appNavTopbar,
   children,
@@ -87,7 +90,7 @@ export function WorkspaceFrame({
   );
 
   const siteColumn = siteContentSidebar ? (
-    <WorkspaceNavSiteContent>
+    <WorkspaceNavSiteContent className={workspaceSiteContentShellClass}>
       <SiteContentSidebarShell
         siteContentSidebar={siteContentSidebar}
         topBar={topBar}
@@ -96,7 +99,7 @@ export function WorkspaceFrame({
       </SiteContentSidebarShell>
     </WorkspaceNavSiteContent>
   ) : (
-    <WorkspaceNavSiteContent>
+    <WorkspaceNavSiteContent className={workspaceSiteContentShellClass}>
       {topBar}
       <div
         className="flex min-h-0 min-w-0 flex-1 overflow-hidden"
