@@ -4,7 +4,7 @@ import type {
 } from "@repo/features-employee-management-offboarding-exit-management";
 import {
   filterHrCapabilityPermissions,
-  resolveHrOperatorCapabilities,
+  resolveHrOffboardingRuntimeAccess,
   resolveHrTenantScopedAccess,
 } from "../../_lib/access.ts";
 
@@ -12,7 +12,9 @@ export const createOffboardingReadContext = async (
   _request: Request
 ): Promise<OffboardingReadContext & { tenantId?: string }> => {
   const { access, companyId } = await resolveHrTenantScopedAccess();
-  const capabilities = resolveHrOperatorCapabilities(access);
+  const capabilities = resolveHrOffboardingRuntimeAccess(
+    access.grantedPermissions
+  );
   const grantedCapabilities = filterHrCapabilityPermissions(
     access.grantedPermissions,
     "hr.offboarding."
@@ -34,7 +36,9 @@ export const createOffboardingWriteContext = async (
 ): Promise<OffboardingWriteContext & { actorId?: string; tenantId?: string }> => {
   const readContext = await createOffboardingReadContext(request);
   const { access } = await resolveHrTenantScopedAccess();
-  const capabilities = resolveHrOperatorCapabilities(access);
+  const capabilities = resolveHrOffboardingRuntimeAccess(
+    access.grantedPermissions
+  );
   const grantedCapabilities = filterHrCapabilityPermissions(
     access.grantedPermissions,
     "hr.offboarding."

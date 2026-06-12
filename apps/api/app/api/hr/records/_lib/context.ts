@@ -1,10 +1,14 @@
 import type { HrRecordsActionResult } from "@repo/features-employee-management-employee-records-management";
-import { resolveHrTenantScopedAccess } from "../../_lib/access.ts";
+import {
+  resolveHrEmployeeRecordsRuntimeAccess,
+  resolveHrTenantScopedAccess,
+} from "../../_lib/access.ts";
 
 export type HrRecordsApiReadContext = {
   canRead: boolean;
   canViewSensitive: boolean;
   organizationId?: string;
+  tenantId: string;
   userId?: string;
 };
 
@@ -15,12 +19,16 @@ export type HrRecordsApiWriteContext = HrRecordsApiReadContext & {
 export const createHrRecordsReadContext = async (
   _request: Request
 ): Promise<HrRecordsApiReadContext> => {
-  const { access, capabilities } = await resolveHrTenantScopedAccess();
+  const { access } = await resolveHrTenantScopedAccess();
+  const capabilities = resolveHrEmployeeRecordsRuntimeAccess(
+    access.grantedPermissions
+  );
 
   return {
     canRead: capabilities.canRead,
     canViewSensitive: capabilities.canViewSensitive,
     organizationId: access.tenantId,
+    tenantId: access.tenantId,
     userId: access.actorId,
   };
 };
@@ -29,10 +37,14 @@ export const createHrRecordsWriteContext = async (
   request: Request
 ): Promise<HrRecordsApiWriteContext> => {
   const readContext = await createHrRecordsReadContext(request);
+  const { access } = await resolveHrTenantScopedAccess();
+  const capabilities = resolveHrEmployeeRecordsRuntimeAccess(
+    access.grantedPermissions
+  );
 
   return {
     ...readContext,
-    canWrite: readContext.canRead,
+    canWrite: capabilities.canWrite,
   };
 };
 

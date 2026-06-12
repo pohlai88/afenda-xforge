@@ -8,6 +8,10 @@ import {
   createEmployeeLifecycleReadContext,
   createEmployeeLifecycleRepositoryScope,
 } from "../../_lib/context.ts";
+import {
+  ensureEmployeeLifecycleReadAccess,
+  respondWithEmployeeLifecycleError,
+} from "../../_lib/http.ts";
 
 type RouteContext = {
   params: Promise<{
@@ -15,26 +19,39 @@ type RouteContext = {
   }>;
 };
 
-export async function GET(request: Request, context: RouteContext) {
-  const readContext = await createEmployeeLifecycleReadContext(request);
-  const { employeeId } = await context.params;
-  const scope = createEmployeeLifecycleRepositoryScope(readContext);
+export async function GET(
+  request: Request,
+  routeContext: RouteContext
+): Promise<Response> {
+  try {
+    const readContext = await createEmployeeLifecycleReadContext(request);
+    const denied = ensureEmployeeLifecycleReadAccess(readContext);
 
-  return NextResponse.json({
-    snapshot: buildEmployeeLifecycleIntegrationSnapshot(
-      employeeId,
-      scope,
-      readContext
-    ),
-    taskAttention: buildEmployeeLifecycleTaskAttentionSnapshot(
-      employeeId,
-      scope,
-      readContext
-    ),
-    changeEvent: buildEmployeeLifecycleIntegrationChangeEvent(
-      employeeId,
-      scope,
-      readContext
-    ),
-  });
+    if (denied) {
+      return denied;
+    }
+
+    const { employeeId } = await routeContext.params;
+    const scope = createEmployeeLifecycleRepositoryScope(readContext);
+
+    return NextResponse.json({
+      snapshot: buildEmployeeLifecycleIntegrationSnapshot(
+        employeeId,
+        scope,
+        readContext
+      ),
+      taskAttention: buildEmployeeLifecycleTaskAttentionSnapshot(
+        employeeId,
+        scope,
+        readContext
+      ),
+      changeEvent: buildEmployeeLifecycleIntegrationChangeEvent(
+        employeeId,
+        scope,
+        readContext
+      ),
+    });
+  } catch (error) {
+    return respondWithEmployeeLifecycleError(error);
+  }
 }

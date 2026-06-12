@@ -1,6 +1,10 @@
 import type { EmployeeLifecycleManagementPolicyContext } from "@repo/features-employee-management-employee-lifecycle-management/policy";
 import type { EmployeeLifecycleRepositoryScope } from "@repo/features-employee-management-employee-lifecycle-management/repository";
-import { resolveHrTenantScopedAccess } from "../../_lib/access.ts";
+import {
+  filterHrCapabilityPermissions,
+  resolveHrLifecycleRuntimeAccess,
+  resolveHrTenantScopedAccess,
+} from "../../_lib/access.ts";
 
 export type EmployeeLifecycleApiReadContext =
   EmployeeLifecycleManagementPolicyContext;
@@ -14,13 +18,21 @@ export type EmployeeLifecycleApiWriteContext =
 export const createEmployeeLifecycleReadContext = async (
   _request: Request
 ): Promise<EmployeeLifecycleApiReadContext> => {
-  const { access, capabilities, companyId } =
-    await resolveHrTenantScopedAccess();
+  const { access, companyId } = await resolveHrTenantScopedAccess();
+  const capabilities = resolveHrLifecycleRuntimeAccess(
+    access.grantedPermissions
+  );
+  const grantedCapabilities = filterHrCapabilityPermissions(
+    access.grantedPermissions,
+    "hr.lifecycle."
+  );
 
   return {
     actorId: access.actorId,
-    canRead: capabilities.canRead,
-    canViewSensitive: capabilities.canViewSensitive,
+    canRead: capabilities.canRead || grantedCapabilities.length > 0,
+    canViewSensitive:
+      capabilities.canViewSensitive ||
+      grantedCapabilities.includes("hr.lifecycle.sensitive.read"),
     companyId,
     requestId: access.requestId,
     tenantId: access.tenantId,
@@ -31,11 +43,22 @@ export const createEmployeeLifecycleWriteContext = async (
   request: Request
 ): Promise<EmployeeLifecycleApiWriteContext> => {
   const readContext = await createEmployeeLifecycleReadContext(request);
+  const { access } = await resolveHrTenantScopedAccess();
+  const capabilities = resolveHrLifecycleRuntimeAccess(
+    access.grantedPermissions
+  );
+  const grantedCapabilities = filterHrCapabilityPermissions(
+    access.grantedPermissions,
+    "hr.lifecycle."
+  );
+  const canWrite =
+    capabilities.canWrite ||
+    grantedCapabilities.some((capability) => capability.endsWith(".write"));
 
   return {
     ...readContext,
-    canWrite: readContext.canRead ?? false,
-    actorId: readContext.actorId,
+    canWrite,
+    actorId: access.actorId,
   };
 };
 

@@ -13,6 +13,7 @@ import {
   createDocumentsManagementReadContext,
   createDocumentsManagementWriteContext,
 } from "../_lib/context.ts";
+import { ensureDocumentsManagementReadAccess } from "../_lib/http.ts";
 
 const isRetentionAction = (
   value: string | undefined
@@ -36,11 +37,15 @@ export async function GET(request: Request): Promise<Response> {
         : undefined,
     });
 
+    const context = await createDocumentsManagementReadContext(request);
+    const denied = ensureDocumentsManagementReadAccess(context);
+
+    if (denied) {
+      return denied;
+    }
+
     return NextResponse.json(
-      listDocumentsManagementRetentionCandidates(
-        query,
-        await createDocumentsManagementReadContext(request)
-      )
+      listDocumentsManagementRetentionCandidates(query, context)
     );
   } catch {
     return NextResponse.json(

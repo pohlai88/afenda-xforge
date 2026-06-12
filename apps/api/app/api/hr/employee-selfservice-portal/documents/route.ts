@@ -4,20 +4,27 @@ import { NextResponse } from "next/server";
 
 import { getDocumentsManagementQuery } from "../../documents/_lib/context.ts";
 import { createEmployeeSelfservicePortalReadContext } from "../_lib/context.ts";
+import {
+  ensureEmployeeSelfservicePortalActorReadAccess,
+  requireEmployeeSelfservicePortalActorEmployeeId,
+} from "../_lib/http.ts";
 
 export async function GET(request: Request): Promise<Response> {
   try {
     const essContext = await createEmployeeSelfservicePortalReadContext(request);
+    const denied = ensureEmployeeSelfservicePortalActorReadAccess(essContext);
 
-    if (!(essContext.canRead && essContext.actorEmployeeId)) {
-      return NextResponse.json([], { status: 200 });
+    if (denied) {
+      return denied;
     }
 
+    const actorEmployeeId =
+      requireEmployeeSelfservicePortalActorEmployeeId(essContext);
     const query = getDocumentsManagementQuery(request);
     const summaries = listDocumentsManagementDocumentSummaries(
       {
         ...query,
-        employeeId: essContext.actorEmployeeId,
+        employeeId: actorEmployeeId,
       },
       {
         actorEmployeeId: essContext.actorEmployeeId,
@@ -40,12 +47,12 @@ export async function GET(request: Request): Promise<Response> {
         count: summaries.length,
       },
       context: essContext,
-      employeeId: essContext.actorEmployeeId,
+      employeeId: actorEmployeeId,
       metadata: {
         count: summaries.length,
       },
       summary: `Viewed ${summaries.length} self-service document summaries`,
-      targetId: essContext.actorEmployeeId,
+      targetId: actorEmployeeId,
       targetType: "employee_documents",
     });
 

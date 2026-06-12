@@ -4,13 +4,27 @@ import {
   createEmployeeLifecycleReadContext,
   createEmployeeLifecycleRepositoryScope,
 } from "../_lib/context.ts";
+import {
+  ensureEmployeeLifecycleReadAccess,
+  ensureEmployeeLifecycleWriteAccess,
+  respondWithEmployeeLifecycleError,
+} from "../_lib/http.ts";
 
-export async function GET(request: Request) {
-  const context = await createEmployeeLifecycleReadContext(request);
-  const data = getEmployeeLifecycleOverviewSnapshot(
-    createEmployeeLifecycleRepositoryScope(context),
-    context
-  );
+export async function GET(request: Request): Promise<Response> {
+  try {
+    const context = await createEmployeeLifecycleReadContext(request);
+    const denied = ensureEmployeeLifecycleReadAccess(context);
+    if (denied) {
+      return denied;
+    }
 
-  return NextResponse.json(data);
+    const data = getEmployeeLifecycleOverviewSnapshot(
+      createEmployeeLifecycleRepositoryScope(context),
+      context
+    );
+
+    return NextResponse.json(data);
+  } catch (error) {
+    return respondWithEmployeeLifecycleError(error);
+  }
 }

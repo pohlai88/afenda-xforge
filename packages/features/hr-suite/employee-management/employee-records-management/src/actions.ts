@@ -13,7 +13,9 @@ import { hrRecordsStore } from "./records-store.ts";
 import { syncHrEmployeeRecordSearchDocument } from "./search.ts";
 
 type HrRecordsMutationContext = {
+  companyId?: string | null;
   organizationId?: string;
+  tenantId?: string;
   userId?: string;
 };
 
@@ -35,8 +37,17 @@ const syncSearchAfterMutation = async (
     return result;
   }
 
+  const tenantId = context?.tenantId?.trim();
+  if (!tenantId) {
+    return result;
+  }
+
   try {
-    await syncHrEmployeeRecordSearchDocument(record, context);
+    await syncHrEmployeeRecordSearchDocument(record, {
+      companyId: context?.companyId,
+      organizationId: context?.organizationId,
+      tenantId,
+    });
     return result;
   } catch (error) {
     return {

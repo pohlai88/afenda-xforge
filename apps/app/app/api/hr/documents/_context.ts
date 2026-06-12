@@ -10,28 +10,38 @@ import {
   listDocumentsManagementQuerySchema,
 } from "@repo/features-employee-management-documents-management";
 import { ForbiddenError } from "@repo/errors";
+import { hasPermission, permissionCatalog } from "@repo/permissions";
 import {
   resolveRuntimeTenantAccess,
   type RuntimeTenantAccess,
 } from "../../../_runtime-access.ts";
 
-const HR_DOCUMENT_ROLES = new Set(["admin", "manager", "owner"]);
-const HR_DOCUMENT_SENSITIVE_ROLES = new Set(["admin", "owner"]);
-
 export type HrDocumentsRuntimeAccess = {
+  canDownload: boolean;
   canRead: boolean;
   canViewSensitive: boolean;
   canWrite: boolean;
-  canDownload: boolean;
 };
 
 export const resolveHrDocumentsRuntimeAccess = (
   access: RuntimeTenantAccess
 ): HrDocumentsRuntimeAccess => ({
-  canDownload: HR_DOCUMENT_ROLES.has(access.role),
-  canRead: HR_DOCUMENT_ROLES.has(access.role),
-  canViewSensitive: HR_DOCUMENT_SENSITIVE_ROLES.has(access.role),
-  canWrite: HR_DOCUMENT_ROLES.has(access.role),
+  canDownload: hasPermission(
+    access.grantedPermissions,
+    permissionCatalog.hrDocuments.download
+  ),
+  canRead: hasPermission(
+    access.grantedPermissions,
+    permissionCatalog.hrDocuments.read
+  ),
+  canViewSensitive: hasPermission(
+    access.grantedPermissions,
+    permissionCatalog.hrDocuments.sensitiveRead
+  ),
+  canWrite: hasPermission(
+    access.grantedPermissions,
+    permissionCatalog.hrDocuments.write
+  ),
 });
 
 export const createDocumentsManagementPolicyContext = (
@@ -41,8 +51,20 @@ export const createDocumentsManagementPolicyContext = (
 
   return {
     actorId: access.actorId,
+    canAdminRetention: hasPermission(
+      access.grantedPermissions,
+      permissionCatalog.hrDocuments.retentionExecute
+    ),
     canDownload: runtimeAccess.canDownload,
     canRead: runtimeAccess.canRead,
+    canReadAudit: hasPermission(
+      access.grantedPermissions,
+      permissionCatalog.hrDocuments.auditRead
+    ),
+    canSelfAcknowledge: hasPermission(
+      access.grantedPermissions,
+      permissionCatalog.hrDocuments.acknowledgeSelf
+    ),
     canViewSensitive: runtimeAccess.canViewSensitive,
     canWrite: runtimeAccess.canWrite,
     requestId: access.requestId,

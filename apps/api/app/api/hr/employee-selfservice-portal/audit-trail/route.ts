@@ -3,9 +3,17 @@ import { listEmployeeSelfservicePortalAuditTrailEvents } from "@repo/features-em
 import { NextResponse } from "next/server";
 import { createEmployeeSelfservicePortalReadContext } from "../_lib/context.ts";
 import { employeeSelfservicePortalErrorResponse } from "../_lib/errors.ts";
+import { ensureEmployeeSelfservicePortalReadAccess } from "../_lib/http.ts";
 
 export async function GET(request: Request): Promise<Response> {
   try {
+    const readContext = await createEmployeeSelfservicePortalReadContext(request);
+    const denied = ensureEmployeeSelfservicePortalReadAccess(readContext);
+
+    if (denied) {
+      return denied;
+    }
+
     const url = new URL(request.url);
     const query = listEmployeeSelfservicePortalAuditQuerySchema.parse({
       action: url.searchParams.get("action") ?? undefined,
@@ -22,7 +30,7 @@ export async function GET(request: Request): Promise<Response> {
     return NextResponse.json(
       listEmployeeSelfservicePortalAuditTrailEvents(
         query,
-        await createEmployeeSelfservicePortalReadContext(request)
+        readContext
       )
     );
   } catch (error) {

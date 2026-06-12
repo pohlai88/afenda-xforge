@@ -1,7 +1,7 @@
 "use client";
 
-import type { ReactElement, ReactNode } from "react";
 import { cn } from "../../../lib/utils";
+import type { ReactElement, ReactNode } from "react";
 import {
   WORKSPACE_SHELL_CHROME_HEIGHT,
   WORKSPACE_SHELL_SPACE,
@@ -14,6 +14,8 @@ type WorkspaceNavSiteTopbarProps = {
   className?: string;
   /** Secondary line when `scopeLabel` is not used (legacy). */
   description?: ReactNode;
+  /** Leading control slot — e.g. sidebar behavior trigger before the title stack. */
+  leading?: ReactNode;
   /** 6px uppercase micro label — mirrors app topbar scope row. */
   scopeLabel?: ReactNode;
   title?: ReactNode;
@@ -24,6 +26,7 @@ export function WorkspaceNavSiteTopbar({
   children,
   className,
   description,
+  leading,
   scopeLabel,
   title,
 }: WorkspaceNavSiteTopbarProps): ReactElement {
@@ -35,18 +38,19 @@ export function WorkspaceNavSiteTopbar({
         "flex shrink-0 items-center gap-2 antialiased",
         WORKSPACE_SHELL_SPACE.siteTopbarSurface,
         WORKSPACE_SHELL_SPACE.siteInsetX,
-        className,
+        className
       )}
       data-slot="workspace-nav-site-topbar"
       style={{ height: WORKSPACE_SHELL_CHROME_HEIGHT }}
     >
       {children ?? (
         <>
+          {leading ? <div className="shrink-0">{leading}</div> : null}
           {scopeLabel || title || description ? (
             <div
               className={cn(
                 "flex min-w-0 flex-col justify-center",
-                usesScopeStack ? "gap-0 leading-tight" : "leading-tight",
+                usesScopeStack ? "gap-0 leading-tight" : "leading-tight"
               )}
             >
               {usesScopeStack ? (
@@ -58,7 +62,7 @@ export function WorkspaceNavSiteTopbar({
                     <p
                       className={cn(
                         "truncate",
-                        WORKSPACE_SHELL_TYPE.appTopbarItemValue,
+                        WORKSPACE_SHELL_TYPE.appTopbarItemValue
                       )}
                     >
                       {title}
@@ -71,7 +75,7 @@ export function WorkspaceNavSiteTopbar({
                     <p
                       className={cn(
                         "truncate",
-                        WORKSPACE_SHELL_TYPE.siteTopbarTitle,
+                        WORKSPACE_SHELL_TYPE.siteTopbarTitle
                       )}
                     >
                       {title}
@@ -81,7 +85,7 @@ export function WorkspaceNavSiteTopbar({
                     <p
                       className={cn(
                         "truncate",
-                        WORKSPACE_SHELL_TYPE.siteTopbarDescription,
+                        WORKSPACE_SHELL_TYPE.siteTopbarDescription
                       )}
                     >
                       {description}

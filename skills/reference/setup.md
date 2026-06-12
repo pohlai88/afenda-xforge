@@ -94,7 +94,9 @@ Add these only when the corresponding package is enabled:
 - cache provider variables for `packages/cache`
 - event bus variables for `packages/events`
 - notification provider variables for `packages/notifications`
-- search provider variables for `packages/search` such as `MEILISEARCH_URL`, `MEILISEARCH_API_KEY`, and `MEILISEARCH_INDEX_PREFIX`
+- search provider variables for `packages/search`:
+  - **North star (Postgres):** `SEARCH_PROVIDER`, `SEARCH_POSTGRES_WRITE_ADAPTER` (neon), `SEARCH_POSTGRES_READ_ADAPTER` (neon or `supabase-postgrest`); see `packages/search/architecture-and-feature-requirement.md`
+  - **Legacy optional:** `MEILISEARCH_URL`, `MEILISEARCH_API_KEY`, and `MEILISEARCH_INDEX_PREFIX`
 - jurisdiction-specific provider variables only when a jurisdiction package integrates with external compliance providers
 - observability variables for `packages/observability`
 - storage variables for `packages/storage`

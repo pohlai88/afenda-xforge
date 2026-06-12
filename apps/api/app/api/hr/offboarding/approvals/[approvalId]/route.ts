@@ -11,6 +11,12 @@ import {
   createOffboardingReadContext,
   createOffboardingWriteContext,
 } from "../../_lib/context.ts";
+import {
+  ensureOffboardingReadAccess,
+  ensureOffboardingWriteAccess,
+  mutationStatusFromResult,
+  respondWithOffboardingError,
+} from "../../_lib/http.ts";
 
 type ApprovalActionRequest =
   | ({ action: "submit" } & Omit<
@@ -38,55 +44,75 @@ export async function GET(
   request: Request,
   context: { params: Promise<{ approvalId: string }> }
 ) {
-  const { approvalId } = await context.params;
-  const data = await getOffboardingApprovalById(
-    approvalId,
-    await createOffboardingReadContext(request)
-  );
+  try {
+    const { approvalId } = await context.params;
+    const readContext = await createOffboardingReadContext(request);
+    const denied = ensureOffboardingReadAccess(readContext);
 
-  return NextResponse.json(data, { status: data ? 200 : 404 });
+    if (denied) {
+      return denied;
+    }
+
+    const data = await getOffboardingApprovalById(approvalId, readContext);
+
+    return NextResponse.json(data, { status: data ? 200 : 404 });
+  } catch (error) {
+    return respondWithOffboardingError(error);
+  }
 }
 
 export async function PATCH(
   request: Request,
   context: { params: Promise<{ approvalId: string }> }
 ) {
-  const { approvalId } = await context.params;
-  const body = (await request.json()) as ApprovalActionRequest;
-  const writeContext = await createOffboardingWriteContext(request);
+  try {
+    const { approvalId } = await context.params;
+    const writeContext = await createOffboardingWriteContext(request);
+    const denied = ensureOffboardingWriteAccess(writeContext);
 
-  let result: Awaited<ReturnType<typeof submitOffboardingApprovalStep>>;
-  switch (body.action) {
-    case "submit":
-      result = await submitOffboardingApprovalStep(
-        { approvalId, ...body },
-        writeContext
-      );
-      break;
-    case "approve":
-      result = await approveOffboardingApprovalStep(
-        { approvalId, ...body },
-        writeContext
-      );
-      break;
-    case "reject":
-      result = await rejectOffboardingApprovalStep(
-        { approvalId, ...body },
-        writeContext
-      );
-      break;
-    case "reopen":
-      result = await reopenOffboardingApprovalStep(
-        { approvalId, ...body },
-        writeContext
-      );
-      break;
-    default:
-      result = await escalateOffboardingApprovalStep(
-        { approvalId, ...body },
-        writeContext
-      );
+    if (denied) {
+      return denied;
+    }
+
+    const body = (await request.json()) as ApprovalActionRequest;
+
+    let result: Awaited<ReturnType<typeof submitOffboardingApprovalStep>>;
+    switch (body.action) {
+      case "submit":
+        result = await submitOffboardingApprovalStep(
+          { approvalId, ...body },
+          writeContext
+        );
+        break;
+      case "approve":
+        result = await approveOffboardingApprovalStep(
+          { approvalId, ...body },
+          writeContext
+        );
+        break;
+      case "reject":
+        result = await rejectOffboardingApprovalStep(
+          { approvalId, ...body },
+          writeContext
+        );
+        break;
+      case "reopen":
+        result = await reopenOffboardingApprovalStep(
+          { approvalId, ...body },
+          writeContext
+        );
+        break;
+      default:
+        result = await escalateOffboardingApprovalStep(
+          { approvalId, ...body },
+          writeContext
+        );
+    }
+
+    return NextResponse.json(result, {
+      status: mutationStatusFromResult(result),
+    });
+  } catch (error) {
+    return respondWithOffboardingError(error);
   }
-
-  return NextResponse.json(result, { status: result.ok ? 200 : 404 });
 }

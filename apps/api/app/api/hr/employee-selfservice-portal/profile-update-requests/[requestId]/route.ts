@@ -1,6 +1,10 @@
 import { getEmployeeSelfservicePortalProfileUpdateRequestView } from "@repo/features-employee-management-employee-selfservice-portal/server";
 import { NextResponse } from "next/server";
 import { createEmployeeSelfservicePortalReadContext } from "../../_lib/context.ts";
+import {
+  ensureEmployeeSelfservicePortalReadAccess,
+  employeeSelfservicePortalReadDeniedResponse,
+} from "../../_lib/http.ts";
 
 type RouteParams = {
   params: Promise<{
@@ -13,16 +17,20 @@ export async function GET(
   { params }: RouteParams
 ): Promise<Response> {
   const { requestId } = await params;
+  const readContext = await createEmployeeSelfservicePortalReadContext(request);
+  const denied = ensureEmployeeSelfservicePortalReadAccess(readContext);
+
+  if (denied) {
+    return denied;
+  }
+
   const requestView = getEmployeeSelfservicePortalProfileUpdateRequestView(
     requestId,
-    await createEmployeeSelfservicePortalReadContext(request)
+    readContext
   );
 
   if (!requestView) {
-    return NextResponse.json(
-      { ok: false, error: "Profile update request not found" },
-      { status: 404 }
-    );
+    return employeeSelfservicePortalReadDeniedResponse();
   }
 
   return NextResponse.json(requestView);

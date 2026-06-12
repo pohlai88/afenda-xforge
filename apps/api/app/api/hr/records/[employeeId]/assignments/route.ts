@@ -8,6 +8,10 @@ import {
   createHrRecordsReadContext,
   createHrRecordsWriteContext,
 } from "../../_lib/context.ts";
+import {
+  ensureHrRecordsReadAccess,
+  ensureHrRecordsWriteAccess,
+} from "../../_lib/http.ts";
 
 type RouteParams = {
   params: Promise<{
@@ -70,6 +74,12 @@ export async function GET(
   const { employeeId } = await params;
   const url = new URL(request.url);
   const readContext = await createHrRecordsReadContext(request);
+  const denied = ensureHrRecordsReadAccess(readContext);
+
+  if (denied) {
+    return denied;
+  }
+
   const assignments = listHrEmployeeAssignments(
     {
       employeeId,
@@ -96,6 +106,12 @@ export async function POST(
   { params }: RouteParams
 ): Promise<Response> {
   const { employeeId } = await params;
+  const writeContext = await createHrRecordsWriteContext(request);
+  const denied = ensureHrRecordsWriteAccess(writeContext);
+
+  if (denied) {
+    return denied;
+  }
 
   let body: unknown;
   try {
@@ -111,10 +127,7 @@ export async function POST(
     ...(body as Record<string, unknown>),
     employeeId,
   });
-  const result = recordHrEmployeeAssignment(
-    parsed,
-    await createHrRecordsWriteContext(request)
-  );
+  const result = recordHrEmployeeAssignment(parsed, writeContext);
 
   return NextResponse.json(result, {
     status: result.ok ? 200 : 400,

@@ -3,6 +3,7 @@ import { mkdtempSync, rmSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { afterEach, beforeEach, test } from "node:test";
+import { permissionCatalog } from "@repo/permissions";
 import {
   installTestRuntimeTenantAccess,
   TEST_TENANT_ID,
@@ -33,8 +34,20 @@ import {
   GET as getDocumentRoute,
   PATCH as patchDocumentRoute,
 } from "../app/api/hr/documents/[documentId]/route.ts";
+import {
+  GET as getAcknowledgmentsRoute,
+  POST as postAcknowledgmentsRoute,
+} from "../app/api/hr/documents/acknowledgments/route.ts";
 import { GET as getExpiringRoute } from "../app/api/hr/documents/expiring/route.ts";
+import {
+  GET as getObligationsRoute,
+  POST as postObligationsRoute,
+} from "../app/api/hr/documents/obligations/route.ts";
 import { GET as getReadinessRoute } from "../app/api/hr/documents/readiness/route.ts";
+import {
+  GET as getRetentionRoute,
+  POST as postRetentionRoute,
+} from "../app/api/hr/documents/retention/route.ts";
 import {
   GET as getDocumentsRoute,
   POST as postDocumentsRoute,
@@ -307,16 +320,63 @@ test("fails closed for invalid queries and denied reads", async () => {
     buildRequest("/api/hr/documents?page=not-a-number")
   );
 
-  assert.equal(deniedListResponse.status, 200);
-  assert.equal(deniedDetailResponse.status, 404);
+  assert.equal(deniedListResponse.status, 403);
+  assert.equal(deniedDetailResponse.status, 403);
   assert.equal(invalidQueryResponse.status, 400);
-  assert.deepEqual(await deniedListResponse.json(), []);
+  assert.deepEqual(await deniedListResponse.json(), {
+    code: "forbidden",
+    error: "Read access denied for documents management",
+    ok: false,
+  });
   assert.deepEqual(await deniedDetailResponse.json(), {
-    error: "Document not found",
+    code: "forbidden",
+    error: "Read access denied for documents management",
     ok: false,
   });
   assert.deepEqual(await invalidQueryResponse.json(), {
     error: "Invalid query parameters",
+    ok: false,
+  });
+});
+
+test("enforces granular hrDocuments permissions from the permission catalog", async () => {
+  installTestRuntimeTenantAccess({
+    role: "member",
+    grantedPermissions: [
+      permissionCatalog.hrDocuments.read,
+      permissionCatalog.hrDocuments.download,
+    ],
+  });
+
+  const listResponse = await getDocumentsRoute(
+    buildRequest("/api/hr/documents")
+  );
+
+  const formData = new FormData();
+  formData.set(
+    "file",
+    new File(["read-only-binary"], "read-only.pdf", {
+      type: "application/pdf",
+    })
+  );
+  formData.set("documentCategory", "identity");
+  formData.set("documentType", "passport");
+  formData.set("employeeId", "employee-read-only");
+  formData.set("mandatory", "true");
+  formData.set("title", "Read Only Upload Attempt");
+
+  const deniedWriteResponse = await postDocumentsRoute(
+    new Request("http://localhost/api/hr/documents", {
+      body: formData,
+      method: "POST",
+    })
+  );
+
+  assert.equal(listResponse.status, 200);
+  assert.equal(deniedWriteResponse.status, 403);
+  assert.deepEqual(await deniedWriteResponse.json(), {
+    code: "forbidden",
+    error: "Write access denied for documents management",
     ok: false,
   });
 });
@@ -661,4 +721,93 @@ test("updates and deletes documents through document detail routes", async () =>
   assert.equal(getResponse.status, 200);
   const archivedSummary = (await getResponse.json()) as { status?: string };
   assert.equal(archivedSummary.status, "archived");
+});
+
+test("blocks denied reads on acknowledgments, obligations, and retention routes", async () => {
+  installTestRuntimeTenantAccess({
+    role: "viewer",
+    grantedPermissions: [],
+  });
+
+  const deniedAcknowledgmentsResponse = await getAcknowledgmentsRoute(
+    buildRequest("/api/hr/documents/acknowledgments")
+  );
+  const deniedObligationsResponse = await getObligationsRoute(
+    buildRequest("/api/hr/documents/obligations")
+  );
+  const deniedRetentionResponse = await getRetentionRoute(
+    buildRequest("/api/hr/documents/retention")
+  );
+
+  assert.equal(deniedAcknowledgmentsResponse.status, 403);
+  assert.equal(deniedObligationsResponse.status, 403);
+  assert.equal(deniedRetentionResponse.status, 403);
+
+  assert.deepEqual(await deniedAcknowledgmentsResponse.json(), {
+    code: "forbidden",
+    error: "Read access denied for documents management",
+    ok: false,
+  });
+});
+
+test("blocks denied writes on acknowledgments, obligations, and retention routes", async () => {
+  installTestRuntimeTenantAccess({
+    role: "member",
+    grantedPermissions: [
+      permissionCatalog.hrDocuments.read,
+      permissionCatalog.hrDocuments.download,
+    ],
+  });
+
+  const deniedAcknowledgmentWriteResponse = await postAcknowledgmentsRoute(
+    new Request("http://localhost/api/hr/documents/acknowledgments", {
+      body: JSON.stringify({
+        documentType: "employee_handbook_acknowledgment",
+        employeeId: "employee-read-only",
+      }),
+      headers: {
+        "content-type": "application/json",
+      },
+      method: "POST",
+    })
+  );
+  const deniedObligationWriteResponse = await postObligationsRoute(
+    new Request("http://localhost/api/hr/documents/obligations", {
+      body: JSON.stringify({
+        documentType: "passport",
+        employeeId: "employee-read-only",
+        mandatory: true,
+      }),
+      headers: {
+        "content-type": "application/json",
+      },
+      method: "POST",
+    })
+  );
+  const deniedRetentionWriteResponse = await postRetentionRoute(
+    new Request("http://localhost/api/hr/documents/retention", {
+      body: JSON.stringify({
+        action: "archive",
+        documentIds: ["document-read-only"],
+      }),
+      headers: {
+        "content-type": "application/json",
+      },
+      method: "POST",
+    })
+  );
+
+  assert.equal(deniedAcknowledgmentWriteResponse.status, 403);
+  assert.equal(deniedObligationWriteResponse.status, 403);
+  assert.equal(deniedRetentionWriteResponse.status, 403);
+
+  assert.deepEqual(await deniedAcknowledgmentWriteResponse.json(), {
+    code: "forbidden",
+    error: "Write access denied for documents management",
+    ok: false,
+  });
+  assert.deepEqual(await deniedRetentionWriteResponse.json(), {
+    error: "Retention execution access denied",
+    ok: false,
+  });
 });

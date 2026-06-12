@@ -3,12 +3,14 @@
 import { WorkspaceNavSiteTopbar } from "@repo/ui/components/compose/workspace";
 import type { ReactElement } from "react";
 import { PersistedModeToggle } from "./persisted-mode-toggle.tsx";
+import { SiteNavSidebarTrigger } from "./workspace/site-nav-sidebar-trigger.tsx";
 
 export function AuthenticatedTopBar(): ReactElement {
   return (
     <WorkspaceNavSiteTopbar
       actions={<PersistedModeToggle />}
       description="Authenticated workspace"
+      leading={<SiteNavSidebarTrigger />}
     />
   );
 }

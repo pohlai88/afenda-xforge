@@ -125,11 +125,37 @@
         "recordTitle": "Record shortcut"
       },
       "commandPalette": {
+        "dialogDescription": "Search workspace routes, commands, and focused-record actions.",
+        "dialogTitle": "Command palette",
         "empty": "No matching commands.",
+        "footer": {
+          "close": "Close",
+          "crudTitle": "Focused record actions",
+          "navigate": "Navigate",
+          "navigateDown": "Next command",
+          "navigateUp": "Previous command",
+          "run": "Run"
+        },
         "groups": {
           "crud": "Focused record",
           "navigation": "Navigation",
+          "search": "Search",
           "workspace": "Workspace"
+        },
+        "preview": {
+          "crudDescription": "Run this action on the currently focused record or form.",
+          "disabledBadge": "Unavailable",
+          "emptySelection": "Select a command to preview it.",
+          "navigationDescription": "Open this workspace route.",
+          "runHint": "Press Enter to run the selected command.",
+          "searchDescription": "Open this {index} result.",
+          "shortcutLabel": "Shortcut",
+          "workspaceOpenHelp": "Open the keyboard shortcuts reference.",
+          "workspaceToggleSidebar": "Show or hide the left navigation panel."
+        },
+        "searchStatus": {
+          "searching": "Searching indexed workspace records…",
+          "unavailable": "Indexed search is not configured."
         },
         "searchPlaceholder": "Search workspace commands..."
       },

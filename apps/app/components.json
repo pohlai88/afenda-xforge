@@ -1,0 +1,29 @@
+{
+  "$schema": "https://ui.shadcn.com/schema.json",
+  "style": "new-york",
+  "rsc": true,
+  "tsx": true,
+  "tailwind": {
+    "config": "",
+    "css": "../../packages/ui/src/styles/globals.css",
+    "baseColor": "neutral",
+    "cssVariables": true,
+    "prefix": ""
+  },
+  "iconLibrary": "lucide",
+  "aliases": {
+    "components": "app/_components",
+    "utils": "@repo/ui/lib/utils",
+    "ui": "@repo/ui/components/ui-shadcn",
+    "lib": "@repo/ui/lib",
+    "hooks": "@repo/ui/hooks"
+  },
+  "registries": {
+    "@creative-tim": {
+      "url": "https://www.creative-tim.com/ui/r/{name}.json",
+      "headers": {
+        "Authorization": "Bearer ${CREATIVE_TIM_UI_API_KEY}"
+      }
+    }
+  }
+}

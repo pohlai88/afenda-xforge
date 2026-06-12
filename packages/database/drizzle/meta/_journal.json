@@ -99,6 +99,13 @@
       "when": 1781076000000,
       "tag": "0013_companies_status",
       "breakpoints": true
+    },
+    {
+      "idx": 14,
+      "version": "7",
+      "when": 1781077000000,
+      "tag": "0014_workspace_search_documents",
+      "breakpoints": true
     }
   ]
 }

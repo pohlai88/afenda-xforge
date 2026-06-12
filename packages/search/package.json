@@ -13,6 +13,11 @@
     "./meilisearch/indexer": "./meilisearch/indexer.ts",
     "./meilisearch/keys": "./meilisearch/keys.ts",
     "./meilisearch/search": "./meilisearch/search.ts",
+    "./postgres": "./postgres/index.ts",
+    "./postgres/keys": "./postgres/keys.ts",
+    "./postgres/neon": "./postgres/neon/index.ts",
+    "./postgres/postgrest": "./postgres/postgrest/index.ts",
+    "./postgres/internal": "./postgres/internal.ts",
     "./package.json": "./package.json"
   },
   "files": [
@@ -22,6 +27,7 @@
     "registry.ts",
     "types.ts",
     "meilisearch",
+    "postgres",
     "package.json"
   ],
   "scripts": {
@@ -34,7 +40,9 @@
     "format": "biome format --write ."
   },
   "dependencies": {
+    "@repo/database": "workspace:*",
     "@t3-oss/env-nextjs": "catalog:",
+    "drizzle-orm": "catalog:",
     "meilisearch": "catalog:",
     "server-only": "catalog:",
     "zod": "catalog:"

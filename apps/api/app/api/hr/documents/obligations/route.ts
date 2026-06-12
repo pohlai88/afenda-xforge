@@ -1,4 +1,3 @@
-import { canWriteDocumentsManagement } from "@repo/features-employee-management-documents-management";
 import { createDocumentsManagementDocumentObligationInputSchema } from "@repo/features-employee-management-documents-management/contracts";
 import {
   createDocumentsManagementDocumentObligation,
@@ -11,13 +10,24 @@ import {
   createDocumentsManagementWriteContext,
   getDocumentsManagementQuery,
 } from "../_lib/context.ts";
+import {
+  ensureDocumentsManagementReadAccess,
+  ensureDocumentsManagementWriteAccess,
+} from "../_lib/http.ts";
 
 export async function GET(request: Request): Promise<Response> {
   try {
+    const context = await createDocumentsManagementReadContext(request);
+    const denied = ensureDocumentsManagementReadAccess(context);
+
+    if (denied) {
+      return denied;
+    }
+
     return NextResponse.json(
       listDocumentsManagementDocumentObligations(
         getDocumentsManagementQuery(request),
-        await createDocumentsManagementReadContext(request)
+        context
       )
     );
   } catch {
@@ -31,12 +41,10 @@ export async function GET(request: Request): Promise<Response> {
 export async function POST(request: Request): Promise<Response> {
   try {
     const writeContext = await createDocumentsManagementWriteContext(request);
+    const denied = ensureDocumentsManagementWriteAccess(writeContext);
 
-    if (!canWriteDocumentsManagement(writeContext)) {
-      return NextResponse.json(
-        { ok: false, error: "Write access denied" },
-        { status: 403 }
-      );
+    if (denied) {
+      return denied;
     }
 
     const body = await request.json();

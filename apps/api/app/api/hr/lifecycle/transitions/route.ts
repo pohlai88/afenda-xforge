@@ -9,22 +9,36 @@ import {
   createEmployeeLifecycleRepositoryScope,
   createEmployeeLifecycleWriteContext,
 } from "../_lib/context.ts";
+import {
+  ensureEmployeeLifecycleReadAccess,
+  ensureEmployeeLifecycleWriteAccess,
+  respondWithEmployeeLifecycleError,
+} from "../_lib/http.ts";
 
-export async function POST(request: Request) {
-  const context = await createEmployeeLifecycleWriteContext(request);
-  const body = employeeLifecycleTransitionRequestSchema.parse(
-    await request.json()
-  );
-  const scope = createEmployeeLifecycleRepositoryScope(context);
-  const nextState = transitionEmployeeLifecycleState(body, scope);
-  const overview = getEmployeeLifecycleOverviewEntry(
-    body.employeeId,
-    scope,
-    await createEmployeeLifecycleReadContext(request)
-  );
+export async function POST(request: Request): Promise<Response> {
+  try {
+    const context = await createEmployeeLifecycleWriteContext(request);
+    const denied = ensureEmployeeLifecycleWriteAccess(context);
+    if (denied) {
+      return denied;
+    }
 
-  return NextResponse.json({
-    state: nextState,
-    overview,
-  });
+    const body = employeeLifecycleTransitionRequestSchema.parse(
+      await request.json()
+    );
+    const scope = createEmployeeLifecycleRepositoryScope(context);
+    const nextState = transitionEmployeeLifecycleState(body, scope);
+    const overview = getEmployeeLifecycleOverviewEntry(
+      body.employeeId,
+      scope,
+      context
+    );
+
+    return NextResponse.json({
+      state: nextState,
+      overview,
+    });
+  } catch (error) {
+    return respondWithEmployeeLifecycleError(error);
+  }
 }

@@ -117,7 +117,7 @@ XForge should learn from enterprise ERP stacks, but it must not adopt every tech
 | Auth | Supabase Auth, Neon Auth, or Auth0 behind `packages/auth` | Foundation requirement |
 | Gateway | Kong API Gateway | Deployment concern for external APIs |
 | Cache | Redis | Later, only for measured cache, queue, or rate-limit needs |
-| Search | Meilisearch with Vietnamese search support | Later, when full-text master-data search is needed |
+| Search | Postgres FTS read model (north star); Meilisearch adapter optional during migration | See `packages/search/architecture-and-feature-requirement.md` |
 | Monitoring | Prometheus, Grafana, Loki | Production infrastructure |
 | Build | Turborepo with pnpm workspaces | Foundation |
 | Testing | Vitest and Playwright | Foundation |

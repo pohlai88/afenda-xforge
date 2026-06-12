@@ -1,8 +1,8 @@
-import { canWriteDocumentsManagement } from "@repo/features-employee-management-documents-management";
 import type { HandleUploadBody } from "@repo/storage/blob/client";
 import { NextResponse } from "next/server";
 
 import { createDocumentsManagementWriteContext } from "../_lib/context.ts";
+import { ensureDocumentsManagementWriteAccess } from "../_lib/http.ts";
 import {
   createDocumentsManagementStorageUploadSession,
   DocumentsManagementBlobStorageError,
@@ -59,12 +59,10 @@ export async function POST(request: Request): Promise<Response> {
 
     if (body.type === "blob.generate-client-token") {
       const writeContext = await createDocumentsManagementWriteContext(request);
+      const denied = ensureDocumentsManagementWriteAccess(writeContext);
 
-      if (!canWriteDocumentsManagement(writeContext)) {
-        return NextResponse.json(
-          { ok: false, error: "Write access denied" },
-          { status: 403 }
-        );
+      if (denied) {
+        return denied;
       }
 
       const response = await uploadDocumentsManagementBlobToken({
@@ -91,12 +89,10 @@ export async function POST(request: Request): Promise<Response> {
 
     if (body.type === "blob.upload-completed") {
       const writeContext = await createDocumentsManagementWriteContext(request);
+      const denied = ensureDocumentsManagementWriteAccess(writeContext);
 
-      if (!canWriteDocumentsManagement(writeContext)) {
-        return NextResponse.json(
-          { ok: false, error: "Write access denied" },
-          { status: 403 }
-        );
+      if (denied) {
+        return denied;
       }
 
       const response = await uploadDocumentsManagementBlobToken({
@@ -122,12 +118,10 @@ export async function POST(request: Request): Promise<Response> {
     }
 
     const writeContext = await createDocumentsManagementWriteContext(request);
+    const denied = ensureDocumentsManagementWriteAccess(writeContext);
 
-    if (!canWriteDocumentsManagement(writeContext)) {
-      return NextResponse.json(
-        { ok: false, error: "Write access denied" },
-        { status: 403 }
-      );
+    if (denied) {
+      return denied;
     }
 
     const response = await createDocumentsManagementStorageUploadSession({

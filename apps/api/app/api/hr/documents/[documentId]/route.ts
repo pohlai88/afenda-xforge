@@ -3,7 +3,6 @@ import {
   updateDocumentsManagementDocumentInputSchema,
 } from "@repo/features-employee-management-documents-management/contracts";
 import {
-  canWriteDocumentsManagement,
   deleteDocumentsManagementDocument,
   getDocumentsManagementDocumentSummary,
   recordDocumentsManagementDocumentAccess,
@@ -15,6 +14,10 @@ import {
   createDocumentsManagementReadContext,
   createDocumentsManagementWriteContext,
 } from "../_lib/context.ts";
+import {
+  ensureDocumentsManagementReadAccess,
+  ensureDocumentsManagementWriteAccess,
+} from "../_lib/http.ts";
 
 type RouteParams = {
   params: Promise<{
@@ -27,9 +30,16 @@ export async function GET(
   { params }: RouteParams
 ): Promise<Response> {
   const { documentId } = await params;
+  const readContext = await createDocumentsManagementReadContext(request);
+  const denied = ensureDocumentsManagementReadAccess(readContext);
+
+  if (denied) {
+    return denied;
+  }
+
   const document = getDocumentsManagementDocumentSummary(
     documentId,
-    await createDocumentsManagementReadContext(request)
+    readContext
   );
 
   if (!document) {
@@ -39,7 +49,6 @@ export async function GET(
     );
   }
 
-  const readContext = await createDocumentsManagementReadContext(request);
   if (readContext.canViewSensitive) {
     await recordDocumentsManagementDocumentAccess(
       {
@@ -59,12 +68,10 @@ export async function PATCH(
 ): Promise<Response> {
   try {
     const writeContext = await createDocumentsManagementWriteContext(request);
+    const denied = ensureDocumentsManagementWriteAccess(writeContext);
 
-    if (!canWriteDocumentsManagement(writeContext)) {
-      return NextResponse.json(
-        { ok: false, error: "Write access denied" },
-        { status: 403 }
-      );
+    if (denied) {
+      return denied;
     }
 
     const { documentId } = await params;
@@ -103,12 +110,10 @@ export async function DELETE(
 ): Promise<Response> {
   try {
     const writeContext = await createDocumentsManagementWriteContext(request);
+    const denied = ensureDocumentsManagementWriteAccess(writeContext);
 
-    if (!canWriteDocumentsManagement(writeContext)) {
-      return NextResponse.json(
-        { ok: false, error: "Write access denied" },
-        { status: 403 }
-      );
+    if (denied) {
+      return denied;
     }
 
     const { documentId } = await params;

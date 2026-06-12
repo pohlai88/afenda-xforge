@@ -11,6 +11,10 @@ import {
   createHrRecordsReadContext,
   createHrRecordsWriteContext,
 } from "../_lib/context.ts";
+import {
+  ensureHrRecordsReadAccess,
+  ensureHrRecordsWriteAccess,
+} from "../_lib/http.ts";
 
 type RouteParams = {
   params: Promise<{
@@ -24,6 +28,12 @@ export async function GET(
 ): Promise<Response> {
   const { employeeId } = await params;
   const readContext = await createHrRecordsReadContext(request);
+  const denied = ensureHrRecordsReadAccess(readContext);
+
+  if (denied) {
+    return denied;
+  }
+
   const record = getHrEmployeeRecord(employeeId, readContext);
 
   if (!record) {
@@ -43,6 +53,12 @@ export async function PATCH(
   { params }: RouteParams
 ): Promise<Response> {
   const { employeeId } = await params;
+  const writeContext = await createHrRecordsWriteContext(request);
+  const denied = ensureHrRecordsWriteAccess(writeContext);
+
+  if (denied) {
+    return denied;
+  }
 
   let body: unknown;
   try {
@@ -58,10 +74,7 @@ export async function PATCH(
     ...(body as Record<string, unknown>),
     employeeId,
   });
-  const result = await updateHrEmployeeRecord(
-    parsed,
-    await createHrRecordsWriteContext(request)
-  );
+  const result = await updateHrEmployeeRecord(parsed, writeContext);
 
   return NextResponse.json(result, {
     status: result.ok ? 200 : 400,

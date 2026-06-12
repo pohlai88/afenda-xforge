@@ -14,6 +14,15 @@ import { normalizeNotificationDispatchRequest } from "./request.ts";
 import { invokeSupabaseNotificationsDispatch } from "./server.ts";
 import { createRecipientNotificationsTopic } from "./topics.ts";
 
+type NotificationInboxDatabase = typeof database;
+type NotificationInboxTransaction = Parameters<
+  Parameters<typeof database.transaction>[0]
+>[0];
+
+const resolveNotificationInboxDatabase = (
+  db?: NotificationInboxTransaction
+): NotificationInboxDatabase | NotificationInboxTransaction => db ?? database;
+
 const toNotificationInboxEntry = (
   row: NotificationInboxRow
 ): NotificationInboxEntry => ({
@@ -177,10 +186,12 @@ export const listNotificationInbox = async ({
 };
 
 export const markNotificationsSeen = async ({
+  db,
   ids,
   tenantId,
   userId,
 }: {
+  readonly db?: NotificationInboxTransaction;
   readonly ids: readonly string[];
   readonly tenantId: string;
   readonly userId: string;
@@ -189,10 +200,11 @@ export const markNotificationsSeen = async ({
     return [];
   }
 
+  const conn = resolveNotificationInboxDatabase(db);
   const now = new Date();
   const updated = await timeDatabaseQuery(
     () =>
-      database
+      conn
         .update(notificationInbox)
         .set({
           seenAt: now,
@@ -216,18 +228,21 @@ export const markNotificationsSeen = async ({
 };
 
 export const markNotificationRead = async ({
+  db,
   id,
   tenantId,
   userId,
 }: {
+  readonly db?: NotificationInboxTransaction;
   readonly id: string;
   readonly tenantId: string;
   readonly userId: string;
 }): Promise<NotificationInboxEntry | null> => {
+  const conn = resolveNotificationInboxDatabase(db);
   const now = new Date();
   const updated = await timeDatabaseQuery(
     () =>
-      database
+      conn
         .update(notificationInbox)
         .set({
           readAt: now,
@@ -253,15 +268,18 @@ export const markNotificationRead = async ({
 
 export const archiveAllNotifications = async ({
   companyId,
+  db,
   includeCrossCompany = true,
   tenantId,
   userId,
 }: {
   readonly companyId?: string | null;
+  readonly db?: NotificationInboxTransaction;
   readonly includeCrossCompany?: boolean;
   readonly tenantId: string;
   readonly userId: string;
 }): Promise<number> => {
+  const conn = resolveNotificationInboxDatabase(db);
   const companyScope = buildCompanyScope({ companyId, includeCrossCompany });
   const filters = [
     eq(notificationInbox.tenantId, tenantId),
@@ -277,7 +295,7 @@ export const archiveAllNotifications = async ({
   const now = new Date();
   const updated = await timeDatabaseQuery(
     () =>
-      database
+      conn
         .update(notificationInbox)
         .set({
           archivedAt: now,
@@ -298,15 +316,18 @@ export const archiveAllNotifications = async ({
 
 export const markAllNotificationsRead = async ({
   companyId,
+  db,
   includeCrossCompany = true,
   tenantId,
   userId,
 }: {
   readonly companyId?: string | null;
+  readonly db?: NotificationInboxTransaction;
   readonly includeCrossCompany?: boolean;
   readonly tenantId: string;
   readonly userId: string;
 }): Promise<number> => {
+  const conn = resolveNotificationInboxDatabase(db);
   const companyScope = buildCompanyScope({ companyId, includeCrossCompany });
   const filters = [
     eq(notificationInbox.tenantId, tenantId),
@@ -322,7 +343,7 @@ export const markAllNotificationsRead = async ({
   const now = new Date();
   const updated = await timeDatabaseQuery(
     () =>
-      database
+      conn
         .update(notificationInbox)
         .set({
           readAt: now,

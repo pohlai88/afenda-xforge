@@ -2,6 +2,7 @@ import { hrRecordsRehireEmployeeSchema } from "@repo/features-employee-managemen
 import { rehireHrEmployeeRecord } from "@repo/features-employee-management-employee-records-management/server";
 import { NextResponse } from "next/server";
 import { createHrRecordsWriteContext } from "../../_lib/context.ts";
+import { ensureHrRecordsWriteAccess } from "../../_lib/http.ts";
 
 type RouteParams = {
   params: Promise<{
@@ -14,6 +15,12 @@ export async function POST(
   { params }: RouteParams
 ): Promise<Response> {
   const { employeeId } = await params;
+  const writeContext = await createHrRecordsWriteContext(request);
+  const denied = ensureHrRecordsWriteAccess(writeContext);
+
+  if (denied) {
+    return denied;
+  }
 
   let body: unknown;
   try {
@@ -29,10 +36,7 @@ export async function POST(
     ...(body as Record<string, unknown>),
     priorEmployeeId: employeeId,
   });
-  const result = await rehireHrEmployeeRecord(
-    parsed,
-    await createHrRecordsWriteContext(request)
-  );
+  const result = await rehireHrEmployeeRecord(parsed, writeContext);
 
   return NextResponse.json(result, {
     status: result.ok ? 200 : 400,

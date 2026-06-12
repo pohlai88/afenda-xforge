@@ -1,5 +1,7 @@
 import { NextResponse } from "next/server";
 
+import { rejectUnconfiguredWebhookRoute } from "../_lib/scaffold-guard.ts";
+
 export function POST(): NextResponse {
-  return new NextResponse(null, { status: 204 });
+  return rejectUnconfiguredWebhookRoute("payments");
 }

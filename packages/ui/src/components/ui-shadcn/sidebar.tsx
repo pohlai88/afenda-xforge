@@ -5,8 +5,9 @@ import { cva } from "class-variance-authority";
 import { PanelLeftIcon, PanelRightIcon } from "lucide-react";
 import { Slot } from "radix-ui";
 import * as React from "react";
-import { useIsMobile } from "../../hooks/use-mobile";
+
 import { SIDEBAR_WIDTH_DEFAULT } from "../../lib/sidebar-layout";
+import { useIsMobile } from "../../hooks/use-mobile";
 import { cn } from "../../lib/utils";
 import { Button } from "./button";
 import { Input } from "./input";
@@ -55,6 +56,7 @@ function useSidebar() {
 }
 
 function SidebarProvider({
+  cookieName = SIDEBAR_COOKIE_NAME,
   defaultOpen = true,
   enableKeyboardShortcut = true,
   open: openProp,
@@ -64,6 +66,7 @@ function SidebarProvider({
   children,
   ...props
 }: React.ComponentProps<"div"> & {
+  cookieName?: string;
   defaultOpen?: boolean;
   enableKeyboardShortcut?: boolean;
   open?: boolean;
@@ -87,9 +90,9 @@ function SidebarProvider({
 
       // This sets the cookie to keep the sidebar state.
       // biome-ignore lint/suspicious/noDocumentCookie: Sidebar state persistence is intentionally cookie-based.
-      document.cookie = `${SIDEBAR_COOKIE_NAME}=${openState}; path=/; max-age=${SIDEBAR_COOKIE_MAX_AGE}`;
+      document.cookie = `${cookieName}=${openState}; path=/; max-age=${SIDEBAR_COOKIE_MAX_AGE}`;
     },
-    [setOpenProp, open],
+    [cookieName, setOpenProp, open],
   );
 
   // Helper to toggle the sidebar.

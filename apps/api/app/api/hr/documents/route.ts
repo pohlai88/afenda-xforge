@@ -1,5 +1,4 @@
 import {
-  canWriteDocumentsManagement,
   listDocumentsManagementDocumentSummaries,
   registerDocumentsManagementDocument,
 } from "@repo/features-employee-management-documents-management";
@@ -12,6 +11,10 @@ import {
   getDocumentsManagementQuery,
 } from "./_lib/context.ts";
 import {
+  ensureDocumentsManagementReadAccess,
+  ensureDocumentsManagementWriteAccess,
+} from "./_lib/http.ts";
+import {
   DocumentsManagementBlobStorageError,
   uploadDocumentsManagementBlob,
 } from "./_lib/storage.ts";
@@ -21,12 +24,15 @@ const MAX_SERVER_SIDE_UPLOAD_BYTES = 4.5 * 1024 * 1024;
 export async function GET(request: Request): Promise<Response> {
   try {
     const query = getDocumentsManagementQuery(request);
+    const context = await createDocumentsManagementReadContext(request);
+    const denied = ensureDocumentsManagementReadAccess(context);
+
+    if (denied) {
+      return denied;
+    }
 
     return NextResponse.json(
-      listDocumentsManagementDocumentSummaries(
-        query,
-        await createDocumentsManagementReadContext(request)
-      )
+      listDocumentsManagementDocumentSummaries(query, context)
     );
   } catch {
     return NextResponse.json(
@@ -127,12 +133,10 @@ const buildDocumentsManagementBlobKey = ({
 export async function POST(request: Request): Promise<Response> {
   try {
     const writeContext = await createDocumentsManagementWriteContext(request);
+    const denied = ensureDocumentsManagementWriteAccess(writeContext);
 
-    if (!canWriteDocumentsManagement(writeContext)) {
-      return NextResponse.json(
-        { ok: false, error: "Write access denied" },
-        { status: 403 }
-      );
+    if (denied) {
+      return denied;
     }
 
     const formData = await request.formData();

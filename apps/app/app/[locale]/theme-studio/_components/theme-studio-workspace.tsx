@@ -10,6 +10,7 @@ import { THEME_STUDIO_NAV_ACTION_GROUPS } from "../../../_components/workspace/a
 import { AppNavTopbarThemeToggle } from "../../../_components/workspace/app-nav-topbar-theme-toggle.tsx";
 import { WorkspaceShortcutsDispatcher } from "../../../_components/workspace/keyboard-shortcuts/keyboard-shortcuts-provider.tsx";
 import { useWorkspaceShortcuts } from "../../../_components/workspace/keyboard-shortcuts/use-keyboard-shortcuts.tsx";
+import { SiteNavSidebarTrigger } from "../../../_components/workspace/site-nav-sidebar-trigger.tsx";
 import { WorkspaceFrame } from "../../../_components/workspace/workspace-frame.tsx";
 import { WorkspaceShortcutsRoot } from "../../../_components/workspace-shortcuts-root.tsx";
 import {
@@ -21,6 +22,7 @@ import {
   THEME_STUDIO_TEAMS,
 } from "./theme-studio-rail.constants.ts";
 import { ThemeStudioRailSidebar } from "./theme-studio-rail-sidebar.tsx";
+import { ThemeStudioSiteContentNavSidebar } from "./theme-studio-site-content-nav-sidebar.tsx";
 import {
   isThemeStudioPathActive,
   THEME_STUDIO_PAGES,
@@ -82,10 +84,13 @@ export function ThemeStudioWorkspace({
             },
           ],
         }}
+        collapsible="icon"
         enableSidebarKeyboardShortcut={false}
         sidebar={<ThemeStudioRailSidebar />}
+        siteContentSidebar={<ThemeStudioSiteContentNavSidebar />}
         topBar={
           <WorkspaceNavSiteTopbar
+            leading={<SiteNavSidebarTrigger />}
             scopeLabel="WORKSPACE RAIL"
             title={activePage?.label ?? "Preview pages"}
           />

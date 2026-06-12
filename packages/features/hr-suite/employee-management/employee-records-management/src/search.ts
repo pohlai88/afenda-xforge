@@ -11,6 +11,13 @@ import {
   createMeilisearchSearchClient,
   hasMeilisearchConfig,
 } from "@repo/search/meilisearch";
+import {
+  hasPostgresSearchConfig,
+  resolveSearchProvider,
+  searchWorkspaceDocumentsPostgres,
+  softDeleteWorkspaceSearchDocument,
+  upsertWorkspaceSearchDocument,
+} from "@repo/search/postgres";
 import type { HrRecordsEmploymentStatus } from "./employment-status.schema.ts";
 import { projectHrEmployeeRecordSummary } from "./projector/record-summary.ts";
 import type {
@@ -23,9 +30,12 @@ import { loadHrEmployeeRecordsRepository } from "./repository.ts";
 const hrEmployeeRecordsSearchIndexKey = "hr_employee_records";
 const defaultOrganizationId = "__global__";
 const searchBatchSize = 100;
+const hrWorkspaceSearchPath = "/hr";
 
-type HrEmployeeRecordsSearchContext = {
+export type HrEmployeeRecordsSearchContext = {
+  companyId?: string | null;
   organizationId?: string;
+  tenantId: string;
 };
 
 type HrEmployeeRecordSearchDocument = SearchDocument & {
@@ -44,9 +54,23 @@ type RepositoryRecord = ReturnType<
 >["records"][number];
 
 let searchIndexPrimed = false;
+let primedTenantId: string | null = null;
+
+const usesPostgresWorkspaceSearch = (): boolean =>
+  resolveSearchProvider() === "postgres" && hasPostgresSearchConfig();
+
+const hasSearchBackend = (): boolean =>
+  usesPostgresWorkspaceSearch() || hasMeilisearchConfig();
 
 const normalizeOrganizationId = (organizationId?: string | null): string =>
   organizationId?.trim() || defaultOrganizationId;
+
+const resolveSearchTenantId = (
+  context?: HrEmployeeRecordsSearchContext
+): string | null => {
+  const tenantId = context?.tenantId?.trim();
+  return tenantId ? tenantId : null;
+};
 
 const normalizeSearchTerm = (value?: string): string | null => {
   const normalizedValue = value?.trim();
@@ -103,6 +127,39 @@ const getSearchTerm = (query: HrRecordsSearchParams): string | null =>
   normalizeSearchTerm(query.directorySearch) ??
   normalizeSearchTerm(query.separatedSearch);
 
+const isSeparatedOrArchivedStatus = (
+  status: HrRecordsEmploymentStatus
+): boolean => status === "archived" || status === "separated";
+
+const matchesHrStatusFilter = (
+  record: Pick<HrEmployeeRecordDetail, "employmentStatus">,
+  query: HrRecordsSearchParams
+): boolean => {
+  if (query.employmentStatusFilter) {
+    return record.employmentStatus === query.employmentStatusFilter;
+  }
+
+  if (normalizeSearchTerm(query.separatedSearch)) {
+    return isSeparatedOrArchivedStatus(record.employmentStatus);
+  }
+
+  return (
+    record.employmentStatus === "draft" || record.employmentStatus === "active"
+  );
+};
+
+const matchesHrOrganizationFilter = (
+  record: Pick<RepositoryRecord, "organizationId">,
+  context?: HrEmployeeRecordsSearchContext
+): boolean => {
+  const organizationId = context?.organizationId?.trim();
+  if (!organizationId) {
+    return true;
+  }
+
+  return normalizeOrganizationId(record.organizationId) === organizationId;
+};
+
 const buildHrEmployeeRecordSearchDocument = (
   record: Pick<
     HrEmployeeRecordDetail,
@@ -114,18 +171,27 @@ const buildHrEmployeeRecordSearchDocument = (
     | "legalName"
     | "preferredName"
   >,
-  context?: HrEmployeeRecordsSearchContext
+  context: HrEmployeeRecordsSearchContext
 ): HrEmployeeRecordSearchDocument => {
-  const organizationId = normalizeOrganizationId(context?.organizationId);
+  const tenantId = resolveSearchTenantId(context);
+  if (!tenantId) {
+    throw new Error("tenantId is required for HR search documents");
+  }
+
+  const organizationId = normalizeOrganizationId(context.organizationId);
 
   return {
     id: record.id,
-    tenantId: organizationId,
-    companyId: organizationId,
+    tenantId,
+    companyId: context.companyId ?? undefined,
     title: record.displayName,
     description:
       `${record.employeeNumber} ${record.employmentStatus} ${record.legalName} ${record.email}`.trim(),
+    url: hrWorkspaceSearchPath,
     metadata: {
+      displayName: record.displayName,
+      employeeNumber: record.employeeNumber,
+      employmentStatus: record.employmentStatus,
       organizationId,
       recordType: "hrEmployeeRecord",
     },
@@ -141,10 +207,12 @@ const buildHrEmployeeRecordSearchDocument = (
 };
 
 const buildHrEmployeeRecordSearchDocumentFromRepository = (
-  record: RepositoryRecord
+  record: RepositoryRecord,
+  context: HrEmployeeRecordsSearchContext
 ): HrEmployeeRecordSearchDocument =>
   buildHrEmployeeRecordSearchDocument(record, {
-    organizationId: record.organizationId ?? undefined,
+    ...context,
+    organizationId: record.organizationId ?? context.organizationId,
   });
 
 const toRecordSummary = (
@@ -202,54 +270,177 @@ const ensureHrEmployeeRecordsSearchIndexRegistered = (): void => {
   );
 };
 
-const ensureSearchPrimed = async (): Promise<boolean> => {
-  if (!hasMeilisearchConfig()) {
+const primePostgresWorkspaceSearchIndex = async (
+  context: HrEmployeeRecordsSearchContext
+): Promise<void> => {
+  for (const record of loadHrEmployeeRecordsRepository().records) {
+    if (!matchesHrOrganizationFilter(record, context)) {
+      continue;
+    }
+
+    if (isSeparatedOrArchivedStatus(record.employmentStatus)) {
+      continue;
+    }
+
+    await upsertWorkspaceSearchDocument(
+      hrEmployeeRecordsSearchIndexKey,
+      buildHrEmployeeRecordSearchDocumentFromRepository(record, context)
+    );
+  }
+};
+
+const ensureSearchPrimed = async (
+  context?: HrEmployeeRecordsSearchContext
+): Promise<boolean> => {
+  if (!hasSearchBackend()) {
+    return false;
+  }
+
+  const tenantId = resolveSearchTenantId(context);
+  if (!tenantId) {
     return false;
   }
 
   ensureHrEmployeeRecordsSearchIndexRegistered();
 
-  if (searchIndexPrimed) {
+  if (searchIndexPrimed && primedTenantId === tenantId) {
     return true;
   }
 
-  const indexer = createMeilisearchIndexer();
-  await indexer.reindexAll(
-    hrEmployeeRecordsSearchIndexKey,
-    async (): Promise<readonly SearchDocument[]> =>
-      loadHrEmployeeRecordsRepository().records.map(
-        buildHrEmployeeRecordSearchDocumentFromRepository
-      )
-  );
+  if (usesPostgresWorkspaceSearch()) {
+    await primePostgresWorkspaceSearchIndex({
+      ...context,
+      tenantId,
+    });
+  } else {
+    const indexer = createMeilisearchIndexer();
+    await indexer.reindexAll(
+      hrEmployeeRecordsSearchIndexKey,
+      async (): Promise<readonly SearchDocument[]> =>
+        loadHrEmployeeRecordsRepository().records
+          .filter((record) => matchesHrOrganizationFilter(record, context))
+          .map((record) =>
+            buildHrEmployeeRecordSearchDocumentFromRepository(record, {
+              ...context,
+              tenantId,
+              organizationId: record.organizationId ?? context?.organizationId,
+            })
+          )
+    );
+  }
+
   searchIndexPrimed = true;
+  primedTenantId = tenantId;
 
   return true;
 };
 
-export const hasHrEmployeeRecordsSearch = (): boolean => hasMeilisearchConfig();
+export const hasHrEmployeeRecordsSearch = (): boolean => hasSearchBackend();
 
-export const syncAllHrEmployeeRecordsSearchDocuments =
-  async (): Promise<void> => {
-    if (!(await ensureSearchPrimed())) {
-      return;
-    }
-  };
+export const syncAllHrEmployeeRecordsSearchDocuments = async (
+  context: HrEmployeeRecordsSearchContext
+): Promise<void> => {
+  if (!(await ensureSearchPrimed(context))) {
+    return;
+  }
+};
 
 export const syncHrEmployeeRecordSearchDocument = async (
   record: HrEmployeeRecordDetail,
-  context?: HrEmployeeRecordsSearchContext
+  context: HrEmployeeRecordsSearchContext
 ): Promise<void> => {
-  if (!hasMeilisearchConfig()) {
+  if (!hasSearchBackend()) {
     return;
+  }
+
+  const tenantId = resolveSearchTenantId(context);
+  if (!tenantId) {
+    throw new Error("tenantId is required to sync HR search documents");
   }
 
   ensureHrEmployeeRecordsSearchIndexRegistered();
 
+  const document = buildHrEmployeeRecordSearchDocument(record, context);
+
+  if (usesPostgresWorkspaceSearch()) {
+    if (isSeparatedOrArchivedStatus(record.employmentStatus)) {
+      await softDeleteWorkspaceSearchDocument(
+        tenantId,
+        hrEmployeeRecordsSearchIndexKey,
+        String(record.id)
+      );
+      return;
+    }
+
+    await upsertWorkspaceSearchDocument(
+      hrEmployeeRecordsSearchIndexKey,
+      document
+    );
+    return;
+  }
+
   const indexer = createMeilisearchIndexer();
-  await indexer.indexDocument(
-    hrEmployeeRecordsSearchIndexKey,
-    buildHrEmployeeRecordSearchDocument(record, context)
-  );
+  await indexer.indexDocument(hrEmployeeRecordsSearchIndexKey, document);
+};
+
+const searchHrEmployeeRecordsPostgres = async (
+  query: HrRecordsSearchParams,
+  context: HrEmployeeRecordsSearchContext
+): Promise<readonly HrEmployeeRecordSummary[]> => {
+  const searchTerm = getSearchTerm(query);
+  if (!searchTerm) {
+    return [];
+  }
+
+  const tenantId = resolveSearchTenantId(context);
+  if (!tenantId) {
+    return [];
+  }
+
+  const results = await searchWorkspaceDocumentsPostgres({
+    limit: searchBatchSize,
+    query: searchTerm,
+    tenantId,
+  });
+
+  const records: HrEmployeeRecordSummary[] = [];
+  const seenRecordIds = new Set<string>();
+  const repository = loadHrEmployeeRecordsRepository();
+
+  for (const result of results) {
+    if (result.indexKey !== hrEmployeeRecordsSearchIndexKey) {
+      continue;
+    }
+
+    if (seenRecordIds.has(result.id)) {
+      continue;
+    }
+
+    const record = repository.records.find((entry) => entry.id === result.id);
+    if (!record) {
+      continue;
+    }
+
+    if (!matchesHrOrganizationFilter(record, context)) {
+      continue;
+    }
+
+    if (!matchesHrStatusFilter(record, query)) {
+      continue;
+    }
+
+    seenRecordIds.add(result.id);
+    records.push(
+      projectHrEmployeeRecordSummary({
+        id: record.id,
+        employeeNumber: record.employeeNumber,
+        displayName: record.displayName,
+        employmentStatus: record.employmentStatus,
+      })
+    );
+  }
+
+  return records;
 };
 
 export const searchHrEmployeeRecords = async (
@@ -260,12 +451,30 @@ export const searchHrEmployeeRecords = async (
     return null;
   }
 
-  if (!(await ensureSearchPrimed())) {
+  const tenantId = resolveSearchTenantId(context);
+  if (!tenantId) {
+    return null;
+  }
+
+  const scopedContext: HrEmployeeRecordsSearchContext = {
+    ...context,
+    tenantId,
+  };
+
+  if (!(await ensureSearchPrimed(scopedContext))) {
     return null;
   }
 
   const searchTerm = getSearchTerm(query);
   if (!searchTerm) {
+    return null;
+  }
+
+  if (usesPostgresWorkspaceSearch()) {
+    return searchHrEmployeeRecordsPostgres(query, scopedContext);
+  }
+
+  if (!hasMeilisearchConfig()) {
     return null;
   }
 

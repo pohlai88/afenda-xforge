@@ -10,6 +10,12 @@ import {
   createEmployeeSelfservicePortalReadContext,
   createEmployeeSelfservicePortalWriteContext,
 } from "../../_lib/context.ts";
+import { employeeSelfservicePortalErrorResponse } from "../../_lib/errors.ts";
+import {
+  ensureEmployeeSelfservicePortalActorReadAccess,
+  ensureEmployeeSelfservicePortalWriteAccess,
+  requireEmployeeSelfservicePortalActorEmployeeId,
+} from "../../_lib/http.ts";
 
 const buildDocumentsReadContext = async (
   request: Request
@@ -35,13 +41,16 @@ const buildDocumentsReadContext = async (
 
 export async function GET(request: Request): Promise<Response> {
   const essContext = await createEmployeeSelfservicePortalReadContext(request);
+  const denied = ensureEmployeeSelfservicePortalActorReadAccess(essContext);
 
-  if (!(essContext.canRead && essContext.actorEmployeeId)) {
-    return NextResponse.json([], { status: 200 });
+  if (denied) {
+    return denied;
   }
 
+  const actorEmployeeId =
+    requireEmployeeSelfservicePortalActorEmployeeId(essContext);
   const summaries = listDocumentsManagementPolicyAcknowledgmentSummaries(
-    { employeeId: essContext.actorEmployeeId },
+    { employeeId: actorEmployeeId },
     await buildDocumentsReadContext(request)
   );
 
@@ -51,12 +60,12 @@ export async function GET(request: Request): Promise<Response> {
       count: summaries.length,
     },
     context: essContext,
-    employeeId: essContext.actorEmployeeId,
+    employeeId: actorEmployeeId,
     metadata: {
       count: summaries.length,
     },
     summary: `Viewed ${summaries.length} policy acknowledgment items`,
-    targetId: essContext.actorEmployeeId,
+    targetId: actorEmployeeId,
     targetType: "employee_document_acknowledgments",
   });
 
@@ -110,15 +119,6 @@ export async function POST(request: Request): Promise<Response> {
 
     return NextResponse.json(acknowledged);
   } catch (error) {
-    return NextResponse.json(
-      {
-        ok: false,
-        error:
-          error instanceof Error
-            ? error.message
-            : "Invalid acknowledgment payload",
-      },
-      { status: 400 }
-    );
+    return employeeSelfservicePortalErrorResponse(error);
   }
 }

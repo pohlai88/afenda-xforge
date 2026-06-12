@@ -1,20 +1,16 @@
 import { UnauthorizedError } from "@repo/errors";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
-const authMocks = vi.hoisted(() => ({
-  requireActiveTenantMembership: vi.fn(),
+const executionMocks = vi.hoisted(() => ({
+  executeNotificationInboxMutation: vi.fn(),
 }));
 
-const notificationMocks = vi.hoisted(() => ({
-  archiveAllNotifications: vi.fn(),
-  listNotificationInbox: vi.fn(),
-  markAllNotificationsRead: vi.fn(),
-  markNotificationRead: vi.fn(),
-  markNotificationsSeen: vi.fn(),
+const queryMocks = vi.hoisted(() => ({
+  queryNotificationInbox: vi.fn(),
 }));
 
-vi.mock("@repo/auth/server", () => authMocks);
-vi.mock("@repo/notifications", () => notificationMocks);
+vi.mock("../lib/notifications-inbox/execution.server.ts", () => executionMocks);
+vi.mock("../lib/notifications-inbox/queries.server.ts", () => queryMocks);
 
 import { GET, PATCH } from "../app/api/me/notifications/route.ts";
 import { createNotificationInboxEntry } from "./fixtures/notifications.fixture.ts";
@@ -22,12 +18,6 @@ import { createNotificationInboxEntry } from "./fixtures/notifications.fixture.t
 describe("/api/me/notifications", () => {
   beforeEach(() => {
     vi.clearAllMocks();
-    authMocks.requireActiveTenantMembership.mockResolvedValue({
-      id: "membership-1",
-      role: "admin",
-      tenantId: "tenant-001",
-      userId: "user-001",
-    });
   });
 
   it("returns the scoped inbox for the active tenant membership", async () => {
@@ -35,7 +25,7 @@ describe("/api/me/notifications", () => {
       items: [createNotificationInboxEntry()],
       unreadCount: 1,
     };
-    notificationMocks.listNotificationInbox.mockResolvedValue(inbox);
+    queryMocks.queryNotificationInbox.mockResolvedValue(inbox);
 
     const response = await GET(
       new Request("http://localhost/api/me/notifications?limit=15")
@@ -44,15 +34,16 @@ describe("/api/me/notifications", () => {
 
     expect(response.status).toBe(200);
     expect(payload).toEqual(inbox);
-    expect(notificationMocks.listNotificationInbox).toHaveBeenCalledWith({
+    expect(queryMocks.queryNotificationInbox).toHaveBeenCalledWith({
       limit: 15,
-      tenantId: "tenant-001",
-      userId: "user-001",
+      requestId: undefined,
     });
   });
 
   it("marks all notifications as read", async () => {
-    notificationMocks.markAllNotificationsRead.mockResolvedValue(4);
+    executionMocks.executeNotificationInboxMutation.mockResolvedValue({
+      updatedCount: 4,
+    });
 
     const response = await PATCH(
       new Request("http://localhost/api/me/notifications", {
@@ -65,14 +56,22 @@ describe("/api/me/notifications", () => {
 
     expect(response.status).toBe(200);
     expect(payload).toEqual({ updatedCount: 4 });
+    expect(executionMocks.executeNotificationInboxMutation).toHaveBeenCalledWith(
+      { action: "mark-all-read" },
+      { requestId: undefined }
+    );
   });
 
-  it("archives all notifications", async () => {
-    notificationMocks.archiveAllNotifications.mockResolvedValue(2);
+  it("marks a single notification as read", async () => {
+    const item = createNotificationInboxEntry({ readAt: "2026-06-12T00:00:00.000Z" });
+    executionMocks.executeNotificationInboxMutation.mockResolvedValue({ item });
 
     const response = await PATCH(
       new Request("http://localhost/api/me/notifications", {
-        body: JSON.stringify({ action: "archive-all" }),
+        body: JSON.stringify({
+          action: "mark-read",
+          id: item.id,
+        }),
         headers: { "content-type": "application/json" },
         method: "PATCH",
       })
@@ -80,35 +79,38 @@ describe("/api/me/notifications", () => {
     const payload = await response.json();
 
     expect(response.status).toBe(200);
-    expect(payload).toEqual({ archivedCount: 2 });
+    expect(payload).toEqual({ item });
   });
 
-  it("returns 401 when tenant membership is required", async () => {
-    authMocks.requireActiveTenantMembership.mockRejectedValue(
-      new UnauthorizedError()
-    );
+  it("marks notifications as seen", async () => {
+    const items = [createNotificationInboxEntry()];
+    executionMocks.executeNotificationInboxMutation.mockResolvedValue({ items });
 
-    const response = await GET(
-      new Request("http://localhost/api/me/notifications?limit=15")
-    );
-    const payload = await response.json();
-
-    expect(response.status).toBe(401);
-    expect(payload.error).toBeTruthy();
-    expect(notificationMocks.listNotificationInbox).not.toHaveBeenCalled();
-  });
-
-  it("rejects invalid patch payloads", async () => {
     const response = await PATCH(
       new Request("http://localhost/api/me/notifications", {
-        body: JSON.stringify({ action: "mark-read" }),
+        body: JSON.stringify({
+          action: "mark-seen",
+          ids: [items[0].id],
+        }),
         headers: { "content-type": "application/json" },
         method: "PATCH",
       })
     );
     const payload = await response.json();
 
-    expect(response.status).toBe(400);
-    expect(payload.error).toBeTruthy();
+    expect(response.status).toBe(200);
+    expect(payload).toEqual({ items });
+  });
+
+  it("returns 401 when inbox query auth fails", async () => {
+    queryMocks.queryNotificationInbox.mockRejectedValue(
+      new UnauthorizedError("Authentication is required")
+    );
+
+    const response = await GET(
+      new Request("http://localhost/api/me/notifications")
+    );
+
+    expect(response.status).toBe(401);
   });
 });

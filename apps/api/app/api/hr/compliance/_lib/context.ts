@@ -4,7 +4,7 @@ import type {
 } from "@repo/features-employee-management-compliance-regulatory-tracking";
 import {
   filterHrCapabilityPermissions,
-  resolveHrOperatorCapabilities,
+  resolveHrComplianceRuntimeAccess,
   resolveHrTenantScopedAccess,
 } from "../../_lib/access.ts";
 
@@ -12,7 +12,9 @@ export const createComplianceReadContext = async (
   _request: Request
 ): Promise<ComplianceReadContext & { tenantId?: string }> => {
   const { access, companyId } = await resolveHrTenantScopedAccess();
-  const capabilities = resolveHrOperatorCapabilities(access);
+  const capabilities = resolveHrComplianceRuntimeAccess(
+    access.grantedPermissions
+  );
   const grantedCapabilities = filterHrCapabilityPermissions(
     access.grantedPermissions,
     "hr.compliance."
@@ -40,7 +42,9 @@ export const createComplianceWriteContext = async (
 > => {
   const readContext = await createComplianceReadContext(request);
   const { access } = await resolveHrTenantScopedAccess();
-  const capabilities = resolveHrOperatorCapabilities(access);
+  const capabilities = resolveHrComplianceRuntimeAccess(
+    access.grantedPermissions
+  );
   const grantedCapabilities = filterHrCapabilityPermissions(
     access.grantedPermissions,
     "hr.compliance."

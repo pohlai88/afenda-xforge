@@ -1,10 +1,10 @@
-import { canDownloadDocumentsManagement } from "@repo/features-employee-management-documents-management";
 import {
   getDocumentsManagementDocument,
   recordDocumentsManagementDocumentAccess,
 } from "@repo/features-employee-management-documents-management/server";
 
 import { createDocumentsManagementReadContext } from "../../_lib/context.ts";
+import { ensureDocumentsManagementDownloadAccess } from "../../_lib/http.ts";
 import {
   DocumentsManagementBlobStorageError,
   downloadDocumentsManagementBlob,
@@ -35,12 +35,10 @@ export async function GET(
 ): Promise<Response> {
   const { documentId } = await context.params;
   const readContext = await createDocumentsManagementReadContext(request);
+  const denied = ensureDocumentsManagementDownloadAccess(readContext);
 
-  if (!canDownloadDocumentsManagement(readContext)) {
-    return Response.json(
-      { ok: false, error: "Document download access denied" },
-      { status: 403 }
-    );
+  if (denied) {
+    return denied;
   }
 
   const document = getDocumentsManagementDocument(documentId, readContext);

@@ -6,6 +6,10 @@ import {
 import { NextResponse } from "next/server";
 
 import { createEmployeeSelfservicePortalReadContext } from "../_lib/context.ts";
+import {
+  ensureEmployeeSelfservicePortalActorReadAccess,
+  requireEmployeeSelfservicePortalActorEmployeeId,
+} from "../_lib/http.ts";
 
 const parseQuery = (request: Request) => {
   const url = new URL(request.url);
@@ -24,11 +28,14 @@ const parseQuery = (request: Request) => {
 export async function GET(request: Request): Promise<Response> {
   try {
     const essContext = await createEmployeeSelfservicePortalReadContext(request);
+    const denied = ensureEmployeeSelfservicePortalActorReadAccess(essContext);
 
-    if (!(essContext.canRead && essContext.actorEmployeeId)) {
-      return NextResponse.json([], { status: 200 });
+    if (denied) {
+      return denied;
     }
 
+    const actorEmployeeId =
+      requireEmployeeSelfservicePortalActorEmployeeId(essContext);
     const tasks = await listEmployeeSelfservicePortalTasks(
       parseQuery(request),
       essContext
@@ -38,10 +45,10 @@ export async function GET(request: Request): Promise<Response> {
       action: "hr.employee-selfservice-portal.tasks.view",
       after: { count: tasks.length },
       context: essContext,
-      employeeId: essContext.actorEmployeeId,
+      employeeId: actorEmployeeId,
       metadata: { count: tasks.length },
       summary: `Viewed ${tasks.length} employee self-service tasks`,
-      targetId: essContext.actorEmployeeId,
+      targetId: actorEmployeeId,
       targetType: "employee_tasks",
     });
 

@@ -6,6 +6,10 @@ import {
 import { NextResponse } from "next/server";
 
 import { createEmployeeSelfservicePortalReadContext } from "../../_lib/context.ts";
+import {
+  ensureEmployeeSelfservicePortalActorReadAccess,
+  requireEmployeeSelfservicePortalActorEmployeeId,
+} from "../../_lib/http.ts";
 
 const parseQuery = (request: Request) => {
   const url = new URL(request.url);
@@ -23,11 +27,14 @@ const parseQuery = (request: Request) => {
 export async function GET(request: Request): Promise<Response> {
   try {
     const essContext = await createEmployeeSelfservicePortalReadContext(request);
+    const denied = ensureEmployeeSelfservicePortalActorReadAccess(essContext);
 
-    if (!(essContext.canRead && essContext.actorEmployeeId)) {
-      return NextResponse.json([], { status: 200 });
+    if (denied) {
+      return denied;
     }
 
+    const actorEmployeeId =
+      requireEmployeeSelfservicePortalActorEmployeeId(essContext);
     const items = listEmployeeSelfservicePortalLeaveBalances(
       parseQuery(request),
       essContext
@@ -37,10 +44,10 @@ export async function GET(request: Request): Promise<Response> {
       action: "hr.employee-selfservice-portal.leave.balances.view",
       after: { count: items.length },
       context: essContext,
-      employeeId: essContext.actorEmployeeId,
+      employeeId: actorEmployeeId,
       metadata: { count: items.length },
       summary: `Viewed ${items.length} leave balance entries`,
-      targetId: essContext.actorEmployeeId,
+      targetId: actorEmployeeId,
       targetType: "employee_leave_balances",
     });
 

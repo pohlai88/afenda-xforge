@@ -5,7 +5,10 @@ import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { afterEach, beforeEach, test } from "node:test";
 
-import { openOffboardingCase } from "@repo/features-employee-management-offboarding-exit-management/server";
+import {
+  openOffboardingCase,
+  upsertOffboardingApprovalStep,
+} from "@repo/features-employee-management-offboarding-exit-management/server";
 import {
   resetOffboardingRepositoryForTesting,
   setOffboardingRepositoryPathForTesting,
@@ -21,6 +24,15 @@ import {
   POST as postCasesRoute,
 } from "../app/api/hr/offboarding/cases/route.ts";
 import { GET as getOverviewRoute } from "../app/api/hr/offboarding/overview/route.ts";
+import {
+  GET as getApprovalDetailRoute,
+  PATCH as patchApprovalDetailRoute,
+} from "../app/api/hr/offboarding/approvals/[approvalId]/route.ts";
+import { GET as getApprovalBlockersRoute } from "../app/api/hr/offboarding/approvals/blockers/route.ts";
+import {
+  GET as getApprovalsRoute,
+  POST as postApprovalsRoute,
+} from "../app/api/hr/offboarding/approvals/route.ts";
 import {
   installTestDeniedHrRuntimeTenantAccess,
   installTestRuntimeTenantAccess,
@@ -298,4 +310,114 @@ test("normalizes audit trail reads and audit event writes", async () => {
     ),
     true
   );
+});
+
+test("blocks denied reads and writes on offboarding approval routes", async () => {
+  await resetOffboardingRouteRepository();
+
+  const opened = await openOffboardingCase(
+    {
+      companyId: "company-a",
+      employeeId: `employee-approval-${employeeSuffix}`,
+      exitType: "resignation",
+      reason: "Approval route test",
+      effectiveSeparationDate: new Date("2026-07-20T00:00:00.000Z"),
+    },
+    {
+      actorId: "hr-admin",
+      canRead: true,
+      canWrite: true,
+      companyId: "company-a",
+      tenantId: TEST_TENANT_ID,
+    }
+  );
+
+  assert.equal(opened.ok, true);
+
+  const configured = await upsertOffboardingApprovalStep(
+    {
+      caseId: opened.targetId,
+      stepCode: "hrbp-review",
+      stepLabel: "HRBP Review",
+      sequence: 1,
+      required: true,
+      routeToType: "role",
+      routeToId: "hrbp",
+      routeToLabel: "HR Business Partner",
+    },
+    {
+      actorId: "hr-admin",
+      canRead: true,
+      canWrite: true,
+      companyId: "company-a",
+      tenantId: TEST_TENANT_ID,
+    }
+  );
+
+  assert.equal(configured.ok, true);
+
+  installTestDeniedHrRuntimeTenantAccess();
+
+  const deniedListResponse = await getApprovalsRoute(
+    buildRequest("/api/hr/offboarding/approvals")
+  );
+  const deniedDetailResponse = await getApprovalDetailRoute(
+    buildRequest(`/api/hr/offboarding/approvals/${configured.targetId}`),
+    {
+      params: Promise.resolve({ approvalId: configured.targetId }),
+    }
+  );
+  const deniedBlockersResponse = await getApprovalBlockersRoute(
+    buildRequest("/api/hr/offboarding/approvals/blockers")
+  );
+  const deniedCreateResponse = await postApprovalsRoute(
+    buildRequest("/api/hr/offboarding/approvals", {
+      body: JSON.stringify({
+        caseId: opened.targetId,
+        stepCode: "denied-step",
+        stepLabel: "Denied Step",
+        sequence: 2,
+        required: false,
+        routeToType: "role",
+        routeToId: "hrbp",
+        routeToLabel: "HR Business Partner",
+      }),
+      headers: {
+        "content-type": "application/json",
+      },
+      method: "POST",
+    })
+  );
+  const deniedPatchResponse = await patchApprovalDetailRoute(
+    buildRequest(`/api/hr/offboarding/approvals/${configured.targetId}`, {
+      body: JSON.stringify({
+        action: "submit",
+        decisionNotes: "Denied submit",
+      }),
+      headers: {
+        "content-type": "application/json",
+      },
+      method: "PATCH",
+    }),
+    {
+      params: Promise.resolve({ approvalId: configured.targetId }),
+    }
+  );
+
+  assert.equal(deniedListResponse.status, 403);
+  assert.equal(deniedDetailResponse.status, 403);
+  assert.equal(deniedBlockersResponse.status, 403);
+  assert.equal(deniedCreateResponse.status, 403);
+  assert.equal(deniedPatchResponse.status, 403);
+
+  assert.deepEqual(await deniedListResponse.json(), {
+    code: "forbidden",
+    error: "Read access denied for offboarding",
+    ok: false,
+  });
+  assert.deepEqual(await deniedCreateResponse.json(), {
+    code: "forbidden",
+    error: "Write access denied for offboarding",
+    ok: false,
+  });
 });

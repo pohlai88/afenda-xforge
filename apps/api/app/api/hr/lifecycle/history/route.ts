@@ -5,15 +5,29 @@ import {
   createEmployeeLifecycleRepositoryScope,
   getEmployeeLifecycleQuery,
 } from "../_lib/context.ts";
+import {
+  ensureEmployeeLifecycleReadAccess,
+  ensureEmployeeLifecycleWriteAccess,
+  respondWithEmployeeLifecycleError,
+} from "../_lib/http.ts";
 
-export async function GET(request: Request) {
-  const context = await createEmployeeLifecycleReadContext(request);
-  const query = getEmployeeLifecycleQuery(request);
-  const data = listEmployeeLifecycleHistoryEntries(
-    query.employeeId,
-    createEmployeeLifecycleRepositoryScope(context),
-    context
-  );
+export async function GET(request: Request): Promise<Response> {
+  try {
+    const context = await createEmployeeLifecycleReadContext(request);
+    const denied = ensureEmployeeLifecycleReadAccess(context);
+    if (denied) {
+      return denied;
+    }
 
-  return NextResponse.json(data);
+    const query = getEmployeeLifecycleQuery(request);
+    const data = listEmployeeLifecycleHistoryEntries(
+      query.employeeId,
+      createEmployeeLifecycleRepositoryScope(context),
+      context
+    );
+
+    return NextResponse.json(data);
+  } catch (error) {
+    return respondWithEmployeeLifecycleError(error);
+  }
 }

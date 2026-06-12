@@ -1,6 +1,7 @@
 import type { HrOrgReadContext } from "@repo/features-employee-management-organizational-chart-hierarchy";
 import {
-  resolveHrOperatorCapabilities,
+  filterHrCapabilityPermissions,
+  resolveHrOrganizationStructureRuntimeAccess,
   resolveHrTenantScopedAccess,
 } from "../../_lib/access.ts";
 
@@ -17,16 +18,20 @@ export const createHrOrgReadContext = async (
   _request: Request
 ): Promise<HrOrgReadContext> => {
   const { access, companyId } = await resolveHrTenantScopedAccess();
-  const capabilities = resolveHrOperatorCapabilities(access);
+  const capabilities = resolveHrOrganizationStructureRuntimeAccess(
+    access.grantedPermissions
+  );
+  const grantedCapabilities = filterHrCapabilityPermissions(
+    access.grantedPermissions,
+    "hr.organization_structure."
+  );
 
   return {
     actorId: access.actorId,
-    canRead: capabilities.canRead,
+    canRead: capabilities.canRead || grantedCapabilities.length > 0,
     canViewSensitive: capabilities.canViewSensitive,
     companyId,
-    grantedCapabilities: capabilities.canRead
-      ? ["hr.organization_structure.read"]
-      : [],
+    grantedCapabilities,
     tenantId: access.tenantId,
   };
 };

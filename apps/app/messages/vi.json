@@ -125,11 +125,37 @@
         "recordTitle": "Ghi phim tat"
       },
       "commandPalette": {
+        "dialogDescription": "Tim duong dan, lenh workspace va thao tac ban ghi dang chon.",
+        "dialogTitle": "Bang lenh",
         "empty": "Khong co lenh phu hop.",
+        "footer": {
+          "close": "Dong",
+          "crudTitle": "Thao tac ban ghi dang chon",
+          "navigate": "Di chuyen",
+          "navigateDown": "Lenh tiep theo",
+          "navigateUp": "Lenh truoc",
+          "run": "Chay"
+        },
         "groups": {
           "crud": "Ban ghi dang chon",
           "navigation": "Dieu huong",
+          "search": "Tim kiem",
           "workspace": "Workspace"
+        },
+        "preview": {
+          "crudDescription": "Chay thao tac tren ban ghi hoac form dang duoc chon.",
+          "disabledBadge": "Khong kha dung",
+          "emptySelection": "Chon mot lenh de xem truoc.",
+          "navigationDescription": "Mo duong dan workspace nay.",
+          "runHint": "Nhan Enter de chay lenh da chon.",
+          "searchDescription": "Mo ket qua {index}.",
+          "shortcutLabel": "Phim tat",
+          "workspaceOpenHelp": "Mo bang tham chieu phim tat.",
+          "workspaceToggleSidebar": "Hien hoac an panel dieu huong ben trai."
+        },
+        "searchStatus": {
+          "searching": "Dang tim trong chi muc workspace…",
+          "unavailable": "Tim kiem chi muc chua duoc cau hinh."
         },
         "searchPlaceholder": "Tim lenh workspace..."
       },

@@ -6,6 +6,10 @@ import {
 import { NextResponse } from "next/server";
 
 import { createEmployeeSelfservicePortalReadContext } from "../_lib/context.ts";
+import {
+  ensureEmployeeSelfservicePortalActorReadAccess,
+  requireEmployeeSelfservicePortalActorEmployeeId,
+} from "../_lib/http.ts";
 
 const parseQuery = (request: Request) => {
   const url = new URL(request.url);
@@ -25,11 +29,14 @@ const parseQuery = (request: Request) => {
 export async function GET(request: Request): Promise<Response> {
   try {
     const essContext = await createEmployeeSelfservicePortalReadContext(request);
+    const denied = ensureEmployeeSelfservicePortalActorReadAccess(essContext);
 
-    if (!(essContext.canRead && essContext.actorEmployeeId)) {
-      return NextResponse.json([], { status: 200 });
+    if (denied) {
+      return denied;
     }
 
+    const actorEmployeeId =
+      requireEmployeeSelfservicePortalActorEmployeeId(essContext);
     const inboxItems = listEmployeeSelfservicePortalManagerApprovalInbox(
       parseQuery(request),
       essContext
@@ -39,10 +46,10 @@ export async function GET(request: Request): Promise<Response> {
       action: "hr.employee-selfservice-portal.approval-inbox.view",
       after: { count: inboxItems.length },
       context: essContext,
-      employeeId: essContext.actorEmployeeId,
+      employeeId: actorEmployeeId,
       metadata: { count: inboxItems.length },
       summary: `Viewed ${inboxItems.length} manager approval inbox items`,
-      targetId: essContext.actorEmployeeId,
+      targetId: actorEmployeeId,
       targetType: "manager_approval_inbox",
     });
 

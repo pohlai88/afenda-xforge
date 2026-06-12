@@ -10,9 +10,10 @@ import {
   AUTHENTICATED_DEFAULT_FEATURE_ID,
   AUTHENTICATED_NAV_ITEMS,
 } from "./authenticated-workspace-nav.ts";
+import { AppNavTopbarSidebarTrigger } from "./workspace/app-nav-topbar-sidebar-trigger.tsx";
+import { AuthenticatedSiteContentNavSidebar } from "./workspace/authenticated-site-content-nav-sidebar.tsx";
 import { WorkspaceShortcutsDispatcher } from "./workspace/keyboard-shortcuts/keyboard-shortcuts-provider.tsx";
 import { resolveActiveFeatureId } from "./workspace/path-utils.ts";
-import { AppNavTopbarSidebarTrigger } from "./workspace/app-nav-topbar-sidebar-trigger.tsx";
 import { WorkspaceFrame } from "./workspace/workspace-frame.tsx";
 
 type AuthenticatedWorkspaceProps = {
@@ -44,6 +45,7 @@ export function AuthenticatedWorkspace({
           {sidebar}
         </AuthenticatedFeatureScope>
       )}
+      siteContentSidebar={<AuthenticatedSiteContentNavSidebar />}
       topBar={<AuthenticatedTopBar />}
     >
       <WorkspaceShortcutsDispatcher />

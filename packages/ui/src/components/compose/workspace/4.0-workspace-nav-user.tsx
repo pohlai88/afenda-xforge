@@ -84,7 +84,7 @@ function UserSummary({
         <AvatarImage alt={name} src={avatar ?? undefined} />
         <AvatarFallback className="rounded-lg">{fallback}</AvatarFallback>
       </Avatar>
-      <div className="grid flex-1 text-left text-sm leading-tight">
+      <div className="grid flex-1 text-left text-sm leading-tight group-data-[collapsible=icon]:hidden">
         <span className="truncate font-medium">{name}</span>
         <span className="truncate text-muted-foreground text-xs">{email}</span>
       </div>
@@ -113,9 +113,10 @@ export function WorkspaceNavUser({
             <SidebarMenuButton
               className="data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground"
               size="lg"
+              tooltip={user.name}
             >
               <UserSummary {...user} fallback={initials} />
-              <EllipsisVertical className="ms-auto size-4" />
+              <EllipsisVertical className="ms-auto size-4 group-data-[collapsible=icon]:hidden" />
             </SidebarMenuButton>
           </DropdownMenuTrigger>
           <DropdownMenuContent

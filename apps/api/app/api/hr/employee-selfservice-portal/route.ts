@@ -9,10 +9,17 @@ import {
   createEmployeeSelfservicePortalWriteContext,
 } from "./_lib/context.ts";
 import { employeeSelfservicePortalErrorResponse } from "./_lib/errors.ts";
+import { ensureEmployeeSelfservicePortalReadAccess } from "./_lib/http.ts";
 
 export async function GET(request: Request): Promise<Response> {
   try {
     const url = new URL(request.url);
+    const readContext = await createEmployeeSelfservicePortalReadContext(request);
+    const denied = ensureEmployeeSelfservicePortalReadAccess(readContext);
+
+    if (denied) {
+      return denied;
+    }
 
     const records = listEmployeeSelfservicePortal(
       {
@@ -32,7 +39,7 @@ export async function GET(request: Request): Promise<Response> {
             | "suspended"
             | null) ?? undefined,
       },
-      await createEmployeeSelfservicePortalReadContext(request)
+      readContext
     );
 
     return NextResponse.json(records);

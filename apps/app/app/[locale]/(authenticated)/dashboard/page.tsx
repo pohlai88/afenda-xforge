@@ -5,6 +5,7 @@ import { customerMetadata } from "@repo/features-master-data-customers/metadata"
 import { MetadataStateBoundary } from "@repo/metadata-ui/components";
 import Link from "next/link";
 import type { ReactElement } from "react";
+import { TaskManagerSheet } from "../../../_components/creative-tim/blocks/task-manager-sheet.tsx";
 import { createAppMetadataContext } from "../../../_lib/metadata-context.ts";
 import { loadDashboardMetadataCustomizations } from "./_customizations.ts";
 import { loadDashboardData } from "./_data.ts";
@@ -42,6 +43,7 @@ export default async function DashboardPage(): Promise<ReactElement> {
         grantedPermissions={dashboard.grantedPermissions}
         headerActions={
           <>
+            <TaskManagerSheet />
             <Link
               className="inline-flex h-10 items-center justify-center rounded-md border border-border bg-background px-4 py-2 font-medium text-sm transition hover:bg-muted"
               href="/assistant"

@@ -5,16 +5,20 @@ import {
   createDocumentsManagementReadContext,
   getDocumentsManagementQuery,
 } from "../_lib/context.ts";
+import { ensureDocumentsManagementReadAccess } from "../_lib/http.ts";
 
 export async function GET(request: Request): Promise<Response> {
   try {
     const query = getDocumentsManagementQuery(request);
+    const context = await createDocumentsManagementReadContext(request);
+    const denied = ensureDocumentsManagementReadAccess(context);
+
+    if (denied) {
+      return denied;
+    }
 
     return NextResponse.json(
-      listDocumentsManagementExpiringDocuments(
-        query,
-        await createDocumentsManagementReadContext(request)
-      )
+      listDocumentsManagementExpiringDocuments(query, context)
     );
   } catch {
     return NextResponse.json(

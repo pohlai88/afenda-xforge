@@ -477,6 +477,9 @@ importers:
       '@repo/features-employee-management-documents-management':
         specifier: workspace:*
         version: link:../../packages/features/hr-suite/employee-management/documents-management
+      '@repo/features-employee-management-employee-records-management':
+        specifier: workspace:*
+        version: link:../../packages/features/hr-suite/employee-management/employee-records-management
       '@repo/features-master-data-companies':
         specifier: workspace:*
         version: link:../../packages/features/master-data/companies
@@ -525,6 +528,9 @@ importers:
       '@repo/permissions':
         specifier: workspace:*
         version: link:../../packages/permissions
+      '@repo/search':
+        specifier: workspace:*
+        version: link:../../packages/search
       '@repo/security':
         specifier: workspace:*
         version: link:../../packages/security
@@ -551,7 +557,7 @@ importers:
         version: 16.2.7(@babel/core@7.29.7)(@opentelemetry/api@1.9.1)(@playwright/test@1.52.0)(babel-plugin-macros@3.1.0)(react-dom@19.2.7(react@19.2.7))(react@19.2.7)(sass@1.77.4)
       next-intl:
         specifier: 'catalog:'
-        version: 4.13.0(next@16.2.7(@opentelemetry/api@1.9.1)(@playwright/test@1.52.0)(react-dom@19.2.7(react@19.2.7))(react@19.2.7)(sass@1.77.4))(react@19.2.7)(typescript@5.9.3)
+        version: 4.13.0(next@16.2.7(@babel/core@7.29.7)(@opentelemetry/api@1.9.1)(@playwright/test@1.52.0)(babel-plugin-macros@3.1.0)(react-dom@19.2.7(react@19.2.7))(react@19.2.7)(sass@1.77.4))(react@19.2.7)(typescript@5.9.3)
       next-themes:
         specifier: 'catalog:'
         version: 0.4.6(react-dom@19.2.7(react@19.2.7))(react@19.2.7)
@@ -664,7 +670,7 @@ importers:
         version: 10.4.3(@types/react-dom@19.2.3(@types/react@19.2.17))(@types/react@19.2.17)(esbuild@0.28.0)(react-dom@19.2.7(react@19.2.7))(react@19.2.7)(rollup@4.61.1)(storybook@10.4.3(@testing-library/dom@10.4.1)(@types/react@19.2.17)(prettier@3.8.3)(react-dom@19.2.7(react@19.2.7))(react@19.2.7))(typescript@5.9.3)(vite@8.0.16(@types/node@25.9.2)(esbuild@0.28.0)(jiti@2.7.0)(sass@1.77.4)(terser@5.48.0)(tsx@4.22.4)(yaml@2.9.0))(webpack@5.107.2(@swc/core@1.15.41)(esbuild@0.28.0)(postcss@8.5.15))
       next-intl:
         specifier: 'catalog:'
-        version: 4.13.0(next@16.2.7(@opentelemetry/api@1.9.1)(@playwright/test@1.52.0)(react-dom@19.2.7(react@19.2.7))(react@19.2.7)(sass@1.77.4))(react@19.2.7)(typescript@5.9.3)
+        version: 4.13.0(next@16.2.7(@babel/core@7.29.7)(@opentelemetry/api@1.9.1)(@playwright/test@1.52.0)(babel-plugin-macros@3.1.0)(react-dom@19.2.7(react@19.2.7))(react@19.2.7)(sass@1.77.4))(react@19.2.7)(typescript@5.9.3)
       react:
         specifier: 'catalog:'
         version: 19.2.7
@@ -2435,9 +2441,6 @@ importers:
       drizzle-orm:
         specifier: 'catalog:'
         version: 0.45.2(@opentelemetry/api@1.9.1)(@upstash/redis@1.38.0)(postgres@3.4.9)
-      next:
-        specifier: 'catalog:'
-        version: 16.2.7(@babel/core@7.29.7)(@opentelemetry/api@1.9.1)(@playwright/test@1.52.0)(babel-plugin-macros@3.1.0)(react-dom@19.2.7(react@19.2.7))(react@19.2.7)(sass@1.77.4)
       server-only:
         specifier: 'catalog:'
         version: 0.0.1
@@ -2929,9 +2932,15 @@ importers:
 
   packages/search:
     dependencies:
+      '@repo/database':
+        specifier: workspace:*
+        version: link:../database
       '@t3-oss/env-nextjs':
         specifier: 'catalog:'
         version: 0.13.11(typescript@5.9.3)(zod@4.3.6)
+      drizzle-orm:
+        specifier: 'catalog:'
+        version: 0.45.2(@opentelemetry/api@1.9.1)(@upstash/redis@1.38.0)(postgres@3.4.9)
       meilisearch:
         specifier: 'catalog:'
         version: 0.54.0
@@ -21813,7 +21822,7 @@ snapshots:
 
   next-intl-swc-plugin-extractor@4.13.0: {}
 
-  next-intl@4.13.0(next@16.2.7(@opentelemetry/api@1.9.1)(@playwright/test@1.52.0)(react-dom@19.2.7(react@19.2.7))(react@19.2.7)(sass@1.77.4))(react@19.2.7)(typescript@5.9.3):
+  next-intl@4.13.0(next@16.2.7(@babel/core@7.29.7)(@opentelemetry/api@1.9.1)(@playwright/test@1.52.0)(babel-plugin-macros@3.1.0)(react-dom@19.2.7(react@19.2.7))(react@19.2.7)(sass@1.77.4))(react@19.2.7)(typescript@5.9.3):
     dependencies:
       '@formatjs/intl-localematcher': 0.8.10
       '@parcel/watcher': 2.5.6

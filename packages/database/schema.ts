@@ -242,9 +242,7 @@ export const tenantSettings = xforge.table("tenant_settings", {
     .notNull()
     .default("UTC"),
   customizationMode: varchar("customization_mode", { length: 32 }),
-  themePreset: varchar("theme_preset", { length: 32 })
-    .notNull()
-    .default("xforge"),
+  themePreset: varchar("theme_preset", { length: 32 }).notNull().default("xforge"),
   branding: jsonb("branding")
     .$type<Record<string, unknown>>()
     .notNull()
@@ -324,18 +322,69 @@ export const userWorkspacePreferences = xforge.table(
   ]
 );
 
+export const workspaceSearchDocuments = xforge.table(
+  "workspace_search_documents",
+  {
+    id: uuid("id").defaultRandom().primaryKey(),
+    tenantId: uuid("tenant_id")
+      .notNull()
+      .references(() => tenants.id, { onDelete: "cascade" }),
+    companyId: uuid("company_id").references(() => companies.id, {
+      onDelete: "set null",
+    }),
+    entityType: varchar("entity_type", { length: 128 }).notNull(),
+    entityId: text("entity_id").notNull(),
+    title: text("title").notNull(),
+    description: text("description"),
+    url: text("url"),
+    metadata: jsonb("metadata")
+      .$type<Record<string, unknown>>()
+      .notNull()
+      .default({}),
+    indexedAt: timestamp("indexed_at", {
+      mode: "date",
+      withTimezone: true,
+    })
+      .defaultNow()
+      .notNull(),
+    deletedAt: timestamp("deleted_at", {
+      mode: "date",
+      withTimezone: true,
+    }),
+    createdAt: timestamp("created_at", {
+      mode: "date",
+      withTimezone: true,
+    })
+      .defaultNow()
+      .notNull(),
+    updatedAt: timestamp("updated_at", {
+      mode: "date",
+      withTimezone: true,
+    })
+      .defaultNow()
+      .notNull(),
+  },
+  (table) => [
+    index("workspace_search_documents_tenant_entity_type_idx").on(
+      table.tenantId,
+      table.entityType
+    ),
+    uniqueIndex("workspace_search_documents_entity_unique").on(
+      table.tenantId,
+      table.entityType,
+      table.entityId
+    ),
+  ]
+);
+
 export const tenantKeyboardShortcutPolicies = xforge.table(
   "tenant_keyboard_shortcut_policies",
   {
     tenantId: uuid("tenant_id")
       .primaryKey()
       .references(() => tenants.id, { onDelete: "cascade" }),
-    allowUserCustomize: boolean("allow_user_customize")
-      .notNull()
-      .default(false),
-    allowFnKeyBindings: boolean("allow_fn_key_bindings")
-      .notNull()
-      .default(true),
+    allowUserCustomize: boolean("allow_user_customize").notNull().default(false),
+    allowFnKeyBindings: boolean("allow_fn_key_bindings").notNull().default(true),
     lockedActions: jsonb("locked_actions")
       .$type<string[]>()
       .notNull()
@@ -1958,6 +2007,7 @@ export const databaseSchema: Omit<
   tenantsRelations,
   webhookEndpoints,
   webhookEndpointsRelations,
+  workspaceSearchDocuments,
   xforge,
 };
 
@@ -2047,6 +2097,12 @@ export type NewNotificationInboxEntry = InferInsertModel<
 >;
 export type WebhookEndpoint = InferSelectModel<typeof webhookEndpoints>;
 export type NewWebhookEndpoint = InferInsertModel<typeof webhookEndpoints>;
+export type WorkspaceSearchDocument = InferSelectModel<
+  typeof workspaceSearchDocuments
+>;
+export type NewWorkspaceSearchDocument = InferInsertModel<
+  typeof workspaceSearchDocuments
+>;
 export type AuditEvent = InferSelectModel<typeof auditEvents>;
 export type NewAuditEvent = InferInsertModel<typeof auditEvents>;
 export type HrOrgUnit = InferSelectModel<typeof hrOrgUnits>;

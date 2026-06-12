@@ -3,6 +3,8 @@ import type {
   ListDocumentsManagementQuery,
 } from "@repo/features-employee-management-documents-management";
 import { listDocumentsManagementQuerySchema } from "@repo/features-employee-management-documents-management";
+import { hasPermission, permissionCatalog } from "@repo/permissions";
+import type { RuntimeTenantAccess } from "../../../../_runtime-access.ts";
 import { resolveHrTenantScopedAccess } from "../../_lib/access.ts";
 
 export type DocumentsManagementApiReadContext =
@@ -11,20 +13,60 @@ export type DocumentsManagementApiReadContext =
 export type DocumentsManagementApiWriteContext =
   DocumentsManagementPolicyContext;
 
-export const createDocumentsManagementReadContext = async (
-  _request: Request
-): Promise<DocumentsManagementApiReadContext> => {
-  const { access, capabilities, companyId } =
-    await resolveHrTenantScopedAccess();
+export type HrDocumentsRuntimeAccess = {
+  canDownload: boolean;
+  canRead: boolean;
+  canViewSensitive: boolean;
+  canWrite: boolean;
+};
+
+export const resolveHrDocumentsRuntimeAccess = (
+  grantedPermissions: readonly string[]
+): HrDocumentsRuntimeAccess => ({
+  canDownload: hasPermission(
+    grantedPermissions,
+    permissionCatalog.hrDocuments.download
+  ),
+  canRead: hasPermission(
+    grantedPermissions,
+    permissionCatalog.hrDocuments.read
+  ),
+  canViewSensitive: hasPermission(
+    grantedPermissions,
+    permissionCatalog.hrDocuments.sensitiveRead
+  ),
+  canWrite: hasPermission(
+    grantedPermissions,
+    permissionCatalog.hrDocuments.write
+  ),
+});
+
+export const createDocumentsManagementPolicyContext = (
+  access: RuntimeTenantAccess,
+  companyId?: string
+): DocumentsManagementPolicyContext => {
+  const runtimeAccess = resolveHrDocumentsRuntimeAccess(
+    access.grantedPermissions
+  );
 
   return {
     actorId: access.actorId,
-    canAdminRetention: capabilities.canWrite,
-    canDownload: capabilities.canDownload,
-    canRead: capabilities.canRead,
-    canReadAudit: capabilities.canRead,
-    canSelfAcknowledge: capabilities.canWrite,
-    canViewSensitive: capabilities.canViewSensitive,
+    canAdminRetention: hasPermission(
+      access.grantedPermissions,
+      permissionCatalog.hrDocuments.retentionExecute
+    ),
+    canDownload: runtimeAccess.canDownload,
+    canRead: runtimeAccess.canRead,
+    canReadAudit: hasPermission(
+      access.grantedPermissions,
+      permissionCatalog.hrDocuments.auditRead
+    ),
+    canSelfAcknowledge: hasPermission(
+      access.grantedPermissions,
+      permissionCatalog.hrDocuments.acknowledgeSelf
+    ),
+    canViewSensitive: runtimeAccess.canViewSensitive,
+    canWrite: runtimeAccess.canWrite,
     companyId,
     requestId: access.requestId,
     tenantId: access.tenantId,
@@ -32,17 +74,27 @@ export const createDocumentsManagementReadContext = async (
   };
 };
 
+export const createDocumentsManagementReadContext = async (
+  _request: Request
+): Promise<DocumentsManagementApiReadContext> => {
+  const { access, companyId } = await resolveHrTenantScopedAccess();
+
+  return createDocumentsManagementPolicyContext(access, companyId);
+};
+
 export const createDocumentsManagementWriteContext = async (
   request: Request
 ): Promise<DocumentsManagementApiWriteContext> => {
-  const { access, capabilities, companyId } =
-    await resolveHrTenantScopedAccess();
   const readContext = await createDocumentsManagementReadContext(request);
+  const { access, companyId } = await resolveHrTenantScopedAccess();
+  const runtimeAccess = resolveHrDocumentsRuntimeAccess(
+    access.grantedPermissions
+  );
 
   return {
     ...readContext,
     actorId: access.actorId,
-    canWrite: capabilities.canWrite,
+    canWrite: runtimeAccess.canWrite,
     companyId,
     requestId: access.requestId,
     tenantId: access.tenantId,

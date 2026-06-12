@@ -2,6 +2,7 @@ import { hrRecordsEmploymentStatusSchema } from "@repo/features-employee-managem
 import { listHrEmployeeStatusHistory } from "@repo/features-employee-management-employee-records-management/server";
 import { NextResponse } from "next/server";
 import { createHrRecordsReadContext } from "../../_lib/context.ts";
+import { ensureHrRecordsReadAccess } from "../../_lib/http.ts";
 
 type RouteParams = {
   params: Promise<{
@@ -64,6 +65,12 @@ export async function GET(
   const { employeeId } = await params;
   const url = new URL(request.url);
   const readContext = await createHrRecordsReadContext(request);
+  const denied = ensureHrRecordsReadAccess(readContext);
+
+  if (denied) {
+    return denied;
+  }
+
   const statusRaw = toOptionalString(url.searchParams.get("status"));
   const status =
     statusRaw && hrRecordsEmploymentStatusSchema.safeParse(statusRaw).success

@@ -11,20 +11,43 @@ export type HrHubPageData = {
   userEmail: string | null;
 };
 
-export const loadHrHubPageData = async (): Promise<HrHubPageData> => {
+export type HrHubLoadState =
+  | {
+      data: HrHubPageData;
+      status: "ready";
+    }
+  | {
+      message: string;
+      status: "error";
+    }
+  | {
+      status: "forbidden";
+    };
+
+export const loadHrHubPageData = async (): Promise<HrHubLoadState> => {
   const access = await resolveRuntimeTenantAccess();
   const documentsResult = await loadHrDocumentsPageData();
-  const documents =
-    documentsResult.status === "ready"
-      ? documentsResult.data.documents.slice(0, 5)
-      : [];
+
+  if (documentsResult.status === "forbidden") {
+    return { status: "forbidden" };
+  }
+
+  if (documentsResult.status === "error") {
+    return {
+      message: documentsResult.message,
+      status: "error",
+    };
+  }
 
   return {
-    actorId: access.actorId,
-    documents,
-    grantedPermissions: access.grantedPermissions,
-    tenantId: access.tenantId,
-    tenantRole: access.role,
-    userEmail: access.userEmail,
+    data: {
+      actorId: access.actorId,
+      documents: documentsResult.data.documents.slice(0, 5),
+      grantedPermissions: access.grantedPermissions,
+      tenantId: access.tenantId,
+      tenantRole: access.role,
+      userEmail: access.userEmail,
+    },
+    status: "ready",
   };
 };

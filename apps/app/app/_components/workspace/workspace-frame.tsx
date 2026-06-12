@@ -17,6 +17,14 @@ import type {
   ReactElement,
   ReactNode,
 } from "react";
+import { SiteContentSidebarShell } from "./site-content-sidebar-shell.tsx";
+import {
+  APP_SIDEBAR_BEHAVIOR_STORAGE_KEY,
+} from "./sidebar-behavior.constants.ts";
+import {
+  SidebarControlProvider,
+  SidebarHoverController,
+} from "./sidebar-control-provider.tsx";
 
 type WorkspaceFrameProps = {
   appNavTopbar?: WorkspaceAppNavTopbarProps;
@@ -32,6 +40,8 @@ type WorkspaceFrameProps = {
   sidebarVariant?: ComponentProps<typeof WorkspaceAppSidebar>["variant"];
   sidebarWidth?: string;
   sidebarWrapper?: (sidebar: ReactNode) => ReactNode;
+  /** Local feature navigation rail inside the site content column. */
+  siteContentSidebar?: ReactNode;
   topBar: ReactNode;
 };
 
@@ -52,6 +62,7 @@ export function WorkspaceFrame({
   sidebarVariant = "inset",
   sidebarWidth = WORKSPACE_SHELL_SIDEBAR_WIDTH,
   sidebarWrapper,
+  siteContentSidebar,
   topBar,
 }: WorkspaceFrameProps): ReactElement {
   const sidebarNode = (
@@ -68,12 +79,30 @@ export function WorkspaceFrame({
     ? sidebarWrapper(sidebarNode)
     : sidebarNode;
 
-  const siteColumn = (
+  const siteMain = (
+    <WorkspaceSiteContent className={contentClassName} padded={contentPadded}>
+      {children}
+    </WorkspaceSiteContent>
+  );
+
+  const siteColumn = siteContentSidebar ? (
+    <WorkspaceNavSiteContent>
+      <SiteContentSidebarShell
+        siteContentSidebar={siteContentSidebar}
+        topBar={topBar}
+      >
+        {siteMain}
+      </SiteContentSidebarShell>
+    </WorkspaceNavSiteContent>
+  ) : (
     <WorkspaceNavSiteContent>
       {topBar}
-      <WorkspaceSiteContent className={contentClassName} padded={contentPadded}>
-        {children}
-      </WorkspaceSiteContent>
+      <div
+        className="flex min-h-0 min-w-0 flex-1 overflow-hidden"
+        data-slot="workspace-site-content-body"
+      >
+        {siteMain}
+      </div>
     </WorkspaceNavSiteContent>
   );
 
@@ -85,8 +114,11 @@ export function WorkspaceFrame({
         enableSidebarKeyboardShortcut={enableSidebarKeyboardShortcut}
         sidebarWidth={sidebarWidth}
       >
-        {resolvedSidebar}
-        {siteColumn}
+        <SidebarControlProvider storageKey={APP_SIDEBAR_BEHAVIOR_STORAGE_KEY}>
+          <SidebarHoverController containerSelector='[data-slot="sidebar-container"]' />
+          {resolvedSidebar}
+          {siteColumn}
+        </SidebarControlProvider>
       </WorkspaceShellProvider>
     );
   }
@@ -103,17 +135,20 @@ export function WorkspaceFrame({
         } as CSSProperties
       }
     >
-      <WorkspaceAppNavTopbar {...appNavTopbar} />
-      <div
-        className={cn(
-          "flex min-h-0 w-full flex-1 overflow-hidden",
-          workspaceBodyBelowAppTopbarClass
-        )}
-        data-slot="workspace-body"
-      >
-        {resolvedSidebar}
-        {siteColumn}
-      </div>
+      <SidebarControlProvider storageKey={APP_SIDEBAR_BEHAVIOR_STORAGE_KEY}>
+        <SidebarHoverController containerSelector='[data-slot=workspace-body] > [data-slot=sidebar]' />
+        <WorkspaceAppNavTopbar {...appNavTopbar} />
+        <div
+          className={cn(
+            "flex min-h-0 w-full flex-1 overflow-hidden",
+            workspaceBodyBelowAppTopbarClass
+          )}
+          data-slot="workspace-body"
+        >
+          {resolvedSidebar}
+          {siteColumn}
+        </div>
+      </SidebarControlProvider>
     </WorkspaceShellProvider>
   );
 }

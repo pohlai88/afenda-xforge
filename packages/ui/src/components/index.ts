@@ -72,6 +72,7 @@ export {
   CommandList,
   CommandSeparator,
   CommandShortcut,
+  useCommandState,
 } from "./ui-shadcn/command";
 export { CopyButton } from "./ui-shadcn/copy-button";
 export {

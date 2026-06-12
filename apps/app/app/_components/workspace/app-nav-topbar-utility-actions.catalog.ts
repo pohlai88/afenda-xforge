@@ -10,6 +10,7 @@ import {
   LineChart,
   MessageSquareWarning,
   MessagesSquare,
+  MonitorCog,
   ScanSearch,
   Settings2,
   type LucideIcon,
@@ -24,6 +25,7 @@ export type AppNavTopbarUtilityId =
   | "advisor-center"
   | "calendar"
   | "clipboard-list"
+  | "display-settings"
   | "feedback"
   | "help"
   | "keyboard-shortcuts"
@@ -116,6 +118,13 @@ export const APP_NAV_TOPBAR_UTILITY_CATALOG: readonly AppNavTopbarUtilityDefinit
       id: "settings",
       label: "Workspace settings",
       icon: Settings2,
+    },
+    {
+      action: "settings-appearance",
+      description: "Theme, density, and personal display preferences.",
+      id: "display-settings",
+      label: "Display settings",
+      icon: MonitorCog,
     },
     {
       action: "feedback-menu",

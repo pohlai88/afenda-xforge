@@ -3,20 +3,25 @@
 import {
   Button,
   Checkbox,
+  Label,
   Popover,
   PopoverContent,
   PopoverDescription,
   PopoverHeader,
   PopoverTitle,
   PopoverTrigger,
+  ScrollArea,
+  Textarea,
   toast,
 } from "@repo/ui";
 import { cn } from "@repo/ui/lib/utils";
 import {
   Bug,
   GripVertical,
+  LayersPlus,
   LayoutDashboard,
   MessageSquareWarning,
+  Send,
   Zap,
 } from "lucide-react";
 import { useRouter } from "next/navigation";
@@ -25,6 +30,7 @@ import {
   createContext,
   useCallback,
   useContext,
+  useId,
   useMemo,
   useState,
   useSyncExternalStore,
@@ -63,6 +69,20 @@ import {
   type TopbarUtilitiesScope,
 } from "./app-nav-topbar-utility-actions.storage.ts";
 import { useWorkspaceShortcuts } from "./keyboard-shortcuts/use-keyboard-shortcuts.tsx";
+
+const utilitiesWidgetPopoverClassName =
+  "w-72 overflow-hidden rounded-lg p-0";
+
+const utilitiesWidgetListScrollClassName =
+  "h-[min(12rem,calc(70vh-16rem))]";
+
+const utilitiesWidgetListRegionClassName = "px-2 pb-2 pr-3";
+
+const utilitiesWidgetFooterClassName =
+  "border-t border-border bg-muted/20 px-4 py-3";
+
+const utilitiesWidgetRowActionClassName =
+  "h-auto min-w-0 flex-1 justify-start gap-3 px-2 py-1 font-normal";
 
 export type AppNavTopbarUtilityActionsProps = {
   onHelpClick?: () => void;
@@ -340,49 +360,49 @@ function AppNavTopbarPinnedUtilitiesBar({
         role="group"
       >
         {visibleIds.map((utilityId) => {
-              const definition = getAppNavTopbarUtilityDefinition(utilityId);
+          const definition = getAppNavTopbarUtilityDefinition(utilityId);
 
-              if (utilityId === "notifications") {
-                return (
-                  <AppNavTopbarSortableHorizontalItem
-                    className="cursor-grab active:cursor-grabbing"
-                    id={utilityId}
-                    key={utilityId}
-                  >
-                    <AppNavTopbarNotifications
-                      preview={preview}
-                      tenantId={tenantId}
-                      userId={userId}
-                    />
-                  </AppNavTopbarSortableHorizontalItem>
-                );
-              }
+          if (utilityId === "notifications") {
+            return (
+              <AppNavTopbarSortableHorizontalItem
+                className="cursor-grab active:cursor-grabbing"
+                id={utilityId}
+                key={utilityId}
+              >
+                <AppNavTopbarNotifications
+                  preview={preview}
+                  tenantId={tenantId}
+                  userId={userId}
+                />
+              </AppNavTopbarSortableHorizontalItem>
+            );
+          }
 
-              return (
-                <AppNavTopbarSortableHorizontalItem
-                  className="cursor-grab active:cursor-grabbing"
-                  id={utilityId}
-                  key={utilityId}
+          return (
+            <AppNavTopbarSortableHorizontalItem
+              className="cursor-grab active:cursor-grabbing"
+              id={utilityId}
+              key={utilityId}
+            >
+              <AppNavTopbarIconTooltip
+                description={definition.description}
+                title={definition.label}
+              >
+                <Button
+                  className={appNavTopbarGhostIconButtonClassName}
+                  onClick={() => {
+                    onUtilityAction(utilityId);
+                  }}
+                  size="icon"
+                  type="button"
+                  variant="ghost"
                 >
-                  <AppNavTopbarIconTooltip
-                    description={definition.description}
-                    title={definition.label}
-                  >
-                    <Button
-                      className={appNavTopbarGhostIconButtonClassName}
-                      onClick={() => {
-                        onUtilityAction(utilityId);
-                      }}
-                      size="icon"
-                      type="button"
-                      variant="ghost"
-                    >
-                      {renderAppNavTopbarUtilityIcon(utilityId)}
-                      <span className="sr-only">{definition.label}</span>
-                    </Button>
-                  </AppNavTopbarIconTooltip>
-                </AppNavTopbarSortableHorizontalItem>
-              );
+                  {renderAppNavTopbarUtilityIcon(utilityId)}
+                  <span className="sr-only">{definition.label}</span>
+                </Button>
+              </AppNavTopbarIconTooltip>
+            </AppNavTopbarSortableHorizontalItem>
+          );
         })}
       </div>
     </AppNavTopbarHorizontalUtilitySortable>
@@ -419,11 +439,24 @@ function AppNavTopbarUtilitiesWidget({
   visibleIds: readonly AppNavTopbarUtilityId[];
 }): ReactElement {
   const [open, setOpen] = useState(false);
+  const [utilityRequest, setUtilityRequest] = useState("");
+  const utilityRequestFieldId = useId();
 
   const visibleSet = useMemo(
     () => new Set(utilitiesState.visible),
     [utilitiesState.visible]
   );
+
+  const submitUtilityRequest = (): void => {
+    const message = utilityRequest.trim();
+
+    if (!message) {
+      return;
+    }
+
+    toast.message("Utility request received. Product will review your suggestion.");
+    setUtilityRequest("");
+  };
 
   const toggleUtility = (utilityId: AppNavTopbarUtilityId): void => {
     const isVisible = visibleSet.has(utilityId);
@@ -492,82 +525,138 @@ function AppNavTopbarUtilitiesWidget({
           </Button>
         </PopoverTrigger>
       </AppNavTopbarIconTooltip>
-      <PopoverContent align="end" className="w-72 p-0" sideOffset={4}>
-        <PopoverHeader className="border-b px-4 py-3">
+      <PopoverContent
+        align="end"
+        className={utilitiesWidgetPopoverClassName}
+        sideOffset={4}
+      >
+        <PopoverHeader className="border-b border-border px-4 py-3">
           <PopoverTitle className="text-sm">Utilities widget</PopoverTitle>
-          <PopoverDescription>
+          <PopoverDescription className="text-xs">
             Choose which icons appear on the topbar. Drag here or on the topbar
             to reorder.
           </PopoverDescription>
         </PopoverHeader>
-        <div className="px-2 py-2">
-          <p className="px-2 pb-2 text-muted-foreground text-xs">
-            {visibleIds.length}/{APP_NAV_TOPBAR_UTILITY_MAX_PINNED} selected ·{" "}
-            {APP_NAV_TOPBAR_UTILITY_CATALOG.length} available
-          </p>
-          <AppNavTopbarVerticalUtilitySortable
-            ids={utilitiesState.order}
-            onReorder={handleWidgetReorder}
-          >
-            <ul className="flex flex-col gap-1">
-              {utilitiesState.order.map((utilityId) => {
-                const utility = getAppNavTopbarUtilityDefinition(utilityId);
-                const checked = visibleSet.has(utilityId);
-                const disabled =
-                  !checked &&
-                  visibleIds.length >= APP_NAV_TOPBAR_UTILITY_MAX_PINNED;
+        <p className="px-4 pt-3 pb-1 text-muted-foreground text-xs">
+          {visibleIds.length}/{APP_NAV_TOPBAR_UTILITY_MAX_PINNED} selected ·{" "}
+          {APP_NAV_TOPBAR_UTILITY_CATALOG.length} available
+        </p>
+        <ScrollArea className={utilitiesWidgetListScrollClassName}>
+          <div className={utilitiesWidgetListRegionClassName}>
+            <AppNavTopbarVerticalUtilitySortable
+              ids={utilitiesState.order}
+              onReorder={handleWidgetReorder}
+            >
+              <ul className="flex flex-col gap-1">
+                {utilitiesState.order.map((utilityId) => {
+                  const utility = getAppNavTopbarUtilityDefinition(utilityId);
+                  const checked = visibleSet.has(utilityId);
+                  const disabled =
+                    !checked &&
+                    visibleIds.length >= APP_NAV_TOPBAR_UTILITY_MAX_PINNED;
 
-                return (
-                  <AppNavTopbarSortableVerticalItem
-                    className={cn(
-                      "cursor-grab active:cursor-grabbing",
-                      disabled && "opacity-50"
-                    )}
-                    id={utilityId}
-                    key={utilityId}
-                  >
-                    <div className="flex items-center gap-2 rounded-md px-1 py-1">
-                      <span
-                        aria-hidden
-                        className="flex size-7 shrink-0 items-center justify-center text-muted-foreground"
-                      >
-                        <GripVertical className="size-3.5" />
-                      </span>
-                      <Checkbox
-                        aria-label={`Show ${utility.label} on topbar`}
-                        checked={checked}
-                        disabled={disabled}
-                        onCheckedChange={() => {
-                          toggleUtility(utilityId);
-                        }}
-                        onPointerDown={(event) => {
-                          event.stopPropagation();
-                        }}
-                      />
-                      <button
-                        className="flex min-w-0 flex-1 items-center gap-3 rounded-md py-1 text-left hover:bg-accent"
-                        onClick={() => {
-                          onUtilityAction(utilityId);
-                        }}
-                        onPointerDown={(event) => {
-                          event.stopPropagation();
-                        }}
-                        type="button"
-                      >
-                        <span className="text-muted-foreground">
-                          {renderAppNavTopbarUtilityIcon(utilityId)}
+                  return (
+                    <AppNavTopbarSortableVerticalItem
+                      className={cn(
+                        "cursor-grab active:cursor-grabbing",
+                        disabled && "opacity-50"
+                      )}
+                      id={utilityId}
+                      key={utilityId}
+                    >
+                      <div className="flex items-center gap-2 rounded-md px-1 py-1">
+                        <span
+                          aria-hidden
+                          className="flex size-7 shrink-0 items-center justify-center text-muted-foreground"
+                        >
+                          <GripVertical className="size-3.5" />
                         </span>
-                        <span className="truncate text-sm">
-                          {utility.label}
-                        </span>
-                      </button>
-                    </div>
-                  </AppNavTopbarSortableVerticalItem>
-                );
-              })}
-            </ul>
-          </AppNavTopbarVerticalUtilitySortable>
-        </div>
+                        <Checkbox
+                          aria-label={`Show ${utility.label} on topbar`}
+                          checked={checked}
+                          disabled={disabled}
+                          onCheckedChange={() => {
+                            toggleUtility(utilityId);
+                          }}
+                          onPointerDown={(event) => {
+                            event.stopPropagation();
+                          }}
+                        />
+                        <Button
+                          className={utilitiesWidgetRowActionClassName}
+                          onClick={() => {
+                            onUtilityAction(utilityId);
+                          }}
+                          onPointerDown={(event) => {
+                            event.stopPropagation();
+                          }}
+                          type="button"
+                          variant="ghost"
+                        >
+                          <span className="text-muted-foreground">
+                            {renderAppNavTopbarUtilityIcon(utilityId)}
+                          </span>
+                          <span className="truncate text-sm">
+                            {utility.label}
+                          </span>
+                        </Button>
+                      </div>
+                    </AppNavTopbarSortableVerticalItem>
+                  );
+                })}
+              </ul>
+            </AppNavTopbarVerticalUtilitySortable>
+          </div>
+        </ScrollArea>
+        <footer className={utilitiesWidgetFooterClassName}>
+          <div className="mb-2 flex items-center gap-2">
+            <LayersPlus
+              aria-hidden
+              className="size-4 shrink-0 text-muted-foreground"
+            />
+            <Label
+              className="font-medium text-sm"
+              htmlFor={utilityRequestFieldId}
+            >
+              Request a utility
+            </Label>
+          </div>
+          <form
+            className="flex flex-col gap-2"
+            onSubmit={(event) => {
+              event.preventDefault();
+              submitUtilityRequest();
+            }}
+          >
+            <Textarea
+              className="max-h-24 min-h-16 resize-none text-sm"
+              id={utilityRequestFieldId}
+              onChange={(event) => {
+                setUtilityRequest(event.target.value);
+              }}
+              onKeyDown={(event) => {
+                if (event.key === "Enter" && (event.metaKey || event.ctrlKey)) {
+                  event.preventDefault();
+                  submitUtilityRequest();
+                }
+              }}
+              placeholder="Describe the shortcut or tool you need…"
+              rows={2}
+              value={utilityRequest}
+            />
+            <div className="flex justify-end">
+              <Button
+                className="gap-1.5"
+                disabled={!utilityRequest.trim()}
+                size="sm"
+                type="submit"
+              >
+                <Send className="size-3.5" />
+                Send
+              </Button>
+            </div>
+          </form>
+        </footer>
       </PopoverContent>
     </Popover>
   );
