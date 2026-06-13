@@ -1,6 +1,6 @@
 "use client";
 
-import { resolveTenantDensityDataAttribute } from "@repo/design-system";
+import { resolveTenantDensityDataAttribute } from "@repo/design-system/customise-branding/resolution";
 import type { ReactElement } from "react";
 import { useEffect } from "react";
 import { useTenantBranding } from "./tenant-branding-context.tsx";

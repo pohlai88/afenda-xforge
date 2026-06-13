@@ -5,7 +5,6 @@ import {
   getVercelGeistColor,
   resolveGeistBrandScale,
   resolveGeistSemanticCssVars,
-  validateVercelGeistRegistry,
   VERCEL_GEIST_COLORS,
   VERCEL_GEIST_FOCUS,
   VERCEL_GEIST_FONT_PRESET_NAMES,
@@ -16,6 +15,7 @@ import {
   VERCEL_GEIST_SOURCES,
   VERCEL_GEIST_THEME_PRESET_NAME,
   VERCEL_GEIST_TYPOGRAPHY_STYLES,
+  validateVercelGeistRegistry,
 } from "../contracts/afenda/references/vercel-geist.contract";
 import {
   AFENDA_THEME_PRESET_REGISTRY as THEME_PRESETS,
@@ -62,7 +62,10 @@ test("vercel geist materials and focus patterns match Geist docs", () => {
 });
 
 test("vercel geist neutral scale aligns with canonical gray steps", () => {
-  assert.equal(VERCEL_GEIST_NEUTRAL_SCALE[50], getVercelGeistColor("canvas-soft").hex);
+  assert.equal(
+    VERCEL_GEIST_NEUTRAL_SCALE[50],
+    getVercelGeistColor("canvas-soft").hex
+  );
   assert.equal(VERCEL_GEIST_NEUTRAL_SCALE[900], getVercelGeistColor("ink").hex);
 });
 
@@ -84,7 +87,9 @@ test("vercel geist semantic css separates accent wash from link blue", () => {
 test("vercel geist documents globals.css conflicts with afenda", () => {
   assert.ok(VERCEL_GEIST_GLOBALS_CSS_CONFLICTS.length >= 8);
   assert.ok(
-    VERCEL_GEIST_GLOBALS_CSS_CONFLICTS.some((entry) => entry.token === "--accent")
+    VERCEL_GEIST_GLOBALS_CSS_CONFLICTS.some(
+      (entry) => entry.token === "--accent"
+    )
   );
   assert.ok(
     VERCEL_GEIST_GLOBALS_CSS_CONFLICTS.some((entry) =>
@@ -93,18 +98,24 @@ test("vercel geist documents globals.css conflicts with afenda", () => {
   );
 });
 
-test("vercel theme preset derives brand scale from geist contract", () => {
+test("vercel-geist theme preset derives brand scale from geist contract", () => {
   validateThemePresetRegistry();
 
   const vercelPreset = THEME_PRESETS.find(
     (preset) => preset.name === VERCEL_GEIST_THEME_PRESET_NAME
   );
-  assert.ok(vercelPreset, "vercel theme preset should exist");
+  assert.ok(vercelPreset, "vercel-geist theme preset should exist");
 
   assert.deepEqual(vercelPreset.brand.light, resolveGeistBrandScale("light"));
   assert.deepEqual(vercelPreset.brand.dark, resolveGeistBrandScale("dark"));
-  assert.equal(vercelPreset.brand.light.primary, getVercelGeistColor("ink").oklch);
-  assert.equal(vercelPreset.brand.light.accent, getVercelGeistColor("link").oklch);
+  assert.equal(
+    vercelPreset.brand.light.primary,
+    getVercelGeistColor("ink").oklch
+  );
+  assert.equal(
+    vercelPreset.brand.light.accent,
+    getVercelGeistColor("link").oklch
+  );
   assert.equal(
     vercelPreset.brand.light.secondary,
     getVercelGeistColor("body").oklch

@@ -2,6 +2,7 @@
 
 import {
   getVercelGeistColor,
+  resolveGeistSemanticCssVars,
   VERCEL_GEIST_COLORS,
   VERCEL_GEIST_FOCUS,
   VERCEL_GEIST_GLOBALS_CSS_CONFLICTS,
@@ -14,7 +15,6 @@ import {
   VERCEL_GEIST_SOURCES,
   VERCEL_GEIST_SPACING_TOKENS,
   VERCEL_GEIST_TYPOGRAPHY_STYLES,
-  resolveGeistSemanticCssVars,
 } from "@repo/design-system/contracts/afenda/references";
 import { Button } from "@repo/ui/components/button";
 import { cn } from "@repo/ui/lib/utils";
@@ -68,6 +68,19 @@ function ShadowCard({
   );
 }
 
+function resolveMaterialShadow(materialKey: string): string {
+  switch (materialKey) {
+    case "menu":
+      return VERCEL_GEIST_SHADOWS.menu;
+    case "modal":
+      return VERCEL_GEIST_SHADOWS.modal;
+    case "tooltip":
+      return VERCEL_GEIST_SHADOWS.borderSmall;
+    default:
+      return VERCEL_GEIST_SHADOWS.borderMedium;
+  }
+}
+
 function ColorSwatch({
   hex,
   oklch,
@@ -107,7 +120,7 @@ export function GeistStudioPage(): ReactElement {
     <GeistStudioShell>
       <section className="space-y-6" id="overview">
         <SectionHeading
-          description="Live reference for the Vercel Geist contract. This scope applies resolveGeistSemanticCssVars — not just the vercel theme preset — so surfaces read achromatic instead of XForge teal tints."
+          description="Live reference for the Vercel Geist contract. This scope applies resolveGeistSemanticCssVars — not just the vercel-geist theme preset — so surfaces read achromatic instead of XForge teal tints."
           id="overview"
           title="Geist implementation contract"
         />
@@ -116,7 +129,10 @@ export function GeistStudioPage(): ReactElement {
           shadow={VERCEL_GEIST_SHADOWS.borderMedium}
           style={{ borderRadius: "12px" }}
         >
-          <p className="max-w-3xl font-semibold" style={geistTypeStyle("display-hero")}>
+          <p
+            className="max-w-3xl font-semibold"
+            style={geistTypeStyle("display-hero")}
+          >
             Ink is the brand.
           </p>
           <p className="max-w-2xl text-base text-muted-foreground leading-7">
@@ -127,7 +143,10 @@ export function GeistStudioPage(): ReactElement {
             <code className="font-mono text-xs">--accent</code>,{" "}
             <code className="font-mono text-xs">--radius</code>) that otherwise
             stay on Afenda defaults — see{" "}
-            <a className="text-[color:var(--geist-link)] hover:underline" href="#conflicts">
+            <a
+              className="text-[color:var(--geist-link)] hover:underline"
+              href="#conflicts"
+            >
               Afenda conflicts
             </a>
             .
@@ -201,23 +220,31 @@ export function GeistStudioPage(): ReactElement {
           title="Typography"
         />
         <div className="space-y-4">
-          {Object.entries(VERCEL_GEIST_TYPOGRAPHY_STYLES).map(([name, style]) => (
-            <ShadowCard key={name} shadow={VERCEL_GEIST_SHADOWS.border}>
-              <p className="mb-3 font-mono text-muted-foreground text-xs">{name}</p>
-              <p
-                className={cn(style.fontPreset === "geist-mono" && "font-mono")}
-                style={{
-                  fontSize: style.fontSize,
-                  fontWeight: style.fontWeight,
-                  letterSpacing: style.letterSpacing,
-                  lineHeight: style.lineHeight,
-                }}
-              >
-                The quick brown fox jumps over the lazy dog.
-              </p>
-              <p className="mt-2 text-muted-foreground text-xs">{style.usage}</p>
-            </ShadowCard>
-          ))}
+          {Object.entries(VERCEL_GEIST_TYPOGRAPHY_STYLES).map(
+            ([name, style]) => (
+              <ShadowCard key={name} shadow={VERCEL_GEIST_SHADOWS.border}>
+                <p className="mb-3 font-mono text-muted-foreground text-xs">
+                  {name}
+                </p>
+                <p
+                  className={cn(
+                    style.fontPreset === "geist-mono" && "font-mono"
+                  )}
+                  style={{
+                    fontSize: style.fontSize,
+                    fontWeight: style.fontWeight,
+                    letterSpacing: style.letterSpacing,
+                    lineHeight: style.lineHeight,
+                  }}
+                >
+                  The quick brown fox jumps over the lazy dog.
+                </p>
+                <p className="mt-2 text-muted-foreground text-xs">
+                  {style.usage}
+                </p>
+              </ShadowCard>
+            )
+          )}
         </div>
       </section>
 
@@ -232,18 +259,12 @@ export function GeistStudioPage(): ReactElement {
             <ShadowCard
               className="space-y-2"
               key={key}
-              shadow={
-                key === "menu"
-                  ? VERCEL_GEIST_SHADOWS.menu
-                  : key === "modal"
-                    ? VERCEL_GEIST_SHADOWS.modal
-                    : key === "tooltip"
-                      ? VERCEL_GEIST_SHADOWS.borderSmall
-                      : VERCEL_GEIST_SHADOWS.borderMedium
-              }
+              shadow={resolveMaterialShadow(key)}
               style={{ borderRadius: material.radius }}
             >
-              <p className="font-medium font-mono text-sm">{material.className}</p>
+              <p className="font-medium font-mono text-sm">
+                {material.className}
+              </p>
               <p className="text-muted-foreground text-sm">{material.usage}</p>
               <p className="font-mono text-muted-foreground text-xs">
                 radius: {material.radius}
@@ -252,8 +273,9 @@ export function GeistStudioPage(): ReactElement {
           ))}
         </div>
         <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
-          {Object.entries(VERCEL_GEIST_SPACING_TOKENS).slice(0, 8).map(
-            ([token, value]) => (
+          {Object.entries(VERCEL_GEIST_SPACING_TOKENS)
+            .slice(0, 8)
+            .map(([token, value]) => (
               <div
                 className="rounded-md bg-card px-3 py-2 font-mono text-card-foreground text-xs"
                 key={token}
@@ -262,8 +284,7 @@ export function GeistStudioPage(): ReactElement {
                 <span className="text-muted-foreground">{token}</span>
                 <span className="ml-2">{value}</span>
               </div>
-            )
-          )}
+            ))}
         </div>
       </section>
 
@@ -325,7 +346,10 @@ export function GeistStudioPage(): ReactElement {
             <h3 className="font-medium text-sm">Status dots (≤10px)</h3>
             <div className="flex flex-wrap gap-6">
               {statusDotColors.map((token) => (
-                <div className="flex items-center gap-2 text-sm" key={token.role}>
+                <div
+                  className="flex items-center gap-2 text-sm"
+                  key={token.role}
+                >
                   <span
                     aria-hidden
                     className="size-2.5 rounded-full"
@@ -392,7 +416,7 @@ export function GeistStudioPage(): ReactElement {
 
       <section className="space-y-6 pb-12" id="conflicts">
         <SectionHeading
-          description="Why vercel theme preset alone looked like Afenda — and what Geist Studio overrides."
+          description="Why vercel-geist theme preset alone looked like Afenda — and what Geist Studio overrides."
           id="conflicts-heading"
           title="Afenda globals.css conflicts"
         />
@@ -411,7 +435,10 @@ export function GeistStudioPage(): ReactElement {
             </thead>
             <tbody>
               {VERCEL_GEIST_GLOBALS_CSS_CONFLICTS.map((row) => (
-                <tr className="border-border border-b align-top" key={row.token}>
+                <tr
+                  className="border-border border-b align-top"
+                  key={row.token}
+                >
                   <td className="px-4 py-3 font-mono text-xs">{row.token}</td>
                   <td className="px-4 py-3 text-muted-foreground text-xs">
                     {row.afendaDefault}
@@ -426,7 +453,9 @@ export function GeistStudioPage(): ReactElement {
         <ul className="space-y-2 text-muted-foreground text-sm leading-6">
           {VERCEL_GEIST_GLOBALS_CSS_CONFLICTS.map((row) => (
             <li key={`${row.token}-issue`}>
-              <span className="font-mono text-foreground text-xs">{row.token}</span>
+              <span className="font-mono text-foreground text-xs">
+                {row.token}
+              </span>
               {" — "}
               {row.issue}
             </li>

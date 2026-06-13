@@ -1,4 +1,4 @@
-import { AFENDA_DEFAULT_TENANT_BRANDING_SETTINGS } from "@repo/design-system";
+import { AFENDA_DEFAULT_TENANT_BRANDING_SETTINGS } from "@repo/design-system/contracts/afenda/customization";
 import type { Meta, StoryObj } from "@storybook/react";
 
 import { AnalyticsPreview } from "../../app/app/[locale]/theme-studio/_components/analytics-preview.tsx";

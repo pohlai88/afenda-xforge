@@ -5,13 +5,13 @@ import {
   timeDatabaseQuery,
   userAppearancePreferences,
 } from "@repo/database";
-import { setUserBrandingPreferences as setCachedUserBrandingPreferences } from "@repo/design-system";
 import type { AfendaUserBrandingPreferences as UserBrandingPreferences } from "@repo/design-system/contracts/afenda/customization";
 import {
   AFENDA_EMPTY_USER_BRANDING_PREFERENCES as EMPTY_USER_BRANDING_PREFERENCES,
   afendaUserBrandingPreferencesSchema as userBrandingPreferencesSchema,
 } from "@repo/design-system/contracts/afenda/customization";
 import { afendaThemePresetRegistryNameSchema as themePresetNameSchema } from "@repo/design-system/contracts/afenda/registries";
+import { setUserBrandingPreferences as setCachedUserBrandingPreferences } from "@repo/design-system/customise-branding";
 import { and, eq } from "drizzle-orm";
 
 type UserAppearanceRow = typeof userAppearancePreferences.$inferSelect;

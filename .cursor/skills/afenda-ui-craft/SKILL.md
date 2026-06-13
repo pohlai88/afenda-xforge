@@ -5,11 +5,25 @@ description: >-
   Wraps ui-craft with Afenda authority, layer order, and token governance. Use when
   building or refining app UI, Storybook, Theme Studio previews, or metadata-ui
   surfaces. Prefer ui-craft-dense-dashboard for workspace and dashboard work.
+disable-model-invocation: true
 ---
 
 # Afenda UI Craft
 
-Merged guidance from **ui-craft** (`.agents/skills/ui-craft/`), scoped to `afenda-Xforge`.
+Merged guidance from **ui-craft** (`.cursor/skills/ui-craft/`), scoped to `afenda-Xforge`.
+
+## How to invoke in Cursor
+
+Cursor reads project skills from **`.cursor/skills/`** only (not `.agents/skills/`).
+
+| Goal | Invoke |
+|------|--------|
+| Build a full surface (dashboard, landing, auth) | `@craft` or ask: "use craft skill to build a dashboard" |
+| Wireframe before code | `@shape` |
+| Polish / review / tokens / finalize | `@polish`, `@heuristic`, `@tokens`, `@finalize` |
+| Afenda-governed UI work | `@afenda-ui-craft` first, then `@craft` or `@ui-craft-dense-dashboard` |
+
+`/ui-craft:craft` slash commands are **Claude Code only**. In Cursor, use `@skill-name` from the skill picker.
 
 ## When to apply
 
@@ -23,7 +37,7 @@ Merged guidance from **ui-craft** (`.agents/skills/ui-craft/`), scoped to `afend
 1. **Afenda contracts** — `packages/design-system/src/contracts/afenda/` (`design-system.contract.ts`, `token-ui.contract.ts`, registries)
 2. **CSS + tokens** — `.cursor/skills/afenda-css-tailwind-stylelint/SKILL.md` and `packages/ui/src/styles/globals.css`
 3. **Layer rules** — `.cursor/rules/agent-discipline.mdc` (app → metadata-ui → workspace compose)
-4. **ui-craft** — `.agents/skills/ui-craft/SKILL.md` for composition, motion, polish, heuristics
+4. **ui-craft** — `.cursor/skills/ui-craft/SKILL.md` for composition, motion, polish, heuristics
 
 ui-craft **must not** override Afenda preset names, contract authority, or lane/status token semantics.
 
@@ -42,10 +56,10 @@ Fix visual issues at the **lowest allowed layer** before touching shared compose
 
 | Surface | Skill |
 |---------|-------|
-| Dashboard, workspace, ERP admin, analytics | `.agents/skills/ui-craft-dense-dashboard/SKILL.md` |
-| Marketing / editorial landing | `.agents/skills/ui-craft-editorial/SKILL.md` |
-| Minimal auth or settings | `.agents/skills/ui-craft-minimal/SKILL.md` |
-| General UI | `.agents/skills/ui-craft/SKILL.md` |
+| Dashboard, workspace, ERP admin, analytics | `.cursor/skills/ui-craft-dense-dashboard/SKILL.md` |
+| Marketing / editorial landing | `.cursor/skills/ui-craft-editorial/SKILL.md` |
+| Minimal auth or settings | `.cursor/skills/ui-craft-minimal/SKILL.md` |
+| General UI | `.cursor/skills/ui-craft/SKILL.md` |
 
 Default knobs for XForge internal tools: **CRAFT=7, MOTION=3–5, DENSITY=8–9** (dense-dashboard variant locks these).
 
@@ -61,12 +75,22 @@ Default knobs for XForge internal tools: **CRAFT=7, MOTION=3–5, DENSITY=8–9*
 
 | Intent | Command / skill |
 |--------|-----------------|
-| New dashboard / workspace screen | `/shape` then `/craft dashboard` + dense-dashboard variant |
+| New dashboard / workspace screen | `@shape` then `@craft dashboard` + `@ui-craft-dense-dashboard` |
 | Polish existing page | ui-craft polish pass + `afenda-css-tailwind-stylelint` gates |
 | Token audit (read-only) | `/tokens` — compare against Afenda catalog, no new presets |
-| Pre-merge UI gate | `/finalize` + `pnpm lint:stylelint` + `pnpm --filter app typecheck` |
-| Scored critique (no code) | `/heuristic` |
-| Accessibility | `/audit` + `.cursor/rules/web-interface-accessibility.mdc` |
+| Pre-merge UI gate | `@finalize` + `pnpm lint:stylelint` + `pnpm --filter app typecheck` |
+| Scored critique (no code) | `@heuristic` |
+| Accessibility | `@audit` + `.cursor/rules/web-interface-accessibility.mdc` |
+
+## Re-sync after `npx skills add`
+
+`npx skills add educlopez/ui-craft` installs to `.agents/skills/` only. Cursor needs `.cursor/skills/`:
+
+```powershell
+git clone --depth 1 https://github.com/educlopez/ui-craft.git $env:TEMP/ui-craft-sync
+robocopy "$env:TEMP/ui-craft-sync\.cursor\skills" ".cursor\skills" /E
+Remove-Item -Recurse -Force $env:TEMP/ui-craft-sync
+```
 
 ## Verification gates
 
@@ -88,7 +112,8 @@ npx ui-craft-detect apps/app/app --json
 
 | Skill | Path | Focus |
 |-------|------|-------|
-| ui-craft | `.agents/skills/ui-craft/` | Anti-slop, discovery, polish, recipes |
-| ui-craft-dense-dashboard | `.agents/skills/ui-craft-dense-dashboard/` | ERP / admin / data-dense defaults |
+| ui-craft | `.cursor/skills/ui-craft/` | Anti-slop, discovery, polish, recipes |
+| craft | `.cursor/skills/craft/` | One-shot dashboard / landing / auth builds |
+| ui-craft-dense-dashboard | `.cursor/skills/ui-craft-dense-dashboard/` | ERP / admin / data-dense defaults |
 | afenda-css-tailwind-stylelint | `.cursor/skills/afenda-css-tailwind-stylelint/` | OKLCH tokens, Tailwind v4, Stylelint |
 | xforge-nextjs-vercel | `.cursor/skills/xforge-nextjs-vercel/` | Next.js 16+ app patterns |

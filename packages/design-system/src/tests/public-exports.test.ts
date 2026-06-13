@@ -72,7 +72,10 @@ test("package exports resolve for root and documented subpaths", async () => {
   assert.equal(afenda.AFENDA_COLOR_HUE_SYSTEM.status.destructive, 27);
   assert.ok(afenda.afendaChartUsageContract);
   assert.equal(afenda.AFENDA_COLOR_USAGE_RATIO.neutral, 90);
-  assert.equal(afenda.afendaDesignSystemContract.defaults.themePreset, "vercel-geist");
+  assert.equal(
+    afenda.afendaDesignSystemContract.defaults.themePreset,
+    "vercel-geist"
+  );
   assert.ok(afenda.AFENDA_TOKENIZED_TOKEN_TYPES.includes("color"));
   assert.equal(afenda.AFENDA_TOKEN_UI_DISPLAY_COMPONENTS.color, "ColorToken");
   assert.ok(afenda.afendaRuntimeTokenResolutionContract);
@@ -80,24 +83,45 @@ test("package exports resolve for root and documented subpaths", async () => {
   assert.ok(afenda.AFENDA_TOKEN_UI_COMPONENT_NAV.length >= 10);
   assert.equal("AFENDA_ACCESSIBILITY_RULES" in afenda, false);
   assert.equal("AFENDA_VISUAL_DESIGN_RULES" in afenda, false);
+  assert.equal("afendaAdapterContract" in afenda, false);
+  assert.equal("afendaLegacyDeprecationManifest" in afenda, false);
 
-  const afendaAdapters = await import("@repo/design-system/contracts/afenda/adapters");
-  const afendaCatalogs = await import("@repo/design-system/contracts/afenda/catalogs");
+  const afendaCatalogs = await import(
+    "@repo/design-system/contracts/afenda/catalogs"
+  );
   const afendaCustomization = await import(
     "@repo/design-system/contracts/afenda/customization"
   );
-  const afendaForms = await import("@repo/design-system/contracts/afenda/forms");
-  const afendaGates = await import("@repo/design-system/contracts/afenda/gates");
-  const afendaLegacy = await import("@repo/design-system/contracts/afenda/legacy");
-  const afendaRegistries = await import("@repo/design-system/contracts/afenda/registries");
-  const afendaReferences = await import("@repo/design-system/contracts/afenda/references");
-  const afendaRules = await import("@repo/design-system/contracts/afenda/rules");
-  const afendaRuntime = await import("@repo/design-system/contracts/afenda/runtime");
+  const afendaForms = await import(
+    "@repo/design-system/contracts/afenda/forms"
+  );
+  const afendaGates = await import(
+    "@repo/design-system/contracts/afenda/gates"
+  );
+  const afendaRegistries = await import(
+    "@repo/design-system/contracts/afenda/registries"
+  );
+  const afendaReferences = await import(
+    "@repo/design-system/contracts/afenda/references"
+  );
+  const afendaRules = await import(
+    "@repo/design-system/contracts/afenda/rules"
+  );
+  const afendaRuntime = await import(
+    "@repo/design-system/contracts/afenda/runtime"
+  );
+  const blockedAdaptersSubpath: string =
+    "@repo/design-system/contracts/afenda/adapters";
+  const blockedLegacySubpath: string =
+    "@repo/design-system/contracts/afenda/legacy";
 
-  assert.ok(afendaAdapters.afendaAdapterContract);
-  assert.equal(
-    afendaAdapters.AFENDA_LEGACY_AFENDA_ADAPTER_ID,
-    "afenda.adapters.legacy-afenda"
+  await assert.rejects(
+    () => import(blockedAdaptersSubpath),
+    "legacy adapters must stay internal-only"
+  );
+  await assert.rejects(
+    () => import(blockedLegacySubpath),
+    "legacy deprecation manifest must stay internal-only"
   );
   assert.ok(afendaCatalogs.afendaModuleLaneCatalog);
   assert.equal(
@@ -112,11 +136,13 @@ test("package exports resolve for root and documented subpaths", async () => {
     "afenda"
   );
   assert.ok(afendaCustomization.afendaUserBrandingContract);
-  assert.deepEqual(afendaCustomization.afendaUserBrandingContract.emptyPreferences, {});
+  assert.deepEqual(
+    afendaCustomization.afendaUserBrandingContract.emptyPreferences,
+    {}
+  );
   assert.ok(afendaForms.afendaFormFrameworkContract);
   assert.ok(afendaForms.afendaFormFieldContract);
   assert.ok(afendaGates.afendaQualityGateContract);
-  assert.ok(afendaLegacy.afendaLegacyDeprecationManifest);
   assert.ok(afendaRegistries.afendaChartRegistry);
   assert.ok(afendaRegistries.AFENDA_CHART_COLOR_TOKENS.includes("chart-1"));
   assert.deepEqual(afendaRegistries.AFENDA_THEME_PRESET_NAMES, [
@@ -138,13 +164,17 @@ test("package exports resolve for root and documented subpaths", async () => {
   assert.ok(afendaRegistries.afendaFontRegistry);
   assert.ok(afendaRegistries.AFENDA_FONT_PRESET_NAMES.includes("geist"));
   assert.ok(afendaRegistries.afendaMotionRegistry);
-  assert.ok(afendaRegistries.AFENDA_MOTION_ANIMATION_TOKENS.includes("shimmer"));
+  assert.ok(
+    afendaRegistries.AFENDA_MOTION_ANIMATION_TOKENS.includes("shimmer")
+  );
   assert.ok(afendaRegistries.afendaOrderRegistry);
   assert.ok(afendaRegistries.AFENDA_ORDER_TOKENS.includes("overlay"));
   assert.ok(afendaRegistries.afendaRadiusRegistry);
   assert.ok(afendaRegistries.AFENDA_RADIUS_TOKENS.includes("control"));
   assert.ok(afendaRegistries.afendaShadowRegistry);
-  assert.ok(afendaRegistries.AFENDA_SHADOW_ALIAS_TOKENS.includes("lane-active-glow"));
+  assert.ok(
+    afendaRegistries.AFENDA_SHADOW_ALIAS_TOKENS.includes("lane-active-glow")
+  );
   assert.ok(afendaRegistries.afendaStatusToneRegistry);
   assert.ok(afendaRegistries.AFENDA_STATUS_TONES.includes("destructive"));
   assert.ok(afendaRegistries.afendaTypographyTokenRegistry);
@@ -152,10 +182,7 @@ test("package exports resolve for root and documented subpaths", async () => {
   assert.ok(afendaRegistries.AFENDA_TYPE_SCALE_ROLES.includes("read"));
   assert.ok(afendaRegistries.afendaVisualLaneRegistry);
   assert.ok(afendaRegistries.AFENDA_ERP_VISUAL_LANE_IDS.includes("governance"));
-  assert.equal(
-    afendaReferences.VERCEL_GEIST_THEME_PRESET_NAME,
-    "vercel-geist"
-  );
+  assert.equal(afendaReferences.VERCEL_GEIST_THEME_PRESET_NAME, "vercel-geist");
   assert.equal(afendaReferences.getVercelGeistColor("ink").hex, "#171717");
   assert.ok(afendaRules.AFENDA_RULE_REGISTRY.length > 0);
   assert.ok(afendaRules.AFENDA_ACCESSIBILITY_RULES.length > 0);

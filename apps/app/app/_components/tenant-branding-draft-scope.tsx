@@ -6,7 +6,7 @@ import {
   cssVarMapToInlineStyle,
   resolveTenantBrandCssVars,
   resolveTenantLaneOverrideCssVars,
-} from "@repo/design-system";
+} from "@repo/design-system/customise-branding/resolution";
 import type { CSSProperties, ReactElement, ReactNode } from "react";
 import { useSyncExternalStore } from "react";
 

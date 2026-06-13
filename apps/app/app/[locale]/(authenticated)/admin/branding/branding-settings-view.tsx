@@ -1,10 +1,8 @@
 "use client";
 
-import type {
-  AfendaTenantBrandingSettings as TenantBrandingSettings,
-} from "@repo/design-system/contracts/afenda/customization";
+import type { AfendaTenantBrandingSettings as TenantBrandingSettings } from "@repo/design-system/contracts/afenda/customization";
 import type { AfendaErpVisualLaneId as ErpVisualLaneId } from "@repo/design-system/contracts/afenda/registries";
-import { validateTenantBrandingColors } from "@repo/design-system";
+import { validateTenantBrandingColors } from "@repo/design-system/customise-branding/resolution";
 import type { TenantAdminSettingsSnapshot } from "@repo/features-system-admin-control-plane/contract";
 import { Badge } from "@repo/ui/components/badge";
 import { Button } from "@repo/ui/components/button";
@@ -19,21 +17,21 @@ import {
   TabsList,
   TabsTrigger,
 } from "@repo/ui/components/ui/tabs";
-import { useRouter } from "@/i18n/navigation";
 import type { ReactElement } from "react";
 import { useEffect, useState } from "react";
+import { useRouter } from "@/i18n/navigation";
 import { useTenantBranding } from "../../../../_components/tenant-branding-context.tsx";
 import {
   BrandingColorOverrides,
   countLaneColorOverrides,
 } from "./_components/branding-color-overrides.tsx";
+import { BrandingDensitySelector } from "./_components/branding-density-selector.tsx";
 import {
   BrandingFeatureColorOverrides,
   countFeatureColorOverrides,
 } from "./_components/branding-feature-color-overrides.tsx";
 import { BrandingLaneMatrix } from "./_components/branding-lane-matrix.tsx";
 import { BrandingPresetGallery } from "./_components/branding-preset-gallery.tsx";
-import { BrandingDensitySelector } from "./_components/branding-density-selector.tsx";
 import {
   countLaneOverrides,
   isBrandingDirty,

@@ -1,14 +1,12 @@
 "use client";
 
-import {
-  cssVarMapToInlineStyle,
-} from "@repo/design-system";
 import { AFENDA_DEFAULT_TENANT_BRANDING_SETTINGS as DEFAULT_TENANT_BRANDING_SETTINGS } from "@repo/design-system/contracts/afenda/customization";
-import type { AfendaColorTokenMode as ColorMode } from "@repo/design-system/contracts/afenda/registries";
 import {
-  VERCEL_GEIST_THEME_PRESET_NAME,
   resolveGeistSemanticCssVars,
+  VERCEL_GEIST_THEME_PRESET_NAME,
 } from "@repo/design-system/contracts/afenda/references";
+import type { AfendaColorTokenMode as ColorMode } from "@repo/design-system/contracts/afenda/registries";
+import { cssVarMapToInlineStyle } from "@repo/design-system/customise-branding/resolution";
 import type { CSSProperties, ReactElement, ReactNode } from "react";
 import { useSyncExternalStore } from "react";
 

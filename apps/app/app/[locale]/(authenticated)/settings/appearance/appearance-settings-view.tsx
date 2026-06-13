@@ -5,7 +5,7 @@ import type {
   AfendaUserBrandingPreferences as UserBrandingPreferences,
 } from "@repo/design-system/contracts/afenda/customization";
 import type { AfendaErpVisualLaneId as ErpVisualLaneId } from "@repo/design-system/contracts/afenda/registries";
-import { mergeEffectiveBranding } from "@repo/design-system";
+import { mergeEffectiveBranding } from "@repo/design-system/customise-branding/resolution";
 import { Badge } from "@repo/ui/components/badge";
 import { Button } from "@repo/ui/components/button";
 import {
@@ -19,9 +19,9 @@ import {
   TabsList,
   TabsTrigger,
 } from "@repo/ui/components/ui/tabs";
-import { useRouter } from "@/i18n/navigation";
 import type { ReactElement } from "react";
 import { useState } from "react";
+import { useRouter } from "@/i18n/navigation";
 import { useTenantBranding } from "../../../../_components/tenant-branding-context.tsx";
 import {
   BrandingColorOverrides,

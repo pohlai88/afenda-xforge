@@ -1,10 +1,10 @@
 "use client";
 
+import type { AfendaRuntimeTokenSnapshot } from "@repo/design-system/css/tokens";
 import {
   groupAfendaRuntimeTokensByDisplayComponent,
   resolveAfendaRuntimeTokenSnapshot,
-  type AfendaRuntimeTokenSnapshot,
-} from "@repo/design-system";
+} from "@repo/design-system/css/tokens";
 import { Badge } from "@repo/ui/components/badge";
 import {
   Card,
@@ -13,8 +13,8 @@ import {
   CardHeader,
   CardTitle,
 } from "@repo/ui/components/card";
-import { TooltipProvider } from "@repo/ui/components/ui/tooltip";
 import { AfendaTokenDisplay } from "@repo/ui/components/token-ui";
+import { TooltipProvider } from "@repo/ui/components/ui/tooltip";
 import { cn } from "@repo/ui/lib/utils";
 import type { ReactElement } from "react";
 import { useMemo } from "react";
@@ -82,7 +82,7 @@ export function TokenizePreviewPanel({
   const componentGroups = groupAfendaRuntimeTokensByDisplayComponent(snapshot);
   const outOfRangeTotal = componentGroups.reduce(
     (total, group) => total + group.outOfRangeCount,
-    0,
+    0
   );
 
   return (
@@ -106,19 +106,31 @@ export function TokenizePreviewPanel({
 
         <div className="grid gap-6">
           {componentGroups.map((group) => (
-            <Card className={PREVIEW_PANEL_CLASS} id={group.component} key={group.component}>
+            <Card
+              className={PREVIEW_PANEL_CLASS}
+              id={group.component}
+              key={group.component}
+            >
               <CardHeader>
                 <div className="flex flex-wrap items-center gap-2">
-                  <CardTitle className="font-mono text-base">{group.title}</CardTitle>
+                  <CardTitle className="font-mono text-base">
+                    {group.title}
+                  </CardTitle>
                   <Badge className="font-mono text-[10px]" variant="outline">
                     {group.dtcgType}
                   </Badge>
                   {group.outOfRangeCount > 0 ? (
-                    <Badge className="font-mono text-[10px]" variant="warning-light">
+                    <Badge
+                      className="font-mono text-[10px]"
+                      variant="warning-light"
+                    >
                       {group.outOfRangeCount} out of range
                     </Badge>
                   ) : (
-                    <Badge className="font-mono text-[10px]" variant="success-light">
+                    <Badge
+                      className="font-mono text-[10px]"
+                      variant="success-light"
+                    >
                       all in range
                     </Badge>
                   )}
@@ -131,7 +143,8 @@ export function TokenizePreviewPanel({
                     <div
                       className={cn(
                         "flex flex-col gap-1",
-                        !token.range.inRange && "rounded-md ring-1 ring-warning/40",
+                        !token.range.inRange &&
+                          "rounded-md ring-1 ring-warning/40"
                       )}
                       key={token.name}
                     >
@@ -150,7 +163,9 @@ export function TokenizePreviewPanel({
                   {group.tokens.map((token) => (
                     <li className="space-y-1" key={`${token.name}-meta`}>
                       <div className="flex flex-wrap items-center gap-2">
-                        <p className="font-mono text-foreground text-xs">{token.name}</p>
+                        <p className="font-mono text-foreground text-xs">
+                          {token.name}
+                        </p>
                         <span className="text-muted-foreground text-xs">
                           prefix {token.range.expectedPrefix}
                         </span>
@@ -162,7 +177,9 @@ export function TokenizePreviewPanel({
                           namingInRange={token.range.namingInRange}
                         />
                       </div>
-                      <p className="text-muted-foreground text-xs">{token.description}</p>
+                      <p className="text-muted-foreground text-xs">
+                        {token.description}
+                      </p>
                     </li>
                   ))}
                 </ul>
@@ -180,7 +197,7 @@ export function TokenizePreview(): ReactElement {
   const mode = useResolvedColorMode();
   const snapshot = useMemo(
     () => resolveAfendaRuntimeTokenSnapshot(effectiveBranding, mode),
-    [effectiveBranding, mode],
+    [effectiveBranding, mode]
   );
 
   return <TokenizePreviewPanel snapshot={snapshot} />;

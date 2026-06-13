@@ -3,7 +3,7 @@
 import type {
   AfendaRuntimeToken,
   AfendaTokenUiDisplayToken,
-} from "@repo/design-system";
+} from "@repo/design-system/css/tokens";
 import type { ReactElement } from "react";
 
 import { ColorToken } from "./color-token";

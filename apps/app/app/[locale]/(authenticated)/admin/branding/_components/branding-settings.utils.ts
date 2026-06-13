@@ -1,16 +1,14 @@
+import {
+  AFENDA_ERP_CATALOG_MODULE_ENTRIES as ERP_CATALOG_MODULE_ENTRIES,
+  getAfendaDefaultLaneForFeature as getDefaultLaneForFeature,
+} from "@repo/design-system/contracts/afenda/catalogs";
 import type {
   AfendaPartialLaneColorModeScale as PartialLaneColorModeScale,
   AfendaTenantBrandingSettings as TenantBrandingSettings,
   AfendaUserBrandingPreferences as UserBrandingPreferences,
 } from "@repo/design-system/contracts/afenda/customization";
 import type { AfendaErpVisualLaneId as ErpVisualLaneId } from "@repo/design-system/contracts/afenda/registries";
-import {
-  AFENDA_ERP_CATALOG_MODULE_ENTRIES as ERP_CATALOG_MODULE_ENTRIES,
-  getAfendaDefaultLaneForFeature as getDefaultLaneForFeature,
-} from "@repo/design-system/contracts/afenda/catalogs";
-import {
-  resolveLaneForFeature,
-} from "@repo/design-system";
+import { resolveLaneForFeature } from "@repo/design-system/customise-branding/resolution";
 
 export const SORTED_MODULE_ENTRIES = ERP_CATALOG_MODULE_ENTRIES.map(
   (entry) => [entry.featureId, entry.defaultLane] as const

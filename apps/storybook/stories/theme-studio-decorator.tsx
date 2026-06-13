@@ -1,4 +1,4 @@
-import { AFENDA_DEFAULT_TENANT_BRANDING_SETTINGS } from "@repo/design-system";
+import { AFENDA_DEFAULT_TENANT_BRANDING_SETTINGS } from "@repo/design-system/contracts/afenda/customization";
 import type { Decorator } from "@storybook/react";
 import { useEffect } from "react";
 import { ThemeStudioPreviewRoot } from "../../app/app/[locale]/theme-studio/_components/theme-studio-preview-root.tsx";

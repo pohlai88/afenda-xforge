@@ -4,18 +4,16 @@ import type { AfendaTenantBrandingSettings as TenantBrandingSettings } from "@re
 import type { AfendaColorTokenMode as ColorMode } from "@repo/design-system/contracts/afenda/registries";
 import {
   cssVarMapToInlineStyle,
-  getTenantBranding,
   resolveActiveLaneCssVars,
-} from "@repo/design-system";
+} from "@repo/design-system/customise-branding/resolution";
 import type { CSSProperties, ReactElement, ReactNode } from "react";
 import { useSyncExternalStore } from "react";
 
 type FeatureLaneScopeProps = {
-  branding?: TenantBrandingSettings;
+  branding: TenantBrandingSettings;
   children: ReactNode;
   className?: string;
   featureId: string;
-  tenantId: string;
 };
 
 function subscribeToColorMode(onStoreChange: () => void): () => void {
@@ -45,11 +43,9 @@ export function FeatureLaneScope({
   children,
   className,
   featureId,
-  tenantId,
 }: FeatureLaneScopeProps): ReactElement {
   const mode = useResolvedColorMode();
-  const resolvedBranding = branding ?? getTenantBranding(tenantId);
-  const laneVars = resolveActiveLaneCssVars(resolvedBranding, featureId, mode);
+  const laneVars = resolveActiveLaneCssVars(branding, featureId, mode);
   const style = cssVarMapToInlineStyle(laneVars) as CSSProperties;
 
   return (

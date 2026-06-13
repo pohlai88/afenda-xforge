@@ -5,16 +5,14 @@ import type {
   AfendaUserBrandingPreferences as UserBrandingPreferences,
 } from "@repo/design-system/contracts/afenda/customization";
 import {
-  mergeEffectiveBranding,
-} from "@repo/design-system";
-import {
   AFENDA_DEFAULT_TENANT_BRANDING_SETTINGS as DEFAULT_TENANT_BRANDING_SETTINGS,
   AFENDA_EMPTY_USER_BRANDING_PREFERENCES as EMPTY_USER_BRANDING_PREFERENCES,
 } from "@repo/design-system/contracts/afenda/customization";
+import { mergeEffectiveBranding } from "@repo/design-system/customise-branding/resolution";
 import type { ReactElement, ReactNode } from "react";
 import { createContext, useContext, useEffect, useMemo, useState } from "react";
-import { ThemePreferenceSync } from "./theme-preference-sync.tsx";
 import { TenantDensitySync } from "./tenant-density-sync.tsx";
+import { ThemePreferenceSync } from "./theme-preference-sync.tsx";
 
 type TenantBrandingContextValue = {
   effectiveBranding: TenantBrandingSettings;

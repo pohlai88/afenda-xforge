@@ -15,14 +15,13 @@ export function AuthenticatedFeatureScope({
   className,
   featureId,
 }: AuthenticatedFeatureScopeProps): ReactElement {
-  const { effectiveBranding, tenantId } = useTenantBranding();
+  const { effectiveBranding } = useTenantBranding();
 
   return (
     <FeatureLaneScope
       branding={effectiveBranding}
       className={className}
       featureId={featureId}
-      tenantId={tenantId}
     >
       {children}
     </FeatureLaneScope>

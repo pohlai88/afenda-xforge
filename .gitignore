@@ -22,7 +22,9 @@ docs/runtime/
 **/test-results/
 playwright-report/
 
-# Cursor local debug output (tracked config under .cursor/ stays committed)
-**/.cursor/debug-*.log
+# Local junctions from tools/sync-cursor-skills-workspace.ps1 (canonical skills at repo root)
+packages/design-system/.cursor/skills/
+packages/design-system/.agents/
+
 
 .vercel

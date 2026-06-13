@@ -1,5 +1,5 @@
 import type { AfendaTenantBrandingSettings as TenantBrandingSettings } from "@repo/design-system/contracts/afenda/customization";
-import { renderTenantBrandingStyleBlock } from "@repo/design-system";
+import { renderTenantBrandingStyleBlock } from "@repo/design-system/customise-branding/resolution";
 import type { ReactElement } from "react";
 
 type TenantBrandingStylesProps = {

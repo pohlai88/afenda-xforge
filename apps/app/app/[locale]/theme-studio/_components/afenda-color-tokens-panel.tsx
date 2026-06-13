@@ -1,13 +1,15 @@
 "use client";
 
+import type {
+  AfendaRuntimeToken,
+  AfendaRuntimeTokenSnapshot,
+} from "@repo/design-system/css/tokens";
 import {
   AFENDA_APCA_CONTRAST_TARGETS,
-  type AfendaRuntimeToken,
-  type AfendaRuntimeTokenSnapshot,
   assessApcaContrastLevel,
   calcApcaLc,
   formatApcaLc,
-} from "@repo/design-system";
+} from "@repo/design-system/css/tokens";
 import {
   Card,
   CardContent,
@@ -25,8 +27,8 @@ import {
   ColorSwatchPart,
   ColorToken,
 } from "@repo/ui/components/token-ui";
-import { useLayoutEffect, useRef, useState } from "react";
 import type { ReactElement } from "react";
+import { useLayoutEffect, useRef, useState } from "react";
 
 import { PREVIEW_PANEL_CLASS } from "./theme-studio-shared.tsx";
 
@@ -110,7 +112,7 @@ function ResolvedApcaSwatch({
     element.appendChild(probe);
     setAgainstColor(getComputedStyle(probe).color);
     probe.remove();
-  }, [againstToken, name]);
+  }, [againstToken]);
 
   const apcaLc =
     baseColor && againstColor ? calcApcaLc(againstColor, baseColor) : null;
@@ -121,14 +123,17 @@ function ResolvedApcaSwatch({
 
   return (
     <ColorSwatch
-      ref={ref}
       className="min-h-20 hover:flex-[1.08]"
       name={name}
+      ref={ref}
       value={toCssVar(name)}
     >
       <ColorSwatchLabel>{name}</ColorSwatchLabel>
-      {apcaLc !== null ? (
-        <ColorSwatchPart className="text-white drop-shadow-sm" position="bottom-left">
+      {apcaLc === null ? null : (
+        <ColorSwatchPart
+          className="text-white drop-shadow-sm"
+          position="bottom-left"
+        >
           <ColorContrast
             against={againstColor ?? ""}
             base={baseColor ?? ""}
@@ -140,7 +145,7 @@ function ResolvedApcaSwatch({
             <ColorContrastBadge variant="pill" />
           </ColorContrast>
         </ColorSwatchPart>
-      ) : null}
+      )}
     </ColorSwatch>
   );
 }
@@ -154,7 +159,7 @@ export function AfendaColorTokensPanel({
 }: AfendaColorTokensPanelProps): ReactElement {
   const tokenizedColors = snapshot.tokens.filter(
     (token): token is AfendaRuntimeToken =>
-      token.type === "color" && token.displayComponent === "ColorToken",
+      token.type === "color" && token.displayComponent === "ColorToken"
   );
 
   return (
@@ -166,8 +171,8 @@ export function AfendaColorTokensPanel({
           <code className="text-xs">ColorPalette</code> and{" "}
           <code className="text-xs">ColorContrast</code>. Contrast uses APCA Lc
           first ({AFENDA_APCA_CONTRAST_TARGETS.standardUiText}+ for UI text,{" "}
-          {AFENDA_APCA_CONTRAST_TARGETS.criticalText}+ for body copy), with
-          WCAG AA kept as a secondary gate.
+          {AFENDA_APCA_CONTRAST_TARGETS.criticalText}+ for body copy), with WCAG
+          AA kept as a secondary gate.
         </p>
       </div>
 
@@ -192,7 +197,7 @@ export function AfendaColorTokensPanel({
 
       {AFENDA_COLOR_GROUPS.map((group) => {
         const groupTokens = tokenizedColors.filter(
-          (token) => token.group === group.group,
+          (token) => token.group === group.group
         );
 
         return (
@@ -209,7 +214,9 @@ export function AfendaColorTokensPanel({
 
               {group.label === "Brand" ? (
                 <div className="space-y-2">
-                  <p className="font-medium text-sm">Brand contrast (APCA Lc)</p>
+                  <p className="font-medium text-sm">
+                    Brand contrast (APCA Lc)
+                  </p>
                   <div className="flex overflow-hidden rounded-md border">
                     {BRAND_APCA_PAIRS.map((pair) => (
                       <ResolvedApcaSwatch

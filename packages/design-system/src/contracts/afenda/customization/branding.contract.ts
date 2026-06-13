@@ -1,20 +1,21 @@
 import { z } from "zod";
-
+import type { AfendaAllowedCustomizationKey } from "../design-system.contract";
 import {
   AFENDA_ALLOWED_CUSTOMIZATION_KEYS,
   AFENDA_DESIGN_SYSTEM_ID,
   AFENDA_FORBIDDEN_CUSTOMIZATION_KEYS,
-  type AfendaAllowedCustomizationKey,
 } from "../design-system.contract";
+import type {
+  AfendaErpVisualLaneId,
+  AfendaLaneColorScale,
+  AfendaLaneColorScaleField,
+} from "../registries";
 import {
   AFENDA_ERP_VISUAL_LANE_IDS,
   afendaDensityRegistryModeSchema,
   afendaErpVisualLaneIdSchema,
   afendaLaneColorScaleSchema,
   afendaThemePresetRegistryNameSchema,
-  type AfendaErpVisualLaneId,
-  type AfendaLaneColorScale,
-  type AfendaLaneColorScaleField,
 } from "../registries";
 
 export const AFENDA_TENANT_BRANDING_CONTRACT_ID =
@@ -51,10 +52,16 @@ export const afendaTenantBrandingSettingsSchema = z
     laneColorOverrides: z
       .object({
         byLane: z
-          .record(afendaErpVisualLaneIdSchema, afendaPartialLaneColorModeScaleSchema)
+          .partialRecord(
+            afendaErpVisualLaneIdSchema,
+            afendaPartialLaneColorModeScaleSchema
+          )
           .optional(),
         byFeature: z
-          .record(z.string().trim().min(1), afendaPartialLaneColorModeScaleSchema)
+          .record(
+            z.string().trim().min(1),
+            afendaPartialLaneColorModeScaleSchema
+          )
           .optional(),
       })
       .strict()
@@ -268,10 +275,16 @@ export const afendaUserBrandingPreferencesSchema = z
     laneColorOverrides: z
       .object({
         byLane: z
-          .record(afendaErpVisualLaneIdSchema, afendaPartialLaneColorModeScaleSchema)
+          .partialRecord(
+            afendaErpVisualLaneIdSchema,
+            afendaPartialLaneColorModeScaleSchema
+          )
           .optional(),
         byFeature: z
-          .record(z.string().trim().min(1), afendaPartialLaneColorModeScaleSchema)
+          .record(
+            z.string().trim().min(1),
+            afendaPartialLaneColorModeScaleSchema
+          )
           .optional(),
       })
       .strict()
@@ -317,7 +330,9 @@ export const afendaUserBrandingContractSchema = z
   .strict()
   .refine(
     (contract) =>
-      contract.governanceReferences.includes("AFENDA:tenant-branding-contract") &&
+      contract.governanceReferences.includes(
+        "AFENDA:tenant-branding-contract"
+      ) &&
       contract.governanceReferences.includes("AFENDA:security-ui-contract"),
     "User branding must inherit tenant branding and security-ui governance"
   );

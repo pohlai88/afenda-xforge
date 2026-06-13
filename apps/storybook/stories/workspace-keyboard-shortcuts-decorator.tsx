@@ -1,4 +1,4 @@
-import { AFENDA_DEFAULT_TENANT_BRANDING_SETTINGS } from "@repo/design-system";
+import { AFENDA_DEFAULT_TENANT_BRANDING_SETTINGS } from "@repo/design-system/contracts/afenda/customization";
 import { TooltipProvider } from "@repo/ui";
 import type { Decorator } from "@storybook/react";
 import { NextIntlClientProvider } from "next-intl";
