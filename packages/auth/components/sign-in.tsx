@@ -20,6 +20,10 @@ type FieldProps = Omit<
 
 export type SignInProps = {
   readonly className?: string;
+  readonly developmentDefaults?: {
+    readonly email: string;
+    readonly password: string;
+  };
   readonly emailFieldProps?: FieldProps;
   readonly passwordFieldProps?: FieldProps;
   readonly redirectTo?: string;
@@ -51,6 +55,7 @@ const signIn = async (
 
 export const SignIn = ({
   className,
+  developmentDefaults,
   emailFieldProps,
   passwordFieldProps,
   redirectTo = "/",
@@ -60,8 +65,8 @@ export const SignIn = ({
 }: SignInProps): ReactElement => {
   const client = useAuthClient();
   const router = useRouter();
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
+  const [email, setEmail] = useState(developmentDefaults?.email ?? "");
+  const [password, setPassword] = useState(developmentDefaults?.password ?? "");
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
 

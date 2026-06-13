@@ -14,7 +14,7 @@ import {
   Trash2,
 } from "lucide-react";
 import { createElement } from "react";
-import { appNavTopbarIconClassName } from "./app-nav-topbar-chrome.ts";
+import { appNavTopbarIconClassName } from "./workspace-shell.classes.ts";
 import type { AppNavTopbarNavActionGroup } from "./app-nav-topbar-nav-actions.tsx";
 
 function icon(Icon: typeof Settings2) {

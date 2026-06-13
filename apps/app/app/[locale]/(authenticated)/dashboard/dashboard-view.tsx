@@ -224,7 +224,12 @@ export function DashboardView({
                         <div className="space-y-1">
                           <p className="font-medium text-sm">{event.summary}</p>
                           <p className="text-muted-foreground text-xs">
-                            {event.action} · {event.occurredAt.toLocaleString()}
+                            {event.action} ·{" "}
+                            {new Intl.DateTimeFormat(context.locale, {
+                              dateStyle: "medium",
+                              timeStyle: "short",
+                              timeZone: context.timezone,
+                            }).format(event.occurredAt)}
                           </p>
                         </div>
                         {renderMetadataTableCell(

@@ -86,7 +86,7 @@ function MetadataLivingCanvas() {
       <section className="relative flex min-h-screen flex-col overflow-x-clip">
         <IntroductionAtmosphere />
 
-        <header className="relative z-10 mx-auto flex w-full max-w-7xl items-center justify-between px-6 py-6">
+        <header className="relative z-layer-base mx-auto flex w-full max-w-7xl items-center justify-between px-6 py-6">
           <div className="flex items-center gap-3">
             <div className="size-2.5 rounded-full bg-primary shadow-[0_0_32px_var(--primary)] motion-safe:animate-pulse" />
             <span className="font-mono text-muted-foreground text-xs">
@@ -101,7 +101,7 @@ function MetadataLivingCanvas() {
           </div>
         </header>
 
-        <div className="relative z-10 mx-auto grid w-full max-w-7xl flex-1 grid-cols-1 items-start gap-10 px-6 pb-12 lg:grid-cols-[0.95fr_1.05fr] lg:items-center">
+        <div className="relative z-layer-base mx-auto grid w-full max-w-7xl flex-1 grid-cols-1 items-start gap-10 px-6 pb-12 lg:grid-cols-[0.95fr_1.05fr] lg:items-center">
           <div className="max-w-xl">
             <Badge className="mb-5" variant="secondary">
               One contract. Every surface.

@@ -7,17 +7,23 @@
   "exports": {
     ".": "./src/index.ts",
     "./contracts": "./src/contracts/index.ts",
-    "./contracts/*": "./src/contracts/*.ts",
-    "./tokens": "./src/tokens/index.ts",
-    "./tokens/*": "./src/tokens/*.ts",
-    "./variants": "./src/variants/index.ts",
-    "./variants/*": "./src/variants/*.ts",
-    "./resolution": "./src/resolution/index.ts",
-    "./tenant-branding": "./src/tenant-branding/in-memory-store.ts"
+    "./contracts/afenda": "./src/contracts/afenda/index.ts",
+    "./contracts/afenda/catalogs": "./src/contracts/afenda/catalogs/module-lane.catalog.ts",
+    "./contracts/afenda/customization": "./src/contracts/afenda/customization/index.ts",
+    "./contracts/afenda/forms": "./src/contracts/afenda/forms/index.ts",
+    "./contracts/afenda/gates": "./src/contracts/afenda/gates/quality-gate.contract.ts",
+    "./contracts/afenda/registries": "./src/contracts/afenda/registries/index.ts",
+    "./contracts/afenda/references": "./src/contracts/afenda/references/vercel-geist.contract.ts",
+    "./contracts/afenda/rules": "./src/contracts/afenda/rules/index.ts",
+    "./contracts/afenda/runtime": "./src/contracts/afenda/runtime/index.ts",
+    "./css": "./src/css/index.ts",
+    "./css/adapters": "./src/css/adapters/globals-css.adapter.ts",
+    "./css/tokens": "./src/css/tokens/index.ts",
+    "./customise-branding": "./src/customise-branding/index.ts",
+    "./customise-branding/resolution": "./src/customise-branding/resolution/index.ts"
   },
   "files": [
     "architecture-and-feature-requirement.md",
-    "README.md",
     "src",
     "package.json",
     "tsconfig.build.json"
@@ -31,15 +37,16 @@
     "globals:css:check": "tsx scripts/generate-globals-css.mts --check",
     "check:hue-reservation": "tsx scripts/check-hue-reservation.mts",
     "check:color-contrast": "tsx scripts/check-color-contrast.mts",
-    "test": "node --import tsx --test src/tests/design-system.test.ts src/tests/token-contract.test.ts src/tests/globals-css.test.ts src/tests/variant-contract.test.ts src/tests/public-exports.test.ts src/tests/resolve-tenant-branding.test.ts src/tests/merge-effective-branding.test.ts src/tests/hue-reservation.test.ts src/tests/validate-branding-colors.test.ts",
+    "test": "node --import tsx --test src/tests/design-system.test.ts src/tests/token-contract.test.ts src/tests/globals-css.test.ts src/tests/variant-contract.test.ts src/tests/public-exports.test.ts src/tests/resolve-tenant-branding.test.ts src/tests/resolve-tenant-density.test.ts src/tests/merge-effective-branding.test.ts src/tests/hue-reservation.test.ts src/tests/validate-branding-colors.test.ts src/tests/vercel-geist.test.ts src/tests/afenda-contract.test.ts src/tests/afenda-quality-gate-flow.test.ts",
     "typecheck": "tsc --noEmit --emitDeclarationOnly false"
   },
   "dependencies": {
+    "apca-w3": "0.1.9",
+    "culori": "^4.0.2",
     "zod": "catalog:"
   },
   "devDependencies": {
     "@types/node": "catalog:",
-    "culori": "^4.0.2",
     "tsx": "catalog:",
     "typescript": "catalog:"
   }

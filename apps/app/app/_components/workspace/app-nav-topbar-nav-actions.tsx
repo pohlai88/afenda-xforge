@@ -18,12 +18,14 @@ import { cn } from "@repo/ui/lib/utils";
 import { MoreHorizontal } from "lucide-react";
 import type { ReactElement, ReactNode } from "react";
 import { useState } from "react";
+import type { AppNavTopbarTooltipCopy } from "./app-nav-topbar-tooltip.tsx";
+import { AppNavTopbarIconTooltip } from "./app-nav-topbar-tooltip.tsx";
 import {
   appNavTopbarGhostIconButtonClassName,
   appNavTopbarIconClassName,
-} from "./app-nav-topbar-chrome.ts";
-import { AppNavTopbarIconTooltip } from "./app-nav-topbar-tooltip.tsx";
-import type { AppNavTopbarTooltipCopy } from "./app-nav-topbar-tooltip.tsx";
+  WORKSPACE_SHELL_INTERACTIVE_CLASS,
+  WORKSPACE_SHELL_OPEN_CLASS,
+} from "./workspace-shell.classes.ts";
 
 export type AppNavTopbarNavActionItem = {
   destructive?: boolean;
@@ -61,7 +63,8 @@ function AppNavTopbarNavActionRow({
     <SidebarMenuItem>
       <SidebarMenuButton
         className={cn(
-          item.destructive && "text-destructive hover:text-destructive"
+          WORKSPACE_SHELL_INTERACTIVE_CLASS,
+          item.destructive && "text-destructive"
         )}
         disabled={item.disabled}
         onClick={() => {
@@ -98,7 +101,7 @@ export function AppNavTopbarNavActions({
             aria-haspopup="dialog"
             className={cn(
               appNavTopbarGhostIconButtonClassName,
-              "data-[state=open]:bg-accent"
+              WORKSPACE_SHELL_OPEN_CLASS
             )}
             size="icon"
             type="button"

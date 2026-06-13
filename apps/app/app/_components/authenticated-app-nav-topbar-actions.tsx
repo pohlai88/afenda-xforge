@@ -3,15 +3,15 @@
 import { useAuthClient } from "@repo/auth/provider";
 import type { MetadataActionContract } from "@repo/metadata-ui/contracts";
 import { Bell, CircleUser, CreditCard } from "lucide-react";
-import { useRouter } from "@/i18n/navigation";
 import type { ReactElement, ReactNode } from "react";
 import { useEffect, useState } from "react";
+import { useRouter } from "@/i18n/navigation";
 import { createAppMetadataContext } from "../_lib/metadata-context.ts";
 import { useTenantBranding } from "./tenant-branding-context.tsx";
 import { AppNavTopbarActions } from "./workspace/app-nav-topbar-actions.tsx";
-import { appNavTopbarIconClassName } from "./workspace/app-nav-topbar-chrome.ts";
 import { AppNavTopbarNotifications } from "./workspace/app-nav-topbar-notifications.tsx";
 import { useWorkspaceShortcuts } from "./workspace/keyboard-shortcuts/use-keyboard-shortcuts.tsx";
+import { appNavTopbarIconClassName } from "./workspace/workspace-shell.classes.ts";
 
 const USER_MENU_ICONS: Record<string, ReactNode> = {
   account: <CircleUser className={appNavTopbarIconClassName} />,

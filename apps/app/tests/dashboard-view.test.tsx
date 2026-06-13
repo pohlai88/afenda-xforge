@@ -1,12 +1,14 @@
 import { companyMetadata } from "@repo/features-master-data-companies/metadata";
 import { customerMetadata } from "@repo/features-master-data-customers/metadata";
 import { render, screen } from "@testing-library/react";
+import { NextIntlClientProvider } from "next-intl";
 import type { ComponentProps } from "react";
 import { describe, expect, it, vi } from "vitest";
 import { WorkspaceShortcutsProvider } from "../app/_components/workspace/keyboard-shortcuts/use-keyboard-shortcuts.tsx";
 import { createAppMetadataContext } from "../app/_lib/metadata-context.ts";
 import type { DashboardSectionState } from "../app/[locale]/(authenticated)/dashboard/dashboard-view.tsx";
 import { DashboardView } from "../app/[locale]/(authenticated)/dashboard/dashboard-view.tsx";
+import messages from "../messages/en.json";
 
 const createDashboardContext = () =>
   createAppMetadataContext({
@@ -51,9 +53,11 @@ vi.mock("@/i18n/navigation", () => ({
 
 const renderDashboard = (props: ComponentProps<typeof DashboardView>) =>
   render(
-    <WorkspaceShortcutsProvider>
-      <DashboardView {...props} />
-    </WorkspaceShortcutsProvider>
+    <NextIntlClientProvider locale="en" messages={messages}>
+      <WorkspaceShortcutsProvider>
+        <DashboardView {...props} />
+      </WorkspaceShortcutsProvider>
+    </NextIntlClientProvider>
   );
 
 describe("DashboardView", () => {

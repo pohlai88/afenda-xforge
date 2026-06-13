@@ -1,13 +1,13 @@
 import { getActiveTenantMembership } from "@repo/auth/server";
-import type { TenantBrandingSettings } from "@repo/design-system";
-import { DEFAULT_TENANT_BRANDING_SETTINGS } from "@repo/design-system";
+import type { AfendaTenantBrandingSettings as TenantBrandingSettings } from "@repo/design-system/contracts/afenda/customization";
+import { AFENDA_DEFAULT_TENANT_BRANDING_SETTINGS as DEFAULT_TENANT_BRANDING_SETTINGS } from "@repo/design-system/contracts/afenda/customization";
 import { readTenantBrandingForTenant } from "@repo/features-system-admin-control-plane/server";
 import type { ReactElement, ReactNode } from "react";
 import { redirect } from "@/i18n/navigation";
 import { readUserAppearancePreferences } from "../../../lib/user-appearance/repository.server";
 import { queryWorkspaceShortcuts } from "../../../lib/workspace-shortcuts/queries.server.ts";
 import { resolveProductDefaults } from "../../../lib/workspace-shortcuts/resolve-shortcuts.ts";
-import { AuthenticatedShell } from "../../_components/authenticated-shell.tsx";
+import { AuthenticatedWorkspace } from "../../_components/authenticated-workspace.tsx";
 import { TenantBrandingProvider } from "../../_components/tenant-branding-context.tsx";
 import { WorkspaceShortcutsRoot } from "../../_components/workspace-shortcuts-root.tsx";
 
@@ -61,7 +61,7 @@ export default async function AuthenticatedLayout({
     >
       <WorkspaceShortcutsRoot payload={workspaceShortcuts}>
         <main className="min-h-screen bg-background">
-          <AuthenticatedShell>{children}</AuthenticatedShell>
+          <AuthenticatedWorkspace>{children}</AuthenticatedWorkspace>
         </main>
       </WorkspaceShortcutsRoot>
     </TenantBrandingProvider>

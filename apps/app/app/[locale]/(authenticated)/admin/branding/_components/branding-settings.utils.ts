@@ -1,12 +1,14 @@
 import type {
-  ErpVisualLaneId,
-  PartialLaneColorModeScale,
-  TenantBrandingSettings,
-  UserBrandingPreferences,
-} from "@repo/design-system";
+  AfendaPartialLaneColorModeScale as PartialLaneColorModeScale,
+  AfendaTenantBrandingSettings as TenantBrandingSettings,
+  AfendaUserBrandingPreferences as UserBrandingPreferences,
+} from "@repo/design-system/contracts/afenda/customization";
+import type { AfendaErpVisualLaneId as ErpVisualLaneId } from "@repo/design-system/contracts/afenda/registries";
 import {
-  ERP_CATALOG_MODULE_ENTRIES,
-  getDefaultLaneForFeature,
+  AFENDA_ERP_CATALOG_MODULE_ENTRIES as ERP_CATALOG_MODULE_ENTRIES,
+  getAfendaDefaultLaneForFeature as getDefaultLaneForFeature,
+} from "@repo/design-system/contracts/afenda/catalogs";
+import {
   resolveLaneForFeature,
 } from "@repo/design-system";
 

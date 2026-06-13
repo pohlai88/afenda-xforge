@@ -105,7 +105,7 @@ export function TreeWithCustomIndentPlusMinus() {
         {tree.getItems().map((item) => {
           return (
             <TreeItem key={item.getId()} item={item}>
-              <TreeItemLabel className="before:bg-background relative before:absolute before:inset-x-0 before:-inset-y-0.5 before:-z-10">
+              <TreeItemLabel className="before:bg-background relative before:absolute before:inset-x-0 before:-inset-y-0.5 before:z-layer-background">
                 <span className="ms-1 flex items-center gap-2">
                   {item.isFolder() ? (
                     item.isExpanded() ? (

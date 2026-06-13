@@ -1,5 +1,4 @@
 import { z } from "zod";
-import type { SHORTCUT_ACTION_IDS } from "./contract.ts";
 import { isShortcutActionId } from "./contract.ts";
 import { shortcutOverridesSchema } from "./override-schema.ts";
 
@@ -19,8 +18,3 @@ export const tenantKeyboardShortcutPolicyPostSchema = z
 export type TenantKeyboardShortcutPolicyPost = z.infer<
   typeof tenantKeyboardShortcutPolicyPostSchema
 >;
-
-export const isKnownShortcutActionId = (
-  actionId: string
-): actionId is (typeof SHORTCUT_ACTION_IDS)[number] =>
-  isShortcutActionId(actionId);

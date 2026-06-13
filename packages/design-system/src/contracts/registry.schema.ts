@@ -1,13 +1,23 @@
 import { z } from "zod";
 
-const registryEntrySchema = z
+export const DESIGN_SYSTEM_REGISTRY_ENTRY_PATTERN =
+  /^[a-z0-9]+(?:-[a-z0-9]+)*$/;
+
+export const designSystemRegistryEntrySchema = z
   .string()
   .trim()
   .min(1)
-  .regex(/^[a-z0-9]+(?:-[a-z0-9]+)*$/);
+  .regex(
+    DESIGN_SYSTEM_REGISTRY_ENTRY_PATTERN,
+    "Registry entries must use lowercase kebab-case"
+  );
 
-const registryTupleSchema = z
-  .array(registryEntrySchema)
+export type DesignSystemRegistryEntry = z.infer<
+  typeof designSystemRegistryEntrySchema
+>;
+
+export const designSystemRegistrySchema = z
+  .array(designSystemRegistryEntrySchema)
   .min(1)
   .readonly()
   .superRefine((entries: readonly string[], ctx: z.RefinementCtx) => {
@@ -27,12 +37,15 @@ const registryTupleSchema = z
     }
   });
 
-export const designSystemRegistryEntrySchema: typeof registryEntrySchema =
-  registryEntrySchema;
-
 export function defineRegistry<const T extends readonly [string, ...string[]]>(
   entries: T
 ): T {
-  registryTupleSchema.parse(entries);
+  designSystemRegistrySchema.parse(entries);
   return entries;
+}
+
+export function validateDesignSystemRegistry(
+  entries: readonly string[]
+): readonly DesignSystemRegistryEntry[] {
+  return designSystemRegistrySchema.parse(entries);
 }

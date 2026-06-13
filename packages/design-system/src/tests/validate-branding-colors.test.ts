@@ -1,12 +1,12 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 
-import { DEFAULT_TENANT_BRANDING_SETTINGS } from "../contracts/tenant-branding.contract";
+import { AFENDA_DEFAULT_TENANT_BRANDING_SETTINGS as DEFAULT_TENANT_BRANDING_SETTINGS } from "../contracts/afenda/customization/branding.contract";
 import {
   assertValidTenantBrandingColors,
   BrandingColorValidationFailure,
   validateTenantBrandingColors,
-} from "../resolution/validate-branding-colors";
+} from "../customise-branding/resolution/validate-branding-colors";
 
 test("default tenant branding passes color validation", () => {
   const result = validateTenantBrandingColors(DEFAULT_TENANT_BRANDING_SETTINGS);

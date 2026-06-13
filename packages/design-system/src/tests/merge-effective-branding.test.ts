@@ -1,21 +1,21 @@
 import assert from "node:assert/strict";
 import { describe, it } from "node:test";
 
-import { getDefaultLaneForFeature } from "../contracts/module-lane.catalog";
-import { DEFAULT_TENANT_BRANDING_SETTINGS } from "../contracts/tenant-branding.contract";
-import { mergeEffectiveBranding } from "../resolution/merge-effective-branding";
-import { resolveLaneForFeature } from "../resolution/resolve-tenant-branding";
+import { getAfendaDefaultLaneForFeature as getDefaultLaneForFeature } from "../contracts/afenda/catalogs/module-lane.catalog";
+import { AFENDA_DEFAULT_TENANT_BRANDING_SETTINGS as DEFAULT_TENANT_BRANDING_SETTINGS } from "../contracts/afenda/customization/branding.contract";
+import { mergeEffectiveBranding } from "../customise-branding/resolution/merge-effective-branding";
+import { resolveLaneForFeature } from "../customise-branding/resolution/resolve-tenant-branding";
 
 describe("mergeEffectiveBranding", () => {
   it("layers user theme preset and module overrides on tenant defaults", () => {
     const merged = mergeEffectiveBranding(DEFAULT_TENANT_BRANDING_SETTINGS, {
-      themePreset: "teal",
+      themePreset: "vercel-geist",
       moduleLaneOverrides: {
         "master-data.customers": "money",
       },
     });
 
-    assert.equal(merged.themePreset, "teal");
+    assert.equal(merged.themePreset, "vercel-geist");
     assert.equal(
       resolveLaneForFeature(merged, "master-data.customers"),
       "money"
@@ -29,7 +29,7 @@ describe("mergeEffectiveBranding", () => {
   it("merges lane color overrides with user taking precedence", () => {
     const merged = mergeEffectiveBranding(
       {
-        themePreset: "xforge",
+        themePreset: "afenda",
         laneColorOverrides: {
           byLane: {
             money: {
@@ -74,7 +74,7 @@ describe("resolveLaneForFeature prefix overrides", () => {
   it("honors moduleLaneOverrides keys ending with *", () => {
     const lane = resolveLaneForFeature(
       {
-        themePreset: "xforge",
+        themePreset: "afenda",
         moduleLaneOverrides: {
           "hr-suite.*": "operations",
         },
@@ -83,5 +83,20 @@ describe("resolveLaneForFeature prefix overrides", () => {
     );
 
     assert.equal(lane, "operations");
+  });
+
+  it("passes tenant density through without user overlay changes", () => {
+    const merged = mergeEffectiveBranding(
+      {
+        themePreset: "afenda",
+        density: "compact",
+      },
+      {
+        themePreset: "vercel-geist",
+      }
+    );
+
+    assert.equal(merged.themePreset, "vercel-geist");
+    assert.equal(merged.density, "compact");
   });
 });

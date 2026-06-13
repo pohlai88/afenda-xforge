@@ -1,13 +1,14 @@
-import type { ReactNode } from "react";
+import { createElement, type ComponentPropsWithoutRef, type ReactNode } from "react";
 
 export function Link({
   children,
   href,
+  ...props
 }: {
   children: ReactNode;
   href: string;
-}): ReactNode {
-  return <a href={href}>{children}</a>;
+} & Omit<ComponentPropsWithoutRef<"a">, "children" | "href">): ReactNode {
+  return createElement("a", { href, ...props }, children);
 }
 
 export function redirect(_href: string): never {

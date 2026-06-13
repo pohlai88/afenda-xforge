@@ -388,12 +388,12 @@ test("EntityMetadataPanel accepts layered customization input", () => {
 test("renderMetadataTableResult passes selectedRowId to ActivityTable", () => {
   const result = renderMetadataTableResult({
     context: {
+      actorId: "user-001",
       featureId: "customer.records",
       locale: "en",
-      permissions: [],
+      permissions: {},
       tenantId: "tenant-acme",
       timezone: "UTC",
-      userId: "user-001",
     },
     metadata,
     rows: [...rows, { ...rows[0], id: "row-2", name: "Beta" }],

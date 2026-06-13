@@ -1,7 +1,10 @@
 "use client";
 
-import type { ThemePreset, ThemePresetName } from "@repo/design-system";
-import { THEME_PRESETS } from "@repo/design-system";
+import type {
+  AfendaThemePresetDefinition as ThemePreset,
+  AfendaThemePresetName as ThemePresetName,
+} from "@repo/design-system/contracts/afenda/registries";
+import { AFENDA_THEME_PRESET_REGISTRY as THEME_PRESETS } from "@repo/design-system/contracts/afenda/registries";
 import { Badge } from "@repo/ui/components/badge";
 import {
   Card,

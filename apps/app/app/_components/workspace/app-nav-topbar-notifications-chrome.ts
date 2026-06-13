@@ -1,4 +1,8 @@
 import { cn } from "@repo/ui/lib/utils";
+import {
+  WORKSPACE_SHELL_INTERACTIVE_CLASS,
+  WORKSPACE_SHELL_OPEN_CLASS,
+} from "./workspace-shell.classes.ts";
 
 /** Popover / sheet shell — semantic tokens only (Tailwind v4 / @theme). */
 export const notificationsPanelShellClassName =
@@ -14,7 +18,7 @@ export const notificationsPanelDescriptionClassName =
   "text-muted-foreground text-xs";
 
 export const notificationsPopoverContentClassName = cn(
-  "z-50 w-[min(24rem,calc(100vw-2rem))] overflow-hidden rounded-lg border-border p-0"
+  "z-layer-popover w-[min(24rem,calc(100vw-2rem))] overflow-hidden rounded-lg border-border p-0"
 );
 
 export const notificationsSheetContentClassName =
@@ -37,8 +41,8 @@ export const notificationsAlertClassName = "my-3 w-full min-w-0";
 
 export const notificationsListItemClassName = cn(
   "h-auto w-full justify-start gap-3 rounded-md px-3 py-2.5 font-normal",
-  "text-left transition-colors hover:bg-accent hover:text-accent-foreground",
-  "focus-visible:bg-accent focus-visible:text-accent-foreground"
+  "text-left transition-colors",
+  WORKSPACE_SHELL_INTERACTIVE_CLASS
 );
 
 export const notificationsListItemUnreadClassName = "bg-accent/35";
@@ -60,8 +64,10 @@ export const notificationsUnreadDotClassName =
 export const notificationsFooterClassName =
   "flex items-center justify-between gap-2 border-t border-border px-3 py-2";
 
-export const notificationsFooterActionClassName =
-  "h-8 px-2 text-muted-foreground text-xs hover:text-foreground";
+export const notificationsFooterActionClassName = cn(
+  "h-8 px-2 text-muted-foreground text-xs",
+  WORKSPACE_SHELL_INTERACTIVE_CLASS
+);
 
 export const notificationsFooterPrimaryActionClassName =
   "h-8 px-2 text-foreground text-xs";
@@ -85,5 +91,4 @@ export const notificationsEmptyStateShellClassName = cn(
 export const notificationsListEnterClassName =
   "motion-safe:animate-notification-enter";
 
-export const notificationsTriggerOpenClassName =
-  "data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-foreground";
+export const notificationsTriggerOpenClassName = WORKSPACE_SHELL_OPEN_CLASS;

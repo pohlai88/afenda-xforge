@@ -1,0 +1,74 @@
+---
+description: XForge app UI — Next.js RSC, apps/app layers, MCP verification
+globs: apps/app/**/*.tsx
+alwaysApply: false
+---
+
+# Frontend App (`apps/app`)
+
+TypeScript only. Layers: `agent-discipline.mdc`. Storybook: `frontend-storybook.mdc`. Entity surfaces: `frontend-metadata-ui.mdc`. Client perf: `react-performance.mdc`. Backend: `backend-execution.mdc`.
+
+## Next.js — MCP, not memory
+
+1. `nextjs-docs://llms-index` → `nextjs_docs` (`/docs/app/guides/ai-agents`)
+2. MCP `init` with `project_path: apps/app`
+3. Dev server up → `nextjs_index` → `nextjs_call` `get_errors` before claiming UI work is done
+
+## Where app UI lives
+
+| Path | Use for |
+|------|---------|
+| `apps/app/app/` | Pages, layouts, route segments |
+| `apps/app/app/_components/workspace/` | Shell wiring — not `packages/ui/.../compose/workspace/` |
+| `apps/app/app/theme-studio/` | Branding / theme previews |
+
+Visual/polish → app wiring or Storybook first. Workspace compose requires human approval.
+
+## Server vs Client Components
+
+Default **Server Components**. `'use client'` only for state, events, hooks, or browser APIs.
+
+- Push client boundary to the **smallest** interactive leaf
+- Server `children` into Client wrappers; thin Client providers in layout
+- **`params` and `searchParams` are `Promise`** — `await` in Server Components (Next.js 16)
+
+```tsx
+export default async function Page(props: PageProps<'/items/[id]'>) {
+  const { id } = await props.params
+  const item = await getItem(id)
+  return <ItemActions item={item} />
+}
+```
+
+Runtime/uncached data → `<Suspense>`. Cache: MCP `/docs/app/getting-started/caching`.
+
+## Styling & imports
+
+- Tailwind + `cn()` from `@repo/ui/lib/utils`
+- Primitives: `@repo/ui/components/*`
+- Governed entity UI: `@repo/metadata-ui` — see `frontend-metadata-ui.mdc`
+- Web UI MUST rules: `web-interface-interactions.mdc`, `web-interface-accessibility.mdc`
+- Client code: feature `/contract`, `/metadata` — never `/server`
+- `next/link`, `next/image` with explicit sizes
+
+## Anti-patterns
+
+```tsx
+// ❌ Whole layout client for one button
+'use client'
+export default function DashboardLayout({ children }) { /* ... */ }
+
+// ❌ Sync params
+const { id } = params
+
+// ✅ Await params; minimal client boundary
+const { id } = await props.params
+```
+
+## Verification
+
+```bash
+pnpm --filter app typecheck
+pnpm --filter app check:stability
+pnpm lint:biome
+```

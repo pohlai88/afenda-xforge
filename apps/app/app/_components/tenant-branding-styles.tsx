@@ -1,4 +1,4 @@
-import type { TenantBrandingSettings } from "@repo/design-system";
+import type { AfendaTenantBrandingSettings as TenantBrandingSettings } from "@repo/design-system/contracts/afenda/customization";
 import { renderTenantBrandingStyleBlock } from "@repo/design-system";
 import type { ReactElement } from "react";
 

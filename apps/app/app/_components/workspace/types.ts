@@ -2,6 +2,8 @@ import type { LucideIcon } from "lucide-react";
 import type { ReactNode } from "react";
 
 export type WorkspaceNavItem = {
+  availability?: "live" | "scaffold";
+  children?: readonly WorkspaceNavItem[];
   description?: string;
   featureId?: string;
   href: string;

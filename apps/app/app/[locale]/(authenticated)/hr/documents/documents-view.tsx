@@ -134,7 +134,7 @@ export function DocumentsView({
 
             <div className="flex flex-wrap items-center gap-3">
               <Button asChild variant="outline">
-                <Link href="/hr">Back to HR hub</Link>
+                <Link href="/hr">Back to Documents Management</Link>
               </Button>
               <Button asChild variant="outline">
                 <Link href="/dashboard">Back to dashboard</Link>
@@ -203,10 +203,10 @@ export function DocumentsView({
           emptyTitle="No documents"
           loadedDocumentCount={data.loadedDocumentCount}
           metadata={metadata}
-          tenantId={data.tenantId}
           rows={toDocumentTableRows(data.documents)}
           searchPlaceholder="Search documents..."
           storageProvider={storageProvider}
+          tenantId={data.tenantId}
         />
       </section>
     </AuthenticatedFeatureScope>

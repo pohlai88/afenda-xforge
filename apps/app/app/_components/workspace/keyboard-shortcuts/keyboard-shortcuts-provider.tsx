@@ -3,27 +3,20 @@
 import { useSidebar } from "@repo/ui/components/ui/sidebar";
 import type { ReactElement } from "react";
 import { useCallback, useEffect } from "react";
-import { useRouter } from "@/i18n/navigation";
-import { AUTHENTICATED_INFRASTRUCTURE_LINKS } from "../../authenticated-workspace-nav.ts";
 import type { ShortcutActionId } from "../../../../lib/workspace-shortcuts/contract.ts";
 import { GLOBAL_ALLOWED_IN_TEXT_ENTRY } from "../../../../lib/workspace-shortcuts/contract.ts";
-import { ORBIT_TRAIL_FOCUS_EVENT } from "../orbit-trail.ts";
 import {
   isEditableTarget,
   normalizeKeyboardEvent,
   resolveActionForNormalizedKey,
   resolveActiveShortcutScopes,
 } from "../../../../lib/workspace-shortcuts/normalize-shortcut.ts";
+import { ORBIT_TRAIL_FOCUS_EVENT } from "../orbit-trail.ts";
 import { KeyboardShortcutsDialog } from "./keyboard-shortcuts-dialog.tsx";
 import { ShortcutDeleteConfirmDialog } from "./shortcut-delete-confirm-dialog.tsx";
 import { useWorkspaceShortcuts } from "./use-keyboard-shortcuts.tsx";
 import { useShortcutCrudDispatch } from "./use-shortcut-crud-dispatch.ts";
 import { WorkspaceCommandPalette } from "./workspace-command-palette.tsx";
-
-const LYNX_WORKSPACE_HREF =
-  AUTHENTICATED_INFRASTRUCTURE_LINKS.items.find(
-    (item) => item.featureId === "workspace.infrastructure.lynx"
-  )?.href ?? "/infrastructure/lynx";
 
 const CRUD_ACTION_IDS = new Set<ShortcutActionId>([
   "crud.create",
@@ -85,10 +78,9 @@ export function WorkspaceShortcutsHost(): ReactElement {
     openHelp,
     getFocusedTarget,
   } = useWorkspaceShortcuts();
-  const router = useRouter();
   const openLynx = useCallback(() => {
-    router.push(LYNX_WORKSPACE_HREF);
-  }, [router]);
+    setCommandOpen(true);
+  }, [setCommandOpen]);
   const { toggleSidebar } = useSidebar();
   const {
     confirmPendingDelete,

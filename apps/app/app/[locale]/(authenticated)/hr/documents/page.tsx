@@ -15,7 +15,7 @@ const HR_DOCUMENTS_FEATURE_ID =
 const renderNavigationActions = (): ReactElement => (
   <div className="flex flex-wrap items-center gap-3">
     <Button asChild variant="outline">
-      <Link href="/hr">Back to HR hub</Link>
+      <Link href="/hr">Back to Documents Management</Link>
     </Button>
     <Button asChild variant="outline">
       <Link href="/dashboard">Back to dashboard</Link>

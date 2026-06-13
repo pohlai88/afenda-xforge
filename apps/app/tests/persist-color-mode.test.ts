@@ -9,7 +9,7 @@ describe("persistColorModePreferences", () => {
       json: async () => ({
         preferences: {
           colorMode: "dark",
-          themePreset: "teal",
+          themePreset: "afenda",
         },
       }),
     });
@@ -17,7 +17,7 @@ describe("persistColorModePreferences", () => {
     vi.stubGlobal("fetch", fetchMock);
 
     const result = await persistColorModePreferences(
-      { themePreset: "teal" },
+      { themePreset: "afenda" },
       "dark"
     );
 
@@ -25,13 +25,13 @@ describe("persistColorModePreferences", () => {
       ok: true,
       preferences: {
         colorMode: "dark",
-        themePreset: "teal",
+        themePreset: "afenda",
       },
     });
     expect(fetchMock).toHaveBeenCalledWith("/api/me/appearance", {
       body: JSON.stringify({
         preferences: {
-          themePreset: "teal",
+          themePreset: "afenda",
           colorMode: "dark",
         },
       }),

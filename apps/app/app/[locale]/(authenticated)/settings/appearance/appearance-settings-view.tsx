@@ -1,10 +1,10 @@
 "use client";
 
 import type {
-  ErpVisualLaneId,
-  TenantBrandingSettings,
-  UserBrandingPreferences,
-} from "@repo/design-system";
+  AfendaTenantBrandingSettings as TenantBrandingSettings,
+  AfendaUserBrandingPreferences as UserBrandingPreferences,
+} from "@repo/design-system/contracts/afenda/customization";
+import type { AfendaErpVisualLaneId as ErpVisualLaneId } from "@repo/design-system/contracts/afenda/registries";
 import { mergeEffectiveBranding } from "@repo/design-system";
 import { Badge } from "@repo/ui/components/badge";
 import { Button } from "@repo/ui/components/button";
@@ -249,7 +249,7 @@ export function AppearanceSettingsView({
         </TabsContent>
       </Tabs>
 
-      <div className="sticky bottom-4 z-10 flex flex-col gap-3 rounded-xl border border-border bg-background/95 p-4 shadow-lg backdrop-blur-sm sm:flex-row sm:items-center sm:justify-between">
+      <div className="sticky bottom-4 z-layer-sticky flex flex-col gap-3 rounded-xl border border-border bg-background/95 p-4 shadow-lg backdrop-blur-sm sm:flex-row sm:items-center sm:justify-between">
         <div className="space-y-1">
           <p className="font-medium text-sm">
             {dirty

@@ -7,6 +7,16 @@ import {
   AppNavTopbarNotificationsTrigger,
   formatUnreadCountLabel,
 } from "../app/_components/workspace/app-nav-topbar-notifications-trigger.tsx";
+import {
+  WORKSPACE_SHELL_INTERACTIVE_CLASS,
+  WORKSPACE_SHELL_OPEN_CLASS,
+} from "../app/_components/workspace/workspace-shell.classes.ts";
+
+function expectClassTokens(element: HTMLElement, className: string): void {
+  for (const token of className.split(" ")) {
+    expect(element).toHaveClass(token);
+  }
+}
 
 describe("formatUnreadCountLabel", () => {
   it("caps unread counts at 99+", () => {
@@ -36,6 +46,14 @@ describe("AppNavTopbarNotificationsTrigger", () => {
 
     expect(triggerRef.current).toBeInstanceOf(HTMLButtonElement);
     expect(triggerRef.current?.getAttribute("aria-haspopup")).toBe("dialog");
+    expectClassTokens(
+      triggerRef.current as HTMLButtonElement,
+      WORKSPACE_SHELL_INTERACTIVE_CLASS
+    );
+    expectClassTokens(
+      triggerRef.current as HTMLButtonElement,
+      WORKSPACE_SHELL_OPEN_CLASS
+    );
   });
 
   it("renders unread badge labels up to 99+", () => {

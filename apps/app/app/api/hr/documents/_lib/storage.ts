@@ -99,9 +99,7 @@ type DocumentsManagementStorageClient = {
   ): Promise<DocumentsManagementStorageUploadTokenResult | null>;
 };
 
-let storageProviderOverride: StorageProviderKind | null = null;
-
-const defaultDocumentsManagementBlobClient: DocumentsManagementStorageClient = {
+const documentsManagementBlobClient: DocumentsManagementStorageClient = {
   download({ key }) {
     return get(key, {
       access: "private",
@@ -133,11 +131,9 @@ const defaultDocumentsManagementBlobClient: DocumentsManagementStorageClient = {
   },
 };
 
-let documentsManagementBlobClient = defaultDocumentsManagementBlobClient;
-
 const resolveDocumentsManagementStorageProvider =
   (): StorageProviderKind | null =>
-    storageProviderOverride ?? resolveObjectStorageProviderKind();
+    resolveObjectStorageProviderKind();
 
 const ensureBlobProvider = (): boolean =>
   resolveDocumentsManagementStorageProvider() === "blob";
@@ -273,24 +269,4 @@ export const downloadDocumentsManagementBlob = async (
   } catch (error) {
     throw new DocumentsManagementBlobStorageError("download", error);
   }
-};
-
-export const setDocumentsManagementStorageProviderForTesting = (
-  provider: StorageProviderKind | null
-): void => {
-  storageProviderOverride = provider;
-};
-
-export const resetDocumentsManagementStorageProviderForTesting = (): void => {
-  storageProviderOverride = null;
-};
-
-export const setDocumentsManagementBlobClientForTesting = (
-  client: DocumentsManagementStorageClient
-): void => {
-  documentsManagementBlobClient = client;
-};
-
-export const resetDocumentsManagementBlobClientForTesting = (): void => {
-  documentsManagementBlobClient = defaultDocumentsManagementBlobClient;
 };

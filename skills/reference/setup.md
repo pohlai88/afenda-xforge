@@ -114,13 +114,29 @@ If the workspace uses Supabase heavily, keep a project-level `.mcp.json` pointin
   "mcpServers": {
     "supabase": {
       "type": "http",
-      "url": "https://mcp.supabase.com/mcp"
+      "url": "https://mcp.supabase.com/mcp?project_ref=<your-project-ref>&features=docs,account,database,debugging,development,functions,branching,storage"
     }
   }
 }
 ```
 
-Configuration alone is not enough. The MCP client still needs an interactive authentication flow against Supabase before project tools become callable.
+Mirror the same entry in `.cursor/mcp.json` so Cursor agents can call Supabase tools.
+
+Configuration alone is not enough. The MCP client still needs an interactive authentication flow against Supabase before project tools become callable. In Cursor, restart after editing MCP config and complete the browser OAuth prompt once.
+
+Use Supabase MCP for development diagnostics (auth logs, SQL inspection, project URL). Do not connect it to production data.
+
+### Local developer login
+
+For local sign-in and admin smoke tests, provision a seeded owner account:
+
+```bash
+pnpm --filter app dev:login
+```
+
+This creates or resets `developer@xforge.local` in Supabase Auth and grants owner access on the `xforge` tenant through `packages/database/scripts/grant-smoke-user.mts`.
+
+The credentials are documented on the development sign-in page (`/sign-in`) and defined in `apps/app/lib/developer-login.constants.ts`. Re-run `dev:login` whenever auth drifts or passwords need resetting.
 
 ### Next.js MCP (apps/app)
 

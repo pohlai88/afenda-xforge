@@ -24,7 +24,7 @@ export function SpinnerOverlayOnCard() {
         </div>
       </CardContent>
 
-      <Card className="bg-background/80 absolute inset-0 z-10 flex items-center justify-center backdrop-blur-xs">
+      <Card className="bg-background/80 absolute inset-0 z-layer-popover flex items-center justify-center backdrop-blur-xs">
         <CardContent className="flex grow flex-col items-center justify-center gap-2">
           <Spinner className="size-4 opacity-60" />
         </CardContent>

@@ -65,7 +65,7 @@ export function MetadataOrbitStage({
       >
         <svg
           aria-hidden
-          className="pointer-events-none absolute inset-0 z-0"
+          className="pointer-events-none z-layer-base absolute inset-0"
           height={metrics.svgSize}
           viewBox={`0 0 ${metrics.svgSize} ${metrics.svgSize}`}
           width={metrics.svgSize}
@@ -96,7 +96,7 @@ export function MetadataOrbitStage({
 
         <div
           aria-hidden
-          className="pointer-events-none absolute top-1/2 left-1/2 z-[1] -translate-x-1/2 -translate-y-1/2 rounded-full border border-border/40"
+          className="pointer-events-none z-layer-ornament absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 rounded-full border border-border/40"
           style={{
             height: metrics.outerRingSize,
             width: metrics.outerRingSize,
@@ -104,7 +104,7 @@ export function MetadataOrbitStage({
         />
         <div
           aria-hidden
-          className="pointer-events-none absolute top-1/2 left-1/2 z-[1] -translate-x-1/2 -translate-y-1/2 rounded-full border border-primary/20 motion-safe:animate-pulse"
+          className="pointer-events-none z-layer-ornament absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 rounded-full border border-primary/20 motion-safe:animate-pulse"
           style={{
             height: metrics.innerRingSize,
             width: metrics.innerRingSize,
@@ -113,7 +113,7 @@ export function MetadataOrbitStage({
 
         <div
           className={cn(
-            "absolute top-1/2 left-1/2 z-20 -translate-x-1/2 -translate-y-1/2",
+            "z-layer-sticky absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2",
             hubClassName
           )}
         >
@@ -127,7 +127,7 @@ export function MetadataOrbitStage({
 
           return (
             <div
-              className="absolute z-10 motion-safe:transition-all motion-safe:duration-500"
+              className="z-layer-raised absolute motion-safe:transition-all motion-safe:duration-500"
               key={`${node.id}-${wave}`}
               style={{
                 ...pinStyle,

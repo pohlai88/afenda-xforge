@@ -1,0 +1,60 @@
+---
+description: Backend security — validation, authz, server-only boundaries when executing mutations
+globs: apps/app/**/{route,actions}.ts,apps/api/**/*.ts,packages/{execution,audit,auth,database,permissions}/**/*.ts,packages/features/**/src/{server,actions,queries,repository,execution}.ts
+alwaysApply: false
+---
+
+# Backend Security (XForge)
+
+MCP: `/docs/app/guides/data-security`. Pipeline rules: `backend-execution.mdc`.
+
+## Who enforces what
+
+| Check | Enforced in |
+|-------|-------------|
+| Auth, tenant, company, Zod, permission | `createExecutionPipeline` hooks in feature `actions.ts` |
+| Runtime tenant/company context | App `_execution.ts` via `@repo/auth/server` |
+| IDOR / row ownership | `executeDomainOperation` or repository (server-only) |
+| Client input trust | Never — validate at pipeline `validateInput` |
+
+When calling feature `/server`, **do not bypass the pipeline** to "skip" checks. Re-implementing auth only in the page or layout does not protect Server Actions (direct POST).
+
+## Entry-point rules
+
+- Zod schemas in feature `contract.ts`; parse in `validateInput`
+- Scope every query/mutation to tenant (+ company when applicable)
+- Authorize the **specific resource**, not just session presence
+- Return minimal DTOs from `/server` — never raw rows, secrets, or internal tokens
+
+## Server-only boundaries
+
+```typescript
+import 'server-only' // DAL, repository, server.ts, actions.ts
+```
+
+DB clients and env secrets stay in server-only modules. Client components import feature `/contract` and `/metadata` only.
+
+## Route Handlers and webhooks
+
+Handlers outside the pipeline must replicate the same gates manually: verify signature or token, validate body (Zod), resolve tenant scope, enforce permission, then delegate to feature `/server`.
+
+## Anti-patterns
+
+```typescript
+// ❌ Client-controlled privilege
+if (formData.get('isAdmin') === 'true') { /* ... */ }
+
+// ❌ Auth in page only; action calls DB directly
+export async function deletePostAction(id: string) {
+  await db.post.delete({ where: { id } })
+}
+
+// ✅ Feature server → pipeline (auth + permission + audit inside)
+export async function deletePostAction(id: string) {
+  await archiveCustomer({ customerId: id })
+}
+```
+
+## Auditing
+
+Audit writes happen inside the pipeline after `executeDomainOperation` — not in app actions, not before domain success. Do not treat logger output as audit.

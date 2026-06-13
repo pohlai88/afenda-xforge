@@ -8,7 +8,7 @@ import { forwardRef, useEffect, useRef, useState } from "react";
 import {
   appNavTopbarGhostIconButtonClassName,
   appNavTopbarIconClassName,
-} from "./app-nav-topbar-chrome.ts";
+} from "./workspace-shell.classes.ts";
 import { notificationsTriggerOpenClassName } from "./app-nav-topbar-notifications-chrome.ts";
 
 const MAX_UNREAD_DISPLAY = 99;

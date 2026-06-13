@@ -91,8 +91,9 @@ describe("WorkspaceShortcutsHost", () => {
     expect(mockOpenHelp).toHaveBeenCalledTimes(1);
   });
 
-  it("navigates to Lynx when the open Lynx binding is pressed", () => {
+  it("opens command search instead of navigating when the Lynx scaffold binding is pressed", () => {
     mockRouterPush.mockClear();
+    mockSetCommandOpen.mockClear();
 
     render(<WorkspaceShortcutsHost />);
 
@@ -106,7 +107,8 @@ describe("WorkspaceShortcutsHost", () => {
       })
     );
 
-    expect(mockRouterPush).toHaveBeenCalledWith("/infrastructure/lynx");
+    expect(mockRouterPush).not.toHaveBeenCalled();
+    expect(mockSetCommandOpen).toHaveBeenCalledWith(true);
   });
 
   it("opens the command palette when the search binding is pressed", () => {

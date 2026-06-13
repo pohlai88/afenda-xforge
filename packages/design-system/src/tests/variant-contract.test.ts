@@ -1,32 +1,38 @@
 import assert from "node:assert/strict";
 import test from "node:test";
-import {
-  BADGE_VARIANTS,
-  BUTTON_VARIANTS,
-  CARD_PADDING,
-  CARD_VARIANTS,
-  CONTROL_SIZES,
-  DENSITY_MODES,
-  FIELD_VARIANTS,
-  FORM_STATES,
-  TABLE_STATES,
-  TABLE_VARIANTS,
-} from "../contracts";
-import { designSystemVariantGroups } from "../variants";
 
-test("variant registries stay aligned with the contract source of truth", () => {
-  assert.deepEqual(designSystemVariantGroups.badge.variants, BADGE_VARIANTS);
-  assert.deepEqual(designSystemVariantGroups.button.sizes, CONTROL_SIZES);
-  assert.deepEqual(designSystemVariantGroups.button.variants, BUTTON_VARIANTS);
-  assert.deepEqual(designSystemVariantGroups.card.padding, CARD_PADDING);
-  assert.deepEqual(designSystemVariantGroups.card.variants, CARD_VARIANTS);
-  assert.deepEqual(designSystemVariantGroups.form.densities, DENSITY_MODES);
+import {
+  AFENDA_BADGE_VARIANTS,
+  AFENDA_BUTTON_VARIANTS,
+  AFENDA_CARD_PADDING,
+  AFENDA_CARD_VARIANTS,
+  AFENDA_CONTROL_SIZES,
+  AFENDA_DENSITY_MODES,
+  AFENDA_FIELD_VARIANTS,
+  AFENDA_FORM_VARIANT_STATES,
+  AFENDA_TABLE_STATES,
+  AFENDA_TABLE_VARIANTS,
+  afendaComponentSizeRegistry,
+  afendaComponentVariantRegistry,
+  validateAfendaComponentSizeRegistry,
+  validateAfendaComponentVariantRegistry,
+} from "../contracts/afenda";
+
+test("component variant registry validates and exposes governed vocabulary", () => {
+  validateAfendaComponentVariantRegistry();
+  validateAfendaComponentSizeRegistry();
+
+  assert.deepEqual(afendaComponentVariantRegistry.badgeVariants, AFENDA_BADGE_VARIANTS);
+  assert.deepEqual(afendaComponentVariantRegistry.buttonVariants, AFENDA_BUTTON_VARIANTS);
+  assert.deepEqual(afendaComponentVariantRegistry.cardVariants, AFENDA_CARD_VARIANTS);
+  assert.deepEqual(afendaComponentVariantRegistry.cardPadding, AFENDA_CARD_PADDING);
+  assert.deepEqual(afendaComponentVariantRegistry.fieldVariants, AFENDA_FIELD_VARIANTS);
   assert.deepEqual(
-    designSystemVariantGroups.form.fieldVariants,
-    FIELD_VARIANTS
+    afendaComponentVariantRegistry.formStates,
+    AFENDA_FORM_VARIANT_STATES
   );
-  assert.deepEqual(designSystemVariantGroups.form.states, FORM_STATES);
-  assert.deepEqual(designSystemVariantGroups.table.densities, DENSITY_MODES);
-  assert.deepEqual(designSystemVariantGroups.table.states, TABLE_STATES);
-  assert.deepEqual(designSystemVariantGroups.table.variants, TABLE_VARIANTS);
+  assert.deepEqual(afendaComponentVariantRegistry.tableVariants, AFENDA_TABLE_VARIANTS);
+  assert.deepEqual(afendaComponentVariantRegistry.tableStates, AFENDA_TABLE_STATES);
+  assert.deepEqual(afendaComponentSizeRegistry.controlSizes, AFENDA_CONTROL_SIZES);
+  assert.deepEqual(AFENDA_DENSITY_MODES, ["compact", "default", "comfortable"]);
 });

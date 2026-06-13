@@ -1,6 +1,6 @@
 "use client";
 
-import type { ColorModePreference } from "@repo/design-system";
+import type { AfendaColorModePreference as ColorModePreference } from "@repo/design-system/contracts/afenda/customization";
 import {
   Button,
   DropdownMenu,

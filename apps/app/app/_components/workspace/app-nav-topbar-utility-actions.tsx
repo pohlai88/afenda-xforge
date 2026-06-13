@@ -24,7 +24,6 @@ import {
   Send,
   Zap,
 } from "lucide-react";
-import { useRouter } from "@/i18n/navigation";
 import type { ReactElement, ReactNode } from "react";
 import {
   createContext,
@@ -35,28 +34,22 @@ import {
   useState,
   useSyncExternalStore,
 } from "react";
+import { useRouter } from "@/i18n/navigation";
 import { AppNavTopbarNotifications } from "./app-nav-topbar-notifications.tsx";
-import {
-  AppNavTopbarHorizontalUtilitySortable,
-  AppNavTopbarSortableHorizontalItem,
-  AppNavTopbarSortableVerticalItem,
-  AppNavTopbarVerticalUtilitySortable,
-} from "./app-nav-topbar-utility-sortable.tsx";
-import {
-  appNavTopbarGhostIconButtonClassName,
-  appNavTopbarIconClassName,
-} from "./app-nav-topbar-chrome.ts";
 import { AppNavTopbarIconTooltip } from "./app-nav-topbar-tooltip.tsx";
 import { APP_NAV_TOPBAR_UTILITIES_WIDGET_TOOLTIP } from "./app-nav-topbar-tooltips.ts";
+import type { AppNavTopbarUtilityId } from "./app-nav-topbar-utility-actions.catalog.ts";
 import {
   APP_NAV_TOPBAR_UTILITY_CATALOG,
   APP_NAV_TOPBAR_UTILITY_DEFAULT_PINNED,
   APP_NAV_TOPBAR_UTILITY_MAX_PINNED,
   getAppNavTopbarUtilityDefinition,
-  isAppNavTopbarUtilityId,
   renderAppNavTopbarUtilityIcon,
-  type AppNavTopbarUtilityId,
 } from "./app-nav-topbar-utility-actions.catalog.ts";
+import type {
+  AppNavTopbarUtilitiesState,
+  TopbarUtilitiesScope,
+} from "./app-nav-topbar-utility-actions.storage.ts";
 import {
   DEFAULT_TOPBAR_UTILITIES_SCOPE,
   getTopbarUtilitiesServerSnapshot,
@@ -65,24 +58,34 @@ import {
   readTopbarUtilitiesState,
   subscribeTopbarUtilities,
   writeTopbarUtilitiesState,
-  type AppNavTopbarUtilitiesState,
-  type TopbarUtilitiesScope,
 } from "./app-nav-topbar-utility-actions.storage.ts";
+import {
+  AppNavTopbarHorizontalUtilitySortable,
+  AppNavTopbarSortableHorizontalItem,
+  AppNavTopbarSortableVerticalItem,
+  AppNavTopbarVerticalUtilitySortable,
+} from "./app-nav-topbar-utility-sortable.tsx";
 import { useWorkspaceShortcuts } from "./keyboard-shortcuts/use-keyboard-shortcuts.tsx";
+import {
+  appNavTopbarGhostIconButtonClassName,
+  appNavTopbarIconClassName,
+  WORKSPACE_SHELL_INTERACTIVE_CLASS,
+  WORKSPACE_SHELL_OPEN_CLASS,
+} from "./workspace-shell.classes.ts";
 
-const utilitiesWidgetPopoverClassName =
-  "w-72 overflow-hidden rounded-lg p-0";
+const utilitiesWidgetPopoverClassName = "w-72 overflow-hidden rounded-lg p-0";
 
-const utilitiesWidgetListScrollClassName =
-  "h-[min(12rem,calc(70vh-16rem))]";
+const utilitiesWidgetListScrollClassName = "h-[min(12rem,calc(70vh-16rem))]";
 
 const utilitiesWidgetListRegionClassName = "px-2 pb-2 pr-3";
 
 const utilitiesWidgetFooterClassName =
   "border-t border-border bg-muted/20 px-4 py-3";
 
-const utilitiesWidgetRowActionClassName =
-  "h-auto min-w-0 flex-1 justify-start gap-3 px-2 py-1 font-normal";
+const utilitiesWidgetRowActionClassName = cn(
+  "h-auto min-w-0 flex-1 justify-start gap-3 px-2 py-1 font-normal",
+  WORKSPACE_SHELL_INTERACTIVE_CLASS
+);
 
 export type AppNavTopbarUtilityActionsProps = {
   onHelpClick?: () => void;
@@ -216,6 +219,13 @@ function useAppNavTopbarUtilitiesControllerValue({
           return;
         case "stub":
           toast.message(`${definition.label} is not wired yet.`);
+          return;
+        default: {
+          const exhaustiveAction: never = definition.action;
+          throw new Error(
+            `Unhandled topbar utility action: ${exhaustiveAction}`
+          );
+        }
       }
     },
     [handleHelpClick, openCommand, openHelp, router]
@@ -354,11 +364,8 @@ function AppNavTopbarPinnedUtilitiesBar({
       ids={visibleIds}
       onReorder={handleReorder}
     >
-      <div
-        aria-label="Pinned utilities"
-        className="flex items-center gap-0.5"
-        role="group"
-      >
+      <fieldset className="m-0 flex min-w-0 items-center gap-0.5 border-0 p-0">
+        <legend className="sr-only">Pinned utilities</legend>
         {visibleIds.map((utilityId) => {
           const definition = getAppNavTopbarUtilityDefinition(utilityId);
 
@@ -404,7 +411,7 @@ function AppNavTopbarPinnedUtilitiesBar({
             </AppNavTopbarSortableHorizontalItem>
           );
         })}
-      </div>
+      </fieldset>
     </AppNavTopbarHorizontalUtilitySortable>
   );
 }
@@ -419,8 +426,8 @@ export function AppNavTopbarUtilitiesWidgetMenu(): ReactElement {
 
   return (
     <AppNavTopbarUtilitiesWidget
-      onUtilityAction={handleUtilityAction}
       onUtilitiesStateChange={persistUtilitiesState}
+      onUtilityAction={handleUtilityAction}
       utilitiesState={utilitiesState}
       visibleIds={visibleIds}
     />
@@ -454,7 +461,9 @@ function AppNavTopbarUtilitiesWidget({
       return;
     }
 
-    toast.message("Utility request received. Product will review your suggestion.");
+    toast.message(
+      "Utility request received. Product will review your suggestion."
+    );
     setUtilityRequest("");
   };
 
@@ -512,7 +521,7 @@ function AppNavTopbarUtilitiesWidget({
             aria-haspopup="dialog"
             className={cn(
               appNavTopbarGhostIconButtonClassName,
-              "data-[state=open]:bg-accent"
+              WORKSPACE_SHELL_OPEN_CLASS
             )}
             size="icon"
             type="button"
@@ -530,7 +539,7 @@ function AppNavTopbarUtilitiesWidget({
         className={utilitiesWidgetPopoverClassName}
         sideOffset={4}
       >
-        <PopoverHeader className="border-b border-border px-4 py-3">
+        <PopoverHeader className="border-border border-b px-4 py-3">
           <PopoverTitle className="text-sm">Utilities widget</PopoverTitle>
           <PopoverDescription className="text-xs">
             Choose which icons appear on the topbar. Drag here or on the topbar
@@ -679,9 +688,7 @@ function AppNavTopbarFeedbackMenu({
     <Popover onOpenChange={resolvedOnOpenChange} open={resolvedOpen}>
       {showTrigger ? (
         <AppNavTopbarIconTooltip
-          description={
-            getAppNavTopbarUtilityDefinition("feedback").description
-          }
+          description={getAppNavTopbarUtilityDefinition("feedback").description}
           title={getAppNavTopbarUtilityDefinition("feedback").label}
         >
           <PopoverTrigger asChild>
@@ -689,7 +696,7 @@ function AppNavTopbarFeedbackMenu({
               aria-haspopup="dialog"
               className={cn(
                 appNavTopbarGhostIconButtonClassName,
-                "data-[state=open]:bg-accent"
+                WORKSPACE_SHELL_OPEN_CLASS
               )}
               size="icon"
               type="button"
@@ -706,7 +713,7 @@ function AppNavTopbarFeedbackMenu({
         <PopoverTrigger asChild>
           <button
             aria-hidden
-            className="pointer-events-none fixed bottom-0 right-0 size-0 opacity-0"
+            className="pointer-events-none fixed right-0 bottom-0 size-0 opacity-0"
             tabIndex={-1}
             type="button"
           />

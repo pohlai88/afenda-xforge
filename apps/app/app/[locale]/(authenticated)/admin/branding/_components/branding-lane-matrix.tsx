@@ -1,10 +1,13 @@
 "use client";
 
 import type {
-  ErpVisualLaneId,
-  TenantBrandingSettings,
-} from "@repo/design-system";
-import { ERP_VISUAL_LANE_IDS, ERP_VISUAL_LANES } from "@repo/design-system";
+  AfendaTenantBrandingSettings as TenantBrandingSettings,
+} from "@repo/design-system/contracts/afenda/customization";
+import type { AfendaErpVisualLaneId as ErpVisualLaneId } from "@repo/design-system/contracts/afenda/registries";
+import {
+  AFENDA_ERP_VISUAL_LANE_IDS as ERP_VISUAL_LANE_IDS,
+  AFENDA_ERP_VISUAL_LANES as ERP_VISUAL_LANES,
+} from "@repo/design-system/contracts/afenda/registries";
 import { Badge } from "@repo/ui/components/badge";
 import {
   Card,

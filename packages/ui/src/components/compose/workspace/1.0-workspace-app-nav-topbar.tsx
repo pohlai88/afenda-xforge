@@ -140,7 +140,7 @@ export function WorkspaceAppNavTopbar({
     <TooltipProvider delayDuration={0}>
       <div
         className={cn(
-          "sticky top-0 z-50 flex shrink-0 items-center gap-1 antialiased",
+          "sticky top-0 z-layer-sticky flex shrink-0 items-center gap-1 antialiased",
           WORKSPACE_SHELL_SPACE.appTopbarSurface,
           WORKSPACE_SHELL_SPACE.shellInsetX,
           className,

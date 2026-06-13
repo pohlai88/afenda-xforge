@@ -242,7 +242,7 @@ export const tenantSettings = xforge.table("tenant_settings", {
     .notNull()
     .default("UTC"),
   customizationMode: varchar("customization_mode", { length: 32 }),
-  themePreset: varchar("theme_preset", { length: 32 }).notNull().default("xforge"),
+  themePreset: varchar("theme_preset", { length: 32 }).notNull().default("afenda"),
   branding: jsonb("branding")
     .$type<Record<string, unknown>>()
     .notNull()

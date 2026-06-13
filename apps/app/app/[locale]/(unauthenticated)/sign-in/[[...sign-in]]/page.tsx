@@ -8,6 +8,8 @@ import { createMetadata } from "@repo/seo/metadata";
 import { createAppSitePreset } from "@repo/seo/presets";
 import type { Metadata } from "next";
 import type { ReactElement } from "react";
+import { LOCAL_DEVELOPER_LOGIN } from "../../../../../lib/developer-login.constants.ts";
+import { DeveloperLoginHint } from "../_components/developer-login-hint.tsx";
 
 const appSitePreset = createAppSitePreset(
   process.env.NEXT_PUBLIC_APP_URL ?? "http://localhost:3000"
@@ -25,6 +27,8 @@ type SignInPageProps = {
   }>;
 };
 
+const isDevelopment = process.env.NODE_ENV === "development";
+
 export default async function SignInPage({
   searchParams,
 }: SignInPageProps): Promise<ReactElement> {
@@ -35,10 +39,16 @@ export default async function SignInPage({
   );
 
   return (
-    <SignIn
-      className="space-y-6 rounded-xl border border-border bg-card/95 p-6 shadow-sm"
-      redirectTo={redirectTo}
-      signUpHref={buildSignUpPath(redirectTo)}
-    />
+    <div className="space-y-6">
+      <SignIn
+        className="space-y-6 rounded-xl border border-border bg-card/95 p-6 shadow-sm"
+        developmentDefaults={
+          isDevelopment ? LOCAL_DEVELOPER_LOGIN : undefined
+        }
+        redirectTo={redirectTo}
+        signUpHref={buildSignUpPath(redirectTo)}
+      />
+      {isDevelopment ? <DeveloperLoginHint /> : null}
+    </div>
   );
 }

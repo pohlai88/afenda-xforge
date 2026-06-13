@@ -10,7 +10,7 @@ import type {
 import { LogOut } from "lucide-react";
 import type { ReactElement, ReactNode } from "react";
 import { useMemo } from "react";
-import { appNavTopbarIconClassName } from "./app-nav-topbar-chrome.ts";
+import { appNavTopbarIconClassName } from "./workspace-shell.classes.ts";
 import type {
   AppNavTopbarNavActionGroup,
   AppNavTopbarNavActionItem,

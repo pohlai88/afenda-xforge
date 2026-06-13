@@ -1,19 +1,26 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 
-import { getDefaultLaneForFeature } from "../contracts/module-lane.catalog";
-import type { TenantBrandingSettings } from "../contracts/tenant-branding.contract";
+import { getAfendaDefaultLaneForFeature as getDefaultLaneForFeature } from "../contracts/afenda/catalogs/module-lane.catalog";
+import type { AfendaTenantBrandingSettings as TenantBrandingSettings } from "../contracts/afenda/customization/branding.contract";
 import {
-  DEFAULT_TENANT_BRANDING_SETTINGS,
-  tenantBrandingSettingsSchema,
-} from "../contracts/tenant-branding.contract";
+  AFENDA_DEFAULT_TENANT_BRANDING_SETTINGS as DEFAULT_TENANT_BRANDING_SETTINGS,
+  afendaTenantBrandingSettingsSchema as tenantBrandingSettingsSchema,
+} from "../contracts/afenda/customization/branding.contract";
 import {
   renderTenantBrandingStyleBlock,
   resolveActiveLaneCssVars,
   resolveLaneForFeature,
   resolveLaneScale,
   resolveTenantBrandCssVars,
-} from "../resolution/resolve-tenant-branding";
+} from "../customise-branding/resolution/resolve-tenant-branding";
+import {
+  applyTenantBrandingPatch,
+  resolveTenantBrandingFeatureSnapshot,
+  resolveTenantBrandingModeCssVars,
+  resolveTenantBrandingSnapshot,
+  summarizeTenantBranding,
+} from "../customise-branding/resolution/tenant-branding-purpose";
 
 const customMoneySolid = "oklch(0.55 0.18 145)";
 
@@ -111,12 +118,12 @@ test("resolveActiveLaneCssVars maps scale fields to --lane-active-* vars", () =>
 });
 
 test("resolveTenantBrandCssVars follows selected theme preset", () => {
-  const tealSettings: TenantBrandingSettings = {
+  const geistSettings: TenantBrandingSettings = {
     ...DEFAULT_TENANT_BRANDING_SETTINGS,
-    themePreset: "teal",
+    themePreset: "vercel-geist",
   };
 
-  const vars = resolveTenantBrandCssVars(tealSettings, "light");
+  const vars = resolveTenantBrandCssVars(geistSettings, "light");
   assert.ok(vars["--tenant-primary"]);
   assert.notEqual(
     vars["--tenant-primary"],
@@ -132,4 +139,127 @@ test("renderTenantBrandingStyleBlock emits :root and .dark blocks", () => {
   assert.match(css, /^:root \{/);
   assert.match(css, /\.dark \{/);
   assert.match(css, /--tenant-primary:/);
+});
+
+test("applyTenantBrandingPatch deep merges tenant branding safely", () => {
+  const settings = applyTenantBrandingPatch(DEFAULT_TENANT_BRANDING_SETTINGS, {
+    moduleLaneOverrides: {
+      "hr-suite.*": "people",
+    },
+    laneColorOverrides: {
+      byLane: {
+        money: {
+          light: {
+            solid: "oklch(0.62 0.11 250)",
+          },
+        },
+      },
+    },
+  });
+
+  const next = applyTenantBrandingPatch(settings, {
+    laneColorOverrides: {
+      byLane: {
+        money: {
+          dark: {
+            solid: "oklch(0.72 0.12 250)",
+          },
+        },
+      },
+    },
+  });
+
+  assert.equal(next.moduleLaneOverrides?.["hr-suite.*"], "people");
+  assert.equal(
+    next.laneColorOverrides?.byLane?.money?.light?.solid,
+    "oklch(0.62 0.11 250)"
+  );
+  assert.equal(
+    next.laneColorOverrides?.byLane?.money?.dark?.solid,
+    "oklch(0.72 0.12 250)"
+  );
+});
+
+test("applyTenantBrandingPatch sets and clears tenant density", () => {
+  const withDensity = applyTenantBrandingPatch(DEFAULT_TENANT_BRANDING_SETTINGS, {
+    density: "compact",
+  });
+
+  assert.equal(withDensity.density, "compact");
+
+  const cleared = applyTenantBrandingPatch(withDensity, {
+    density: undefined,
+  });
+
+  assert.equal(cleared.density, undefined);
+});
+
+test("summarizeTenantBranding reports tenant customization scope", () => {
+  const summary = summarizeTenantBranding({
+    ...DEFAULT_TENANT_BRANDING_SETTINGS,
+    density: "comfortable",
+    moduleLaneOverrides: {
+      "hr-suite.*": "people",
+    },
+    laneColorOverrides: {
+      byLane: {
+        money: {
+          light: {
+            solid: "oklch(0.62 0.11 265)",
+          },
+        },
+      },
+      byFeature: {
+        "master-data.customers": {
+          light: {
+            solid: "oklch(0.64 0.12 265)",
+          },
+        },
+      },
+    },
+  });
+
+  assert.equal(summary.themePreset, "afenda");
+  assert.equal(summary.density, "comfortable");
+  assert.equal(summary.moduleLaneOverrideCount, 1);
+  assert.equal(summary.laneColorOverrideCount, 1);
+  assert.equal(summary.featureColorOverrideCount, 1);
+  assert.deepEqual(summary.affectedLaneIds, ["money", "people"]);
+});
+
+test("resolveTenantBrandingSnapshot produces css and feature payloads", () => {
+  const snapshot = resolveTenantBrandingSnapshot(
+    DEFAULT_TENANT_BRANDING_SETTINGS,
+    ["master-data.customers"]
+  );
+
+  assert.equal(snapshot.validation.valid, true);
+  assert.equal(snapshot.summary.themePreset, "afenda");
+  assert.ok(snapshot.css.light["--tenant-primary"]);
+  assert.ok(snapshot.css.dark["--tenant-primary"]);
+  assert.match(snapshot.css.styleBlock, /:root/);
+  assert.equal(snapshot.features[0]?.featureId, "master-data.customers");
+  assert.equal(snapshot.features[0]?.laneId, "customer");
+  assert.ok(snapshot.features[0]?.cssVars.light["--lane-active"]);
+});
+
+test("resolveTenantBrandingModeCssVars returns mode-specific tenant vars", () => {
+  const vars = resolveTenantBrandingModeCssVars(
+    DEFAULT_TENANT_BRANDING_SETTINGS,
+    "light"
+  );
+
+  assert.ok(vars["--tenant-primary"]);
+  assert.ok(vars["--tenant-accent"]);
+});
+
+test("resolveTenantBrandingFeatureSnapshot includes light and dark lane scales", () => {
+  const snapshot = resolveTenantBrandingFeatureSnapshot(
+    DEFAULT_TENANT_BRANDING_SETTINGS,
+    "system-admin.audit"
+  );
+
+  assert.equal(snapshot.featureId, "system-admin.audit");
+  assert.ok(snapshot.scale.light.solid);
+  assert.ok(snapshot.scale.dark.solid);
 });

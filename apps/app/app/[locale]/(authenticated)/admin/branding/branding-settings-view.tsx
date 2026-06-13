@@ -1,9 +1,9 @@
 "use client";
 
 import type {
-  ErpVisualLaneId,
-  TenantBrandingSettings,
-} from "@repo/design-system";
+  AfendaTenantBrandingSettings as TenantBrandingSettings,
+} from "@repo/design-system/contracts/afenda/customization";
+import type { AfendaErpVisualLaneId as ErpVisualLaneId } from "@repo/design-system/contracts/afenda/registries";
 import { validateTenantBrandingColors } from "@repo/design-system";
 import type { TenantAdminSettingsSnapshot } from "@repo/features-system-admin-control-plane/contract";
 import { Badge } from "@repo/ui/components/badge";
@@ -21,7 +21,7 @@ import {
 } from "@repo/ui/components/ui/tabs";
 import { useRouter } from "@/i18n/navigation";
 import type { ReactElement } from "react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useTenantBranding } from "../../../../_components/tenant-branding-context.tsx";
 import {
   BrandingColorOverrides,
@@ -33,6 +33,7 @@ import {
 } from "./_components/branding-feature-color-overrides.tsx";
 import { BrandingLaneMatrix } from "./_components/branding-lane-matrix.tsx";
 import { BrandingPresetGallery } from "./_components/branding-preset-gallery.tsx";
+import { BrandingDensitySelector } from "./_components/branding-density-selector.tsx";
 import {
   countLaneOverrides,
   isBrandingDirty,
@@ -55,10 +56,18 @@ export function BrandingSettingsView({
   const [branding, setBranding] = useState<TenantBrandingSettings>(
     initialSettings.branding
   );
+  const [savedBaseline, setSavedBaseline] = useState<TenantBrandingSettings>(
+    initialSettings.branding
+  );
   const [status, setStatus] = useState<SaveStatus>("idle");
   const [message, setMessage] = useState<string | null>(null);
 
-  const dirty = isBrandingDirty(branding, initialSettings.branding);
+  useEffect(() => {
+    setBranding(initialSettings.branding);
+    setSavedBaseline(initialSettings.branding);
+  }, [initialSettings.branding]);
+
+  const dirty = isBrandingDirty(branding, savedBaseline);
   const overrideCount = countLaneOverrides(branding);
   const colorOverrideCount =
     countLaneColorOverrides(branding) + countFeatureColorOverrides(branding);
@@ -131,9 +140,10 @@ export function BrandingSettingsView({
       }
 
       setTenantBranding(branding);
+      setSavedBaseline(branding);
       setStatus("success");
       setMessage(
-        "Tenant branding saved. CSS variables will refresh on navigation."
+        "Tenant branding saved. Lane colors and layout density apply immediately."
       );
       router.refresh();
     } catch (error) {
@@ -172,6 +182,9 @@ export function BrandingSettingsView({
             </div>
             <div className="flex flex-wrap gap-2 text-sm">
               <Badge variant="outline">Preset: {branding.themePreset}</Badge>
+              <Badge variant="outline">
+                Density: {branding.density ?? "default"}
+              </Badge>
               <Badge variant="outline">{overrideCount} lane overrides</Badge>
               <Badge variant="outline">
                 {colorOverrideCount} color overrides
@@ -226,6 +239,22 @@ export function BrandingSettingsView({
             }}
             selectedPreset={branding.themePreset}
           />
+          <BrandingDensitySelector
+            canWrite={canWrite}
+            onSelect={(density) => {
+              if (!canWrite) {
+                return;
+              }
+
+              setStatus("idle");
+              setMessage(null);
+              setBranding((current) => ({
+                ...current,
+                density: density === "default" ? undefined : density,
+              }));
+            }}
+            selectedDensity={branding.density ?? "default"}
+          />
         </TabsContent>
 
         <TabsContent className="mt-6 space-y-6" value="lanes">
@@ -261,7 +290,7 @@ export function BrandingSettingsView({
         </TabsContent>
       </Tabs>
 
-      <div className="sticky bottom-4 z-10 flex flex-col gap-3 rounded-xl border border-border bg-background/95 p-4 shadow-lg backdrop-blur-sm sm:flex-row sm:items-center sm:justify-between">
+      <div className="sticky bottom-4 z-layer-sticky flex flex-col gap-3 rounded-xl border border-border bg-background/95 p-4 shadow-lg backdrop-blur-sm sm:flex-row sm:items-center sm:justify-between">
         <div className="space-y-1">
           <p className="font-medium text-sm">
             {dirty

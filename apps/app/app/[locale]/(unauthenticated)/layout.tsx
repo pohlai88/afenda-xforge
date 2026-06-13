@@ -12,7 +12,7 @@ export default function UnauthenticatedLayout({
     <main className="grid min-h-screen bg-background lg:grid-cols-2">
       <aside className="relative hidden overflow-hidden border-border border-r bg-[radial-gradient(circle_at_top_left,_rgba(15,23,42,0.2),_transparent_42%),linear-gradient(135deg,#020617,#0f172a_55%,#111827)] p-10 text-white lg:flex">
         <div className="absolute inset-0 bg-[linear-gradient(135deg,rgba(255,255,255,0.06),transparent_40%)]" />
-        <div className="relative z-10 flex w-full flex-col justify-between">
+        <div className="relative z-layer-base flex w-full flex-col justify-between">
           <div className="space-y-6">
             <div className="inline-flex rounded-full border border-white/15 bg-white/10 px-3 py-1 text-white/80 text-xs uppercase tracking-[0.32em]">
               XForge

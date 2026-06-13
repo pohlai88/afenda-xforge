@@ -1,4 +1,4 @@
-import { DEFAULT_TENANT_BRANDING_SETTINGS } from "@repo/design-system";
+import { AFENDA_DEFAULT_TENANT_BRANDING_SETTINGS } from "@repo/design-system";
 import { TooltipProvider } from "@repo/ui";
 import type { Decorator } from "@storybook/react";
 import { NextIntlClientProvider } from "next-intl";
@@ -47,7 +47,7 @@ export const withWorkspaceShortcutsIntl: Decorator = (Story, context) => {
 export const withWorkspaceShortcutsShell: Decorator = (Story) => (
   <NextIntlClientProvider locale="en" messages={enMessages}>
     <TooltipProvider delayDuration={300}>
-      <ThemeStudioPreviewRoot branding={DEFAULT_TENANT_BRANDING_SETTINGS}>
+      <ThemeStudioPreviewRoot branding={AFENDA_DEFAULT_TENANT_BRANDING_SETTINGS}>
         <ThemeStudioWorkspace>
           <Story />
         </ThemeStudioWorkspace>

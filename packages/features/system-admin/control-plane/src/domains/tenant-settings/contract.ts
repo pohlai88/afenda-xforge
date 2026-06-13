@@ -1,5 +1,5 @@
 import { defineRouteContract } from "@repo/api";
-import { tenantBrandingSettingsSchema } from "@repo/design-system/contracts/tenant-branding.contract";
+import { afendaTenantBrandingSettingsSchema as tenantBrandingSettingsSchema } from "@repo/design-system/contracts/afenda/customization";
 import { z } from "zod";
 import { systemAdminMutationResultSchema } from "../../schema.ts";
 import { tenantAdminSettingUpdateSchema } from "./schema.ts";

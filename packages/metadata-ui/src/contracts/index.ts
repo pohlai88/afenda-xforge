@@ -21,6 +21,11 @@ export type {
   MetadataConsumerScenarioResult,
 } from "./consumer-fixture.contract";
 export type {
+  MetadataDiagnostic,
+  MetadataDiagnosticCode,
+  MetadataDiagnosticSeverity,
+} from "./diagnostics.contract";
+export type {
   EnterpriseDropdownMenuAlign,
   EnterpriseDropdownMenuGroup,
   EnterpriseDropdownMenuHeader,

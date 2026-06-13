@@ -1,132 +1,64 @@
 "use client";
 
 import { Badge } from "@repo/ui";
-import { cn } from "@repo/ui/lib/utils";
 import type { ReactElement } from "react";
-import {
-  getOrbitFilledSlaSegments,
-  ORBIT_SLA_METER_SEGMENT_IDS,
-  ORBIT_STATUS_TONE,
-  ORBIT_WORKLOAD_SNAPSHOT,
-} from "../../../_components/workspace/orbit-workload.constants.ts";
+import { Link } from "@/i18n/navigation";
+import { WORKSPACE_APP_SIDEBAR_NAV_GROUPS } from "../../../_components/workspace/workspace-app-surfaces.ts";
 
 export function OrbitView(): ReactElement {
-  const workload = ORBIT_WORKLOAD_SNAPSHOT;
-  const tone = ORBIT_STATUS_TONE[workload.status];
-  const filledSegments = getOrbitFilledSlaSegments(workload.slaPercent);
-
   return (
-    <div className="grid gap-6 lg:grid-cols-[minmax(0,320px)_1fr]">
-      <div className="rounded-xl border border-border bg-card p-6">
-        <div className="flex items-center justify-between gap-3">
-          <p className="font-semibold text-muted-foreground text-xs uppercase tracking-[0.16em]">
-            System condition
-          </p>
-          <Badge className={cn("uppercase tracking-[0.12em]", tone.text)}>
-            {tone.label}
-          </Badge>
-        </div>
-
-        <div className="mt-8 space-y-2">
-          <p className="flex items-center gap-2 font-semibold text-2xl text-card-foreground">
-            <span
-              aria-hidden="true"
-              className={cn("size-2.5 rounded-full", tone.dot)}
-            />
-            {workload.orbitName}
-          </p>
-          <p className="text-muted-foreground text-sm">
-            {workload.openCount} open · {workload.dueTodayCount} due today
-          </p>
-        </div>
-
-        <div className="mt-8 space-y-2">
-          <p className="font-medium text-muted-foreground text-xs uppercase tracking-[0.14em]">
-            Next SLA
-          </p>
-          <p className="font-medium text-card-foreground text-sm">
-            {workload.nextEventLabel} · {workload.nextTimeLeftText}
-          </p>
-        </div>
-
-        <div className="mt-8 space-y-3">
-          <div className="flex items-center justify-between gap-3">
-            <p className="font-medium text-muted-foreground text-xs uppercase tracking-[0.14em]">
-              SLA health
-            </p>
-            <p className="font-semibold text-card-foreground text-sm">
-              {workload.slaPercent}% {workload.slaSafetyLabel}
-            </p>
-          </div>
-          <meter
-            aria-label={`SLA ${workload.slaPercent}% ${workload.slaSafetyLabel}`}
-            className="sr-only"
-            max={100}
-            min={0}
-            value={workload.slaPercent}
-          />
-          <div aria-hidden="true" className="grid grid-cols-10 gap-1">
-            {ORBIT_SLA_METER_SEGMENT_IDS.map((segmentId, index) => {
-              const isFilled = index < filledSegments;
-
-              return (
-                <span
-                  aria-hidden="true"
-                  className={cn(
-                    "h-2 rounded-[2px]",
-                    isFilled ? tone.meter : "bg-muted"
-                  )}
-                  key={segmentId}
-                />
-              );
-            })}
-          </div>
-        </div>
-
-        <p className="mt-6 text-muted-foreground text-sm">
-          Static scaffold signal. Replace this snapshot with the Orbit service
-          when governed workload telemetry is ready.
+    <div className="space-y-8">
+      <div className="max-w-3xl space-y-3">
+        <Badge variant="outline">Declared app surface catalog</Badge>
+        <h2 className="font-semibold text-2xl tracking-tight">
+          Available workspace surfaces
+        </h2>
+        <p className="text-muted-foreground text-sm leading-6">
+          Orbit is the canonical map of authenticated app pages. A page belongs
+          here when it is a real user-facing surface; detail, redirect,
+          scaffold, and internal routes must be explicitly exempted instead.
         </p>
       </div>
 
-      <div className="grid gap-4 sm:grid-cols-3">
-        <KpiCard label="Open work" value={`${workload.openCount} open`} />
-        <KpiCard
-          label="Due today"
-          value={String(workload.dueTodayCount)}
-        />
-        <KpiCard
-          label="Next SLA"
-          value={`${workload.nextEventLabel} · ${workload.nextTimeLeftText}`}
-          valueClassName="text-base"
-        />
-      </div>
-    </div>
-  );
-}
+      <div className="grid gap-8 lg:grid-cols-2">
+        {WORKSPACE_APP_SIDEBAR_NAV_GROUPS.map((group) => (
+          <section className="min-w-0 space-y-3" key={group.label}>
+            <div className="flex items-center gap-3">
+              <h3 className="font-semibold text-base">{group.label}</h3>
+              <span className="h-px flex-1 bg-border" />
+              <span className="text-muted-foreground text-xs tabular-nums">
+                {group.items.length}
+              </span>
+            </div>
 
-function KpiCard({
-  label,
-  value,
-  valueClassName,
-}: {
-  label: string;
-  value: string;
-  valueClassName?: string;
-}): ReactElement {
-  return (
-    <div className="rounded-xl border border-border bg-card p-4">
-      <p className="text-muted-foreground text-xs uppercase tracking-wide">
-        {label}
-      </p>
-      <p
-        className={cn(
-          "mt-2 font-semibold text-2xl leading-snug",
-          valueClassName
-        )}
-      >
-        {value}
-      </p>
+            <div className="divide-y divide-border rounded-md border">
+              {group.items.map((surface) => {
+                const Icon = surface.icon;
+
+                return (
+                  <Link
+                    className="group flex min-w-0 items-start gap-3 px-3 py-3 transition-colors hover:bg-muted/60 focus-visible:bg-muted/60 focus-visible:outline-none"
+                    href={surface.href}
+                    key={surface.href}
+                  >
+                    <Icon className="mt-0.5 size-4 shrink-0 text-muted-foreground transition-colors group-hover:text-foreground" />
+                    <span className="min-w-0 space-y-1">
+                      <span className="block font-medium text-sm">
+                        {surface.label}
+                      </span>
+                      {surface.description ? (
+                        <span className="block text-muted-foreground text-xs leading-5">
+                          {surface.description}
+                        </span>
+                      ) : null}
+                    </span>
+                  </Link>
+                );
+              })}
+            </div>
+          </section>
+        ))}
+      </div>
     </div>
   );
 }

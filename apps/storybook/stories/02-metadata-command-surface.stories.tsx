@@ -510,7 +510,7 @@ function MetadataCommandSurface() {
         className="sb-intro-grid-bg pointer-events-none absolute inset-0 bg-[linear-gradient(to_right,var(--border)/30_1px,transparent_1px),linear-gradient(to_bottom,var(--border)/30_1px,transparent_1px)] opacity-25"
       />
 
-      <header className="relative z-10 border-border border-b bg-background/80 px-4 py-5 backdrop-blur-sm md:px-8">
+      <header className="relative z-layer-base border-border border-b bg-background/80 px-4 py-5 backdrop-blur-sm md:px-8">
         <div className="mx-auto flex max-w-[96rem] flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
           <div>
             <div className="mb-3 flex flex-wrap items-center gap-2">
@@ -546,7 +546,7 @@ function MetadataCommandSurface() {
         </div>
       </header>
 
-      <div className="relative z-10 mx-auto flex w-full max-w-[96rem] flex-1 flex-col px-4 py-4 md:px-8 md:py-6">
+      <div className="relative z-layer-base mx-auto flex w-full max-w-[96rem] flex-1 flex-col px-4 py-4 md:px-8 md:py-6">
         <section
           aria-label="Metadata command surface"
           className="flex min-h-[40rem] flex-1 flex-col overflow-hidden rounded-xl border border-border bg-card/90 shadow-md ring-1 ring-border/60 backdrop-blur-sm"
@@ -753,7 +753,7 @@ function MetadataCommandSurface() {
               </div>
 
               {permission === "forbidden" ? (
-                <div className="absolute inset-0 z-20 flex items-center justify-center bg-background/80 backdrop-blur-[2px]">
+                <div className="z-layer-sticky absolute inset-0 flex items-center justify-center bg-background/80 backdrop-blur-[2px]">
                   <div className="rounded-xl border border-destructive-border bg-destructive-muted/40 px-6 py-5 text-center">
                     <Badge variant="destructive-light">forbidden</Badge>
                     <p className="mt-2 font-medium text-sm">

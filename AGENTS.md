@@ -1,121 +1,172 @@
 # XForge Agent Guide
 
-This repo follows the XForge architecture contract. When instructions conflict with implementation drift, update the implementation to match the architecture.
+afenda-Xforge follows the XForge architecture contract. When instructions conflict with implementation drift, update the implementation to match the architecture — not the other way around.
 
-## Stupid agent behaviors — do not do these
+**Stack:** TypeScript · pnpm · Turborepo · Next.js 16+ (`apps/app`) · PostgreSQL · Drizzle.
 
-These are documented so agents stop repeating the same mistakes. This is **behavior guidance**, not a file-lock system.
+Scoped detail lives in `.cursor/rules/*.mdc` (see index in `project-general.mdc`). Deterministic policies are enforced by `.cursor/hooks.json`.
 
-1. **Touching our workspace framework for the wrong reason** — do not edit `packages/ui/src/components/compose/workspace/**` to fix Theme Studio, Storybook, branding previews, or visual polish. That layer is ours. Fix at app wiring or preview layer first.
-2. **Skipping the answer** — if we ask yes/no or advice, answer in text before writing code.
-3. **Over-scoping** — a layout/visual request is not permission to refactor shared compose, surfaces, typography, memory lane, or defaults.
-4. **Destructive git on WIP** — no `git restore`, `git checkout --`, or `git clean` on our untracked work unless we explicitly say so.
+---
 
-See `.cursor/rules/` for the same guardrails.
+## Read order
 
-## Our workspace framework
+1. User instruction in the current message
+2. This file + `skills/reference/*.md`
+3. `.cursor/rules/*.mdc` for the paths you touch
+4. Next.js APIs → MCP `nextjs_docs` from `nextjs-docs://llms-index` — **do not guess** from training data
 
-**Human-owned.** Agents ask before changing `packages/ui/src/components/compose/workspace/**`.
+---
 
-### Allowed layers for UI / visual / Storybook work
+## Agent behavior
 
-| Layer | Path |
-|-------|------|
-| App workspace wiring | `apps/app/app/_components/workspace/` |
-| Authenticated shell wiring | `apps/app/app/_components/authenticated-*.tsx` |
-| Theme Studio previews | `apps/app/app/theme-studio/` |
-| Storybook | `apps/storybook/` |
-| Entity/metadata surfaces | App routes + `@repo/metadata-ui` (see wiring plan) |
+### Answer before you build
 
-### Mandatory agent behavior
+- Yes/no and advice → direct answer in prose **first**, then code if needed
+- Smallest correct diff; do not refactor unrelated files while "helping"
 
-1. **Answer the question first** — advice and yes/no questions get a direct answer before any code.
-2. **Smallest layer** — never "fix" previews by refactoring `@repo/ui` workspace compose.
-3. **No destructive git on WIP** — do not `git restore`, `git checkout --`, or `git clean` on user untracked work without explicit instruction.
-4. **Ask before framework edits** — *"This requires changing `<file>` in workspace compose. Approve?"*
+### UI layer order (visual / UX work)
 
-See also: `.cursor/rules/agent-discipline.mdc`, `.cursor/rules/ui-layer-ownership.mdc`.
+| Order | Layer | Path |
+|-------|-------|------|
+| 1 | App wiring / previews | `apps/app/` · `theme-studio/` · `apps/storybook/` |
+| 2 | Entity surfaces | `@repo/metadata-ui` |
+| 3 | Workspace compose | `packages/ui/.../compose/workspace/` — **human-owned; ask first** |
 
-## Source Of Truth
+Do not edit workspace compose for Theme Studio, Storybook contrast, branding previews, or polish. Fix at app wiring or preview layer first.
 
-- `skills/reference/architecture.md` defines system governance, dependency direction, tenant/company rules, execution, audit, permissions, and metadata limits.
-- `skills/reference/packages.md` defines package ownership, public entry points, and feature package shape.
-- `skills/reference/customization.md` defines what can be safely customized without breaking governance.
-- `skills/reference/setup.md` defines setup and workspace expectations.
+### Enforced by hooks (`.cursor/hooks.json`)
 
-## Feature Package Surface
+| Policy | Hook | Event |
+|--------|------|-------|
+| No destructive git on WIP | `block-destructive-git.mjs` | `beforeShellExecution` |
+| No dev/start unless asked | `block-dev-servers.mjs` | `beforeShellExecution` |
+| pnpm monorepo | `warn-wrong-package-manager.mjs` | `beforeShellExecution` |
+| Workspace compose protected | `guard-workspace-compose.mjs` | `preToolUse` |
+| NEXT_PUBLIC_ secrets | `guard-next-public-env.mjs` | `preToolUse` |
+| Vercel prod deploy / MCP deploy / env pull | `ask-vercel-*`, `guard-vercel-deploy-mcp` | shell / MCP |
+| Scoped quality gates | `stop-quality-gates.mjs` | `stop` (self-heal ×3) |
 
-Standard feature public entry points are:
+Everything else — execution pipeline, security, UI patterns, performance — stays in rules.
 
-- `src/index.ts`
-- `src/contract.ts`
-- `src/schema.ts`
-- `src/metadata.ts`
-- `src/server.ts`
-- `src/manifest.ts`
+---
 
-Implementation files such as `actions.ts`, `queries.ts`, projector modules, repository adapters, tests, and feature-local helper modules stay internal unless the package deliberately publishes them.
+## Source of truth
 
-Do not export hollow `shared/` or `execution/` folders just to satisfy a scaffold. Use a single internal file when the boundary is small, and promote to a directory only when it contains real submodules.
+| Doc | Scope |
+|-----|-------|
+| `skills/reference/architecture.md` | Governance, tenant/company, execution, audit, permissions |
+| `skills/reference/packages.md` | Package ownership, public entry points, feature shape |
+| `skills/reference/customization.md` | Safe customization; deployment defaults |
+| `skills/reference/setup.md` | Bootstrap, env contract, MCP wiring |
 
-## Dependency Rules
+---
 
-- Apps and orchestration code call feature behavior through package root or `/server`.
-- Client code may use pure `/contract`, `/manifest`, and `/metadata` surfaces only.
-- Feature packages must not import sibling feature packages or another feature package's internals.
-- `packages/shared` owns narrow primitives only. It must not own business decisions, permissions, workflow, persistence, or audit.
-- `packages/customization` owns governed presentation overlays only. It must not change permissions, tenant/company enforcement, audit, execution, or business rules.
-- `packages/execution` owns the canonical mutation lifecycle.
-- `packages/audit` owns audit event shape and persistence. Audit is not logging.
-- `packages/storage` owns object/file storage only. Feature business records should use feature repositories backed by `packages/database`, not `storage.ts`.
+## Architecture (summary)
 
-## Runtime Rules
+**Feature public surfaces:** `index.ts`, `contract.ts`, `schema.ts`, `metadata.ts`, `server.ts`, `manifest.ts`. Keep `actions.ts`, `queries.ts`, adapters, and tests internal unless deliberately published.
 
-Mutations must follow the governed execution order:
+**Dependency direction:**
 
-1. authenticate actor
-2. resolve tenant
-3. verify tenant membership
-4. resolve company when applicable
-5. verify company grant when applicable
-6. validate input
-7. enforce permission
-8. execute domain operation
-9. write audit event
-10. run post-commit effects only after success
+- Apps → feature root or `/server`
+- Client → `/contract`, `/manifest`, `/metadata` only
+- No sibling feature imports; no feature internals across packages
+- `packages/shared` — narrow primitives only
+- `packages/execution` — canonical mutation lifecycle
+- `packages/audit` — audit events (not logging)
+- `packages/database` — business records; `packages/storage` — object/file storage only
 
-Sensitive reads must validate input, enforce tenant/company scope, enforce permission, and fail closed for sensitive fields.
+**Mutation pipeline (required order):**
 
-## Metadata Rules
+authenticate → resolve tenant → verify membership → resolve company → verify grant → validate input → enforce permission → execute → write audit → post-commit effects after success.
 
-Metadata and manifests are declarative. They may describe labels, navigation, fields, filters, capabilities, dashboards, ownership, integrations, and governance declarations. They must not contain business execution logic or permission finality.
+Sensitive reads: validate input, enforce tenant/company scope, enforce permission, fail closed on sensitive fields.
 
-## Tooling Gates
+**Metadata:** declarative only — labels, navigation, fields, filters, capabilities. No business execution logic or permission finality.
 
-Run the narrowest relevant command first, then widen if needed:
+Full rules: `backend-execution.mdc`, `backend-security.mdc`.
 
-- `pnpm --filter <package-name> typecheck`
-- `pnpm --filter <package-name> test`
-- `pnpm --filter <package-name> lint`
-- `pnpm lint:biome`
-- `pnpm lint:architecture`
-- `pnpm check`
-- `pnpm --filter app check:stability` — client boundaries, typecheck, API/route smoke tests
-- `pnpm knip` — unused files, exports, and dependencies (see `knip.jsonc`)
-- **Next.js MCP** (`next-devtools` in `.cursor/mcp.json`) — for `apps/app` work with a running dev server:
-  1. MCP `init` with `project_path` → `apps/app`
-  2. `nextjs_index` (port `3000` if auto-discovery fails)
-  3. `nextjs_call` → `get_errors`, `get_routes` before claiming UI/API integration is done
-  4. `nextjs_docs` for App Router / Cache Components questions (do not guess)
+---
 
-See `.cursor/rules/nextjs-mcp-quality.mdc` and `skills/reference/setup.md` (Next.js MCP section).
+## Next.js & MCP (`apps/app`)
 
-Biome guards style and import restrictions. `tools/check-architecture-boundaries.mjs` guards architecture rules that Biome cannot express reliably.
+Training data for Next.js App Router and Cache Components is stale. **Docs before code.**
 
-## Change Discipline
+### MCP setup (`.cursor/mcp.json` → `next-devtools`)
 
-- Prefer existing package patterns over new abstractions.
-- Keep public package exports explicit.
-- Do not add UI for a domain package unless the package pattern requires UI.
-- Do not weaken security to make tests pass.
-- When a feature is still scaffold-backed, state that clearly and keep the boundary prepared for real persistence, audit, and execution integration.
+Requires Next.js 16+ and a running dev server (`/_next/mcp` on port **3000**).
+
+1. MCP `init` with `project_path` → absolute path of **`apps/app`** (not repo root)
+2. API / routing / cache questions → `nextjs_docs` — never answer from memory
+3. With dev server up:
+   - `nextjs_index` (pass `port: "3000"` if auto-discovery fails)
+   - `nextjs_call` → `get_errors`, `get_routes`, `get_project_metadata`
+4. Resolve reported errors before claiming UI/API work complete
+
+### Static gates (no dev server)
+
+```bash
+pnpm --filter app typecheck
+pnpm --filter app check:stability
+```
+
+Stop hook runs `check:stability` when `apps/app` changes. Full checklist: `nextjs-mcp-quality.mdc`, `vercel-deployment.mdc`, skill `.cursor/skills/xforge-nextjs-vercel/`.
+
+**Do not** start `dev` / `build` / long-running servers unless the user asks — hook-enforced; avoids port conflicts.
+
+---
+
+## Vercel deployment
+
+Primary deployable: **`apps/app`** (Next.js). Prefer managed platform over self-managed K8s/Terraform until scale requires it — see `skills/reference/customization.md` § Deployment.
+
+### Environment variables
+
+- Separate **development**, **preview**, and **production** values — never share production DB credentials with preview
+- **`NEXT_PUBLIC_*` is browser-visible** — secrets, API keys, and connection strings belong in server-only env vars
+- Env vars are **package-owned** — validate at build/startup with each package's schema; fail fast on missing required vars
+- Sync local: `vercel env pull` (after linking); repo helpers: `pnpm env:sync`, `pnpm env:doctor`
+
+### Runtime & build
+
+- Default to **Node.js runtime** for routes needing full Node APIs; use **Edge** only when APIs are compatible — check before switching `export const runtime`
+- Preview deployments for PR testing before production promotion
+- Turborepo + pnpm: run narrow package gates locally before push; CI should mirror `check:stability` for `apps/app`
+- Long mutations → respect function timeout limits; use durable workflows or background jobs for work that exceeds serverless bounds
+
+### Anti-patterns
+
+| Issue | Fix |
+|-------|-----|
+| Secrets in `NEXT_PUBLIC_` | Server-only env vars |
+| Preview hitting production DB | Separate preview database / branch DB |
+| Stale pages after deploy | Review cache tags, `revalidate`, Cache Components invalidation |
+| Env missing at runtime but present at build | Confirm Vercel env scope (Production / Preview / Development) |
+
+---
+
+## Tooling gates
+
+Run the **narrowest** relevant command first, then widen:
+
+```bash
+pnpm --filter <package> typecheck
+pnpm --filter <package> test
+pnpm --filter <package> lint
+pnpm --filter app check:stability    # apps/app: boundaries + typecheck + smoke
+pnpm lint:biome
+pnpm lint:architecture
+pnpm check
+pnpm knip                          # unused exports/deps — knip.jsonc
+```
+
+Biome guards style and import restrictions. `tools/check-architecture-boundaries.mjs` guards rules Biome cannot express.
+
+---
+
+## Change discipline
+
+- Prefer existing package patterns over new abstractions
+- Keep public package exports explicit
+- Do not add UI for a domain package unless the pattern requires it
+- Do not weaken security to make tests pass
+- Scaffold-backed features: state that clearly; keep boundaries ready for real persistence, audit, and execution

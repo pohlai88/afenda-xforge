@@ -500,7 +500,7 @@ function KanbanColumn({
         style={style}
         className={cn(
           "group/kanban-column flex flex-col",
-          isSortableDragging && "z-50 opacity-50",
+          isSortableDragging && "z-layer-overlay opacity-50",
           disabled && "opacity-50",
           className,
         )}
@@ -625,7 +625,7 @@ function KanbanItem({
         style={style}
         {...attributes}
         className={cn(
-          isSortableDragging && "z-50 opacity-50",
+          isSortableDragging && "z-layer-overlay opacity-50",
           disabled && "opacity-50",
           className,
         )}
@@ -746,7 +746,7 @@ function KanbanOverlay({ children, className, ...props }: KanbanOverlayProps) {
     <DragOverlay
       dropAnimation={dropAnimationConfig}
       modifiers={modifiers}
-      className={cn("z-50", activeId && "cursor-grabbing", className)}
+      className={cn("z-layer-overlay", activeId && "cursor-grabbing", className)}
       {...props}
     >
       <IsOverlayContext.Provider value={true}>

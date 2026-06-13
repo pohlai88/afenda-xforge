@@ -1,0 +1,53 @@
+---
+description: Vercel deployment — env safety, runtime, preview vs prod, MCP verification
+globs: apps/app/**/*,**/.env.example,**/vercel.json
+alwaysApply: false
+---
+
+# Vercel Deployment (`apps/app`)
+
+Primary deployable: **`apps/app`**. Platform docs → Vercel MCP `search_vercel_documentation` — do not guess.
+
+Skill: `.cursor/skills/xforge-nextjs-vercel/SKILL.md`
+
+## MUST (non-negotiable)
+
+1. **`NEXT_PUBLIC_*` is browser-visible** — never secrets, DB URLs, service-role keys, JWT signing keys, or private API keys
+2. **Preview ≠ production data** — preview deployments use preview-scoped env + database; never point preview at production Postgres
+3. **Env vars are package-owned** — validate with each package schema; fail fast on missing required vars at build/startup
+4. **Docs before platform behavior** — Vercel routing, env scoping, or function limits → `search_vercel_documentation` first
+5. **Production deploys need explicit user intent** — hook asks on `vercel --prod` / `deploy_to_vercel`; do not promote without confirmation
+6. **Pre-deploy gates locally**:
+
+```bash
+pnpm --filter app typecheck
+pnpm --filter app check:stability
+pnpm --filter app build          # before first deploy or build-config changes
+```
+
+7. **Post-deploy verification** — Vercel MCP `get_deployment` / `get_deployment_build_logs`; runtime issues → `get_runtime_logs`
+
+## Runtime choice
+
+- Default **Node.js** for routes using full Node APIs (Postgres drivers, file I/O, long work)
+- **Edge** only when APIs are compatible — confirm via `nextjs_docs` + Vercel docs before `export const runtime = 'edge'`
+- Work exceeding serverless timeout → background job / Workflow — not a blocking request
+
+## Env workflow
+
+```bash
+vercel link                      # once per machine
+vercel env pull                  # sync Development — hook asks (may overwrite .env.local)
+pnpm env:doctor                  # repo env contract
+```
+
+Scope vars correctly: **Production** / **Preview** / **Development** in Vercel dashboard — missing-at-runtime-but-present-at-build usually means wrong scope.
+
+## Anti-patterns
+
+| Issue | Fix |
+|-------|-----|
+| `NEXT_PUBLIC_SUPABASE_SERVICE_ROLE` | Server-only env var |
+| Preview using prod `DATABASE_URL` | Separate preview DB / Neon branch |
+| Stale pages after deploy | Cache tags, `revalidate`, Cache Components invalidation — verify with `nextjs_docs` |
+| Edge route using `fs` / native pg | Switch to Node runtime or refactor |

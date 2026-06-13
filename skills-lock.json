@@ -1,17 +1,53 @@
 {
   "version": 1,
   "skills": {
+    "audit": {
+      "source": "educlopez/ui-craft",
+      "sourceType": "github",
+      "skillPath": ".agents/skills/audit/SKILL.md",
+      "computedHash": "7dc235a2da964c2fbb1edb7aa12e0a06bc2f79c4b0ea6a332966c41df0f2ade8"
+    },
+    "brief": {
+      "source": "educlopez/ui-craft",
+      "sourceType": "github",
+      "skillPath": ".agents/skills/brief/SKILL.md",
+      "computedHash": "aef57478c1e1b0ea53ff9cb224da4b973e8f91bfaf2552a7c8caf1ebd8612a3a"
+    },
+    "colorize": {
+      "source": "educlopez/ui-craft",
+      "sourceType": "github",
+      "skillPath": ".agents/skills/colorize/SKILL.md",
+      "computedHash": "fa0e899bc9c2fa9157221a90508ed7b906512cb3f9f04aaab936152cbd79bc5a"
+    },
     "css-architecture": {
       "source": "aj-geddes/useful-ai-prompts",
       "sourceType": "github",
       "skillPath": "skills/css-architecture/SKILL.md",
       "computedHash": "fff8e6fa098bc339ee3681fd786805610eb206d8173774ea8b22c00a26dc8114"
     },
+    "finalize": {
+      "source": "educlopez/ui-craft",
+      "sourceType": "github",
+      "skillPath": ".agents/skills/finalize/SKILL.md",
+      "computedHash": "983484440b236d5353283412ebd9296eb6d3150a7305dea050879d7c6ffd8889"
+    },
     "frontend-tailwind-best-practices": {
       "source": "sergiodxa/agent-skills",
       "sourceType": "github",
       "skillPath": "skills/frontend-tailwind-best-practices/SKILL.md",
       "computedHash": "a8287f2d78ec0fd7b7f98be9683d32aa37b863759c67eddd411f0dfbcbe06099"
+    },
+    "heuristic": {
+      "source": "educlopez/ui-craft",
+      "sourceType": "github",
+      "skillPath": ".agents/skills/heuristic/SKILL.md",
+      "computedHash": "55f0e55ba875c64bb778450010eb3ba5f9f8e5138c4055a314594f345c4db948"
+    },
+    "shape": {
+      "source": "educlopez/ui-craft",
+      "sourceType": "github",
+      "skillPath": ".agents/skills/shape/SKILL.md",
+      "computedHash": "afe89ab2f49077b981610a327ba0fda069d216426832f5f4b7d04e451351e103"
     },
     "tailwind-utility-classes": {
       "source": "thebushidocollective/han",
@@ -30,6 +66,36 @@
       "sourceType": "github",
       "skillPath": "plugins/tailwindcss/skills/tailwindcss-v4/SKILL.md",
       "computedHash": "739ebba57ce8deff298bdef76e1058b19545e6fdf6e7f9058d5ceb4f7cc93414"
+    },
+    "tokens": {
+      "source": "educlopez/ui-craft",
+      "sourceType": "github",
+      "skillPath": ".agents/skills/tokens/SKILL.md",
+      "computedHash": "b678b26a32716b3f32834542e67310e3b8bbf5903d324dc7bf999df5e059091b"
+    },
+    "ui-craft": {
+      "source": "educlopez/ui-craft",
+      "sourceType": "github",
+      "skillPath": "skills/ui-craft/SKILL.md",
+      "computedHash": "198ff71f21a7b1c4b4a8ab4a3cb5e391054f9ca4fca291f9423fcf166b9a7f66"
+    },
+    "ui-craft-dense-dashboard": {
+      "source": "educlopez/ui-craft",
+      "sourceType": "github",
+      "skillPath": "skills/ui-craft-dense-dashboard/SKILL.md",
+      "computedHash": "d0a71ccee90de5638fa4630e8feba31e17f311b4e394412cf3813eacc1c28667"
+    },
+    "ui-craft-editorial": {
+      "source": "educlopez/ui-craft",
+      "sourceType": "github",
+      "skillPath": "skills/ui-craft-editorial/SKILL.md",
+      "computedHash": "a1c3c74982d5ec792e442d28bd8ed8e569f4493a0fb2567febb6c5aa70d3c616"
+    },
+    "ui-craft-minimal": {
+      "source": "educlopez/ui-craft",
+      "sourceType": "github",
+      "skillPath": "skills/ui-craft-minimal/SKILL.md",
+      "computedHash": "e4c64714c9472885ce38849a470eadfe623e405e783aede8f1a1d1c08e157f1f"
     }
   }
 }

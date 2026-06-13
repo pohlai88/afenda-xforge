@@ -46,7 +46,7 @@ import {
   fetchNotificationInbox,
   mutateNotificationInbox,
 } from "../../../lib/notifications/inbox.client.ts";
-import { appNavTopbarGhostIconButtonClassName } from "./app-nav-topbar-chrome.ts";
+import { appNavTopbarGhostIconButtonClassName } from "./workspace-shell.classes.ts";
 import type {
   NotificationInboxTab,
   NotificationListItemView,

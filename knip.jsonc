@@ -12,7 +12,6 @@
     "packages/metadata-ui/**": ["exports", "types", "devDependencies"],
     "packages/features/master-data/**": ["exports"],
     "packages/auth/**": ["exports"],
-    "packages/design-system/**": ["exports"],
     "packages/email/**": ["exports"],
     "apps/app/lib/workspace-shortcuts/**": ["exports", "types"],
     "apps/app/app/_components/workspace/**": ["exports", "types"],
@@ -89,6 +88,30 @@
         "tests/**/*.{ts,tsx}"
       ],
       "project": ["src/**/*.{ts,tsx}", "scripts/**/*.{mts,mjs,ts}", "tests/**/*.{ts,tsx}"]
+    },
+    "packages/design-system": {
+      "entry": [
+        "src/index.ts",
+        "src/contracts/index.ts",
+        "src/contracts/afenda/index.ts",
+        "src/contracts/afenda/runtime/index.ts",
+        "src/contracts/afenda/catalogs/module-lane.catalog.ts",
+        "src/contracts/afenda/gates/quality-gate.contract.ts",
+        "src/contracts/afenda/legacy/deprecation.manifest.ts",
+        "src/contracts/afenda/references/vercel-geist.contract.ts",
+        "src/css/index.ts",
+        "src/css/adapters/globals-css.adapter.ts",
+        "src/css/tokens/index.ts",
+        "src/customise-branding/index.ts",
+        "src/customise-branding/resolution/index.ts",
+        "scripts/**/*.{mts,mjs,ts}",
+        "src/tests/**/*.{ts,tsx}"
+      ],
+      "project": [
+        "src/**/*.{ts,tsx}",
+        "scripts/**/*.{mts,mjs,ts}",
+        "src/tests/**/*.{ts,tsx}"
+      ]
     },
     "packages/features/master-data/companies": {
       "project": ["src/**/*.{ts,tsx}"]

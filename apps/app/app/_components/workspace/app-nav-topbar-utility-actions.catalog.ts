@@ -17,7 +17,7 @@ import {
 } from "lucide-react";
 import type { ReactElement } from "react";
 import { createElement } from "react";
-import { appNavTopbarIconClassName } from "./app-nav-topbar-chrome.ts";
+import { appNavTopbarIconClassName } from "./workspace-shell.classes.ts";
 
 export const APP_NAV_TOPBAR_UTILITY_MAX_PINNED = 6;
 
@@ -121,7 +121,7 @@ export const APP_NAV_TOPBAR_UTILITY_CATALOG: readonly AppNavTopbarUtilityDefinit
     },
     {
       action: "settings-appearance",
-      description: "Theme, density, and personal display preferences.",
+      description: "Theme and personal display preferences.",
       id: "display-settings",
       label: "Display settings",
       icon: MonitorCog,

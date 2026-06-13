@@ -2,7 +2,7 @@ import "server-only";
 
 import { randomUUID } from "node:crypto";
 import { writeAuditEvent, writeAuditEventInTransaction } from "@repo/audit";
-import { setTenantBranding } from "@repo/design-system/tenant-branding";
+import { setTenantBranding } from "@repo/design-system/customise-branding";
 import type {
   ExecutionDatabaseTransaction,
   ExecutionDomainResult,

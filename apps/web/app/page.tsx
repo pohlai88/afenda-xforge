@@ -12,7 +12,7 @@ export const metadata: Metadata = webHomeMetadata;
 export default function HomePage(): ReactElement {
   return (
     <main className="relative isolate overflow-hidden bg-background px-6 py-10 text-foreground">
-      <div className="absolute inset-x-0 top-0 -z-10 h-[32rem] bg-[radial-gradient(circle_at_top_left,_rgba(15,23,42,0.18),_transparent_45%),linear-gradient(135deg,_rgba(2,6,23,0.05),_transparent_55%)]" />
+      <div className="z-layer-background absolute inset-x-0 top-0 h-[32rem] bg-[radial-gradient(circle_at_top_left,_rgba(15,23,42,0.18),_transparent_45%),linear-gradient(135deg,_rgba(2,6,23,0.05),_transparent_55%)]" />
       <section className="mx-auto flex min-h-[80dvh] w-full max-w-6xl flex-col justify-between gap-16">
         <header className="flex items-center justify-between">
           <div className="inline-flex items-center gap-3">

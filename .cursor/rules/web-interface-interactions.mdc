@@ -1,0 +1,62 @@
+---
+description: Web UI interactions — keyboard, forms, navigation, feedback (MUST rules)
+globs: apps/app/**/*.tsx,packages/ui/**/*.tsx,packages/metadata-ui/**/*.tsx
+alwaysApply: false
+---
+
+# Web Interface — Interactions
+
+Based on [Vercel Web Interface Guidelines](https://vercel.com/design/guidelines). Performance: `react-performance.mdc`. Next.js: use `next/link` for in-app navigation (MCP `/docs/app/getting-started/linking-and-navigating`).
+
+## Keyboard & focus
+
+- Full keyboard support per [WAI-ARIA APG](https://www.w3.org/WAI/ARIA/apg/patterns/)
+- Visible `:focus-visible` rings; trap/return focus in modals per APG
+- Hit targets ≥24px (≥44px touch); expand invisible hit area when visual is smaller
+
+## Forms & inputs
+
+- Hydration-safe — no lost focus/value after SSR
+- Never block paste; support password managers and 2FA OTP paste
+- `autocomplete`, meaningful `name`, correct `type` / `inputmode`
+- Inline errors beside fields; on submit, focus first error
+- Enter submits single-line input; in `textarea`, Enter = newline, ⌘/Ctrl+Enter = submit
+- Keep submit enabled until request starts; then disable + spinner + idempotency where needed
+- Loading buttons keep their label; use `…` for in-progress copy (`Saving…`)
+- Trim values; no dead zones on checkbox/radio — label + control share one target
+- Mobile inputs: ≥16px font or proper viewport meta — never disable browser zoom
+
+## Navigation & state
+
+- **URL reflects UI state** (filters, tabs, pagination) — repo uses `nuqs` / compose filters where applicable
+- Navigation uses `<Link>` / `<a>` — support Cmd/Ctrl/middle-click; not `<button>` for route changes
+- Back/Forward restores scroll when using Next.js App Router navigation
+- Confirm destructive actions or offer Undo
+- Warn on unsaved changes before leaving
+
+## Feedback & motion
+
+- Polite `aria-live` for toasts and inline validation
+- Optimistic UI only with rollback/Undo on failure
+- Honor `prefers-reduced-motion`; animate `transform`/`opacity` only
+- `overscroll-behavior: contain` in modals/drawers
+
+## Anti-patterns
+
+```tsx
+// ❌ div + onClick for internal route
+<div onClick={() => router.push('/items')}>Items</div>
+
+// ❌ Block paste on OTP field
+onPaste={(e) => e.preventDefault()}
+
+// ✅ Link + accessible name
+<Link href="/items">Items</Link>
+```
+
+## Verification
+
+```bash
+pnpm --filter storybook test:stories   # axe on gated stories
+pnpm --filter app check:stability
+```

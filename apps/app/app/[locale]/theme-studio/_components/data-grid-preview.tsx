@@ -1,6 +1,6 @@
 "use client";
 
-import type { ErpVisualLaneId } from "@repo/design-system";
+import type { AfendaErpVisualLaneId as ErpVisualLaneId } from "@repo/design-system/contracts/afenda/registries";
 import { Badge } from "@repo/ui/components/badge";
 import { Button } from "@repo/ui/components/button";
 import {
@@ -416,7 +416,7 @@ export function DataGridPreview(): ReactElement {
               className="w-full min-w-[1040px] caption-bottom text-sm"
               data-slot="table"
             >
-              <TableHeader className="sticky top-0 z-10 bg-muted/50 [&_tr]:border-b">
+              <TableHeader className="sticky top-0 z-layer-sticky bg-muted/50 [&_tr]:border-b">
                 <TableRow className="hover:bg-transparent">
                   <TableHead className="w-10">
                     <Checkbox

@@ -1,17 +1,20 @@
 "use client";
 
 import type {
-  TenantBrandingSettings,
-  UserBrandingPreferences,
-} from "@repo/design-system";
+  AfendaTenantBrandingSettings as TenantBrandingSettings,
+  AfendaUserBrandingPreferences as UserBrandingPreferences,
+} from "@repo/design-system/contracts/afenda/customization";
 import {
-  DEFAULT_TENANT_BRANDING_SETTINGS,
-  EMPTY_USER_BRANDING_PREFERENCES,
   mergeEffectiveBranding,
 } from "@repo/design-system";
+import {
+  AFENDA_DEFAULT_TENANT_BRANDING_SETTINGS as DEFAULT_TENANT_BRANDING_SETTINGS,
+  AFENDA_EMPTY_USER_BRANDING_PREFERENCES as EMPTY_USER_BRANDING_PREFERENCES,
+} from "@repo/design-system/contracts/afenda/customization";
 import type { ReactElement, ReactNode } from "react";
 import { createContext, useContext, useEffect, useMemo, useState } from "react";
 import { ThemePreferenceSync } from "./theme-preference-sync.tsx";
+import { TenantDensitySync } from "./tenant-density-sync.tsx";
 
 type TenantBrandingContextValue = {
   effectiveBranding: TenantBrandingSettings;
@@ -79,6 +82,7 @@ export function TenantBrandingProvider({
       }}
     >
       <ThemePreferenceSync />
+      <TenantDensitySync />
       {children}
     </TenantBrandingContext.Provider>
   );

@@ -51,6 +51,7 @@
     "lint:biome:ci": "biome ci .",
     "lint:stylelint": "pnpm run test:stylelint && stylelint \"packages/ui/src/styles/**/*.css\" \"apps/storybook/.storybook/**/*.css\" \"apps/*/app/**/*.css\"",
     "lint:stylelint:fix": "stylelint \"packages/ui/src/styles/**/*.css\" \"apps/storybook/.storybook/**/*.css\" \"apps/*/app/**/*.css\" --fix",
+    "audit:shadcn-style": "node tools/audit-shadcn-style-ownership.mjs",
     "lint:tailwind-v4": "python .agents/skills/tailwind-validator/scripts/validate.py --root packages/ui --strict --ci && python .agents/skills/tailwind-validator/scripts/validate.py --root apps/app --strict --ci && python .agents/skills/tailwind-validator/scripts/validate.py --root apps/storybook --strict --ci",
     "test:stylelint": "node --test tools/stylelint/afenda-css-plugin.test.mjs",
     "lint:doctor": "ultracite doctor",

@@ -1,0 +1,49 @@
+---
+description: Multi-file edits — direct changes, layer-ordered chunks, MCP verify for apps/app
+alwaysApply: true
+---
+
+# Heavy / Multi-File Tasks
+
+Edit files directly, one at a time. No throwaway scripts, batch processors, or regex bulk-replace for repo changes.
+
+## Chunk order
+
+1. **Dependency order** — types/contracts → server → app wiring → UI
+2. **Layer order** (see `agent-discipline.mdc`) — `apps/app` / Storybook before `@repo/ui` compose
+3. **Finish one chunk** before starting the next; no partial edits across the repo
+
+Report progress plainly: "Updated 5 of 12 files".
+
+## Next.js chunks (`apps/app/**`)
+
+Training data is stale — use MCP docs, not memory (Next.js `/docs/app/guides/ai-agents`).
+
+After each logical chunk touching `apps/app`:
+
+1. `pnpm --filter app typecheck` (narrow gate first)
+2. Dev server up → `nextjs_index` → `nextjs_call` `get_errors` on port `3000`
+3. Unsure about APIs → `nextjs-docs://llms-index` → `nextjs_docs`
+
+Full gates: `nextjs-mcp-quality.mdc`. Point MCP `init` at `apps/app`, not repo root.
+
+## Do not
+
+- Create `update.py`, `migrate.js`, `refactor.sh`, or one-off codemods for the task
+- Propose sed/regex commands for the user to run across the tree
+- Generate migration guides or checkpoint files unless asked
+- Blindly pattern-match — read each file's context
+
+## Allowed automation
+
+Permanent infra only: Biome, test runners, ORM migrations, CI/deploy — not temporary facilitators.
+
+For 100+ files with complex logic, suggest IDE refactor tools; still edit file-by-file if the user prefers.
+
+## Scale
+
+| Files | Approach |
+|-------|----------|
+| ≤10 | Edit all sequentially |
+| 11–30 | Batches of ~5–10, verify between batches |
+| 30+ | Group by module/feature; MCP/typecheck per group when touching `apps/app` |

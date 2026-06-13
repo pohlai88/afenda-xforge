@@ -1,0 +1,59 @@
+---
+description: Web UI accessibility & content — semantics, states, contrast, Next.js page context
+globs: apps/app/**/*.tsx,packages/ui/**/*.tsx,packages/metadata-ui/**/*.tsx
+alwaysApply: false
+---
+
+# Web Interface — Accessibility & Content
+
+Forms/navigation: `web-interface-interactions.mdc`. Primitives: `@repo/ui` (Radix/shadcn semantics). MCP: `/docs/architecture/accessibility`.
+
+## Next.js page context
+
+- Each route needs a **unique, descriptive** `<title>` and visible `<h1>` — Next.js route announcer uses these for client navigations
+- Use `next/image` with dimensions to prevent CLS (`react-performance.mdc`)
+
+## Semantics (prefer native before ARIA)
+
+- Native `<button>`, `<a>`, `<label>`, `<table>` first
+- Icon-only controls → descriptive `aria-label`
+- Decorative icons → `aria-hidden`
+- Status not color-only — pair icon + text
+- Verify names in the Accessibility Tree
+
+## Content & states
+
+- Design **empty, error, loading, and dense** states — no dead ends
+- Skeletons mirror final layout (avoid layout shift)
+- Tabular numbers: `tabular-nums` for comparisons
+- Locale-aware dates, numbers, currency
+- Use ellipsis character `…` (not three ASCII dots)
+- `scroll-margin-top` on headings for in-page anchors; skip link to main content
+- Hierarchical `h1`–`h6` — one primary heading per view
+
+## Layout & contrast
+
+- Respect `env(safe-area-inset-*)` on mobile
+- Fix overflow — no accidental horizontal scroll
+- Meet contrast on text and controls; increase on `:hover/:focus/:active`
+- Test responsive: mobile, laptop, wide — use design tokens from `@repo/design-system`, not one-off hex
+
+## metadata-ui note
+
+Governed surfaces must expose accessible names even when visuals omit visible labels (`frontend-metadata-ui.mdc`).
+
+## Anti-patterns
+
+```tsx
+// ❌ Color-only error state
+<span className="text-red-500">Invalid</span>
+
+// ❌ Missing name on icon button
+<button><TrashIcon /></button>
+
+// ✅ Label + redundant cue
+<button aria-label="Delete customer">
+  <TrashIcon aria-hidden />
+  <span className="sr-only">Delete</span>
+</button>
+```

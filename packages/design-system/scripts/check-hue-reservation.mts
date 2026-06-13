@@ -1,11 +1,11 @@
 import {
-  formatHueValidationReport,
-  validateHueReservation,
-} from "../src/contracts/hue-reservation.contract.ts";
+  formatAfendaHueValidationReport as formatHueValidationReport,
+  validateAfendaHueReservation as validateHueReservation,
+} from "../src/contracts/afenda/hue-reservation.contract.ts";
 import {
   collectAllThemePresetHueEntries,
   collectDefaultPlatformHueEntries,
-} from "../src/tokens/collect-platform-hue-entries.ts";
+} from "../src/contracts/afenda/hue-reservation.contract.ts";
 
 const platformResult = validateHueReservation(
   collectDefaultPlatformHueEntries()

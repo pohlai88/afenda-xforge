@@ -206,7 +206,7 @@ function TreeItem<T = unknown>({
     "data-slot": "tree-item",
     style: mergedStyle,
     className: cn(
-      "z-10 ps-(--tree-padding) outline-hidden select-none not-last:pb-0.5 focus:z-20 data-[disabled]:pointer-events-none data-[disabled]:opacity-50",
+      "z-layer-base ps-(--tree-padding) outline-hidden select-none not-last:pb-0.5 focus:z-layer-sticky data-[disabled]:pointer-events-none data-[disabled]:opacity-50",
       className,
       itemClassName as ClassValue,
     ),
@@ -335,7 +335,7 @@ function TreeDragLine({ className, ...props }: HTMLAttributes<HTMLDivElement>) {
     <div
       style={dragLine}
       className={cn(
-        "bg-primary before:bg-background before:border-primary absolute z-30 -mt-px h-0.5 w-[unset] before:absolute before:-top-[3px] before:left-0 before:size-2 before:rounded-full before:border-2",
+        "bg-primary before:bg-background before:border-primary absolute z-layer-popover -mt-px h-0.5 w-[unset] before:absolute before:-top-[3px] before:left-0 before:size-2 before:rounded-full before:border-2",
         className,
       )}
       {...props}

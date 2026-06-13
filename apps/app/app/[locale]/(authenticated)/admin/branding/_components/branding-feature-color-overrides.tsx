@@ -1,10 +1,10 @@
 "use client";
 
 import type {
-  PartialLaneColorModeScale,
-  TenantBrandingSettings,
-} from "@repo/design-system";
-import { ERP_CATALOG_MODULE_ENTRIES } from "@repo/design-system";
+  AfendaPartialLaneColorModeScale as PartialLaneColorModeScale,
+  AfendaTenantBrandingSettings as TenantBrandingSettings,
+} from "@repo/design-system/contracts/afenda/customization";
+import { AFENDA_ERP_CATALOG_MODULE_ENTRIES as ERP_CATALOG_MODULE_ENTRIES } from "@repo/design-system/contracts/afenda/catalogs";
 import { Badge } from "@repo/ui/components/badge";
 import { Button } from "@repo/ui/components/button";
 import {

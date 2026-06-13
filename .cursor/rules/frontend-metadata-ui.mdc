@@ -1,0 +1,61 @@
+---
+description: metadata-ui — governed entity surfaces, contracts, renderers, app wiring
+globs: packages/metadata-ui/**/*.tsx,packages/metadata-ui/**/*.ts
+alwaysApply: false
+---
+
+# Frontend Metadata UI (`@repo/metadata-ui`)
+
+Declarative ERP entity surfaces. App routes wire here — do not hand-roll tables/forms for governed entities. App usage: `frontend-app.mdc`.
+
+## Package boundaries
+
+| Export | Use for |
+|--------|---------|
+| `/components` | `MetadataTable`, `MetadataForm`, section stacks |
+| `/contracts` | `MetadataRenderContext`, renderer contracts |
+| `/client` | Client-safe adapters and renderers |
+| `/server` | Server-only resolution — apps import via feature server, not pages directly |
+
+Metadata describes presentation; it must not own permissions, execution, or audit finality.
+
+## Implementation rules
+
+- Extend via **contracts + renderers/adapters** — not forked one-off JSX in apps
+- Field/section/state renderers live under `src/renderers/`
+- Validate inputs with package contracts; use `InvalidContractFallback` patterns
+- Customization through `packages/customization` overlays — not ad-hoc props that bypass governance
+
+## App wiring pattern
+
+```tsx
+import { MetadataSectionStack } from '@repo/metadata-ui/components'
+import type { MetadataRenderContext } from '@repo/metadata-ui/contracts'
+
+export function DocumentsView({ context }: { context: MetadataRenderContext }) {
+  return <MetadataSectionStack context={context} sections={...} />
+}
+```
+
+Wire feature `metadata.ts` + route view components in `apps/app` — keep domain data fetching in feature `/server`.
+
+## Anti-patterns
+
+```tsx
+// ❌ Bespoke entity table in app when metadata-ui covers the surface
+<table>{rows.map(...)}</table>
+
+// ❌ Business rules inside a renderer
+if (user.role === 'admin') { /* permission finality */ }
+
+// ✅ Metadata-driven surface + server-side permission elsewhere
+<MetadataTable context={context} definition={tableDef} rows={rows} />
+```
+
+## Verification
+
+```bash
+pnpm --filter @repo/metadata-ui typecheck
+pnpm --filter @repo/metadata-ui test
+pnpm --filter storybook check:metadata-ui-browser-smoke
+```

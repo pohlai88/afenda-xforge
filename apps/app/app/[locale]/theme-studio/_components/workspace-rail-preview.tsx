@@ -38,7 +38,7 @@ export function WorkspaceRailPreview(): ReactElement {
           </li>
           <li className="flex items-start gap-2">
             <Badge variant="outline">site-topbar</Badge>
-            <span>Site sidebar trigger, scope label, and theme toggle</span>
+            <span>Site sidebar trigger, scope label, and panel actions</span>
           </li>
           <li className="flex items-start gap-2">
             <Badge variant="outline">nav-user</Badge>

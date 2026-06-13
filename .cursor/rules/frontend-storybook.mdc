@@ -1,0 +1,42 @@
+---
+description: Storybook — previews, decorators, visual gates; not workspace compose refactors
+globs: apps/storybook/**/*.tsx,apps/storybook/**/*.ts,apps/storybook/**/*.mdx
+alwaysApply: false
+---
+
+# Frontend Storybook (`apps/storybook`)
+
+Visual workshop for `@repo/ui` and `@repo/metadata-ui`. App wiring: `frontend-app.mdc`. Layers: `agent-discipline.mdc`.
+
+## Scope (stay here for visual work)
+
+- Introduction, Metadata UI galleries, UI Compose, Primitives
+- Theme Studio previews via story decorators — not production route changes
+- Mocks in `.storybook/mocks/` (navigation, i18n)
+
+Do **not** refactor `packages/ui/.../compose/workspace/**` for Storybook contrast or polish. Fix preview decorators, parameters, or story layout instead.
+
+## Story conventions
+
+- CSF3 stories; co-locate decorators when a story needs shell chrome
+- Semantic design tokens in story `className` — no ad-hoc hex or raw pixel hacks
+- Compose galleries: use registry/manifest paths documented in `apps/storybook/README.md`
+- `a11y.test: 'error'` tiers must pass in `test:stories`
+
+## Anti-patterns
+
+- Flattening `workspace-shell.surfaces.ts` for preview contrast
+- Changing `sidebarVariant` defaults to match a story experiment
+- Duplicating metadata-ui render logic in stories — import from `@repo/metadata-ui`
+
+## Verification
+
+```bash
+pnpm --filter storybook typecheck
+pnpm --filter storybook check:theme-css      # preview.css / token integration
+pnpm --filter storybook check:storybook-visual-tokens
+pnpm --filter storybook test:stories         # axe + interactions
+pnpm --filter storybook check:build          # before large story additions
+```
+
+Dev: `pnpm --filter storybook dev`. See `apps/storybook/README.md` for visual regression commands.

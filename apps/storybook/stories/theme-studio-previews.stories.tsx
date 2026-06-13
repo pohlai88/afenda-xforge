@@ -1,4 +1,4 @@
-import { DEFAULT_TENANT_BRANDING_SETTINGS } from "@repo/design-system";
+import { AFENDA_DEFAULT_TENANT_BRANDING_SETTINGS } from "@repo/design-system";
 import type { Meta, StoryObj } from "@storybook/react";
 
 import { AnalyticsPreview } from "../../app/app/[locale]/theme-studio/_components/analytics-preview.tsx";
@@ -26,7 +26,7 @@ const meta = {
   },
   decorators: [
     (Story) => (
-      <ThemeStudioPreviewRoot branding={DEFAULT_TENANT_BRANDING_SETTINGS}>
+      <ThemeStudioPreviewRoot branding={AFENDA_DEFAULT_TENANT_BRANDING_SETTINGS}>
         <Story />
       </ThemeStudioPreviewRoot>
     ),

@@ -36,18 +36,18 @@ import { useTranslations } from "next-intl";
 import type { ComponentType, MouseEvent, ReactElement } from "react";
 import { useEffect, useMemo, useState } from "react";
 import { useRouter } from "@/i18n/navigation";
+import { WORKSPACE_SEARCH_MIN_QUERY_LENGTH } from "../../../../lib/workspace-search/contract.ts";
 import type {
   ShortcutActionId,
   WorkspaceShortcutsPayload,
 } from "../../../../lib/workspace-shortcuts/contract.ts";
 import { CRUD_SHORTCUT_ACTIONS } from "../../../../lib/workspace-shortcuts/contract.ts";
 import { PRODUCT_SHORTCUT_DEFINITIONS } from "../../../../lib/workspace-shortcuts/product-defaults.ts";
-import { WORKSPACE_SEARCH_MIN_QUERY_LENGTH } from "../../../../lib/workspace-search/contract.ts";
-import { AUTHENTICATED_NAV_ITEMS } from "../../authenticated-workspace-nav.ts";
+import { WORKSPACE_APP_LIVE_NAVIGATION_SURFACES } from "../workspace-app-surfaces.ts";
 import { shortcutActionMessageKey } from "./shortcut-i18n.ts";
 import { ShortcutKeyDisplay } from "./shortcut-key-display.tsx";
-import { useWorkspaceSearchSuggestions } from "./use-workspace-search-suggestions.ts";
 import { useWorkspaceShortcuts } from "./use-keyboard-shortcuts.tsx";
+import { useWorkspaceSearchSuggestions } from "./use-workspace-search-suggestions.ts";
 
 const WORKSPACE_COMMAND_ACTIONS = [
   "workspace.toggleSidebar",
@@ -101,7 +101,9 @@ function CommandPalettePreviewPanel({
   crudCommands: PaletteCommand[];
   onRun: (command: PaletteCommand) => void;
 }): ReactElement {
-  const t = useTranslations("workspace.keyboardShortcuts.commandPalette.preview");
+  const t = useTranslations(
+    "workspace.keyboardShortcuts.commandPalette.preview"
+  );
   const tGroups = useTranslations(
     "workspace.keyboardShortcuts.commandPalette.groups"
   );
@@ -109,8 +111,7 @@ function CommandPalettePreviewPanel({
     "workspace.keyboardShortcuts.commandPalette.footer"
   );
   const selectedId = useCommandState((state) => state.value);
-  const command =
-    commands.find((entry) => entry.id === selectedId) ?? null;
+  const command = commands.find((entry) => entry.id === selectedId) ?? null;
   const Icon = command?.icon;
 
   return (
@@ -132,33 +133,33 @@ function CommandPalettePreviewPanel({
               ) : null}
               <div className="min-w-0 space-y-1">
                 <h3 className="font-semibold leading-none">{command.label}</h3>
-                <p className="text-sm text-muted-foreground">
+                <p className="text-muted-foreground text-sm">
                   {command.description}
                 </p>
               </div>
             </div>
           </>
         ) : (
-          <p className="text-sm text-muted-foreground">{t("emptySelection")}</p>
+          <p className="text-muted-foreground text-sm">{t("emptySelection")}</p>
         )}
       </CardHeader>
 
       <CardContent className="flex-1 px-5 py-4">
         {command?.normalized ? (
           <div className="space-y-1.5">
-            <p className="text-xs font-medium text-muted-foreground">
+            <p className="font-medium text-muted-foreground text-xs">
               {t("shortcutLabel")}
             </p>
             <ShortcutKeyDisplay normalized={command.normalized} />
           </div>
         ) : null}
         {command ? (
-          <p className="mt-4 text-xs text-muted-foreground">{t("runHint")}</p>
+          <p className="mt-4 text-muted-foreground text-xs">{t("runHint")}</p>
         ) : null}
       </CardContent>
 
       <CardFooter className="mt-auto flex-col gap-3 border-t bg-muted/20 px-5 py-4">
-        <p className="text-xs font-medium text-muted-foreground">
+        <p className="font-medium text-muted-foreground text-xs">
           {tFooter("crudTitle")}
         </p>
         <div className="flex flex-wrap gap-2">
@@ -194,11 +195,13 @@ function CommandPalettePreviewPanel({
 }
 
 function CommandPaletteNavigationFooter(): ReactElement {
-  const t = useTranslations("workspace.keyboardShortcuts.commandPalette.footer");
+  const t = useTranslations(
+    "workspace.keyboardShortcuts.commandPalette.footer"
+  );
 
   return (
     <div
-      className="flex flex-wrap items-center gap-4 border-t bg-muted/40 px-4 py-2.5 text-xs text-muted-foreground"
+      className="flex flex-wrap items-center gap-4 border-t bg-muted/40 px-4 py-2.5 text-muted-foreground text-xs"
       data-cmdk-ignore=""
     >
       <span className="inline-flex items-center gap-2">
@@ -270,15 +273,15 @@ export function WorkspaceCommandPalette({
   };
 
   const commands = useMemo(() => {
-    const navigationCommands: PaletteCommand[] = AUTHENTICATED_NAV_ITEMS.map(
-      (item) => ({
-        id: `navigation:${item.href}`,
+    const navigationCommands: PaletteCommand[] =
+      WORKSPACE_APP_LIVE_NAVIGATION_SURFACES.map((surface) => ({
+        id: `navigation:${surface.href}`,
         group: "navigation",
-        label: item.label,
-        description: tPreview("navigationDescription"),
-        run: () => router.push(item.href),
-      })
-    );
+        label: surface.label,
+        description: surface.description ?? tPreview("navigationDescription"),
+        icon: surface.icon,
+        run: () => router.push(surface.href),
+      }));
 
     const workspaceCommands: PaletteCommand[] = WORKSPACE_COMMAND_ACTIONS.map(
       (actionId) => {
@@ -370,7 +373,9 @@ export function WorkspaceCommandPalette({
   const filteredStaticCommands = useMemo(
     () =>
       hasActiveSearch
-        ? commands.filter((command) => matchesPaletteQuery(command.label, searchQuery))
+        ? commands.filter((command) =>
+            matchesPaletteQuery(command.label, searchQuery)
+          )
         : commands,
     [commands, hasActiveSearch, searchQuery]
   );
@@ -389,7 +394,14 @@ export function WorkspaceCommandPalette({
   const filteredCrudCommands = filteredStaticCommands.filter(
     (command) => command.group === "crud"
   );
-  const showStaticGroups = !hasActiveSearch || filteredStaticCommands.length > 0;
+  const showStaticGroups =
+    !hasActiveSearch || filteredStaticCommands.length > 0;
+  let commandEmptyMessage = t("commandPalette.empty");
+  if (loading) {
+    commandEmptyMessage = t("commandPalette.searchStatus.searching");
+  } else if (hasActiveSearch && !available) {
+    commandEmptyMessage = t("commandPalette.searchStatus.unavailable");
+  }
 
   return (
     <CommandDialog
@@ -407,19 +419,13 @@ export function WorkspaceCommandPalette({
       />
 
       <div className="grid min-h-0 border-b md:grid-cols-[minmax(0,0.95fr)_minmax(0,1.05fr)]">
-        <CommandList className="max-h-[min(360px,50vh)] border-b md:border-b-0 md:border-r">
-          <CommandEmpty>
-            {loading
-              ? t("commandPalette.searchStatus.searching")
-              : hasActiveSearch && !available
-                ? t("commandPalette.searchStatus.unavailable")
-                : t("commandPalette.empty")}
-          </CommandEmpty>
+        <CommandList className="max-h-[min(360px,50vh)] border-b md:border-r md:border-b-0">
+          <CommandEmpty>{commandEmptyMessage}</CommandEmpty>
 
           {hasActiveSearch ? (
             <CommandGroup heading={t("commandPalette.groups.search")}>
               {loading && searchCommands.length === 0 ? (
-                <div className="px-2 py-3 text-sm text-muted-foreground">
+                <div className="px-2 py-3 text-muted-foreground text-sm">
                   {t("commandPalette.searchStatus.searching")}
                 </div>
               ) : null}
@@ -481,7 +487,7 @@ export function WorkspaceCommandPalette({
                     ) : null}
                   </CommandItem>
                 );
-                  })}
+              })}
             </CommandGroup>
           ) : null}
 
@@ -490,26 +496,26 @@ export function WorkspaceCommandPalette({
           {showStaticGroups ? (
             <CommandGroup heading={t("commandPalette.groups.crud")}>
               {filteredCrudCommands.map((command) => {
-              const Icon = command.icon;
+                const Icon = command.icon;
 
-              return (
-                <CommandItem
-                  disabled={command.disabled}
-                  key={command.id}
-                  keywords={[command.label, command.group]}
-                  onSelect={() => runCommand(() => command.run())}
-                  value={command.id}
-                >
-                  {Icon ? <Icon className="size-4" /> : null}
-                  {command.label}
-                  {command.normalized ? (
-                    <CommandShortcut>
-                      <ShortcutKeyDisplay normalized={command.normalized} />
-                    </CommandShortcut>
-                  ) : null}
-                </CommandItem>
-              );
-                })}
+                return (
+                  <CommandItem
+                    disabled={command.disabled}
+                    key={command.id}
+                    keywords={[command.label, command.group]}
+                    onSelect={() => runCommand(() => command.run())}
+                    value={command.id}
+                  >
+                    {Icon ? <Icon className="size-4" /> : null}
+                    {command.label}
+                    {command.normalized ? (
+                      <CommandShortcut>
+                        <ShortcutKeyDisplay normalized={command.normalized} />
+                      </CommandShortcut>
+                    ) : null}
+                  </CommandItem>
+                );
+              })}
             </CommandGroup>
           ) : null}
         </CommandList>

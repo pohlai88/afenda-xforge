@@ -1,5 +1,6 @@
 "use client";
 
+import { Sidebar, SidebarProvider } from "@repo/ui";
 import type { WorkspaceAppNavTopbarProps } from "@repo/ui/components/compose/workspace";
 import {
   WORKSPACE_APP_NAV_TOPBAR_HEIGHT,
@@ -17,71 +18,123 @@ import type {
   ReactElement,
   ReactNode,
 } from "react";
-import { SiteContentSidebarShell } from "./site-content-sidebar-shell.tsx";
-import { APP_NAV_SIDEBAR_SHELL_CLASS } from "./app-nav-sidebar-shell.classes.ts";
+import { WorkspaceAuditEvidenceDockedLayout } from "./audit-evidence/workspace-audit-evidence-docked-layout.tsx";
+import { WorkspaceAuditEvidenceShell } from "./audit-evidence/workspace-audit-evidence-shell.tsx";
 import {
   APP_SIDEBAR_BEHAVIOR_STORAGE_KEY,
+  SITE_SIDEBAR_BEHAVIOR_STORAGE_KEY,
 } from "./sidebar-behavior.constants.ts";
 import {
   SidebarControlProvider,
   SidebarHoverController,
 } from "./sidebar-control-provider.tsx";
+import {
+  APP_NAV_SIDEBAR_SHELL_CLASS,
+  SITE_CONTENT_SHELL_CLASS,
+  SITE_LEFT_SIDEBAR_PROVIDER_CLASS,
+  SITE_LEFT_SIDEBAR_SHELL_CLASS,
+} from "./workspace-shell.classes.ts";
 
 type WorkspaceFrameProps = {
   appNavTopbar?: WorkspaceAppNavTopbarProps;
+  appSidebar: ReactNode;
+  appSidebarClassName?: string;
+  appSidebarCollapsible?: ComponentProps<
+    typeof WorkspaceAppSidebar
+  >["collapsible"];
+  appSidebarVariant?: ComponentProps<typeof WorkspaceAppSidebar>["variant"];
+  appSidebarWidth?: string;
+  appSidebarWrapper?: (appSidebar: ReactNode) => ReactNode;
+  auditEvidenceScopeSync?: ReactNode;
   children: ReactNode;
   className?: string;
-  collapsible?: ComponentProps<typeof WorkspaceAppSidebar>["collapsible"];
   contentClassName?: string;
   contentPadded?: boolean;
   defaultOpen?: boolean;
   enableSidebarKeyboardShortcut?: boolean;
-  sidebar: ReactNode;
-  sidebarClassName?: string;
-  sidebarVariant?: ComponentProps<typeof WorkspaceAppSidebar>["variant"];
-  sidebarWidth?: string;
-  sidebarWrapper?: (sidebar: ReactNode) => ReactNode;
-  /** Local feature navigation rail inside the site content column. */
-  siteContentSidebar?: ReactNode;
-  topBar: ReactNode;
+  siteSidebarLeft?: ReactNode;
+  siteTopbar: ReactNode;
 };
 
 const workspaceBodyBelowAppTopbarClass =
-  "[--workspace-app-topbar-height:var(--workspace-app-nav-topbar-height,2.75rem)] [&_[data-slot=sidebar-container]]:top-[var(--workspace-app-topbar-height)] [&_[data-slot=sidebar-container]]:h-[calc(100svh-var(--workspace-app-topbar-height))]";
+  "[--workspace-app-topbar-height:var(--workspace-app-nav-topbar-height,2.75rem)] [&>[data-slot=sidebar]_[data-slot=sidebar-container]]:top-[var(--workspace-app-topbar-height)] [&>[data-slot=sidebar]_[data-slot=sidebar-container]]:h-[calc(100svh-var(--workspace-app-topbar-height))]";
 
-/** Open the site column to the viewport edge — no trailing hairline. */
-const workspaceSiteContentShellClass = "border-e-0";
+/** Site column — unified bg-background, no trailing hairline. */
+const workspaceSiteContentShellClass = cn(
+  "border-e-0",
+  SITE_CONTENT_SHELL_CLASS
+);
+
+const SITE_LEFT_SIDEBAR_COOKIE = "site_staging_sidebar_state";
+
+function WorkspaceSiteLeftSidebarLayout({
+  children,
+  siteSidebarLeft,
+  siteTopbar,
+}: {
+  children: ReactNode;
+  siteSidebarLeft: ReactNode;
+  siteTopbar: ReactNode;
+}): ReactElement {
+  return (
+    <SidebarProvider
+      className={cn(SITE_LEFT_SIDEBAR_PROVIDER_CLASS)}
+      cookieName={SITE_LEFT_SIDEBAR_COOKIE}
+      enableKeyboardShortcut={false}
+      style={{ "--sidebar-width": "17rem" } as CSSProperties}
+    >
+      <SidebarControlProvider storageKey={SITE_SIDEBAR_BEHAVIOR_STORAGE_KEY}>
+        <SidebarHoverController containerSelector="[data-slot=workspace-site-content-body] > [data-slot=sidebar]" />
+        {siteTopbar}
+        <div
+          className="flex min-h-0 min-w-0 flex-1 overflow-hidden"
+          data-slot="workspace-site-content-body"
+        >
+          <Sidebar
+            className={SITE_LEFT_SIDEBAR_SHELL_CLASS}
+            collapsible="icon"
+            variant="inset"
+          >
+            {siteSidebarLeft}
+          </Sidebar>
+          {children}
+        </div>
+      </SidebarControlProvider>
+    </SidebarProvider>
+  );
+}
 
 export function WorkspaceFrame({
   appNavTopbar,
+  appSidebar,
+  appSidebarClassName,
+  appSidebarCollapsible = "offcanvas",
+  appSidebarVariant = "inset",
+  appSidebarWidth = WORKSPACE_SHELL_SIDEBAR_WIDTH,
+  appSidebarWrapper,
+  auditEvidenceScopeSync,
   children,
   className,
-  collapsible = "offcanvas",
   contentClassName,
   contentPadded = false,
   defaultOpen = true,
   enableSidebarKeyboardShortcut = true,
-  sidebar,
-  sidebarClassName,
-  sidebarVariant = "inset",
-  sidebarWidth = WORKSPACE_SHELL_SIDEBAR_WIDTH,
-  sidebarWrapper,
-  siteContentSidebar,
-  topBar,
+  siteSidebarLeft,
+  siteTopbar,
 }: WorkspaceFrameProps): ReactElement {
-  const sidebarNode = (
+  const appSidebarNode = (
     <WorkspaceAppSidebar
-      className={cn(APP_NAV_SIDEBAR_SHELL_CLASS, sidebarClassName)}
-      collapsible={collapsible}
-      variant={sidebarVariant}
+      className={cn(APP_NAV_SIDEBAR_SHELL_CLASS, appSidebarClassName)}
+      collapsible={appSidebarCollapsible}
+      variant={appSidebarVariant}
     >
-      {sidebar}
+      {appSidebar}
     </WorkspaceAppSidebar>
   );
 
-  const resolvedSidebar = sidebarWrapper
-    ? sidebarWrapper(sidebarNode)
-    : sidebarNode;
+  const resolvedAppSidebar = appSidebarWrapper
+    ? appSidebarWrapper(appSidebarNode)
+    : appSidebarNode;
 
   const siteMain = (
     <WorkspaceSiteContent className={contentClassName} padded={contentPadded}>
@@ -89,25 +142,41 @@ export function WorkspaceFrame({
     </WorkspaceSiteContent>
   );
 
-  const siteColumn = siteContentSidebar ? (
+  const siteBody = auditEvidenceScopeSync ? (
+    <WorkspaceAuditEvidenceDockedLayout>
+      {siteMain}
+    </WorkspaceAuditEvidenceDockedLayout>
+  ) : (
+    siteMain
+  );
+
+  const siteColumnBody = siteSidebarLeft ? (
     <WorkspaceNavSiteContent className={workspaceSiteContentShellClass}>
-      <SiteContentSidebarShell
-        siteContentSidebar={siteContentSidebar}
-        topBar={topBar}
+      <WorkspaceSiteLeftSidebarLayout
+        siteSidebarLeft={siteSidebarLeft}
+        siteTopbar={siteTopbar}
       >
-        {siteMain}
-      </SiteContentSidebarShell>
+        {siteBody}
+      </WorkspaceSiteLeftSidebarLayout>
     </WorkspaceNavSiteContent>
   ) : (
     <WorkspaceNavSiteContent className={workspaceSiteContentShellClass}>
-      {topBar}
+      {siteTopbar}
       <div
         className="flex min-h-0 min-w-0 flex-1 overflow-hidden"
         data-slot="workspace-site-content-body"
       >
-        {siteMain}
+        {siteBody}
       </div>
     </WorkspaceNavSiteContent>
+  );
+
+  const siteColumn = auditEvidenceScopeSync ? (
+    <WorkspaceAuditEvidenceShell scopeSync={auditEvidenceScopeSync}>
+      {siteColumnBody}
+    </WorkspaceAuditEvidenceShell>
+  ) : (
+    siteColumnBody
   );
 
   if (!appNavTopbar) {
@@ -116,11 +185,11 @@ export function WorkspaceFrame({
         className={cn("h-svh overflow-hidden", className)}
         defaultOpen={defaultOpen}
         enableSidebarKeyboardShortcut={enableSidebarKeyboardShortcut}
-        sidebarWidth={sidebarWidth}
+        sidebarWidth={appSidebarWidth}
       >
         <SidebarControlProvider storageKey={APP_SIDEBAR_BEHAVIOR_STORAGE_KEY}>
           <SidebarHoverController containerSelector='[data-slot="sidebar-container"]' />
-          {resolvedSidebar}
+          {resolvedAppSidebar}
           {siteColumn}
         </SidebarControlProvider>
       </WorkspaceShellProvider>
@@ -132,7 +201,7 @@ export function WorkspaceFrame({
       className={cn("flex h-svh flex-col overflow-hidden", className)}
       defaultOpen={defaultOpen}
       enableSidebarKeyboardShortcut={enableSidebarKeyboardShortcut}
-      sidebarWidth={sidebarWidth}
+      sidebarWidth={appSidebarWidth}
       style={
         {
           "--workspace-app-nav-topbar-height": WORKSPACE_APP_NAV_TOPBAR_HEIGHT,
@@ -140,7 +209,7 @@ export function WorkspaceFrame({
       }
     >
       <SidebarControlProvider storageKey={APP_SIDEBAR_BEHAVIOR_STORAGE_KEY}>
-        <SidebarHoverController containerSelector='[data-slot=workspace-body] > [data-slot=sidebar]' />
+        <SidebarHoverController containerSelector="[data-slot=workspace-body] > [data-slot=sidebar]" />
         <WorkspaceAppNavTopbar {...appNavTopbar} />
         <div
           className={cn(
@@ -149,7 +218,7 @@ export function WorkspaceFrame({
           )}
           data-slot="workspace-body"
         >
-          {resolvedSidebar}
+          {resolvedAppSidebar}
           {siteColumn}
         </div>
       </SidebarControlProvider>

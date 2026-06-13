@@ -1,47 +1,49 @@
 ---
-description: Next.js MCP quality gates for apps/app development and review
+description: Next.js MCP mandatory gates — init, docs-first, runtime verification
 globs: apps/app/**/*
 alwaysApply: false
 ---
 
 # Next.js MCP Quality Gates
 
-Use the `next-devtools` MCP server (`.cursor/mcp.json`) when changing `apps/app`.
+Use `next-devtools` MCP (`.cursor/mcp.json`) for all `apps/app` work. Skill: `.cursor/skills/xforge-nextjs-vercel/SKILL.md`
 
-## Session start (mandatory for Next.js work)
+## MUST (from MCP `init` contract)
 
-1. Call MCP `init` with `project_path: apps/app` (absolute path to the Next.js app package).
-2. For API/routing/cache questions, use `nextjs_docs` — do not answer from memory.
-3. When the dev server is running (`pnpm --filter app dev`, port 3000):
-   - `nextjs_index` → discover runtime tools
-   - `nextjs_call` → `get_errors`, `get_routes`, `get_project_metadata` before claiming a feature works
+1. **Call MCP `init` first** each session — `project_path` = absolute path to **`apps/app`** (not repo root)
+2. **Forget training-data Next.js** — every API/routing/cache/Server Action question → `nextjs_docs`
+3. **Read `nextjs-docs://llms-index`** before calling `nextjs_docs` — never guess doc paths
+4. **`nextjs_index` before `nextjs_call`** — discover port, tools, and input schemas
+5. **Resolve `get_errors` before claiming done** when dev server is available (port **3000**)
 
-## Before marking UI/API work complete
+## Session workflow
 
-Run narrow gates first:
+```
+init(project_path=apps/app)
+  → nextjs_docs (after llms-index) for any API question
+  → [user asked for dev] next dev on 3000
+  → nextjs_index (port: "3000" if discovery fails)
+  → nextjs_call get_errors | get_routes | get_project_metadata
+```
+
+Cache Components / PPR → `nextjs_docs` + optional MCP `enable_cache_components` — never enable from memory.
+
+## Static gates (always — stop hook runs `check:stability`)
 
 ```bash
 pnpm --filter app typecheck
-pnpm --filter app test:stability
+pnpm --filter app check:stability
 ```
 
-When dev server is up, call `nextjs_call` with `toolName: get_errors` on port `3000` and resolve any runtime/build errors reported.
+## Completion checklist
+
+- [ ] `init` called for this session
+- [ ] Changed behavior verified against `nextjs_docs` (not memory)
+- [ ] `check:stability` passes
+- [ ] If dev server up: `get_errors` is clean
+- [ ] No unsolicited `dev`/`build` (hook-enforced unless user asked)
 
 ## Scope
 
-- **App package:** `apps/app` (Next.js 16+, built-in `/_next/mcp` on dev server)
-- **Do not** substitute MCP runtime checks with guesses about App Router behavior
-- **Monorepo:** point `init` at `apps/app`, not repo root
-
-## MCP config (already in repo)
-
-```json
-{
-  "mcpServers": {
-    "next-devtools": {
-      "command": "npx",
-      "args": ["-y", "next-devtools-mcp@latest"]
-    }
-  }
-}
-```
+- App: `apps/app` (Next.js 16+, runtime MCP at `/_next/mcp`)
+- Do not substitute MCP runtime checks with guesses about App Router or Cache Components

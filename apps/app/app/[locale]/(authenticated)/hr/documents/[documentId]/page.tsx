@@ -24,7 +24,7 @@ const renderNavigationActions = (): ReactElement => (
       <Link href="/hr/documents">Back to documents</Link>
     </Button>
     <Button asChild variant="outline">
-      <Link href="/hr">Back to HR hub</Link>
+      <Link href="/hr">Back to Documents Management</Link>
     </Button>
   </div>
 );

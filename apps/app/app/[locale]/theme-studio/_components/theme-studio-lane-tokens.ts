@@ -1,4 +1,4 @@
-import type { ErpVisualLaneId } from "@repo/design-system";
+import type { AfendaErpVisualLaneId as ErpVisualLaneId } from "@repo/design-system/contracts/afenda/registries";
 
 export const LANE_PREVIEW_LABELS: Record<ErpVisualLaneId, string> = {
   money: "Finance",

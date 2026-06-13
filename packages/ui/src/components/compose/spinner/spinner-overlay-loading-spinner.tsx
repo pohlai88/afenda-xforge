@@ -34,7 +34,7 @@ export function SpinnerOverlayLoadingSpinner() {
         </CardContent>
       </Card>
 
-      <Card className="bg-background/80 absolute inset-0 z-10 backdrop-blur-xs">
+      <Card className="bg-background/80 absolute inset-0 z-layer-popover backdrop-blur-xs">
         <CardContent className="flex grow flex-col items-center justify-center gap-2">
           <Spinner className="size-5 opacity-60" />
           <span className="text-muted-foreground text-sm">

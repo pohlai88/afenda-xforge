@@ -4,13 +4,51 @@
     "sessionStart": [
       {
         "type": "prompt",
-        "prompt": "You are working in afenda-Xforge. Read AGENTS.md and .cursor/rules/ before acting. Stupid agent behaviors to avoid: (1) editing packages/ui/src/components/compose/workspace/ to fix previews or polish — use apps/app or apps/storybook instead; (2) implementing before answering direct questions; (3) git restore/clean on user WIP without explicit ask; (4) refactoring shared framework when the user only asked about look/feel. If a task touches workspace compose, ask first."
+        "prompt": "Repo: afenda-Xforge (XForge, pnpm, apps/app Next.js 16+). Rules: AGENTS.md + .cursor/rules/ (project-general.mdc index). Skill: .cursor/skills/xforge-nextjs-vercel/ for Next.js + Vercel. apps/app: MCP init(project_path=apps/app) + nextjs_docs (after llms-index) before any Next.js code. Hooks enforce: NEXT_PUBLIC secrets, Vercel prod deploy/MCP deploy/env pull, destructive git, dev servers, workspace compose, stop quality gates."
+      }
+    ],
+    "preToolUse": [
+      {
+        "command": "node .cursor/hooks/guard-workspace-compose.mjs",
+        "timeout": 5
+      },
+      {
+        "command": "node .cursor/hooks/guard-next-public-env.mjs",
+        "timeout": 5
+      }
+    ],
+    "beforeShellExecution": [
+      {
+        "command": "node .cursor/hooks/block-destructive-git.mjs",
+        "timeout": 5
+      },
+      {
+        "command": "node .cursor/hooks/block-dev-servers.mjs",
+        "timeout": 5
+      },
+      {
+        "command": "node .cursor/hooks/warn-wrong-package-manager.mjs",
+        "timeout": 5
+      },
+      {
+        "command": "node .cursor/hooks/ask-vercel-production.mjs",
+        "timeout": 5
+      },
+      {
+        "command": "node .cursor/hooks/ask-vercel-env-pull.mjs",
+        "timeout": 5
+      }
+    ],
+    "beforeMCPExecution": [
+      {
+        "command": "node .cursor/hooks/guard-vercel-deploy-mcp.mjs",
+        "timeout": 5
       }
     ],
     "stop": [
       {
-        "command": "node .cursor/hooks/stop-app-stability.mjs",
-        "timeout": 120,
+        "command": "node .cursor/hooks/stop-quality-gates.mjs",
+        "timeout": 180,
         "loop_limit": 3
       }
     ]

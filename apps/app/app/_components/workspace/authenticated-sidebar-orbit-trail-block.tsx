@@ -1,8 +1,15 @@
 "use client";
 
-import { Input, SidebarGroup, SidebarGroupContent, SidebarGroupLabel } from "@repo/ui";
+import {
+  Input,
+  SidebarGroup,
+  SidebarGroupContent,
+  SidebarGroupLabel,
+} from "@repo/ui";
 import type { KeyboardEvent, ReactElement } from "react";
 import { useCallback, useEffect, useRef, useState } from "react";
+import { formatEisenhowerMatrixMetadataLabel } from "./app-sidebar-metadata.labels.ts";
+import { OrbitEisenhowerMatrix } from "./orbit-eisenhower-matrix.tsx";
 import type {
   OrbitMatrixTabId,
   OrbitTrailItem,
@@ -19,8 +26,10 @@ import {
   ORBIT_TRAIL_STORAGE_KEY,
   readStoredOrbitTrailItems,
 } from "./orbit-trail.ts";
-import { OrbitEisenhowerMatrix } from "./orbit-eisenhower-matrix.tsx";
-import { WORKSPACE_SIDEBAR_SECTION_LABEL_CLASS } from "./orbit-trail-sidebar.classes.ts";
+import {
+  WORKSPACE_METADATA_GROUP_LABEL_CLASS,
+  WORKSPACE_METADATA_LABEL_TO_ITEM_GAP_CLASS,
+} from "./workspace-shell.classes.ts";
 
 export function AuthenticatedSidebarOrbitTrailBlock(): ReactElement {
   const [items, setItems] = useState<OrbitTrailItem[]>([]);
@@ -137,10 +146,15 @@ export function AuthenticatedSidebarOrbitTrailBlock(): ReactElement {
 
   return (
     <SidebarGroup className="min-w-0 p-0">
-      <SidebarGroupLabel className={WORKSPACE_SIDEBAR_SECTION_LABEL_CLASS}>
-        EISENHOWER MATRIX ({matrixCount}/{ORBIT_TRAIL_MATRIX_LIMIT})
+      <SidebarGroupLabel className={WORKSPACE_METADATA_GROUP_LABEL_CLASS}>
+        {formatEisenhowerMatrixMetadataLabel(
+          matrixCount,
+          ORBIT_TRAIL_MATRIX_LIMIT
+        )}
       </SidebarGroupLabel>
-      <SidebarGroupContent className="min-w-0 space-y-1">
+      <SidebarGroupContent
+        className={`min-w-0 space-y-1 ${WORKSPACE_METADATA_LABEL_TO_ITEM_GAP_CLASS}`}
+      >
         <OrbitEisenhowerMatrix
           expandedTab={expandedTab}
           items={items}

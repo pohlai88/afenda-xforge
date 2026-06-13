@@ -1,27 +1,43 @@
 ---
-description: Block stupid agent behavior — answer first, smallest layer, no drive-by refactors
+description: Agent discipline — answer first, smallest layer, MCP docs before Next.js code
 alwaysApply: true
 ---
 
-# Block Stupid Agent Behavior
+# Agent Discipline
+
+Governance: `project-general.mdc`, repo root `AGENTS.md`. Multi-file workflow: `agent-multi-file.mdc`.
 
 ## Answer before you build
 
-- Yes/no and advice questions get a **direct answer first**.
-- Do not skip straight to code.
-- Do not refactor unrelated files while "helping".
+- Yes/no and advice → **direct answer in text first**, then code if needed
+- Do not skip straight to implementation
+- Do not refactor unrelated files while "helping"
 
-## Smallest layer (visual / UX requests)
+## Next.js — docs before code
 
-1. `apps/app` wiring or `apps/storybook` previews
-2. `@repo/metadata-ui` for entity surfaces
-3. `packages/ui/.../compose/workspace/` — **ask the human first**
+Training data is stale (Next.js `/docs/app/guides/ai-agents`). Before writing or changing `apps/app` behavior:
 
-## Stupid patterns we already hit once — do not repeat
+1. `nextjs-docs://llms-index` → `nextjs_docs` for the exact API
+2. Do not guess App Router, cache, or Server Action behavior from memory
+3. Runtime verification: `nextjs-mcp-quality.mdc` (stop hook runs `check:stability` when `apps/app` changes)
+
+## Smallest layer (visual / UX)
+
+| Order | Layer | Path |
+|-------|-------|------|
+| 1 | App wiring / previews | `apps/app/` — `frontend-app.mdc`; `theme-studio/`, `apps/storybook/` — `frontend-storybook.mdc` |
+| 2 | Entity surfaces | `@repo/metadata-ui` — `frontend-metadata-ui.mdc` |
+| 3 | Workspace compose | `packages/ui/.../compose/workspace/` — **ask the human first** |
+
+A layout or polish request is not permission to refactor shared compose, surfaces, typography, or defaults.
+
+## Do not repeat (learned the hard way)
 
 - Rewriting `workspace-memory-lane.tsx` for a polish pass
 - Flattening `workspace-shell.surfaces.ts` for Storybook contrast
 - Changing `sidebarVariant` defaults to match an experiment
-- `git restore` on untracked WIP when they wanted their work kept
+- `git restore` / `git checkout --` / `git clean` on untracked WIP unless explicitly asked
 
-If scope is wrong: stop, explain, ask which layer to change.
+## When scope is wrong
+
+Stop. Explain which layer fits. Ask: *"This requires changing `<file>` in workspace compose. Approve?"*

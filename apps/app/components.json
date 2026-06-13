@@ -22,6 +22,7 @@
     "@aicanvas": {
       "url": "https://aicanvas.me/r/{name}.json"
     },
+    "@tokenui": "https://www.tokenui.dev/r/{name}.json",
     "@creative-tim": {
       "url": "https://www.creative-tim.com/ui/r/{name}.json",
       "headers": {

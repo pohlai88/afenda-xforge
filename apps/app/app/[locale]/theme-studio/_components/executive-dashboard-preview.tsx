@@ -1,6 +1,6 @@
 "use client";
 
-import { ERP_VISUAL_LANES } from "@repo/design-system";
+import { AFENDA_ERP_VISUAL_LANES as ERP_VISUAL_LANES } from "@repo/design-system/contracts/afenda/registries";
 import { Badge } from "@repo/ui/components/badge";
 import { Button } from "@repo/ui/components/button";
 import {

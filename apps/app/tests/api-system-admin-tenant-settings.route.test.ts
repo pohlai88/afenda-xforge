@@ -29,7 +29,7 @@ vi.mock("@repo/features-system-admin-control-plane/server", () => serverMocks);
 import { GET, POST } from "../app/api/system-admin/tenant-settings/route.ts";
 
 const tenantSettingsPayload = {
-  branding: { themePreset: "xforge" },
+  branding: { themePreset: "afenda" },
   customizationMode: null,
   defaultLocale: "en",
   defaultTimezone: "UTC",
@@ -120,6 +120,47 @@ describe("/api/system-admin/tenant-settings", () => {
     expect(response.status).toBe(400);
     expect(payload.error).toBe("Validation failed");
     expect(serverMocks.updateTenantAdminSetting).not.toHaveBeenCalled();
+  });
+
+  it("accepts tenant branding updates with density in payload", async () => {
+    const result = {
+      action: "update-tenant-setting",
+      id: "mutation-density",
+      status: "accepted" as const,
+      summary: "Updated tenant branding",
+      tenantId: tenantSettingsPayload.tenantId,
+    };
+    serverMocks.updateTenantAdminSetting.mockResolvedValue(result);
+
+    const brandingPayload = {
+      density: "compact",
+      themePreset: "afenda",
+    };
+
+    const response = await POST(
+      new Request("http://localhost/api/system-admin/tenant-settings", {
+        body: JSON.stringify({
+          key: "tenant-branding",
+          reason: "Set tenant layout density",
+          value: JSON.stringify(brandingPayload),
+        }),
+        headers: { "content-type": "application/json" },
+        method: "POST",
+      })
+    );
+    const body = await response.json();
+
+    expect(response.status).toBe(202);
+    expect(body).toEqual(result);
+    expect(serverMocks.updateTenantAdminSetting).toHaveBeenCalledWith(
+      expect.objectContaining({
+        key: "tenant-branding",
+        value: JSON.stringify(brandingPayload),
+      }),
+      expect.objectContaining({
+        tenantId: tenantSettingsPayload.tenantId,
+      })
+    );
   });
 
   it("accepts tenant setting updates with 202", async () => {

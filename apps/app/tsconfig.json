@@ -4,7 +4,14 @@
     "baseUrl": ".",
     "allowImportingTsExtensions": true,
     "paths": {
-      "@/*": ["./*"]
+      "@/*": ["./*"],
+      "ui": ["../../packages/ui/src/components/ui-shadcn/index.ts"],
+      "ui/*": ["../../packages/ui/src/components/ui-shadcn/*"],
+      "lib": ["../../packages/ui/src/lib/utils.ts"],
+      "lib/*": ["../../packages/ui/src/lib/*"],
+      "hooks": ["../../packages/ui/src/hooks/use-mobile.ts"],
+      "hooks/*": ["../../packages/ui/src/hooks/*"],
+      "utils": ["../../packages/ui/src/lib/utils.ts"]
     }
   },
   "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", ".next/types/**/*.ts"],

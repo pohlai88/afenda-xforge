@@ -1,4 +1,4 @@
-import { DEFAULT_TENANT_BRANDING_SETTINGS } from "@repo/design-system";
+import { AFENDA_DEFAULT_TENANT_BRANDING_SETTINGS } from "@repo/design-system";
 import type { Decorator } from "@storybook/react";
 import { useEffect } from "react";
 import { ThemeStudioPreviewRoot } from "../../app/app/[locale]/theme-studio/_components/theme-studio-preview-root.tsx";
@@ -17,7 +17,7 @@ export const withThemeStudioWorkspace: Decorator = (Story, context) => {
   }, [themeStudioPath]);
 
   return (
-    <ThemeStudioPreviewRoot branding={DEFAULT_TENANT_BRANDING_SETTINGS}>
+    <ThemeStudioPreviewRoot branding={AFENDA_DEFAULT_TENANT_BRANDING_SETTINGS}>
       <ThemeStudioWorkspace>
         <Story />
       </ThemeStudioWorkspace>

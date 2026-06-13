@@ -1,7 +1,7 @@
 import type {
-  ColorModePreference,
-  UserBrandingPreferences,
-} from "@repo/design-system";
+  AfendaColorModePreference as ColorModePreference,
+  AfendaUserBrandingPreferences as UserBrandingPreferences,
+} from "@repo/design-system/contracts/afenda/customization";
 
 type PersistColorModeResult =
   | { ok: true; preferences: UserBrandingPreferences }

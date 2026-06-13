@@ -2,17 +2,15 @@ import assert from "node:assert/strict";
 import test from "node:test";
 
 import {
-  extractHue,
-  formatHueValidationReport,
-  hueDistance,
-  parseOklch,
-  validateHueReservation,
-} from "../contracts/hue-reservation.contract";
-import {
   collectAllThemePresetHueEntries,
   collectDefaultPlatformHueEntries,
-} from "../tokens/collect-platform-hue-entries";
-import { STATUS_LIGHT_DECLARATIONS } from "../tokens/status-tokens";
+  extractAfendaHue as extractHue,
+  formatAfendaHueValidationReport as formatHueValidationReport,
+  afendaHueDistance as hueDistance,
+  parseAfendaOklch as parseOklch,
+  validateAfendaHueReservation as validateHueReservation,
+} from "../contracts/afenda/hue-reservation.contract";
+import { STATUS_LIGHT_DECLARATIONS } from "../css/tokens/css-declarations";
 
 test("parseOklch extracts lightness, chroma, hue, and alpha", () => {
   assert.deepEqual(parseOklch("oklch(0.54 0.122 198)"), {

@@ -1,5 +1,5 @@
 import { requireActiveTenantMembership } from "@repo/auth/server";
-import { userBrandingPreferencesSchema } from "@repo/design-system";
+import { afendaUserBrandingPreferencesSchema as userBrandingPreferencesSchema } from "@repo/design-system/contracts/afenda/customization";
 import { NextResponse } from "next/server";
 import { mapApiRouteError } from "../../../../lib/api/route-errors.ts";
 import {

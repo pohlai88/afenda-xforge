@@ -31,6 +31,23 @@ const featureInternalSegments = new Set([
   "tables",
   "tests",
 ]);
+const legacyTokenAliasImports = new Set([
+  "afendaDesignTokenExport",
+  "afendaTokenUiDisplayTokens",
+  "afendaTokenizedTokens",
+  "validateAfendaTokenizedTokens",
+]);
+const hardcodedZIndexUtilityAllowComment = "xforge-allow-hardcoded-z";
+const hardcodedZIndexUtilityAllowedPathPrefixes = [
+  "apps/email/.react-email/",
+];
+const tokenVocabularyExportPattern = /\bexport\s+const\s+([A-Z0-9_]+)\s*=\s*\[/g;
+const tokenVocabularyNamePattern =
+  /(?:^|_)(?:ALIAS|ALIASES|ANIMATION|ANIMATIONS|FEATURE|FEATURES|ID|IDS|LANE|LANES|MODE|MODES|NAME|NAMES|PADDING|PREFERENCE|PREFERENCES|PRESET|PRESETS|PROVIDER|PROVIDERS|ROLE|ROLES|SIZE|SIZES|STATE|STATES|TOKEN|TOKENS|TONE|TONES|UTILITY|UTILITIES|VARIANT|VARIANTS)(?:_|$)/;
+const hardcodedZIndexUtilityPattern =
+  /(?:^|[\s"'`])((?:[^"'`\s]*:)*-?z-\d+\b|(?:[^"'`\s]*:)*z-\[[^\]]+\])/;
+const legacyOrderLayerUtilityPattern =
+  /(?:^|[\s"'`])((?:[^"'`\s]*:)*order-(?:background|base|ornament|raised|sticky|popover|overlay)\b)/;
 
 const violations = [];
 
@@ -109,6 +126,34 @@ function extractImports(source) {
   }
 
   return [...imports];
+}
+
+function extractNamedImportBindings(source) {
+  const bindings = [];
+  const patterns = [
+    /\bimport\s+(?:type\s+)?\{([^}]+)\}\s+from\s+["']([^"']+)["']/g,
+    /\bexport\s+(?:type\s+)?\{([^}]+)\}\s+from\s+["']([^"']+)["']/g,
+  ];
+
+  for (const pattern of patterns) {
+    for (const match of source.matchAll(pattern)) {
+      const specifier = match[2];
+      const names = match[1]
+        .split(",")
+        .map((part) => part.trim())
+        .filter(Boolean)
+        .map((part) =>
+          part
+            .replace(/^type\s+/, "")
+            .split(/\s+as\s+/i)[0]
+            .trim()
+        );
+
+      bindings.push({ names, specifier });
+    }
+  }
+
+  return bindings;
 }
 
 function resolveRelativeImport(fromFile, specifier) {
@@ -241,6 +286,20 @@ function isMetadataFile(filePath) {
     relative.startsWith("packages/metadata/") ||
     /(^|\/)metadata\.(ts|tsx|js|jsx|mjs|mts)$/.test(relative)
   );
+}
+
+function isTestLikeFile(filePath) {
+  const relative = relativeToRoot(filePath);
+
+  return (
+    relative.includes("/tests/") ||
+    relative.includes("/__tests__/") ||
+    /\.(test|spec)\.(ts|tsx|js|jsx|mjs|mts)$/.test(relative)
+  );
+}
+
+function isDesignSystemSourceFile(filePath) {
+  return relativeToRoot(filePath).startsWith("packages/design-system/src/");
 }
 
 function addViolation(filePath, message) {
@@ -545,6 +604,126 @@ function checkFeatureActionFile(filePath, source) {
   }
 }
 
+function checkLegacyTokenAliasImports(filePath, source) {
+  if (isTestLikeFile(filePath)) {
+    return;
+  }
+
+  for (const { names, specifier } of extractNamedImportBindings(source)) {
+    for (const name of names) {
+      if (legacyTokenAliasImports.has(name)) {
+        addViolation(
+          filePath,
+          `legacy token alias imports are forbidden after hard migration: ${name} from ${specifier}`
+        );
+      }
+    }
+  }
+}
+
+function checkTokenVocabularyPlacement(filePath, source) {
+  if (isTestLikeFile(filePath) || !isDesignSystemSourceFile(filePath)) {
+    return;
+  }
+
+  const relative = relativeToRoot(filePath);
+  const isContractsLayer =
+    relative.startsWith("packages/design-system/src/contracts/");
+
+  if (!isContractsLayer && /\bdefineRegistry\(/.test(source)) {
+    addViolation(
+      filePath,
+      "manual registry vocabulary is only allowed inside packages/design-system/src/contracts/**"
+    );
+  }
+
+  if (isContractsLayer) {
+    return;
+  }
+
+  for (const match of source.matchAll(tokenVocabularyExportPattern)) {
+    if (
+      !match[1].startsWith("GLOBALS_CSS_") &&
+      tokenVocabularyNamePattern.test(match[1])
+    ) {
+      addViolation(
+        filePath,
+        `token vocabulary must be defined only inside packages/design-system/src/contracts/**: ${match[1]}`
+      );
+    }
+  }
+}
+
+function checkHardcodedZIndexUtilities(filePath, source) {
+  if (isTestLikeFile(filePath)) {
+    return;
+  }
+
+  const relative = relativeToRoot(filePath);
+  const isSourceFile =
+    relative.startsWith("apps/") || relative.startsWith("packages/");
+
+  if (!isSourceFile) {
+    return;
+  }
+
+  if (
+    hardcodedZIndexUtilityAllowedPathPrefixes.some((prefix) =>
+      relative.startsWith(prefix)
+    )
+  ) {
+    return;
+  }
+
+  const lines = source.split(/\r?\n/);
+
+  for (let index = 0; index < lines.length; index += 1) {
+    const line = lines[index] ?? "";
+    const match = line.match(hardcodedZIndexUtilityPattern);
+
+    if (!match) {
+      continue;
+    }
+
+    const previousLine = lines[index - 1] ?? "";
+    const isSanctionedMigrationException =
+      line.includes(hardcodedZIndexUtilityAllowComment) ||
+      previousLine.includes(hardcodedZIndexUtilityAllowComment);
+
+    if (isSanctionedMigrationException) {
+      continue;
+    }
+
+    addViolation(
+      filePath,
+      `hard-coded z-index utilities are forbidden; use governed z-layer-* utilities instead (${match[1]}). Temporary migration exceptions must be annotated with ${hardcodedZIndexUtilityAllowComment}.`
+    );
+  }
+}
+
+function checkLegacyOrderLayerUtilities(filePath, source) {
+  if (isTestLikeFile(filePath)) {
+    return;
+  }
+
+  const relative = relativeToRoot(filePath);
+  const isSourceFile =
+    relative.startsWith("apps/") || relative.startsWith("packages/");
+
+  if (!isSourceFile) {
+    return;
+  }
+
+  const match = source.match(legacyOrderLayerUtilityPattern);
+
+  if (match) {
+    addViolation(
+      filePath,
+      `legacy order-* z-layer utility is forbidden; use z-layer-* instead (${match[1]}).`
+    );
+  }
+}
+
 for (const filePath of walk(root)) {
   const source = readFileSync(filePath, "utf8");
   const packageName = readPackageName(path.dirname(filePath));
@@ -554,6 +733,10 @@ for (const filePath of walk(root)) {
   }
 
   checkFeatureActionFile(filePath, source);
+  checkLegacyTokenAliasImports(filePath, source);
+  checkTokenVocabularyPlacement(filePath, source);
+  checkHardcodedZIndexUtilities(filePath, source);
+  checkLegacyOrderLayerUtilities(filePath, source);
 }
 
 if (violations.length > 0) {

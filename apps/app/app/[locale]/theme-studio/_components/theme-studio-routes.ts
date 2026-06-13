@@ -65,14 +65,16 @@ export const THEME_STUDIO_PAGES: readonly ThemeStudioPage[] = [
     description:
       "Full workspace shell — app topbar switchers, sidebar rail, site topbar, content canvas",
   },
+  {
+    number: "08",
+    slug: "tokenize",
+    label: "Tokenize",
+    href: "/theme-studio/tokenize",
+    weight: "—",
+    description:
+      "Token UI documentation for Afenda tokenized exports — colors, spacing, typography, motion",
+  },
 ] as const;
 
 export const DEFAULT_THEME_STUDIO_HREF =
   THEME_STUDIO_PAGES[0]?.href ?? "/theme-studio/executive-dashboard";
-
-export function isThemeStudioPathActive(
-  pathname: string,
-  href: ThemeStudioPage["href"]
-): boolean {
-  return pathname === href || pathname.startsWith(`${href}/`);
-}

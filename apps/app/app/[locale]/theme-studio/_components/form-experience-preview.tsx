@@ -95,11 +95,11 @@ const FORM_FIELDS: FormField[] = [
   {
     control: "select",
     label: "Theme Preset",
-    value: "xforge",
+    value: "afenda",
     helper: "Brand-aware preset with teal, indigo, and warm gold.",
     status: "success",
     options: [
-      { value: "xforge", label: "XForge (default)" },
+      { value: "afenda", label: "Afenda (default)" },
       { value: "enterprise", label: "Enterprise neutral" },
       { value: "minimal", label: "Minimal contrast" },
     ],

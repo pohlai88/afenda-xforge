@@ -1,0 +1,74 @@
+---
+description: XForge baseline — stack, tooling, docs order, dev-server policy, rule index
+alwaysApply: true
+---
+
+# Project General (XForge)
+
+Domain rules override generic habits. This repo is **TypeScript + pnpm + Turborepo** — not JavaScript, Bun, or npm-by-default.
+
+## Source of truth (read order)
+
+1. User instruction in the current message
+2. `AGENTS.md` and `skills/reference/*.md` (architecture, Vercel deployment, Next.js MCP)
+3. `.cursor/rules/*.mdc` for the files you touch
+4. Next.js APIs: MCP `nextjs_docs` from `nextjs-docs://llms-index` — training data is stale (`/docs/app/guides/ai-agents`)
+
+## Working defaults
+
+- Smallest correct diff; match existing package patterns
+- Advice or yes/no → **answer in prose first**, then code (`agent-discipline.mdc`)
+- Ship complete changes — no TODO placeholders unless the feature is explicitly scaffold-only
+- Names: kebab-case files; PascalCase components; camelCase functions/variables
+- Uncertain → say so; read the codebase or docs — do not invent APIs
+
+## Tooling
+
+```bash
+pnpm --filter <package> typecheck   # narrow gate first
+pnpm --filter <package> test
+pnpm lint:biome
+pnpm lint:architecture              # when boundaries matter
+```
+
+Use **pnpm** only unless the user specifies otherwise. Biome for format/lint — not ESLint/Prettier for new work.
+
+## Dev / build policy
+
+Do **not** start `dev`, `build`, or other long-running servers unless the user asks — avoids port conflicts with an existing dev session.
+
+Runtime checks when appropriate: MCP `nextjs_index` → `nextjs_call` `get_errors` — see `nextjs-mcp-quality.mdc`.
+
+## Hooks (enforced — see `.cursor/hooks.json`)
+
+| Rule concern | Hook | Event |
+|--------------|------|-------|
+| No destructive git on WIP | `block-destructive-git.mjs` | `beforeShellExecution` |
+| No dev/start unless asked | `block-dev-servers.mjs` | `beforeShellExecution` |
+| pnpm monorepo | `warn-wrong-package-manager.mjs` | `beforeShellExecution` |
+| Workspace compose human-owned | `guard-workspace-compose.mjs` | `preToolUse` |
+| NEXT_PUBLIC_ secrets | `guard-next-public-env.mjs` | `preToolUse` |
+| Vercel prod deploy | `ask-vercel-production.mjs` | `beforeShellExecution` |
+| Vercel MCP deploy | `guard-vercel-deploy-mcp.mjs` | `beforeMCPExecution` |
+| vercel env pull | `ask-vercel-env-pull.mjs` | `beforeShellExecution` |
+| App/storybook/metadata-ui gates | `stop-quality-gates.mjs` | `stop` (self-heal ×3) |
+
+Everything else stays in rules (answer-first, execution pipeline, UI patterns) — not hookable deterministically.
+
+## Rule index
+
+| Topic | Rule |
+|-------|------|
+| Agent behavior / UI layers | `agent-discipline.mdc` |
+| Multi-file edits | `agent-multi-file.mdc` |
+| Backend execution | `backend-execution.mdc` |
+| Backend security | `backend-security.mdc` |
+| App UI (`apps/app`) | `frontend-app.mdc` |
+| Storybook | `frontend-storybook.mdc` |
+| Entity surfaces | `frontend-metadata-ui.mdc` |
+| Client performance | `react-performance.mdc` |
+| Web UI interactions | `web-interface-interactions.mdc` |
+| Web UI a11y & content | `web-interface-accessibility.mdc` |
+| Next.js MCP gates | `nextjs-mcp-quality.mdc` |
+| Vercel deployment | `vercel-deployment.mdc` |
+| Next.js + Vercel skill | `.cursor/skills/xforge-nextjs-vercel/` |

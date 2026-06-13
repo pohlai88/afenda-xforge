@@ -158,7 +158,7 @@ export function TreeFileExplorerWithTypeIcons() {
       <Tree indent={indent} tree={tree}>
         {tree.getItems().map((item) => (
           <TreeItem key={item.getId()} item={item}>
-            <TreeItemLabel className="before:bg-background relative before:absolute before:inset-x-0 before:-inset-y-0.5 before:-z-10">
+            <TreeItemLabel className="before:bg-background relative before:absolute before:inset-x-0 before:-inset-y-0.5 before:z-layer-background">
               <span className="flex items-center gap-2">
                 {getFileIcon(item.getItemData().type, item.isExpanded())}
                 {item.getItemName()}

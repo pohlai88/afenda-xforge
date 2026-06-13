@@ -1,10 +1,13 @@
 import { getActiveTenantMembership } from "@repo/auth/server";
-import type { TenantBrandingSettings } from "@repo/design-system";
 import {
-  DEFAULT_TENANT_BRANDING_SETTINGS,
   mergeEffectiveBranding,
+  resolveTenantDensityDataAttribute,
 } from "@repo/design-system";
-import type { ColorModePreference } from "@repo/design-system/contracts/user-branding.contract";
+import type {
+  AfendaColorModePreference as ColorModePreference,
+  AfendaTenantBrandingSettings as TenantBrandingSettings,
+} from "@repo/design-system/contracts/afenda/customization";
+import { AFENDA_DEFAULT_TENANT_BRANDING_SETTINGS as DEFAULT_TENANT_BRANDING_SETTINGS } from "@repo/design-system/contracts/afenda/customization";
 import { Toolbar } from "@repo/feature-flags/components/toolbar";
 import { readTenantBrandingForTenant } from "@repo/features-system-admin-control-plane/server";
 import { getTextDirection } from "@repo/internationalization";
@@ -81,12 +84,15 @@ export default async function LocaleLayout({
     }
   }
 
+  const densityAttributes = resolveTenantDensityDataAttribute(tenantBranding);
+
   return (
     <html
       className={fonts}
       dir={getTextDirection(locale)}
       lang={locale}
       suppressHydrationWarning
+      {...densityAttributes}
     >
       <body>
         <TenantBrandingStyles branding={branding} />

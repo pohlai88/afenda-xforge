@@ -1,11 +1,12 @@
 import assert from "node:assert/strict";
+import { readdirSync, readFileSync } from "node:fs";
 import { readFile } from "node:fs/promises";
 import path from "node:path";
 import test from "node:test";
 import { fileURLToPath } from "node:url";
 
-import { compareGlobalsCss, renderGlobalsCss } from "../adapters";
-import { validateGlobalsCssTokens } from "../tokens/css-theme";
+import { compareGlobalsCss, renderGlobalsCss } from "../css/adapters/globals-css.adapter";
+import { validateGlobalsCssTokens } from "../css/tokens/css-theme";
 
 const scriptDir = path.dirname(fileURLToPath(import.meta.url));
 const packageRoot = path.resolve(scriptDir, "..", "..");
@@ -17,6 +18,33 @@ const globalsCssPath = path.resolve(
   "styles",
   "globals.css"
 );
+const cssRoot = path.resolve(packageRoot, "src", "css");
+
+function listCssSourceFiles(directory: string): readonly string[] {
+  return readdirSync(directory, { withFileTypes: true }).flatMap((entry) => {
+    const entryPath = path.resolve(directory, entry.name);
+
+    if (entry.isDirectory()) {
+      return [...listCssSourceFiles(entryPath)];
+    }
+
+    return entry.isFile() && entry.name.endsWith(".ts") ? [entryPath] : [];
+  });
+}
+
+function extractStaticImportSpecifiers(source: string): readonly string[] {
+  return [
+    ...source.matchAll(
+      /^\s*import\s+(?:type\s+)?(?:["']([^"']+)["']|[\s\S]*?\s+from\s+["']([^"']+)["'])/gm
+    ),
+  ].map((match) => {
+    const moduleSpecifier = match[1] ?? match[2];
+
+    assert.ok(moduleSpecifier, "CSS import match must contain a path");
+
+    return moduleSpecifier;
+  });
+}
 
 test("globals.css renders from the design-system adapter", async () => {
   const generatedCss = renderGlobalsCss();
@@ -48,4 +76,27 @@ test("globals.css renders from the design-system adapter", async () => {
 
 test("validateGlobalsCssTokens passes for the current contract", () => {
   assert.doesNotThrow(() => validateGlobalsCssTokens());
+});
+
+test("css implementation preserves token adapter layering", () => {
+  const violations = listCssSourceFiles(cssRoot).flatMap((filePath) => {
+    const cssRelativePath = path.relative(cssRoot, filePath).replace(/\\/g, "/");
+    const imports = extractStaticImportSpecifiers(readFileSync(filePath, "utf8"));
+
+    return imports.flatMap((moduleSpecifier) => {
+      const importsAdapter =
+        moduleSpecifier.includes("/adapters") ||
+        moduleSpecifier.startsWith("../adapters");
+
+      if (cssRelativePath.startsWith("tokens/") && importsAdapter) {
+        return [
+          `${cssRelativePath} imports higher CSS layer: ${moduleSpecifier}`,
+        ];
+      }
+
+      return [];
+    });
+  });
+
+  assert.deepEqual(violations, []);
 });

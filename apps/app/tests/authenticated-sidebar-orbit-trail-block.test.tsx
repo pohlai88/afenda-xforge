@@ -1,5 +1,11 @@
 import { SidebarProvider } from "@repo/ui";
-import { fireEvent, render, screen, waitFor, within } from "@testing-library/react";
+import {
+  fireEvent,
+  render,
+  screen,
+  waitFor,
+  within,
+} from "@testing-library/react";
 import type { ReactElement } from "react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { AuthenticatedSidebarOrbitTrailBlock } from "../app/_components/workspace/authenticated-sidebar-orbit-trail-block.tsx";
@@ -11,6 +17,27 @@ import {
   parseOrbitTrailInput,
 } from "../app/_components/workspace/orbit-trail.ts";
 import { WorkspaceAppNavSidebarBlocks } from "../app/_components/workspace/workspace-app-nav-sidebar-blocks.tsx";
+import {
+  WORKSPACE_METADATA_GROUP_LABEL_CLASS,
+  WORKSPACE_METADATA_LABEL_TO_ITEM_GAP_CLASS,
+  WORKSPACE_METADATA_SECTION_TO_LABEL_GAP_CLASS,
+  WORKSPACE_SHELL_INTERACTIVE_CLASS,
+  WORKSPACE_SIDEBAR_DENSE_ITEM_TO_ITEM_GAP_CLASS,
+  WORKSPACE_SIDEBAR_ITEM_TO_ITEM_GAP_CLASS,
+} from "../app/_components/workspace/workspace-shell.classes.ts";
+
+function expectMetadataLabelClass(
+  element: HTMLElement,
+  className: string
+): void {
+  expectClassTokens(element, className);
+}
+
+function expectClassTokens(element: HTMLElement, className: string): void {
+  for (const token of className.split(" ")) {
+    expect(element).toHaveClass(token);
+  }
+}
 
 vi.mock("@/i18n/navigation", () => ({
   Link: ({
@@ -70,22 +97,46 @@ describe("AuthenticatedSidebarOrbitTrailBlock", () => {
     window.localStorage.removeItem(ORBIT_TRAIL_STORAGE_KEY);
   });
 
-  it("renders workspace, Eisenhower matrix, and apps sections", async () => {
+  it("renders workspace, Eisenhower matrix, and declared surface groups", async () => {
     render(
       <SidebarProvider>
         <WorkspaceAppNavSidebarBlocks />
       </SidebarProvider>
     );
 
-    const workspace = screen.getByText("The workspace");
+    const workspace = screen.getByText("THE-WORKSPACE");
     const newTodo = screen.getByRole("button", { name: "New To-Do" });
-    const eisenhower = await screen.findByText("EISENHOWER MATRIX (3/30)");
-    const apps = screen.getByText("Apps");
+    const eisenhower = await screen.findByText("EISENHOWER-MATRIX (3/30)");
+    const workspaceSurfaces = screen.getByText("WORKSPACE");
+    const governanceSurfaces = screen.getByText("GOVERNANCE");
 
+    expectMetadataLabelClass(workspace, WORKSPACE_METADATA_GROUP_LABEL_CLASS);
+    expect(workspace.nextElementSibling).toHaveClass(
+      WORKSPACE_METADATA_LABEL_TO_ITEM_GAP_CLASS
+    );
+    expect(newTodo.closest("ul")).toHaveClass(
+      WORKSPACE_SIDEBAR_DENSE_ITEM_TO_ITEM_GAP_CLASS
+    );
     expect(workspace.compareDocumentPosition(newTodo)).toBe(
       Node.DOCUMENT_POSITION_FOLLOWING
     );
-    expect(eisenhower.compareDocumentPosition(apps)).toBe(
+    expect(eisenhower.compareDocumentPosition(workspaceSurfaces)).toBe(
+      Node.DOCUMENT_POSITION_FOLLOWING
+    );
+    expect(
+      workspaceSurfaces.closest("[data-slot='workspace-sidebar-scroll-blocks']")
+    ).toHaveClass(WORKSPACE_METADATA_SECTION_TO_LABEL_GAP_CLASS);
+    expect(screen.getByRole("link", { name: /Audit/ })).toBeInTheDocument();
+    for (const lynxButton of screen.getAllByRole("button", { name: "Lynx" })) {
+      expect(lynxButton).toBeDisabled();
+    }
+    expect(
+      screen.queryByRole("link", { name: "Lynx" })
+    ).not.toBeInTheDocument();
+    expect(
+      screen.getByRole("link", { name: /Audit/ }).closest("ul")
+    ).toHaveClass(WORKSPACE_SIDEBAR_ITEM_TO_ITEM_GAP_CLASS);
+    expect(workspaceSurfaces.compareDocumentPosition(governanceSurfaces)).toBe(
       Node.DOCUMENT_POSITION_FOLLOWING
     );
   });
@@ -111,8 +162,9 @@ describe("AuthenticatedSidebarOrbitTrailBlock", () => {
       key: "Enter",
     });
 
-    const addedRow = (await screen.findByText("ChatGPT payment review invoice"))
-      .closest("li");
+    const addedRow = (
+      await screen.findByText("ChatGPT payment review invoice")
+    ).closest("li");
 
     expect(addedRow).not.toBeNull();
     expect(
@@ -145,16 +197,18 @@ describe("AuthenticatedSidebarOrbitTrailBlock", () => {
     ).toBeInTheDocument();
 
     fireEvent.click(screen.getByRole("tab", { name: "!C" }));
-    expect(
-      await screen.findByText("RHB AP payment check")
-    ).toBeInTheDocument();
+    expect(await screen.findByText("RHB AP payment check")).toBeInTheDocument();
   });
 
   it("renders Guide tab with syntax guide dropdown", () => {
     renderWithSidebar(<AuthenticatedSidebarOrbitTrailBlock />);
 
-    expect(screen.getByRole("tab", { name: "Guide syntax" })).toBeInTheDocument();
-    expect(screen.queryByRole("tab", { name: /R Routine/ })).not.toBeInTheDocument();
+    expect(
+      screen.getByRole("tab", { name: "Guide syntax" })
+    ).toBeInTheDocument();
+    expect(
+      screen.queryByRole("tab", { name: /R Routine/ })
+    ).not.toBeInTheDocument();
     expect(
       screen.getByText(ORBIT_SYNTAX_GUIDE_EXAMPLE.input)
     ).toBeInTheDocument();
@@ -170,10 +224,13 @@ describe("AuthenticatedSidebarOrbitTrailBlock", () => {
   it("renders matrix tabs directly under the Eisenhower metadata label", async () => {
     renderWithSidebar(<AuthenticatedSidebarOrbitTrailBlock />);
 
-    const eisenhower = await screen.findByText("EISENHOWER MATRIX (3/30)");
+    const eisenhower = await screen.findByText("EISENHOWER-MATRIX (3/30)");
     const guideTab = screen.getByRole("tab", { name: "Guide syntax" });
 
-    expect(eisenhower).toHaveClass("px-2", "text-[8px]");
+    expectMetadataLabelClass(eisenhower, WORKSPACE_METADATA_GROUP_LABEL_CLASS);
+    expect(eisenhower.nextElementSibling).toHaveClass(
+      WORKSPACE_METADATA_LABEL_TO_ITEM_GAP_CLASS
+    );
     expect(eisenhower.compareDocumentPosition(guideTab)).toBe(
       Node.DOCUMENT_POSITION_FOLLOWING
     );
@@ -183,9 +240,15 @@ describe("AuthenticatedSidebarOrbitTrailBlock", () => {
     renderWithSidebar(<AuthenticatedSidebarOrbitTrailBlock />);
 
     expect(
-      await screen.findByText("EISENHOWER MATRIX (3/30)")
+      await screen.findByText("EISENHOWER-MATRIX (3/30)")
     ).toBeInTheDocument();
-    expect(screen.getByRole("tab", { name: "Guide syntax" })).toBeInTheDocument();
+    expect(
+      screen.getByRole("tab", { name: "Guide syntax" })
+    ).toBeInTheDocument();
+    expectClassTokens(
+      screen.getByRole("tab", { name: "Guide syntax" }),
+      WORKSPACE_SHELL_INTERACTIVE_CLASS
+    );
     expect(screen.getByRole("tab", { name: "!M" })).toBeInTheDocument();
     expect(screen.getByRole("tab", { name: "!U" })).toBeInTheDocument();
     expect(screen.getByRole("tab", { name: "!C" })).toBeInTheDocument();
@@ -270,9 +333,7 @@ describe("AuthenticatedSidebarOrbitTrailBlock", () => {
     fireEvent.click(screen.getByRole("tab", { name: "!M" }));
     expect(screen.queryByText("Important trail row")).not.toBeInTheDocument();
 
-    fireEvent.click(
-      screen.getByRole("tab", { name: "!C" })
-    );
+    fireEvent.click(screen.getByRole("tab", { name: "!C" }));
     expect(await screen.findByText("Critical trail row")).toBeInTheDocument();
   });
 
@@ -304,7 +365,7 @@ describe("AuthenticatedSidebarOrbitTrailBlock", () => {
     renderWithSidebar(<AuthenticatedSidebarOrbitTrailBlock />);
 
     expect(
-      await screen.findByText("EISENHOWER MATRIX (2/30)")
+      await screen.findByText("EISENHOWER-MATRIX (2/30)")
     ).toBeInTheDocument();
   });
 
@@ -331,9 +392,7 @@ describe("AuthenticatedSidebarOrbitTrailBlock", () => {
     expect(await screen.findByText("Important follow-up")).toBeInTheDocument();
     expect(screen.queryByText("Critical escalation")).not.toBeInTheDocument();
 
-    fireEvent.click(
-      screen.getByRole("tab", { name: "!C" })
-    );
+    fireEvent.click(screen.getByRole("tab", { name: "!C" }));
 
     expect(await screen.findByText("Critical escalation")).toBeInTheDocument();
     expect(screen.queryByText("Important follow-up")).not.toBeInTheDocument();

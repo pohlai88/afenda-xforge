@@ -6,11 +6,12 @@ import {
   userAppearancePreferences,
 } from "@repo/database";
 import { setUserBrandingPreferences as setCachedUserBrandingPreferences } from "@repo/design-system";
-import type { UserBrandingPreferences } from "@repo/design-system/contracts/user-branding.contract";
+import type { AfendaUserBrandingPreferences as UserBrandingPreferences } from "@repo/design-system/contracts/afenda/customization";
 import {
-  EMPTY_USER_BRANDING_PREFERENCES,
-  userBrandingPreferencesSchema,
-} from "@repo/design-system/contracts/user-branding.contract";
+  AFENDA_EMPTY_USER_BRANDING_PREFERENCES as EMPTY_USER_BRANDING_PREFERENCES,
+  afendaUserBrandingPreferencesSchema as userBrandingPreferencesSchema,
+} from "@repo/design-system/contracts/afenda/customization";
+import { afendaThemePresetRegistryNameSchema as themePresetNameSchema } from "@repo/design-system/contracts/afenda/registries";
 import { and, eq } from "drizzle-orm";
 
 type UserAppearanceRow = typeof userAppearancePreferences.$inferSelect;
@@ -19,10 +20,13 @@ const mapRowToPreferences = (
   row: UserAppearanceRow
 ): UserBrandingPreferences => {
   const stored = row.branding as Partial<UserBrandingPreferences>;
+  const rawThemePreset = row.themePreset ?? stored.themePreset;
 
   return userBrandingPreferencesSchema.parse({
     colorMode: stored.colorMode,
-    themePreset: row.themePreset ?? stored.themePreset,
+    themePreset: rawThemePreset
+      ? themePresetNameSchema.parse(rawThemePreset.trim())
+      : undefined,
     moduleLaneOverrides: stored.moduleLaneOverrides,
     laneColorOverrides: stored.laneColorOverrides,
   });

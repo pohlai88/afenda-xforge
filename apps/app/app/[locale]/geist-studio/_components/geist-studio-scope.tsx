@@ -1,0 +1,66 @@
+"use client";
+
+import {
+  cssVarMapToInlineStyle,
+} from "@repo/design-system";
+import { AFENDA_DEFAULT_TENANT_BRANDING_SETTINGS as DEFAULT_TENANT_BRANDING_SETTINGS } from "@repo/design-system/contracts/afenda/customization";
+import type { AfendaColorTokenMode as ColorMode } from "@repo/design-system/contracts/afenda/registries";
+import {
+  VERCEL_GEIST_THEME_PRESET_NAME,
+  resolveGeistSemanticCssVars,
+} from "@repo/design-system/contracts/afenda/references";
+import type { CSSProperties, ReactElement, ReactNode } from "react";
+import { useSyncExternalStore } from "react";
+
+type GeistStudioScopeProps = {
+  children: ReactNode;
+  className?: string;
+};
+
+function subscribeToColorMode(onStoreChange: () => void): () => void {
+  const observer = new MutationObserver(onStoreChange);
+  observer.observe(document.documentElement, {
+    attributes: true,
+    attributeFilter: ["class"],
+  });
+
+  return () => observer.disconnect();
+}
+
+function readResolvedColorMode(): ColorMode {
+  return document.documentElement.classList.contains("dark") ? "dark" : "light";
+}
+
+function useResolvedColorMode(): ColorMode {
+  return useSyncExternalStore(
+    subscribeToColorMode,
+    readResolvedColorMode,
+    () => "light"
+  );
+}
+
+export function GeistStudioScope({
+  children,
+  className,
+}: GeistStudioScopeProps): ReactElement {
+  const mode = useResolvedColorMode();
+  const style = cssVarMapToInlineStyle(
+    resolveGeistSemanticCssVars(mode)
+  ) as CSSProperties;
+
+  return (
+    <div
+      className={className}
+      data-geist-studio=""
+      data-theme-preset={VERCEL_GEIST_THEME_PRESET_NAME}
+      style={style}
+    >
+      {children}
+    </div>
+  );
+}
+
+export const GEIST_STUDIO_BRANDING = {
+  ...DEFAULT_TENANT_BRANDING_SETTINGS,
+  themePreset: VERCEL_GEIST_THEME_PRESET_NAME,
+} as const;

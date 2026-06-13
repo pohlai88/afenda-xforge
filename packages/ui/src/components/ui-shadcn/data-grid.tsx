@@ -596,7 +596,7 @@ function DataGridTable({
                         "px-3 py-3 text-left align-middle font-medium text-foreground",
                         layout.dense ? "h-8" : "h-10",
                         layout.cellBorder && "border-l first:border-l-0",
-                        layout.headerSticky && "sticky top-0 z-20",
+                        layout.headerSticky && "sticky top-0 z-layer-sticky",
                         isEdge && tableClassNames?.edgeCell,
                       )}
                       style={{ width: header.getSize() || undefined }}
@@ -801,7 +801,7 @@ function DataGridTableVirtual({
     >
       <table className="w-full caption-bottom text-sm">
         {renderHeader ? (
-          <thead className="sticky top-0 z-20 bg-background/95 backdrop-blur">
+          <thead className="sticky top-0 z-layer-sticky bg-background/95 backdrop-blur">
             {table.getHeaderGroups().map((headerGroup) => (
               <tr key={headerGroup.id} className="border-b bg-muted/50">
                 {headerGroup.headers.map((header) => (

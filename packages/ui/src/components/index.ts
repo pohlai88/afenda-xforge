@@ -21,6 +21,7 @@ export {
   AccordionItem,
   AccordionTrigger,
 } from "./ui-shadcn/accordion";
+export { AfendaTokenDisplay } from "./token-ui";
 export {
   Alert,
   AlertAction,

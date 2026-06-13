@@ -1,6 +1,7 @@
 "use client";
 
-import type { ColorMode, TenantBrandingSettings } from "@repo/design-system";
+import type { AfendaTenantBrandingSettings as TenantBrandingSettings } from "@repo/design-system/contracts/afenda/customization";
+import type { AfendaColorTokenMode as ColorMode } from "@repo/design-system/contracts/afenda/registries";
 import {
   cssVarMapToInlineStyle,
   resolveTenantBrandCssVars,

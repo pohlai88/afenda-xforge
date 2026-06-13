@@ -1,6 +1,6 @@
 "use client";
 
-import type { ColorModePreference } from "@repo/design-system";
+import type { AfendaColorModePreference as ColorModePreference } from "@repo/design-system/contracts/afenda/customization";
 import { EnterpriseDropdownMenu } from "@repo/metadata-ui/components";
 import { Button } from "@repo/ui";
 import { cn } from "@repo/ui/lib/utils";
@@ -13,7 +13,7 @@ import { useTenantBranding } from "../tenant-branding-context.tsx";
 import {
   appNavTopbarGhostIconButtonClassName,
   appNavTopbarIconClassName,
-} from "./app-nav-topbar-chrome.ts";
+} from "./workspace-shell.classes.ts";
 import { AppNavTopbarIconTooltip } from "./app-nav-topbar-tooltip.tsx";
 import { APP_NAV_TOPBAR_THEME_MENU_TOOLTIP } from "./app-nav-topbar-tooltips.ts";
 

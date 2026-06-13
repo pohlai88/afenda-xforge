@@ -1,7 +1,7 @@
 import type { ReactElement, ReactNode } from "react";
 
-import { ThemeStudioLayoutShell } from "./_components/theme-studio-layout-shell.tsx";
 import { ThemeStudioPreviewRoot } from "./_components/theme-studio-preview-root.tsx";
+import { ThemeStudioWorkspace } from "./_components/theme-studio-workspace.tsx";
 
 type ThemeStudioLayoutProps = {
   children: ReactNode;
@@ -12,7 +12,7 @@ export default function ThemeStudioLayout({
 }: ThemeStudioLayoutProps): ReactElement {
   return (
     <ThemeStudioPreviewRoot>
-      <ThemeStudioLayoutShell>{children}</ThemeStudioLayoutShell>
+      <ThemeStudioWorkspace>{children}</ThemeStudioWorkspace>
     </ThemeStudioPreviewRoot>
   );
 }

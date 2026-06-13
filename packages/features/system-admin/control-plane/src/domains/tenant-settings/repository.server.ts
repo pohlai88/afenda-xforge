@@ -1,24 +1,45 @@
 import "server-only";
 
 import { database, tenantSettings, timeDatabaseQuery } from "@repo/database";
-import type { TenantBrandingSettings } from "@repo/design-system/contracts/tenant-branding.contract";
+import type { AfendaTenantBrandingSettings as TenantBrandingSettings } from "@repo/design-system/contracts/afenda/customization";
 import {
-  DEFAULT_TENANT_BRANDING_SETTINGS,
-  tenantBrandingSettingsSchema,
-} from "@repo/design-system/contracts/tenant-branding.contract";
-import { themePresetNameSchema } from "@repo/design-system/contracts/theme-preset.contract";
-import { assertValidTenantBrandingColors } from "@repo/design-system/resolution";
+  AFENDA_DEFAULT_TENANT_BRANDING_SETTINGS as DEFAULT_TENANT_BRANDING_SETTINGS,
+  afendaTenantBrandingSettingsSchema as tenantBrandingSettingsSchema,
+} from "@repo/design-system/contracts/afenda/customization";
+import { afendaThemePresetRegistryNameSchema as themePresetNameSchema } from "@repo/design-system/contracts/afenda/registries";
+import { assertValidTenantBrandingColors } from "@repo/design-system/customise-branding";
 import { eq } from "drizzle-orm";
 import type { TenantAdminSettingsSnapshot } from "./contract.ts";
 import type { TenantAdminSettingUpdateShape } from "./schema.ts";
 
 type TenantSettingsRow = typeof tenantSettings.$inferSelect;
 
+function serializeTenantBrandingJson(
+  branding: TenantBrandingSettings
+): Record<string, unknown> {
+  const json: Record<string, unknown> = {};
+
+  if (branding.moduleLaneOverrides) {
+    json.moduleLaneOverrides = branding.moduleLaneOverrides;
+  }
+
+  if (branding.laneColorOverrides) {
+    json.laneColorOverrides = branding.laneColorOverrides;
+  }
+
+  if (branding.density && branding.density !== "default") {
+    json.density = branding.density;
+  }
+
+  return json;
+}
+
 const mapRowToBranding = (row: TenantSettingsRow): TenantBrandingSettings => {
   const storedBranding = row.branding as Partial<TenantBrandingSettings>;
 
   return tenantBrandingSettingsSchema.parse({
-    themePreset: row.themePreset,
+    themePreset: themePresetNameSchema.parse(row.themePreset.trim()),
+    density: storedBranding.density,
     moduleLaneOverrides: storedBranding.moduleLaneOverrides,
     laneColorOverrides: storedBranding.laneColorOverrides,
   });
@@ -123,10 +144,7 @@ export const upsertTenantAdminSetting = async (
         database
           .update(tenantSettings)
           .set({
-            branding: {
-              moduleLaneOverrides: branding.moduleLaneOverrides,
-              laneColorOverrides: branding.laneColorOverrides,
-            },
+            branding: serializeTenantBrandingJson(branding),
             themePreset: branding.themePreset,
             updatedAt: now,
           })

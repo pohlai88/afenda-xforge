@@ -4,14 +4,15 @@ import { Button } from "@repo/ui";
 import { cn } from "@repo/ui/lib/utils";
 import { CheckCircle2, Pin } from "lucide-react";
 import type { ReactElement } from "react";
+import { OrbitPressureDot } from "./orbit-pressure-dot.tsx";
 import type { OrbitTrailItem } from "./orbit-trail.ts";
 import { formatOrbitTrailAge } from "./orbit-trail.ts";
-import { OrbitPressureDot } from "./orbit-pressure-dot.tsx";
 import {
   WORKSPACE_SIDEBAR_MUTED_TEXT_CLASS,
   WORKSPACE_SIDEBAR_ROW_CLASS,
   WORKSPACE_SIDEBAR_ROW_TEXT_CLASS,
 } from "./orbit-trail-sidebar.classes.ts";
+import { WORKSPACE_SHELL_FOCUS_WITHIN_INTERACTIVE_CLASS } from "./workspace-shell.classes.ts";
 
 export function OrbitTrailRow({
   item,
@@ -26,15 +27,24 @@ export function OrbitTrailRow({
     <li
       className={cn(
         WORKSPACE_SIDEBAR_ROW_CLASS,
-        "group flex min-w-0 items-center rounded-md pr-1 hover:bg-sidebar-accent hover:text-sidebar-accent-foreground focus-within:bg-sidebar-accent focus-within:text-sidebar-accent-foreground"
+        "group flex min-w-0 items-center rounded-md pr-1",
+        WORKSPACE_SHELL_FOCUS_WITHIN_INTERACTIVE_CLASS
       )}
     >
       <OrbitPressureDot pressure={item.pressure} />
-      <span className={cn("min-w-0 flex-1 truncate", WORKSPACE_SIDEBAR_ROW_TEXT_CLASS)}>
+      <span
+        className={cn(
+          "min-w-0 flex-1 truncate",
+          WORKSPACE_SIDEBAR_ROW_TEXT_CLASS
+        )}
+      >
         {item.title}
       </span>
       <span
-        className={cn("shrink-0 tabular-nums", WORKSPACE_SIDEBAR_MUTED_TEXT_CLASS)}
+        className={cn(
+          "shrink-0 tabular-nums",
+          WORKSPACE_SIDEBAR_MUTED_TEXT_CLASS
+        )}
       >
         {formatOrbitTrailAge(item.createdAt)}
       </span>

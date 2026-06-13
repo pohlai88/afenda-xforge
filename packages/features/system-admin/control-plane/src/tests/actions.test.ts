@@ -18,7 +18,7 @@ test("tenant settings mutation runs through execution pipeline and returns accep
   const handlers = createSystemAdminExecutionHandlers({
     createId: () => "exec-id",
     upsertTenantAdminSetting: async () => ({
-      themePreset: "xforge",
+      themePreset: "afenda",
       moduleLaneOverrides: {},
     }),
     writeAuditEvent: async () => mockAuditEvent,

@@ -1,6 +1,6 @@
 import "server-only";
 
-import type { TenantBrandingSettings } from "@repo/design-system/contracts/tenant-branding.contract";
+import type { AfendaTenantBrandingSettings as TenantBrandingSettings } from "@repo/design-system/contracts/afenda/customization";
 import type { TenantAdminSettingsSnapshot } from "./contract.ts";
 import {
   readTenantAdminSettings,

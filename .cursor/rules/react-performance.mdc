@@ -1,0 +1,70 @@
+---
+description: React performance — RSC-first, client memo discipline, Next.js navigation and images
+globs: apps/app/**/*.tsx,apps/storybook/**/*.tsx,packages/ui/**/*.tsx,packages/metadata-ui/**/*.tsx
+alwaysApply: false
+---
+
+# React Performance (XForge)
+
+**Server Components first** — see `frontend-app.mdc`. This rule applies to **`'use client'`** leaves and interactive UI only.
+
+Profile before micro-optimizing. MCP: `/docs/app/api-reference/config/next-config-js/reactCompiler`, `/docs/app/getting-started/linking-and-navigating`.
+
+## Default stack (this repo)
+
+- **RSC** for data fetch and static structure — smallest `'use client'` boundary
+- **React Compiler** is not enabled globally — do not sprinkle `useMemo` / `useCallback` / `memo` without a measured need
+- If enabling compiler later: `reactCompiler: true` in `next.config` (MCP docs) reduces manual memo
+
+## Client component rules
+
+| Do | When |
+|----|------|
+| Derive during render | Cheap values from props/state |
+| `useMemo` / `useCallback` | Large list transforms, stable deps for memoized children, proven hot paths |
+| Split state/context | Separate fast-changing from slow-changing values |
+| Stable `key` | Entity id — not array index on dynamic lists |
+| `dynamic(() => import(...))` | Heavy client-only modules |
+
+| Avoid | Why |
+|-------|-----|
+| `memo` on every export | Overhead; compiler not on |
+| `useEffect` for derived state | Compute in render |
+| New objects/functions in render passed to memoized children | Defeats memo — hoist or memoize |
+
+## Next.js navigation & loading
+
+- **`next/link`** for internal routes — prefetch is automatic; use `prefetch={false}` only on huge link lists
+- Dynamic routes → add **`loading.tsx`** so partial prefetch + instant feedback (MCP linking-and-navigating)
+- Slow transitions → `useLinkStatus` pending UI (client leaf)
+- Route data → Server Component + `<Suspense>` — not client fetch on mount
+
+## Assets
+
+- **`next/image`** with `width`/`height` or `fill` — not raw `<img>` for app UI
+- Remote images → `images.remotePatterns` in `next.config`
+
+## Anti-patterns
+
+```tsx
+// ❌ Client fetch + spinners where RSC + Suspense fits
+'use client'
+useEffect(() => { fetch('/api/items').then(setItems) }, [])
+
+// ❌ Index keys on reorderable lists
+items.map((item, i) => <Row key={i} ... />)
+
+// ✅ Server fetch; client only for interaction
+// page.tsx (Server) → <ItemList items={items} />
+```
+
+## When optimizing for real
+
+1. React DevTools Profiler or Next.js dev indicators on the slow interaction
+2. Confirm bottleneck is client re-render — not missing `loading.tsx`, over-prefetch, or an oversized client bundle
+3. Prefer moving work server-side before adding memo layers
+
+```bash
+pnpm --filter app typecheck
+pnpm --filter app check:stability
+```

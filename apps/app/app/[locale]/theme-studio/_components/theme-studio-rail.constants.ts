@@ -1,14 +1,5 @@
 import type { WorkspaceNavContextOption } from "@repo/ui/components/compose/workspace";
-import {
-  BookOpen,
-  Building2,
-  FolderKanban,
-  Layers3,
-  Network,
-  Route,
-  SwatchBook,
-  Users,
-} from "lucide-react";
+import { Building2, FolderKanban, Layers3, Network, Users } from "lucide-react";
 
 export const THEME_STUDIO_ORGANIZATIONS: WorkspaceNavContextOption[] = [
   {
@@ -70,32 +61,8 @@ export const THEME_STUDIO_PROJECTS: WorkspaceNavContextOption[] = [
   },
 ];
 
-export const THEME_STUDIO_FEATURE_NAV = [
-  {
-    id: "features.storybook",
-    icon: BookOpen,
-    label: "Storybook parity",
-  },
-  {
-    id: "features.tokens",
-    icon: SwatchBook,
-    label: "Tenant tokens",
-  },
-  {
-    id: "features.lanes",
-    icon: Route,
-    label: "Lane accents",
-  },
-] as const;
-
 /** Demo identity for Theme Studio app-nav actions popover header. */
 export const THEME_STUDIO_DEMO_USER = {
   email: "brand.lead@vietnamfeed.com",
   name: "Brand Lead",
-} as const;
-
-/** Demo tenant/user for Theme Studio notifications preview wiring. */
-export const THEME_STUDIO_DEMO_CONTEXT = {
-  tenantId: "00000000-0000-4000-8000-000000000001",
-  userId: "theme-studio-demo-user",
 } as const;

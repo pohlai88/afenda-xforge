@@ -1,0 +1,93 @@
+---
+description: XForge backend — execution pipeline, layers, Next.js server entrypoints
+globs: apps/app/**/{route,actions}.ts,apps/api/**/*.ts,packages/{execution,audit,auth,database,permissions}/**/*.ts,packages/features/**/src/{server,actions,queries,repository,execution}.ts
+alwaysApply: false
+---
+
+# Backend Development (XForge)
+
+TypeScript only. Governance: `skills/reference/architecture.md`, `AGENTS.md`. Security: `backend-security.mdc`.
+
+## Next.js docs — MCP, not memory
+
+`nextjs-docs://llms-index` → `nextjs_docs`. Dev server: `nextjs_index` → `nextjs_call`. See `nextjs-mcp-quality.mdc`.
+
+## Execution layers (do not skip)
+
+| Layer | Path | Responsibility |
+|-------|------|----------------|
+| Domain pipeline | `packages/features/**/src/actions.ts` | `createExecutionPipeline` / `createQueryPipeline` — auth, tenant, company, Zod, permission, domain op, audit |
+| Feature API | `packages/features/**/src/server.ts` | Public server exports; apps import `/server` only |
+| App runtime | `apps/app/app/**/_execution.ts` | `resolveRuntimeTenantAccess`, permission pre-checks, inject `postCommitHooks` |
+| UI entry | `apps/app/**/actions.ts` | Parse FormData → call app `_execution` → cache/UI refresh |
+| External HTTP | `apps/app/**/route.ts`, `apps/api` | Webhooks and third-party callbacks only |
+
+```typescript
+// apps/app — thin action; pipeline owns auth/audit
+'use server'
+
+import { updateTag } from 'next/cache'
+import { createCustomerForTenant } from '@/app/api/customers/_execution'
+
+export async function createCustomerAction(formData: FormData) {
+  const customer = await createCustomerForTenant(/* parsed body */)
+  updateTag('customers') // read-your-own-writes (Server Actions only)
+  return customer
+}
+```
+
+## `createExecutionPipeline` order (fixed)
+
+`packages/execution/pipeline.ts` runs hooks in this order — do not reorder or bypass:
+
+1. `requireAuth` → 2. `resolveActiveTenant` → 3. `requireTenantMembership` → 4. `resolveActiveCompany` (optional) → 5. `requireCompanyGrant` (optional) → 6. `validateInput` → 7. `requirePermission` → 8. `executeDomainOperation` (+ audit write) → 9. `postCommitHooks` (after success only)
+
+Sensitive reads: `createQueryPipeline` with the same scope/permission gates.
+
+## Post-commit and cache (no separate rule)
+
+**`postCommitHooks`** — side effects after audit succeeds: notifications, external sync, search indexing. Pass from app `_execution.ts`. Hooks use `Promise.allSettled`; keep idempotent.
+
+**Cache invalidation** — not in domain ops or pre-audit code:
+
+| API | Where | When |
+|-----|-------|------|
+| `updateTag` | Server Actions only | User must see their write immediately |
+| `revalidateTag` | Actions or Route Handlers | Stale-while-revalidate OK |
+| `revalidatePath` | Actions or Route Handlers | Route-wide refresh; prefer tags |
+| `refresh()` | Server Actions | Client router UI only — not tag revalidation |
+
+Tagged reads: `cacheTag` inside `"use cache"` helpers with `cacheLife`. Extract helpers — never `"use cache"` inline in route handler bodies. MCP path: `/docs/app/getting-started/revalidating`.
+
+## Server Actions vs Route Handlers
+
+- **Server Actions** — in-app mutations and forms
+- **Route Handlers** — webhooks, external HTTP; never colocate `route.ts` with `page.tsx`
+- Route handlers that mutate must still delegate business logic to feature `/server` → pipeline
+
+## Anti-patterns
+
+```typescript
+// ❌ DB write in app action — no pipeline, no audit
+await db.delete(users).where(eq(users.id, id))
+
+// ❌ Cache before mutation succeeds
+updateTag('customers')
+await createCustomerForTenant(body)
+
+// ❌ Integration side effect inside executeDomainOperation
+await syncToExternalCRM(customer) // belongs in postCommitHook
+
+// ✅ Pipeline + post-commit + cache after success
+const customer = await createCustomerForTenant(body)
+updateTag('customers')
+```
+
+## Verification
+
+```bash
+pnpm --filter <package> typecheck
+pnpm --filter <package> test
+pnpm --filter app check:stability
+pnpm lint:architecture
+```

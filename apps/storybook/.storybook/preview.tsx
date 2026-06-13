@@ -1,6 +1,6 @@
 import {
+  AFENDA_DEFAULT_TENANT_BRANDING_SETTINGS,
   cssVarMapToInlineStyle,
-  DEFAULT_TENANT_BRANDING_SETTINGS,
   resolveActiveLaneCssVars,
 } from "@repo/design-system";
 import { Badge } from "@repo/ui/components/badge";
@@ -124,7 +124,7 @@ const preview: Preview = {
           : undefined;
       const laneVars = activeFeatureId
         ? resolveActiveLaneCssVars(
-            DEFAULT_TENANT_BRANDING_SETTINGS,
+            AFENDA_DEFAULT_TENANT_BRANDING_SETTINGS,
             activeFeatureId,
             theme === "dark" ? "dark" : "light"
           )
