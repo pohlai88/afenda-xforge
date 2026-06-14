@@ -1,4 +1,13 @@
 import type { AfendaRuntimeRule } from "../runtime-reference.contract";
+import {
+  AFENDA_GOV_AUDIT,
+  AFENDA_GOV_SECURITY,
+  AFENDA_GOV_SECURITY_UI,
+  XFORGE_GOV_AUDIT_EVENTS,
+  XFORGE_GOV_MUTATION_PIPELINE,
+  XFORGE_GOV_PERMISSION_PIPELINE,
+  XFORGE_GOV_TENANT_COMPANY_SCOPE,
+} from "../catalogs/governance-reference.catalog";
 
 const SECURITY_UI = "security-ui" as const;
 const ERROR = "error" as const;
@@ -19,7 +28,7 @@ export const AFENDA_SECURITY_UI_RULES = [
       "Sensitive values must be masked or redacted unless the surface is explicitly permissioned for reveal.",
     remediation:
       "Mask secrets by default, truncate identifiers safely, and require an explicit reveal control on permissioned surfaces.",
-    references: ["AFENDA:security-ui-contract", "AFENDA:security-contract"],
+    references: [AFENDA_GOV_SECURITY_UI, AFENDA_GOV_SECURITY],
     enforcement: HYBRID,
   },
   {
@@ -33,7 +42,7 @@ export const AFENDA_SECURITY_UI_RULES = [
       "Privileged actions must reflect permission state and must not imply authorization where none exists.",
     remediation:
       "Hide unavailable actions or render disabled actions with an explanation; keep server authorization as final authority.",
-    references: ["AFENDA:security-ui-contract", "XFORGE:permission-pipeline"],
+    references: [AFENDA_GOV_SECURITY_UI, XFORGE_GOV_PERMISSION_PIPELINE],
     enforcement: HYBRID,
   },
   {
@@ -52,7 +61,7 @@ export const AFENDA_SECURITY_UI_RULES = [
       "Client-side permission display must never replace server authorization.",
     remediation:
       "Use UI permission checks for affordance only and enforce authorization again in server actions, APIs, or command handlers.",
-    references: ["AFENDA:security-ui-contract", "XFORGE:permission-pipeline"],
+    references: [AFENDA_GOV_SECURITY_UI, XFORGE_GOV_PERMISSION_PIPELINE],
     enforcement: HYBRID,
   },
   {
@@ -66,7 +75,7 @@ export const AFENDA_SECURITY_UI_RULES = [
       "Destructive actions must identify the target and require explicit confirmation or provide a safe undo path.",
     remediation:
       "Use a governed confirmation flow that names the object, consequence, and recovery path where available.",
-    references: ["AFENDA:security-ui-contract", "WCAG:3.3.4", "XFORGE:mutation-pipeline"],
+    references: [AFENDA_GOV_SECURITY_UI, "WCAG:3.3.4", XFORGE_GOV_MUTATION_PIPELINE],
     enforcement: MANUAL,
   },
   {
@@ -81,7 +90,7 @@ export const AFENDA_SECURITY_UI_RULES = [
       "External links must use safe target attributes and validated protocols.",
     remediation:
       "Use rel=\"noopener noreferrer\" for new tabs and allow only approved URL protocols.",
-    references: ["AFENDA:security-ui-contract", "OWASP:Reverse-Tabnabbing", "OWASP:Unvalidated-Redirects"],
+    references: [AFENDA_GOV_SECURITY_UI, "OWASP:Reverse-Tabnabbing", "OWASP:Unvalidated-Redirects"],
     enforcement: HYBRID,
   },
   {
@@ -95,7 +104,7 @@ export const AFENDA_SECURITY_UI_RULES = [
       "Impersonation, support, and elevated-admin contexts must display persistent visible context indicators.",
     remediation:
       "Show a persistent banner or chrome indicator with the active actor, subject, tenant, and exit affordance.",
-    references: ["AFENDA:security-ui-contract", "XFORGE:audit-events", "XFORGE:tenant-company-scope"],
+    references: [AFENDA_GOV_SECURITY_UI, XFORGE_GOV_AUDIT_EVENTS, XFORGE_GOV_TENANT_COMPANY_SCOPE],
     enforcement: MANUAL,
   },
   {
@@ -110,7 +119,7 @@ export const AFENDA_SECURITY_UI_RULES = [
       "Sensitive fields must be masked by default and reveal/copy controls must be explicit and permission-aware.",
     remediation:
       "Render masked values by default, add deliberate reveal/copy controls, and log or audit high-impact reveal actions where required.",
-    references: ["AFENDA:security-ui-contract", "AFENDA:audit-contract"],
+    references: [AFENDA_GOV_SECURITY_UI, AFENDA_GOV_AUDIT],
     enforcement: HYBRID,
   },
   {
@@ -124,7 +133,7 @@ export const AFENDA_SECURITY_UI_RULES = [
       "Sensitive reveal, impersonation, permission, and high-impact actions must emit auditable UI or command events.",
     remediation:
       "Route sensitive actions through governed command handlers or audit-aware UI primitives.",
-    references: ["AFENDA:security-ui-contract", "AFENDA:audit-contract", "XFORGE:audit-events"],
+    references: [AFENDA_GOV_SECURITY_UI, AFENDA_GOV_AUDIT, XFORGE_GOV_AUDIT_EVENTS],
     enforcement: MANUAL,
   },
   {
@@ -138,7 +147,7 @@ export const AFENDA_SECURITY_UI_RULES = [
       "Tenant, company, or workspace context must be visible where actions can affect scoped business records.",
     remediation:
       "Display active tenant/company context in shell chrome, switchers, destructive confirmations, or scoped mutation surfaces.",
-    references: ["AFENDA:security-ui-contract", "XFORGE:tenant-company-scope"],
+    references: [AFENDA_GOV_SECURITY_UI, XFORGE_GOV_TENANT_COMPANY_SCOPE],
     enforcement: MANUAL,
   },
   {
@@ -153,7 +162,7 @@ export const AFENDA_SECURITY_UI_RULES = [
       "Untrusted content must be sanitized, escaped, or rendered through approved safe primitives.",
     remediation:
       "Use approved markdown/rich-text renderers, sanitize HTML, validate links, and avoid raw HTML injection.",
-    references: ["AFENDA:security-ui-contract", "OWASP:XSS"],
+    references: [AFENDA_GOV_SECURITY_UI, "OWASP:XSS"],
     enforcement: HYBRID,
   },
 ] as const satisfies readonly AfendaRuntimeRule[];

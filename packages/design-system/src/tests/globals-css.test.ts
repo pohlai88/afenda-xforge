@@ -6,17 +6,13 @@ import test from "node:test";
 import { fileURLToPath } from "node:url";
 
 import { compareGlobalsCss, renderGlobalsCss } from "../css/adapters/globals-css.adapter";
+import { resolveGlobalsCssOutputPath } from "../css/adapters/globals-css.pipeline";
 import { validateGlobalsCssTokens } from "../css/tokens/css-theme";
 
 const scriptDir = path.dirname(fileURLToPath(import.meta.url));
 const packageRoot = path.resolve(scriptDir, "..", "..");
-const globalsCssPath = path.resolve(
-  packageRoot,
-  "..",
-  "ui",
-  "src",
-  "styles",
-  "globals.css"
+const globalsCssPath = resolveGlobalsCssOutputPath(
+  path.resolve(packageRoot, "../..")
 );
 const cssRoot = path.resolve(packageRoot, "src", "css");
 
@@ -55,7 +51,7 @@ test("globals.css renders from the design-system adapter", async () => {
     generatedCss.replace(/\r\n/g, "\n").trimEnd()
   );
 
-  const comparison = compareGlobalsCss(globalsCss);
+  const comparison = compareGlobalsCss(globalsCss, generatedCss);
 
   assert.equal(
     comparison.equal,
@@ -72,6 +68,17 @@ test("globals.css renders from the design-system adapter", async () => {
   assert.match(globalsCss, /@utility type-read/);
   assert.match(globalsCss, /@utility type-label/);
   assert.match(globalsCss, /--font-heading:/);
+  assert.match(
+    globalsCss,
+    /border-color:\s*var\(--color-border\);/
+  );
+  assert.match(
+    globalsCss,
+    /outline-color:\s*color-mix\(in oklch, var\(--color-ring\) 50%, transparent\);/
+  );
+  assert.doesNotMatch(globalsCss, /@layer base[\s\S]*@apply/);
+  assert.match(globalsCss, /background-color:\s*var\(--color-background\);/);
+  assert.match(globalsCss, /font-size:\s*var\(--text-sm\);/);
 });
 
 test("validateGlobalsCssTokens passes for the current contract", () => {

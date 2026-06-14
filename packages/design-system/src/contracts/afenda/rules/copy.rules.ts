@@ -1,4 +1,25 @@
 import type { AfendaRuntimeRule } from "../runtime-reference.contract";
+import {
+  AFENDA_GOV_AGENT_GOVERNANCE,
+  AFENDA_GOV_AUDIT,
+  AFENDA_GOV_COMPLIANCE,
+  AFENDA_GOV_CONTENT,
+  AFENDA_GOV_COPY,
+  AFENDA_GOV_DATA_DISPLAY,
+  AFENDA_GOV_DECISION_SUPPORT,
+  AFENDA_GOV_EMPTY_STATE,
+  AFENDA_GOV_FEEDBACK,
+  AFENDA_GOV_LOCALE,
+  AFENDA_GOV_MESSAGE_CATALOG,
+  AFENDA_GOV_MUTATION,
+  AFENDA_GOV_OBSERVABILITY,
+  AFENDA_GOV_PERMISSION,
+  AFENDA_GOV_PRIVACY,
+  AFENDA_GOV_SECURITY,
+  AFENDA_GOV_SECURITY_UI,
+  AFENDA_GOV_STATUS_TONE,
+  AFENDA_GOV_TENANT_CONTEXT,
+} from "../catalogs/governance-reference.catalog";
 
 const COPY = "copy" as const;
 const ERROR = "error" as const;
@@ -18,7 +39,7 @@ export const AFENDA_COPY_RULES = [
       "Action labels must name the action, destination, or object clearly.",
     remediation:
       "Use labels such as Save API key, Create invoice, View audit log, or Discard draft.",
-    references: ["AFENDA:copy-contract", "WCAG:2.4.4", "WCAG:2.5.3"],
+    references: [AFENDA_GOV_COPY, "WCAG:2.4.4", "WCAG:2.5.3"],
     enforcement: HYBRID,
   },
   {
@@ -33,9 +54,9 @@ export const AFENDA_COPY_RULES = [
     remediation:
       "Include tenant/company/workspace, selected count, object names where safe, and impact summary in confirmations.",
     references: [
-      "AFENDA:copy-contract",
-      "AFENDA:tenant-context-contract",
-      "AFENDA:mutation-contract",
+      AFENDA_GOV_COPY,
+      AFENDA_GOV_TENANT_CONTEXT,
+      AFENDA_GOV_MUTATION,
     ],
     enforcement: HYBRID,
   },
@@ -51,9 +72,9 @@ export const AFENDA_COPY_RULES = [
     remediation:
       "Include target name, tenant/company scope where applicable, irreversible impact, and undo or recovery availability.",
     references: [
-      "AFENDA:copy-contract",
-      "AFENDA:mutation-contract",
-      "AFENDA:tenant-context-contract",
+      AFENDA_GOV_COPY,
+      AFENDA_GOV_MUTATION,
+      AFENDA_GOV_TENANT_CONTEXT,
       "WCAG:3.3.4",
     ],
     enforcement: HYBRID,
@@ -70,9 +91,9 @@ export const AFENDA_COPY_RULES = [
     remediation:
       "Explain whether access is unavailable due to role, tenant/company scope, approval state, or system policy, and provide request-access guidance where appropriate.",
     references: [
-      "AFENDA:copy-contract",
-      "AFENDA:security-ui-contract",
-      "AFENDA:permission-contract",
+      AFENDA_GOV_COPY,
+      AFENDA_GOV_SECURITY_UI,
+      AFENDA_GOV_PERMISSION,
     ],
     enforcement: HYBRID,
   },
@@ -88,7 +109,7 @@ export const AFENDA_COPY_RULES = [
       "Error copy must identify the failed action, affected object, and next recovery step where possible.",
     remediation:
       "State what failed, include field or object context, and provide retry, correction, support, or escalation guidance.",
-    references: ["AFENDA:copy-contract", "AFENDA:feedback-contract", "WCAG:3.3.1", "WCAG:3.3.3"],
+    references: [AFENDA_GOV_COPY, AFENDA_GOV_FEEDBACK, "WCAG:3.3.1", "WCAG:3.3.3"],
     enforcement: HYBRID,
   },
   {
@@ -103,9 +124,9 @@ export const AFENDA_COPY_RULES = [
     remediation:
       "Use copy such as Invoice approved, API key saved, 24 employees imported, or Report export started.",
     references: [
-      "AFENDA:copy-contract",
-      "AFENDA:feedback-contract",
-      "AFENDA:mutation-contract",
+      AFENDA_GOV_COPY,
+      AFENDA_GOV_FEEDBACK,
+      AFENDA_GOV_MUTATION,
     ],
     enforcement: HYBRID,
   },
@@ -121,7 +142,7 @@ export const AFENDA_COPY_RULES = [
       "Loading and pending copy must describe the operation when context is not obvious.",
     remediation:
       "Use copy such as Loading invoices, Saving company profile, Syncing permissions, or Generating report.",
-    references: ["AFENDA:copy-contract", "AFENDA:feedback-contract", "WCAG:4.1.3"],
+    references: [AFENDA_GOV_COPY, AFENDA_GOV_FEEDBACK, "WCAG:4.1.3"],
     enforcement: HYBRID,
   },
   {
@@ -136,9 +157,9 @@ export const AFENDA_COPY_RULES = [
     remediation:
       "Distinguish no data, filtered empty, permission-limited, and scoped empty states with appropriate guidance.",
     references: [
-      "AFENDA:copy-contract",
-      "AFENDA:empty-state-contract",
-      "AFENDA:tenant-context-contract",
+      AFENDA_GOV_COPY,
+      AFENDA_GOV_EMPTY_STATE,
+      AFENDA_GOV_TENANT_CONTEXT,
     ],
     enforcement: HYBRID,
   },
@@ -153,7 +174,7 @@ export const AFENDA_COPY_RULES = [
       "Status copy must use approved domain, workflow, or status-tone vocabulary.",
     remediation:
       "Use canonical labels from the feature contract, workflow contract, or status-tone registry.",
-    references: ["AFENDA:copy-contract", "AFENDA:status-tone-contract", "AFENDA:data-display-contract"],
+    references: [AFENDA_GOV_COPY, AFENDA_GOV_STATUS_TONE, AFENDA_GOV_DATA_DISPLAY],
     enforcement: HYBRID,
   },
   {
@@ -168,9 +189,9 @@ export const AFENDA_COPY_RULES = [
     remediation:
       "Generate audit summaries from structured event fields rather than freeform UI copy.",
     references: [
-      "AFENDA:copy-contract",
-      "AFENDA:audit-contract",
-      "AFENDA:observability-contract",
+      AFENDA_GOV_COPY,
+      AFENDA_GOV_AUDIT,
+      AFENDA_GOV_OBSERVABILITY,
     ],
     enforcement: HYBRID,
   },
@@ -186,10 +207,10 @@ export const AFENDA_COPY_RULES = [
     remediation:
       "Store regulated copy in governed catalogs with owner, version, review status, and effective date.",
     references: [
-      "AFENDA:copy-contract",
-      "AFENDA:locale-contract",
-      "AFENDA:compliance-contract",
-      "AFENDA:audit-contract",
+      AFENDA_GOV_COPY,
+      AFENDA_GOV_LOCALE,
+      AFENDA_GOV_COMPLIANCE,
+      AFENDA_GOV_AUDIT,
     ],
     enforcement: HYBRID,
   },
@@ -205,10 +226,10 @@ export const AFENDA_COPY_RULES = [
     remediation:
       "Use safe summaries, masked values, permission-aware labels, and correlation ids instead of sensitive raw data.",
     references: [
-      "AFENDA:copy-contract",
-      "AFENDA:privacy-contract",
-      "AFENDA:security-ui-contract",
-      "AFENDA:permission-contract",
+      AFENDA_GOV_COPY,
+      AFENDA_GOV_PRIVACY,
+      AFENDA_GOV_SECURITY_UI,
+      AFENDA_GOV_PERMISSION,
     ],
     enforcement: HYBRID,
   },
@@ -224,10 +245,10 @@ export const AFENDA_COPY_RULES = [
     remediation:
       "Label generated text, attach source/provenance where applicable, and require confirmation before mutation or audit use.",
     references: [
-      "AFENDA:copy-contract",
-      "AFENDA:agent-governance-contract",
-      "AFENDA:audit-contract",
-      "AFENDA:decision-support-contract",
+      AFENDA_GOV_COPY,
+      AFENDA_GOV_AGENT_GOVERNANCE,
+      AFENDA_GOV_AUDIT,
+      AFENDA_GOV_DECISION_SUPPORT,
     ],
     enforcement: HYBRID,
   },
@@ -244,9 +265,9 @@ export const AFENDA_COPY_RULES = [
     remediation:
       "Use approved message catalog keys, named interpolation values, and plural/select branches instead of string concatenation.",
     references: [
-      "AFENDA:copy-contract",
-      "AFENDA:locale-contract",
-      "AFENDA:message-catalog-contract",
+      AFENDA_GOV_COPY,
+      AFENDA_GOV_LOCALE,
+      AFENDA_GOV_MESSAGE_CATALOG,
     ],
     enforcement: HYBRID,
   },
@@ -262,7 +283,7 @@ export const AFENDA_COPY_RULES = [
       "User-facing copy must avoid blame, shame, sarcasm, or dismissive wording.",
     remediation:
       "Use neutral wording that describes the system state, required correction, and next action.",
-    references: ["AFENDA:copy-contract", "AFENDA:content-contract"],
+    references: [AFENDA_GOV_COPY, AFENDA_GOV_CONTENT],
     enforcement: HYBRID,
   },
 ] as const satisfies readonly AfendaRuntimeRule[];

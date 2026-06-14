@@ -26,7 +26,9 @@ const meta = {
   },
   decorators: [
     (Story) => (
-      <ThemeStudioPreviewRoot branding={AFENDA_DEFAULT_TENANT_BRANDING_SETTINGS}>
+      <ThemeStudioPreviewRoot
+        branding={AFENDA_DEFAULT_TENANT_BRANDING_SETTINGS}
+      >
         <Story />
       </ThemeStudioPreviewRoot>
     ),

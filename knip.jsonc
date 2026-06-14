@@ -24,8 +24,6 @@
   },
   "ignoreFiles": [
     "supabase/functions/**/index.ts",
-    "**/*.example.tsx",
-    "**/examples/**",
     "**/generated/**",
     "**/.agents/**",
     "**/.cursor/**",
@@ -89,21 +87,16 @@
       ],
       "project": ["src/**/*.{ts,tsx}", "scripts/**/*.{mts,mjs,ts}", "tests/**/*.{ts,tsx}"]
     },
+    "packages/database": {
+      "entry": ["scripts/**/*.{mts,mjs,ts}"],
+      "project": ["**/*.{ts,tsx,mts,mjs}", "scripts/**/*.{mts,mjs,ts}"]
+    },
     "packages/design-system": {
       "entry": [
-        "src/index.ts",
-        "src/contracts/index.ts",
-        "src/contracts/afenda/index.ts",
-        "src/contracts/afenda/runtime/index.ts",
         "src/contracts/afenda/catalogs/module-lane.catalog.ts",
-        "src/contracts/afenda/gates/quality-gate.contract.ts",
-        "src/contracts/afenda/legacy/deprecation.manifest.ts",
-        "src/contracts/afenda/references/vercel-geist.contract.ts",
-        "src/css/index.ts",
-        "src/css/adapters/globals-css.adapter.ts",
-        "src/css/tokens/index.ts",
-        "src/customise-branding/index.ts",
-        "src/customise-branding/resolution/index.ts",
+        "src/contracts/afenda/legacy/index.ts",
+        "src/css/adapters/globals-css.render.ts",
+        "src/css/adapters/globals-css.compare.ts",
         "scripts/**/*.{mts,mjs,ts}",
         "src/tests/**/*.{ts,tsx}"
       ],

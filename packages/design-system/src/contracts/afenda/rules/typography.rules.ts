@@ -1,4 +1,20 @@
 import type { AfendaRuntimeRule } from "../runtime-reference.contract";
+import {
+  AFENDA_GOV_ACCESSIBILITY,
+  AFENDA_GOV_CONTENT,
+  AFENDA_GOV_DATA_DISPLAY,
+  AFENDA_GOV_DENSITY,
+  AFENDA_GOV_FORMS,
+  AFENDA_GOV_INTERACTION,
+  AFENDA_GOV_LOCALE,
+  AFENDA_GOV_PERFORMANCE,
+  AFENDA_GOV_SEMANTICS,
+  AFENDA_GOV_STATUS_TONE,
+  AFENDA_GOV_THEME_TOKEN,
+  AFENDA_GOV_TYPE_SCALE,
+  AFENDA_GOV_TYPOGRAPHY,
+  AFENDA_GOV_VISUAL_STABILITY,
+} from "../catalogs/governance-reference.catalog";
 
 const TYPOGRAPHY = "typography" as const;
 const ERROR = "error" as const;
@@ -21,9 +37,9 @@ export const AFENDA_TYPOGRAPHY_RULES = [
     remediation:
       "Use governed text styles or typography tokens instead of local one-off CSS values.",
     references: [
-      "AFENDA:typography-contract",
-      "AFENDA:type-scale-contract",
-      "AFENDA:theme-token-contract",
+      AFENDA_GOV_TYPOGRAPHY,
+      AFENDA_GOV_TYPE_SCALE,
+      AFENDA_GOV_THEME_TOKEN,
     ],
     enforcement: HYBRID,
   },
@@ -39,9 +55,9 @@ export const AFENDA_TYPOGRAPHY_RULES = [
     remediation:
       "Use density-aware text styles instead of local font-size and line-height overrides.",
     references: [
-      "AFENDA:typography-contract",
-      "AFENDA:density-contract",
-      "AFENDA:theme-token-contract",
+      AFENDA_GOV_TYPOGRAPHY,
+      AFENDA_GOV_DENSITY,
+      AFENDA_GOV_THEME_TOKEN,
     ],
     enforcement: HYBRID,
   },
@@ -57,8 +73,8 @@ export const AFENDA_TYPOGRAPHY_RULES = [
     remediation:
       "Use h1-h6 for structure and apply visual typography tokens separately.",
     references: [
-      "AFENDA:typography-contract",
-      "AFENDA:semantics-contract",
+      AFENDA_GOV_TYPOGRAPHY,
+      AFENDA_GOV_SEMANTICS,
       "WCAG:1.3.1",
     ],
     enforcement: HYBRID,
@@ -75,7 +91,7 @@ export const AFENDA_TYPOGRAPHY_RULES = [
       "Use proper ellipsis and balanced or pretty heading wrapping.",
     remediation:
       "Use the ellipsis glyph and text-wrap balance or pretty on headings.",
-    references: ["AFENDA:typography-contract", "AFENDA:content-contract"],
+    references: [AFENDA_GOV_TYPOGRAPHY, AFENDA_GOV_CONTENT],
     enforcement: STATIC,
   },
   {
@@ -89,7 +105,7 @@ export const AFENDA_TYPOGRAPHY_RULES = [
       "Headings should use balanced or intentional wrapping where supported.",
     remediation:
       "Use text-wrap: balance or authored line breaks for major headings while preserving semantic heading structure.",
-    references: ["AFENDA:typography-contract"],
+    references: [AFENDA_GOV_TYPOGRAPHY],
     enforcement: HYBRID,
   },
   {
@@ -103,7 +119,7 @@ export const AFENDA_TYPOGRAPHY_RULES = [
       "Long-form text must use a readable measure and appropriate line height.",
     remediation:
       "Constrain prose width, use readable line-height tokens, and avoid full-width paragraphs in wide layouts.",
-    references: ["AFENDA:typography-contract", "WCAG:1.4.8"],
+    references: [AFENDA_GOV_TYPOGRAPHY, "WCAG:1.4.8"],
     enforcement: MANUAL,
   },
   {
@@ -118,8 +134,8 @@ export const AFENDA_TYPOGRAPHY_RULES = [
     remediation:
       "Use responsive containers, relative sizing, wrapping, and avoid fixed-height text regions.",
     references: [
-      "AFENDA:typography-contract",
-      "AFENDA:accessibility-contract",
+      AFENDA_GOV_TYPOGRAPHY,
+      AFENDA_GOV_ACCESSIBILITY,
       "WCAG:1.4.4",
       "WCAG:1.4.10",
     ],
@@ -136,7 +152,7 @@ export const AFENDA_TYPOGRAPHY_RULES = [
       "Comparable numbers, currency, metrics, quantities, and timestamps must use tabular numerals and consistent alignment.",
     remediation:
       "Apply font-variant-numeric: tabular-nums or an equivalent utility.",
-    references: ["AFENDA:typography-contract", "AFENDA:data-display-contract"],
+    references: [AFENDA_GOV_TYPOGRAPHY, AFENDA_GOV_DATA_DISPLAY],
     enforcement: HYBRID,
   },
   {
@@ -151,9 +167,9 @@ export const AFENDA_TYPOGRAPHY_RULES = [
     remediation:
       "Use smart truncation, title/detail reveal, copy affordance, or expanded row patterns for critical fields.",
     references: [
-      "AFENDA:typography-contract",
-      "AFENDA:data-display-contract",
-      "AFENDA:interaction-contract",
+      AFENDA_GOV_TYPOGRAPHY,
+      AFENDA_GOV_DATA_DISPLAY,
+      AFENDA_GOV_INTERACTION,
     ],
     enforcement: HYBRID,
   },
@@ -168,7 +184,7 @@ export const AFENDA_TYPOGRAPHY_RULES = [
       "Typographic containers must tolerate localized text expansion without clipping critical meaning.",
     remediation:
       "Avoid fixed text widths, allow wrapping or responsive alternatives, and test long localized labels.",
-    references: ["AFENDA:typography-contract", "AFENDA:locale-contract"],
+    references: [AFENDA_GOV_TYPOGRAPHY, AFENDA_GOV_LOCALE],
     enforcement: MANUAL,
   },
   {
@@ -183,9 +199,9 @@ export const AFENDA_TYPOGRAPHY_RULES = [
     remediation:
       "Use field labels, helper text, and validation text instead of relying on placeholder copy.",
     references: [
-      "AFENDA:typography-contract",
-      "AFENDA:forms-contract",
-      "AFENDA:accessibility-contract",
+      AFENDA_GOV_TYPOGRAPHY,
+      AFENDA_GOV_FORMS,
+      AFENDA_GOV_ACCESSIBILITY,
       "WCAG:3.3.2",
     ],
     enforcement: HYBRID,
@@ -202,9 +218,9 @@ export const AFENDA_TYPOGRAPHY_RULES = [
     remediation:
       "Pair tone color with text labels such as Active, Blocked, Failed, Pending, or Requires review.",
     references: [
-      "AFENDA:typography-contract",
-      "AFENDA:accessibility-contract",
-      "AFENDA:status-tone-contract",
+      AFENDA_GOV_TYPOGRAPHY,
+      AFENDA_GOV_ACCESSIBILITY,
+      AFENDA_GOV_STATUS_TONE,
       "WCAG:1.4.1",
     ],
     enforcement: HYBRID,
@@ -221,7 +237,7 @@ export const AFENDA_TYPOGRAPHY_RULES = [
       "Meaningful text must be rendered as real text, not only inside images.",
     remediation:
       "Render text with HTML/CSS and reserve images for decoration, illustration, or supplemental content.",
-    references: ["AFENDA:typography-contract", "WCAG:1.4.5"],
+    references: [AFENDA_GOV_TYPOGRAPHY, "WCAG:1.4.5"],
     enforcement: MANUAL,
   },
   {
@@ -236,9 +252,9 @@ export const AFENDA_TYPOGRAPHY_RULES = [
     remediation:
       "Use font-display strategy, metric-compatible fallbacks, and avoid late-loading critical typography.",
     references: [
-      "AFENDA:typography-contract",
-      "AFENDA:performance-contract",
-      "AFENDA:visual-stability-contract",
+      AFENDA_GOV_TYPOGRAPHY,
+      AFENDA_GOV_PERFORMANCE,
+      AFENDA_GOV_VISUAL_STABILITY,
     ],
     enforcement: STATIC,
   },

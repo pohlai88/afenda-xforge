@@ -21,6 +21,7 @@ test("package exports resolve for root and documented subpaths", async () => {
   assert.equal("afendaTokenCatalog" in root, false);
   assert.equal("validateAfendaTokenCatalog" in root, false);
   assert.ok(root.resolveAfendaRuntimeTokenSnapshot);
+  assert.ok(root.resolvePresentationMetadata);
   assert.equal("badgeVariants" in root, false);
   assert.equal("buttonSizes" in root, false);
   assert.equal("buttonVariants" in root, false);
@@ -124,6 +125,7 @@ test("package exports resolve for root and documented subpaths", async () => {
     "legacy deprecation manifest must stay internal-only"
   );
   assert.ok(afendaCatalogs.afendaModuleLaneCatalog);
+  assert.ok(afendaCatalogs.AFENDA_GOV_DESIGN_SYSTEM);
   assert.equal(
     afendaCatalogs.getAfendaDefaultLaneForFeature(
       "hr-suite.payroll-compensation.periods"
@@ -190,4 +192,13 @@ test("package exports resolve for root and documented subpaths", async () => {
   assert.ok(afendaRuntime.afendaRuleEvaluationContract);
   assert.ok(afendaRuntime.afendaViolationContract);
   assert.ok(afendaRuntime.afendaAgentGovernanceContract);
+
+  const presentation = await import("@repo/design-system/presentation");
+  assert.ok(presentation.resolvePresentationMetadata);
+  assert.ok(afenda.afendaPresentationMetadataContract);
+  assert.ok(afenda.afendaPresentationResolutionContract);
+  assert.ok(afendaCatalogs.afendaPresentationResolutionCatalog);
+  assert.ok(afendaRegistries.afendaPrimitiveColorRegistry);
+  assert.ok(afendaRegistries.afendaComponentTokenRegistry);
+  assert.ok(afenda.AFENDA_ALLOWED_VISUAL_TOKENS.includes("bg-primary"));
 });

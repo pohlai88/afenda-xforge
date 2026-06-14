@@ -248,8 +248,8 @@ XForge can customize its presentation layer without changing architecture.
 
 **Recommended location**:
 
-- `packages/ui`
-- `packages/design-system` if the implementation introduces a dedicated design system package later
+- `packages/design-system` for token registries, theme presets, density modes, and presentation resolution (`resolvePresentationMetadata`)
+- `packages/ui` for React primitives and generated `globals.css` consumption
 
 **Do not customize away**:
 

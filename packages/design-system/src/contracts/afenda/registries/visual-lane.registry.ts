@@ -1,6 +1,14 @@
 import { z } from "zod";
 
-import { defineRegistry } from "../../registry.schema";
+import { defineGovernanceReferences, defineRegistry, governanceReferencesSchema } from "../../registry.schema";
+import {
+  AFENDA_GOV_DATA_DISPLAY,
+  AFENDA_GOV_DESIGN_SYSTEM,
+  AFENDA_GOV_HUE_RESERVATION,
+  AFENDA_GOV_TENANT_CONTEXT,
+  AFENDA_GOV_THEMING,
+  AFENDA_GOV_VISUAL_DESIGN,
+} from "../catalogs/governance-reference.catalog";
 
 export const AFENDA_VISUAL_LANE_REGISTRY_ID =
   "afenda.visual-lane-registry" as const;
@@ -25,14 +33,14 @@ export const AFENDA_LANE_COLOR_SCALE_FIELDS = defineRegistry([
   "glow",
 ]);
 
-export const AFENDA_VISUAL_LANE_GOVERNANCE_REFERENCES = [
-  "AFENDA:design-system-contract",
-  "AFENDA:theming-contract",
-  "AFENDA:data-display-contract",
-  "AFENDA:tenant-context-contract",
-  "AFENDA:visual-design-contract",
-  "AFENDA:hue-reservation-contract",
-] as const;
+export const AFENDA_VISUAL_LANE_GOVERNANCE_REFERENCES = defineGovernanceReferences([
+  AFENDA_GOV_DESIGN_SYSTEM,
+  AFENDA_GOV_THEMING,
+  AFENDA_GOV_DATA_DISPLAY,
+  AFENDA_GOV_TENANT_CONTEXT,
+  AFENDA_GOV_VISUAL_DESIGN,
+  AFENDA_GOV_HUE_RESERVATION,
+]);
 
 export type AfendaErpVisualLaneId =
   (typeof AFENDA_ERP_VISUAL_LANE_IDS)[number];
@@ -192,7 +200,7 @@ export const AFENDA_ERP_VISUAL_LANE_BY_ID: Record<
 export const afendaVisualLaneRegistrySchema = z
   .object({
     colorScaleFields: z.array(afendaLaneColorScaleFieldSchema).min(1).readonly(),
-    governanceReferences: z.array(z.string().trim().min(1)).min(1).readonly(),
+    governanceReferences: governanceReferencesSchema,
     id: z.literal(AFENDA_VISUAL_LANE_REGISTRY_ID),
     laneIds: z.array(afendaErpVisualLaneIdSchema).min(1).readonly(),
     lanes: z

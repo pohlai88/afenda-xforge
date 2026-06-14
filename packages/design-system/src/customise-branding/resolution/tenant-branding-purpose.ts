@@ -1,4 +1,3 @@
-import type { AfendaColorTokenMode as ColorMode } from "../../contracts/afenda/registries/color-token.registry";
 import type {
   AfendaPartialLaneColorModeScale as PartialLaneColorModeScale,
   AfendaTenantBrandingSettings as TenantBrandingSettings,
@@ -7,10 +6,11 @@ import {
   AFENDA_DEFAULT_TENANT_BRANDING_SETTINGS as DEFAULT_TENANT_BRANDING_SETTINGS,
   validateAfendaTenantBrandingSettings as validateTenantBrandingSettings,
 } from "../../contracts/afenda/customization/branding.contract";
-import type {
-  AfendaErpVisualLaneId as ErpVisualLaneId,
-  AfendaLaneColorScale as LaneColorScale,
-} from "../../contracts/afenda/registries/visual-lane.registry";
+import {
+  type AfendaColorTokenMode as ColorMode,
+  type AfendaErpVisualLaneId as ErpVisualLaneId,
+  type AfendaLaneColorScale as LaneColorScale,
+} from "../../contracts/afenda/registries";
 import {
   assertValidTenantBrandingColors,
   validateTenantBrandingColors,

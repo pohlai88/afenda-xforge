@@ -1,4 +1,16 @@
 import type { AfendaRuntimeRule } from "../runtime-reference.contract";
+import {
+  AFENDA_GOV_AUDIT,
+  AFENDA_GOV_FEEDBACK,
+  AFENDA_GOV_FORM_STATE,
+  AFENDA_GOV_FORM_VALIDATION,
+  AFENDA_GOV_MUTATION,
+  XFORGE_GOV_AUDIT_EVENTS,
+  XFORGE_GOV_MUTATION_PIPELINE,
+  XFORGE_GOV_PERMISSION_PIPELINE,
+  XFORGE_GOV_REPOSITORY_BOUNDARY,
+  XFORGE_GOV_TENANT_COMPANY_SCOPE,
+} from "../catalogs/governance-reference.catalog";
 
 const MUTATION = "mutation" as const;
 const ERROR = "error" as const;
@@ -18,7 +30,7 @@ export const AFENDA_MUTATION_RULES = [
       "Mutations must follow the canonical pipeline: authenticate, resolve tenant, verify membership, resolve company, verify grant, validate input, enforce permission, execute, audit, then run post-commit effects.",
     remediation:
       "Route writes through governed command handlers or server actions that implement the XForge mutation pipeline.",
-    references: ["AFENDA:mutation-contract", "XFORGE:mutation-pipeline"],
+    references: [AFENDA_GOV_MUTATION, XFORGE_GOV_MUTATION_PIPELINE],
     enforcement: MANUAL,
   },
   {
@@ -32,7 +44,7 @@ export const AFENDA_MUTATION_RULES = [
       "Mutations must perform final schema, permission, and business validation on the server before execution.",
     remediation:
       "Keep client validation as affordance only and validate again inside the server action, API route, or command handler.",
-    references: ["AFENDA:mutation-contract", "AFENDA:form-validation-contract", "XFORGE:mutation-pipeline"],
+    references: [AFENDA_GOV_MUTATION, AFENDA_GOV_FORM_VALIDATION, XFORGE_GOV_MUTATION_PIPELINE],
     enforcement: HYBRID,
   },
   {
@@ -46,7 +58,7 @@ export const AFENDA_MUTATION_RULES = [
       "Destructive or irreversible mutations must require confirmation, review, or a safe undo path.",
     remediation:
       "Use a governed confirmation flow that names the target, consequence, and recovery path where available.",
-    references: ["AFENDA:mutation-contract", "WCAG:3.3.4", "XFORGE:mutation-pipeline"],
+    references: [AFENDA_GOV_MUTATION, "WCAG:3.3.4", XFORGE_GOV_MUTATION_PIPELINE],
     enforcement: MANUAL,
   },
   {
@@ -60,7 +72,7 @@ export const AFENDA_MUTATION_RULES = [
       "Mutations must guard against accidental duplicate submission or repeated execution.",
     remediation:
       "Use scoped pending state, idempotency keys for high-impact writes, and server-side duplicate protection.",
-    references: ["AFENDA:mutation-contract", "AFENDA:form-state-contract"],
+    references: [AFENDA_GOV_MUTATION, AFENDA_GOV_FORM_STATE],
     enforcement: HYBRID,
   },
   {
@@ -74,7 +86,7 @@ export const AFENDA_MUTATION_RULES = [
       "High-impact mutations must use an idempotency key, uniqueness guard, or equivalent server-side duplicate protection.",
     remediation:
       "Generate and persist idempotency keys for retryable writes, imports, payments, webhook-triggering actions, and bulk operations.",
-    references: ["AFENDA:mutation-contract", "XFORGE:mutation-pipeline"],
+    references: [AFENDA_GOV_MUTATION, XFORGE_GOV_MUTATION_PIPELINE],
     enforcement: HYBRID,
   },
   {
@@ -88,7 +100,7 @@ export const AFENDA_MUTATION_RULES = [
       "High-impact mutations must emit audit events after successful execution.",
     remediation:
       "Write audit events with actor, tenant, company, target, action, and result metadata after the mutation succeeds.",
-    references: ["AFENDA:mutation-contract", "AFENDA:audit-contract", "XFORGE:audit-events"],
+    references: [AFENDA_GOV_MUTATION, AFENDA_GOV_AUDIT, XFORGE_GOV_AUDIT_EVENTS],
     enforcement: MANUAL,
   },
   {
@@ -103,7 +115,7 @@ export const AFENDA_MUTATION_RULES = [
       "Post-commit effects must run only after the mutation succeeds and audit is recorded where required.",
     remediation:
       "Move notifications, webhooks, cache invalidation, and background jobs after successful execution and audit.",
-    references: ["AFENDA:mutation-contract", "XFORGE:mutation-pipeline"],
+    references: [AFENDA_GOV_MUTATION, XFORGE_GOV_MUTATION_PIPELINE],
     enforcement: MANUAL,
   },
   {
@@ -117,7 +129,7 @@ export const AFENDA_MUTATION_RULES = [
       "Optimistic mutations must reconcile server rejection, conflict, or partial failure.",
     remediation:
       "Rollback affected UI, mark failed items clearly, restore prior values, or provide retry and conflict-resolution guidance.",
-    references: ["AFENDA:mutation-contract", "AFENDA:feedback-contract"],
+    references: [AFENDA_GOV_MUTATION, AFENDA_GOV_FEEDBACK],
     enforcement: MANUAL,
   },
   {
@@ -131,7 +143,7 @@ export const AFENDA_MUTATION_RULES = [
       "Mutations that update existing records must detect stale or conflicting writes where concurrent edits are possible.",
     remediation:
       "Use version fields, updatedAt checks, optimistic concurrency, or conflict review flows before overwriting current data.",
-    references: ["AFENDA:mutation-contract", "XFORGE:repository-boundary"],
+    references: [AFENDA_GOV_MUTATION, XFORGE_GOV_REPOSITORY_BOUNDARY],
     enforcement: MANUAL,
   },
   {
@@ -145,7 +157,7 @@ export const AFENDA_MUTATION_RULES = [
       "Mutation failures must preserve submitted values unless preserving them would expose sensitive data.",
     remediation:
       "Return field errors with submitted values, preserve wizard state, and reset only after confirmed success.",
-    references: ["AFENDA:mutation-contract", "AFENDA:form-validation-contract"],
+    references: [AFENDA_GOV_MUTATION, AFENDA_GOV_FORM_VALIDATION],
     enforcement: HYBRID,
   },
   {
@@ -160,7 +172,7 @@ export const AFENDA_MUTATION_RULES = [
       "Mutations must fail closed when tenant, company, membership, grant, or permission cannot be verified.",
     remediation:
       "Treat missing or ambiguous scope as denied and return a governed authorization error.",
-    references: ["AFENDA:mutation-contract", "XFORGE:permission-pipeline", "XFORGE:tenant-company-scope"],
+    references: [AFENDA_GOV_MUTATION, XFORGE_GOV_PERMISSION_PIPELINE, XFORGE_GOV_TENANT_COMPANY_SCOPE],
     enforcement: HYBRID,
   },
 ] as const satisfies readonly AfendaRuntimeRule[];

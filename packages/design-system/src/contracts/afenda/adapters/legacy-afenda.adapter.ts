@@ -1,3 +1,16 @@
+import { defineGovernanceReferences } from "../../registry.schema";
+import {
+  AFENDA_GOV_ADAPTER,
+  AFENDA_GOV_APPROVAL_POLICY,
+  AFENDA_GOV_COMPONENT_VARIANT,
+  AFENDA_GOV_DESIGN_SYSTEM,
+  AFENDA_GOV_MIGRATION_BOUNDARY,
+  AFENDA_GOV_RISK_POLICY,
+  AFENDA_GOV_RUNTIME_REFERENCE,
+  AFENDA_GOV_THEME_TOKEN,
+  AFENDA_RUNTIME_PIPELINE_GOVERNANCE_REFERENCES,
+  XFORGE_GOV_PERMISSION_PIPELINE,
+} from "../catalogs/governance-reference.catalog";
 import {
   type AfendaAdapterDiagnostic,
   type AfendaAdapterResult,
@@ -15,23 +28,18 @@ export const AFENDA_LEGACY_AFENDA_ALLOWED_CHILD_ADAPTER_IDS = [
   "afenda.adapters.legacy-component-variant",
 ] as const;
 
-export const AFENDA_LEGACY_AFENDA_ADAPTER_GOVERNANCE_REFERENCES = [
-  "AFENDA:adapter-contract",
-  "AFENDA:design-system-contract",
-  "AFENDA:runtime-reference-contract",
-  "AFENDA:theme-token-contract",
-  "AFENDA:component-variant-contract",
-  "AFENDA:rule-evaluation-contract",
-  "AFENDA:violation-contract",
-  "AFENDA:remediation-contract",
-  "AFENDA:agent-governance-contract",
-  "AFENDA:audit-contract",
-  "AFENDA:observability-contract",
-  "AFENDA:migration-boundary",
-  "AFENDA:approval-policy-contract",
-  "AFENDA:risk-policy-contract",
-  "XFORGE:permission-pipeline",
-] as const;
+export const AFENDA_LEGACY_AFENDA_ADAPTER_GOVERNANCE_REFERENCES =
+  defineGovernanceReferences([
+    AFENDA_GOV_ADAPTER,
+    AFENDA_GOV_DESIGN_SYSTEM,
+    AFENDA_GOV_THEME_TOKEN,
+    AFENDA_GOV_COMPONENT_VARIANT,
+    ...AFENDA_RUNTIME_PIPELINE_GOVERNANCE_REFERENCES,
+    AFENDA_GOV_MIGRATION_BOUNDARY,
+    AFENDA_GOV_APPROVAL_POLICY,
+    AFENDA_GOV_RISK_POLICY,
+    XFORGE_GOV_PERMISSION_PIPELINE,
+  ]);
 
 export type AfendaLegacyAfendaAdapterInput = {
   source: AfendaAdapterSource & {
@@ -94,7 +102,7 @@ function createEmptyAggregateDiagnostic(): AfendaAdapterDiagnostic {
     remediation:
       "Run token, theme preset, or component variant adapters before aggregating legacy Afenda migration results.",
     blocking: true,
-    reference: "AFENDA:adapter-contract",
+    reference: AFENDA_GOV_ADAPTER,
   };
 }
 
@@ -115,7 +123,7 @@ function createUnsupportedChildDiagnostics(
       remediation:
         "Aggregate only legacy token, legacy theme preset, and legacy component variant adapter results.",
       blocking: true,
-      reference: "AFENDA:adapter-contract",
+      reference: AFENDA_GOV_ADAPTER,
       metadata: {
         childAdapterId: result.adapterId,
         childStatus: result.status,
@@ -152,7 +160,7 @@ function createDuplicateTargetDiagnostics(
       remediation:
         "Review precedence and confirm which child adapter owns the canonical target mapping.",
       blocking: false,
-      reference: "AFENDA:migration-boundary",
+      reference: AFENDA_GOV_MIGRATION_BOUNDARY,
     }));
 }
 
@@ -170,7 +178,7 @@ function createAggregateDiagnostic(
     remediation:
       "Review child adapter diagnostics and resolve blocking or approval-required mappings before removing legacy inputs.",
     blocking: childResults.some((result) => result.blocking),
-    reference: "AFENDA:migration-boundary",
+    reference: AFENDA_GOV_MIGRATION_BOUNDARY,
     metadata: {
       childAdapterIds: childResults.map((result) => result.adapterId),
       childStatuses: childResults.map((result) => result.status),

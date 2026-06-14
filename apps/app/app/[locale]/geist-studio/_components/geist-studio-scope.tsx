@@ -1,6 +1,5 @@
 "use client";
 
-import { AFENDA_DEFAULT_TENANT_BRANDING_SETTINGS as DEFAULT_TENANT_BRANDING_SETTINGS } from "@repo/design-system/contracts/afenda/customization";
 import {
   resolveGeistSemanticCssVars,
   VERCEL_GEIST_THEME_PRESET_NAME,
@@ -57,8 +56,3 @@ export function GeistStudioScope({
     </div>
   );
 }
-
-export const GEIST_STUDIO_BRANDING = {
-  ...DEFAULT_TENANT_BRANDING_SETTINGS,
-  themePreset: VERCEL_GEIST_THEME_PRESET_NAME,
-} as const;

@@ -1,9 +1,19 @@
 import { z } from "zod";
 
 import {
+  defineGovernanceReferences,
   defineRegistry,
   designSystemRegistryEntrySchema,
+  governanceReferencesSchema,
 } from "../../registry.schema";
+import {
+  AFENDA_GOV_CONTENT,
+  AFENDA_GOV_DESIGN_SYSTEM,
+  AFENDA_GOV_LOCALE,
+  AFENDA_GOV_PERFORMANCE,
+  AFENDA_GOV_TYPOGRAPHY,
+  AFENDA_GOV_VISUAL_DESIGN,
+} from "../catalogs/governance-reference.catalog";
 
 export const AFENDA_FONT_REGISTRY_ID = "afenda.font-registry" as const;
 export const AFENDA_FONT_REGISTRY_VERSION = "0.1.0" as const;
@@ -37,15 +47,15 @@ export const AFENDA_FONT_REGISTRY_VARIABLES = [
   "--font-serif",
 ] as const;
 
-export const AFENDA_FONT_GOVERNANCE_REFERENCES = [
-  "AFENDA:design-system-contract",
-  "AFENDA:typography-contract",
-  "AFENDA:visual-design-contract",
-  "AFENDA:performance-contract",
-  "AFENDA:locale-contract",
+export const AFENDA_FONT_GOVERNANCE_REFERENCES = defineGovernanceReferences([
+  AFENDA_GOV_DESIGN_SYSTEM,
+  AFENDA_GOV_TYPOGRAPHY,
+  AFENDA_GOV_VISUAL_DESIGN,
+  AFENDA_GOV_PERFORMANCE,
+  AFENDA_GOV_LOCALE,
   "WCAG:1.4.4",
   "WCAG:1.4.12",
-] as const;
+]);
 
 export type AfendaFontRole = (typeof AFENDA_FONT_ROLES)[number];
 export type AfendaFontPresetName = (typeof AFENDA_FONT_PRESET_NAMES)[number];
@@ -75,7 +85,7 @@ export const afendaFontPresetSchema = z
   .object({
     cssVariable: afendaFontRegistryVariableSchema,
     family: z.string().trim().min(1),
-    governanceReferences: z.array(z.string().trim().min(1)).min(1).readonly(),
+    governanceReferences: governanceReferencesSchema,
     name: afendaFontPresetNameSchema,
     packageName: z.string().trim().min(1).optional(),
     provider: afendaFontProviderSchema,
@@ -212,7 +222,7 @@ export const AFENDA_FONT_PRESETS: readonly AfendaFontPreset[] = [
 
 export const afendaFontRegistrySchema = z
   .object({
-    governanceReferences: z.array(z.string().trim().min(1)).min(1).readonly(),
+    governanceReferences: governanceReferencesSchema,
     id: z.literal(AFENDA_FONT_REGISTRY_ID),
     presetNames: z.array(afendaFontPresetNameSchema).min(1).readonly(),
     presets: z.array(afendaFontPresetSchema).min(1).readonly(),
@@ -280,14 +290,14 @@ export const AFENDA_FONT_FEATURE_TOKENS = defineRegistry([
 
 export const AFENDA_TEXT_UTILITY_TOKENS = defineRegistry(["text-tabular"]);
 
-export const AFENDA_TYPOGRAPHY_TOKEN_GOVERNANCE_REFERENCES = [
-  "AFENDA:design-system-contract",
-  "AFENDA:typography-contract",
-  "AFENDA:content-contract",
-  "AFENDA:locale-contract",
+export const AFENDA_TYPOGRAPHY_TOKEN_GOVERNANCE_REFERENCES = defineGovernanceReferences([
+  AFENDA_GOV_DESIGN_SYSTEM,
+  AFENDA_GOV_TYPOGRAPHY,
+  AFENDA_GOV_CONTENT,
+  AFENDA_GOV_LOCALE,
   "WCAG:1.4.4",
   "WCAG:1.4.12",
-] as const;
+]);
 
 export type AfendaTypeScaleRole = (typeof AFENDA_TYPE_SCALE_ROLES)[number];
 export type AfendaTypeUtilityToken =
@@ -308,7 +318,7 @@ export const afendaTypographyTokenRegistrySchema = z
       .array(afendaFontFeatureTokenSchema)
       .min(1)
       .readonly(),
-    governanceReferences: z.array(z.string().trim().min(1)).min(1).readonly(),
+    governanceReferences: governanceReferencesSchema,
     id: z.literal(AFENDA_TYPOGRAPHY_TOKEN_REGISTRY_ID),
     textUtilityTokens: z
       .array(afendaTextUtilityTokenSchema)

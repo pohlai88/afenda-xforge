@@ -47,7 +47,9 @@ export const withWorkspaceShortcutsIntl: Decorator = (Story, context) => {
 export const withWorkspaceShortcutsShell: Decorator = (Story) => (
   <NextIntlClientProvider locale="en" messages={enMessages}>
     <TooltipProvider delayDuration={300}>
-      <ThemeStudioPreviewRoot branding={AFENDA_DEFAULT_TENANT_BRANDING_SETTINGS}>
+      <ThemeStudioPreviewRoot
+        branding={AFENDA_DEFAULT_TENANT_BRANDING_SETTINGS}
+      >
         <ThemeStudioWorkspace>
           <Story />
         </ThemeStudioWorkspace>

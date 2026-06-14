@@ -35,7 +35,7 @@ export const LANE_ACCENT_USAGE_RULES = [
   "Lane tokens scope module identity (90% neutral / 7% lane / 3% status).",
   "Use lane accents for active nav, module badges, and chart accents only.",
   "Do not use lane tokens for primary CTAs, form focus rings, or operational status.",
-  "Resolve lanes via FeatureLaneScope or tenant branding settings — not ad-hoc palette classes.",
+  "Resolve lanes via FeatureLaneScope, presentation metadata lane field, or tenant branding settings — not ad-hoc palette classes.",
 ] as const;
 
 export const SEMANTIC_STATUS_TOKENS = [

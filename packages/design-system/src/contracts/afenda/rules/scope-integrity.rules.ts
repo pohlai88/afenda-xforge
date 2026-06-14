@@ -1,4 +1,26 @@
 import type { AfendaRuntimeRule } from "../runtime-reference.contract";
+import {
+  AFENDA_GOV_ADMIN_SHELL,
+  AFENDA_GOV_AUDIT,
+  AFENDA_GOV_BACKGROUND_JOB_SCOPE,
+  AFENDA_GOV_DATA_DISPLAY,
+  AFENDA_GOV_EMPTY_STATE,
+  AFENDA_GOV_EXECUTION_CONTEXT,
+  AFENDA_GOV_MUTATION,
+  AFENDA_GOV_PERMISSION,
+  AFENDA_GOV_REALTIME_SCOPE,
+  AFENDA_GOV_ROUTE_STATE,
+  AFENDA_GOV_SCOPED_EXPORT,
+  AFENDA_GOV_SCOPED_ROUTE,
+  AFENDA_GOV_SCOPE_CACHE,
+  AFENDA_GOV_SCOPE_RESOLUTION,
+  AFENDA_GOV_SECURITY,
+  AFENDA_GOV_SECURITY_UI,
+  AFENDA_GOV_TENANT_CONTEXT,
+  XFORGE_GOV_EXECUTION_CONTEXT,
+  XFORGE_GOV_PERMISSION_PIPELINE,
+  XFORGE_GOV_TENANT_COMPANY_SCOPE,
+} from "../catalogs/governance-reference.catalog";
 
 const SCOPE_INTEGRITY = "scope-integrity" as const;
 const ERROR = "error" as const;
@@ -6,9 +28,9 @@ const WARNING = "warning" as const;
 const MANUAL = "manual" as const;
 const HYBRID = "hybrid" as const;
 
-export const AFENDA_TENANT_CONTEXT_RULES = [
+export const AFENDA_SCOPE_INTEGRITY_RULES = [
   {
-    id: "tenant-context.active-scope-visible",
+    id: "scope-integrity.active-scope-visible",
     category: SCOPE_INTEGRITY,
     severity: ERROR,
     appliesTo: ["app-shell", "tenant-switcher", "company-switcher", "workspace-header", "admin-shell"],
@@ -19,14 +41,14 @@ export const AFENDA_TENANT_CONTEXT_RULES = [
     remediation:
       "Show the active tenant/company/workspace in shell chrome, headers, switchers, or scoped action regions.",
     references: [
-      "AFENDA:tenant-context-contract",
-      "AFENDA:scope-resolution-contract",
-      "XFORGE:tenant-company-scope",
+      AFENDA_GOV_TENANT_CONTEXT,
+      AFENDA_GOV_SCOPE_RESOLUTION,
+      XFORGE_GOV_TENANT_COMPANY_SCOPE,
     ],
     enforcement: MANUAL,
   },
   {
-    id: "tenant-context.route-scope-consistency",
+    id: "scope-integrity.route-scope-consistency",
     category: SCOPE_INTEGRITY,
     severity: ERROR,
     appliesTo: ["route", "app-shell", "breadcrumb", "workspace-header", "deep-link"],
@@ -37,14 +59,14 @@ export const AFENDA_TENANT_CONTEXT_RULES = [
     remediation:
       "Derive route params, shell labels, breadcrumbs, and data loaders from the same scope resolver.",
     references: [
-      "AFENDA:tenant-context-contract",
-      "AFENDA:scoped-route-contract",
-      "XFORGE:execution-context",
+      AFENDA_GOV_TENANT_CONTEXT,
+      AFENDA_GOV_SCOPED_ROUTE,
+      XFORGE_GOV_EXECUTION_CONTEXT,
     ],
     enforcement: HYBRID,
   },
   {
-    id: "tenant-context.mutation-scope-confirmation",
+    id: "scope-integrity.mutation-scope-confirmation",
     category: SCOPE_INTEGRITY,
     severity: ERROR,
     appliesTo: ["mutation-flow", "destructive-action", "bulk-action", "admin-action", "tenant-setting"],
@@ -55,14 +77,14 @@ export const AFENDA_TENANT_CONTEXT_RULES = [
     remediation:
       "Include scope labels in confirmations, danger zones, bulk action summaries, and admin mutation panels.",
     references: [
-      "AFENDA:tenant-context-contract",
-      "AFENDA:execution-context-contract",
-      "AFENDA:mutation-contract",
+      AFENDA_GOV_TENANT_CONTEXT,
+      AFENDA_GOV_EXECUTION_CONTEXT,
+      AFENDA_GOV_MUTATION,
     ],
     enforcement: MANUAL,
   },
   {
-    id: "tenant-context.switch-resets-sensitive-state",
+    id: "scope-integrity.switch-resets-sensitive-state",
     category: SCOPE_INTEGRITY,
     severity: ERROR,
     appliesTo: ["tenant-switcher", "company-switcher", "workspace-switcher", "form", "wizard", "filter-state"],
@@ -73,14 +95,14 @@ export const AFENDA_TENANT_CONTEXT_RULES = [
     remediation:
       "Reset scoped UI state, warn about unsaved work, or explicitly migrate only safe route state after scope changes.",
     references: [
-      "AFENDA:tenant-context-contract",
-      "AFENDA:route-state-contract",
-      "AFENDA:scope-cache-contract",
+      AFENDA_GOV_TENANT_CONTEXT,
+      AFENDA_GOV_ROUTE_STATE,
+      AFENDA_GOV_SCOPE_CACHE,
     ],
     enforcement: HYBRID,
   },
   {
-    id: "tenant-context.no-cross-tenant-data-leakage",
+    id: "scope-integrity.no-cross-tenant-data-leakage",
     category: SCOPE_INTEGRITY,
     severity: ERROR,
     appliesTo: ["table", "search", "dashboard", "metric", "report", "detail-panel"],
@@ -91,11 +113,11 @@ export const AFENDA_TENANT_CONTEXT_RULES = [
       "Data displays must be scoped to the active tenant/company and must clear stale data when scope changes.",
     remediation:
       "Key data fetching, caches, route state, and UI stores by tenant/company scope and clear stale views during switching.",
-    references: ["AFENDA:tenant-context-contract", "AFENDA:security-ui-contract", "XFORGE:tenant-company-scope"],
+    references: [AFENDA_GOV_TENANT_CONTEXT, AFENDA_GOV_SECURITY_UI, XFORGE_GOV_TENANT_COMPANY_SCOPE],
     enforcement: HYBRID,
   },
   {
-    id: "tenant-context.cache-key-is-scoped",
+    id: "scope-integrity.cache-key-is-scoped",
     category: SCOPE_INTEGRITY,
     severity: ERROR,
     appliesTo: ["query", "cache", "table", "dashboard", "search", "metric"],
@@ -106,14 +128,14 @@ export const AFENDA_TENANT_CONTEXT_RULES = [
     remediation:
       "Include scope identifiers in query keys, cache tags, revalidation keys, and store partitions.",
     references: [
-      "AFENDA:tenant-context-contract",
-      "AFENDA:scope-cache-contract",
-      "AFENDA:security-ui-contract",
+      AFENDA_GOV_TENANT_CONTEXT,
+      AFENDA_GOV_SCOPE_CACHE,
+      AFENDA_GOV_SECURITY_UI,
     ],
     enforcement: HYBRID,
   },
   {
-    id: "tenant-context.permission-scope-alignment",
+    id: "scope-integrity.permission-scope-alignment",
     category: SCOPE_INTEGRITY,
     severity: ERROR,
     appliesTo: ["button", "menu-item", "route", "admin-shell", "toolbar", "row-action"],
@@ -124,14 +146,14 @@ export const AFENDA_TENANT_CONTEXT_RULES = [
     remediation:
       "Resolve grants for the active scope and render permission-aware navigation, actions, and explanations.",
     references: [
-      "AFENDA:tenant-context-contract",
-      "AFENDA:permission-contract",
-      "XFORGE:permission-pipeline",
+      AFENDA_GOV_TENANT_CONTEXT,
+      AFENDA_GOV_PERMISSION,
+      XFORGE_GOV_PERMISSION_PIPELINE,
     ],
     enforcement: HYBRID,
   },
   {
-    id: "tenant-context.export-scope",
+    id: "scope-integrity.export-scope",
     category: SCOPE_INTEGRITY,
     severity: ERROR,
     appliesTo: ["export", "report", "download", "bulk-action", "data-grid"],
@@ -142,15 +164,15 @@ export const AFENDA_TENANT_CONTEXT_RULES = [
     remediation:
       "Include scope metadata in export requests, enforce scoped queries server-side, and show export scope before download.",
     references: [
-      "AFENDA:tenant-context-contract",
-      "AFENDA:scoped-export-contract",
-      "AFENDA:data-display-contract",
-      "XFORGE:permission-pipeline",
+      AFENDA_GOV_TENANT_CONTEXT,
+      AFENDA_GOV_SCOPED_EXPORT,
+      AFENDA_GOV_DATA_DISPLAY,
+      XFORGE_GOV_PERMISSION_PIPELINE,
     ],
     enforcement: HYBRID,
   },
   {
-    id: "tenant-context.realtime-events-scoped",
+    id: "scope-integrity.realtime-events-scoped",
     category: SCOPE_INTEGRITY,
     severity: ERROR,
     appliesTo: ["notification", "realtime-event", "toast", "activity-feed", "presence"],
@@ -161,14 +183,14 @@ export const AFENDA_TENANT_CONTEXT_RULES = [
     remediation:
       "Bind channels, event payloads, and client subscriptions to resolved execution scope.",
     references: [
-      "AFENDA:tenant-context-contract",
-      "AFENDA:realtime-scope-contract",
-      "AFENDA:security-ui-contract",
+      AFENDA_GOV_TENANT_CONTEXT,
+      AFENDA_GOV_REALTIME_SCOPE,
+      AFENDA_GOV_SECURITY_UI,
     ],
     enforcement: HYBRID,
   },
   {
-    id: "tenant-context.background-job-scope",
+    id: "scope-integrity.background-job-scope",
     category: SCOPE_INTEGRITY,
     severity: ERROR,
     appliesTo: ["background-job", "scheduled-task", "import", "export", "sync"],
@@ -179,14 +201,14 @@ export const AFENDA_TENANT_CONTEXT_RULES = [
     remediation:
       "Store scope metadata in job payloads and validate scope before processing, retrying, or displaying results.",
     references: [
-      "AFENDA:tenant-context-contract",
-      "AFENDA:background-job-scope-contract",
-      "AFENDA:audit-contract",
+      AFENDA_GOV_TENANT_CONTEXT,
+      AFENDA_GOV_BACKGROUND_JOB_SCOPE,
+      AFENDA_GOV_AUDIT,
     ],
     enforcement: HYBRID,
   },
   {
-    id: "tenant-context.audit-scope-captured",
+    id: "scope-integrity.audit-scope-captured",
     category: SCOPE_INTEGRITY,
     severity: ERROR,
     appliesTo: ["mutation-flow", "admin-action", "export", "approval", "support-session"],
@@ -197,14 +219,14 @@ export const AFENDA_TENANT_CONTEXT_RULES = [
     remediation:
       "Include actor, tenant, company, workspace, target, action, reason, and correlation id in audit events.",
     references: [
-      "AFENDA:tenant-context-contract",
-      "AFENDA:audit-contract",
-      "XFORGE:execution-context",
+      AFENDA_GOV_TENANT_CONTEXT,
+      AFENDA_GOV_AUDIT,
+      XFORGE_GOV_EXECUTION_CONTEXT,
     ],
     enforcement: HYBRID,
   },
   {
-    id: "tenant-context.impersonation-scope",
+    id: "scope-integrity.impersonation-scope",
     category: SCOPE_INTEGRITY,
     severity: ERROR,
     appliesTo: ["impersonation", "support-session", "tenant-switcher", "admin-shell"],
@@ -214,11 +236,11 @@ export const AFENDA_TENANT_CONTEXT_RULES = [
       "Impersonation UI must show both actor context and target tenant/company scope.",
     remediation:
       "Display operator identity, impersonated subject, active tenant/company, and exit affordance in persistent chrome.",
-    references: ["AFENDA:tenant-context-contract", "AFENDA:admin-shell-contract", "AFENDA:audit-contract"],
+    references: [AFENDA_GOV_TENANT_CONTEXT, AFENDA_GOV_ADMIN_SHELL, AFENDA_GOV_AUDIT],
     enforcement: MANUAL,
   },
   {
-    id: "tenant-context.scope-aware-empty-states",
+    id: "scope-integrity.scope-aware-empty-states",
     category: SCOPE_INTEGRITY,
     severity: WARNING,
     appliesTo: ["empty-state", "table", "dashboard", "search-results", "report"],
@@ -228,7 +250,7 @@ export const AFENDA_TENANT_CONTEXT_RULES = [
       "Scoped empty states should make it clear whether the result is due to scope, filters, permissions, or absence of data.",
     remediation:
       "Mention the active scope or filter context and provide safe next actions such as changing filters or requesting access.",
-    references: ["AFENDA:tenant-context-contract", "AFENDA:empty-state-contract"],
+    references: [AFENDA_GOV_TENANT_CONTEXT, AFENDA_GOV_EMPTY_STATE],
     enforcement: MANUAL,
   },
 ] as const satisfies readonly AfendaRuntimeRule[];

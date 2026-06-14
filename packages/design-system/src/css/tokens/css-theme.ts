@@ -3,8 +3,9 @@ import {
   AFENDA_BRAND_COLOR_TOKENS as BRAND_COLOR_TOKENS,
   AFENDA_SIDEBAR_COLOR_TOKENS as SIDEBAR_COLOR_TOKENS,
   AFENDA_STATUS_COLOR_TOKENS as STATUS_COLOR_TOKENS,
-} from "../../contracts/afenda/registries/color-token.registry";
-import { AFENDA_THEME_PRESET_REGISTRY as THEME_PRESETS } from "../../contracts/afenda/registries/theme-preset.registry";
+  AFENDA_SURFACE_NEUTRAL_VALUES,
+  AFENDA_THEME_PRESET_REGISTRY as THEME_PRESETS,
+} from "../../contracts/afenda/registries";
 import {
   CHART_DARK_DECLARATIONS,
   CHART_LIGHT_DECLARATIONS,
@@ -37,21 +38,89 @@ import {
   TYPE_UTILITY_TOKENS,
 } from "./typography-tokens";
 
-const AFENDA_PRESET = THEME_PRESETS.find((preset) => preset.name === "afenda");
+const resolvedAfendaPreset = THEME_PRESETS.find(
+  (preset) => preset.name === "afenda"
+);
 
-if (!AFENDA_PRESET) {
+if (!resolvedAfendaPreset) {
   throw new Error("afenda theme preset is required for globals CSS generation");
 }
+
+const AFENDA_PRESET = resolvedAfendaPreset;
 
 function tenantBrandVar(tenantName: string, fallback: string): string {
   return `var(${tenantName}, ${fallback})`;
 }
 
-export const GLOBALS_CSS_SOURCE_GLOBS = [
-  "../components/**/*.{ts,tsx}",
-  "../lib/**/*.{ts,tsx}",
-  "../index.ts",
-] as const;
+function brandRootDeclarations(
+  mode: "light" | "dark"
+): readonly CssDeclaration[] {
+  const brand = AFENDA_PRESET.brand[mode];
+
+  return [
+    ["--brand-primary", tenantBrandVar("--tenant-primary", brand.primary)],
+    [
+      "--brand-primary-foreground",
+      tenantBrandVar(
+        "--tenant-primary-foreground",
+        brand["primary-foreground"]
+      ),
+    ],
+    [
+      "--brand-secondary",
+      tenantBrandVar("--tenant-secondary", brand.secondary),
+    ],
+    [
+      "--brand-secondary-foreground",
+      tenantBrandVar(
+        "--tenant-secondary-foreground",
+        brand["secondary-foreground"]
+      ),
+    ],
+    ["--brand-accent", tenantBrandVar("--tenant-accent", brand.accent)],
+    [
+      "--brand-accent-foreground",
+      tenantBrandVar(
+        "--tenant-accent-foreground",
+        brand["accent-foreground"]
+      ),
+    ],
+  ] as const;
+}
+
+function surfaceRootDeclarations(
+  mode: "light" | "dark"
+): readonly CssDeclaration[] {
+  const values = AFENDA_SURFACE_NEUTRAL_VALUES[mode];
+
+  return [
+    ["--background", values.background],
+    ["--foreground", values.foreground],
+    ["--card", values.card],
+    ["--card-foreground", values.cardForeground],
+    ["--popover", values.popover],
+    ["--popover-foreground", values.popoverForeground],
+    ["--surface", values.surface],
+    ["--surface-foreground", values.surfaceForeground],
+    ["--surface-muted", values.surfaceMuted],
+    ["--surface-accent", values.surfaceAccent],
+    ["--primary", "var(--brand-primary)"],
+    ["--primary-foreground", "var(--brand-primary-foreground)"],
+    ["--secondary", values.secondary],
+    ["--secondary-foreground", values.secondaryForeground],
+    ["--muted", values.muted],
+    ["--muted-foreground", values.mutedForeground],
+    ["--accent", values.accent],
+    ["--accent-foreground", values.accentForeground],
+    ["--border", values.border],
+    ["--input", values.input],
+    ["--ring", values.ring],
+    ["--ring-brand", "var(--brand-primary)"],
+    ["--elevation-xs", values.elevationXs],
+    ["--elevation-sm", values.elevationSm],
+    ["--elevation-md", values.elevationMd],
+  ] as const;
+}
 
 /** shadcn CLI v4 multiplicative radius scale from `--radius`. */
 export const GLOBALS_CSS_RADIUS_THEME_DECLARATIONS: readonly CssDeclaration[] =
@@ -136,62 +205,9 @@ export const GLOBALS_CSS_TYPE_ROOT_DECLARATIONS: readonly CssDeclaration[] =
   typeScaleRootDeclarations();
 
 export const GLOBALS_CSS_ROOT_DECLARATIONS: readonly CssDeclaration[] = [
-  [
-    "--brand-primary",
-    tenantBrandVar("--tenant-primary", AFENDA_PRESET.brand.light.primary),
-  ],
-  [
-    "--brand-primary-foreground",
-    tenantBrandVar(
-      "--tenant-primary-foreground",
-      AFENDA_PRESET.brand.light["primary-foreground"]
-    ),
-  ],
-  [
-    "--brand-secondary",
-    tenantBrandVar("--tenant-secondary", AFENDA_PRESET.brand.light.secondary),
-  ],
-  [
-    "--brand-secondary-foreground",
-    tenantBrandVar(
-      "--tenant-secondary-foreground",
-      AFENDA_PRESET.brand.light["secondary-foreground"]
-    ),
-  ],
-  [
-    "--brand-accent",
-    tenantBrandVar("--tenant-accent", AFENDA_PRESET.brand.light.accent),
-  ],
-  [
-    "--brand-accent-foreground",
-    tenantBrandVar(
-      "--tenant-accent-foreground",
-      AFENDA_PRESET.brand.light["accent-foreground"]
-    ),
-  ],
-  ["--background", "oklch(0.985 0.003 258)"],
-  ["--foreground", "oklch(0.20 0.015 258)"],
-  ["--card", "oklch(0.995 0.002 258)"],
-  ["--card-foreground", "oklch(0.20 0.015 258)"],
-  ["--popover", "oklch(0.995 0.002 258)"],
-  ["--popover-foreground", "oklch(0.20 0.015 258)"],
-  ["--surface", "oklch(0.988 0.004 258)"],
-  ["--surface-foreground", "oklch(0.22 0.016 258)"],
-  ["--surface-muted", "oklch(0.965 0.006 258)"],
-  ["--surface-accent", "oklch(0.948 0.012 198)"],
-  ["--primary", "var(--brand-primary)"],
-  ["--primary-foreground", "var(--brand-primary-foreground)"],
-  ["--secondary", "oklch(0.955 0.008 258)"],
-  ["--secondary-foreground", "oklch(0.28 0.018 258)"],
-  ["--muted", "oklch(0.944 0.006 258)"],
-  ["--muted-foreground", "oklch(0.45 0.020 258)"],
-  ["--accent", "oklch(0.952 0.012 198)"],
-  ["--accent-foreground", "oklch(0.22 0.025 198)"],
+  ...brandRootDeclarations("light"),
+  ...surfaceRootDeclarations("light"),
   ...STATUS_LIGHT_DECLARATIONS,
-  ["--border", "oklch(0.905 0.010 258)"],
-  ["--input", "oklch(0.905 0.010 258)"],
-  ["--ring", "oklch(0.50 0.018 258)"],
-  ["--ring-brand", "var(--brand-primary)"],
   ...CHART_LIGHT_DECLARATIONS,
   ["--radius", "0.625rem"],
   ["--radius-control", "0.5rem"],
@@ -199,9 +215,6 @@ export const GLOBALS_CSS_ROOT_DECLARATIONS: readonly CssDeclaration[] = [
   ["--density-control-height", "2.25rem"],
   ["--density-table-row-height", "2.75rem"],
   ...orderRootDeclarations(),
-  ["--elevation-xs", "0 1px 1px oklch(0.1 0.01 260 / 0.05)"],
-  ["--elevation-sm", "0 1px 2px oklch(0.1 0.01 260 / 0.07)"],
-  ["--elevation-md", "0 10px 28px oklch(0.1 0.01 260 / 0.08)"],
   ["--elevation-lane-active-glow", "0 0 16px var(--lane-active-glow)"],
   ...sidebarRootDeclarations(SIDEBAR_LIGHT_DECLARATIONS),
   ...GLOBALS_CSS_LANE_ROOT_DECLARATIONS,
@@ -210,66 +223,10 @@ export const GLOBALS_CSS_ROOT_DECLARATIONS: readonly CssDeclaration[] = [
 ] as const;
 
 export const GLOBALS_CSS_DARK_DECLARATIONS: readonly CssDeclaration[] = [
-  [
-    "--brand-primary",
-    tenantBrandVar("--tenant-primary", AFENDA_PRESET.brand.dark.primary),
-  ],
-  [
-    "--brand-primary-foreground",
-    tenantBrandVar(
-      "--tenant-primary-foreground",
-      AFENDA_PRESET.brand.dark["primary-foreground"]
-    ),
-  ],
-  [
-    "--brand-secondary",
-    tenantBrandVar("--tenant-secondary", AFENDA_PRESET.brand.dark.secondary),
-  ],
-  [
-    "--brand-secondary-foreground",
-    tenantBrandVar(
-      "--tenant-secondary-foreground",
-      AFENDA_PRESET.brand.dark["secondary-foreground"]
-    ),
-  ],
-  [
-    "--brand-accent",
-    tenantBrandVar("--tenant-accent", AFENDA_PRESET.brand.dark.accent),
-  ],
-  [
-    "--brand-accent-foreground",
-    tenantBrandVar(
-      "--tenant-accent-foreground",
-      AFENDA_PRESET.brand.dark["accent-foreground"]
-    ),
-  ],
-  ["--background", "oklch(0.155 0.012 258)"],
-  ["--foreground", "oklch(0.935 0.006 258)"],
-  ["--card", "oklch(0.195 0.013 258)"],
-  ["--card-foreground", "oklch(0.935 0.006 258)"],
-  ["--popover", "oklch(0.195 0.013 258)"],
-  ["--popover-foreground", "oklch(0.935 0.006 258)"],
-  ["--surface", "oklch(0.205 0.013 258)"],
-  ["--surface-foreground", "oklch(0.92 0.006 258)"],
-  ["--surface-muted", "oklch(0.255 0.013 258)"],
-  ["--surface-accent", "oklch(0.28 0.022 198)"],
-  ["--primary", "var(--brand-primary)"],
-  ["--primary-foreground", "var(--brand-primary-foreground)"],
-  ["--secondary", "oklch(0.26 0.014 258)"],
-  ["--secondary-foreground", "oklch(0.935 0.006 258)"],
-  ["--muted", "oklch(0.25 0.013 258)"],
-  ["--muted-foreground", "oklch(0.77 0.012 258)"],
-  ["--accent", "oklch(0.28 0.020 198)"],
-  ["--accent-foreground", "oklch(0.935 0.006 258)"],
+  ...brandRootDeclarations("dark"),
+  ...surfaceRootDeclarations("dark"),
   ...STATUS_DARK_DECLARATIONS,
-  ["--border", "oklch(0.30 0.014 258)"],
-  ["--input", "oklch(0.30 0.014 258)"],
-  ["--ring", "oklch(0.68 0.015 258)"],
-  ["--ring-brand", "var(--brand-primary)"],
   ...CHART_DARK_DECLARATIONS,
-  ["--elevation-xs", "0 1px 1px oklch(0 0 0 / 0.2)"],
-  ["--elevation-sm", "0 1px 2px oklch(0 0 0 / 0.24)"],
-  ["--elevation-md", "0 18px 48px oklch(0 0 0 / 0.26)"],
   ...sidebarRootDeclarations(SIDEBAR_DARK_DECLARATIONS),
   ...GLOBALS_CSS_LANE_DARK_DECLARATIONS,
 ] as const;
@@ -294,6 +251,8 @@ function colorThemeInlineDeclarations(
     (token) => [`--color-${token}`, `var(--${token})`] as const
   );
 }
+
+const LANE_THEME_INLINE_DECLARATIONS = laneThemeInlineDeclarations();
 
 export const GLOBALS_CSS_THEME_DECLARATIONS: readonly CssDeclaration[] = [
   ...colorThemeInlineDeclarations(BASE_COLOR_TOKENS),
@@ -321,8 +280,38 @@ export const GLOBALS_CSS_THEME_DECLARATIONS: readonly CssDeclaration[] = [
   ["--shadow-sm", "var(--elevation-sm)"],
   ["--shadow-md", "var(--elevation-md)"],
   ["--shadow-lane-active-glow", "var(--elevation-lane-active-glow)"],
-  ...laneThemeInlineDeclarations(),
+  ...LANE_THEME_INLINE_DECLARATIONS,
 ] as const;
+
+export const GLOBALS_CSS_BASE_LAYER = `@layer base {
+  * {
+    border-color: var(--color-border);
+    outline-color: color-mix(in oklch, var(--color-ring) 50%, transparent);
+  }
+
+  html {
+    background-color: var(--color-background);
+    color: var(--color-foreground);
+  }
+
+  body {
+    min-height: 100dvh;
+    background-color: var(--color-background);
+    color: var(--color-foreground);
+    -webkit-font-smoothing: antialiased;
+    font-size: var(--text-sm);
+  }
+
+  button,
+  input,
+  select,
+  textarea {
+    font: inherit;
+  }
+}`;
+
+export const GLOBALS_CSS_REDUCED_MOTION_LAYER =
+  "@media (prefers-reduced-motion: reduce) {\n  *,\n  ::before,\n  ::after {\n    animation-duration: 0.01ms !important;\n    animation-iteration-count: 1 !important;\n    scroll-behavior: auto !important;\n    transition-duration: 0.01ms !important;\n  }\n}";
 
 export const GLOBALS_CSS_KEYFRAMES = {
   shimmer: [
@@ -441,7 +430,7 @@ export function validateGlobalsCssTokens(): void {
     }
   }
 
-  for (const [themeVar] of laneThemeInlineDeclarations()) {
+  for (const [themeVar] of LANE_THEME_INLINE_DECLARATIONS) {
     if (!themeNames.has(themeVar)) {
       throw new Error(
         `globals CSS missing @theme inline mapping for ${themeVar}`

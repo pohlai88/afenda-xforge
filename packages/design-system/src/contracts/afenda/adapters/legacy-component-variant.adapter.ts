@@ -1,3 +1,22 @@
+import { defineGovernanceReferences } from "../../registry.schema";
+import {
+  AFENDA_GOV_ACCESSIBILITY,
+  AFENDA_GOV_ADAPTER,
+  AFENDA_GOV_AGENT_GOVERNANCE,
+  AFENDA_GOV_AUDIT,
+  AFENDA_GOV_COMPONENT_VARIANT,
+  AFENDA_GOV_DESIGN_SYSTEM,
+  AFENDA_GOV_INTERACTION,
+  AFENDA_GOV_MIGRATION_BOUNDARY,
+  AFENDA_GOV_PERMISSION,
+  AFENDA_GOV_RISK_POLICY,
+  AFENDA_GOV_STATUS_TONE,
+  AFENDA_GOV_TENANT_CONTEXT,
+  AFENDA_GOV_THEME_TOKEN,
+  AFENDA_GOV_VARIANT_PROMOTION,
+  AFENDA_GOV_VISUAL_DESIGN,
+  XFORGE_GOV_PERMISSION_PIPELINE,
+} from "../catalogs/governance-reference.catalog";
 import { AFENDA_FORBIDDEN_CUSTOMIZATION_KEYS } from "../design-system.contract";
 import {
   AFENDA_BADGE_VARIANTS as BADGE_VARIANTS,
@@ -21,23 +40,24 @@ export const AFENDA_LEGACY_COMPONENT_VARIANT_ADAPTER_ID =
 export const AFENDA_LEGACY_COMPONENT_VARIANT_REJECTED_AUTHORITY_PATHS =
   AFENDA_FORBIDDEN_CUSTOMIZATION_KEYS;
 
-export const AFENDA_LEGACY_COMPONENT_VARIANT_ADAPTER_GOVERNANCE_REFERENCES = [
-  "AFENDA:adapter-contract",
-  "AFENDA:component-variant-contract",
-  "AFENDA:visual-design-contract",
-  "AFENDA:interaction-contract",
-  "AFENDA:accessibility-contract",
-  "AFENDA:theme-token-contract",
-  "AFENDA:status-tone-contract",
-  "AFENDA:permission-contract",
-  "AFENDA:tenant-context-contract",
-  "AFENDA:audit-contract",
-  "AFENDA:agent-governance-contract",
-  "AFENDA:migration-boundary",
-  "AFENDA:variant-promotion-contract",
-  "AFENDA:risk-policy-contract",
-  "XFORGE:permission-pipeline",
-] as const;
+export const AFENDA_LEGACY_COMPONENT_VARIANT_ADAPTER_GOVERNANCE_REFERENCES =
+  defineGovernanceReferences([
+    AFENDA_GOV_ADAPTER,
+    AFENDA_GOV_COMPONENT_VARIANT,
+    AFENDA_GOV_VISUAL_DESIGN,
+    AFENDA_GOV_INTERACTION,
+    AFENDA_GOV_ACCESSIBILITY,
+    AFENDA_GOV_THEME_TOKEN,
+    AFENDA_GOV_STATUS_TONE,
+    AFENDA_GOV_PERMISSION,
+    AFENDA_GOV_TENANT_CONTEXT,
+    AFENDA_GOV_AUDIT,
+    AFENDA_GOV_AGENT_GOVERNANCE,
+    AFENDA_GOV_MIGRATION_BOUNDARY,
+    AFENDA_GOV_VARIANT_PROMOTION,
+    AFENDA_GOV_RISK_POLICY,
+    XFORGE_GOV_PERMISSION_PIPELINE,
+  ]);
 
 export const AFENDA_COMPONENT_VARIANT_COMPONENT_TYPES = [
   "button",
@@ -159,7 +179,7 @@ function createRejectedAuthorityDiagnostic(
       "Keep permission, tenant, company, audit, execution, mutation, and business authority in their owning pipelines.",
     blocking: true,
     ruleId: "anti-pattern.client-only-authorization",
-    reference: "XFORGE:permission-pipeline",
+    reference: XFORGE_GOV_PERMISSION_PIPELINE,
   };
 }
 
@@ -180,7 +200,7 @@ function createManualVariantDiagnostic(
     remediation:
       "Map this legacy variant to an existing canonical variant, or create a component-variant governance request with visual, interaction, accessibility, and token evidence.",
     blocking: false,
-    reference: "AFENDA:component-variant-contract",
+    reference: AFENDA_GOV_COMPONENT_VARIANT,
     metadata: {
       componentType: input.componentType,
       legacyVariantName: input.legacyVariantName,
@@ -205,7 +225,7 @@ function createVariantPromotionDiagnostic(
     remediation:
       "Provide visual, interaction, accessibility, token, and usage evidence before adding a new canonical variant.",
     blocking: false,
-    reference: "AFENDA:variant-promotion-contract",
+    reference: AFENDA_GOV_VARIANT_PROMOTION,
     metadata: {
       componentType: input.componentType,
       legacyVariantName: input.legacyVariantName,
@@ -231,7 +251,7 @@ function createPartialMappingDiagnostic(
       mapping.reason ??
       "Review the legacy component variant field and confirm the canonical Afenda target mapping.",
     blocking: mapping.status === "rejected",
-    reference: "AFENDA:adapter-contract",
+    reference: AFENDA_GOV_ADAPTER,
   };
 }
 

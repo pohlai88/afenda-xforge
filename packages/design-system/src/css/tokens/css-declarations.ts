@@ -1,13 +1,13 @@
-import { AFENDA_SIDEBAR_COLOR_TOKENS as SIDEBAR_COLOR_TOKENS } from "../../contracts/afenda/registries/color-token.registry";
-import type { AfendaErpVisualLaneId as ErpVisualLaneId } from "../../contracts/afenda/registries/visual-lane.registry";
 import {
   AFENDA_ERP_VISUAL_LANE_BY_ID as ERP_VISUAL_LANE_BY_ID,
   AFENDA_ERP_VISUAL_LANE_IDS as ERP_VISUAL_LANE_IDS,
   AFENDA_LANE_COLOR_SCALE_FIELDS as LANE_COLOR_SCALE_FIELDS,
+  AFENDA_SIDEBAR_COLOR_TOKENS as SIDEBAR_COLOR_TOKENS,
   afendaActiveLaneCssVarName as activeLaneCssVarName,
   afendaLaneCssVarName as laneCssVarName,
   afendaTenantLaneCssVarName as tenantLaneCssVarName,
-} from "../../contracts/afenda/registries/visual-lane.registry";
+  type AfendaErpVisualLaneId as ErpVisualLaneId,
+} from "../../contracts/afenda/registries";
 import type { CssDeclaration } from "./css-declaration.types";
 
 export const STATUS_LIGHT_DECLARATIONS: readonly CssDeclaration[] = [

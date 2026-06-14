@@ -1,6 +1,10 @@
 import { z } from "zod";
 
-import { defineRegistry } from "../../registry.schema";
+import { defineGovernanceReferences, defineRegistry, governanceReferencesSchema } from "../../registry.schema";
+import {
+  AFENDA_GOV_QUALITY_GATE,
+  AFENDA_PRESENTATION_GOVERNANCE_REFERENCES,
+} from "../catalogs/governance-reference.catalog";
 import { resolveGeistBrandScale } from "../references/vercel-geist.contract";
 
 export const AFENDA_THEME_PRESET_REGISTRY_ID =
@@ -12,6 +16,13 @@ export const AFENDA_THEME_PRESET_NAMES = defineRegistry([
   "vercel-geist",
 ]);
 
+/**
+ * Default assignment is contract-owned and intentional — not a single global default:
+ * - Platform: vercel-geist (`afenda.design-system.defaults.themePreset`)
+ * - Tenant: afenda (`afenda.tenant-branding-contract.defaults.themePreset`)
+ * - Generated CSS brand fallbacks: afenda (`afenda.globals-css-contract.baseThemePreset`)
+ */
+
 export const AFENDA_THEME_BRAND_COLOR_TOKENS = defineRegistry([
   "primary",
   "primary-foreground",
@@ -21,13 +32,10 @@ export const AFENDA_THEME_BRAND_COLOR_TOKENS = defineRegistry([
   "accent-foreground",
 ]);
 
-export const AFENDA_THEME_PRESET_GOVERNANCE_REFERENCES = [
-  "AFENDA:design-system-contract",
-  "AFENDA:theming-contract",
-  "AFENDA:visual-design-contract",
-  "AFENDA:theme-token-contract",
-  "AFENDA:quality-gate-contract",
-] as const;
+export const AFENDA_THEME_PRESET_GOVERNANCE_REFERENCES = defineGovernanceReferences([
+  ...AFENDA_PRESENTATION_GOVERNANCE_REFERENCES,
+  AFENDA_GOV_QUALITY_GATE,
+]);
 
 export type AfendaThemePresetName = (typeof AFENDA_THEME_PRESET_NAMES)[number];
 export type AfendaThemeBrandColorToken =
@@ -81,7 +89,7 @@ export const afendaThemePresetDefinitionSchema = z
       })
       .strict(),
     description: z.string().trim().min(1),
-    governanceReferences: z.array(z.string().trim().min(1)).min(1).readonly(),
+    governanceReferences: governanceReferencesSchema,
     name: afendaThemePresetRegistryNameSchema,
     title: z.string().trim().min(1),
   })
@@ -148,6 +156,6 @@ export function validateAfendaThemePresetRegistry(): void {
   }
 
   if (names.join("|") !== AFENDA_THEME_PRESET_NAMES.join("|")) {
-    throw new Error("AFENDA_THEME_PRESETS must align with AFENDA_THEME_PRESET_NAMES");
+    throw new Error("AFENDA_THEME_PRESET_REGISTRY names must align with AFENDA_THEME_PRESET_NAMES");
   }
 }

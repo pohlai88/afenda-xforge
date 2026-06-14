@@ -1,5 +1,10 @@
 export * from "./contracts";
 export * from "./customise-branding";
+export { resolvePresentationMetadata } from "./presentation";
+export type {
+  AfendaPresentationMetadata,
+  AfendaResolvedPresentationBundle,
+} from "./presentation";
 export {
   assessApcaContrastLevel,
   AFENDA_APCA_CONTRAST_TARGETS,

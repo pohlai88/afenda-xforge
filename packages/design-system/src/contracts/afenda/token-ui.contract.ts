@@ -1,6 +1,7 @@
 import { z } from "zod";
 
-import { defineRegistry } from "../registry.schema";
+import { defineGovernanceReferences, defineRegistry, governanceReferencesSchema } from "../registry.schema";
+import { AFENDA_TOKEN_PIPELINE_GOVERNANCE_REFERENCES } from "./catalogs/governance-reference.catalog";
 
 export const AFENDA_TOKEN_UI_CONTRACT_ID = "afenda.token-ui-contract" as const;
 export const AFENDA_TOKEN_UI_CONTRACT_VERSION = "0.1.0" as const;
@@ -18,29 +19,30 @@ export const AFENDA_TOKENIZED_TOKEN_TYPES = defineRegistry([
   "order",
 ]);
 
-export const AFENDA_TOKENIZED_GOVERNANCE_REFERENCES = [
-  "AFENDA:design-system-contract",
-  "AFENDA:theme-token-contract",
-  "AFENDA:theming-contract",
-  "AFENDA:visual-design-contract",
+export const AFENDA_PRESENTATION_TOKEN_ROLES = defineRegistry([
+  "surface",
+  "accent",
+  "brand",
+  "status",
+  "lane",
+  "density",
+  "typography",
+  "elevation",
+  "motion",
+  "stacking",
+]);
+
+export type AfendaPresentationTokenRole =
+  (typeof AFENDA_PRESENTATION_TOKEN_ROLES)[number];
+
+export const AFENDA_TOKENIZED_GOVERNANCE_REFERENCES = defineGovernanceReferences([
+  ...AFENDA_TOKEN_PIPELINE_GOVERNANCE_REFERENCES,
   "DTCG:2025.10",
   "TOKENUI:token-components",
-] as const;
+]);
 
 export type AfendaTokenizedTokenType =
   (typeof AFENDA_TOKENIZED_TOKEN_TYPES)[number];
-
-export type AfendaTokenUiDisplayComponent =
-  | "ColorToken"
-  | "TypographyToken"
-  | "SpacingToken"
-  | "RadiusToken"
-  | "ElevationToken"
-  | "DurationToken"
-  | "FontFamilyToken"
-  | "FontWeightToken"
-  | "NumberToken"
-  | "OrderToken";
 
 export const AFENDA_TOKEN_UI_DISPLAY_COMPONENTS = {
   color: "ColorToken",
@@ -53,85 +55,36 @@ export const AFENDA_TOKEN_UI_DISPLAY_COMPONENTS = {
   radius: "RadiusToken",
   spacing: "SpacingToken",
   typography: "TypographyToken",
-} as const satisfies Record<
-  AfendaTokenizedTokenType,
-  AfendaTokenUiDisplayComponent
->;
+} as const;
+
+export type AfendaTokenUiDisplayComponent =
+  (typeof AFENDA_TOKEN_UI_DISPLAY_COMPONENTS)[AfendaTokenizedTokenType];
+
+export const AFENDA_TOKEN_UI_COMPONENT_DESCRIPTIONS = {
+  color:
+    "Color swatches with interactive tooltips — W3C DTCG color type (§8.1).",
+  typography:
+    "Font size, line height, and composite typography scale values.",
+  spacing: "Spacing, padding, gap, and density dimension tokens.",
+  radius: "Border radius tokens for controls, panels, and surfaces.",
+  elevation: "Shadow and elevation tokens for layered surfaces.",
+  duration: "Motion and animation duration tokens.",
+  "font-family": "Font stack tokens for sans, mono, and heading roles.",
+  "font-weight": "Font weight tokens for heading and label roles.",
+  number: "Numeric values such as letter-spacing and tracking.",
+  order: "Stacking order and z-index layer tokens.",
+} as const satisfies Record<AfendaTokenizedTokenType, string>;
 
 /** Token UI docs nav order — https://www.tokenui.dev/docs/components/token */
-export const AFENDA_TOKEN_UI_COMPONENT_NAV = [
-  {
-    component: "ColorToken",
-    dtcgType: "color",
-    namePrefix: "color-",
-    title: "ColorToken",
-    description:
-      "Color swatches with interactive tooltips — W3C DTCG color type (§8.1).",
-  },
-  {
-    component: "TypographyToken",
-    dtcgType: "typography",
-    namePrefix: "typography-",
-    title: "TypographyToken",
-    description: "Font size, line height, and composite typography scale values.",
-  },
-  {
-    component: "SpacingToken",
-    dtcgType: "spacing",
-    namePrefix: "spacing-",
-    title: "SpacingToken",
-    description: "Spacing, padding, gap, and density dimension tokens.",
-  },
-  {
-    component: "RadiusToken",
-    dtcgType: "radius",
-    namePrefix: "radius-",
-    title: "RadiusToken",
-    description: "Border radius tokens for controls, panels, and surfaces.",
-  },
-  {
-    component: "ElevationToken",
-    dtcgType: "elevation",
-    namePrefix: "elevation-",
-    title: "ElevationToken",
-    description: "Shadow and elevation tokens for layered surfaces.",
-  },
-  {
-    component: "DurationToken",
-    dtcgType: "duration",
-    namePrefix: "duration-",
-    title: "DurationToken",
-    description: "Motion and animation duration tokens.",
-  },
-  {
-    component: "FontFamilyToken",
-    dtcgType: "font-family",
-    namePrefix: "font-family-",
-    title: "FontFamilyToken",
-    description: "Font stack tokens for sans, mono, and heading roles.",
-  },
-  {
-    component: "FontWeightToken",
-    dtcgType: "font-weight",
-    namePrefix: "font-weight-",
-    title: "FontWeightToken",
-    description: "Font weight tokens for heading and label roles.",
-  },
-  {
-    component: "NumberToken",
-    dtcgType: "number",
-    namePrefix: "number-",
-    title: "NumberToken",
-    description: "Numeric values such as letter-spacing and tracking.",
-  },
-  {
-    component: "OrderToken",
-    dtcgType: "order",
-    namePrefix: "order-",
-    title: "OrderToken",
-    description: "Stacking order and z-index layer tokens.",
-  },
-] as const satisfies readonly {
+export const AFENDA_TOKEN_UI_COMPONENT_NAV = AFENDA_TOKENIZED_TOKEN_TYPES.map(
+  (dtcgType) => ({
+    dtcgType,
+    component: AFENDA_TOKEN_UI_DISPLAY_COMPONENTS[dtcgType],
+    namePrefix: `${dtcgType}-`,
+    title: AFENDA_TOKEN_UI_DISPLAY_COMPONENTS[dtcgType],
+    description: AFENDA_TOKEN_UI_COMPONENT_DESCRIPTIONS[dtcgType],
+  })
+) as readonly {
   component: AfendaTokenUiDisplayComponent;
   description: string;
   dtcgType: AfendaTokenizedTokenType;
@@ -140,24 +93,21 @@ export const AFENDA_TOKEN_UI_COMPONENT_NAV = [
 }[];
 
 export const AFENDA_TOKEN_UI_NAME_PREFIXES = Object.fromEntries(
-  AFENDA_TOKEN_UI_COMPONENT_NAV.map((entry) => [entry.component, entry.namePrefix])
+  AFENDA_TOKEN_UI_COMPONENT_NAV.map((entry) => [
+    entry.component,
+    entry.namePrefix,
+  ])
 ) as Record<AfendaTokenUiDisplayComponent, string>;
 
 export const afendaTokenizedTokenTypeSchema = z.enum(
   AFENDA_TOKENIZED_TOKEN_TYPES
 );
-export const afendaTokenUiDisplayComponentSchema = z.enum([
-  "ColorToken",
-  "TypographyToken",
-  "SpacingToken",
-  "RadiusToken",
-  "ElevationToken",
-  "DurationToken",
-  "FontFamilyToken",
-  "FontWeightToken",
-  "NumberToken",
-  "OrderToken",
-]);
+export const afendaTokenUiDisplayComponentSchema = z.enum(
+  Object.values(AFENDA_TOKEN_UI_DISPLAY_COMPONENTS) as [
+    AfendaTokenUiDisplayComponent,
+    ...AfendaTokenUiDisplayComponent[],
+  ]
+);
 
 export const afendaTokenUiContractSchema = z
   .object({
@@ -165,7 +115,7 @@ export const afendaTokenUiContractSchema = z
       afendaTokenizedTokenTypeSchema,
       afendaTokenUiDisplayComponentSchema
     ),
-    governanceReferences: z.array(z.string().trim().min(1)).min(1).readonly(),
+    governanceReferences: governanceReferencesSchema,
     id: z.literal(AFENDA_TOKEN_UI_CONTRACT_ID),
     tokenTypes: z.array(afendaTokenizedTokenTypeSchema).min(1).readonly(),
     version: z.literal(AFENDA_TOKEN_UI_CONTRACT_VERSION),
@@ -261,61 +211,4 @@ export function validateAfendaTokenUiContract(): void {
       );
     }
   }
-}
-
-export const AFENDA_RUNTIME_TOKEN_RESOLUTION_CONTRACT_ID =
-  "afenda.runtime-token-resolution-contract" as const;
-export const AFENDA_RUNTIME_TOKEN_RESOLUTION_CONTRACT_VERSION =
-  "0.1.0" as const;
-
-export const AFENDA_RUNTIME_TOKEN_RESOLUTION_SOURCES = defineRegistry([
-  "literal",
-  "css-variable",
-  "reference-variable",
-]);
-
-export const AFENDA_RUNTIME_TOKEN_RESOLUTION_GOVERNANCE_REFERENCES = [
-  "AFENDA:design-system-contract",
-  "AFENDA:theme-token-contract",
-  "AFENDA:runtime-reference-contract",
-  "AFENDA:theming-contract",
-] as const;
-
-export type AfendaRuntimeTokenResolutionSource =
-  (typeof AFENDA_RUNTIME_TOKEN_RESOLUTION_SOURCES)[number];
-
-export const afendaRuntimeTokenResolutionSourceSchema = z.enum(
-  AFENDA_RUNTIME_TOKEN_RESOLUTION_SOURCES
-);
-
-export const afendaRuntimeTokenResolutionContractSchema = z
-  .object({
-    governanceReferences: z.array(z.string().trim().min(1)).min(1).readonly(),
-    id: z.literal(AFENDA_RUNTIME_TOKEN_RESOLUTION_CONTRACT_ID),
-    resolutionSources: z
-      .array(afendaRuntimeTokenResolutionSourceSchema)
-      .min(1)
-      .readonly(),
-    version: z.literal(AFENDA_RUNTIME_TOKEN_RESOLUTION_CONTRACT_VERSION),
-  })
-  .strict()
-  .refine(
-    (contract) =>
-      contract.resolutionSources.includes("literal") &&
-      contract.resolutionSources.includes("css-variable") &&
-      contract.resolutionSources.includes("reference-variable"),
-    "Afenda runtime token resolution contract must preserve literal/css/reference resolution sources"
-  );
-
-export const afendaRuntimeTokenResolutionContract = {
-  id: AFENDA_RUNTIME_TOKEN_RESOLUTION_CONTRACT_ID,
-  version: AFENDA_RUNTIME_TOKEN_RESOLUTION_CONTRACT_VERSION,
-  resolutionSources: AFENDA_RUNTIME_TOKEN_RESOLUTION_SOURCES,
-  governanceReferences: AFENDA_RUNTIME_TOKEN_RESOLUTION_GOVERNANCE_REFERENCES,
-} as const;
-
-export function validateAfendaRuntimeTokenResolutionContract(): void {
-  afendaRuntimeTokenResolutionContractSchema.parse(
-    afendaRuntimeTokenResolutionContract
-  );
 }

@@ -100,42 +100,42 @@ const REGISTRY_BACKED_TOKEN_SOURCE_SPECS = [
   {
     relativePath: "css/tokens/color-tokens.ts",
     exportName: "COLOR_TOKEN_SPECS",
-    dependencyPattern: /contracts\/afenda\/registries\//,
+    dependencyPattern: /contracts\/afenda\/registries/,
   },
   {
     relativePath: "css/tokens/registry-token-specs.ts",
     exportName: "DENSITY_TOKEN_SPECS",
-    dependencyPattern: /contracts\/afenda\/registries\//,
+    dependencyPattern: /contracts\/afenda\/registries/,
   },
   {
     relativePath: "css/tokens/registry-token-specs.ts",
     exportName: "MOTION_TOKEN_SPECS",
-    dependencyPattern: /contracts\/afenda\/registries\//,
+    dependencyPattern: /contracts\/afenda\/registries/,
   },
   {
     relativePath: "css/tokens/registry-token-specs.ts",
     exportName: "ORDER_TOKEN_SPECS",
-    dependencyPattern: /contracts\/afenda\/registries\//,
+    dependencyPattern: /contracts\/afenda\/registries/,
   },
   {
     relativePath: "css/tokens/registry-token-specs.ts",
     exportName: "RADIUS_TOKEN_SPECS",
-    dependencyPattern: /contracts\/afenda\/registries\//,
+    dependencyPattern: /contracts\/afenda\/registries/,
   },
   {
     relativePath: "css/tokens/registry-token-specs.ts",
     exportName: "SHADOW_TOKEN_SPECS",
-    dependencyPattern: /contracts\/afenda\/registries\//,
+    dependencyPattern: /contracts\/afenda\/registries/,
   },
   {
     relativePath: "css/tokens/typography-tokens.ts",
     exportName: "TYPE_SCALE_DEFINITIONS",
-    dependencyPattern: /contracts\/afenda\/registries\//,
+    dependencyPattern: /contracts\/afenda\/registries/,
   },
   {
     relativePath: "css/tokens/typography-tokens.ts",
     exportName: "TYPOGRAPHY_SCALE_SPECS",
-    dependencyPattern: /contracts\/afenda\/registries\//,
+    dependencyPattern: /contracts\/afenda\/registries/,
   },
 ] as const;
 
@@ -227,7 +227,7 @@ test("token vocabulary authority stays in afenda registries", () => {
 
     assert.match(
       source,
-      /contracts\/afenda\/registries\//,
+      /contracts\/afenda\/registries/,
       `${relativePath} must source vocabulary from afenda registries`
     );
     assert.doesNotMatch(

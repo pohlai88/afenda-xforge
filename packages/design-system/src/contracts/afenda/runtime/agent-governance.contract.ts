@@ -1,5 +1,25 @@
 import { z } from "zod";
 
+import { defineGovernanceReferences, governanceReferencesSchema } from "../../registry.schema";
+import {
+  AFENDA_GOV_APPROVAL_POLICY,
+  AFENDA_GOV_AUDIT,
+  AFENDA_GOV_HYDRATION,
+  AFENDA_GOV_PERMISSION,
+  AFENDA_GOV_QUALITY_GATE,
+  AFENDA_GOV_REMEDIATION,
+  AFENDA_GOV_RISK_POLICY,
+  AFENDA_GOV_RUNTIME_DIAGNOSTICS,
+  AFENDA_GOV_RUNTIME_REFERENCE,
+  AFENDA_GOV_RULE_EVALUATION,
+  AFENDA_GOV_SECURITY_UI,
+  AFENDA_GOV_SUPPRESSION_POLICY,
+  AFENDA_GOV_TENANT_CONTEXT,
+  AFENDA_GOV_VERIFICATION,
+  AFENDA_GOV_VIOLATION,
+  AFENDA_RUNTIME_PIPELINE_GOVERNANCE_REFERENCES,
+  AFENDA_RUNTIME_POLICY_GOVERNANCE_REFERENCES,
+} from "../catalogs/governance-reference.catalog";
 import {
   afendaRuleEvaluationActorIdentitySchema,
   afendaRuleEvaluationScopeSchema,
@@ -91,27 +111,19 @@ export const AFENDA_AGENT_GOVERNANCE_RISK_LEVELS = [
   "critical",
 ] as const;
 
-export const AFENDA_AGENT_GOVERNANCE_GOVERNANCE_REFERENCES = [
-  "AFENDA:runtime-reference-contract",
-  "AFENDA:rule-evaluation-contract",
-  "AFENDA:violation-contract",
-  "AFENDA:remediation-contract",
-  "AFENDA:agent-governance-contract",
-  "AFENDA:audit-contract",
-  "AFENDA:observability-contract",
-  "AFENDA:execution-context-contract",
-  "AFENDA:permission-contract",
-  "AFENDA:risk-policy-contract",
-  "AFENDA:suppression-policy-contract",
-  "AFENDA:quality-gate-contract",
-  "AFENDA:approval-policy-contract",
-  "AFENDA:verification-contract",
-  "AFENDA:runtime-diagnostics-contract",
-  "AFENDA:tenant-context-contract",
-  "AFENDA:hydration-contract",
-  "AFENDA:security-ui-contract",
-  "XFORGE:permission-pipeline",
-] as const;
+export const AFENDA_AGENT_GOVERNANCE_GOVERNANCE_REFERENCES =
+  defineGovernanceReferences([
+    ...AFENDA_RUNTIME_PIPELINE_GOVERNANCE_REFERENCES,
+    ...AFENDA_RUNTIME_POLICY_GOVERNANCE_REFERENCES,
+    AFENDA_GOV_PERMISSION,
+    AFENDA_GOV_QUALITY_GATE,
+    AFENDA_GOV_APPROVAL_POLICY,
+    AFENDA_GOV_VERIFICATION,
+    AFENDA_GOV_RUNTIME_DIAGNOSTICS,
+    AFENDA_GOV_TENANT_CONTEXT,
+    AFENDA_GOV_HYDRATION,
+    AFENDA_GOV_SECURITY_UI,
+  ]);
 
 export type AfendaAgentGovernancePolicyType =
   (typeof AFENDA_AGENT_GOVERNANCE_POLICY_TYPES)[number];
@@ -298,7 +310,7 @@ export const afendaAgentGovernanceContractSchema = z
     sourceViolationContractId: z.literal("afenda.violation-contract"),
     sourceRemediationContractId: z.literal("afenda.remediation-contract"),
     policies: z.array(afendaAgentGovernancePolicySchema).min(1).readonly(),
-    governanceReferences: z.array(z.string().trim().min(1)).min(1).readonly(),
+    governanceReferences: governanceReferencesSchema,
   })
   .strict();
 
@@ -332,9 +344,9 @@ export const afendaAgentGovernanceContract = {
       remediation:
         "Create a violation record, propose a remediation plan, run required gates, and do not claim completion until verified.",
       references: [
-        "AFENDA:violation-contract",
-        "AFENDA:remediation-contract",
-        "AFENDA:audit-contract",
+        AFENDA_GOV_VIOLATION,
+        AFENDA_GOV_REMEDIATION,
+        AFENDA_GOV_AUDIT,
       ],
     },
     {
@@ -360,9 +372,9 @@ export const afendaAgentGovernanceContract = {
       remediation:
         "Restore the governing rule or test and correct the underlying implementation or remediation plan.",
       references: [
-        "AFENDA:runtime-reference-contract",
-        "AFENDA:rule-evaluation-contract",
-        "AFENDA:risk-policy-contract",
+        AFENDA_GOV_RUNTIME_REFERENCE,
+        AFENDA_GOV_RULE_EVALUATION,
+        AFENDA_GOV_RISK_POLICY,
       ],
     },
     {
@@ -389,9 +401,9 @@ export const afendaAgentGovernanceContract = {
       remediation:
         "Request approval, record the reason and expiry, and attach the audit event before suppression.",
       references: [
-        "AFENDA:violation-contract",
-        "AFENDA:suppression-policy-contract",
-        "AFENDA:audit-contract",
+        AFENDA_GOV_VIOLATION,
+        AFENDA_GOV_SUPPRESSION_POLICY,
+        AFENDA_GOV_AUDIT,
       ],
     },
     {
@@ -421,9 +433,9 @@ export const afendaAgentGovernanceContract = {
       remediation:
         "Confirm tenant/company/workspace scope, request approval, record audit evidence, and verify after change.",
       references: [
-        "AFENDA:tenant-context-contract",
-        "AFENDA:permission-contract",
-        "AFENDA:audit-contract",
+        AFENDA_GOV_TENANT_CONTEXT,
+        AFENDA_GOV_PERMISSION,
+        AFENDA_GOV_AUDIT,
       ],
     },
   ],

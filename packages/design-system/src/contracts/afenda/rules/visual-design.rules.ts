@@ -1,4 +1,15 @@
 import type { AfendaRuntimeRule } from "../runtime-reference.contract";
+import {
+  AFENDA_GOV_BRAND,
+  AFENDA_GOV_COMPONENT_VARIANT,
+  AFENDA_GOV_DENSITY,
+  AFENDA_GOV_ELEVATION,
+  AFENDA_GOV_ICON,
+  AFENDA_GOV_SPACING,
+  AFENDA_GOV_STATUS_TONE,
+  AFENDA_GOV_THEME_TOKEN,
+  AFENDA_GOV_VISUAL_DESIGN,
+} from "../catalogs/governance-reference.catalog";
 
 const VISUAL_DESIGN = "visual-design" as const;
 const ERROR = "error" as const;
@@ -18,7 +29,7 @@ export const AFENDA_VISUAL_DESIGN_RULES = [
       "Visual hierarchy must clearly separate primary content, secondary content, actions, and metadata.",
     remediation:
       "Use scale, weight, spacing, grouping, and contrast intentionally instead of rendering all elements with equal emphasis.",
-    references: ["AFENDA:visual-design-contract"],
+    references: [AFENDA_GOV_VISUAL_DESIGN],
     enforcement: MANUAL,
   },
   {
@@ -33,7 +44,7 @@ export const AFENDA_VISUAL_DESIGN_RULES = [
       "Product surfaces must use approved semantic, brand, or status color tokens.",
     remediation:
       "Replace one-off colors with design-system tokens or add the missing token to the governed palette contract.",
-    references: ["AFENDA:visual-design-contract", "AFENDA:theme-token-contract"],
+    references: [AFENDA_GOV_VISUAL_DESIGN, AFENDA_GOV_THEME_TOKEN],
     enforcement: HYBRID,
   },
   {
@@ -47,7 +58,7 @@ export const AFENDA_VISUAL_DESIGN_RULES = [
       "Brand expression must use approved theme, module, and tenant customization tokens.",
     remediation:
       "Use governed brand tokens and avoid one-off color, radius, shadow, illustration, or gradient choices.",
-    references: ["AFENDA:visual-design-contract", "AFENDA:brand-contract", "AFENDA:theme-token-contract"],
+    references: [AFENDA_GOV_VISUAL_DESIGN, AFENDA_GOV_BRAND, AFENDA_GOV_THEME_TOKEN],
     enforcement: MANUAL,
   },
   {
@@ -61,7 +72,7 @@ export const AFENDA_VISUAL_DESIGN_RULES = [
       "Foreground and background pairings must use approved contrast-safe token combinations.",
     remediation:
       "Use paired semantic tokens and verify APCA targets with WCAG AA compatibility.",
-    references: ["AFENDA:visual-design-contract", "AFENDA:theme-token-contract", "APCA", "WCAG:1.4.3"],
+    references: [AFENDA_GOV_VISUAL_DESIGN, AFENDA_GOV_THEME_TOKEN, "APCA", "WCAG:1.4.3"],
     enforcement: HYBRID,
   },
   {
@@ -75,7 +86,7 @@ export const AFENDA_VISUAL_DESIGN_RULES = [
       "Status indicators must use governed tone, label, icon, and contrast treatment where applicable.",
     remediation:
       "Use approved status tone tokens and pair color with text, icon, or shape when the status carries meaning.",
-    references: ["AFENDA:visual-design-contract", "AFENDA:status-tone-contract", "WCAG:1.4.1"],
+    references: [AFENDA_GOV_VISUAL_DESIGN, AFENDA_GOV_STATUS_TONE, "WCAG:1.4.1"],
     enforcement: HYBRID,
   },
   {
@@ -90,7 +101,7 @@ export const AFENDA_VISUAL_DESIGN_RULES = [
       "Elevation must indicate actual surface hierarchy, overlay state, or interaction affordance.",
     remediation:
       "Use governed elevation tokens and remove shadows that do not represent layering or interaction state.",
-    references: ["AFENDA:visual-design-contract", "AFENDA:elevation-contract"],
+    references: [AFENDA_GOV_VISUAL_DESIGN, AFENDA_GOV_ELEVATION],
     enforcement: MANUAL,
   },
   {
@@ -104,7 +115,7 @@ export const AFENDA_VISUAL_DESIGN_RULES = [
       "Components must use governed variants, sizes, tones, radius, and state treatments.",
     remediation:
       "Use approved component variants and avoid local visual overrides unless promoted into the design system.",
-    references: ["AFENDA:visual-design-contract", "AFENDA:component-variant-contract"],
+    references: [AFENDA_GOV_VISUAL_DESIGN, AFENDA_GOV_COMPONENT_VARIANT],
     enforcement: HYBRID,
   },
   {
@@ -118,7 +129,7 @@ export const AFENDA_VISUAL_DESIGN_RULES = [
       "Spacing must follow governed rhythm and clearly group related content.",
     remediation:
       "Use spacing tokens, section rhythm, and intentional grouping instead of ad hoc margins.",
-    references: ["AFENDA:visual-design-contract", "AFENDA:spacing-contract"],
+    references: [AFENDA_GOV_VISUAL_DESIGN, AFENDA_GOV_SPACING],
     enforcement: MANUAL,
   },
   {
@@ -132,7 +143,7 @@ export const AFENDA_VISUAL_DESIGN_RULES = [
       "Dense layouts must balance compactness with readable grouping, adequate target size, and clear priority.",
     remediation:
       "Use density presets, progressive disclosure, and responsive grouping instead of uniformly shrinking every element.",
-    references: ["AFENDA:visual-design-contract", "AFENDA:density-contract"],
+    references: [AFENDA_GOV_VISUAL_DESIGN, AFENDA_GOV_DENSITY],
     enforcement: MANUAL,
   },
   {
@@ -146,7 +157,7 @@ export const AFENDA_VISUAL_DESIGN_RULES = [
       "Icons must use a consistent family, size scale, stroke weight, and semantic mapping within a surface.",
     remediation:
       "Use approved icon tokens/components and avoid mixing icon libraries or inconsistent stroke weights.",
-    references: ["AFENDA:visual-design-contract", "AFENDA:icon-contract"],
+    references: [AFENDA_GOV_VISUAL_DESIGN, AFENDA_GOV_ICON],
     enforcement: MANUAL,
   },
   {
@@ -165,7 +176,7 @@ export const AFENDA_VISUAL_DESIGN_RULES = [
       "Major surfaces must use composition, hierarchy, and visual language that fit the product context.",
     remediation:
       "Choose a deliberate visual direction, vary composition by surface purpose, and avoid default generated layouts.",
-    references: ["AFENDA:visual-design-contract", "WEB-DESIGN-GUIDELINES:creative-direction"],
+    references: [AFENDA_GOV_VISUAL_DESIGN, "WEB-DESIGN-GUIDELINES:creative-direction"],
     enforcement: MANUAL,
   },
 ] as const satisfies readonly AfendaRuntimeRule[];

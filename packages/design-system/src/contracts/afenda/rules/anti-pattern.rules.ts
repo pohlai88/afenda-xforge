@@ -1,4 +1,32 @@
 import type { AfendaRuntimeRule } from "../runtime-reference.contract";
+import {
+  AFENDA_GOV_ACCESSIBILITY,
+  AFENDA_GOV_ANTI_PATTERN,
+  AFENDA_GOV_AUDIT,
+  AFENDA_GOV_CODE_QUALITY,
+  AFENDA_GOV_DATA_ACCESS,
+  AFENDA_GOV_DESIGN_SYSTEM,
+  AFENDA_GOV_ERROR,
+  AFENDA_GOV_EXECUTION_CONTEXT,
+  AFENDA_GOV_FEEDBACK,
+  AFENDA_GOV_HYDRATION,
+  AFENDA_GOV_LAYOUT,
+  AFENDA_GOV_MUTATION,
+  AFENDA_GOV_OBSERVABILITY,
+  AFENDA_GOV_PERFORMANCE,
+  AFENDA_GOV_PERMISSION,
+  AFENDA_GOV_PRIVACY,
+  AFENDA_GOV_ROUTE_STATE,
+  AFENDA_GOV_RUNTIME_DIAGNOSTICS,
+  AFENDA_GOV_SECURITY,
+  AFENDA_GOV_SECURITY_UI,
+  AFENDA_GOV_SEMANTICS,
+  AFENDA_GOV_TENANT_CONTEXT,
+  AFENDA_GOV_THEME_TOKEN,
+  AFENDA_GOV_VISUAL_DESIGN,
+  XFORGE_GOV_PERMISSION_PIPELINE,
+  XFORGE_GOV_TENANT_COMPANY_SCOPE,
+} from "../catalogs/governance-reference.catalog";
 
 const ANTI_PATTERN = "anti-pattern" as const;
 const ERROR = "error" as const;
@@ -19,7 +47,7 @@ export const AFENDA_ANTI_PATTERN_RULES = [
       "The interface must not disable browser zoom.",
     remediation:
       "Remove zoom-disabling viewport directives and fix layout issues with responsive design instead.",
-    references: ["AFENDA:anti-pattern-contract", "WCAG:1.4.4"],
+    references: [AFENDA_GOV_ANTI_PATTERN, "WCAG:1.4.4"],
     enforcement: STATIC,
   },
   {
@@ -35,8 +63,8 @@ export const AFENDA_ANTI_PATTERN_RULES = [
     remediation:
       "Use button, a, input, or an approved accessible component primitive instead of click handlers on generic elements.",
     references: [
-      "AFENDA:anti-pattern-contract",
-      "AFENDA:semantics-contract",
+      AFENDA_GOV_ANTI_PATTERN,
+      AFENDA_GOV_SEMANTICS,
       "WCAG:2.1.1",
       "WCAG:4.1.2",
     ],
@@ -55,9 +83,9 @@ export const AFENDA_ANTI_PATTERN_RULES = [
     remediation:
       "Use real links for navigation and submit/button mutation primitives for state-changing actions.",
     references: [
-      "AFENDA:anti-pattern-contract",
-      "AFENDA:semantics-contract",
-      "AFENDA:mutation-contract",
+      AFENDA_GOV_ANTI_PATTERN,
+      AFENDA_GOV_SEMANTICS,
+      AFENDA_GOV_MUTATION,
     ],
     enforcement: HYBRID,
   },
@@ -74,8 +102,8 @@ export const AFENDA_ANTI_PATTERN_RULES = [
     remediation:
       "Sanitize content, use a safe markdown renderer, or map integration content to governed component primitives.",
     references: [
-      "AFENDA:anti-pattern-contract",
-      "AFENDA:security-ui-contract",
+      AFENDA_GOV_ANTI_PATTERN,
+      AFENDA_GOV_SECURITY_UI,
       "OWASP:XSS",
     ],
     enforcement: STATIC,
@@ -97,9 +125,9 @@ export const AFENDA_ANTI_PATTERN_RULES = [
     remediation:
       "Keep UI permission checks as affordance only and enforce authorization again on the server.",
     references: [
-      "AFENDA:anti-pattern-contract",
-      "AFENDA:security-ui-contract",
-      "XFORGE:permission-pipeline",
+      AFENDA_GOV_ANTI_PATTERN,
+      AFENDA_GOV_SECURITY_UI,
+      XFORGE_GOV_PERMISSION_PIPELINE,
     ],
     enforcement: HYBRID,
   },
@@ -116,9 +144,9 @@ export const AFENDA_ANTI_PATTERN_RULES = [
     remediation:
       "Key data by resolved scope, clear stale views during switching, and show active scope before sensitive actions.",
     references: [
-      "AFENDA:anti-pattern-contract",
-      "AFENDA:tenant-context-contract",
-      "XFORGE:tenant-company-scope",
+      AFENDA_GOV_ANTI_PATTERN,
+      AFENDA_GOV_TENANT_CONTEXT,
+      XFORGE_GOV_TENANT_COMPANY_SCOPE,
     ],
     enforcement: HYBRID,
   },
@@ -140,10 +168,10 @@ export const AFENDA_ANTI_PATTERN_RULES = [
     remediation:
       "Partition stores by tenant/company/workspace/route, clear sensitive state on scope change, and confirm unsaved drafts.",
     references: [
-      "AFENDA:anti-pattern-contract",
-      "AFENDA:tenant-context-contract",
-      "AFENDA:route-state-contract",
-      "AFENDA:hydration-contract",
+      AFENDA_GOV_ANTI_PATTERN,
+      AFENDA_GOV_TENANT_CONTEXT,
+      AFENDA_GOV_ROUTE_STATE,
+      AFENDA_GOV_HYDRATION,
     ],
     enforcement: HYBRID,
   },
@@ -164,9 +192,9 @@ export const AFENDA_ANTI_PATTERN_RULES = [
     remediation:
       "Move data shaping to repositories or query services and send only the current authorized window or projection.",
     references: [
-      "AFENDA:anti-pattern-contract",
-      "AFENDA:performance-contract",
-      "AFENDA:data-access-contract",
+      AFENDA_GOV_ANTI_PATTERN,
+      AFENDA_GOV_PERFORMANCE,
+      AFENDA_GOV_DATA_ACCESS,
     ],
     enforcement: HYBRID,
   },
@@ -183,9 +211,9 @@ export const AFENDA_ANTI_PATTERN_RULES = [
     remediation:
       "Use masking, permission-aware reveal controls, safe summaries, and correlation ids instead of raw sensitive values.",
     references: [
-      "AFENDA:anti-pattern-contract",
-      "AFENDA:privacy-contract",
-      "AFENDA:security-ui-contract",
+      AFENDA_GOV_ANTI_PATTERN,
+      AFENDA_GOV_PRIVACY,
+      AFENDA_GOV_SECURITY_UI,
     ],
     enforcement: HYBRID,
   },
@@ -207,10 +235,10 @@ export const AFENDA_ANTI_PATTERN_RULES = [
     remediation:
       "Write audit events with actor, action, target, tenant/company scope, result, reason, and correlation id.",
     references: [
-      "AFENDA:anti-pattern-contract",
-      "AFENDA:audit-contract",
-      "AFENDA:mutation-contract",
-      "AFENDA:execution-context-contract",
+      AFENDA_GOV_ANTI_PATTERN,
+      AFENDA_GOV_AUDIT,
+      AFENDA_GOV_MUTATION,
+      AFENDA_GOV_EXECUTION_CONTEXT,
     ],
     enforcement: HYBRID,
   },
@@ -231,10 +259,10 @@ export const AFENDA_ANTI_PATTERN_RULES = [
     remediation:
       "Use governed mutation primitives with pending, success, failure, rollback, audit, and revalidation handling.",
     references: [
-      "AFENDA:anti-pattern-contract",
-      "AFENDA:mutation-contract",
-      "AFENDA:permission-contract",
-      "AFENDA:tenant-context-contract",
+      AFENDA_GOV_ANTI_PATTERN,
+      AFENDA_GOV_MUTATION,
+      AFENDA_GOV_PERMISSION,
+      AFENDA_GOV_TENANT_CONTEXT,
     ],
     enforcement: HYBRID,
   },
@@ -256,10 +284,10 @@ export const AFENDA_ANTI_PATTERN_RULES = [
     remediation:
       "Emit diagnostics, show safe feedback, return typed failure states, and attach correlation ids where useful.",
     references: [
-      "AFENDA:anti-pattern-contract",
-      "AFENDA:feedback-contract",
-      "AFENDA:observability-contract",
-      "AFENDA:error-contract",
+      AFENDA_GOV_ANTI_PATTERN,
+      AFENDA_GOV_FEEDBACK,
+      AFENDA_GOV_OBSERVABILITY,
+      AFENDA_GOV_ERROR,
     ],
     enforcement: HYBRID,
   },
@@ -276,8 +304,8 @@ export const AFENDA_ANTI_PATTERN_RULES = [
     remediation:
       "Use responsive constraints, min-width: 0, wrapping, local overflow containment, and adaptive density.",
     references: [
-      "AFENDA:anti-pattern-contract",
-      "AFENDA:layout-contract",
+      AFENDA_GOV_ANTI_PATTERN,
+      AFENDA_GOV_LAYOUT,
       "WCAG:1.4.10",
     ],
     enforcement: HYBRID,
@@ -295,8 +323,8 @@ export const AFENDA_ANTI_PATTERN_RULES = [
     remediation:
       "Pair tone with text labels, icons, aria state, legends, or persistent structural affordances.",
     references: [
-      "AFENDA:anti-pattern-contract",
-      "AFENDA:accessibility-contract",
+      AFENDA_GOV_ANTI_PATTERN,
+      AFENDA_GOV_ACCESSIBILITY,
       "WCAG:1.4.1",
     ],
     enforcement: HYBRID,
@@ -320,10 +348,10 @@ export const AFENDA_ANTI_PATTERN_RULES = [
     remediation:
       "Move repeated visual values into tokens, use component variants, or register the pattern in the design system.",
     references: [
-      "AFENDA:anti-pattern-contract",
-      "AFENDA:design-system-contract",
-      "AFENDA:theme-token-contract",
-      "AFENDA:visual-design-contract",
+      AFENDA_GOV_ANTI_PATTERN,
+      AFENDA_GOV_DESIGN_SYSTEM,
+      AFENDA_GOV_THEME_TOKEN,
+      AFENDA_GOV_VISUAL_DESIGN,
     ],
     enforcement: STATIC,
   },
@@ -346,9 +374,9 @@ export const AFENDA_ANTI_PATTERN_RULES = [
     remediation:
       "Add a reason, owner, scope, and expiry comment or replace the escape hatch with a typed governed pattern.",
     references: [
-      "AFENDA:anti-pattern-contract",
-      "AFENDA:runtime-diagnostics-contract",
-      "AFENDA:code-quality-contract",
+      AFENDA_GOV_ANTI_PATTERN,
+      AFENDA_GOV_RUNTIME_DIAGNOSTICS,
+      AFENDA_GOV_CODE_QUALITY,
     ],
     enforcement: STATIC,
   },

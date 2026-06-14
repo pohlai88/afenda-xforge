@@ -1,5 +1,5 @@
-import { AFENDA_CHART_COLOR_TOKENS } from "../../contracts/afenda/registries/chart.registry";
 import {
+  AFENDA_CHART_COLOR_TOKENS,
   AFENDA_BASE_COLOR_TOKENS,
   AFENDA_BRAND_COLOR_TOKENS,
   AFENDA_SIDEBAR_COLOR_TOKENS,
@@ -11,7 +11,7 @@ import {
   type AfendaSidebarColorToken as SidebarColorToken,
   type AfendaStatusColorToken as StatusColorToken,
   type AfendaSurfaceColorToken as SurfaceColorToken,
-} from "../../contracts/afenda/registries/color-token.registry";
+} from "../../contracts/afenda/registries";
 
 export {
   AFENDA_BASE_COLOR_TOKENS as BASE_COLOR_TOKENS,

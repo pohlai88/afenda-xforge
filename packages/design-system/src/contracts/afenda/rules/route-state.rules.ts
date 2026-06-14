@@ -1,4 +1,7 @@
 import type { AfendaRuntimeRule } from "../runtime-reference.contract";
+import {
+  AFENDA_GOV_ROUTE_STATE,
+} from "../catalogs/governance-reference.catalog";
 
 const ROUTE_STATE = "route-state" as const;
 const ERROR = "error" as const;
@@ -17,7 +20,7 @@ export const AFENDA_ROUTE_STATE_RULES = [
       "Meaningful view state must be recoverable from the URL or equivalent durable route state.",
     remediation:
       "Persist filters, tabs, pagination, search, and expanded inspection state in query params, route params, or durable route state.",
-    references: ["AFENDA:route-state-contract"],
+    references: [AFENDA_GOV_ROUTE_STATE],
     enforcement: MANUAL,
   },
   {
@@ -31,7 +34,7 @@ export const AFENDA_ROUTE_STATE_RULES = [
       "Filter state must be recoverable from the URL or equivalent durable route state.",
     remediation:
       "Persist active filters and filter scopes in query params or route state.",
-    references: ["AFENDA:route-state-contract"],
+    references: [AFENDA_GOV_ROUTE_STATE],
     enforcement: MANUAL,
   },
   {
@@ -45,7 +48,7 @@ export const AFENDA_ROUTE_STATE_RULES = [
       "Pagination state must be recoverable from the URL or equivalent durable route state.",
     remediation:
       "Persist page and page size in query params or route state.",
-    references: ["AFENDA:route-state-contract"],
+    references: [AFENDA_GOV_ROUTE_STATE],
     enforcement: MANUAL,
   },
   {
@@ -59,7 +62,7 @@ export const AFENDA_ROUTE_STATE_RULES = [
       "Sort state must be recoverable from the URL or equivalent durable route state.",
     remediation:
       "Persist sort field and direction in query params or route state.",
-    references: ["AFENDA:route-state-contract"],
+    references: [AFENDA_GOV_ROUTE_STATE],
     enforcement: MANUAL,
   },
   {
@@ -73,7 +76,7 @@ export const AFENDA_ROUTE_STATE_RULES = [
       "Meaningful tab or section state must be recoverable from the URL or equivalent durable route state.",
     remediation:
       "Persist active tab keys in query params, route params, or durable route state.",
-    references: ["AFENDA:route-state-contract"],
+    references: [AFENDA_GOV_ROUTE_STATE],
     enforcement: MANUAL,
   },
   {
@@ -87,7 +90,7 @@ export const AFENDA_ROUTE_STATE_RULES = [
       "Search query state should be reflected in URL or equivalent durable route state.",
     remediation:
       "Persist search terms and scoped search filters in query params or route state.",
-    references: ["AFENDA:route-state-contract"],
+    references: [AFENDA_GOV_ROUTE_STATE],
     enforcement: MANUAL,
   },
   {
@@ -101,7 +104,7 @@ export const AFENDA_ROUTE_STATE_RULES = [
       "Browser back/forward must preserve meaningful route and view state.",
     remediation:
       "Synchronize meaningful view state with URL history instead of component-only state.",
-    references: ["AFENDA:route-state-contract"],
+    references: [AFENDA_GOV_ROUTE_STATE],
     enforcement: MANUAL,
   },
   {
@@ -115,7 +118,7 @@ export const AFENDA_ROUTE_STATE_RULES = [
       "Refresh must recover meaningful view state where users are filtering, searching, paginating, sorting, or inspecting records.",
     remediation:
       "Synchronize meaningful view state with URL, route params, or durable route state.",
-    references: ["AFENDA:route-state-contract"],
+    references: [AFENDA_GOV_ROUTE_STATE],
     enforcement: MANUAL,
   },
   {
@@ -129,7 +132,7 @@ export const AFENDA_ROUTE_STATE_RULES = [
       "Route transitions away from dirty high-impact work must warn, save draft, or provide recovery.",
     remediation:
       "Add an unsaved changes guard, draft persistence, or explicit discard path.",
-    references: ["WCAG:3.3.4"],
+    references: [AFENDA_GOV_ROUTE_STATE, "WCAG:3.3.4"],
     enforcement: MANUAL,
   },
 ] as const satisfies readonly AfendaRuntimeRule[];

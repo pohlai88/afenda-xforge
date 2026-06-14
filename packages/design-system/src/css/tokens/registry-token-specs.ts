@@ -15,7 +15,7 @@ import {
   type AfendaOrderToken as OrderToken,
   type AfendaOrderTokenBinding as OrderTokenBinding,
   type AfendaRadiusToken as RadiusToken,
-} from "../../contracts/afenda/registries/dimension-token.registry";
+} from "../../contracts/afenda/registries";
 
 export {
   AFENDA_DENSITY_TOKEN_BINDINGS as DENSITY_BINDINGS,

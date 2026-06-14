@@ -1,4 +1,15 @@
 import type { AfendaRuntimeRule } from "../runtime-reference.contract";
+import {
+  AFENDA_GOV_ACCESSIBILITY,
+  AFENDA_GOV_DATA_DISPLAY,
+  AFENDA_GOV_DENSITY,
+  AFENDA_GOV_FORMS,
+  AFENDA_GOV_INTERACTION,
+  AFENDA_GOV_LAYOUT,
+  AFENDA_GOV_RESPONSIVE_LAYOUT,
+  AFENDA_GOV_ROUTE_STATE,
+  AFENDA_GOV_TOUCH_LAYOUT,
+} from "../catalogs/governance-reference.catalog";
 
 const TOUCH_LAYOUT = "touch-layout" as const;
 const ERROR = "error" as const;
@@ -19,7 +30,7 @@ export const AFENDA_TOUCH_LAYOUT_RULES = [
       "Touch layouts must not disable user zoom.",
     remediation:
       "Remove zoom-disabling viewport directives and fix layout issues through responsive design instead.",
-    references: ["AFENDA:touch-layout-contract", "WCAG:1.4.4"],
+    references: [AFENDA_GOV_TOUCH_LAYOUT, "WCAG:1.4.4"],
     enforcement: STATIC,
   },
   {
@@ -34,8 +45,8 @@ export const AFENDA_TOUCH_LAYOUT_RULES = [
     remediation:
       "Provide at least 24x24 CSS px target size with spacing; prefer 40x40 CSS px for primary app controls.",
     references: [
-      "AFENDA:touch-layout-contract",
-      "AFENDA:interaction-contract",
+      AFENDA_GOV_TOUCH_LAYOUT,
+      AFENDA_GOV_INTERACTION,
       "WCAG:2.5.8",
     ],
     enforcement: HYBRID,
@@ -52,9 +63,9 @@ export const AFENDA_TOUCH_LAYOUT_RULES = [
     remediation:
       "Resolve spacing through density-aware touch tokens and provide larger hit areas than visual chrome when needed.",
     references: [
-      "AFENDA:touch-layout-contract",
-      "AFENDA:density-contract",
-      "AFENDA:interaction-contract",
+      AFENDA_GOV_TOUCH_LAYOUT,
+      AFENDA_GOV_DENSITY,
+      AFENDA_GOV_INTERACTION,
     ],
     enforcement: HYBRID,
   },
@@ -71,8 +82,8 @@ export const AFENDA_TOUCH_LAYOUT_RULES = [
     remediation:
       "Expose actions persistently, through a visible overflow menu, or through a tap-accessible disclosure pattern.",
     references: [
-      "AFENDA:touch-layout-contract",
-      "AFENDA:interaction-contract",
+      AFENDA_GOV_TOUCH_LAYOUT,
+      AFENDA_GOV_INTERACTION,
       "WCAG:1.4.13",
     ],
     enforcement: HYBRID,
@@ -89,9 +100,9 @@ export const AFENDA_TOUCH_LAYOUT_RULES = [
     remediation:
       "Provide buttons, overflow menus, keyboard actions, or explicit handles for gesture-based workflows.",
     references: [
-      "AFENDA:touch-layout-contract",
-      "AFENDA:interaction-contract",
-      "AFENDA:accessibility-contract",
+      AFENDA_GOV_TOUCH_LAYOUT,
+      AFENDA_GOV_INTERACTION,
+      AFENDA_GOV_ACCESSIBILITY,
       "WCAG:2.5.1",
       "WCAG:2.5.7",
     ],
@@ -109,8 +120,8 @@ export const AFENDA_TOUCH_LAYOUT_RULES = [
     remediation:
       "Use explicit drag handles, pointer cancellation, axis locking, and non-gesture alternatives for critical actions.",
     references: [
-      "AFENDA:touch-layout-contract",
-      "AFENDA:interaction-contract",
+      AFENDA_GOV_TOUCH_LAYOUT,
+      AFENDA_GOV_INTERACTION,
       "WCAG:2.5.2",
       "WCAG:2.5.7",
     ],
@@ -128,8 +139,8 @@ export const AFENDA_TOUCH_LAYOUT_RULES = [
     remediation:
       "Apply overscroll-behavior containment, lock background scroll, keep close controls reachable, and avoid nested scroll traps.",
     references: [
-      "AFENDA:touch-layout-contract",
-      "AFENDA:layout-contract",
+      AFENDA_GOV_TOUCH_LAYOUT,
+      AFENDA_GOV_LAYOUT,
       "WCAG:2.1.1",
       "WCAG:2.4.7",
     ],
@@ -146,7 +157,7 @@ export const AFENDA_TOUCH_LAYOUT_RULES = [
       "Edge-aligned touch surfaces must account for device safe-area insets.",
     remediation:
       "Use safe-area inset variables for padding and offsets on sheets, drawers, bottom bars, toasts, and fixed actions.",
-    references: ["AFENDA:touch-layout-contract", "AFENDA:layout-contract"],
+    references: [AFENDA_GOV_TOUCH_LAYOUT, AFENDA_GOV_LAYOUT],
     enforcement: HYBRID,
   },
   {
@@ -161,8 +172,8 @@ export const AFENDA_TOUCH_LAYOUT_RULES = [
     remediation:
       "Use keyboard-aware scrolling, viewport units, sticky submit regions, and focus scroll offsets for form surfaces.",
     references: [
-      "AFENDA:touch-layout-contract",
-      "AFENDA:forms-contract",
+      AFENDA_GOV_TOUCH_LAYOUT,
+      AFENDA_GOV_FORMS,
       "WCAG:2.4.11",
       "WCAG:3.3.1",
     ],
@@ -180,9 +191,9 @@ export const AFENDA_TOUCH_LAYOUT_RULES = [
     remediation:
       "Use safe-area padding, content bottom padding, scroll margins, and keyboard-aware sticky regions.",
     references: [
-      "AFENDA:touch-layout-contract",
-      "AFENDA:forms-contract",
-      "AFENDA:layout-contract",
+      AFENDA_GOV_TOUCH_LAYOUT,
+      AFENDA_GOV_FORMS,
+      AFENDA_GOV_LAYOUT,
     ],
     enforcement: HYBRID,
   },
@@ -198,9 +209,9 @@ export const AFENDA_TOUCH_LAYOUT_RULES = [
     remediation:
       "Use pinned key columns, horizontal scroll affordances, row detail panels, or responsive card rows for narrow touch layouts.",
     references: [
-      "AFENDA:touch-layout-contract",
-      "AFENDA:data-display-contract",
-      "AFENDA:responsive-layout-contract",
+      AFENDA_GOV_TOUCH_LAYOUT,
+      AFENDA_GOV_DATA_DISPLAY,
+      AFENDA_GOV_RESPONSIVE_LAYOUT,
     ],
     enforcement: HYBRID,
   },
@@ -216,9 +227,9 @@ export const AFENDA_TOUCH_LAYOUT_RULES = [
     remediation:
       "Avoid fragile fixed heights, use dynamic viewport units, responsive reflow, and preserve focused content visibility.",
     references: [
-      "AFENDA:touch-layout-contract",
-      "AFENDA:layout-contract",
-      "AFENDA:route-state-contract",
+      AFENDA_GOV_TOUCH_LAYOUT,
+      AFENDA_GOV_LAYOUT,
+      AFENDA_GOV_ROUTE_STATE,
     ],
     enforcement: HYBRID,
   },
@@ -234,9 +245,9 @@ export const AFENDA_TOUCH_LAYOUT_RULES = [
     remediation:
       "Use scoped scroll restoration keyed by route, filters, tenant scope, and selected record.",
     references: [
-      "AFENDA:touch-layout-contract",
-      "AFENDA:route-state-contract",
-      "AFENDA:data-display-contract",
+      AFENDA_GOV_TOUCH_LAYOUT,
+      AFENDA_GOV_ROUTE_STATE,
+      AFENDA_GOV_DATA_DISPLAY,
     ],
     enforcement: HYBRID,
   },

@@ -147,12 +147,14 @@ describe("AppNavTopbarNotifications", () => {
     });
   });
 
-  it("subscribes to recipient notifications for the signed-in user", () => {
+  it("subscribes to recipient notifications for the signed-in user", async () => {
     render(
       <TooltipProvider>
         <AppNavTopbarNotifications tenantId="tenant-001" userId="user-001" />
       </TooltipProvider>
     );
+
+    await waitForUnreadBell();
 
     expect(
       supabaseMocks.subscribeToRecipientNotifications

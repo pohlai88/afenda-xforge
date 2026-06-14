@@ -8,7 +8,7 @@
     ".": "./src/index.ts",
     "./contracts": "./src/contracts/index.ts",
     "./contracts/afenda": "./src/contracts/afenda/index.ts",
-    "./contracts/afenda/catalogs": "./src/contracts/afenda/catalogs/module-lane.catalog.ts",
+    "./contracts/afenda/catalogs": "./src/contracts/afenda/catalogs/index.ts",
     "./contracts/afenda/customization": "./src/contracts/afenda/customization/index.ts",
     "./contracts/afenda/forms": "./src/contracts/afenda/forms/index.ts",
     "./contracts/afenda/gates": "./src/contracts/afenda/gates/quality-gate.contract.ts",
@@ -20,7 +20,8 @@
     "./css/adapters": "./src/css/adapters/globals-css.adapter.ts",
     "./css/tokens": "./src/css/tokens/index.ts",
     "./customise-branding": "./src/customise-branding/index.ts",
-    "./customise-branding/resolution": "./src/customise-branding/resolution/index.ts"
+    "./customise-branding/resolution": "./src/customise-branding/resolution/index.ts",
+    "./presentation": "./src/presentation/index.ts"
   },
   "files": [
     "architecture-and-feature-requirement.md",
@@ -35,9 +36,10 @@
     "clean": "git clean -xdf .cache .turbo dist node_modules",
     "globals:css": "tsx scripts/generate-globals-css.mts",
     "globals:css:check": "tsx scripts/generate-globals-css.mts --check",
+    "verify:globals-css": "pnpm run globals:css:check && node --import tsx --test src/tests/globals-css.test.ts src/tests/globals-css.contract.test.ts",
     "check:hue-reservation": "tsx scripts/check-hue-reservation.mts",
     "check:color-contrast": "tsx scripts/check-color-contrast.mts",
-    "test": "node --import tsx --test src/tests/design-system.test.ts src/tests/token-contract.test.ts src/tests/globals-css.test.ts src/tests/variant-contract.test.ts src/tests/public-exports.test.ts src/tests/resolve-tenant-branding.test.ts src/tests/resolve-tenant-density.test.ts src/tests/merge-effective-branding.test.ts src/tests/hue-reservation.test.ts src/tests/validate-branding-colors.test.ts src/tests/vercel-geist.test.ts src/tests/afenda-contract.test.ts src/tests/afenda-quality-gate-flow.test.ts",
+    "test": "node --import tsx --test src/tests/design-system.test.ts src/tests/token-contract.test.ts src/tests/globals-css.test.ts src/tests/globals-css.contract.test.ts src/tests/variant-contract.test.ts src/tests/public-exports.test.ts src/tests/presentation-resolution.test.ts src/tests/metadata-ui-mirror-parity.test.ts src/tests/resolve-tenant-branding.test.ts src/tests/resolve-tenant-density.test.ts src/tests/merge-effective-branding.test.ts src/tests/hue-reservation.test.ts src/tests/validate-branding-colors.test.ts src/tests/vercel-geist.test.ts src/tests/afenda-contract.test.ts src/tests/afenda-quality-gate-flow.test.ts",
     "typecheck": "tsc --noEmit --emitDeclarationOnly false"
   },
   "dependencies": {

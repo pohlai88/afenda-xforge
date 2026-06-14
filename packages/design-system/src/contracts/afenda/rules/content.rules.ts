@@ -1,4 +1,12 @@
 import type { AfendaRuntimeRule } from "../runtime-reference.contract";
+import {
+  AFENDA_GOV_CONTENT,
+  AFENDA_GOV_EMPTY_STATE,
+  AFENDA_GOV_LOCALE,
+  AFENDA_GOV_SECURITY,
+  AFENDA_GOV_STATUS_TONE,
+  XFORGE_GOV_MUTATION_PIPELINE,
+} from "../catalogs/governance-reference.catalog";
 
 const CONTENT = "content" as const;
 const ERROR = "error" as const;
@@ -17,7 +25,7 @@ export const AFENDA_CONTENT_RULES = [
     requirement: "Text containers must handle long and user-generated content.",
     remediation:
       "Use min-w-0 plus truncate, line clamp, or break-words as appropriate.",
-    references: ["AFENDA:content-contract"],
+    references: [AFENDA_GOV_CONTENT],
     enforcement: HYBRID,
   },
   {
@@ -30,7 +38,7 @@ export const AFENDA_CONTENT_RULES = [
     requirement: "Empty arrays and empty strings must render designed empty states.",
     remediation:
       "Render a governed empty state with title, explanation, and next action where appropriate.",
-    references: ["AFENDA:content-contract", "AFENDA:empty-state-contract"],
+    references: [AFENDA_GOV_CONTENT, AFENDA_GOV_EMPTY_STATE],
     enforcement: MANUAL,
   },
   {
@@ -44,7 +52,7 @@ export const AFENDA_CONTENT_RULES = [
       "Error messages must be specific, actionable, and avoid blaming the user.",
     remediation:
       "State the failed action, explain the next step, and include retry, contact, or correction guidance where possible.",
-    references: ["AFENDA:content-contract", "WCAG:3.3.1", "WCAG:3.3.3"],
+    references: [AFENDA_GOV_CONTENT, "WCAG:3.3.1", "WCAG:3.3.3"],
     enforcement: MANUAL,
   },
   {
@@ -59,7 +67,7 @@ export const AFENDA_CONTENT_RULES = [
       "Loading and pending states must describe the operation in progress when the context is not obvious.",
     remediation:
       "Use operation-specific copy such as Loading invoices, Saving company profile, or Generating report.",
-    references: ["AFENDA:content-contract", "WCAG:4.1.3"],
+    references: [AFENDA_GOV_CONTENT, "WCAG:4.1.3"],
     enforcement: HYBRID,
   },
   {
@@ -74,7 +82,7 @@ export const AFENDA_CONTENT_RULES = [
       "Interactive labels must name the action or destination clearly.",
     remediation:
       "Use labels such as Save API key, Create invoice, View audit log, or Discard draft.",
-    references: ["AFENDA:content-contract", "WCAG:2.4.4", "WCAG:2.5.3"],
+    references: [AFENDA_GOV_CONTENT, "WCAG:2.4.4", "WCAG:2.5.3"],
     enforcement: MANUAL,
   },
   {
@@ -88,7 +96,7 @@ export const AFENDA_CONTENT_RULES = [
       "Destructive action copy must name the object, consequence, and recovery path where one exists.",
     remediation:
       "Include the target name, irreversible impact, and whether undo or recovery is available.",
-    references: ["AFENDA:content-contract", "WCAG:3.3.4", "XFORGE:mutation-pipeline"],
+    references: [AFENDA_GOV_CONTENT, "WCAG:3.3.4", XFORGE_GOV_MUTATION_PIPELINE],
     enforcement: MANUAL,
   },
   {
@@ -103,7 +111,7 @@ export const AFENDA_CONTENT_RULES = [
       "User-facing content must be safe for localization and regional formatting.",
     remediation:
       "Use message templates, Intl formatting, and layouts that tolerate translated text expansion.",
-    references: ["AFENDA:content-contract", "AFENDA:locale-contract"],
+    references: [AFENDA_GOV_CONTENT, AFENDA_GOV_LOCALE],
     enforcement: HYBRID,
   },
   {
@@ -118,7 +126,7 @@ export const AFENDA_CONTENT_RULES = [
       "Sensitive values must be redacted or masked unless the surface is explicitly authorized to reveal them.",
     remediation:
       "Mask secrets, truncate identifiers safely, and use reveal controls only on permissioned surfaces.",
-    references: ["AFENDA:content-contract", "AFENDA:security-contract"],
+    references: [AFENDA_GOV_CONTENT, AFENDA_GOV_SECURITY],
     enforcement: HYBRID,
   },
   {
@@ -133,7 +141,7 @@ export const AFENDA_CONTENT_RULES = [
       "Dates, times, numbers, and currencies must use locale-aware formatting.",
     remediation:
       "Use Intl.DateTimeFormat, Intl.NumberFormat, timezone-aware formatting, and explicit currency codes where needed.",
-    references: ["AFENDA:content-contract", "AFENDA:locale-contract"],
+    references: [AFENDA_GOV_CONTENT, AFENDA_GOV_LOCALE],
     enforcement: HYBRID,
   },
   {
@@ -147,7 +155,7 @@ export const AFENDA_CONTENT_RULES = [
       "Status labels must come from approved domain or workflow vocabularies.",
     remediation:
       "Use canonical status labels from the feature contract, workflow contract, or design-system tone registry.",
-    references: ["AFENDA:content-contract", "AFENDA:status-tone-contract"],
+    references: [AFENDA_GOV_CONTENT, AFENDA_GOV_STATUS_TONE],
     enforcement: MANUAL,
   },
 ] as const satisfies readonly AfendaRuntimeRule[];

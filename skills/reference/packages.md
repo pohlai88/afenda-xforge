@@ -36,6 +36,7 @@ packages/auth
 packages/execution
 packages/permissions
 packages/audit
+packages/design-system
 packages/metadata
 packages/customization
 packages/metadata-ui
@@ -50,6 +51,7 @@ Responsibilities:
 - `packages/execution` owns the canonical mutation lifecycle.
 - `packages/permissions` owns server-side permission contracts and checks.
 - `packages/audit` owns audit event shape and persistence.
+- `packages/design-system` owns typed visual vocabulary — token registries, variant contracts, generated CSS, tenant branding resolution, and `resolvePresentationMetadata()`. It must not own React rendering, metadata authority, or business execution.
 - `packages/metadata` owns declarative metadata contracts only.
 - `packages/customization` owns governed tenant and company overrides on top of feature-owned metadata. It may adjust labels, field visibility, order, grouping, form layout, table columns, filters, presentation, and safe action exposure. It must not own permission finality, tenant or company enforcement, audit requirements, execution behavior, or business rules.
 - `packages/metadata-ui` owns metadata-driven rendering helpers and may compose `packages/ui` primitives into metadata panels, table shells, and action bars.

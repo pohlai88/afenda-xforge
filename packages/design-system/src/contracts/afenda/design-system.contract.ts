@@ -12,8 +12,6 @@ export const AFENDA_DESIGN_SYSTEM_VERSION = "0.1.0" as const;
 
 export const AFENDA_COLOR_MODES = ["light", "dark"] as const;
 
-export const AFENDA_THEME_PRESETS = AFENDA_THEME_PRESET_NAMES;
-
 export type AfendaColorMode = (typeof AFENDA_COLOR_MODES)[number];
 export type AfendaThemePreset = AfendaThemePresetName;
 
@@ -23,7 +21,12 @@ export const AFENDA_GOVERNANCE_PRINCIPLES = [
   "Agent output must satisfy accessibility, focus, form, state, performance, layout, and copy rules before UI work is complete.",
   "Tenant customization may change safe presentation only; it must not change security or business authority.",
   "Legacy Afenda contracts migrate through adapters and are deleted after consumers shift to the canonical contract.",
+  "Platform default themePreset is vercel-geist; tenant branding default is afenda — intentional split between platform chrome and tenant ERP identity; globals.css afenda brand fallbacks are a CSS spine, not a third competing default.",
 ] as const;
+
+/** Platform surfaces before tenant scope resolves: marketing, auth, platform chrome, Theme Studio baseline. */
+export const AFENDA_PLATFORM_DEFAULT_THEME_PRESET =
+  "vercel-geist" as const satisfies AfendaThemePreset;
 
 export const AFENDA_ALLOWED_CUSTOMIZATION_KEYS = [
   "themePreset",
@@ -74,9 +77,9 @@ export const afendaDesignSystemContract = {
   id: AFENDA_DESIGN_SYSTEM_ID,
   version: AFENDA_DESIGN_SYSTEM_VERSION,
   description:
-    "Canonical Afenda design-system contract that governs UI output and agent runtime checks.",
+    "Canonical Afenda design-system contract that governs UI output and agent runtime checks. Platform default themePreset is vercel-geist for surfaces before tenant scope resolves.",
   defaults: {
-    themePreset: "vercel-geist",
+    themePreset: AFENDA_PLATFORM_DEFAULT_THEME_PRESET,
   },
   governance: {
     principles: AFENDA_GOVERNANCE_PRINCIPLES,

@@ -1,4 +1,9 @@
 import type { AfendaRuntimeRule } from "../runtime-reference.contract";
+import {
+  AFENDA_GOV_ELEVATION,
+  AFENDA_GOV_MOTION,
+  AFENDA_GOV_MOTION_TOKEN,
+} from "../catalogs/governance-reference.catalog";
 
 const MOTION = "motion" as const;
 const ERROR = "error" as const;
@@ -20,7 +25,7 @@ export const AFENDA_MOTION_RULES = [
       "Motion must honor reduced-motion preferences and avoid animating unspecified properties.",
     remediation:
       "Use transform and opacity transitions, declare explicit transition properties, and add reduced-motion behavior.",
-    references: ["AFENDA:motion-contract", "WCAG:2.3.3", "WCAG:2.2.2"],
+    references: [AFENDA_GOV_MOTION, "WCAG:2.3.3", "WCAG:2.2.2"],
     enforcement: HYBRID,
   },
   {
@@ -34,7 +39,7 @@ export const AFENDA_MOTION_RULES = [
       "Nonessential motion must not auto-play unless it can be paused, stopped, hidden, or disabled.",
     remediation:
       "Remove auto-play, provide pause/stop controls, or disable the motion when reduced-motion is requested.",
-    references: ["AFENDA:motion-contract", "WCAG:2.2.2", "WCAG:2.3.3"],
+    references: [AFENDA_GOV_MOTION, "WCAG:2.2.2", "WCAG:2.3.3"],
     enforcement: HYBRID,
   },
   {
@@ -48,7 +53,7 @@ export const AFENDA_MOTION_RULES = [
       "Motion must not be the only way to communicate state, meaning, urgency, or result.",
     remediation:
       "Pair motion with text, icon, persistent visual state, or semantic attributes.",
-    references: ["AFENDA:motion-contract", "WCAG:1.4.1", "WCAG:2.3.3"],
+    references: [AFENDA_GOV_MOTION, "WCAG:1.4.1", "WCAG:2.3.3"],
     enforcement: MANUAL,
   },
   {
@@ -62,7 +67,7 @@ export const AFENDA_MOTION_RULES = [
       "Motion must have a functional purpose such as orientation, state feedback, continuity, or progressive disclosure.",
     remediation:
       "Remove decorative motion that does not support comprehension, feedback, or spatial continuity.",
-    references: ["AFENDA:motion-contract"],
+    references: [AFENDA_GOV_MOTION],
     enforcement: MANUAL,
   },
   {
@@ -76,7 +81,7 @@ export const AFENDA_MOTION_RULES = [
       "Motion durations and easing must use governed timing tokens appropriate to the interaction.",
     remediation:
       "Use approved duration and easing tokens for microinteractions, entrances, exits, and overlay transitions.",
-    references: ["AFENDA:motion-contract", "AFENDA:motion-token-contract"],
+    references: [AFENDA_GOV_MOTION, AFENDA_GOV_MOTION_TOKEN],
     enforcement: HYBRID,
   },
   {
@@ -91,7 +96,7 @@ export const AFENDA_MOTION_RULES = [
       "Motion should avoid layout-triggering properties unless the interaction explicitly requires layout animation.",
     remediation:
       "Prefer transform and opacity; isolate unavoidable layout animation and validate performance.",
-    references: ["AFENDA:motion-contract", "CoreWebVitals:INP"],
+    references: [AFENDA_GOV_MOTION, "CoreWebVitals:INP"],
     enforcement: STATIC,
   },
   {
@@ -105,7 +110,7 @@ export const AFENDA_MOTION_RULES = [
       "Overlays and transient surfaces must use consistent motion direction, duration, and easing.",
     remediation:
       "Use governed overlay motion presets instead of local one-off animation definitions.",
-    references: ["AFENDA:motion-contract", "AFENDA:elevation-contract"],
+    references: [AFENDA_GOV_MOTION, AFENDA_GOV_ELEVATION],
     enforcement: MANUAL,
   },
   {
@@ -119,7 +124,7 @@ export const AFENDA_MOTION_RULES = [
       "Loading motion must match the operation duration and avoid excessive looping or distracting animation.",
     remediation:
       "Use skeletons for layout reservation, progress indicators for measurable work, and restrained spinners for short waits.",
-    references: ["AFENDA:motion-contract", "WCAG:2.2.2"],
+    references: [AFENDA_GOV_MOTION, "WCAG:2.2.2"],
     enforcement: MANUAL,
   },
   {
@@ -133,7 +138,7 @@ export const AFENDA_MOTION_RULES = [
       "Programmatic scroll behavior must preserve orientation and honor reduced-motion preferences.",
     remediation:
       "Use instant scrolling when reduced motion is requested and ensure target content remains visible after scrolling.",
-    references: ["AFENDA:motion-contract", "WCAG:2.3.3", "WCAG:2.4.1"],
+    references: [AFENDA_GOV_MOTION, "WCAG:2.3.3", "WCAG:2.4.1"],
     enforcement: HYBRID,
   },
   {
@@ -147,7 +152,7 @@ export const AFENDA_MOTION_RULES = [
       "Motion used for state feedback must be paired with persistent visual or semantic state.",
     remediation:
       "Pair animated feedback with visible state styling and attributes such as aria-expanded, aria-selected, or aria-pressed.",
-    references: ["AFENDA:motion-contract", "WCAG:1.4.1"],
+    references: [AFENDA_GOV_MOTION, "WCAG:1.4.1"],
     enforcement: MANUAL,
   },
 ] as const satisfies readonly AfendaRuntimeRule[];

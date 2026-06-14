@@ -1,4 +1,12 @@
 import type { AfendaRuntimeRule } from "../runtime-reference.contract";
+import {
+  AFENDA_GOV_DATA_ACCESS,
+  AFENDA_GOV_FORM_STATE,
+  AFENDA_GOV_PERFORMANCE,
+  XFORGE_GOV_PACKAGE_BOUNDARIES,
+  XFORGE_GOV_REPOSITORY_BOUNDARY,
+  XFORGE_GOV_SERVER_FIRST_UI,
+} from "../catalogs/governance-reference.catalog";
 
 const PERFORMANCE = "performance" as const;
 const ERROR = "error" as const;
@@ -25,7 +33,7 @@ export const AFENDA_PERFORMANCE_RULES = [
       "Large collections above governed thresholds require virtualization, pagination, or containment.",
     remediation:
       "Use virtualization, pagination, content-visibility, or server-backed windowing for large collections.",
-    references: ["AFENDA:performance-contract", "CoreWebVitals:INP"],
+    references: [AFENDA_GOV_PERFORMANCE, "CoreWebVitals:INP"],
     enforcement: HYBRID,
   },
   {
@@ -44,7 +52,7 @@ export const AFENDA_PERFORMANCE_RULES = [
     requirement: "Render must not perform layout reads.",
     remediation:
       "Move measurements into effects or observers and batch reads/writes.",
-    references: ["AFENDA:performance-contract", "CoreWebVitals:INP"],
+    references: [AFENDA_GOV_PERFORMANCE, "CoreWebVitals:INP"],
     enforcement: STATIC,
   },
   {
@@ -58,7 +66,7 @@ export const AFENDA_PERFORMANCE_RULES = [
       "Content that loads asynchronously must reserve stable space before it appears.",
     remediation:
       "Set width, height, aspect-ratio, placeholder dimensions, or stable skeleton sizing before content loads.",
-    references: ["AFENDA:performance-contract", "CoreWebVitals:CLS"],
+    references: [AFENDA_GOV_PERFORMANCE, "CoreWebVitals:CLS"],
     enforcement: HYBRID,
   },
   {
@@ -72,7 +80,7 @@ export const AFENDA_PERFORMANCE_RULES = [
       "User interactions must avoid long main-thread blocking and provide prompt feedback.",
     remediation:
       "Split expensive work, defer noncritical updates, use transitions where appropriate, and show pending state for async work.",
-    references: ["AFENDA:performance-contract", "CoreWebVitals:INP"],
+    references: [AFENDA_GOV_PERFORMANCE, "CoreWebVitals:INP"],
     enforcement: HYBRID,
   },
   {
@@ -86,7 +94,7 @@ export const AFENDA_PERFORMANCE_RULES = [
       "Images and media must use appropriate sizing, loading priority, format, and lazy-loading behavior.",
     remediation:
       "Use responsive sizes, explicit dimensions, optimized formats, lazy loading for noncritical media, and priority only for critical visible media.",
-    references: ["AFENDA:performance-contract", "CoreWebVitals:LCP", "CoreWebVitals:CLS"],
+    references: [AFENDA_GOV_PERFORMANCE, "CoreWebVitals:LCP", "CoreWebVitals:CLS"],
     enforcement: HYBRID,
   },
   {
@@ -100,7 +108,7 @@ export const AFENDA_PERFORMANCE_RULES = [
       "Heavy dependencies and rarely used surfaces must not inflate baseline route bundles.",
     remediation:
       "Use server components where possible, dynamic import heavy clients, and split feature-only dependencies behind route or interaction boundaries.",
-    references: ["AFENDA:performance-contract", "XFORGE:package-boundaries"],
+    references: [AFENDA_GOV_PERFORMANCE, XFORGE_GOV_PACKAGE_BOUNDARIES],
     enforcement: MANUAL,
   },
   {
@@ -119,7 +127,7 @@ export const AFENDA_PERFORMANCE_RULES = [
       "Large or permissioned datasets must use server-side pagination, filtering, sorting, and aggregation.",
     remediation:
       "Move data shaping to the repository/query layer and send only the current window or projection to the client.",
-    references: ["AFENDA:performance-contract", "AFENDA:data-access-contract", "XFORGE:repository-boundary"],
+    references: [AFENDA_GOV_PERFORMANCE, AFENDA_GOV_DATA_ACCESS, XFORGE_GOV_REPOSITORY_BOUNDARY],
     enforcement: HYBRID,
   },
   {
@@ -133,7 +141,7 @@ export const AFENDA_PERFORMANCE_RULES = [
       "Async operations must expose loading, pending, success, or failure state without blocking unrelated UI.",
     remediation:
       "Use pending indicators, optimistic or deferred updates where safe, and scoped disabled states instead of freezing the whole page.",
-    references: ["AFENDA:performance-contract", "AFENDA:form-state-contract"],
+    references: [AFENDA_GOV_PERFORMANCE, AFENDA_GOV_FORM_STATE],
     enforcement: MANUAL,
   },
   {
@@ -148,7 +156,7 @@ export const AFENDA_PERFORMANCE_RULES = [
       "Pending and disabled states must be scoped to the affected operation whenever possible.",
     remediation:
       "Disable only the submitting control or affected region; avoid freezing the full page unless the whole page is unsafe to use.",
-    references: ["AFENDA:performance-contract", "AFENDA:form-state-contract"],
+    references: [AFENDA_GOV_PERFORMANCE, AFENDA_GOV_FORM_STATE],
     enforcement: MANUAL,
   },
   {
@@ -163,7 +171,7 @@ export const AFENDA_PERFORMANCE_RULES = [
       "Client components must be introduced only where interactivity, browser APIs, or client state are required.",
     remediation:
       "Keep route shells and static surfaces server-rendered; move client boundaries down to the smallest interactive island.",
-    references: ["AFENDA:performance-contract", "XFORGE:server-first-ui"],
+    references: [AFENDA_GOV_PERFORMANCE, XFORGE_GOV_SERVER_FIRST_UI],
     enforcement: HYBRID,
   },
   {
@@ -178,7 +186,7 @@ export const AFENDA_PERFORMANCE_RULES = [
       "Render work must be bounded, cached by the data layer, virtualized, or moved outside hot render paths.",
     remediation:
       "Precompute server-side, paginate/window datasets, or isolate expensive work behind explicit user action.",
-    references: ["AFENDA:performance-contract", "CoreWebVitals:INP"],
+    references: [AFENDA_GOV_PERFORMANCE, "CoreWebVitals:INP"],
     enforcement: HYBRID,
   },
 ] as const satisfies readonly AfendaRuntimeRule[];

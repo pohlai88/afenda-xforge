@@ -2,7 +2,14 @@
 
 `src/styles/globals.css` is the package-local Tailwind v4 token sheet for `@repo/ui`.
 
-It is generated from `@repo/design-system` token contracts. Do not edit it manually — run `pnpm --filter @repo/design-system globals:css` instead.
+It is generated from `@repo/design-system` token contracts. Do not edit it manually — run:
+
+```bash
+pnpm --filter @repo/design-system globals:css
+pnpm --filter @repo/design-system verify:globals-css
+```
+
+Pipeline authority: `packages/design-system/src/contracts/afenda/globals-css.contract.ts`.
 
 It owns:
 - `@import "tailwindcss"`, `@import "tw-animate-css"`, `@import "shadcn/tailwind.css"`

@@ -1,4 +1,25 @@
 import type { AfendaRuntimeRule } from "../runtime-reference.contract";
+import {
+  AFENDA_GOV_AUDIT,
+  AFENDA_GOV_COMPLIANCE,
+  AFENDA_GOV_CONTENT,
+  AFENDA_GOV_DATA_DISPLAY,
+  AFENDA_GOV_EXECUTION_CONTEXT,
+  AFENDA_GOV_EXPORT,
+  AFENDA_GOV_FINANCE,
+  AFENDA_GOV_FORMS,
+  AFENDA_GOV_INVENTORY,
+  AFENDA_GOV_LAYOUT,
+  AFENDA_GOV_LOCALE,
+  AFENDA_GOV_MANUFACTURING,
+  AFENDA_GOV_MESSAGE_CATALOG,
+  AFENDA_GOV_MUTATION,
+  AFENDA_GOV_NAVIGATION,
+  AFENDA_GOV_OBSERVABILITY,
+  AFENDA_GOV_ROUTE_STATE,
+  AFENDA_GOV_TENANT_CONTEXT,
+  AFENDA_GOV_VALIDATION,
+} from "../catalogs/governance-reference.catalog";
 
 const LOCALE = "locale" as const;
 const ERROR = "error" as const;
@@ -20,9 +41,9 @@ export const AFENDA_LOCALE_RULES = [
     remediation:
       "Resolve locale from user preference, tenant/company default, route locale, and system fallback through the approved locale policy.",
     references: [
-      "AFENDA:locale-contract",
-      "AFENDA:tenant-context-contract",
-      "AFENDA:execution-context-contract",
+      AFENDA_GOV_LOCALE,
+      AFENDA_GOV_TENANT_CONTEXT,
+      AFENDA_GOV_EXECUTION_CONTEXT,
     ],
     enforcement: HYBRID,
   },
@@ -38,9 +59,9 @@ export const AFENDA_LOCALE_RULES = [
     remediation:
       "Use locale-aware routing helpers and include locale state in generated links, redirects, and canonical URLs.",
     references: [
-      "AFENDA:locale-contract",
-      "AFENDA:navigation-contract",
-      "AFENDA:route-state-contract",
+      AFENDA_GOV_LOCALE,
+      AFENDA_GOV_NAVIGATION,
+      AFENDA_GOV_ROUTE_STATE,
     ],
     enforcement: HYBRID,
   },
@@ -57,9 +78,9 @@ export const AFENDA_LOCALE_RULES = [
     remediation:
       "Move user-facing copy into the locale message contract and pass dynamic values as named parameters.",
     references: [
-      "AFENDA:locale-contract",
-      "AFENDA:content-contract",
-      "AFENDA:message-catalog-contract",
+      AFENDA_GOV_LOCALE,
+      AFENDA_GOV_CONTENT,
+      AFENDA_GOV_MESSAGE_CATALOG,
     ],
     enforcement: HYBRID,
   },
@@ -75,7 +96,7 @@ export const AFENDA_LOCALE_RULES = [
       "Count-dependent messages must use locale-aware plural and grammar handling.",
     remediation:
       "Use message templates with plural/select branches or Intl.PluralRules through the approved i18n adapter.",
-    references: ["AFENDA:locale-contract", "AFENDA:message-catalog-contract"],
+    references: [AFENDA_GOV_LOCALE, AFENDA_GOV_MESSAGE_CATALOG],
     enforcement: HYBRID,
   },
   {
@@ -90,7 +111,7 @@ export const AFENDA_LOCALE_RULES = [
       "Dates, times, numbers, percentages, units, and currencies must use Intl or approved locale formatting primitives.",
     remediation:
       "Use Intl.DateTimeFormat, Intl.NumberFormat, Intl.PluralRules, and explicit locale/currency options.",
-    references: ["AFENDA:locale-contract", "AFENDA:content-contract"],
+    references: [AFENDA_GOV_LOCALE, AFENDA_GOV_CONTENT],
     enforcement: STATIC,
   },
   {
@@ -106,10 +127,10 @@ export const AFENDA_LOCALE_RULES = [
     remediation:
       "Use governed input adapters, show accepted format hints, and normalize values before mutation.",
     references: [
-      "AFENDA:locale-contract",
-      "AFENDA:forms-contract",
-      "AFENDA:validation-contract",
-      "AFENDA:mutation-contract",
+      AFENDA_GOV_LOCALE,
+      AFENDA_GOV_FORMS,
+      AFENDA_GOV_VALIDATION,
+      AFENDA_GOV_MUTATION,
     ],
     enforcement: HYBRID,
   },
@@ -125,9 +146,9 @@ export const AFENDA_LOCALE_RULES = [
     remediation:
       "Display user, tenant, company, or source timezone intentionally and include timezone labels where ambiguity affects decisions.",
     references: [
-      "AFENDA:locale-contract",
-      "AFENDA:audit-contract",
-      "AFENDA:tenant-context-contract",
+      AFENDA_GOV_LOCALE,
+      AFENDA_GOV_AUDIT,
+      AFENDA_GOV_TENANT_CONTEXT,
     ],
     enforcement: HYBRID,
   },
@@ -143,9 +164,9 @@ export const AFENDA_LOCALE_RULES = [
     remediation:
       "Format money with Intl.NumberFormat using an explicit currency code and show code labels for multi-currency surfaces.",
     references: [
-      "AFENDA:locale-contract",
-      "AFENDA:data-display-contract",
-      "AFENDA:finance-contract",
+      AFENDA_GOV_LOCALE,
+      AFENDA_GOV_DATA_DISPLAY,
+      AFENDA_GOV_FINANCE,
     ],
     enforcement: HYBRID,
   },
@@ -161,10 +182,10 @@ export const AFENDA_LOCALE_RULES = [
     remediation:
       "Store canonical unit codes, format through approved unit primitives, and display unit labels for operational values.",
     references: [
-      "AFENDA:locale-contract",
-      "AFENDA:data-display-contract",
-      "AFENDA:inventory-contract",
-      "AFENDA:manufacturing-contract",
+      AFENDA_GOV_LOCALE,
+      AFENDA_GOV_DATA_DISPLAY,
+      AFENDA_GOV_INVENTORY,
+      AFENDA_GOV_MANUFACTURING,
     ],
     enforcement: HYBRID,
   },
@@ -179,7 +200,7 @@ export const AFENDA_LOCALE_RULES = [
       "User-visible sorting and comparison of localized text should use locale-aware collation.",
     remediation:
       "Use Intl.Collator or approved server-side collation with explicit locale and sensitivity settings.",
-    references: ["AFENDA:locale-contract", "AFENDA:data-display-contract"],
+    references: [AFENDA_GOV_LOCALE, AFENDA_GOV_DATA_DISPLAY],
     enforcement: HYBRID,
   },
   {
@@ -195,9 +216,9 @@ export const AFENDA_LOCALE_RULES = [
     remediation:
       "Use dir attributes, logical CSS properties, directional icon tokens, and RTL-aware layout tests for supported locales.",
     references: [
-      "AFENDA:locale-contract",
-      "AFENDA:layout-contract",
-      "AFENDA:navigation-contract",
+      AFENDA_GOV_LOCALE,
+      AFENDA_GOV_LAYOUT,
+      AFENDA_GOV_NAVIGATION,
       "WCAG:1.3.2",
     ],
     enforcement: HYBRID,
@@ -214,10 +235,10 @@ export const AFENDA_LOCALE_RULES = [
     remediation:
       "Use approved legal message catalogs, version legal copy, and prevent unreviewed fallback for regulated flows.",
     references: [
-      "AFENDA:locale-contract",
-      "AFENDA:content-contract",
-      "AFENDA:audit-contract",
-      "AFENDA:compliance-contract",
+      AFENDA_GOV_LOCALE,
+      AFENDA_GOV_CONTENT,
+      AFENDA_GOV_AUDIT,
+      AFENDA_GOV_COMPLIANCE,
     ],
     enforcement: HYBRID,
   },
@@ -233,9 +254,9 @@ export const AFENDA_LOCALE_RULES = [
     remediation:
       "Include locale metadata, timezone labels, ISO currency codes, unit labels, and translated column headings where applicable.",
     references: [
-      "AFENDA:locale-contract",
-      "AFENDA:export-contract",
-      "AFENDA:data-display-contract",
+      AFENDA_GOV_LOCALE,
+      AFENDA_GOV_EXPORT,
+      AFENDA_GOV_DATA_DISPLAY,
     ],
     enforcement: HYBRID,
   },
@@ -251,9 +272,9 @@ export const AFENDA_LOCALE_RULES = [
     remediation:
       "Define fallback locale order, report missing keys, and avoid fallback-only copy for legal, financial, or destructive flows.",
     references: [
-      "AFENDA:locale-contract",
-      "AFENDA:content-contract",
-      "AFENDA:observability-contract",
+      AFENDA_GOV_LOCALE,
+      AFENDA_GOV_CONTENT,
+      AFENDA_GOV_OBSERVABILITY,
     ],
     enforcement: HYBRID,
   },
@@ -269,9 +290,9 @@ export const AFENDA_LOCALE_RULES = [
     remediation:
       "Log missing keys, fallback hits, catalog version, locale, route, and feature owner through observability.",
     references: [
-      "AFENDA:locale-contract",
-      "AFENDA:message-catalog-contract",
-      "AFENDA:observability-contract",
+      AFENDA_GOV_LOCALE,
+      AFENDA_GOV_MESSAGE_CATALOG,
+      AFENDA_GOV_OBSERVABILITY,
     ],
     enforcement: HYBRID,
   },

@@ -1,6 +1,21 @@
 import { z } from "zod";
 
 import {
+  defineGovernanceReferences,
+  defineUniqueStringList,
+  governanceReferencesSchema,
+} from "../registry.schema";
+import {
+  AFENDA_GOV_AGENT_GOVERNANCE,
+  AFENDA_GOV_AUDIT,
+  AFENDA_GOV_DESIGN_SYSTEM,
+  AFENDA_GOV_GLOBALS_CSS,
+  AFENDA_GOV_LEGACY_DEPRECATION_MANIFEST,
+  AFENDA_GOV_QUALITY_GATE,
+  AFENDA_GOV_RUNTIME_REFERENCE,
+  AFENDA_GOV_TOKEN_UI,
+} from "./catalogs/governance-reference.catalog";
+import {
   AFENDA_DESIGN_SYSTEM_ID,
   AFENDA_DESIGN_SYSTEM_VERSION,
   afendaDesignSystemContract,
@@ -14,28 +29,33 @@ export const AFENDA_DESIGN_SYSTEM_PACKAGE_NAME = "@repo/design-system" as const;
 export const AFENDA_DESIGN_SYSTEM_CONTRACT_PATH =
   "src/contracts/afenda" as const;
 
-export const AFENDA_DESIGN_SYSTEM_PUBLIC_EXPORTS = [
-  "@repo/design-system/contracts",
-  AFENDA_CONTRACT_EXPORT_SUBPATH,
-  "@repo/design-system/contracts/afenda/catalogs",
-  "@repo/design-system/contracts/afenda/customization",
-  "@repo/design-system/contracts/afenda/forms",
-  "@repo/design-system/contracts/afenda/gates",
-  "@repo/design-system/contracts/afenda/registries",
-  "@repo/design-system/contracts/afenda/references",
-  "@repo/design-system/contracts/afenda/rules",
-  "@repo/design-system/contracts/afenda/runtime",
-] as const;
+export const AFENDA_DESIGN_SYSTEM_PUBLIC_EXPORTS = defineUniqueStringList(
+  [
+    "@repo/design-system/contracts",
+    AFENDA_CONTRACT_EXPORT_SUBPATH,
+    "@repo/design-system/contracts/afenda/catalogs",
+    "@repo/design-system/contracts/afenda/customization",
+    "@repo/design-system/contracts/afenda/forms",
+    "@repo/design-system/contracts/afenda/gates",
+    "@repo/design-system/contracts/afenda/registries",
+    "@repo/design-system/contracts/afenda/references",
+    "@repo/design-system/contracts/afenda/rules",
+    "@repo/design-system/contracts/afenda/runtime",
+    "@repo/design-system/presentation",
+  ],
+  "public export"
+);
 
-export const AFENDA_DESIGN_SYSTEM_GOVERNANCE_REFERENCES = [
-  "AFENDA:design-system-contract",
-  "AFENDA:runtime-reference-contract",
-  "AFENDA:token-ui-contract",
-  "AFENDA:quality-gate-contract",
-  "AFENDA:legacy-deprecation-manifest",
-  "AFENDA:agent-governance-contract",
-  "AFENDA:audit-contract",
-] as const;
+export const AFENDA_DESIGN_SYSTEM_GOVERNANCE_REFERENCES = defineGovernanceReferences([
+  AFENDA_GOV_DESIGN_SYSTEM,
+  AFENDA_GOV_RUNTIME_REFERENCE,
+  AFENDA_GOV_TOKEN_UI,
+  AFENDA_GOV_GLOBALS_CSS,
+  AFENDA_GOV_QUALITY_GATE,
+  AFENDA_GOV_LEGACY_DEPRECATION_MANIFEST,
+  AFENDA_GOV_AGENT_GOVERNANCE,
+  AFENDA_GOV_AUDIT,
+]);
 
 function uniqueStringArraySchema(message: string) {
   return z
@@ -83,9 +103,7 @@ export const afendaDesignSystemManifestSchema = z
     contractId: z.literal(AFENDA_DESIGN_SYSTEM_ID),
     contractPath: z.literal(AFENDA_DESIGN_SYSTEM_CONTRACT_PATH),
     exportSubpath: z.literal(AFENDA_CONTRACT_EXPORT_SUBPATH),
-    governanceReferences: uniqueStringArraySchema(
-      "Duplicate governance reference"
-    ),
+    governanceReferences: governanceReferencesSchema,
     manifestId: z.literal(AFENDA_DESIGN_SYSTEM_MANIFEST_ID),
     owner: z.literal("design-system"),
     packageName: z.literal(AFENDA_DESIGN_SYSTEM_PACKAGE_NAME),
@@ -112,11 +130,14 @@ export const afendaDesignSystemManifest = {
   contractPath: AFENDA_DESIGN_SYSTEM_CONTRACT_PATH,
   exportSubpath: AFENDA_CONTRACT_EXPORT_SUBPATH,
   publicExports: AFENDA_DESIGN_SYSTEM_PUBLIC_EXPORTS,
-  replaces: [
-    "@repo/design-system/contracts/afenda/master",
-    "ad-hoc UI review prompts",
-    "manual IDE agent design checks",
-  ],
+  replaces: defineUniqueStringList(
+    [
+      "@repo/design-system/contracts/afenda/master",
+      "ad-hoc UI review prompts",
+      "manual IDE agent design checks",
+    ],
+    "replacement target"
+  ),
   governanceReferences: AFENDA_DESIGN_SYSTEM_GOVERNANCE_REFERENCES,
   runtimeGovernance: {
     referenceContract: "web-design-guidelines",
@@ -134,9 +155,7 @@ export function validateAfendaDesignSystemManifest(): void {
   }
 
   if (
-    !manifest.governanceReferences.includes(
-      "AFENDA:runtime-reference-contract"
-    )
+    !manifest.governanceReferences.includes(AFENDA_GOV_RUNTIME_REFERENCE)
   ) {
     throw new Error(
       "Afenda manifest must reference the runtime reference contract"
@@ -144,9 +163,15 @@ export function validateAfendaDesignSystemManifest(): void {
   }
 
   if (
-    !manifest.governanceReferences.includes("AFENDA:token-ui-contract")
+    !manifest.governanceReferences.includes(AFENDA_GOV_TOKEN_UI)
   ) {
     throw new Error("Afenda manifest must reference the token UI contract");
+  }
+
+  if (
+    !manifest.governanceReferences.includes(AFENDA_GOV_GLOBALS_CSS)
+  ) {
+    throw new Error("Afenda manifest must reference the globals CSS contract");
   }
 
   if (AFENDA_RULE_REGISTRY.length < manifest.runtimeGovernance.ruleCountMinimum) {

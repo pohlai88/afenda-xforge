@@ -1,0 +1,17 @@
+export {
+  AFENDA_PRESENTATION_FORBIDDEN_KEYS,
+  AFENDA_PRESENTATION_METADATA_CONTRACT_ID,
+  AFENDA_PRESENTATION_METADATA_CONTRACT_VERSION,
+  AFENDA_PRESENTATION_METADATA_GOVERNANCE_REFERENCES,
+  AFENDA_PRESENTATION_VARIANT_FAMILIES,
+  afendaPresentationMetadataContract,
+  afendaPresentationMetadataContractSchema,
+  afendaPresentationMetadataSchema,
+  assertPresentationSafeInput,
+  parseAfendaPresentationMetadata,
+  validateAfendaPresentationMetadataContract,
+  type AfendaPresentationForbiddenKey,
+  type AfendaPresentationMetadata,
+  type AfendaPresentationVariant,
+  type AfendaPresentationVariantFamily,
+} from "./presentation-metadata.contract";

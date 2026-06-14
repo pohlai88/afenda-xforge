@@ -1,4 +1,3 @@
-import type { AfendaColorTokenMode as ColorMode } from "../../contracts/afenda/registries/color-token.registry";
 import { getAfendaDefaultLaneForFeature as getDefaultLaneForFeature } from "../../contracts/afenda/catalogs/module-lane.catalog";
 import type {
   AfendaPartialLaneColorScale as PartialLaneColorScale,
@@ -8,18 +7,17 @@ import {
   AFENDA_DEFAULT_TENANT_BRANDING_SETTINGS as DEFAULT_TENANT_BRANDING_SETTINGS,
   afendaMergeLaneScaleFields as mergeLaneScaleFields,
 } from "../../contracts/afenda/customization/branding.contract";
-import { AFENDA_THEME_PRESET_REGISTRY as THEME_PRESETS } from "../../contracts/afenda/registries/theme-preset.registry";
-import type {
-  AfendaErpVisualLaneId as ErpVisualLaneId,
-  AfendaLaneColorScale as LaneColorScale,
-  AfendaLaneColorScaleField as LaneColorScaleField,
-} from "../../contracts/afenda/registries/visual-lane.registry";
 import {
   AFENDA_ERP_VISUAL_LANE_BY_ID as ERP_VISUAL_LANE_BY_ID,
+  AFENDA_THEME_PRESET_REGISTRY as THEME_PRESETS,
   afendaActiveLaneCssVarName as activeLaneCssVarName,
   afendaLaneCssVarName as laneCssVarName,
   afendaTenantLaneCssVarName as tenantLaneCssVarName,
-} from "../../contracts/afenda/registries/visual-lane.registry";
+  type AfendaColorTokenMode as ColorMode,
+  type AfendaErpVisualLaneId as ErpVisualLaneId,
+  type AfendaLaneColorScale as LaneColorScale,
+  type AfendaLaneColorScaleField as LaneColorScaleField,
+} from "../../contracts/afenda/registries";
 
 export type CssVarMap = Record<string, string>;
 

@@ -1,5 +1,15 @@
 import { z } from "zod";
 
+import { defineGovernanceReferences, governanceReferencesSchema } from "../../registry.schema";
+import {
+  AFENDA_GOV_AGENT_GOVERNANCE,
+  AFENDA_GOV_QUALITY_GATE,
+  AFENDA_GOV_REMEDIATION,
+  AFENDA_GOV_RUNTIME_REFERENCE,
+  AFENDA_GOV_RULE_EVALUATION,
+  AFENDA_GOV_VIOLATION,
+} from "../catalogs/governance-reference.catalog";
+
 import {
   afendaRuleEvaluationActorIdentitySchema,
   afendaRuleEvaluationScopeSchema,
@@ -17,14 +27,14 @@ export const AFENDA_QUALITY_GATE_STATUSES = [
   "block",
 ] as const;
 
-export const AFENDA_QUALITY_GATE_GOVERNANCE_REFERENCES = [
-  "AFENDA:runtime-reference-contract",
-  "AFENDA:rule-evaluation-contract",
-  "AFENDA:violation-contract",
-  "AFENDA:remediation-contract",
-  "AFENDA:agent-governance-contract",
-  "AFENDA:quality-gate-contract",
-] as const;
+export const AFENDA_QUALITY_GATE_GOVERNANCE_REFERENCES = defineGovernanceReferences([
+  AFENDA_GOV_RUNTIME_REFERENCE,
+  AFENDA_GOV_RULE_EVALUATION,
+  AFENDA_GOV_VIOLATION,
+  AFENDA_GOV_REMEDIATION,
+  AFENDA_GOV_AGENT_GOVERNANCE,
+  AFENDA_GOV_QUALITY_GATE,
+]);
 
 export type AfendaQualityGateStatus =
   (typeof AFENDA_QUALITY_GATE_STATUSES)[number];
@@ -131,7 +141,7 @@ export const afendaQualityGateContractSchema = z
     sourceAgentGovernanceContractId: z.literal(
       "afenda.agent-governance-contract"
     ),
-    governanceReferences: z.array(z.string().trim().min(1)).min(1).readonly(),
+    governanceReferences: governanceReferencesSchema,
   })
   .strict();
 

@@ -1,5 +1,8 @@
 "use client";
 
+import {
+  resolveMetadataPresentation,
+} from "@/lib/presentation/resolve-metadata-presentation";
 import type { AfendaTenantBrandingSettings as TenantBrandingSettings } from "@repo/design-system/contracts/afenda/customization";
 import type { AfendaColorTokenMode as ColorMode } from "@repo/design-system/contracts/afenda/registries";
 import {
@@ -47,12 +50,18 @@ export function FeatureLaneScope({
   const mode = useResolvedColorMode();
   const laneVars = resolveActiveLaneCssVars(branding, featureId, mode);
   const style = cssVarMapToInlineStyle(laneVars) as CSSProperties;
+  const presentation = resolveMetadataPresentation({
+    density: branding.density ?? "default",
+    featureId,
+  });
+  const dataDensity = presentation.dataAttributes["data-density"];
 
   return (
     <div
       className={className}
       data-feature={featureId}
       data-lane={laneVars["--lane-active-id"]}
+      {...(dataDensity ? { "data-density": dataDensity } : {})}
       style={style}
     >
       {children}

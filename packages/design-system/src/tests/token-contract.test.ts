@@ -71,11 +71,13 @@ import {
   validateAfendaVisualLaneRegistry as validateVisualLaneRegistry,
 } from "../contracts/afenda";
 import {
-  AFENDA_RUNTIME_TOKEN_RESOLUTION_SOURCES,
   AFENDA_TOKEN_UI_COMPONENT_NAV,
-  validateAfendaRuntimeTokenResolutionContract,
   validateAfendaTokenUiContract,
 } from "../contracts/afenda/token-ui.contract";
+import {
+  AFENDA_RUNTIME_TOKEN_RESOLUTION_SOURCES,
+  validateAfendaRuntimeTokenResolutionContract,
+} from "../contracts/afenda/runtime-token-resolution.contract";
 import { resolveTenantBrandingModeCssVars } from "../customise-branding/resolution";
 import {
   GLOBALS_CSS_COMFORTABLE_DENSITY_DECLARATIONS,

@@ -1,5 +1,14 @@
 import { z } from "zod";
 
+import { defineGovernanceReferences, governanceReferencesSchema } from "../../registry.schema";
+import {
+  AFENDA_GOV_DATA_DISPLAY,
+  AFENDA_GOV_DESIGN_SYSTEM,
+  AFENDA_GOV_TENANT_BRANDING,
+  AFENDA_GOV_TENANT_CONTEXT,
+  AFENDA_GOV_THEMING,
+  AFENDA_GOV_VISUAL_LANE_REGISTRY,
+} from "./governance-reference.catalog";
 import {
   AFENDA_ERP_VISUAL_LANE_IDS,
   afendaErpVisualLaneIdSchema,
@@ -13,14 +22,14 @@ export const AFENDA_MODULE_LANE_CATALOG_VERSION = "0.1.0" as const;
 export const AFENDA_ERP_MODULE_LANE_DEFAULT_LANE: AfendaErpVisualLaneId =
   "governance";
 
-export const AFENDA_MODULE_LANE_GOVERNANCE_REFERENCES = [
-  "AFENDA:design-system-contract",
-  "AFENDA:visual-lane-registry",
-  "AFENDA:tenant-branding-contract",
-  "AFENDA:tenant-context-contract",
-  "AFENDA:theming-contract",
-  "AFENDA:data-display-contract",
-] as const;
+export const AFENDA_MODULE_LANE_GOVERNANCE_REFERENCES = defineGovernanceReferences([
+  AFENDA_GOV_DESIGN_SYSTEM,
+  AFENDA_GOV_VISUAL_LANE_REGISTRY,
+  AFENDA_GOV_TENANT_BRANDING,
+  AFENDA_GOV_TENANT_CONTEXT,
+  AFENDA_GOV_THEMING,
+  AFENDA_GOV_DATA_DISPLAY,
+]);
 
 /**
  * Explicit featureId -> lane mappings. Prefix rules cover family defaults.
@@ -138,7 +147,7 @@ export const afendaModuleLaneCatalogSchema = z
   .object({
     defaultLane: afendaErpVisualLaneIdSchema,
     entries: z.array(afendaCatalogModuleEntrySchema).min(1).readonly(),
-    governanceReferences: z.array(z.string().trim().min(1)).min(1).readonly(),
+    governanceReferences: governanceReferencesSchema,
     id: z.literal(AFENDA_MODULE_LANE_CATALOG_ID),
     laneIds: z.array(afendaErpVisualLaneIdSchema).min(1).readonly(),
     prefixRules: z

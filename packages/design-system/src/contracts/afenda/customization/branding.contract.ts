@@ -1,4 +1,16 @@
 import { z } from "zod";
+
+import { defineGovernanceReferences, governanceReferencesSchema } from "../../registry.schema";
+import {
+  AFENDA_GOV_DESIGN_SYSTEM,
+  AFENDA_GOV_SECURITY_UI,
+  AFENDA_GOV_TENANT_BRANDING,
+  AFENDA_GOV_TENANT_CONTEXT,
+  AFENDA_GOV_THEME_PRESET_REGISTRY,
+  AFENDA_GOV_THEMING,
+  AFENDA_GOV_VISUAL_DESIGN,
+  XFORGE_GOV_TENANT_COMPANY_SCOPE,
+} from "../catalogs/governance-reference.catalog";
 import type { AfendaAllowedCustomizationKey } from "../design-system.contract";
 import {
   AFENDA_ALLOWED_CUSTOMIZATION_KEYS,
@@ -22,15 +34,15 @@ export const AFENDA_TENANT_BRANDING_CONTRACT_ID =
   "afenda.tenant-branding-contract" as const;
 export const AFENDA_TENANT_BRANDING_CONTRACT_VERSION = "0.1.0" as const;
 
-export const AFENDA_TENANT_BRANDING_GOVERNANCE_REFERENCES = [
-  "AFENDA:design-system-contract",
-  "AFENDA:tenant-context-contract",
-  "AFENDA:theming-contract",
-  "AFENDA:theme-preset-registry",
-  "AFENDA:visual-design-contract",
-  "AFENDA:security-ui-contract",
-  "XFORGE:tenant-company-scope",
-] as const;
+export const AFENDA_TENANT_BRANDING_GOVERNANCE_REFERENCES = defineGovernanceReferences([
+  AFENDA_GOV_DESIGN_SYSTEM,
+  AFENDA_GOV_TENANT_CONTEXT,
+  AFENDA_GOV_THEMING,
+  AFENDA_GOV_THEME_PRESET_REGISTRY,
+  AFENDA_GOV_VISUAL_DESIGN,
+  AFENDA_GOV_SECURITY_UI,
+  XFORGE_GOV_TENANT_COMPANY_SCOPE,
+]);
 
 export const afendaPartialLaneColorScaleSchema =
   afendaLaneColorScaleSchema.partial();
@@ -98,6 +110,10 @@ export const AFENDA_TENANT_BRANDING_ALLOWED_CUSTOMIZATION_KEYS = [
   "presentationTone",
 ] as const satisfies readonly AfendaAllowedCustomizationKey[];
 
+/** Tenant ERP surfaces after scope resolves; differs from platform default vercel-geist on afenda.design-system. */
+export const AFENDA_TENANT_DEFAULT_THEME_PRESET =
+  "afenda" as const satisfies AfendaTenantBrandingSettings["themePreset"];
+
 export type AfendaTenantBrandingContract = {
   allowedCustomization: readonly AfendaAllowedCustomizationKey[];
   defaults: AfendaTenantBrandingSettings;
@@ -110,7 +126,7 @@ export type AfendaTenantBrandingContract = {
 };
 
 export const AFENDA_DEFAULT_TENANT_BRANDING_SETTINGS = {
-  themePreset: "afenda",
+  themePreset: AFENDA_TENANT_DEFAULT_THEME_PRESET,
 } as const satisfies AfendaTenantBrandingSettings;
 
 export const afendaTenantBrandingLaneIdSchema = z.enum(
@@ -125,7 +141,7 @@ export const afendaTenantBrandingContract = {
   version: AFENDA_TENANT_BRANDING_CONTRACT_VERSION,
   parentContractId: AFENDA_DESIGN_SYSTEM_ID,
   description:
-    "Afenda tenant branding customization boundary for safe presentation-only tenant settings.",
+    "Afenda tenant branding customization boundary for safe presentation-only tenant settings. Tenant default themePreset is afenda; platform default remains vercel-geist on afenda.design-system.",
   defaults: AFENDA_DEFAULT_TENANT_BRANDING_SETTINGS,
   allowedCustomization: AFENDA_TENANT_BRANDING_ALLOWED_CUSTOMIZATION_KEYS,
   forbiddenCustomization: AFENDA_FORBIDDEN_CUSTOMIZATION_KEYS,
@@ -169,7 +185,7 @@ export const afendaTenantBrandingContractSchema = z
       .array(z.enum(AFENDA_FORBIDDEN_CUSTOMIZATION_KEYS))
       .min(1)
       .readonly(),
-    governanceReferences: z.array(z.string().trim().min(1)).min(1).readonly(),
+    governanceReferences: governanceReferencesSchema,
     id: z.literal(AFENDA_TENANT_BRANDING_CONTRACT_ID),
     parentContractId: z.literal(AFENDA_DESIGN_SYSTEM_ID),
     version: z.literal(AFENDA_TENANT_BRANDING_CONTRACT_VERSION),
@@ -248,14 +264,14 @@ export const AFENDA_COLOR_MODE_PREFERENCES = [
   "system",
 ] as const;
 
-export const AFENDA_USER_BRANDING_GOVERNANCE_REFERENCES = [
-  "AFENDA:tenant-branding-contract",
-  "AFENDA:design-system-contract",
-  "AFENDA:tenant-context-contract",
-  "AFENDA:theme-preset-registry",
-  "AFENDA:visual-design-contract",
-  "AFENDA:security-ui-contract",
-] as const;
+export const AFENDA_USER_BRANDING_GOVERNANCE_REFERENCES = defineGovernanceReferences([
+  AFENDA_GOV_TENANT_BRANDING,
+  AFENDA_GOV_DESIGN_SYSTEM,
+  AFENDA_GOV_TENANT_CONTEXT,
+  AFENDA_GOV_THEME_PRESET_REGISTRY,
+  AFENDA_GOV_VISUAL_DESIGN,
+  AFENDA_GOV_SECURITY_UI,
+]);
 
 export const afendaColorModePreferenceSchema = z.enum(
   AFENDA_COLOR_MODE_PREFERENCES
@@ -322,7 +338,7 @@ export const afendaUserBrandingContractSchema = z
   .object({
     description: z.string().trim().min(1),
     emptyPreferences: afendaUserBrandingPreferencesSchema,
-    governanceReferences: z.array(z.string().trim().min(1)).min(1).readonly(),
+    governanceReferences: governanceReferencesSchema,
     id: z.literal(AFENDA_USER_BRANDING_CONTRACT_ID),
     parentContractId: z.literal(AFENDA_TENANT_BRANDING_CONTRACT_ID),
     version: z.literal(AFENDA_USER_BRANDING_CONTRACT_VERSION),
@@ -330,10 +346,8 @@ export const afendaUserBrandingContractSchema = z
   .strict()
   .refine(
     (contract) =>
-      contract.governanceReferences.includes(
-        "AFENDA:tenant-branding-contract"
-      ) &&
-      contract.governanceReferences.includes("AFENDA:security-ui-contract"),
+      contract.governanceReferences.includes(AFENDA_GOV_TENANT_BRANDING) &&
+      contract.governanceReferences.includes(AFENDA_GOV_SECURITY_UI),
     "User branding must inherit tenant branding and security-ui governance"
   );
 

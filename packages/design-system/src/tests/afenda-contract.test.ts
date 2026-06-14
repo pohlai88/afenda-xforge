@@ -43,6 +43,7 @@ import {
   AFENDA_DENSITY_TOKEN_NAMES,
   AFENDA_DESIGN_SYSTEM_ID,
   AFENDA_DESIGN_SYSTEM_PUBLIC_EXPORTS,
+  AFENDA_GLOBALS_CSS_BASE_THEME_PRESET,
   AFENDA_ERP_CATALOG_MODULE_ENTRIES,
   AFENDA_ERP_MODULE_LANE_DEFAULT_LANE,
   AFENDA_ERP_MODULE_LANE_DEFAULTS,
@@ -63,12 +64,12 @@ import {
   AFENDA_FORM_VARIANT_STATES,
   AFENDA_HUE_RESERVATION_CONTRACT_ID,
   AFENDA_HUE_RESERVATION_GOVERNANCE_REFERENCES,
-  AFENDA_HUE_RESERVATION_POLICY_ID,
   AFENDA_LANE_COLOR_SCALE_FIELDS,
   AFENDA_MIN_HUE_SEPARATION,
   AFENDA_MODULE_LANE_CATALOG_ID,
   AFENDA_MODULE_LANE_GOVERNANCE_REFERENCES,
   AFENDA_MODULE_LANE_PREFIX_RULES,
+  AFENDA_PLATFORM_DEFAULT_THEME_PRESET,
   AFENDA_QUALITY_GATE_CONTRACT_ID,
   AFENDA_QUALITY_GATE_STATUSES,
   AFENDA_RADIUS_GOVERNANCE_REFERENCES,
@@ -107,8 +108,8 @@ import {
   AFENDA_TENANT_BRANDING_DEFERRED_CUSTOMIZATION_KEYS,
   AFENDA_TENANT_BRANDING_GOVERNANCE_REFERENCES,
   AFENDA_TENANT_BRANDING_IMPLEMENTED_CUSTOMIZATION_KEYS,
+  AFENDA_TENANT_DEFAULT_THEME_PRESET,
   AFENDA_THEME_PRESET_NAMES,
-  AFENDA_THEME_PRESETS,
   AFENDA_USER_BRANDING_CONTRACT_ID,
   AFENDA_USER_BRANDING_GOVERNANCE_REFERENCES,
   AFENDA_VIOLATION_CONTRACT_ID,
@@ -244,14 +245,17 @@ import {
   AFENDA_ROUTE_STATE_RULES,
   AFENDA_SECURITY_UI_RULES,
   AFENDA_SEMANTICS_RULES,
-  AFENDA_TENANT_CONTEXT_RULES,
+  AFENDA_SCOPE_INTEGRITY_RULES,
   AFENDA_THEMING_RULES,
   AFENDA_TOUCH_LAYOUT_RULES,
   AFENDA_TYPOGRAPHY_RULES,
   AFENDA_VISUAL_DESIGN_RULES,
 } from "../contracts/afenda/rules";
+import * as governanceReferenceCatalog from "../contracts/afenda/catalogs/governance-reference.catalog";
 import {
+  collectRegisteredGovernanceReferenceIds,
   DESIGN_SYSTEM_REGISTRY_ENTRY_PATTERN,
+  defineGovernanceReferences,
   defineRegistry,
   designSystemRegistryEntrySchema,
   validateDesignSystemRegistry,
@@ -364,6 +368,44 @@ test("design system registry schema validates canonical registry entries", () =>
   ]);
 });
 
+test("governance reference schema rejects duplicate references", () => {
+  assert.throws(() =>
+    defineGovernanceReferences([
+      "AFENDA:design-system-contract",
+      "AFENDA:design-system-contract",
+    ])
+  );
+  assert.deepEqual(
+    defineGovernanceReferences([
+      "AFENDA:design-system-contract",
+      "AFENDA:token-ui-contract",
+    ]),
+    ["AFENDA:design-system-contract", "AFENDA:token-ui-contract"]
+  );
+});
+
+test("runtime rule references resolve to registered governance catalog ids", () => {
+  const knownIds = collectRegisteredGovernanceReferenceIds(
+    governanceReferenceCatalog
+  );
+
+  for (const rule of AFENDA_RULE_REGISTRY) {
+    for (const reference of rule.references ?? []) {
+      if (
+        !reference.startsWith("AFENDA:") &&
+        !reference.startsWith("XFORGE:")
+      ) {
+        continue;
+      }
+
+      assert.ok(
+        knownIds.has(reference),
+        `Rule ${rule.id} references unregistered governance id ${reference}`
+      );
+    }
+  }
+});
+
 test("design system registry schema rejects invalid registry entries", () => {
   assert.throws(() => validateDesignSystemRegistry([]));
   assert.throws(() => validateDesignSystemRegistry(["Button"]));
@@ -415,13 +457,44 @@ test("afenda design system contract validates as canonical authority", () => {
     afendaDesignSystemContract.runtimeReference.id,
     AFENDA_RUNTIME_REFERENCE_ID
   );
-  assert.equal(afendaDesignSystemContract.defaults.themePreset, "vercel-geist");
-  assert.deepEqual([...AFENDA_THEME_PRESETS], [...AFENDA_THEME_PRESET_NAMES]);
+  assert.equal(
+    afendaDesignSystemContract.defaults.themePreset,
+    AFENDA_PLATFORM_DEFAULT_THEME_PRESET
+  );
+  assert.equal(AFENDA_PLATFORM_DEFAULT_THEME_PRESET, "vercel-geist");
   assert.ok(
     afendaDesignSystemContract.governance.principles.some((principle) =>
       principle.includes("old token contracts are migration inputs")
     )
   );
+  assert.ok(
+    afendaDesignSystemContract.governance.principles.some(
+      (principle) =>
+        principle.includes("vercel-geist") &&
+        principle.includes("afenda") &&
+        principle.includes("globals.css")
+    )
+  );
+});
+
+test("afenda theme preset defaults are intentionally split across platform tenant and globals css", () => {
+  assert.equal(AFENDA_PLATFORM_DEFAULT_THEME_PRESET, "vercel-geist");
+  assert.equal(AFENDA_TENANT_DEFAULT_THEME_PRESET, "afenda");
+  assert.equal(AFENDA_GLOBALS_CSS_BASE_THEME_PRESET, "afenda");
+  assert.notEqual(
+    AFENDA_PLATFORM_DEFAULT_THEME_PRESET,
+    AFENDA_TENANT_DEFAULT_THEME_PRESET
+  );
+  assert.equal(
+    afendaDesignSystemContract.defaults.themePreset,
+    AFENDA_PLATFORM_DEFAULT_THEME_PRESET
+  );
+  assert.equal(
+    afendaTenantBrandingContract.defaults.themePreset,
+    AFENDA_TENANT_DEFAULT_THEME_PRESET
+  );
+  assert.match(afendaTenantBrandingContract.description, /vercel-geist/);
+  assert.match(afendaDesignSystemContract.description, /vercel-geist/);
 });
 
 test("afenda tenant branding contract governs safe customization only", () => {
@@ -431,7 +504,10 @@ test("afenda tenant branding contract governs safe customization only", () => {
     afendaTenantBrandingContract.id,
     AFENDA_TENANT_BRANDING_CONTRACT_ID
   );
-  assert.equal(afendaTenantBrandingContract.defaults.themePreset, "afenda");
+  assert.equal(
+    afendaTenantBrandingContract.defaults.themePreset,
+    AFENDA_TENANT_DEFAULT_THEME_PRESET
+  );
   assert.ok(
     AFENDA_TENANT_BRANDING_GOVERNANCE_REFERENCES.includes(
       "AFENDA:tenant-context-contract"
@@ -692,10 +768,6 @@ test("afenda hue reservation contract governs visual semantic separation", () =>
     afendaHueReservationContract.id,
     AFENDA_HUE_RESERVATION_CONTRACT_ID
   );
-  assert.equal(
-    afendaHueReservationContract.id,
-    AFENDA_HUE_RESERVATION_POLICY_ID
-  );
   assert.equal(AFENDA_COLOR_HUE_SYSTEM.status.destructive, 27);
   assert.equal(AFENDA_COLOR_HUE_SYSTEM.lanes.money, 160);
   assert.equal(AFENDA_MIN_HUE_SEPARATION.brandVsStatus, 10);
@@ -945,7 +1017,7 @@ test("afenda accessibility rules are extracted and complete", () => {
   );
   assert.deepEqual(
     getAfendaRuntimeRule("accessibility.icon-button-label").references,
-    ["WCAG:4.1.2", "WCAG:2.4.6"]
+    ["AFENDA:accessibility-contract", "WCAG:4.1.2", "WCAG:2.4.6"]
   );
   assert.equal(
     getAfendaRuntimeRule("accessibility.icon-button-label").enforcement,
@@ -958,7 +1030,7 @@ test("afenda accessibility rules are extracted and complete", () => {
   });
   assert.deepEqual(
     getAfendaRuntimeRule("accessibility.text-contrast").references,
-    ["APCA", "WCAG:1.4.3", "WCAG:1.4.11"]
+    ["AFENDA:accessibility-contract", "APCA", "WCAG:1.4.3", "WCAG:1.4.11"]
   );
   assert.equal(
     getAfendaRuntimeRule("accessibility.text-contrast").enforcement,
@@ -1114,11 +1186,11 @@ test("afenda focus rules are extracted and complete", () => {
   assert.equal(getAfendaRuntimeRule("focus.visible-focus").severity, "error");
   assert.deepEqual(
     getAfendaRuntimeRule("focus.focus-appearance-minimum").references,
-    ["WCAG:2.4.13", "WCAG:1.4.11"]
+    ["AFENDA:focus-contract", "WCAG:2.4.13", "WCAG:1.4.11"]
   );
   assert.deepEqual(
     getAfendaRuntimeRule("focus.logical-focus-order").references,
-    ["WCAG:2.4.3"]
+    ["AFENDA:focus-contract", "WCAG:2.4.3"]
   );
   assert.equal(
     getAfendaRuntimeRule("focus.no-outline-none-without-replacement")
@@ -1136,7 +1208,7 @@ test("afenda focus rules are extracted and complete", () => {
   );
   assert.deepEqual(
     getAfendaRuntimeRule("focus.skip-link-visible-on-focus").references,
-    ["WCAG:2.4.1", "WCAG:2.4.7"]
+    ["AFENDA:focus-contract", "WCAG:2.4.1", "WCAG:2.4.7"]
   );
   assert.ok(AFENDA_FOCUS_RULES.every((rule) => rule.rationale.length > 0));
 });
@@ -1169,19 +1241,23 @@ test("afenda interaction rules are extracted and complete", () => {
   );
   assert.deepEqual(
     getAfendaRuntimeRule("interaction.not-hover-only").references,
-    ["WCAG:1.4.13", "WCAG:2.1.1"]
+    ["AFENDA:interaction-contract", "WCAG:1.4.13", "WCAG:2.1.1"]
   );
   assert.deepEqual(
     getAfendaRuntimeRule("interaction.hover-focus-content").references,
-    ["WCAG:1.4.13"]
+    ["AFENDA:interaction-contract", "WCAG:1.4.13"]
   );
   assert.deepEqual(
     getAfendaRuntimeRule("interaction.pointer-cancellation").references,
-    ["WCAG:2.5.2"]
+    ["AFENDA:interaction-contract", "WCAG:2.5.2"]
   );
   assert.deepEqual(
     getAfendaRuntimeRule("interaction.target-size-minimum").references,
-    ["WCAG:2.5.8"]
+    ["AFENDA:interaction-contract", "WCAG:2.5.8"]
+  );
+  assert.deepEqual(
+    getAfendaRuntimeRule("interaction.drag-selection-control").references,
+    ["AFENDA:interaction-contract"]
   );
   assert.equal(
     getAfendaRuntimeRule("interaction.state-feedback").severity,
@@ -1243,6 +1319,7 @@ test("afenda forms rules are extracted and complete", () => {
     "onPaste preventDefault",
   ]);
   assert.deepEqual(getAfendaRuntimeRule("forms.paste-allowed").references, [
+    "AFENDA:forms-contract",
     "WCAG:3.3.8",
     "WCAG:3.3.7",
   ]);
@@ -1252,19 +1329,23 @@ test("afenda forms rules are extracted and complete", () => {
   );
   assert.deepEqual(
     getAfendaRuntimeRule("forms.error-summary-focus").references,
-    ["WCAG:3.3.1", "WCAG:3.3.3", "WCAG:2.4.3"]
+    ["AFENDA:forms-contract", "WCAG:3.3.1", "WCAG:3.3.3", "WCAG:2.4.3"]
   );
   assert.deepEqual(
     getAfendaRuntimeRule("forms.help-text-association").references,
-    ["WCAG:1.3.1", "WCAG:3.3.2"]
+    ["AFENDA:forms-contract", "WCAG:1.3.1", "WCAG:3.3.2"]
   );
   assert.deepEqual(
     getAfendaRuntimeRule("forms.error-message-association").references,
-    ["WCAG:3.3.1", "WCAG:4.1.3"]
+    ["AFENDA:forms-contract", "WCAG:3.3.1", "WCAG:4.1.3"]
   );
   assert.deepEqual(
     getAfendaRuntimeRule("forms.destructive-submit-confirmation").references,
-    ["WCAG:3.3.4", "XFORGE:mutation-pipeline"]
+    ["AFENDA:forms-contract", "WCAG:3.3.4", "XFORGE:mutation-pipeline"]
+  );
+  assert.deepEqual(
+    getAfendaRuntimeRule("forms.server-validation-finality").references,
+    ["AFENDA:forms-contract", "XFORGE:mutation-pipeline"]
   );
   assert.equal(
     getAfendaRuntimeRule("forms.server-validation-finality").severity,
@@ -1301,7 +1382,7 @@ test("afenda route state rules are extracted and complete", () => {
   );
   assert.deepEqual(
     getAfendaRuntimeRule("route-state.unsaved-changes-guard").references,
-    ["WCAG:3.3.4"]
+    ["AFENDA:route-state-contract", "WCAG:3.3.4"]
   );
   assert.equal(
     getAfendaRuntimeRule("route-state.sort-state").enforcement,
@@ -2207,25 +2288,25 @@ test("afenda security UI rules are extracted and complete", () => {
   );
 });
 
-test("afenda tenant context rules are extracted and complete", () => {
+test("afenda scope integrity rules are extracted and complete", () => {
   const expectedRuleIds = [
-    "tenant-context.active-scope-visible",
-    "tenant-context.route-scope-consistency",
-    "tenant-context.mutation-scope-confirmation",
-    "tenant-context.switch-resets-sensitive-state",
-    "tenant-context.no-cross-tenant-data-leakage",
-    "tenant-context.cache-key-is-scoped",
-    "tenant-context.permission-scope-alignment",
-    "tenant-context.export-scope",
-    "tenant-context.realtime-events-scoped",
-    "tenant-context.background-job-scope",
-    "tenant-context.audit-scope-captured",
-    "tenant-context.impersonation-scope",
-    "tenant-context.scope-aware-empty-states",
+    "scope-integrity.active-scope-visible",
+    "scope-integrity.route-scope-consistency",
+    "scope-integrity.mutation-scope-confirmation",
+    "scope-integrity.switch-resets-sensitive-state",
+    "scope-integrity.no-cross-tenant-data-leakage",
+    "scope-integrity.cache-key-is-scoped",
+    "scope-integrity.permission-scope-alignment",
+    "scope-integrity.export-scope",
+    "scope-integrity.realtime-events-scoped",
+    "scope-integrity.background-job-scope",
+    "scope-integrity.audit-scope-captured",
+    "scope-integrity.impersonation-scope",
+    "scope-integrity.scope-aware-empty-states",
   ];
 
   assert.deepEqual(
-    AFENDA_TENANT_CONTEXT_RULES.map((rule) => rule.id),
+    AFENDA_SCOPE_INTEGRITY_RULES.map((rule) => rule.id),
     expectedRuleIds
   );
   assert.ok(
@@ -2234,11 +2315,11 @@ test("afenda tenant context rules are extracted and complete", () => {
     )
   );
   assert.equal(
-    getAfendaRuntimeRule("tenant-context.active-scope-visible").severity,
+    getAfendaRuntimeRule("scope-integrity.active-scope-visible").severity,
     "error"
   );
   assert.deepEqual(
-    getAfendaRuntimeRule("tenant-context.no-cross-tenant-data-leakage")
+    getAfendaRuntimeRule("scope-integrity.no-cross-tenant-data-leakage")
       .forbidden,
     [
       "mixed tenant data without scope boundary",
@@ -2247,7 +2328,7 @@ test("afenda tenant context rules are extracted and complete", () => {
     ]
   );
   assert.deepEqual(
-    getAfendaRuntimeRule("tenant-context.route-scope-consistency").references,
+    getAfendaRuntimeRule("scope-integrity.route-scope-consistency").references,
     [
       "AFENDA:tenant-context-contract",
       "AFENDA:scoped-route-contract",
@@ -2255,7 +2336,7 @@ test("afenda tenant context rules are extracted and complete", () => {
     ]
   );
   assert.deepEqual(
-    getAfendaRuntimeRule("tenant-context.cache-key-is-scoped").references,
+    getAfendaRuntimeRule("scope-integrity.cache-key-is-scoped").references,
     [
       "AFENDA:tenant-context-contract",
       "AFENDA:scope-cache-contract",
@@ -2263,7 +2344,7 @@ test("afenda tenant context rules are extracted and complete", () => {
     ]
   );
   assert.deepEqual(
-    getAfendaRuntimeRule("tenant-context.export-scope").references,
+    getAfendaRuntimeRule("scope-integrity.export-scope").references,
     [
       "AFENDA:tenant-context-contract",
       "AFENDA:scoped-export-contract",
@@ -2272,7 +2353,7 @@ test("afenda tenant context rules are extracted and complete", () => {
     ]
   );
   assert.deepEqual(
-    getAfendaRuntimeRule("tenant-context.realtime-events-scoped").references,
+    getAfendaRuntimeRule("scope-integrity.realtime-events-scoped").references,
     [
       "AFENDA:tenant-context-contract",
       "AFENDA:realtime-scope-contract",
@@ -2280,7 +2361,7 @@ test("afenda tenant context rules are extracted and complete", () => {
     ]
   );
   assert.deepEqual(
-    getAfendaRuntimeRule("tenant-context.background-job-scope").references,
+    getAfendaRuntimeRule("scope-integrity.background-job-scope").references,
     [
       "AFENDA:tenant-context-contract",
       "AFENDA:background-job-scope-contract",
@@ -2288,7 +2369,7 @@ test("afenda tenant context rules are extracted and complete", () => {
     ]
   );
   assert.deepEqual(
-    getAfendaRuntimeRule("tenant-context.audit-scope-captured").references,
+    getAfendaRuntimeRule("scope-integrity.audit-scope-captured").references,
     [
       "AFENDA:tenant-context-contract",
       "AFENDA:audit-contract",
@@ -2296,7 +2377,7 @@ test("afenda tenant context rules are extracted and complete", () => {
     ]
   );
   assert.deepEqual(
-    getAfendaRuntimeRule("tenant-context.impersonation-scope").references,
+    getAfendaRuntimeRule("scope-integrity.impersonation-scope").references,
     [
       "AFENDA:tenant-context-contract",
       "AFENDA:admin-shell-contract",
@@ -2304,12 +2385,12 @@ test("afenda tenant context rules are extracted and complete", () => {
     ]
   );
   assert.ok(
-    AFENDA_TENANT_CONTEXT_RULES.every(
+    AFENDA_SCOPE_INTEGRITY_RULES.every(
       (rule) => rule.category === "scope-integrity"
     )
   );
   assert.ok(
-    AFENDA_TENANT_CONTEXT_RULES.every((rule) => rule.rationale.length > 0)
+    AFENDA_SCOPE_INTEGRITY_RULES.every((rule) => rule.rationale.length > 0)
   );
 });
 
@@ -4426,7 +4507,7 @@ test("afenda legacy theme preset adapter maps only governed theme inputs", () =>
   );
   assert.deepEqual(
     [...AFENDA_LEGACY_THEME_PRESET_CANONICAL_NAMES],
-    [...AFENDA_THEME_PRESETS]
+    [...AFENDA_THEME_PRESET_NAMES]
   );
   assert.deepEqual(
     [...AFENDA_LEGACY_THEME_PRESET_REJECTED_AUTHORITY_PATHS],
@@ -5148,6 +5229,11 @@ test("afenda manifest replaces old master branch export", () => {
     )
   );
   assert.ok(
+    afendaDesignSystemManifest.governanceReferences.includes(
+      "AFENDA:globals-css-contract"
+    )
+  );
+  assert.ok(
     afendaDesignSystemManifest.replaces.includes(
       "@repo/design-system/contracts/afenda/master"
     )
@@ -5157,7 +5243,10 @@ test("afenda manifest replaces old master branch export", () => {
 test("afenda manifest public exports match package contract subpaths", () => {
   const packageJson = readPackageJson();
   const contractExports = Object.keys(packageJson.exports)
-    .filter((exportKey) => exportKey.startsWith("./contracts"))
+    .filter(
+      (exportKey) =>
+        exportKey.startsWith("./contracts") || exportKey === "./presentation"
+    )
     .map(resolvePackageExportSubpath)
     .sort();
 

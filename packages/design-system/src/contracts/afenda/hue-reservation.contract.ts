@@ -1,18 +1,17 @@
 import { z } from "zod";
 
-import { defineRegistry } from "../registry.schema";
+import { defineRegistry, governanceReferencesSchema } from "../registry.schema";
+import { AFENDA_SURFACE_SEMANTIC_GOVERNANCE_REFERENCES } from "./catalogs/governance-reference.catalog";
 import {
   AFENDA_CHART_COLOR_TOKENS,
   AFENDA_CHART_HUES as CHART_HUES,
-} from "./registries/chart.registry";
-import type { AfendaThemePresetName as ThemePresetName } from "./registries/theme-preset.registry";
-import { AFENDA_THEME_PRESET_REGISTRY as THEME_PRESETS } from "./registries/theme-preset.registry";
-import { AFENDA_ERP_VISUAL_LANES as ERP_VISUAL_LANES } from "./registries/visual-lane.registry";
+  AFENDA_ERP_VISUAL_LANES as ERP_VISUAL_LANES,
+  AFENDA_THEME_PRESET_REGISTRY as THEME_PRESETS,
+  type AfendaThemePresetName as ThemePresetName,
+} from "./registries";
 
 export const AFENDA_HUE_RESERVATION_CONTRACT_ID =
   "afenda.hue-reservation-contract" as const;
-export const AFENDA_HUE_RESERVATION_POLICY_ID =
-  AFENDA_HUE_RESERVATION_CONTRACT_ID;
 export const AFENDA_HUE_RESERVATION_CONTRACT_VERSION = "0.1.0" as const;
 
 export const AFENDA_COLOR_HUE_SYSTEM = {
@@ -76,11 +75,8 @@ export const AFENDA_HUE_RESERVATION_CATEGORIES = defineRegistry([
   "chart",
 ]);
 
-export const AFENDA_HUE_RESERVATION_GOVERNANCE_REFERENCES = [
-  "AFENDA:design-system-contract",
-  "AFENDA:theming-contract",
-  "AFENDA:visual-design-contract",
-] as const;
+export const AFENDA_HUE_RESERVATION_GOVERNANCE_REFERENCES =
+  AFENDA_SURFACE_SEMANTIC_GOVERNANCE_REFERENCES;
 
 export type AfendaColorHueFamily =
   (typeof AFENDA_COLOR_HUE_FAMILIES)[number];
@@ -146,7 +142,7 @@ export const afendaHueReservationContractSchema = z
   .object({
     categories: z.array(afendaHueFamilyCategorySchema).min(1).readonly(),
     families: z.array(afendaColorHueFamilySchema).min(1).readonly(),
-    governanceReferences: z.array(z.string().trim().min(1)).min(1).readonly(),
+    governanceReferences: governanceReferencesSchema,
     id: z.literal(AFENDA_HUE_RESERVATION_CONTRACT_ID),
     minimumSeparation: z
       .object({

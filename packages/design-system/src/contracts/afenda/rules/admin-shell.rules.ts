@@ -1,4 +1,14 @@
 import type { AfendaRuntimeRule } from "../runtime-reference.contract";
+import {
+  AFENDA_GOV_ADMIN_SHELL,
+  AFENDA_GOV_AUDIT,
+  AFENDA_GOV_MUTATION,
+  AFENDA_GOV_SECURITY,
+  AFENDA_GOV_SECURITY_UI,
+  XFORGE_GOV_AUDIT_EVENTS,
+  XFORGE_GOV_PERMISSION_PIPELINE,
+  XFORGE_GOV_TENANT_COMPANY_SCOPE,
+} from "../catalogs/governance-reference.catalog";
 
 const ADMIN_SHELL = "admin-shell" as const;
 const ERROR = "error" as const;
@@ -18,7 +28,7 @@ export const AFENDA_ADMIN_SHELL_RULES = [
       "Admin, support, impersonation, and elevated contexts must display persistent visible context indicators.",
     remediation:
       "Show persistent chrome, banner, or badge that identifies elevated mode, active actor, tenant, company, and access scope.",
-    references: ["AFENDA:admin-shell-contract", "AFENDA:security-ui-contract"],
+    references: [AFENDA_GOV_ADMIN_SHELL, AFENDA_GOV_SECURITY_UI],
     enforcement: MANUAL,
   },
   {
@@ -32,7 +42,7 @@ export const AFENDA_ADMIN_SHELL_RULES = [
       "Impersonation and support sessions must provide a persistent, obvious exit affordance.",
     remediation:
       "Render an always-visible exit control in shell chrome and confirm return to the operator context.",
-    references: ["AFENDA:admin-shell-contract", "XFORGE:audit-events"],
+    references: [AFENDA_GOV_ADMIN_SHELL, XFORGE_GOV_AUDIT_EVENTS],
     enforcement: MANUAL,
   },
   {
@@ -46,7 +56,7 @@ export const AFENDA_ADMIN_SHELL_RULES = [
       "Tenant and company switchers must show the active scope and require clear confirmation for high-impact scope changes.",
     remediation:
       "Display active tenant/company in shell chrome and reset or confirm scoped work when switching context.",
-    references: ["AFENDA:admin-shell-contract", "XFORGE:tenant-company-scope"],
+    references: [AFENDA_GOV_ADMIN_SHELL, XFORGE_GOV_TENANT_COMPANY_SCOPE],
     enforcement: MANUAL,
   },
   {
@@ -60,7 +70,7 @@ export const AFENDA_ADMIN_SHELL_RULES = [
       "Admin navigation must reflect grants, roles, and tenant/company scope.",
     remediation:
       "Hide unavailable admin routes or render disabled entries with explanation while enforcing authorization server-side.",
-    references: ["AFENDA:admin-shell-contract", "XFORGE:permission-pipeline"],
+    references: [AFENDA_GOV_ADMIN_SHELL, XFORGE_GOV_PERMISSION_PIPELINE],
     enforcement: HYBRID,
   },
   {
@@ -74,7 +84,7 @@ export const AFENDA_ADMIN_SHELL_RULES = [
       "Dangerous admin actions must be visually separated, clearly labeled, and protected by confirmation or review.",
     remediation:
       "Group destructive or irreversible actions into governed danger zones with target naming, consequence copy, and confirmation.",
-    references: ["AFENDA:admin-shell-contract", "AFENDA:mutation-contract", "WCAG:3.3.4"],
+    references: [AFENDA_GOV_ADMIN_SHELL, AFENDA_GOV_MUTATION, "WCAG:3.3.4"],
     enforcement: MANUAL,
   },
   {
@@ -88,7 +98,7 @@ export const AFENDA_ADMIN_SHELL_RULES = [
       "Sensitive admin surfaces should expose a path to relevant audit history where appropriate.",
     remediation:
       "Add audit log links, recent activity panels, or event history affordances near high-impact admin controls.",
-    references: ["AFENDA:admin-shell-contract", "AFENDA:audit-contract"],
+    references: [AFENDA_GOV_ADMIN_SHELL, AFENDA_GOV_AUDIT],
     enforcement: MANUAL,
   },
   {
@@ -102,7 +112,7 @@ export const AFENDA_ADMIN_SHELL_RULES = [
       "Sensitive admin actions should capture an operator reason where policy requires it.",
     remediation:
       "Prompt for a concise reason before impersonation, overrides, permission changes, or high-impact destructive actions.",
-    references: ["AFENDA:admin-shell-contract", "AFENDA:audit-contract"],
+    references: [AFENDA_GOV_ADMIN_SHELL, AFENDA_GOV_AUDIT],
     enforcement: MANUAL,
   },
   {
@@ -116,7 +126,7 @@ export const AFENDA_ADMIN_SHELL_RULES = [
       "Break-glass admin access must require explicit reason, persistent visual indication, and audit capture.",
     remediation:
       "Require reason entry, show active break-glass banner, record start/end audit events, and provide a clear exit path.",
-    references: ["AFENDA:admin-shell-contract", "AFENDA:audit-contract", "AFENDA:security-ui-contract"],
+    references: [AFENDA_GOV_ADMIN_SHELL, AFENDA_GOV_AUDIT, AFENDA_GOV_SECURITY_UI],
     enforcement: MANUAL,
   },
   {
@@ -130,7 +140,7 @@ export const AFENDA_ADMIN_SHELL_RULES = [
       "Admin shells must clearly identify the active environment where environment confusion can cause production impact.",
     remediation:
       "Show persistent environment badges or banners and add extra friction for production destructive actions.",
-    references: ["AFENDA:admin-shell-contract", "AFENDA:security-ui-contract"],
+    references: [AFENDA_GOV_ADMIN_SHELL, AFENDA_GOV_SECURITY_UI],
     enforcement: MANUAL,
   },
 ] as const satisfies readonly AfendaRuntimeRule[];

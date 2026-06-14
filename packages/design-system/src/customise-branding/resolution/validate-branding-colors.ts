@@ -1,4 +1,9 @@
-import { AFENDA_CHART_HUES as CHART_HUES } from "../../contracts/afenda/registries/chart.registry";
+import {
+  AFENDA_CHART_HUES as CHART_HUES,
+  AFENDA_ERP_VISUAL_LANE_BY_ID as ERP_VISUAL_LANE_BY_ID,
+  AFENDA_THEME_PRESET_REGISTRY as THEME_PRESETS,
+  type AfendaErpVisualLaneId as ErpVisualLaneId,
+} from "../../contracts/afenda/registries";
 import type {
   AfendaHueReservationEntry as HueReservationEntry,
   AfendaHueValidationResult as HueValidationResult,
@@ -9,10 +14,7 @@ import {
   validateAfendaHueReservation as validateHueReservation,
 } from "../../contracts/afenda/hue-reservation.contract";
 import type { AfendaTenantBrandingSettings as TenantBrandingSettings } from "../../contracts/afenda/customization/branding.contract";
-import { AFENDA_THEME_PRESET_REGISTRY as THEME_PRESETS } from "../../contracts/afenda/registries/theme-preset.registry";
 import type { AfendaUserBrandingPreferences as UserBrandingPreferences } from "../../contracts/afenda/customization/branding.contract";
-import type { AfendaErpVisualLaneId as ErpVisualLaneId } from "../../contracts/afenda/registries/visual-lane.registry";
-import { AFENDA_ERP_VISUAL_LANE_BY_ID as ERP_VISUAL_LANE_BY_ID } from "../../contracts/afenda/registries/visual-lane.registry";
 import { resolveLaneScale } from "./resolve-tenant-branding";
 
 export type BrandingColorValidationError = {

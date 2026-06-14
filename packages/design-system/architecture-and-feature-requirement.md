@@ -81,7 +81,7 @@
 | ERP lanes | money 160°, people 330°, goods 95°, operations 212°, customer 272°, governance 305°, intelligence 184° |
 | Charts (fixed) | chart-1 198°, chart-2 285°, chart-3 72°, chart-4 155°, chart-5 25°, chart-6 230°, chart-7 330° |
 
-Validation commands: `pnpm --filter @repo/design-system check:hue-reservation`, `check:color-contrast`, `globals:css:check`.
+Validation commands: `pnpm --filter @repo/design-system check:hue-reservation`, `check:color-contrast`, `verify:globals-css`.
 
 ---
 
@@ -170,7 +170,7 @@ This package already contains contracts, tokens, variants, generated CSS, script
 3. `pnpm --filter @repo/design-system test`
 4. `pnpm --filter @repo/design-system check:hue-reservation`
 5. `pnpm --filter @repo/design-system check:color-contrast`
-6. `pnpm --filter @repo/design-system globals:css:check`
+6. `pnpm --filter @repo/design-system verify:globals-css`
 
 These commands define package verification. They were not re-run as part of this documentation standardization pass.
 

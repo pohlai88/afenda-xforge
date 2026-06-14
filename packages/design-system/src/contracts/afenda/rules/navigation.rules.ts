@@ -1,4 +1,7 @@
 import type { AfendaRuntimeRule } from "../runtime-reference.contract";
+import {
+  AFENDA_GOV_NAVIGATION,
+} from "../catalogs/governance-reference.catalog";
 
 const NAVIGATION = "navigation" as const;
 const ERROR = "error" as const;
@@ -17,7 +20,7 @@ export const AFENDA_NAVIGATION_RULES = [
       "Navigation needs real link semantics for keyboard behavior, context menus, prefetching, and assistive technology.",
     requirement: "Navigation must use link semantics instead of action controls.",
     remediation: "Use a link component or anchor with an href for route changes.",
-    references: ["AFENDA:navigation-contract", "WCAG:2.4.4", "WCAG:4.1.2"],
+    references: [AFENDA_GOV_NAVIGATION, "WCAG:2.4.4", "WCAG:4.1.2"],
     enforcement: HYBRID,
   },
   {
@@ -31,7 +34,7 @@ export const AFENDA_NAVIGATION_RULES = [
       "Current page, step, tab, or section must be visually and programmatically indicated.",
     remediation:
       "Use visible active styling and aria-current=\"page\", aria-current=\"step\", or equivalent where the item represents current location.",
-    references: ["AFENDA:navigation-contract", "WCAG:2.4.8", "WCAG:1.3.1"],
+    references: [AFENDA_GOV_NAVIGATION, "WCAG:2.4.8", "WCAG:1.3.1"],
     enforcement: MANUAL,
   },
   {
@@ -45,7 +48,7 @@ export const AFENDA_NAVIGATION_RULES = [
       "Skip links must target the main content landmark with a stable id.",
     remediation:
       "Ensure the skip link href points to the main element id, for example href=\"#main\" and <main id=\"main\">.",
-    references: ["AFENDA:navigation-contract", "WCAG:2.4.1"],
+    references: [AFENDA_GOV_NAVIGATION, "WCAG:2.4.1"],
     enforcement: HYBRID,
   },
   {
@@ -59,7 +62,7 @@ export const AFENDA_NAVIGATION_RULES = [
       "Application shells and pages must expose semantic landmarks for primary regions.",
     remediation:
       "Use semantic header, nav, main, aside, and footer elements with accessible labels where regions repeat.",
-    references: ["AFENDA:navigation-contract", "WCAG:1.3.1", "WCAG:2.4.1"],
+    references: [AFENDA_GOV_NAVIGATION, "WCAG:1.3.1", "WCAG:2.4.1"],
     enforcement: HYBRID,
   },
   {
@@ -73,7 +76,7 @@ export const AFENDA_NAVIGATION_RULES = [
       "Multiple navigation landmarks on the same page must have unique accessible labels.",
     remediation:
       "Add concise aria-label values such as Primary navigation, Secondary navigation, Breadcrumb, or Footer navigation.",
-    references: ["AFENDA:navigation-contract", "WCAG:1.3.1", "WCAG:2.4.6"],
+    references: [AFENDA_GOV_NAVIGATION, "WCAG:1.3.1", "WCAG:2.4.6"],
     enforcement: MANUAL,
   },
   {
@@ -87,7 +90,7 @@ export const AFENDA_NAVIGATION_RULES = [
       "Breadcrumb navigation must expose hierarchy and identify the current page.",
     remediation:
       "Use a labeled nav region, ordered list semantics, real links for ancestors, and aria-current on the current page.",
-    references: ["AFENDA:navigation-contract", "WCAG:2.4.8", "WCAG:1.3.1"],
+    references: [AFENDA_GOV_NAVIGATION, "WCAG:2.4.8", "WCAG:1.3.1"],
     enforcement: HYBRID,
   },
   {
@@ -102,7 +105,7 @@ export const AFENDA_NAVIGATION_RULES = [
     remediation:
       "Use a tested menu primitive for application menus and avoid role=menu for ordinary navigation link lists.",
     references: [
-      "AFENDA:navigation-contract",
+      AFENDA_GOV_NAVIGATION,
       "WCAG:2.1.1",
       "WCAG:4.1.2",
       "WAI-ARIA-APG:menu-button",

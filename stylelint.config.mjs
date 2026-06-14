@@ -47,6 +47,9 @@ export default {
     "selector-class-pattern": null,
     "value-keyword-case": null,
 
+    // Afenda token + Tailwind v4 names (--text-sm--line-height, --color-lane-*); covered by afenda/* rules
+    "custom-property-pattern": null,
+
     // Ban legacy color functions in declarations (token sources use oklch via custom rule)
     "function-disallowed-list": ["rgb", "hsl", "hsla"],
     "color-no-hex": true,

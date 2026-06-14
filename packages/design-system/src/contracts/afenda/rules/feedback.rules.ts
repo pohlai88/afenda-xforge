@@ -1,4 +1,9 @@
 import type { AfendaRuntimeRule } from "../runtime-reference.contract";
+import {
+  AFENDA_GOV_FEEDBACK,
+  AFENDA_GOV_FORM_STATE,
+  XFORGE_GOV_MUTATION_PIPELINE,
+} from "../catalogs/governance-reference.catalog";
 
 const FEEDBACK = "feedback" as const;
 const ERROR = "error" as const;
@@ -18,7 +23,7 @@ export const AFENDA_FEEDBACK_RULES = [
       "Async operations must expose pending, success, error, and recovery states where the operation affects user work.",
     remediation:
       "Use scoped pending indicators, success confirmation, actionable error feedback, and retry or recovery affordances.",
-    references: ["AFENDA:feedback-contract", "AFENDA:form-state-contract"],
+    references: [AFENDA_GOV_FEEDBACK, AFENDA_GOV_FORM_STATE],
     enforcement: HYBRID,
   },
   {
@@ -32,7 +37,7 @@ export const AFENDA_FEEDBACK_RULES = [
       "Inline errors must be visually and programmatically associated with the affected field or item.",
     remediation:
       "Render errors near the affected control, connect them with aria-describedby, and preserve user-entered values.",
-    references: ["AFENDA:feedback-contract", "WCAG:3.3.1", "WCAG:3.3.3"],
+    references: [AFENDA_GOV_FEEDBACK, "WCAG:3.3.1", "WCAG:3.3.3"],
     enforcement: HYBRID,
   },
   {
@@ -46,7 +51,7 @@ export const AFENDA_FEEDBACK_RULES = [
       "Submission-level error summaries must be focusable and link to the affected fields or sections.",
     remediation:
       "Move focus to the error summary after failed submit and provide links or anchors to each error.",
-    references: ["AFENDA:feedback-contract", "WCAG:2.4.3", "WCAG:3.3.1"],
+    references: [AFENDA_GOV_FEEDBACK, "WCAG:2.4.3", "WCAG:3.3.1"],
     enforcement: HYBRID,
   },
   {
@@ -60,7 +65,7 @@ export const AFENDA_FEEDBACK_RULES = [
       "Toasts must have appropriate duration, dismissal, priority, and persistence for the feedback type.",
     remediation:
       "Use persistent alerts for blocking errors, dismissible toasts for nonblocking updates, and avoid auto-dismiss for critical recovery instructions.",
-    references: ["AFENDA:feedback-contract", "WCAG:2.2.1", "WCAG:2.2.2"],
+    references: [AFENDA_GOV_FEEDBACK, "WCAG:2.2.1", "WCAG:2.2.2"],
     enforcement: MANUAL,
   },
   {
@@ -74,7 +79,7 @@ export const AFENDA_FEEDBACK_RULES = [
       "Blocking, destructive, validation, or high-impact errors must not be communicated only through transient toast.",
     remediation:
       "Render durable inline, alert, dialog, or summary feedback for critical failures; use toast only as supplemental feedback.",
-    references: ["AFENDA:feedback-contract", "WCAG:3.3.1", "WCAG:3.3.3"],
+    references: [AFENDA_GOV_FEEDBACK, "WCAG:3.3.1", "WCAG:3.3.3"],
     enforcement: MANUAL,
   },
   {
@@ -88,7 +93,7 @@ export const AFENDA_FEEDBACK_RULES = [
       "Feedback must use live-region priority that matches urgency and user impact.",
     remediation:
       "Use polite status announcements for noncritical updates and assertive alerts only for urgent errors requiring attention.",
-    references: ["AFENDA:feedback-contract", "WCAG:4.1.3"],
+    references: [AFENDA_GOV_FEEDBACK, "WCAG:4.1.3"],
     enforcement: HYBRID,
   },
   {
@@ -102,7 +107,7 @@ export const AFENDA_FEEDBACK_RULES = [
       "Feedback meaning must not be communicated by color alone.",
     remediation:
       "Pair color with text, icon, shape, semantic state, or explicit label.",
-    references: ["AFENDA:feedback-contract", "WCAG:1.4.1"],
+    references: [AFENDA_GOV_FEEDBACK, "WCAG:1.4.1"],
     enforcement: HYBRID,
   },
   {
@@ -116,7 +121,7 @@ export const AFENDA_FEEDBACK_RULES = [
       "Success feedback must be scoped to the operation and should not create unnecessary modal interruption.",
     remediation:
       "Use inline success, scoped toast, or updated state near the affected region instead of global blocking confirmation.",
-    references: ["AFENDA:feedback-contract"],
+    references: [AFENDA_GOV_FEEDBACK],
     enforcement: MANUAL,
   },
   {
@@ -130,7 +135,7 @@ export const AFENDA_FEEDBACK_RULES = [
       "Optimistic updates must provide rollback, reconciliation, or explicit failure state when the server rejects the operation.",
     remediation:
       "Rollback affected UI, mark the item as failed, or provide retry and conflict-resolution guidance.",
-    references: ["AFENDA:feedback-contract", "XFORGE:mutation-pipeline"],
+    references: [AFENDA_GOV_FEEDBACK, XFORGE_GOV_MUTATION_PIPELINE],
     enforcement: MANUAL,
   },
   {
@@ -144,7 +149,7 @@ export const AFENDA_FEEDBACK_RULES = [
       "Error feedback must provide a recovery path when the user can take corrective action.",
     remediation:
       "Provide retry, edit, contact support, view details, undo, or navigation to the affected record where appropriate.",
-    references: ["AFENDA:feedback-contract", "WCAG:3.3.3"],
+    references: [AFENDA_GOV_FEEDBACK, "WCAG:3.3.3"],
     enforcement: MANUAL,
   },
 ] as const satisfies readonly AfendaRuntimeRule[];

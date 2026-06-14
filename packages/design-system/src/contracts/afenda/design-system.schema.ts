@@ -5,7 +5,6 @@ import {
   AFENDA_DESIGN_SYSTEM_ID,
   AFENDA_DESIGN_SYSTEM_VERSION,
   AFENDA_FORBIDDEN_CUSTOMIZATION_KEYS,
-  AFENDA_THEME_PRESETS,
   afendaDesignSystemContract,
 } from "./design-system.contract";
 import { AFENDA_THEME_PRESET_NAMES } from "./registries/theme-preset.registry";
@@ -20,7 +19,7 @@ export const afendaAllowedCustomizationKeySchema = z.enum(
 export const afendaForbiddenCustomizationKeySchema = z.enum(
   AFENDA_FORBIDDEN_CUSTOMIZATION_KEYS
 );
-export const afendaThemePresetSchema = z.enum(AFENDA_THEME_PRESETS);
+export const afendaThemePresetSchema = z.enum(AFENDA_THEME_PRESET_NAMES);
 
 export const afendaDesignSystemContractSchema = z
   .object({
@@ -50,12 +49,6 @@ export function validateAfendaDesignSystemContract(): void {
 
   if (afendaDesignSystemContract.runtimeReference.id !== AFENDA_RUNTIME_REFERENCE_ID) {
     throw new Error("Afenda design system must bind to the runtime reference contract");
-  }
-
-  if (AFENDA_THEME_PRESETS.join("|") !== AFENDA_THEME_PRESET_NAMES.join("|")) {
-    throw new Error(
-      "AFENDA_THEME_PRESETS must derive from AFENDA_THEME_PRESET_NAMES in theme-preset.registry"
-    );
   }
 
   if (

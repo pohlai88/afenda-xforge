@@ -26,7 +26,28 @@ Merged guidance from **tailwindcss-v4**, **tailwind-validator**, and **css-archi
 3. **`@layer base`** applies semantic utilities — never nest `:root` or `.dark` inside `@layer base`.
 4. **Storybook `preview.css`** extends globals — never duplicates `@import "tailwindcss"`.
 
-Canonical entry: `packages/ui/src/styles/globals.css`
+Canonical entry: `packages/ui/src/styles/globals.css` (generated — do not edit manually)
+
+### Generation pipeline (authority)
+
+| Step | Location | Action |
+|------|----------|--------|
+| Contract | `globals-css.contract.ts` | Output path, commands, density selectors, known limits |
+| Token assembly | `src/css/tokens/css-theme.ts` | `:root`, `.dark`, density, `@theme inline`, base layer |
+| Render | `src/css/adapters/globals-css.render.ts` | Assemble CSS string from token declarations |
+| Compare | `src/css/adapters/globals-css.compare.ts` | Structural snapshot compare (diagnostics) |
+| Scan globs | `src/css/adapters/globals-css.pipeline.ts` | `@source` paths for `@repo/ui` |
+| Barrel | `src/css/adapters/globals-css.adapter.ts` | Public re-export of render + compare |
+| Generator | `scripts/generate-globals-css.mts` | Write/check artifact |
+
+```bash
+# After editing tokens
+pnpm --filter @repo/design-system globals:css
+pnpm --filter @repo/design-system verify:globals-css   # check + contract tests
+pnpm run ci:tokens                                     # full CI token gate
+```
+
+Generated CSS uses **afenda** brand fallbacks; `vercel-geist` surface semantics remain runtime (Geist Studio). Brand vars still flow through tenant `--tenant-*` CSS variables at runtime.
 
 ### ERP visual lane tokens (tenant branding)
 
@@ -120,7 +141,7 @@ Five independent palettes: **brand** (tenant preset), **lanes** (module identity
 ```bash
 pnpm --filter @repo/design-system check:hue-reservation
 pnpm --filter @repo/design-system check:color-contrast
-pnpm --filter @repo/design-system globals:css:check
+pnpm --filter @repo/design-system verify:globals-css
 pnpm run lint:tailwind-v4
 ```
 

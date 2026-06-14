@@ -1,5 +1,15 @@
 import { z } from "zod";
 
+import { defineGovernanceReferences, governanceReferencesSchema } from "../../registry.schema";
+import {
+  AFENDA_GOV_AGENT_GOVERNANCE,
+  AFENDA_GOV_ANTI_PATTERN,
+  AFENDA_GOV_AUDIT,
+  AFENDA_GOV_ADAPTER,
+  AFENDA_GOV_DESIGN_SYSTEM,
+  AFENDA_GOV_MIGRATION_BOUNDARY,
+  AFENDA_GOV_RUNTIME_REFERENCE,
+} from "../catalogs/governance-reference.catalog";
 import {
   AFENDA_CONTRACT_EXPORT_SUBPATH,
   afendaDesignSystemManifest,
@@ -17,15 +27,16 @@ export const AFENDA_LEGACY_MIGRATION_TARGETS = [
   AFENDA_CONTRACT_EXPORT_SUBPATH,
 ] as const;
 
-export const AFENDA_LEGACY_DEPRECATION_GOVERNANCE_REFERENCES = [
-  "AFENDA:design-system-contract",
-  "AFENDA:adapter-contract",
-  "AFENDA:runtime-reference-contract",
-  "AFENDA:agent-governance-contract",
-  "AFENDA:audit-contract",
-  "AFENDA:migration-boundary",
-  "AFENDA:anti-pattern-contract",
-] as const;
+export const AFENDA_LEGACY_DEPRECATION_GOVERNANCE_REFERENCES =
+  defineGovernanceReferences([
+    AFENDA_GOV_DESIGN_SYSTEM,
+    AFENDA_GOV_ADAPTER,
+    AFENDA_GOV_RUNTIME_REFERENCE,
+    AFENDA_GOV_AGENT_GOVERNANCE,
+    AFENDA_GOV_AUDIT,
+    AFENDA_GOV_MIGRATION_BOUNDARY,
+    AFENDA_GOV_ANTI_PATTERN,
+  ]);
 
 export const AFENDA_LEGACY_DEPRECATION_POLICIES = [
   "legacy-afenda-master-is-not-authority",
@@ -65,7 +76,7 @@ export const afendaLegacyDeprecationManifestSchema = z
     deprecatedAt: z.string().datetime({ offset: true }),
     deprecatedExports: z.array(z.string().trim().min(1)).min(1).readonly(),
     forbiddenImports: z.array(z.string().trim().min(1)).min(1).readonly(),
-    governanceReferences: z.array(z.string().trim().min(1)).min(1).readonly(),
+    governanceReferences: governanceReferencesSchema,
     id: z.literal(AFENDA_LEGACY_DEPRECATION_ID),
     migrationTargets: z.array(z.string().trim().min(1)).min(1).readonly(),
     migrationOwner: z.string().trim().min(1).optional(),

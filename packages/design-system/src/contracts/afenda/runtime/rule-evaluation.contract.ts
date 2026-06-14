@@ -1,5 +1,12 @@
 import { z } from "zod";
 
+import { defineGovernanceReferences } from "../../registry.schema";
+import {
+  AFENDA_GOV_EXECUTION_CONTEXT,
+  AFENDA_RUNTIME_PIPELINE_GOVERNANCE_REFERENCES,
+  XFORGE_GOV_PERMISSION_PIPELINE,
+  XFORGE_GOV_SERVER_FIRST_UI,
+} from "../catalogs/governance-reference.catalog";
 import {
   AFENDA_RUNTIME_RULE_CATEGORIES,
   AFENDA_RUNTIME_RULE_ENFORCEMENT_MODES,
@@ -71,18 +78,13 @@ export const AFENDA_RULE_EVALUATION_ACTORS = [
   "unknown",
 ] as const;
 
-export const AFENDA_RULE_EVALUATION_GOVERNANCE_REFERENCES = [
-  "AFENDA:runtime-reference-contract",
-  "AFENDA:rule-evaluation-contract",
-  "AFENDA:violation-contract",
-  "AFENDA:remediation-contract",
-  "AFENDA:agent-governance-contract",
-  "AFENDA:audit-contract",
-  "AFENDA:observability-contract",
-  "AFENDA:execution-context-contract",
-  "XFORGE:server-first-ui",
-  "XFORGE:permission-pipeline",
-] as const;
+export const AFENDA_RULE_EVALUATION_GOVERNANCE_REFERENCES =
+  defineGovernanceReferences([
+    ...AFENDA_RUNTIME_PIPELINE_GOVERNANCE_REFERENCES,
+    AFENDA_GOV_EXECUTION_CONTEXT,
+    XFORGE_GOV_SERVER_FIRST_UI,
+    XFORGE_GOV_PERMISSION_PIPELINE,
+  ]);
 
 export type AfendaRuleEvaluationStatus =
   (typeof AFENDA_RULE_EVALUATION_STATUSES)[number];

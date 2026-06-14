@@ -1,4 +1,27 @@
 import type { AfendaRuntimeRule } from "../runtime-reference.contract";
+import {
+  AFENDA_GOV_ACCESSIBILITY,
+  AFENDA_GOV_BRAND,
+  AFENDA_GOV_CHART_TOKEN,
+  AFENDA_GOV_DATA_DISPLAY,
+  AFENDA_GOV_DESIGN_SYSTEM,
+  AFENDA_GOV_EXPORT,
+  AFENDA_GOV_FOCUS,
+  AFENDA_GOV_HUE_RESERVATION,
+  AFENDA_GOV_HYDRATION,
+  AFENDA_GOV_MANIFEST,
+  AFENDA_GOV_NAVIGATION,
+  AFENDA_GOV_PERFORMANCE,
+  AFENDA_GOV_QUALITY_GATE,
+  AFENDA_GOV_SECURITY,
+  AFENDA_GOV_SECURITY_UI,
+  AFENDA_GOV_STATUS_TONE,
+  AFENDA_GOV_TENANT_CONTEXT,
+  AFENDA_GOV_THEME_TOKEN,
+  AFENDA_GOV_THEME_VALIDATION,
+  AFENDA_GOV_THEMING,
+  AFENDA_GOV_VISUAL_DESIGN,
+} from "../catalogs/governance-reference.catalog";
 
 const THEMING = "theming" as const;
 const ERROR = "error" as const;
@@ -25,9 +48,9 @@ export const AFENDA_THEMING_RULES = [
     remediation:
       "Promote needed values into the theme token contract or use existing CSS variables and semantic token pairs.",
     references: [
-      "AFENDA:theming-contract",
-      "AFENDA:theme-token-contract",
-      "AFENDA:design-system-contract",
+      AFENDA_GOV_THEMING,
+      AFENDA_GOV_THEME_TOKEN,
+      AFENDA_GOV_DESIGN_SYSTEM,
     ],
     enforcement: HYBRID,
   },
@@ -43,10 +66,10 @@ export const AFENDA_THEMING_RULES = [
     remediation:
       "Add missing tokens to the theme token registry, schema, manifest, and public export before use.",
     references: [
-      "AFENDA:theming-contract",
-      "AFENDA:theme-token-contract",
-      "AFENDA:design-system-contract",
-      "AFENDA:manifest-contract",
+      AFENDA_GOV_THEMING,
+      AFENDA_GOV_THEME_TOKEN,
+      AFENDA_GOV_DESIGN_SYSTEM,
+      AFENDA_GOV_MANIFEST,
     ],
     enforcement: STATIC,
   },
@@ -71,9 +94,9 @@ export const AFENDA_THEMING_RULES = [
     remediation:
       "Replace legacy theme preset names with afenda or vercel-geist, or remove unsupported optional presets until promoted through Afenda governance.",
     references: [
-      "AFENDA:design-system-contract",
-      "AFENDA:theming-contract",
-      "AFENDA:quality-gate-contract",
+      AFENDA_GOV_DESIGN_SYSTEM,
+      AFENDA_GOV_THEMING,
+      AFENDA_GOV_QUALITY_GATE,
     ],
     enforcement: STATIC,
   },
@@ -89,8 +112,8 @@ export const AFENDA_THEMING_RULES = [
     remediation:
       "Use paired tokens such as primary/primary-foreground, accent/accent-foreground, or governed surface/content pairs.",
     references: [
-      "AFENDA:theming-contract",
-      "AFENDA:theme-token-contract",
+      AFENDA_GOV_THEMING,
+      AFENDA_GOV_THEME_TOKEN,
       "APCA",
       "WCAG:1.4.3",
       "WCAG:1.4.11",
@@ -109,10 +132,10 @@ export const AFENDA_THEMING_RULES = [
     remediation:
       "Apply tenant overrides through governed branding contracts and preserve shell, status, danger, permission, and audit semantics.",
     references: [
-      "AFENDA:theming-contract",
-      "AFENDA:tenant-context-contract",
-      "AFENDA:brand-contract",
-      "AFENDA:security-ui-contract",
+      AFENDA_GOV_THEMING,
+      AFENDA_GOV_TENANT_CONTEXT,
+      AFENDA_GOV_BRAND,
+      AFENDA_GOV_SECURITY_UI,
     ],
     enforcement: HYBRID,
   },
@@ -128,10 +151,10 @@ export const AFENDA_THEMING_RULES = [
     remediation:
       "Validate contrast, hue reservation, token completeness, dark-mode parity, and reserved semantic slots before saving.",
     references: [
-      "AFENDA:theming-contract",
-      "AFENDA:theme-validation-contract",
-      "AFENDA:tenant-context-contract",
-      "AFENDA:security-ui-contract",
+      AFENDA_GOV_THEMING,
+      AFENDA_GOV_THEME_VALIDATION,
+      AFENDA_GOV_TENANT_CONTEXT,
+      AFENDA_GOV_SECURITY_UI,
     ],
     enforcement: HYBRID,
   },
@@ -147,10 +170,10 @@ export const AFENDA_THEMING_RULES = [
     remediation:
       "Limit module/lane expression to approved accent, border, icon, and metadata slots while preserving global surfaces.",
     references: [
-      "AFENDA:theming-contract",
-      "AFENDA:navigation-contract",
-      "AFENDA:visual-design-contract",
-      "AFENDA:status-tone-contract",
+      AFENDA_GOV_THEMING,
+      AFENDA_GOV_NAVIGATION,
+      AFENDA_GOV_VISUAL_DESIGN,
+      AFENDA_GOV_STATUS_TONE,
     ],
     enforcement: HYBRID,
   },
@@ -166,9 +189,9 @@ export const AFENDA_THEMING_RULES = [
     remediation:
       "Validate tenant and module theme overrides against the hue reservation contract before publishing.",
     references: [
-      "AFENDA:theming-contract",
-      "AFENDA:hue-reservation-contract",
-      "AFENDA:status-tone-contract",
+      AFENDA_GOV_THEMING,
+      AFENDA_GOV_HUE_RESERVATION,
+      AFENDA_GOV_STATUS_TONE,
     ],
     enforcement: STATIC,
   },
@@ -184,9 +207,9 @@ export const AFENDA_THEMING_RULES = [
     remediation:
       "Add missing dark-mode token values and verify component states in both light and dark themes.",
     references: [
-      "AFENDA:theming-contract",
-      "AFENDA:theme-token-contract",
-      "AFENDA:accessibility-contract",
+      AFENDA_GOV_THEMING,
+      AFENDA_GOV_THEME_TOKEN,
+      AFENDA_GOV_ACCESSIBILITY,
     ],
     enforcement: HYBRID,
   },
@@ -202,9 +225,9 @@ export const AFENDA_THEMING_RULES = [
     remediation:
       "Use governed focus tokens and verify focus states across light, dark, tenant, and forced-color themes.",
     references: [
-      "AFENDA:theming-contract",
-      "AFENDA:focus-contract",
-      "AFENDA:accessibility-contract",
+      AFENDA_GOV_THEMING,
+      AFENDA_GOV_FOCUS,
+      AFENDA_GOV_ACCESSIBILITY,
       "WCAG:2.4.7",
       "WCAG:2.4.11",
     ],
@@ -222,8 +245,8 @@ export const AFENDA_THEMING_RULES = [
     remediation:
       "Use system colors, preserve outlines, avoid background-image-only states, and test forced-colors mode for core controls.",
     references: [
-      "AFENDA:theming-contract",
-      "AFENDA:accessibility-contract",
+      AFENDA_GOV_THEMING,
+      AFENDA_GOV_ACCESSIBILITY,
       "WCAG:1.4.11",
       "WCAG:2.4.7",
     ],
@@ -241,8 +264,8 @@ export const AFENDA_THEMING_RULES = [
     remediation:
       "Pair color with labels, icons, aria state, status text, or structural affordances.",
     references: [
-      "AFENDA:theming-contract",
-      "AFENDA:accessibility-contract",
+      AFENDA_GOV_THEMING,
+      AFENDA_GOV_ACCESSIBILITY,
       "WCAG:1.4.1",
     ],
     enforcement: HYBRID,
@@ -259,10 +282,10 @@ export const AFENDA_THEMING_RULES = [
     remediation:
       "Use chart palette tokens with contrast, distinguishability, dark-mode parity, and non-color labels or legends.",
     references: [
-      "AFENDA:theming-contract",
-      "AFENDA:chart-token-contract",
-      "AFENDA:data-display-contract",
-      "AFENDA:accessibility-contract",
+      AFENDA_GOV_THEMING,
+      AFENDA_GOV_CHART_TOKEN,
+      AFENDA_GOV_DATA_DISPLAY,
+      AFENDA_GOV_ACCESSIBILITY,
     ],
     enforcement: HYBRID,
   },
@@ -277,7 +300,7 @@ export const AFENDA_THEMING_RULES = [
       "Themes must set color-scheme and native control colors when light/dark mode changes.",
     remediation:
       "Set color-scheme on the root and verify select, input, textarea, scrollbar, and browser chrome colors.",
-    references: ["AFENDA:theming-contract", "WCAG:1.4.11"],
+    references: [AFENDA_GOV_THEMING, "WCAG:1.4.11"],
     enforcement: HYBRID,
   },
   {
@@ -293,9 +316,9 @@ export const AFENDA_THEMING_RULES = [
     remediation:
       "Resolve the initial theme before paint where possible, scope theme attributes to the app root, and avoid client-only theme defaults that disagree with server markup.",
     references: [
-      "AFENDA:theming-contract",
-      "AFENDA:hydration-contract",
-      "AFENDA:performance-contract",
+      AFENDA_GOV_THEMING,
+      AFENDA_GOV_HYDRATION,
+      AFENDA_GOV_PERFORMANCE,
     ],
     enforcement: HYBRID,
   },
@@ -311,10 +334,10 @@ export const AFENDA_THEMING_RULES = [
     remediation:
       "Define print/export tokens, avoid low-contrast backgrounds, include labels, and preserve tenant/company identity safely.",
     references: [
-      "AFENDA:theming-contract",
-      "AFENDA:export-contract",
-      "AFENDA:tenant-context-contract",
-      "AFENDA:data-display-contract",
+      AFENDA_GOV_THEMING,
+      AFENDA_GOV_EXPORT,
+      AFENDA_GOV_TENANT_CONTEXT,
+      AFENDA_GOV_DATA_DISPLAY,
     ],
     enforcement: HYBRID,
   },

@@ -1,4 +1,5 @@
 import type { AfendaRuntimeRule } from "../runtime-reference.contract";
+import { AFENDA_GOV_FOCUS } from "../catalogs/governance-reference.catalog";
 
 const FOCUS = "focus" as const;
 const ERROR = "error" as const;
@@ -18,7 +19,7 @@ export const AFENDA_FOCUS_RULES = [
       "Keyboard users need a visible focus indicator to understand current interaction position.",
     requirement: "Interactive elements must have visible keyboard focus.",
     remediation: "Add focus-visible ring, outline, or equivalent focus treatment.",
-    references: ["WCAG:2.4.7", "WCAG:1.4.11"],
+    references: [AFENDA_GOV_FOCUS, "WCAG:2.4.7", "WCAG:1.4.11"],
     enforcement: HYBRID,
   },
   {
@@ -32,7 +33,7 @@ export const AFENDA_FOCUS_RULES = [
       "Focus indicators must meet WCAG 2.2 focus appearance expectations for size and contrast.",
     remediation:
       "Use a visible outline or ring with sufficient thickness and contrast against adjacent colors.",
-    references: ["WCAG:2.4.13", "WCAG:1.4.11"],
+    references: [AFENDA_GOV_FOCUS, "WCAG:2.4.13", "WCAG:1.4.11"],
     enforcement: HYBRID,
   },
   {
@@ -51,7 +52,7 @@ export const AFENDA_FOCUS_RULES = [
       "Focusable elements must receive focus in a logical order that matches the workflow.",
     remediation:
       "Avoid positive tabindex. Keep DOM order aligned with visual and workflow order.",
-    references: ["WCAG:2.4.3"],
+    references: [AFENDA_GOV_FOCUS, "WCAG:2.4.3"],
     enforcement: HYBRID,
   },
   {
@@ -64,7 +65,7 @@ export const AFENDA_FOCUS_RULES = [
       "Removing outlines without replacement breaks keyboard navigation visibility.",
     requirement: "Focus outlines must not be removed unless an equivalent focus style replaces them.",
     remediation: "Pair outline removal with a visible focus-visible ring or outline.",
-    references: ["WCAG:2.4.7"],
+    references: [AFENDA_GOV_FOCUS, "WCAG:2.4.7"],
     enforcement: STATIC,
   },
   {
@@ -76,7 +77,7 @@ export const AFENDA_FOCUS_RULES = [
       "Focus rings should appear for keyboard focus without creating noisy mouse-click states.",
     requirement: "Use focus-visible for keyboard focus styling.",
     remediation: "Prefer :focus-visible or focus-visible utilities over broad :focus styling.",
-    references: ["WCAG:2.4.7"],
+    references: [AFENDA_GOV_FOCUS, "WCAG:2.4.7"],
     enforcement: HYBRID,
   },
   {
@@ -88,7 +89,7 @@ export const AFENDA_FOCUS_RULES = [
       "Compound controls need a visible group-level focus state when focus moves inside them.",
     requirement: "Compound controls must expose focus-within styling.",
     remediation: "Use :focus-within or an equivalent wrapper state on compound controls.",
-    references: ["WCAG:2.4.7", "WCAG:1.4.11"],
+    references: [AFENDA_GOV_FOCUS, "WCAG:2.4.7", "WCAG:1.4.11"],
     enforcement: MANUAL,
   },
   {
@@ -100,7 +101,7 @@ export const AFENDA_FOCUS_RULES = [
       "Modal focus must stay inside the active modal so keyboard users do not interact with hidden page content.",
     requirement: "Modal dialogs must trap focus while open.",
     remediation: "Use a dialog primitive with focus trapping and make background content inert.",
-    references: ["WCAG:2.1.1", "WCAG:2.4.3", "WAI-ARIA-APG:dialog-modal"],
+    references: [AFENDA_GOV_FOCUS, "WCAG:2.1.1", "WCAG:2.4.3", "WAI-ARIA-APG:dialog-modal"],
     enforcement: HYBRID,
   },
   {
@@ -112,7 +113,7 @@ export const AFENDA_FOCUS_RULES = [
       "Returning focus after dismissal preserves keyboard position and workflow continuity.",
     requirement: "Dismissed overlays must restore focus to the triggering control or logical next target.",
     remediation: "Store the trigger element and restore focus after close.",
-    references: ["WCAG:2.4.3", "WCAG:3.2.1"],
+    references: [AFENDA_GOV_FOCUS, "WCAG:2.4.3", "WCAG:3.2.1"],
     enforcement: MANUAL,
   },
   {
@@ -124,7 +125,7 @@ export const AFENDA_FOCUS_RULES = [
       "A skip link only works for keyboard users when it becomes visible on focus.",
     requirement: "Skip links must become visible when focused.",
     remediation: "Style skip links as visually hidden by default and visible on focus-visible.",
-    references: ["WCAG:2.4.1", "WCAG:2.4.7"],
+    references: [AFENDA_GOV_FOCUS, "WCAG:2.4.1", "WCAG:2.4.7"],
     enforcement: STATIC,
   },
   {
@@ -136,7 +137,7 @@ export const AFENDA_FOCUS_RULES = [
       "Focused controls must remain visible and unobscured by sticky or fixed chrome.",
     requirement: "Focused elements must not be hidden behind sticky headers, footers, or overlays.",
     remediation: "Use scroll-margin, safe offsets, or focus management that accounts for fixed chrome.",
-    references: ["WCAG:2.4.11", "WCAG:2.4.12"],
+    references: [AFENDA_GOV_FOCUS, "WCAG:2.4.11", "WCAG:2.4.12"],
     enforcement: HYBRID,
   },
 ] as const satisfies readonly AfendaRuntimeRule[];

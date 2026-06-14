@@ -1,4 +1,7 @@
 import type { AfendaRuntimeRule } from "../runtime-reference.contract";
+import {
+  AFENDA_GOV_SEMANTICS,
+} from "../catalogs/governance-reference.catalog";
 
 const SEMANTICS = "semantics" as const;
 const ERROR = "error" as const;
@@ -19,7 +22,7 @@ export const AFENDA_SEMANTICS_RULES = [
       "Use native semantic elements before adding ARIA roles or scripted behavior.",
     remediation:
       "Prefer semantic HTML elements and only add ARIA when native semantics cannot represent the pattern.",
-    references: ["AFENDA:semantics-contract", "WCAG:1.3.1", "HTML-AAM"],
+    references: [AFENDA_GOV_SEMANTICS, "WCAG:1.3.1", "HTML-AAM"],
     enforcement: MANUAL,
   },
   {
@@ -34,7 +37,7 @@ export const AFENDA_SEMANTICS_RULES = [
       "Buttons must perform actions; links must navigate to resources or routes.",
     remediation:
       "Use button for mutations and in-place actions; use anchor or Link with href for navigation.",
-    references: ["AFENDA:semantics-contract", "WCAG:2.1.1", "WCAG:4.1.2"],
+    references: [AFENDA_GOV_SEMANTICS, "WCAG:2.1.1", "WCAG:4.1.2"],
     enforcement: HYBRID,
   },
   {
@@ -48,7 +51,7 @@ export const AFENDA_SEMANTICS_RULES = [
       "Headings must represent semantic page and section structure, independent of visual size.",
     remediation:
       "Use h1 through h6 according to structure; do not choose heading levels for visual size only.",
-    references: ["AFENDA:semantics-contract", "WCAG:1.3.1", "WCAG:2.4.6"],
+    references: [AFENDA_GOV_SEMANTICS, "WCAG:1.3.1", "WCAG:2.4.6"],
     enforcement: MANUAL,
   },
   {
@@ -62,7 +65,7 @@ export const AFENDA_SEMANTICS_RULES = [
       "Interactive elements and form controls must expose a meaningful accessible name.",
     remediation:
       "Prefer visible text or label association; use aria-label or aria-labelledby only when the component pattern requires it.",
-    references: ["AFENDA:semantics-contract", "WCAG:4.1.2", "WCAG:2.5.3"],
+    references: [AFENDA_GOV_SEMANTICS, "WCAG:4.1.2", "WCAG:2.5.3"],
     enforcement: HYBRID,
   },
   {
@@ -76,7 +79,7 @@ export const AFENDA_SEMANTICS_RULES = [
       "Repeated related items must use list semantics when the relationship is meaningful.",
     remediation:
       "Use ul, ol, and li for meaningful item groups instead of unstructured div sequences.",
-    references: ["AFENDA:semantics-contract", "WCAG:1.3.1"],
+    references: [AFENDA_GOV_SEMANTICS, "WCAG:1.3.1"],
     enforcement: HYBRID,
   },
   {
@@ -90,7 +93,7 @@ export const AFENDA_SEMANTICS_RULES = [
       "Tabular data must use table semantics or an accessible grid pattern with header relationships.",
     remediation:
       "Use table, thead, tbody, th, scope, and caption where appropriate; only use grid roles for interactive grids.",
-    references: ["AFENDA:semantics-contract", "WCAG:1.3.1", "WAI-ARIA-APG:grid"],
+    references: [AFENDA_GOV_SEMANTICS, "WCAG:1.3.1", "WAI-ARIA-APG:grid"],
     enforcement: HYBRID,
   },
   {
@@ -104,7 +107,7 @@ export const AFENDA_SEMANTICS_RULES = [
       "Status, alert, and validation messages must use semantics that match their urgency and purpose.",
     remediation:
       "Use role=status or aria-live=polite for non-critical updates; use role=alert only for urgent errors.",
-    references: ["AFENDA:semantics-contract", "WCAG:4.1.3"],
+    references: [AFENDA_GOV_SEMANTICS, "WCAG:4.1.3"],
     enforcement: HYBRID,
   },
   {
@@ -118,7 +121,7 @@ export const AFENDA_SEMANTICS_RULES = [
       "Disclosure controls must expose expanded/collapsed state and control relationship.",
     remediation:
       "Use native details/summary where suitable or pair the trigger with aria-expanded and aria-controls.",
-    references: ["AFENDA:semantics-contract", "WCAG:4.1.2", "WAI-ARIA-APG:disclosure"],
+    references: [AFENDA_GOV_SEMANTICS, "WCAG:4.1.2", "WAI-ARIA-APG:disclosure"],
     enforcement: HYBRID,
   },
   {
@@ -133,7 +136,7 @@ export const AFENDA_SEMANTICS_RULES = [
       "ARIA roles, states, and properties must be valid for the element and interaction pattern.",
     remediation:
       "Remove invalid ARIA, use native semantics, or apply the correct role/state combination from the pattern contract.",
-    references: ["AFENDA:semantics-contract", "WCAG:4.1.2", "ARIA"],
+    references: [AFENDA_GOV_SEMANTICS, "WCAG:4.1.2", "ARIA"],
     enforcement: STATIC,
   },
   {
@@ -155,7 +158,7 @@ export const AFENDA_SEMANTICS_RULES = [
       "role=presentation and role=none must only be used on truly decorative or structural wrapper elements.",
     remediation:
       "Remove presentation roles from meaningful, focusable, table, list, or interactive elements.",
-    references: ["AFENDA:semantics-contract", "WCAG:1.3.1", "ARIA"],
+    references: [AFENDA_GOV_SEMANTICS, "WCAG:1.3.1", "ARIA"],
     enforcement: STATIC,
   },
 ] as const satisfies readonly AfendaRuntimeRule[];

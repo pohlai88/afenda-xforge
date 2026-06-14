@@ -1,3 +1,17 @@
+import { defineGovernanceReferences } from "../../registry.schema";
+import {
+  AFENDA_GOV_ADAPTER,
+  AFENDA_GOV_AGENT_GOVERNANCE,
+  AFENDA_GOV_AUDIT,
+  AFENDA_GOV_MIGRATION_BOUNDARY,
+  AFENDA_GOV_PERMISSION,
+  AFENDA_GOV_RISK_POLICY,
+  AFENDA_GOV_RUNTIME_REFERENCE,
+  AFENDA_GOV_TENANT_CONTEXT,
+  AFENDA_GOV_THEME_TOKEN,
+  XFORGE_GOV_PERMISSION_PIPELINE,
+  XFORGE_GOV_TENANT_COMPANY_SCOPE,
+} from "../catalogs/governance-reference.catalog";
 import { AFENDA_FORBIDDEN_CUSTOMIZATION_KEYS } from "../design-system.contract";
 import {
   type AfendaAdapterDiagnostic,
@@ -14,19 +28,20 @@ export const AFENDA_LEGACY_TOKEN_ADAPTER_ID =
 export const AFENDA_LEGACY_TOKEN_REJECTED_AUTHORITY_PATHS =
   AFENDA_FORBIDDEN_CUSTOMIZATION_KEYS;
 
-export const AFENDA_LEGACY_TOKEN_ADAPTER_GOVERNANCE_REFERENCES = [
-  "AFENDA:adapter-contract",
-  "AFENDA:theme-token-contract",
-  "AFENDA:runtime-reference-contract",
-  "AFENDA:permission-contract",
-  "AFENDA:tenant-context-contract",
-  "AFENDA:audit-contract",
-  "AFENDA:agent-governance-contract",
-  "AFENDA:migration-boundary",
-  "AFENDA:risk-policy-contract",
-  "XFORGE:permission-pipeline",
-  "XFORGE:tenant-company-scope",
-] as const;
+export const AFENDA_LEGACY_TOKEN_ADAPTER_GOVERNANCE_REFERENCES =
+  defineGovernanceReferences([
+    AFENDA_GOV_ADAPTER,
+    AFENDA_GOV_THEME_TOKEN,
+    AFENDA_GOV_RUNTIME_REFERENCE,
+    AFENDA_GOV_PERMISSION,
+    AFENDA_GOV_TENANT_CONTEXT,
+    AFENDA_GOV_AUDIT,
+    AFENDA_GOV_AGENT_GOVERNANCE,
+    AFENDA_GOV_MIGRATION_BOUNDARY,
+    AFENDA_GOV_RISK_POLICY,
+    XFORGE_GOV_PERMISSION_PIPELINE,
+    XFORGE_GOV_TENANT_COMPANY_SCOPE,
+  ]);
 
 export type AfendaLegacyTokenAdapterInput = {
   source: AfendaAdapterSource & {
@@ -90,7 +105,7 @@ function createRejectedAuthorityDiagnostic(
       "Keep permission, tenant, company, audit, execution, mutation, and business authority in their owning pipelines.",
     blocking: true,
     ruleId: "anti-pattern.client-only-authorization",
-    reference: "XFORGE:permission-pipeline",
+    reference: XFORGE_GOV_PERMISSION_PIPELINE,
   };
 }
 
@@ -111,7 +126,7 @@ function createPartialMappingDiagnostic(
       mapping.reason ??
       "Review the source token and confirm the canonical Afenda target mapping.",
     blocking: mapping.status === "rejected",
-    reference: "AFENDA:adapter-contract",
+    reference: AFENDA_GOV_ADAPTER,
   };
 }
 

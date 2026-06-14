@@ -1,4 +1,17 @@
 import type { AfendaRuntimeRule } from "../runtime-reference.contract";
+import {
+  AFENDA_GOV_CONTENT,
+  AFENDA_GOV_DATA_DISPLAY,
+  AFENDA_GOV_EMPTY_STATE,
+  AFENDA_GOV_LAYOUT,
+  AFENDA_GOV_OBSERVABILITY,
+  AFENDA_GOV_ROUTE_STATE,
+  AFENDA_GOV_SECURITY,
+  AFENDA_GOV_SECURITY_UI,
+  AFENDA_GOV_STATUS_TONE,
+  XFORGE_GOV_MUTATION_PIPELINE,
+  XFORGE_GOV_PERMISSION_PIPELINE,
+} from "../catalogs/governance-reference.catalog";
 
 const DATA_DISPLAY = "data-display" as const;
 const ERROR = "error" as const;
@@ -18,7 +31,7 @@ export const AFENDA_DATA_DISPLAY_RULES = [
       "Data displays must render governed loading, empty, filtered-empty, error, and populated states.",
     remediation:
       "Provide skeleton or loading rows, empty-state rows, error rows, and normal rows with stable table/list structure.",
-    references: ["AFENDA:data-display-contract", "AFENDA:empty-state-contract"],
+    references: [AFENDA_GOV_DATA_DISPLAY, AFENDA_GOV_EMPTY_STATE],
     enforcement: MANUAL,
   },
   {
@@ -32,7 +45,7 @@ export const AFENDA_DATA_DISPLAY_RULES = [
       "Columns must have clear headers, stable meaning, and appropriate alignment for their data type.",
     remediation:
       "Use explicit headers, consistent column order, type-aware alignment, and avoid repurposing a column across states.",
-    references: ["AFENDA:data-display-contract", "WCAG:1.3.1"],
+    references: [AFENDA_GOV_DATA_DISPLAY, "WCAG:1.3.1"],
     enforcement: HYBRID,
   },
   {
@@ -46,7 +59,7 @@ export const AFENDA_DATA_DISPLAY_RULES = [
       "Comparable numeric values must use tabular numerals, consistent precision, and right alignment where appropriate.",
     remediation:
       "Use tabular numerals, locale-aware formatting, fixed precision rules, and right-align comparable numeric columns.",
-    references: ["AFENDA:data-display-contract", "AFENDA:content-contract"],
+    references: [AFENDA_GOV_DATA_DISPLAY, AFENDA_GOV_CONTENT],
     enforcement: MANUAL,
   },
   {
@@ -60,7 +73,7 @@ export const AFENDA_DATA_DISPLAY_RULES = [
       "Status badges and tags must use approved labels, tones, and semantic mapping.",
     remediation:
       "Use canonical status labels and design-system tone variants instead of local badge colors or ad hoc wording.",
-    references: ["AFENDA:data-display-contract", "AFENDA:status-tone-contract"],
+    references: [AFENDA_GOV_DATA_DISPLAY, AFENDA_GOV_STATUS_TONE],
     enforcement: HYBRID,
   },
   {
@@ -74,7 +87,7 @@ export const AFENDA_DATA_DISPLAY_RULES = [
       "Row and bulk actions must make the target record or selection scope clear before execution.",
     remediation:
       "Keep actions visually tied to rows, show selected counts for bulk actions, and name targets in confirmations.",
-    references: ["AFENDA:data-display-contract", "XFORGE:mutation-pipeline"],
+    references: [AFENDA_GOV_DATA_DISPLAY, XFORGE_GOV_MUTATION_PIPELINE],
     enforcement: MANUAL,
   },
   {
@@ -88,7 +101,7 @@ export const AFENDA_DATA_DISPLAY_RULES = [
       "Active sort and filter state must be visible and recoverable.",
     remediation:
       "Show active filter chips, sorted column indicators, result counts, and clear/reset affordances.",
-    references: ["AFENDA:data-display-contract", "AFENDA:route-state-contract"],
+    references: [AFENDA_GOV_DATA_DISPLAY, AFENDA_GOV_ROUTE_STATE],
     enforcement: MANUAL,
   },
   {
@@ -103,7 +116,7 @@ export const AFENDA_DATA_DISPLAY_RULES = [
       "Important truncated data must provide access to the full value.",
     remediation:
       "Provide wrapping, title text, tooltip, detail panel, copy action, or expandable row access for full values.",
-    references: ["AFENDA:data-display-contract", "AFENDA:layout-contract"],
+    references: [AFENDA_GOV_DATA_DISPLAY, AFENDA_GOV_LAYOUT],
     enforcement: HYBRID,
   },
   {
@@ -117,7 +130,7 @@ export const AFENDA_DATA_DISPLAY_RULES = [
       "Selectable data displays must expose selected count, partial selection, and clear selection affordance.",
     remediation:
       "Show selected counts, indeterminate parent checkboxes, clear selection, and explicit all-results selection where supported.",
-    references: ["AFENDA:data-display-contract", "WCAG:4.1.2"],
+    references: [AFENDA_GOV_DATA_DISPLAY, "WCAG:4.1.2"],
     enforcement: HYBRID,
   },
   {
@@ -131,7 +144,7 @@ export const AFENDA_DATA_DISPLAY_RULES = [
       "Data displays must expose freshness, sync, or last-updated context where data can become stale.",
     remediation:
       "Show last updated time, sync status, stale markers, refresh affordance, or error state for refresh failures.",
-    references: ["AFENDA:data-display-contract", "AFENDA:observability-contract"],
+    references: [AFENDA_GOV_DATA_DISPLAY, AFENDA_GOV_OBSERVABILITY],
     enforcement: MANUAL,
   },
   {
@@ -145,7 +158,7 @@ export const AFENDA_DATA_DISPLAY_RULES = [
       "Restricted values must be hidden, masked, or replaced with permission-aware placeholders.",
     remediation:
       "Use permission-aware field renderers and ensure exports follow the same field visibility rules.",
-    references: ["AFENDA:data-display-contract", "AFENDA:security-ui-contract", "XFORGE:permission-pipeline"],
+    references: [AFENDA_GOV_DATA_DISPLAY, AFENDA_GOV_SECURITY_UI, XFORGE_GOV_PERMISSION_PIPELINE],
     enforcement: HYBRID,
   },
   {
@@ -159,7 +172,7 @@ export const AFENDA_DATA_DISPLAY_RULES = [
       "Responsive data displays must define which columns persist, collapse, wrap, or move into detail views.",
     remediation:
       "Define priority columns, responsive card alternatives, horizontal containment, or detail disclosure patterns.",
-    references: ["AFENDA:data-display-contract", "AFENDA:layout-contract"],
+    references: [AFENDA_GOV_DATA_DISPLAY, AFENDA_GOV_LAYOUT],
     enforcement: MANUAL,
   },
 ] as const satisfies readonly AfendaRuntimeRule[];

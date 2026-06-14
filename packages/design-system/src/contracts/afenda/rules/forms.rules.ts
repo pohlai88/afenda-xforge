@@ -1,4 +1,12 @@
 import type { AfendaRuntimeRule } from "../runtime-reference.contract";
+import {
+  AFENDA_GOV_FORM_ADAPTER,
+  AFENDA_GOV_FORM_FIELD,
+  AFENDA_GOV_FORMS,
+  AFENDA_GOV_FORM_STATE,
+  AFENDA_GOV_FORM_VALIDATION,
+  XFORGE_GOV_MUTATION_PIPELINE,
+} from "../catalogs/governance-reference.catalog";
 
 const FORMS = "forms" as const;
 const ERROR = "error" as const;
@@ -20,10 +28,10 @@ export const AFENDA_FORMS_RULES = [
     remediation:
       "Use the Afenda form adapter instead of wiring raw inputs directly in feature code.",
     references: [
-      "AFENDA:form-adapter",
-      "AFENDA:form-field-contract",
-      "AFENDA:form-state-contract",
-      "AFENDA:form-validation-contract",
+      AFENDA_GOV_FORM_ADAPTER,
+      AFENDA_GOV_FORM_FIELD,
+      AFENDA_GOV_FORM_STATE,
+      AFENDA_GOV_FORM_VALIDATION,
       "WCAG:1.3.1",
       "WCAG:3.3.1",
       "WCAG:3.3.2",
@@ -40,7 +48,7 @@ export const AFENDA_FORMS_RULES = [
       "Named and typed controls improve browser assistance, autofill, and validation.",
     requirement: "Inputs need meaningful name, autocomplete, and correct type/inputmode.",
     remediation: "Declare name, autocomplete, and the narrowest valid type/inputmode.",
-    references: ["WCAG:1.3.5", "HTML-AAM"],
+    references: [AFENDA_GOV_FORMS, "WCAG:1.3.5", "HTML-AAM"],
     enforcement: STATIC,
   },
   {
@@ -53,7 +61,7 @@ export const AFENDA_FORMS_RULES = [
       "Blocking paste harms password managers, assistive workflows, and user efficiency.",
     requirement: "Paste must not be blocked.",
     remediation: "Remove paste prevention and validate submitted values instead.",
-    references: ["WCAG:3.3.8", "WCAG:3.3.7"],
+    references: [AFENDA_GOV_FORMS, "WCAG:3.3.8", "WCAG:3.3.7"],
     enforcement: STATIC,
   },
   {
@@ -65,7 +73,7 @@ export const AFENDA_FORMS_RULES = [
       "Inline errors keep validation feedback attached to the field that needs correction.",
     requirement: "Validation errors must render inline next to affected fields.",
     remediation: "Show field-level errors and focus the first invalid field on submit.",
-    references: ["WCAG:3.3.1", "WCAG:3.3.3"],
+    references: [AFENDA_GOV_FORMS, "WCAG:3.3.1", "WCAG:3.3.3"],
     enforcement: MANUAL,
   },
   {
@@ -79,7 +87,7 @@ export const AFENDA_FORMS_RULES = [
       "Submitting forms must expose pending state and prevent duplicate unsafe submission.",
     remediation:
       "Disable or busy-mark the submit control, preserve entered values, and render progress text or status.",
-    references: ["WCAG:4.1.3", "WCAG:3.2.2"],
+    references: [AFENDA_GOV_FORMS, "WCAG:4.1.3", "WCAG:3.2.2"],
     enforcement: HYBRID,
   },
   {
@@ -93,7 +101,7 @@ export const AFENDA_FORMS_RULES = [
       "Forms with multiple validation errors must provide a summary or focus path to the first error.",
     remediation:
       "Render an error summary linked to invalid fields or move focus to the first invalid field.",
-    references: ["WCAG:3.3.1", "WCAG:3.3.3", "WCAG:2.4.3"],
+    references: [AFENDA_GOV_FORMS, "WCAG:3.3.1", "WCAG:3.3.3", "WCAG:2.4.3"],
     enforcement: MANUAL,
   },
   {
@@ -107,7 +115,7 @@ export const AFENDA_FORMS_RULES = [
       "Field help, hints, constraints, and descriptions must be connected to controls.",
     remediation:
       "Use aria-describedby to connect help text, constraints, and descriptions to the field.",
-    references: ["WCAG:1.3.1", "WCAG:3.3.2"],
+    references: [AFENDA_GOV_FORMS, "WCAG:1.3.1", "WCAG:3.3.2"],
     enforcement: HYBRID,
   },
   {
@@ -120,7 +128,7 @@ export const AFENDA_FORMS_RULES = [
     requirement: "Field errors must be associated with their invalid control.",
     remediation:
       "Use aria-invalid and aria-describedby or equivalent framework primitives.",
-    references: ["WCAG:3.3.1", "WCAG:4.1.3"],
+    references: [AFENDA_GOV_FORMS, "WCAG:3.3.1", "WCAG:4.1.3"],
     enforcement: HYBRID,
   },
   {
@@ -133,7 +141,7 @@ export const AFENDA_FORMS_RULES = [
     requirement: "Required fields must be programmatically and visually indicated.",
     remediation:
       "Use required or aria-required and provide visible required/optional language where needed.",
-    references: ["WCAG:3.3.2"],
+    references: [AFENDA_GOV_FORMS, "WCAG:3.3.2"],
     enforcement: HYBRID,
   },
   {
@@ -147,7 +155,7 @@ export const AFENDA_FORMS_RULES = [
       "Disabled, read-only, and permission-locked fields must use the correct semantic state.",
     remediation:
       "Use disabled for unavailable controls, readonly for immutable submitted values, and aria-disabled for custom controls.",
-    references: ["WCAG:4.1.2"],
+    references: [AFENDA_GOV_FORMS, "WCAG:4.1.2"],
     enforcement: MANUAL,
   },
   {
@@ -161,7 +169,7 @@ export const AFENDA_FORMS_RULES = [
       "Destructive or irreversible submissions must require confirmation or provide a safe undo path.",
     remediation:
       "Add confirmation, review step, or undo where the mutation deletes, overwrites, or submits high-impact data.",
-    references: ["WCAG:3.3.4", "XFORGE:mutation-pipeline"],
+    references: [AFENDA_GOV_FORMS, "WCAG:3.3.4", XFORGE_GOV_MUTATION_PIPELINE],
     enforcement: MANUAL,
   },
   {
@@ -174,7 +182,7 @@ export const AFENDA_FORMS_RULES = [
     requirement: "Server validation must be final for submitted form data.",
     remediation:
       "Validate on the server, return field-level errors, and keep client validation as a convenience layer.",
-    references: ["XFORGE:mutation-pipeline"],
+    references: [AFENDA_GOV_FORMS, XFORGE_GOV_MUTATION_PIPELINE],
     enforcement: MANUAL,
   },
 ] as const satisfies readonly AfendaRuntimeRule[];

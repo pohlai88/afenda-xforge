@@ -1,8 +1,24 @@
+import { defineGovernanceReferences } from "../../registry.schema";
+import {
+  AFENDA_GOV_ADAPTER,
+  AFENDA_GOV_AGENT_GOVERNANCE,
+  AFENDA_GOV_AUDIT,
+  AFENDA_GOV_DESIGN_SYSTEM,
+  AFENDA_GOV_MIGRATION_BOUNDARY,
+  AFENDA_GOV_PERMISSION,
+  AFENDA_GOV_RISK_POLICY,
+  AFENDA_GOV_TENANT_CONTEXT,
+  AFENDA_GOV_THEME_TOKEN,
+  AFENDA_GOV_THEMING,
+  XFORGE_GOV_PERMISSION_PIPELINE,
+} from "../catalogs/governance-reference.catalog";
 import {
   AFENDA_FORBIDDEN_CUSTOMIZATION_KEYS,
-  AFENDA_THEME_PRESETS,
 } from "../design-system.contract";
-import type { AfendaThemePresetName } from "../registries/theme-preset.registry";
+import {
+  AFENDA_THEME_PRESET_NAMES,
+  type AfendaThemePresetName,
+} from "../registries/theme-preset.registry";
 import { validateLegacyAdapterRejectedPathsAlignment } from "./legacy-adapter.utility";
 import {
   type AfendaAdapterDiagnostic,
@@ -15,24 +31,25 @@ import {
 export const AFENDA_LEGACY_THEME_PRESET_ADAPTER_ID =
   "afenda.adapters.legacy-theme-preset" as const;
 
-export const AFENDA_LEGACY_THEME_PRESET_CANONICAL_NAMES = AFENDA_THEME_PRESETS;
+export const AFENDA_LEGACY_THEME_PRESET_CANONICAL_NAMES = AFENDA_THEME_PRESET_NAMES;
 
 export const AFENDA_LEGACY_THEME_PRESET_REJECTED_AUTHORITY_PATHS =
   AFENDA_FORBIDDEN_CUSTOMIZATION_KEYS;
 
-export const AFENDA_LEGACY_THEME_PRESET_ADAPTER_GOVERNANCE_REFERENCES = [
-  "AFENDA:adapter-contract",
-  "AFENDA:theme-token-contract",
-  "AFENDA:theming-contract",
-  "AFENDA:design-system-contract",
-  "AFENDA:tenant-context-contract",
-  "AFENDA:permission-contract",
-  "AFENDA:audit-contract",
-  "AFENDA:agent-governance-contract",
-  "AFENDA:migration-boundary",
-  "AFENDA:risk-policy-contract",
-  "XFORGE:permission-pipeline",
-] as const;
+export const AFENDA_LEGACY_THEME_PRESET_ADAPTER_GOVERNANCE_REFERENCES =
+  defineGovernanceReferences([
+    AFENDA_GOV_ADAPTER,
+    AFENDA_GOV_THEME_TOKEN,
+    AFENDA_GOV_THEMING,
+    AFENDA_GOV_DESIGN_SYSTEM,
+    AFENDA_GOV_TENANT_CONTEXT,
+    AFENDA_GOV_PERMISSION,
+    AFENDA_GOV_AUDIT,
+    AFENDA_GOV_AGENT_GOVERNANCE,
+    AFENDA_GOV_MIGRATION_BOUNDARY,
+    AFENDA_GOV_RISK_POLICY,
+    XFORGE_GOV_PERMISSION_PIPELINE,
+  ]);
 
 export type AfendaLegacyThemePresetAdapterInput = {
   source: AfendaAdapterSource & {
@@ -116,7 +133,7 @@ function createRejectedAuthorityDiagnostic(
       "Keep permission, tenant, company, audit, execution, mutation, and business authority in their owning pipelines.",
     blocking: true,
     ruleId: "anti-pattern.client-only-authorization",
-    reference: "XFORGE:permission-pipeline",
+    reference: XFORGE_GOV_PERMISSION_PIPELINE,
   };
 }
 
@@ -137,7 +154,7 @@ function createManualThemeNameDiagnostic(
     remediation:
       "Map the legacy theme to afenda or vercel-geist, or add a governed canonical preset before migration.",
     blocking: false,
-    reference: "AFENDA:design-system-contract",
+    reference: AFENDA_GOV_DESIGN_SYSTEM,
   };
 }
 
@@ -159,7 +176,7 @@ function createPartialMappingDiagnostic(
       mapping.reason ??
       "Review the legacy preset field and confirm the canonical Afenda target mapping.",
     blocking: mapping.status === "rejected",
-    reference: "AFENDA:adapter-contract",
+    reference: AFENDA_GOV_ADAPTER,
   };
 }
 
@@ -190,10 +207,10 @@ function resolveLegacyThemePresetAdapterStatus(params: {
 export function validateAfendaLegacyThemePresetAdapterAlignment(): void {
   if (
     AFENDA_LEGACY_THEME_PRESET_CANONICAL_NAMES.join("|") !==
-    AFENDA_THEME_PRESETS.join("|")
+    AFENDA_THEME_PRESET_NAMES.join("|")
   ) {
     throw new Error(
-      "AFENDA_LEGACY_THEME_PRESET_CANONICAL_NAMES must derive from AFENDA_THEME_PRESETS"
+      "AFENDA_LEGACY_THEME_PRESET_CANONICAL_NAMES must derive from AFENDA_THEME_PRESET_NAMES"
     );
   }
 

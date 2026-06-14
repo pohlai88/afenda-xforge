@@ -3,7 +3,7 @@ import { z } from "zod";
 import type {
   AfendaBaseColorToken,
   AfendaBrandColorToken,
-} from "../registries/color-token.registry";
+} from "../registries";
 import { defineRegistry } from "../../registry.schema";
 
 /**
@@ -424,7 +424,7 @@ export const VERCEL_GEIST_LAYOUT = {
 
 /**
  * Documented gaps between XForge globals.css defaults and Geist contract.
- * Theme preset `vercel` alone only overrides tenant brand vars — not these surfaces.
+ * Theme preset `vercel-geist` alone only overrides tenant brand vars — not these surfaces.
  */
 export const VERCEL_GEIST_GLOBALS_CSS_CONFLICTS = [
   {

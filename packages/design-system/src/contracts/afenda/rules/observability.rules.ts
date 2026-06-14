@@ -1,4 +1,11 @@
 import type { AfendaRuntimeRule } from "../runtime-reference.contract";
+import {
+  AFENDA_GOV_AUDIT,
+  AFENDA_GOV_FEEDBACK,
+  AFENDA_GOV_OBSERVABILITY,
+  AFENDA_GOV_SECURITY,
+  XFORGE_GOV_EXECUTION_PIPELINE,
+} from "../catalogs/governance-reference.catalog";
 
 const OBSERVABILITY = "observability" as const;
 const ERROR = "error" as const;
@@ -20,7 +27,7 @@ export const AFENDA_OBSERVABILITY_RULES = [
       "Server-side diagnostics must use structured logging with stable event names and metadata fields.",
     remediation:
       "Use the approved logger with event name, level, correlation id, scope, result, and safe metadata.",
-    references: ["AFENDA:observability-contract", "XFORGE:execution-pipeline"],
+    references: [AFENDA_GOV_OBSERVABILITY, XFORGE_GOV_EXECUTION_PIPELINE],
     enforcement: HYBRID,
   },
   {
@@ -34,7 +41,7 @@ export const AFENDA_OBSERVABILITY_RULES = [
       "Diagnostic events must use stable, namespaced event names.",
     remediation:
       "Use names such as module.action.started, module.action.succeeded, module.action.failed, or approved contract event names.",
-    references: ["AFENDA:observability-contract"],
+    references: [AFENDA_GOV_OBSERVABILITY],
     enforcement: MANUAL,
   },
   {
@@ -48,7 +55,7 @@ export const AFENDA_OBSERVABILITY_RULES = [
       "Requests and async work must propagate correlation ids across execution boundaries.",
     remediation:
       "Create or accept a correlation id at the boundary and pass it through server actions, command handlers, jobs, webhooks, logs, and audit events.",
-    references: ["AFENDA:observability-contract", "AFENDA:audit-contract"],
+    references: [AFENDA_GOV_OBSERVABILITY, AFENDA_GOV_AUDIT],
     enforcement: HYBRID,
   },
   {
@@ -63,7 +70,7 @@ export const AFENDA_OBSERVABILITY_RULES = [
       "Observability payloads must redact secrets and avoid high-cardinality sensitive values.",
     remediation:
       "Use logger redaction, safe metadata allowlists, hashed identifiers, and avoid raw payload dumps.",
-    references: ["AFENDA:observability-contract", "AFENDA:security-contract"],
+    references: [AFENDA_GOV_OBSERVABILITY, AFENDA_GOV_SECURITY],
     enforcement: HYBRID,
   },
   {
@@ -78,7 +85,7 @@ export const AFENDA_OBSERVABILITY_RULES = [
       "Logs and traces must record safe summaries instead of raw request, response, form, or webhook payloads.",
     remediation:
       "Log stable identifiers, result status, validation outcome, payload shape, and redacted metadata only.",
-    references: ["AFENDA:observability-contract", "AFENDA:security-contract"],
+    references: [AFENDA_GOV_OBSERVABILITY, AFENDA_GOV_SECURITY],
     enforcement: HYBRID,
   },
   {
@@ -92,7 +99,7 @@ export const AFENDA_OBSERVABILITY_RULES = [
       "User-facing route and async boundaries must provide governed error UI and diagnostic capture.",
     remediation:
       "Add error boundaries, scoped fallback UI, safe error ids, and diagnostic reporting for failed surfaces.",
-    references: ["AFENDA:observability-contract", "AFENDA:feedback-contract"],
+    references: [AFENDA_GOV_OBSERVABILITY, AFENDA_GOV_FEEDBACK],
     enforcement: MANUAL,
   },
   {
@@ -106,7 +113,7 @@ export const AFENDA_OBSERVABILITY_RULES = [
       "Critical services, jobs, and integrations should expose health, failure, retry, and latency signals.",
     remediation:
       "Emit metrics or status events for job success/failure, webhook delivery, retry count, latency, and dependency availability.",
-    references: ["AFENDA:observability-contract", "XFORGE:execution-pipeline"],
+    references: [AFENDA_GOV_OBSERVABILITY, XFORGE_GOV_EXECUTION_PIPELINE],
     enforcement: MANUAL,
   },
   {
@@ -121,7 +128,7 @@ export const AFENDA_OBSERVABILITY_RULES = [
       "Production code must use approved logging or diagnostic primitives instead of direct console calls.",
     remediation:
       "Replace console calls with the approved logger, test-only assertions, or explicit development-only guards.",
-    references: ["AFENDA:observability-contract"],
+    references: [AFENDA_GOV_OBSERVABILITY],
     enforcement: STATIC,
   },
   {
@@ -135,7 +142,7 @@ export const AFENDA_OBSERVABILITY_RULES = [
       "Async execution must preserve enough context to diagnose origin, retries, failure, and downstream effects.",
     remediation:
       "Propagate correlation id, actor or system identity, tenant/company scope where applicable, retry count, and source event metadata.",
-    references: ["AFENDA:observability-contract", "AFENDA:audit-contract"],
+    references: [AFENDA_GOV_OBSERVABILITY, AFENDA_GOV_AUDIT],
     enforcement: MANUAL,
   },
   {
@@ -149,7 +156,7 @@ export const AFENDA_OBSERVABILITY_RULES = [
       "User-facing critical errors should expose a safe error id or support reference when diagnostics are captured.",
     remediation:
       "Generate a diagnostic id, show it in the error UI, and attach it to logs, traces, or support context.",
-    references: ["AFENDA:observability-contract", "AFENDA:feedback-contract"],
+    references: [AFENDA_GOV_OBSERVABILITY, AFENDA_GOV_FEEDBACK],
     enforcement: MANUAL,
   },
 ] as const satisfies readonly AfendaRuntimeRule[];

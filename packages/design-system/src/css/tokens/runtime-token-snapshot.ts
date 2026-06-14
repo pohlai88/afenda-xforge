@@ -5,8 +5,8 @@ import {
 } from "../../contracts/afenda/customization/branding.contract";
 import {
   type AfendaRuntimeTokenResolutionSource,
-} from "../../contracts/afenda/token-ui.contract";
-export type { AfendaRuntimeTokenResolutionSource } from "../../contracts/afenda/token-ui.contract";
+} from "../../contracts/afenda/runtime-token-resolution.contract";
+export type { AfendaRuntimeTokenResolutionSource } from "../../contracts/afenda/runtime-token-resolution.contract";
 import {
   resolveTenantBrandingModeCssVars,
   type CssVarMap,

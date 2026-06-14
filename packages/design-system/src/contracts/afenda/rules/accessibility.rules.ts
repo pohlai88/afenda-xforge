@@ -1,4 +1,5 @@
 import type { AfendaRuntimeRule } from "../runtime-reference.contract";
+import { AFENDA_GOV_ACCESSIBILITY } from "../catalogs/governance-reference.catalog";
 
 const ACCESSIBILITY = "accessibility" as const;
 const ERROR = "error" as const;
@@ -23,7 +24,7 @@ export const AFENDA_ACCESSIBILITY_RULES = [
       "Assistive technology users need a text alternative for icon-only controls.",
     requirement: "Icon-only buttons must expose a useful aria-label.",
     remediation: "Add aria-label that names the action.",
-    references: ["WCAG:4.1.2", "WCAG:2.4.6"],
+    references: [AFENDA_GOV_ACCESSIBILITY, "WCAG:4.1.2", "WCAG:2.4.6"],
     enforcement: STATIC,
   },
   {
@@ -35,7 +36,7 @@ export const AFENDA_ACCESSIBILITY_RULES = [
       "Labels establish the accessible name and make form controls understandable.",
     requirement: "Form controls must have a label or aria-label.",
     remediation: "Use a visible label with htmlFor or a wrapping label.",
-    references: ["WCAG:3.3.2", "WCAG:4.1.2"],
+    references: [AFENDA_GOV_ACCESSIBILITY, "WCAG:3.3.2", "WCAG:4.1.2"],
     enforcement: STATIC,
   },
   {
@@ -48,7 +49,7 @@ export const AFENDA_ACCESSIBILITY_RULES = [
     requirement: "Interactive elements must be keyboard operable.",
     remediation:
       "Use native interactive elements first. Only implement custom keyboard handling when native controls are not suitable.",
-    references: ["WCAG:2.1.1", "WCAG:2.1.3"],
+    references: [AFENDA_GOV_ACCESSIBILITY, "WCAG:2.1.1", "WCAG:2.1.3"],
     enforcement: HYBRID,
   },
   {
@@ -61,7 +62,7 @@ export const AFENDA_ACCESSIBILITY_RULES = [
       "Native action and navigation elements preserve keyboard behavior, semantics, and browser affordances.",
     requirement: "Use buttons for actions and links for navigation.",
     remediation: "Replace clickable non-controls with button or Link/a.",
-    references: ["WCAG:2.1.1", "WCAG:4.1.2"],
+    references: [AFENDA_GOV_ACCESSIBILITY, "WCAG:2.1.1", "WCAG:4.1.2"],
     enforcement: STATIC,
   },
   {
@@ -73,7 +74,7 @@ export const AFENDA_ACCESSIBILITY_RULES = [
       "Images need text alternatives unless they are purely decorative.",
     requirement: "Images must define alt text, with empty alt only for decoration.",
     remediation: "Add meaningful alt text or alt=\"\" for decorative media.",
-    references: ["WCAG:1.1.1"],
+    references: [AFENDA_GOV_ACCESSIBILITY, "WCAG:1.1.1"],
     enforcement: STATIC,
   },
   {
@@ -87,7 +88,7 @@ export const AFENDA_ACCESSIBILITY_RULES = [
       "Text contrast must satisfy APCA targets and must not violate WCAG 2.1 AA minimum requirements.",
     remediation:
       "Evaluate foreground/background pairs using APCA first, then verify WCAG AA compliance.",
-    references: ["APCA", "WCAG:1.4.3", "WCAG:1.4.11"],
+    references: [AFENDA_GOV_ACCESSIBILITY, "APCA", "WCAG:1.4.3", "WCAG:1.4.11"],
     enforcement: STATIC,
   },
   {
@@ -99,7 +100,7 @@ export const AFENDA_ACCESSIBILITY_RULES = [
       "Decorative icons can add noise to the accessibility tree when exposed.",
     requirement: "Decorative icons must be hidden from assistive technology.",
     remediation: "Add aria-hidden=\"true\" to decorative icons.",
-    references: ["WCAG:1.1.1"],
+    references: [AFENDA_GOV_ACCESSIBILITY, "WCAG:1.1.1"],
     enforcement: HYBRID,
   },
   {
@@ -112,7 +113,7 @@ export const AFENDA_ACCESSIBILITY_RULES = [
     requirement: "Async updates must be announced politely.",
     remediation:
       "Use aria-live=\"polite\" for user-facing toasts, validation, and async status changes.",
-    references: ["WCAG:4.1.3"],
+    references: [AFENDA_GOV_ACCESSIBILITY, "WCAG:4.1.3"],
     enforcement: MANUAL,
   },
   {
@@ -124,7 +125,7 @@ export const AFENDA_ACCESSIBILITY_RULES = [
       "Semantic elements carry platform behavior and accessible structure before ARIA is needed.",
     requirement: "Use semantic HTML before ARIA.",
     remediation: "Prefer header, nav, main, section, article, aside, and footer.",
-    references: ["WCAG:1.3.1", "HTML-AAM"],
+    references: [AFENDA_GOV_ACCESSIBILITY, "WCAG:1.3.1", "HTML-AAM"],
     enforcement: MANUAL,
   },
   {
@@ -136,7 +137,7 @@ export const AFENDA_ACCESSIBILITY_RULES = [
       "A logical heading outline lets users scan and navigate page structure.",
     requirement: "Headings must follow a logical document hierarchy.",
     remediation: "Use heading levels that accurately represent document structure.",
-    references: ["WCAG:1.3.1", "WCAG:2.4.6"],
+    references: [AFENDA_GOV_ACCESSIBILITY, "WCAG:1.3.1", "WCAG:2.4.6"],
     enforcement: MANUAL,
   },
   {
@@ -148,7 +149,7 @@ export const AFENDA_ACCESSIBILITY_RULES = [
       "Keyboard and assistive technology users must be able to bypass repeated navigation.",
     requirement: "Pages must include a skip link to main content.",
     remediation: "Add a skip link targeting the main element.",
-    references: ["WCAG:2.4.1"],
+    references: [AFENDA_GOV_ACCESSIBILITY, "WCAG:2.4.1"],
     enforcement: STATIC,
   },
   {
@@ -160,7 +161,7 @@ export const AFENDA_ACCESSIBILITY_RULES = [
       "Anchored headings should remain visible when fixed chrome is present.",
     requirement: "Heading anchors need scroll-margin-top.",
     remediation: "Set scroll-margin-top so anchored headings are not hidden by chrome.",
-    references: ["WCAG:2.4.1", "WCAG:2.4.7"],
+    references: [AFENDA_GOV_ACCESSIBILITY, "WCAG:2.4.1", "WCAG:2.4.7"],
     enforcement: HYBRID,
   },
 ] as const satisfies readonly AfendaRuntimeRule[];

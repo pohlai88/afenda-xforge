@@ -1,10 +1,22 @@
 import { z } from "zod";
 
-import { defineRegistry } from "../../registry.schema";
+import { defineGovernanceReferences, defineRegistry, governanceReferencesSchema } from "../../registry.schema";
+import {
+  AFENDA_GOV_COMPONENT_SIZE_REGISTRY,
+  AFENDA_GOV_DATA_DISPLAY,
+  AFENDA_GOV_DESIGN_SYSTEM,
+  AFENDA_GOV_FORMS,
+  AFENDA_GOV_INTERACTION,
+  AFENDA_GOV_STATUS_TONE,
+  AFENDA_GOV_VARIANT_PROMOTION,
+  AFENDA_GOV_VISUAL_DESIGN,
+} from "../catalogs/governance-reference.catalog";
 import type { AfendaControlSize } from "./component-size.registry";
 import { afendaControlSizeSchema } from "./component-size.registry";
-import type { AfendaStatusTone } from "./color-token.registry";
-import { afendaStatusToneSchema } from "./color-token.registry";
+import {
+  afendaStatusToneSchema,
+  type AfendaStatusTone,
+} from "./status-tone.registry";
 
 export const AFENDA_COMPONENT_VARIANT_REGISTRY_ID =
   "afenda.component-variant-registry" as const;
@@ -75,16 +87,16 @@ export const AFENDA_FIELD_VARIANTS = defineRegistry([
   "disabled",
 ]);
 
-export const AFENDA_COMPONENT_VARIANT_GOVERNANCE_REFERENCES = [
-  "AFENDA:design-system-contract",
-  "AFENDA:visual-design-contract",
-  "AFENDA:interaction-contract",
-  "AFENDA:forms-contract",
-  "AFENDA:data-display-contract",
-  "AFENDA:component-size-registry",
-  "AFENDA:status-tone-contract",
-  "AFENDA:variant-promotion-contract",
-] as const;
+export const AFENDA_COMPONENT_VARIANT_GOVERNANCE_REFERENCES = defineGovernanceReferences([
+  AFENDA_GOV_DESIGN_SYSTEM,
+  AFENDA_GOV_VISUAL_DESIGN,
+  AFENDA_GOV_INTERACTION,
+  AFENDA_GOV_FORMS,
+  AFENDA_GOV_DATA_DISPLAY,
+  AFENDA_GOV_COMPONENT_SIZE_REGISTRY,
+  AFENDA_GOV_STATUS_TONE,
+  AFENDA_GOV_VARIANT_PROMOTION,
+]);
 
 export type AfendaButtonVariant = (typeof AFENDA_BUTTON_VARIANTS)[number];
 export type AfendaBadgeVariant = (typeof AFENDA_BADGE_VARIANTS)[number];
@@ -147,7 +159,7 @@ export const afendaComponentVariantRegistrySchema = z
     cardVariants: z.array(afendaCardVariantSchema).min(1).readonly(),
     fieldVariants: z.array(afendaFieldVariantSchema).min(1).readonly(),
     formStates: z.array(afendaFormVariantStateSchema).min(1).readonly(),
-    governanceReferences: z.array(z.string().trim().min(1)).min(1).readonly(),
+    governanceReferences: governanceReferencesSchema,
     id: z.literal(AFENDA_COMPONENT_VARIANT_REGISTRY_ID),
     tableStates: z.array(afendaTableStateSchema).min(1).readonly(),
     tableVariants: z.array(afendaTableVariantSchema).min(1).readonly(),

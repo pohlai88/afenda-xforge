@@ -1,5 +1,18 @@
 import { z } from "zod";
 
+import { defineGovernanceReferences } from "../../registry.schema";
+import {
+  AFENDA_GOV_ADAPTER,
+  AFENDA_GOV_APPROVAL_POLICY,
+  AFENDA_GOV_COMPONENT_VARIANT,
+  AFENDA_GOV_DESIGN_SYSTEM,
+  AFENDA_GOV_MIGRATION_BOUNDARY,
+  AFENDA_GOV_RISK_POLICY,
+  AFENDA_GOV_THEME_TOKEN,
+  AFENDA_RUNTIME_PIPELINE_GOVERNANCE_REFERENCES,
+  XFORGE_GOV_PERMISSION_PIPELINE,
+} from "../catalogs/governance-reference.catalog";
+
 export const AFENDA_ADAPTER_CONTRACT_ID =
   "afenda.adapter-contract" as const;
 export const AFENDA_ADAPTER_CONTRACT_VERSION = "0.1.0" as const;
@@ -49,23 +62,17 @@ export const AFENDA_ADAPTER_TARGET_CONTRACT_IDS = [
   "afenda.form-validation-contract",
 ] as const;
 
-export const AFENDA_ADAPTER_GOVERNANCE_REFERENCES = [
-  "AFENDA:adapter-contract",
-  "AFENDA:design-system-contract",
-  "AFENDA:runtime-reference-contract",
-  "AFENDA:theme-token-contract",
-  "AFENDA:component-variant-contract",
-  "AFENDA:rule-evaluation-contract",
-  "AFENDA:violation-contract",
-  "AFENDA:remediation-contract",
-  "AFENDA:agent-governance-contract",
-  "AFENDA:audit-contract",
-  "AFENDA:observability-contract",
-  "AFENDA:approval-policy-contract",
-  "AFENDA:migration-boundary",
-  "AFENDA:risk-policy-contract",
-  "XFORGE:permission-pipeline",
-] as const;
+export const AFENDA_ADAPTER_GOVERNANCE_REFERENCES = defineGovernanceReferences([
+  AFENDA_GOV_ADAPTER,
+  AFENDA_GOV_DESIGN_SYSTEM,
+  AFENDA_GOV_THEME_TOKEN,
+  AFENDA_GOV_COMPONENT_VARIANT,
+  ...AFENDA_RUNTIME_PIPELINE_GOVERNANCE_REFERENCES,
+  AFENDA_GOV_APPROVAL_POLICY,
+  AFENDA_GOV_MIGRATION_BOUNDARY,
+  AFENDA_GOV_RISK_POLICY,
+  XFORGE_GOV_PERMISSION_PIPELINE,
+]);
 
 export const AFENDA_ADAPTER_MAPPING_TRANSFORMS = [
   "copy",

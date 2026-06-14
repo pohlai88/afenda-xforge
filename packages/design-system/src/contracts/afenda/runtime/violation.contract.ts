@@ -1,5 +1,13 @@
 import { z } from "zod";
 
+import { defineGovernanceReferences } from "../../registry.schema";
+import {
+  AFENDA_RUNTIME_PIPELINE_GOVERNANCE_REFERENCES,
+  AFENDA_RUNTIME_POLICY_GOVERNANCE_REFERENCES,
+  AFENDA_GOV_PERMISSION,
+  AFENDA_GOV_RUNTIME_DIAGNOSTICS,
+  AFENDA_GOV_SLA,
+} from "../catalogs/governance-reference.catalog";
 import {
   afendaRuntimeRuleCategorySchema,
   afendaRuntimeRuleSeveritySchema,
@@ -44,22 +52,13 @@ export const AFENDA_VIOLATION_EVALUATION_STATUSES = [
   "manual-review",
 ] as const satisfies readonly AfendaRuleEvaluationStatus[];
 
-export const AFENDA_VIOLATION_GOVERNANCE_REFERENCES = [
-  "AFENDA:runtime-reference-contract",
-  "AFENDA:rule-evaluation-contract",
-  "AFENDA:violation-contract",
-  "AFENDA:remediation-contract",
-  "AFENDA:agent-governance-contract",
-  "AFENDA:audit-contract",
-  "AFENDA:observability-contract",
-  "AFENDA:execution-context-contract",
-  "AFENDA:permission-contract",
-  "AFENDA:sla-contract",
-  "AFENDA:suppression-policy-contract",
-  "AFENDA:risk-policy-contract",
-  "AFENDA:runtime-diagnostics-contract",
-  "XFORGE:permission-pipeline",
-] as const;
+export const AFENDA_VIOLATION_GOVERNANCE_REFERENCES = defineGovernanceReferences([
+  ...AFENDA_RUNTIME_PIPELINE_GOVERNANCE_REFERENCES,
+  ...AFENDA_RUNTIME_POLICY_GOVERNANCE_REFERENCES,
+  AFENDA_GOV_PERMISSION,
+  AFENDA_GOV_SLA,
+  AFENDA_GOV_RUNTIME_DIAGNOSTICS,
+]);
 
 export type AfendaViolationStatus =
   (typeof AFENDA_VIOLATION_STATUSES)[number];

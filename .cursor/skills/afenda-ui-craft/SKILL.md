@@ -69,6 +69,7 @@ Default knobs for XForge internal tools: **CRAFT=7, MOTION=3–5, DENSITY=8–9*
 - **Canonical presets only:** `afenda`, `vercel-geist` (see `registries/theme-preset.registry.ts`)
 - **Legacy names are violations:** `xforge`, `vercel`, `teal`, `indigo`, etc. — migrate, do not alias
 - **Lane tokens** (`--lane-*`, `text-lane-active`) are module identity — not primary CTAs or status
+- **`globals.css` is generated** — edit `packages/design-system/src/css/tokens/` then run `pnpm --filter @repo/design-system globals:css` (see `globals-css.contract.ts`)
 - ui-craft `/tokens` and `themes.md` are **audit inputs** — output must align with Afenda contracts, not replace them
 
 ## Command routing
@@ -100,6 +101,14 @@ After UI changes touching `apps/app`:
 pnpm --filter app typecheck
 pnpm lint:stylelint
 pnpm run lint:tailwind-v4
+```
+
+After token or CSS pipeline changes:
+
+```bash
+pnpm --filter @repo/design-system globals:css
+pnpm --filter @repo/design-system verify:globals-css
+pnpm run ci:tokens
 ```
 
 Optional anti-slop scan (non-blocking):

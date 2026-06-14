@@ -35,10 +35,11 @@ import {
   AFENDA_TOKEN_UI_DISPLAY_COMPONENTS,
   type AfendaTokenizedTokenType,
   type AfendaTokenUiDisplayComponent,
-  validateAfendaRuntimeTokenResolutionContract,
   validateAfendaTokenCatalogNaming,
   validateAfendaTokenUiContract,
+  type AfendaPresentationTokenRole,
 } from "../../contracts/afenda/token-ui.contract";
+import { validateAfendaRuntimeTokenResolutionContract } from "../../contracts/afenda/runtime-token-resolution.contract";
 
 export {
   AFENDA_TOKENIZED_GOVERNANCE_REFERENCES,
@@ -52,6 +53,7 @@ export type AfendaTokenizedToken = {
   readonly governanceReferences: readonly string[];
   readonly group: string;
   readonly name: string;
+  readonly presentationRoles?: readonly AfendaPresentationTokenRole[];
   readonly references?: readonly string[];
   readonly type: AfendaTokenizedTokenType;
   readonly value: string | number;
@@ -69,6 +71,7 @@ export type AfendaDesignTokenExportEntry = {
       readonly displayComponent: AfendaTokenUiDisplayComponent;
       readonly governanceReferences: readonly string[];
       readonly group: string;
+      readonly presentationRoles?: readonly AfendaPresentationTokenRole[];
       readonly references?: readonly string[];
     };
   };
@@ -131,11 +134,50 @@ function readRequiredDeclarationValue(
   throw new Error(`Missing token declaration for ${cssVariable}`);
 }
 
+function resolvePresentationRoles(input: {
+  readonly group: string;
+  readonly type: AfendaTokenizedTokenType;
+}): readonly AfendaPresentationTokenRole[] | undefined {
+  if (input.group.startsWith("color.base") || input.group.startsWith("color.sidebar")) {
+    return ["surface"];
+  }
+  if (input.group.startsWith("color.brand")) {
+    return ["brand", "accent"];
+  }
+  if (input.group.startsWith("color.status")) {
+    return ["status"];
+  }
+  if (input.group.startsWith("color.chart")) {
+    return ["lane", "accent"];
+  }
+  if (input.group.startsWith("density.")) {
+    return ["density"];
+  }
+  if (input.group.startsWith("typography.")) {
+    return ["typography"];
+  }
+  if (input.group.startsWith("radius")) {
+    return ["surface"];
+  }
+  if (input.type === "elevation") {
+    return ["elevation", "surface"];
+  }
+  if (input.type === "duration") {
+    return ["motion"];
+  }
+  if (input.type === "order") {
+    return ["stacking"];
+  }
+
+  return undefined;
+}
+
 function buildCatalogToken(input: {
   readonly cssVariable?: `--${string}`;
   readonly description: string;
   readonly group: string;
   readonly name: string;
+  readonly presentationRoles?: readonly AfendaPresentationTokenRole[];
   readonly references?: readonly string[];
   readonly type: AfendaTokenizedTokenType;
   readonly value: string | number;
@@ -145,9 +187,13 @@ function buildCatalogToken(input: {
       ? extractVariableReferences(input.value)
       : undefined;
   const references = input.references ?? inferredReferences;
+  const presentationRoles =
+    input.presentationRoles ??
+    resolvePresentationRoles({ group: input.group, type: input.type });
   const baseToken = {
     ...input,
     governanceReferences: AFENDA_TOKENIZED_GOVERNANCE_REFERENCES,
+    ...(presentationRoles ? { presentationRoles } : {}),
   };
 
   if (references) {
@@ -383,6 +429,9 @@ function buildDesignTokenExportEntry(
         displayComponent: AFENDA_TOKEN_UI_DISPLAY_COMPONENTS[token.type],
         governanceReferences: token.governanceReferences,
         group: token.group,
+        ...(token.presentationRoles
+          ? { presentationRoles: token.presentationRoles }
+          : {}),
         ...(token.references ? { references: token.references } : {}),
       },
     },

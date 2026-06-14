@@ -1,4 +1,8 @@
 import type { AfendaRuntimeRule } from "../runtime-reference.contract";
+import {
+  AFENDA_GOV_EMPTY_STATE,
+  AFENDA_GOV_LAYOUT,
+} from "../catalogs/governance-reference.catalog";
 
 const LAYOUT = "layout" as const;
 const ERROR = "error" as const;
@@ -18,7 +22,7 @@ export const AFENDA_LAYOUT_RULES = [
       "Layouts must reflow responsively without causing page-level horizontal overflow.",
     remediation:
       "Use responsive grids, wrapping, container constraints, and adaptive density instead of fixed-width page structures.",
-    references: ["AFENDA:layout-contract", "WCAG:1.4.10"],
+    references: [AFENDA_GOV_LAYOUT, "WCAG:1.4.10"],
     enforcement: HYBRID,
   },
   {
@@ -32,7 +36,7 @@ export const AFENDA_LAYOUT_RULES = [
       "Known wide content must use local overflow containment instead of creating global horizontal scroll.",
     remediation:
       "Wrap wide regions in a scroll container with max-width constraints and preserve surrounding page layout.",
-    references: ["AFENDA:layout-contract", "WCAG:1.4.10"],
+    references: [AFENDA_GOV_LAYOUT, "WCAG:1.4.10"],
     enforcement: HYBRID,
   },
   {
@@ -47,7 +51,7 @@ export const AFENDA_LAYOUT_RULES = [
       "Shrinkable flex and grid children that contain text or user data must allow overflow handling.",
     remediation:
       "Apply min-width: 0 or equivalent utilities, then use truncate, wrapping, or line clamping as appropriate.",
-    references: ["AFENDA:layout-contract"],
+    references: [AFENDA_GOV_LAYOUT],
     enforcement: HYBRID,
   },
   {
@@ -61,7 +65,7 @@ export const AFENDA_LAYOUT_RULES = [
       "Layouts with sticky or fixed chrome must define offsets for anchor and scroll targets.",
     remediation:
       "Use scroll-padding, scroll-margin, safe offsets, or layout variables that account for fixed chrome height.",
-    references: ["AFENDA:layout-contract", "WCAG:2.4.11", "WCAG:2.4.12"],
+    references: [AFENDA_GOV_LAYOUT, "WCAG:2.4.11", "WCAG:2.4.12"],
     enforcement: HYBRID,
   },
   {
@@ -75,7 +79,7 @@ export const AFENDA_LAYOUT_RULES = [
       "Scroll containers must have explicit boundaries, visible overflow intent, and keyboard-accessible content.",
     remediation:
       "Set explicit max heights, preserve focus visibility, avoid unnecessary nested scrolling, and expose scrollable regions intentionally.",
-    references: ["AFENDA:layout-contract", "WCAG:2.1.1", "WCAG:2.4.7", "WCAG:2.4.11"],
+    references: [AFENDA_GOV_LAYOUT, "WCAG:2.1.1", "WCAG:2.4.7", "WCAG:2.4.11"],
     enforcement: MANUAL,
   },
   {
@@ -90,7 +94,7 @@ export const AFENDA_LAYOUT_RULES = [
       "Clipped or truncated important content must provide access to the full value.",
     remediation:
       "Use wrapping, title text, tooltip, detail drawer, or copy affordance for truncated important values.",
-    references: ["AFENDA:layout-contract"],
+    references: [AFENDA_GOV_LAYOUT],
     enforcement: HYBRID,
   },
   {
@@ -104,7 +108,7 @@ export const AFENDA_LAYOUT_RULES = [
       "Empty states must reserve appropriate space and communicate the missing content region.",
     remediation:
       "Render a governed empty state with stable spacing, title, explanation, and next action where appropriate.",
-    references: ["AFENDA:layout-contract", "AFENDA:empty-state-contract"],
+    references: [AFENDA_GOV_LAYOUT, AFENDA_GOV_EMPTY_STATE],
     enforcement: MANUAL,
   },
   {
@@ -118,7 +122,7 @@ export const AFENDA_LAYOUT_RULES = [
       "Fixed and edge-aligned layout regions must account for safe-area insets where applicable.",
     remediation:
       "Use safe-area inset variables or platform-aware padding for bottom bars, drawers, modals, and fixed actions.",
-    references: ["AFENDA:layout-contract", "WCAG:1.4.10"],
+    references: [AFENDA_GOV_LAYOUT, "WCAG:1.4.10"],
     enforcement: MANUAL,
   },
   {
@@ -132,7 +136,7 @@ export const AFENDA_LAYOUT_RULES = [
       "Async, media, and embedded content must reserve stable layout dimensions before content loads.",
     remediation:
       "Provide width, height, aspect-ratio, skeleton dimensions, or stable container sizing before loading content.",
-    references: ["AFENDA:layout-contract", "CoreWebVitals:CLS"],
+    references: [AFENDA_GOV_LAYOUT, "CoreWebVitals:CLS"],
     enforcement: HYBRID,
   },
   {
@@ -146,7 +150,7 @@ export const AFENDA_LAYOUT_RULES = [
       "High-density layouts must define how controls wrap, collapse, or move across breakpoints.",
     remediation:
       "Define breakpoint-specific column counts, toolbar wrapping, filter disclosure, and table/card alternatives.",
-    references: ["AFENDA:layout-contract"],
+    references: [AFENDA_GOV_LAYOUT],
     enforcement: MANUAL,
   },
 ] as const satisfies readonly AfendaRuntimeRule[];

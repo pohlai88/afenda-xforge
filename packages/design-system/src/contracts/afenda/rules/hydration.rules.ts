@@ -1,4 +1,26 @@
 import type { AfendaRuntimeRule } from "../runtime-reference.contract";
+import {
+  AFENDA_GOV_AUTH,
+  AFENDA_GOV_DATA_DISPLAY,
+  AFENDA_GOV_EXECUTION_CONTEXT,
+  AFENDA_GOV_FOCUS,
+  AFENDA_GOV_FORMS,
+  AFENDA_GOV_HYDRATION,
+  AFENDA_GOV_LAYOUT,
+  AFENDA_GOV_LOCALE,
+  AFENDA_GOV_MUTATION,
+  AFENDA_GOV_OBSERVABILITY,
+  AFENDA_GOV_PERFORMANCE,
+  AFENDA_GOV_PERMISSION,
+  AFENDA_GOV_ROUTE_STATE,
+  AFENDA_GOV_RUNTIME_DIAGNOSTICS,
+  AFENDA_GOV_SECURITY,
+  AFENDA_GOV_SECURITY_UI,
+  AFENDA_GOV_TENANT_CONTEXT,
+  AFENDA_GOV_THEMING,
+  AFENDA_GOV_VALIDATION,
+  XFORGE_GOV_SERVER_FIRST_UI,
+} from "../catalogs/governance-reference.catalog";
 
 const HYDRATION = "hydration" as const;
 const ERROR = "error" as const;
@@ -24,7 +46,7 @@ export const AFENDA_HYDRATION_RULES = [
       "Rendered markup must be deterministic between server render and client hydration.",
     remediation:
       "Move browser-only or time-varying values into effects, stable server data, or deterministic id primitives.",
-    references: ["AFENDA:hydration-contract", "React:hydration"],
+    references: [AFENDA_GOV_HYDRATION, "React:hydration"],
     enforcement: HYBRID,
   },
   {
@@ -45,9 +67,9 @@ export const AFENDA_HYDRATION_RULES = [
     remediation:
       "Read browser state after hydration or provide a server-derived initial value that matches the client contract.",
     references: [
-      "AFENDA:hydration-contract",
-      "AFENDA:performance-contract",
-      "XFORGE:server-first-ui",
+      AFENDA_GOV_HYDRATION,
+      AFENDA_GOV_PERFORMANCE,
+      XFORGE_GOV_SERVER_FIRST_UI,
     ],
     enforcement: STATIC,
   },
@@ -64,9 +86,9 @@ export const AFENDA_HYDRATION_RULES = [
     remediation:
       "Keep static route shells server-rendered and move client boundaries down to the smallest interactive component.",
     references: [
-      "AFENDA:hydration-contract",
-      "AFENDA:performance-contract",
-      "XFORGE:server-first-ui",
+      AFENDA_GOV_HYDRATION,
+      AFENDA_GOV_PERFORMANCE,
+      XFORGE_GOV_SERVER_FIRST_UI,
     ],
     enforcement: HYBRID,
   },
@@ -82,10 +104,10 @@ export const AFENDA_HYDRATION_RULES = [
     remediation:
       "Serialize a signed or schema-validated execution context snapshot and revalidate scope before enabling scoped actions.",
     references: [
-      "AFENDA:hydration-contract",
-      "AFENDA:execution-context-contract",
-      "AFENDA:tenant-context-contract",
-      "AFENDA:permission-contract",
+      AFENDA_GOV_HYDRATION,
+      AFENDA_GOV_EXECUTION_CONTEXT,
+      AFENDA_GOV_TENANT_CONTEXT,
+      AFENDA_GOV_PERMISSION,
     ],
     enforcement: HYBRID,
   },
@@ -101,10 +123,10 @@ export const AFENDA_HYDRATION_RULES = [
     remediation:
       "Gate privileged controls until session parity is confirmed and avoid rendering optimistic privileged actions from stale client state.",
     references: [
-      "AFENDA:hydration-contract",
-      "AFENDA:security-ui-contract",
-      "AFENDA:permission-contract",
-      "AFENDA:auth-contract",
+      AFENDA_GOV_HYDRATION,
+      AFENDA_GOV_SECURITY_UI,
+      AFENDA_GOV_PERMISSION,
+      AFENDA_GOV_AUTH,
     ],
     enforcement: HYBRID,
   },
@@ -121,9 +143,9 @@ export const AFENDA_HYDRATION_RULES = [
     remediation:
       "Resolve theme from server-readable state or deterministic bootstrap data and keep client defaults aligned.",
     references: [
-      "AFENDA:hydration-contract",
-      "AFENDA:theming-contract",
-      "AFENDA:tenant-context-contract",
+      AFENDA_GOV_HYDRATION,
+      AFENDA_GOV_THEMING,
+      AFENDA_GOV_TENANT_CONTEXT,
     ],
     enforcement: HYBRID,
   },
@@ -140,9 +162,9 @@ export const AFENDA_HYDRATION_RULES = [
     remediation:
       "Resolve locale from the route or execution context and pass the same locale/timezone into server and client formatting.",
     references: [
-      "AFENDA:hydration-contract",
-      "AFENDA:locale-contract",
-      "AFENDA:route-state-contract",
+      AFENDA_GOV_HYDRATION,
+      AFENDA_GOV_LOCALE,
+      AFENDA_GOV_ROUTE_STATE,
     ],
     enforcement: HYBRID,
   },
@@ -158,9 +180,9 @@ export const AFENDA_HYDRATION_RULES = [
     remediation:
       "Parse route state once through approved schema helpers and pass normalized initial state to client islands.",
     references: [
-      "AFENDA:hydration-contract",
-      "AFENDA:route-state-contract",
-      "AFENDA:data-display-contract",
+      AFENDA_GOV_HYDRATION,
+      AFENDA_GOV_ROUTE_STATE,
+      AFENDA_GOV_DATA_DISPLAY,
     ],
     enforcement: HYBRID,
   },
@@ -176,9 +198,9 @@ export const AFENDA_HYDRATION_RULES = [
     remediation:
       "Bootstrap client stores from serialized route/execution state and clear scoped stores when tenant/company changes.",
     references: [
-      "AFENDA:hydration-contract",
-      "AFENDA:route-state-contract",
-      "AFENDA:tenant-context-contract",
+      AFENDA_GOV_HYDRATION,
+      AFENDA_GOV_ROUTE_STATE,
+      AFENDA_GOV_TENANT_CONTEXT,
     ],
     enforcement: HYBRID,
   },
@@ -195,8 +217,8 @@ export const AFENDA_HYDRATION_RULES = [
     remediation:
       "Add onChange for controlled inputs, mark readonly values readOnly, or switch initial values to defaultValue.",
     references: [
-      "AFENDA:hydration-contract",
-      "AFENDA:forms-contract",
+      AFENDA_GOV_HYDRATION,
+      AFENDA_GOV_FORMS,
       "React:controlled-inputs",
     ],
     enforcement: STATIC,
@@ -213,10 +235,10 @@ export const AFENDA_HYDRATION_RULES = [
     remediation:
       "Use shared schemas, serialize normalized defaults, and revalidate permission/scope before mutation execution.",
     references: [
-      "AFENDA:hydration-contract",
-      "AFENDA:forms-contract",
-      "AFENDA:mutation-contract",
-      "AFENDA:validation-contract",
+      AFENDA_GOV_HYDRATION,
+      AFENDA_GOV_FORMS,
+      AFENDA_GOV_MUTATION,
+      AFENDA_GOV_VALIDATION,
     ],
     enforcement: HYBRID,
   },
@@ -232,9 +254,9 @@ export const AFENDA_HYDRATION_RULES = [
     remediation:
       "Use stable skeleton dimensions, deterministic fallback structure, and avoid autofocus or focus stealing after hydration.",
     references: [
-      "AFENDA:hydration-contract",
-      "AFENDA:layout-contract",
-      "AFENDA:focus-contract",
+      AFENDA_GOV_HYDRATION,
+      AFENDA_GOV_LAYOUT,
+      AFENDA_GOV_FOCUS,
       "CoreWebVitals:CLS",
     ],
     enforcement: HYBRID,
@@ -251,9 +273,9 @@ export const AFENDA_HYDRATION_RULES = [
     remediation:
       "Load third-party scripts after hydration, isolate them in containers, or render them only inside approved client islands.",
     references: [
-      "AFENDA:hydration-contract",
-      "AFENDA:security-ui-contract",
-      "AFENDA:performance-contract",
+      AFENDA_GOV_HYDRATION,
+      AFENDA_GOV_SECURITY_UI,
+      AFENDA_GOV_PERFORMANCE,
     ],
     enforcement: HYBRID,
   },
@@ -269,7 +291,7 @@ export const AFENDA_HYDRATION_RULES = [
       "Hydration warning suppression must be narrow, documented, and limited to intentionally non-deterministic leaf text.",
     remediation:
       "Remove broad suppression, make markup deterministic, or document the exact leaf mismatch and recovery behavior.",
-    references: ["AFENDA:hydration-contract", "React:hydration"],
+    references: [AFENDA_GOV_HYDRATION, "React:hydration"],
     enforcement: HYBRID,
   },
   {
@@ -284,9 +306,9 @@ export const AFENDA_HYDRATION_RULES = [
     remediation:
       "Capture hydration recovery errors, boundary name, route, feature id, tenant/company scope, and correlation id.",
     references: [
-      "AFENDA:hydration-contract",
-      "AFENDA:observability-contract",
-      "AFENDA:runtime-diagnostics-contract",
+      AFENDA_GOV_HYDRATION,
+      AFENDA_GOV_OBSERVABILITY,
+      AFENDA_GOV_RUNTIME_DIAGNOSTICS,
     ],
     enforcement: HYBRID,
   },

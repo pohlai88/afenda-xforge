@@ -1,4 +1,23 @@
 import type { AfendaRuntimeRule } from "../runtime-reference.contract";
+import {
+  AFENDA_GOV_ACCESSIBILITY,
+  AFENDA_GOV_ASSET_GOVERNANCE,
+  AFENDA_GOV_AUDIT,
+  AFENDA_GOV_DATA_DISPLAY,
+  AFENDA_GOV_DESIGN_SYSTEM,
+  AFENDA_GOV_FEEDBACK,
+  AFENDA_GOV_IMAGE,
+  AFENDA_GOV_MOTION,
+  AFENDA_GOV_PERFORMANCE,
+  AFENDA_GOV_PERMISSION,
+  AFENDA_GOV_PRIVACY,
+  AFENDA_GOV_SECURITY,
+  AFENDA_GOV_SECURITY_UI,
+  AFENDA_GOV_TENANT_CONTEXT,
+  AFENDA_GOV_THEMING,
+  AFENDA_GOV_TYPOGRAPHY,
+  AFENDA_GOV_UPLOAD,
+} from "../catalogs/governance-reference.catalog";
 
 const IMAGES = "images" as const;
 const ERROR = "error" as const;
@@ -18,7 +37,7 @@ export const AFENDA_IMAGES_RULES = [
       "Images must reserve stable dimensions before loading.",
     remediation:
       "Provide width and height, aspect-ratio, or a stable reserved container for every non-background image.",
-    references: ["AFENDA:image-contract", "CoreWebVitals:CLS"],
+    references: [AFENDA_GOV_IMAGE, "CoreWebVitals:CLS"],
     enforcement: STATIC,
   },
   {
@@ -32,7 +51,7 @@ export const AFENDA_IMAGES_RULES = [
       "Meaningful images must expose useful alternative text and decorative images must use empty alt text.",
     remediation:
       "Add meaningful alt text for informative images or alt=\"\" for decorative images.",
-    references: ["AFENDA:image-contract", "WCAG:1.1.1"],
+    references: [AFENDA_GOV_IMAGE, "WCAG:1.1.1"],
     enforcement: STATIC,
   },
   {
@@ -47,8 +66,8 @@ export const AFENDA_IMAGES_RULES = [
     remediation:
       "Use alt=\"\", aria-hidden=\"true\", or CSS background imagery for decorative-only assets.",
     references: [
-      "AFENDA:image-contract",
-      "AFENDA:accessibility-contract",
+      AFENDA_GOV_IMAGE,
+      AFENDA_GOV_ACCESSIBILITY,
       "WCAG:1.1.1",
     ],
     enforcement: STATIC,
@@ -65,7 +84,7 @@ export const AFENDA_IMAGES_RULES = [
       "Meaningful product text must not exist only inside raster image assets.",
     remediation:
       "Render text as HTML/CSS and keep images decorative or supplemental.",
-    references: ["AFENDA:image-contract", "AFENDA:typography-contract", "WCAG:1.4.5"],
+    references: [AFENDA_GOV_IMAGE, AFENDA_GOV_TYPOGRAPHY, "WCAG:1.4.5"],
     enforcement: HYBRID,
   },
   {
@@ -79,7 +98,7 @@ export const AFENDA_IMAGES_RULES = [
       "Responsive images must provide appropriate source sizes for the rendered viewport and density.",
     remediation:
       "Use responsive image primitives, sizes/srcset, and avoid serving desktop-size assets to constrained layouts.",
-    references: ["AFENDA:image-contract", "AFENDA:performance-contract", "CoreWebVitals:LCP"],
+    references: [AFENDA_GOV_IMAGE, AFENDA_GOV_PERFORMANCE, "CoreWebVitals:LCP"],
     enforcement: HYBRID,
   },
   {
@@ -93,7 +112,7 @@ export const AFENDA_IMAGES_RULES = [
       "Image loading priority must match visual criticality and viewport position.",
     remediation:
       "Prioritize the primary above-the-fold image and lazy-load noncritical or below-the-fold images.",
-    references: ["AFENDA:image-contract", "CoreWebVitals:LCP"],
+    references: [AFENDA_GOV_IMAGE, "CoreWebVitals:LCP"],
     enforcement: HYBRID,
   },
   {
@@ -107,7 +126,7 @@ export const AFENDA_IMAGES_RULES = [
       "Image assets should use efficient formats and compression appropriate to their purpose.",
     remediation:
       "Use optimized formats such as WebP or AVIF where supported, compress assets, and avoid shipping oversized originals.",
-    references: ["AFENDA:image-contract", "AFENDA:performance-contract"],
+    references: [AFENDA_GOV_IMAGE, AFENDA_GOV_PERFORMANCE],
     enforcement: HYBRID,
   },
   {
@@ -122,7 +141,7 @@ export const AFENDA_IMAGES_RULES = [
       "Remote image sources must be validated and constrained to approved protocols and domains.",
     remediation:
       "Use an allowlist for remote image domains, reject unsafe protocols, and proxy or sanitize untrusted integration images.",
-    references: ["AFENDA:image-contract", "AFENDA:security-ui-contract"],
+    references: [AFENDA_GOV_IMAGE, AFENDA_GOV_SECURITY_UI],
     enforcement: HYBRID,
   },
   {
@@ -137,10 +156,10 @@ export const AFENDA_IMAGES_RULES = [
     remediation:
       "Validate MIME type, dimensions, byte size, file signature, storage path, and strip unsafe metadata where required.",
     references: [
-      "AFENDA:image-contract",
-      "AFENDA:security-ui-contract",
-      "AFENDA:upload-contract",
-      "AFENDA:privacy-contract",
+      AFENDA_GOV_IMAGE,
+      AFENDA_GOV_SECURITY_UI,
+      AFENDA_GOV_UPLOAD,
+      AFENDA_GOV_PRIVACY,
     ],
     enforcement: HYBRID,
   },
@@ -156,10 +175,10 @@ export const AFENDA_IMAGES_RULES = [
     remediation:
       "Gate image previews by permission, avoid unauthorized thumbnails, and redact sensitive content where required.",
     references: [
-      "AFENDA:image-contract",
-      "AFENDA:permission-contract",
-      "AFENDA:audit-contract",
-      "AFENDA:security-ui-contract",
+      AFENDA_GOV_IMAGE,
+      AFENDA_GOV_PERMISSION,
+      AFENDA_GOV_AUDIT,
+      AFENDA_GOV_SECURITY_UI,
     ],
     enforcement: HYBRID,
   },
@@ -175,10 +194,10 @@ export const AFENDA_IMAGES_RULES = [
     remediation:
       "Use governed logo slots, validate image source, preserve active scope labels, and prevent tenant branding from replacing system authority indicators.",
     references: [
-      "AFENDA:image-contract",
-      "AFENDA:tenant-context-contract",
-      "AFENDA:security-ui-contract",
-      "AFENDA:theming-contract",
+      AFENDA_GOV_IMAGE,
+      AFENDA_GOV_TENANT_CONTEXT,
+      AFENDA_GOV_SECURITY_UI,
+      AFENDA_GOV_THEMING,
     ],
     enforcement: HYBRID,
   },
@@ -193,7 +212,7 @@ export const AFENDA_IMAGES_RULES = [
       "Avatars and logos must define stable fallback rendering when images fail or are absent.",
     remediation:
       "Use initials, governed placeholder icons, fallback backgrounds, and accessible labels for identity images.",
-    references: ["AFENDA:image-contract", "AFENDA:data-display-contract"],
+    references: [AFENDA_GOV_IMAGE, AFENDA_GOV_DATA_DISPLAY],
     enforcement: HYBRID,
   },
   {
@@ -208,9 +227,9 @@ export const AFENDA_IMAGES_RULES = [
     remediation:
       "Provide fallback summaries, downloadable source files, retry actions, or structured data alternatives.",
     references: [
-      "AFENDA:image-contract",
-      "AFENDA:feedback-contract",
-      "AFENDA:data-display-contract",
+      AFENDA_GOV_IMAGE,
+      AFENDA_GOV_FEEDBACK,
+      AFENDA_GOV_DATA_DISPLAY,
     ],
     enforcement: HYBRID,
   },
@@ -226,9 +245,9 @@ export const AFENDA_IMAGES_RULES = [
     remediation:
       "Provide static alternatives, pause controls, or avoid animation for operational UI.",
     references: [
-      "AFENDA:image-contract",
-      "AFENDA:motion-contract",
-      "AFENDA:accessibility-contract",
+      AFENDA_GOV_IMAGE,
+      AFENDA_GOV_MOTION,
+      AFENDA_GOV_ACCESSIBILITY,
       "WCAG:2.2.2",
     ],
     enforcement: HYBRID,
@@ -245,9 +264,9 @@ export const AFENDA_IMAGES_RULES = [
     remediation:
       "Register shared image assets through governed asset metadata instead of importing unmanaged files directly.",
     references: [
-      "AFENDA:image-contract",
-      "AFENDA:asset-governance-contract",
-      "AFENDA:design-system-contract",
+      AFENDA_GOV_IMAGE,
+      AFENDA_GOV_ASSET_GOVERNANCE,
+      AFENDA_GOV_DESIGN_SYSTEM,
     ],
     enforcement: HYBRID,
   },

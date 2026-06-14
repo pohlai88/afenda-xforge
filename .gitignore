@@ -17,6 +17,7 @@ storybook-static
 .biome-ai.json
 apps/email/.react-email/
 docs/runtime/
+apps/.cursor/*.log
 
 # Playwright
 **/test-results/
